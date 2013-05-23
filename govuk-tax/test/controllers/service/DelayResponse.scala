@@ -1,4 +1,4 @@
-package controller.service
+package controllers.service
 
 trait DelayResponse {
 

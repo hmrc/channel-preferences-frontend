@@ -1,4 +1,4 @@
-package controller.service
+package controllers.service
 
 import test.BaseSpec
 import controllers.service.{ TaxUserView, Auth, TaxUser }

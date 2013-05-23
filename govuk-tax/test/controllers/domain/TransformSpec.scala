@@ -1,4 +1,4 @@
-package controller.domain
+package controllers.domain
 
 import test.BaseSpec
 import java.net.URI

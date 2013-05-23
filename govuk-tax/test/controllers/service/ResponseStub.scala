@@ -1,4 +1,4 @@
-package controller.service
+package controllers.service
 
 import play.api.libs.ws.Response
 
