@@ -6,7 +6,7 @@ class Personal extends Controller with ActionWrappers {
 
   def home = AuthenticatedPersonAction { implicit request =>
     {
-      request.personUri
+      request.personId
       Ok("Hello")
     }
   }
