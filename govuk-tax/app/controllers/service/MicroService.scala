@@ -21,7 +21,7 @@ private object services {
 trait MicroService {
   val serviceUrl: String
 
-  def resource(uri: String) = WS.url(s"$serviceUrl/$uri")
+  def resource(uri: String) = WS.url(s"$serviceUrl$uri")
 }
 
 class Auth(override val serviceUrl: String = services.authServiceUrl) extends MicroService {
@@ -33,5 +33,5 @@ class Person(override val serviceUrl: String = services.personServiceUrl) extend
 class Company(override val serviceUrl: String = services.companyServiceUrl) extends MicroService
 
 class Saml(override val serviceUrl: String = services.samlServiceUrl) extends MicroService {
-  def samlFormData: Future[Response] = resource("/ida/saml").get
+  def samlFormData: Future[Response] = resource("/saml/create").get
 }

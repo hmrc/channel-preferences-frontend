@@ -31,10 +31,10 @@ trait ActionWrappers {
   import scala.concurrent.ExecutionContext.Implicits._
 
   object AuthenticatedPersonAction {
-    def apply(block: AuthenticatedPersonRequest[AnyContent] => PlainResult, samlForm: SamlForm = SamlForm()): Action[AnyContent] =
+    def apply(block: AuthenticatedPersonRequest[AnyContent] => AsyncResult, samlForm: SamlForm = SamlForm()): Action[AnyContent] =
       apply(BodyParsers.parse.anyContent, samlForm)(block)
 
-    def apply[A](bodyParser: BodyParser[A], samlForm: SamlForm)(handler: AuthenticatedPersonRequest[A] => PlainResult): Action[A] = new Action[A] {
+    def apply[A](bodyParser: BodyParser[A], samlForm: SamlForm)(handler: AuthenticatedPersonRequest[A] => AsyncResult): Action[A] = new Action[A] {
       def parser = bodyParser
 
       def apply(request: Request[A]): AsyncResult = Async {
