@@ -52,14 +52,15 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "return unauthorized if a company taxpayer is returned from the Auth service" in {
-      val pid = uuid.toString
+      val testUuid = UUID.randomUUID()
+      val pid = testUuid.toString
       val taxPayerUriUri = URI.create("/person/pid/" + pid)
       val taxUserView = TaxUserView(URI.create("/user/pid/" + pid), company = Option(URI.create("/company/cid/" + pid)))
       when(mockTaxUser.get(pid)).thenReturn(Future(taxUserView))
 
-      implicit val request = PersonRequest(Person(taxPayerUriUri), AuthenticatedRequest(uuid, FakeRequest()))
+      implicit val request = PersonRequest(Person(taxPayerUriUri), AuthenticatedRequest(testUuid, FakeRequest()))
 
-      val asyncResult = TestController.person(request).asInstanceOf[AsyncResult]
+      val asyncResult = new TestController(testUuid).person(request).asInstanceOf[AsyncResult]
       val result = await(asyncResult.result, 1)
       status(result) should equal(401)
     }
