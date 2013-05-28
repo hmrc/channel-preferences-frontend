@@ -28,7 +28,13 @@ class Auth(override val serviceUrl: String = services.authServiceUrl) extends Mi
   def taxUser(pid: String): Future[Response] = resource(s"/auth/pid/$pid").get()
 }
 
-class Person(override val serviceUrl: String = services.personServiceUrl) extends MicroService
+object Person extends MicroService {
+  override val serviceUrl = services.authServiceUrl
+  def person(nino: String): Future[Response] = {
+    val response = resource(s"/person/$nino").get
+    response
+  }
+}
 
 class Company(override val serviceUrl: String = services.companyServiceUrl) extends MicroService
 
