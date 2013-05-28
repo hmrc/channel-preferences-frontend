@@ -11,7 +11,7 @@ import org.mockito.Mockito._
 import scala.concurrent.Future
 import java.util.UUID
 
-class ActionWrappersSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
+class AuthenticatedActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
   import scala.concurrent.ExecutionContext.Implicits._
 
