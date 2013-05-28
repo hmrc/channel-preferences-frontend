@@ -19,9 +19,9 @@ class ActionWrappersSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   object SomeController extends Controller with ActionWrappers {
 
-    def home = AuthenticatedPersonAction(samlForm = mockSamlForm, block = { implicit request =>
+    def home = AuthenticatedAction(samlForm = mockSamlForm, block = { implicit request =>
       Async {
-        Future(Ok(request.personId.toString))
+        Future(Ok(request.uuid.toString))
       }
     })
   }
