@@ -3,10 +3,7 @@ package controllers
 import test.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
-import controllers.service.TaxUser
 import play.api.test.{ WithApplication, FakeRequest }
-import org.mockito.Mockito._
-import java.util.UUID
 import scala.concurrent.Future
 import java.net.URI
 import play.api.mvc._

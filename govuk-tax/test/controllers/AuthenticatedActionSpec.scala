@@ -9,7 +9,6 @@ import play.api.test.{ WithApplication, FakeApplication, FakeRequest }
 import play.api.test.Helpers._
 import org.mockito.Mockito._
 import scala.concurrent.Future
-import java.util.UUID
 import java.net.URI
 
 class AuthenticatedActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
