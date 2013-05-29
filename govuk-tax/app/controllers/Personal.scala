@@ -11,7 +11,7 @@ private[controllers] class Personal extends Controller with ActionWrappers {
   import scala.concurrent.ExecutionContext.Implicits._
 
   def home = AuthenticatedAction {
-    WithPersonData { implicit request =>
+    WithPersonalData { implicit request =>
       Async {
         val futureResponse = WS.url("http://localhost:8500" + request.person.uri).get()
         for {

@@ -19,16 +19,18 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   import scala.concurrent.ExecutionContext.Implicits._
 
-  private val uuid = UUID.randomUUID()
+  private val userId = URI.create("/auth/oid/132097423895")
 
-  private val mockTaxUser = mock[TaxUser]
+  private val personUri = URI.create("/person/pid/KIHEGKJHDSGKJSDF")
 
-  object TestController extends TestController(uuid)
+  private val taxUserView = TaxUserView(userId, Some(personUri))
 
-  class TestController(val uuid: UUID) extends Controller with ActionWrappers {
+  object TestController extends TestController(taxUserView)
 
-    def person = FakeAuthenticatingAction(uuid, handler = {
-      WithPersonData(mockTaxUser) { implicit request: PersonRequest[AnyContent] =>
+  class TestController(taxUserView: TaxUserView) extends Controller with ActionWrappers {
+
+    def person = FakeAuthenticatingAction(taxUserView, handler = {
+      WithPersonalData { implicit request: PersonRequest[AnyContent] =>
         Async {
           Future(Ok(request.person.uri.toString))
         }
@@ -36,14 +38,10 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     })
   }
 
-  "With Person Data" should {
-    "call the wrapped code if a personal taxpayer is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      val pid = uuid.toString
-      val personUri = URI.create("/person/pid/" + pid)
-      val taxUserView = TaxUserView(URI.create("/user/pid/" + pid), Option(personUri))
-      when(mockTaxUser.get(pid)).thenReturn(Future(taxUserView))
+  "With Personal Data" should {
+    "call the wrapped code if the tax user view contains a person uri" in new WithApplication(FakeApplication()) {
 
-      implicit val request = PersonRequest(Person(personUri), AuthenticatedRequest(uuid, FakeRequest()))
+      implicit val request = PersonRequest(Person(personUri), AuthenticatedRequest(taxUserView, FakeRequest()))
 
       val asyncResult = TestController.person(request).asInstanceOf[AsyncResult]
       val result = await(asyncResult.result, 1)
@@ -51,16 +49,12 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       contentAsString(result) should equal(personUri.toString)
     }
 
-    "return unauthorized if a company taxpayer is returned from the Auth service" in {
-      val testUuid = UUID.randomUUID()
-      val pid = testUuid.toString
-      val taxPayerUriUri = URI.create("/person/pid/" + pid)
-      val taxUserView = TaxUserView(URI.create("/user/pid/" + pid), company = Option(URI.create("/company/cid/" + pid)))
-      when(mockTaxUser.get(pid)).thenReturn(Future(taxUserView))
+    "return unauthorized if the tax user view does not contain a person uri" in {
+      val taxUserView = TaxUserView(userId, company = Option(URI.create("/company/cid/897324598273598")))
 
-      implicit val request = PersonRequest(Person(taxPayerUriUri), AuthenticatedRequest(testUuid, FakeRequest()))
+      implicit val request = AuthenticatedRequest(taxUserView, FakeRequest())
 
-      val asyncResult = new TestController(testUuid).person(request).asInstanceOf[AsyncResult]
+      val asyncResult = new TestController(taxUserView).person(request).asInstanceOf[AsyncResult]
       val result = await(asyncResult.result, 1)
       status(result) should equal(401)
     }
