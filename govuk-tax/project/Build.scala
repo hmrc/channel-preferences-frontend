@@ -52,8 +52,8 @@ object ApplicationBuild extends Build {
 
     object Compile {
       val nscalaTime = "com.github.nscala-time" %% "nscala-time" % "0.4.0"
-      val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.2"
-      val json4sExt = "org.json4s" %% "json4s-ext" % "3.2.2"
+      val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.4"
+      val json4sExt = "org.json4s" %% "json4s-ext" % "3.2.4"
     }
 
     object Test {
