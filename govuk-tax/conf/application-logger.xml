@@ -2,7 +2,7 @@
 <configuration>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/govuk-tax/govuk-tax-frontend.log</file>
+        <file>logs/govuk-tax-frontend.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%date{ISO8601} level=[%level] logger=[%logger] thread=[%thread] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
         </encoder>
@@ -15,7 +15,7 @@
     </appender>
 
     <appender name="ACCESS_LOG_FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/govuk-tax/govuk-tax-frontend-access.log</file>
+        <file>logs/access.log</file>
         <encoder>
             <pattern>%message%n</pattern>
         </encoder>
