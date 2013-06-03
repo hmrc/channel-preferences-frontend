@@ -1,6 +1,6 @@
 package controllers
 
-import play.api.mvc.{ Action, Controller }
+import play.api.mvc.{ AnyContent, Action, Controller }
 import play.api.libs.ws.WS
 import java.util.UUID
 
@@ -10,13 +10,13 @@ private[controllers] class Personal extends Controller with ActionWrappers {
 
   import scala.concurrent.ExecutionContext.Implicits._
 
-  def home = AuthenticatedAction {
-    WithPersonalData { implicit request =>
+  def home = StubAuthenticatedAction {
+    WithPersonalData[AnyContent] { implicit request =>
       Async {
-        val futureResponse = WS.url("http://localhost:8500" + request.personal.paye.get).get()
+        val futureResponse = WS.url("http://localhost:8500" + request.paye.get).get()
         for {
           response <- futureResponse
-        } yield (Ok("Hello " + request.personal.paye + " " + response.status))
+        } yield (Ok("Hello " + request.paye.get + " " + response.status))
       }
     }
   }

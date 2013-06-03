@@ -8,9 +8,15 @@ import scala.concurrent.Future
 import java.net.URI
 import play.api.mvc._
 import play.api.test.Helpers._
+import controllers.service._
+import controllers.service.AuthorityData
+import controllers.service.PayeData
 import play.api.mvc.AsyncResult
 import play.api.test.FakeApplication
-import controllers.service.{ BusinessData, PersonalData, AuthorityData }
+import controllers.service.BusinessData
+import scala.Some
+import controllers.service.PersonalData
+import org.mockito.Mockito.when
 
 class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -18,36 +24,41 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   private val userId = URI.create("/auth/oid/132097423895")
 
-  private val personUri = URI.create("/person/pid/KIHEGKJHDSGKJSDF")
+  private val payeUri = URI.create("/person/pid/KIHEGKJHDSGKJSDF")
 
-  private val authorityData = AuthorityData(userId.toString, Some(PersonalData(Some(personUri))), None)
+  private val authorityData = AuthorityData(userId.toString, Some(PersonalData(Some(payeUri), None)), None)
+
+  private val mockPersonalTax = mock[PersonalTax]
 
   object TestController extends TestController(authorityData)
 
   class TestController(authorityData: AuthorityData) extends Controller with ActionWrappers {
 
     def person = FakeAuthenticatingAction(authorityData, handler = {
-      WithPersonalData { implicit request: PersonalRequest[AnyContent] =>
+      WithPersonalData(personalTax = mockPersonalTax, handler = { implicit request: PersonalRequest[AnyContent] =>
         Async {
-          Future(Ok(request.personal.paye.get.toString))
+          Future(Ok(request.paye.get.employments.get.toString))
         }
-      }
+      })
     })
   }
 
   "With Personal Data" should {
     "call the wrapped code if the authority data contains personal data" in new WithApplication(FakeApplication()) {
+      val employmentsUri = URI.create("/paye/nino/094385029385/employments")
+      val payeData = PayeData(Some(employmentsUri))
+      when(mockPersonalTax.payeData(payeUri.toString)).thenReturn(Future(payeData))
 
-      implicit val request = PersonalRequest(PersonalData(Some(personUri)), AuthenticatedRequest(authorityData, FakeRequest()))
+      implicit val request = AuthenticatedRequest(authorityData, FakeRequest())
 
       val asyncResult = TestController.person(request).asInstanceOf[AsyncResult]
       val result = await(asyncResult.result, 1)
       status(result) should equal(200)
-      contentAsString(result) should equal(personUri.toString)
+      contentAsString(result) should equal(employmentsUri.toString)
     }
 
     "return unauthorized if the authority data does not contain personal data" in {
-      val authorityData = AuthorityData(userId.toString, None, Some(BusinessData(Some(URI.create("/paye/id/234234")))))
+      val authorityData = AuthorityData(userId.toString, None, Some(BusinessData(Some(URI.create("/paye/id/234234")), None, None)))
 
       implicit val request = AuthenticatedRequest(authorityData, FakeRequest())
 

@@ -60,15 +60,15 @@ class AuthenticatedActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       )
     ) {
       val id = "/auth/oid/9345092835029385"
-      val personUri = URI.create("/user/uid/KUHFKUGEFKUEGH")
+      val payeUri = URI.create("/user/uid/KUHFKUGEFKUEGH")
 
-      val authorityData = AuthorityData(id, Some(PersonalData(Some(personUri))), None)
+      val authorityData = AuthorityData(id, Some(PersonalData(Some(payeUri), None)), None)
       when(mockAuthority.get(id)).thenReturn(Future(authorityData))
 
       val asyncResult = SomeController.home(FakeRequest().withSession(("id", id))).asInstanceOf[AsyncResult]
       val result = await(asyncResult.result, 1)
       status(result) should equal(200)
-      contentAsString(result) should equal(personUri.toString)
+      contentAsString(result) should equal(payeUri.toString)
     }
   }
 }
