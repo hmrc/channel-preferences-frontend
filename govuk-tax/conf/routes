@@ -5,8 +5,6 @@
 # Landing page
 GET     /                           controllers.Application.index
 
-GET     /home                       controllers.Application.home
-
 # IDA Authentication
 GET     /ida                        controllers.Saml.create
 POST    /ida                        controllers.Saml.validate

@@ -1,5 +1,8 @@
+@(employments: controllers.service.Employments)
 @main(title = "Your tax home") {
 
     <h2>Welcome, taxpayer</h2>
+
+    @employments.employments
 
 }
