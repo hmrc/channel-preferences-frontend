@@ -7,6 +7,7 @@ import views.html.saml_auth_form
 import controllers.service.AuthorityData
 import play.api.mvc.AsyncResult
 import scala.Some
+import java.net.URI
 
 case class AuthenticatedRequest[A](
   authority: AuthorityData, private val request: Request[A]) extends WrappedRequest(request)
@@ -40,6 +41,20 @@ trait ActionWrappers {
             }
           }
         }
+      }
+    }
+  }
+
+  object StubAuthenticationAction {
+    def apply(handler: AuthenticatedRequest[AnyContent] => AsyncResult): Action[AnyContent] =
+      apply(BodyParsers.parse.anyContent)(handler)
+
+    def apply[A](bodyParser: BodyParser[A])(handler: AuthenticatedRequest[A] => AsyncResult): Action[A] = new Action[A] {
+      def parser = bodyParser
+
+      def apply(request: Request[A]): AsyncResult = Async {
+        Future(handler(AuthenticatedRequest(AuthorityData("/auth/oid/09809809809",
+          Some(PersonalData(Some(URI.create("/personal/pid/65732682375")))), None), request)))
       }
     }
   }
