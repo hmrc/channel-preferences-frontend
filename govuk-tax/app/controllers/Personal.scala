@@ -13,16 +13,16 @@ private[controllers] class Personal extends Controller with ActionWrappers {
   def home = AuthenticatedAction {
     WithPersonalData { implicit request =>
       Async {
-        val futureResponse = WS.url("http://localhost:8500" + request.person.uri).get()
+        val futureResponse = WS.url("http://localhost:8500" + request.personal.paye.get).get()
         for {
           response <- futureResponse
-        } yield (Ok("Hello " + request.person.uri + " " + response.status))
+        } yield (Ok("Hello " + request.personal.paye + " " + response.status))
       }
     }
   }
 
   def test = Action {
-    val uuid = UUID.randomUUID().toString
-    Ok(s"Hello, you're now logged in (with id '$uuid')").withSession(("id", uuid))
+    val uri = "/auth/oid/" + UUID.randomUUID().toString
+    Ok(s"Hello, you're now logged in (with id '$uri')").withSession(("id", uri))
   }
 }

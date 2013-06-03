@@ -1,22 +1,18 @@
 package controllers
 
 import play.api.mvc._
-import java.net.URI
 import scala.concurrent.Future
-import controllers.service.{ TaxUser, SamlForm }
+import controllers.service._
 import views.html.saml_auth_form
+import controllers.service.AuthorityData
 import play.api.mvc.AsyncResult
 import scala.Some
-import controllers.service.TaxUserView
 
 case class AuthenticatedRequest[A](
-  taxUserView: TaxUserView, private val request: Request[A]) extends WrappedRequest(request)
+  authority: AuthorityData, private val request: Request[A]) extends WrappedRequest(request)
 
-// temporary class - this should be replaced with the object representing the personal service root object
-case class Person(uri: URI)
-
-case class PersonRequest[A](
-  person: Person, private val request: AuthenticatedRequest[A]) extends WrappedRequest(request)
+case class PersonalRequest[A](
+  personal: PersonalData, private val request: AuthenticatedRequest[A]) extends WrappedRequest(request)
 
 trait ActionWrappers {
 
@@ -25,17 +21,17 @@ trait ActionWrappers {
   import scala.concurrent.ExecutionContext.Implicits._
 
   object AuthenticatedAction {
-    def apply(handler: AuthenticatedRequest[AnyContent] => AsyncResult, samlForm: SamlForm = SamlForm(), taxUser: TaxUser = TaxUser()): Action[AnyContent] =
-      apply(BodyParsers.parse.anyContent, samlForm, taxUser)(handler)
+    def apply(handler: AuthenticatedRequest[AnyContent] => AsyncResult, samlForm: SamlForm = SamlForm(), authority: Authority = new Authority()): Action[AnyContent] =
+      apply(BodyParsers.parse.anyContent, samlForm, authority)(handler)
 
-    def apply[A](bodyParser: BodyParser[A], samlForm: SamlForm, taxUser: TaxUser)(handler: AuthenticatedRequest[A] => AsyncResult): Action[A] = new Action[A] {
+    def apply[A](bodyParser: BodyParser[A], samlForm: SamlForm, authority: Authority)(handler: AuthenticatedRequest[A] => AsyncResult): Action[A] = new Action[A] {
       def parser = bodyParser
 
       def apply(request: Request[A]): AsyncResult = Async {
         request.session.get("id") match {
           case Some(id) => {
-            taxUser.get(id) map { user =>
-              handler(AuthenticatedRequest(user, request))
+            authority.get(id) map { authority =>
+              handler(AuthenticatedRequest(authority, request))
             }
           }
           case None => {
@@ -49,10 +45,10 @@ trait ActionWrappers {
   }
 
   object WithPersonalData {
-    def apply[A](handler: PersonRequest[A] => AsyncResult): (AuthenticatedRequest[A]) => AsyncResult = (request: AuthenticatedRequest[A]) => {
+    def apply[A](handler: PersonalRequest[A] => AsyncResult): (AuthenticatedRequest[A]) => AsyncResult = (request: AuthenticatedRequest[A]) => {
       Async {
-        request.taxUserView.person match {
-          case Some(uri) => Future(handler(PersonRequest(Person(uri), request)))
+        request.authority.personal match {
+          case Some(personalData) => Future(handler(PersonalRequest(personalData, request)))
           case _ => Future(self.Unauthorized("Not allowed here"))
         }
       }

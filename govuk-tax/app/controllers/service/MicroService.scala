@@ -25,15 +25,12 @@ trait MicroService {
 }
 
 class Auth(override val serviceUrl: String = services.authServiceUrl) extends MicroService {
-  def taxUser(pid: String): Future[Response] = resource(s"/auth/pid/$pid").get()
+  def authority(uri: String): Future[Response] = resource(uri).get()
 }
 
 object Person extends MicroService {
   override val serviceUrl = services.authServiceUrl
-  def person(nino: String): Future[Response] = {
-    val response = resource(s"/person/$nino").get
-    response
-  }
+  def person(nino: String): Future[Response] = resource(s"/person/$nino").get
 }
 
 class Company(override val serviceUrl: String = services.companyServiceUrl) extends MicroService

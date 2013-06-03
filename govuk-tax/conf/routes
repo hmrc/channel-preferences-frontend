@@ -17,7 +17,5 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # JSON response
 
-GET     /payments/:pid              controllers.Payments.outstanding(pid)
-
 GET     /personal                   controllers.Personal.home
 GET     /test-personal             controllers.Personal.test

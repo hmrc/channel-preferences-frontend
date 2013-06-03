@@ -1,7 +1,6 @@
 package controllers
 
 import play.api.mvc._
-import controllers.service.{ TaxUser, Person }
 
 object Application extends BaseController {
 
@@ -11,10 +10,6 @@ object Application extends BaseController {
 
   def home = Action {
     Ok(views.html.home())
-  }
-
-  def WithUserData[A](action: TaxUser => Action[A]): Action[A] = {
-    null
   }
 
 }
