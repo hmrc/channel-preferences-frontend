@@ -8,6 +8,7 @@ import controllers.service.AuthorityData
 import play.api.mvc.AsyncResult
 import scala.Some
 import java.net.URI
+import play.api.Logger
 
 case class AuthenticatedRequest[A](
   authority: AuthorityData, private val request: Request[A]) extends WrappedRequest(request)
@@ -54,7 +55,7 @@ trait ActionWrappers {
 
       def apply(request: Request[A]): AsyncResult = {
         handler(AuthenticatedRequest(AuthorityData("/auth/oid/09809809809",
-          Some(PersonalData(Some(URI.create("/personal/pid/65732682375")), None)), None), request))
+          Some(PersonalData(Some(URI.create("/personal/paye/PP000007A")), None)), None), request))
       }
     }
   }
@@ -62,6 +63,7 @@ trait ActionWrappers {
   object WithPersonalData {
     def apply[A](handler: PersonalRequest[A] => AsyncResult, personalTax: PersonalTax = new PersonalTax()): (AuthenticatedRequest[A]) => AsyncResult = (request: AuthenticatedRequest[A]) => {
       Async {
+        Logger.debug(s"Handling request $request")
         request.authority match {
           case AuthorityData(_, Some(PersonalData(Some(paye), None)), None) => {
             personalTax.payeData(paye.toString) map { result => handler(PersonalRequest(Some(result), None, request)) }

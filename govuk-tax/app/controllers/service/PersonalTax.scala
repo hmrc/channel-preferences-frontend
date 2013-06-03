@@ -2,7 +2,7 @@ package controllers.service
 
 import java.net.URI
 
-case class PayeData(employments: Option[URI])
+case class PayeData(firstName: String)
 
 case class EmploymentData(name: String)
 

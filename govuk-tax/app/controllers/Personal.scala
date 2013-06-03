@@ -3,6 +3,7 @@ package controllers
 import play.api.mvc.{ AnyContent, Action, Controller }
 import java.util.UUID
 import controllers.service.PersonalTax
+import scala.concurrent.Future
 
 object Personal extends Personal(new PersonalTax())
 
@@ -13,10 +14,7 @@ private[controllers] class Personal(personalTax: PersonalTax) extends Controller
   def home = StubAuthenticatedAction {
     WithPersonalData[AnyContent] { implicit request =>
       Async {
-        val employmentsFuture = personalTax.employments(request.paye.get.employments.get.toString)
-        for {
-          employments <- employmentsFuture
-        } yield (Ok(views.html.home(employments)))
+        Future(Ok(views.html.home(request.paye.get.firstName)))
       }
     }
   }

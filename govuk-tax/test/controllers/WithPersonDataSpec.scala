@@ -37,7 +37,7 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     def person = FakeAuthenticatingAction(authorityData, handler = {
       WithPersonalData(personalTax = mockPersonalTax, handler = { implicit request: PersonalRequest[AnyContent] =>
         Async {
-          Future(Ok(request.paye.get.employments.get.toString))
+          Future(Ok(request.paye.get.firstName))
         }
       })
     })
@@ -45,8 +45,8 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   "With Personal Data" should {
     "call the wrapped code if the authority data contains personal data" in new WithApplication(FakeApplication()) {
-      val employmentsUri = URI.create("/paye/nino/094385029385/employments")
-      val payeData = PayeData(Some(employmentsUri))
+      val firstName = "John"
+      val payeData = PayeData(firstName)
       when(mockPersonalTax.payeData(payeUri.toString)).thenReturn(Future(payeData))
 
       implicit val request = AuthenticatedRequest(authorityData, FakeRequest())
@@ -54,7 +54,7 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       val asyncResult = TestController.person(request).asInstanceOf[AsyncResult]
       val result = await(asyncResult.result, 1)
       status(result) should equal(200)
-      contentAsString(result) should equal(employmentsUri.toString)
+      contentAsString(result) should equal(firstName)
     }
 
     "return unauthorized if the authority data does not contain personal data" in {

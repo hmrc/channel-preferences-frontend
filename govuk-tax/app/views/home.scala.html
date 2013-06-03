@@ -1,8 +1,7 @@
-@(employments: controllers.service.Employments)
+@(firstName: String)
 @main(title = "Your tax home") {
 
-    <h2>Welcome, taxpayer</h2>
+    <h2>Welcome, @firstName</h2>
 
-    @employments.employments
 
 }
