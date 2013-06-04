@@ -4,6 +4,7 @@ import play.api.mvc.{ AnyContent, Action, Controller }
 import java.util.UUID
 import controllers.service.PersonalTax
 import scala.concurrent.Future
+import java.net.URI
 
 object Personal extends Personal(new PersonalTax())
 
@@ -14,7 +15,22 @@ private[controllers] class Personal(personalTax: PersonalTax) extends Controller
   def home = StubAuthenticatedAction {
     WithPersonalData[AnyContent] { implicit request =>
       Async {
-        Future(Ok(views.html.home(request.paye.get.firstName)))
+
+        val benefitsOption: Option[URI] = request.paye.get.links.get("benefits")
+
+        Future(Ok(views.html.home(request.paye.get.firstName, benefitsOption.isDefined)))
+
+        //        val benefitsFuture = benefitsOption match {
+        //          case Some(uri) => personalTax.benefits(uri.toString)
+        //          case None => Future(None)
+        //        }
+        //
+        //        for {
+        //
+        //          benefits <- benefitsFuture
+        //
+        //        } yield (Ok(views.html.home(request.paye.get.firstName, benefitsOption.isDefined)))
+        //        null
       }
     }
   }

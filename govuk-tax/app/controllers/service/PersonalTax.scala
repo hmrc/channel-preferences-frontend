@@ -2,11 +2,13 @@ package controllers.service
 
 import java.net.URI
 
-case class PayeData(firstName: String)
+case class PayeData(nino: String, firstName: String, lastName: String, links: Map[String, URI])
 
 case class EmploymentData(name: String)
 
 case class Employments(employments: List[EmploymentData])
+
+case class Benefits()
 
 case class SelfAssessmentData(returns: Option[URI])
 
@@ -21,5 +23,7 @@ class PersonalTax(val personal: Personal = new Personal()) extends ResponseHandl
   def saData(uri: String): Future[SelfAssessmentData] = response[SelfAssessmentData](personal.resource(uri).get)
 
   def employments(uri: String): Future[Employments] = response[Employments](personal.resource(uri).get)
+
+  def benefits(uri: String): Future[Benefits] = response[Benefits](personal.resource(uri).get)
 }
 

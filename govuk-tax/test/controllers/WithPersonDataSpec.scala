@@ -4,7 +4,7 @@ import test.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ WithApplication, FakeRequest }
-import scala.concurrent.Future
+import scala.concurrent.{ Promise, Future }
 import java.net.URI
 import play.api.mvc._
 import play.api.test.Helpers._
@@ -17,6 +17,7 @@ import controllers.service.BusinessData
 import scala.Some
 import controllers.service.PersonalData
 import org.mockito.Mockito.when
+import scala.util.{ Success, Try }
 
 class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -32,6 +33,15 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   object TestController extends TestController(authorityData)
 
+  def sendRequest(payeData: PayeData) = {
+
+    when(mockPersonalTax.payeData(payeUri.toString)).thenReturn(Future(payeData))
+    implicit val request = AuthenticatedRequest(authorityData, FakeRequest())
+
+    val asyncResult = TestController.person(request).asInstanceOf[AsyncResult]
+    await(asyncResult.result, 1)
+  }
+
   class TestController(authorityData: AuthorityData) extends Controller with ActionWrappers {
 
     def person = FakeAuthenticatingAction(authorityData, handler = {
@@ -46,15 +56,26 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   "With Personal Data" should {
     "call the wrapped code if the authority data contains personal data" in new WithApplication(FakeApplication()) {
       val firstName = "John"
-      val payeData = PayeData(firstName)
-      when(mockPersonalTax.payeData(payeUri.toString)).thenReturn(Future(payeData))
 
-      implicit val request = AuthenticatedRequest(authorityData, FakeRequest())
+      val payeData = PayeData("A12345678A", firstName, "Smith", Map[String, URI]())
+      val result = sendRequest(payeData)
 
-      val asyncResult = TestController.person(request).asInstanceOf[AsyncResult]
-      val result = await(asyncResult.result, 1)
       status(result) should equal(200)
       contentAsString(result) should equal(firstName)
+    }
+
+    "return the uri to get the benefits" in {
+      val payeData = PayeData("A12345678A", "John", "Smith", Map[String, URI]("benefits" -> URI.create(s"/personal/paye/A12345678A/benefits")))
+      val result = sendRequest(payeData)
+      //      val ar = result.asInstanceOf[AsyncResult]
+      //
+      //      ar.result onComplete {
+      //        case Success(AsyncResult(p)) => println(p.)
+      //      }
+      val promise: Future[Result] = result.asInstanceOf[AsyncResult].result
+
+      promise.map(r => println(r))
+
     }
 
     "return unauthorized if the authority data does not contain personal data" in {
@@ -67,4 +88,5 @@ class WithPersonDataSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) should equal(401)
     }
   }
+
 }
