@@ -16,4 +16,4 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # JSON response
 
 GET     /personal                   controllers.Personal.home
-GET     /test-personal             controllers.Personal.test
+GET     /test-personal              controllers.Personal.test
