@@ -1,7 +1,7 @@
 package controllers.service
 
 import microservice.auth.AuthMicroService
-import microservice.personaltax.PayeMicroService
+import microservice.paye.PayeMicroService
 
 trait MicroServices {
 

@@ -7,7 +7,7 @@ import play.api.mvc.{ AsyncResult, Controller }
 import scala.concurrent.Future
 import controllers.domain.{ PayeDesignatoryDetails, PayeRoot, PayeRegime }
 import microservice.auth.AuthMicroService
-import microservice.personaltax.PayeMicroService
+import microservice.paye.PayeMicroService
 import org.mockito.Mockito.when
 import microservice.auth.domain.MatsUserAuthority
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }

@@ -6,11 +6,10 @@ import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication, FakeApplication }
 import microservices.MockMicroServicesForTests
 import microservice.auth.AuthMicroService
-import microservice.personaltax.PayeMicroService
+import microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import microservice.auth.domain.MatsUserAuthority
 import controllers.domain.{ PayeDesignatoryDetails, PayeRoot }
-import play.api.mvc.AsyncResult
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -38,9 +37,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   "Paye controller" should {
     "display name for john densmore" in new WithApplication(FakeApplication()) {
       val home = payeController.home
-      val asyncResult = home(FakeRequest()).asInstanceOf[AsyncResult]
-
-      val result = await(asyncResult.result, 1)
+      val result = home(FakeRequest())
 
       status(result) should be(200)
       contentAsString(result) should be("John Densmore")

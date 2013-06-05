@@ -3,31 +3,36 @@ package microservice
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import play.api.libs.ws.{ Response, WS }
-import java.net.URI
 import play.api.http.Status
 import controllers.domain.Transform._
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ Await, ExecutionContext }
 import ExecutionContext.Implicits.global
 import play.api.{ Logger, Play }
+import scala.concurrent.Future
+import controllers.domain.RegimeRoot
+
+trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
+  def root(uri: String): A
+}
 
 trait MicroService extends Status {
 
-  val serviceUrl: String
-  val success = Statuses(OK to MULTI_STATUS)
+  protected val serviceUrl: String
+  protected val success = Statuses(OK to MULTI_STATUS)
   protected val defaultTimeoutDuration = Duration(5, TimeUnit.SECONDS)
 
-  def httpResource(uri: String) = {
+  protected def httpResource(uri: String) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri")
   }
 
-  import scala.concurrent.Future
-
-  case class Statuses(r: Range) {
+  protected case class Statuses(r: Range) {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[A] = {
+  protected def get[A](uri: String)(implicit m: Manifest[A]): A = Await.result(response[A](httpResource(uri).get), defaultTimeoutDuration)
+
+  protected def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[A] = {
     futureResponse map {
       res =>
         res.status match {
