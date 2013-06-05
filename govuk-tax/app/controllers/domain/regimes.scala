@@ -11,9 +11,8 @@ case class PayeDesignatoryDetails(name: String)
 sealed abstract class RegimeRoot
 
 case class PayeRoot(designatoryDetails: PayeDesignatoryDetails,
-  links: Map[String, String]) extends RegimeRoot
-
-case class Personal(paye: PayeRoot)
+    links: Map[String, String]) extends RegimeRoot {
+}
 
 case class User(userAuthority: MatsUserAuthority,
   regime: RegimeRoots)
