@@ -8,7 +8,7 @@ case class EmploymentData(name: String)
 
 case class Employments(employments: List[EmploymentData])
 
-case class Benefits()
+case class Benefit(taxYear: String, grossAmount: Double)
 
 case class SelfAssessmentData(returns: Option[URI])
 
@@ -24,6 +24,6 @@ class PersonalTax(val personal: Personal = new Personal()) extends ResponseHandl
 
   def employments(uri: String): Future[Employments] = response[Employments](personal.resource(uri).get)
 
-  def benefits(uri: String): Future[Benefits] = response[Benefits](personal.resource(uri).get)
+  def benefits(uri: String): Future[List[Benefit]] = response[List[Benefit]](personal.resource(uri).get)
 }
 
