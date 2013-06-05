@@ -9,7 +9,7 @@ import scala.concurrent.{ Await, ExecutionContext }
 import ExecutionContext.Implicits.global
 import play.api.{ Logger, Play }
 import scala.concurrent.Future
-import controllers.domain.RegimeRoot
+import microservice.domain.RegimeRoot
 
 trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
   def root(uri: String): A

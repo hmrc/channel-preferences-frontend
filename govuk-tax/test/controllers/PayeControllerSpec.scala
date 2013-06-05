@@ -9,7 +9,7 @@ import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import microservice.auth.domain.UserAuthority
-import controllers.domain.{ PayeDesignatoryDetails, PayeRoot }
+import microservice.paye.domain.{ PayeRoot, PayeDesignatoryDetails }
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 

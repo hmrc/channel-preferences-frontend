@@ -1,8 +1,7 @@
 package microservice.paye
 
 import microservice.{ TaxRegimeMicroService, MicroServiceConfig }
-import controllers.domain.PayeRoot
-import microservice.paye.domain.TaxCode
+import microservice.paye.domain.{ PayeRoot, TaxCode }
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 

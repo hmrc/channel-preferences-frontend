@@ -2,9 +2,7 @@ package controllers
 
 import play.api.mvc._
 import controllers.service._
-import controllers.domain._
-import controllers.domain.User
-import controllers.domain.RegimeRoots
+import microservice.domain.{ RegimeRoots, TaxRegime, User }
 
 trait ActionWrappers extends MicroServices {
   self: Controller =>

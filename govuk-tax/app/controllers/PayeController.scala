@@ -1,6 +1,6 @@
 package controllers
 
-import controllers.domain.PayeRegime
+import microservice.paye.domain.PayeRegime
 
 object PayeController extends PayeController
 

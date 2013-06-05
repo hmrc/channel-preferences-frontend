@@ -5,7 +5,6 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.matchers.ShouldMatchers
 import play.api.mvc.{ AsyncResult, Controller }
 import scala.concurrent.Future
-import controllers.domain.{ PayeDesignatoryDetails, PayeRoot, PayeRegime }
 import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito.when
@@ -14,6 +13,7 @@ import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.Implicits._
 import microservices.MockMicroServicesForTests
+import microservice.paye.domain.{ PayeRegime, PayeDesignatoryDetails, PayeRoot }
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
