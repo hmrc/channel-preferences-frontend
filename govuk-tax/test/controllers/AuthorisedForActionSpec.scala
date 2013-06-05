@@ -36,7 +36,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     override val payeMicroService = mockPayeMicroService
   }
 
-  object TestController extends Controller with ActionWrappers {
+  object TestController extends Controller with ActionWrappers with MockMicroServicesForTest {
 
     def test = AuthorisedForAction[PayeRegime] {
       implicit user =>
