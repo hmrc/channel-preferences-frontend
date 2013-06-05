@@ -9,7 +9,7 @@ import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import microservice.auth.domain.UserAuthority
-import microservice.paye.domain.{ PayeRoot, PayeDesignatoryDetails }
+import microservice.paye.domain.{ TaxCode, PayeRoot, PayeDesignatoryDetails }
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -25,8 +25,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
       designatoryDetails = PayeDesignatoryDetails(name = "John Densmore"),
-      links = Map.empty
+      links = Map("taxCode" -> "/personal/paye/AB123456C/taxcode")
     )
+  )
+
+  when(mockPayeMicroService.taxCode("/personal/paye/AB123456C/taxcode")).thenReturn(
+    TaxCode("430L")
   )
 
   private val payeController = new PayeController with MockMicroServicesForTests {
@@ -41,6 +45,14 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
       status(result) should be(200)
       contentAsString(result) should be("John Densmore")
+    }
+
+    "display tax code for John Densmore" in new WithApplication(FakeApplication()) {
+      val taxCode = payeController.taxCode
+      val result = taxCode(FakeRequest())
+
+      status(result) should be(200)
+      contentAsString(result) should be("430L")
     }
   }
 }
