@@ -1,22 +1,20 @@
 package controllers
 
-import play.api.mvc.{ Action, Controller }
-import java.util.UUID
+import play.api.mvc.Controller
 import scala.concurrent.Future
 import controllers.domain.PayeRegime
 
-object PersonalTaxController extends PersonalTaxController
+object PayeController extends PayeController
 
-private[controllers] class PersonalTaxController() extends Controller with ActionWrappers {
+private[controllers] class PayeController() extends Controller with ActionWrappers {
 
   import scala.concurrent.ExecutionContext.Implicits._
 
-  def newHome = AuthorisedForAction[PayeRegime] {
+  def home = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
         Async {
           val payeData = user.regime.paye.getOrElse(throw new Exception("Regime paye not found"))
-
           Future(Ok(payeData.designatoryDetails.name))
         }
   }
@@ -30,8 +28,9 @@ private[controllers] class PersonalTaxController() extends Controller with Actio
   //    }
   //  }
 
-  def test = Action {
-    val uri = "/auth/oid/" + UUID.randomUUID().toString
-    Ok(s"Hello, you're now logged in (with id '$uri')").withSession(("id", uri))
-  }
+  // Method to drop a test cookie
+  //  def test = Action {
+  //    val uri = "/auth/oid/" + UUID.randomUUID().toString
+  //    Ok(s"Hello, you're now logged in (with id '$uri')").withSession(("id", uri))
+  //  }
 }

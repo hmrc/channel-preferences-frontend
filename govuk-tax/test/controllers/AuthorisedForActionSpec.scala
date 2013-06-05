@@ -6,7 +6,6 @@ import org.scalatest.matchers.ShouldMatchers
 import play.api.mvc.{ AsyncResult, Controller }
 import scala.concurrent.Future
 import controllers.domain.{ PayeDesignatoryDetails, PayeRoot, PayeRegime }
-import controllers.service.MicroServices
 import microservice.auth.AuthMicroService
 import microservice.personaltax.PayeMicroService
 import org.mockito.Mockito.when
@@ -14,6 +13,7 @@ import microservice.auth.domain.MatsUserAuthority
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.Implicits._
+import microservices.MockMicroServicesForTests
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -31,12 +31,10 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     )
   )
 
-  trait MockMicroServicesForTest extends MicroServices {
+  object TestController extends Controller with ActionWrappers with MockMicroServicesForTests {
+
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
-  }
-
-  object TestController extends Controller with ActionWrappers with MockMicroServicesForTest {
 
     def test = AuthorisedForAction[PayeRegime] {
       implicit user =>
@@ -58,7 +56,6 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       status(result) should equal(200)
       contentAsString(result) should include("John Densmore")
     }
-
   }
 
 }

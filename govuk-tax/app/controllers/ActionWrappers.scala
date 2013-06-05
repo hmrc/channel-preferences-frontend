@@ -8,7 +8,6 @@ import controllers.domain.RegimeRoots
 import play.api.mvc.AsyncResult
 
 trait ActionWrappers extends MicroServices {
-
   self: Controller =>
 
   object AuthorisedForAction {
