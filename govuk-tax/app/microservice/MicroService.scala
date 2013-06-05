@@ -23,13 +23,6 @@ trait MicroService extends Status {
 
   import scala.concurrent.Future
 
-  def getOrNone[T](u: Option[URI])(f: String => Future[T]): Future[T] = {
-    u match {
-      case Some(uri) => f(uri.toString)
-      case None => Future.successful[T](None.asInstanceOf[T])
-    }
-  }
-
   case class Statuses(r: Range) {
     def unapply(i: Int): Boolean = r contains i
   }
