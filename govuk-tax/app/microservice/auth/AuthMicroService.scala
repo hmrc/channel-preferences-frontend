@@ -1,6 +1,6 @@
 package microservice.auth
 
-import microservice.{MicroServiceConfig, MicroService}
+import microservice.{ MicroServiceConfig, MicroService }
 import scala.concurrent.Await
 import microservice.auth.domain.MatsUserAuthority
 

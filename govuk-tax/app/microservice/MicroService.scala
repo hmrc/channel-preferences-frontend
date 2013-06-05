@@ -2,33 +2,18 @@ package microservice
 
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
-import play.api.libs.ws.{Response, WS}
+import play.api.libs.ws.{ Response, WS }
 import java.net.URI
 import play.api.http.Status
 import controllers.domain.Transform._
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import play.api.{Logger, Play}
-
-object MicroServiceConfig {
-
-  import play.api.Play.current
-
-  private val env = Play.mode
-
-  val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
-
-  lazy val authServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.auth.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.auth.port").getOrElse(8080)}"
-  lazy val personalTaxServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.person.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.person.port").getOrElse(8081)}"
-  lazy val companyServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.company.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.company.port").getOrElse(8082)}"
-  lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8083)}"
-}
-
+import play.api.{ Logger, Play }
 
 trait MicroService extends Status {
 
   val serviceUrl: String
-
+  val success = Statuses(OK to MULTI_STATUS)
   protected val defaultTimeoutDuration = Duration(5, TimeUnit.SECONDS)
 
   def httpResource(uri: String) = {
@@ -49,8 +34,6 @@ trait MicroService extends Status {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  val success = Statuses(OK to MULTI_STATUS)
-
   def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[A] = {
     futureResponse map {
       res =>
@@ -68,5 +51,19 @@ trait MicroService extends Status {
         }
     }
   }
+}
+
+object MicroServiceConfig {
+
+  import play.api.Play.current
+
+  private val env = Play.mode
+
+  val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
+
+  lazy val authServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.auth.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.auth.port").getOrElse(8080)}"
+  lazy val payeServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.person.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.person.port").getOrElse(8081)}"
+  lazy val companyServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.company.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.company.port").getOrElse(8082)}"
+  lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8083)}"
 }
 
