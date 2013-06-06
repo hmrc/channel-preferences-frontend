@@ -5,12 +5,11 @@ import microservice.paye.PayeMicroService
 
 class PayeRegime extends TaxRegime
 
-case class PayeRoot(designatoryDetails: PayeDesignatoryDetails,
-    links: Map[String, String]) extends RegimeRoot {
+case class PayeRoot(designatoryDetails: PayeDesignatoryDetails, links: Map[String, String]) extends RegimeRoot {
 
   def taxCodes(implicit payeMicroService: PayeMicroService): Option[Seq[TaxCode]] = {
     links.get("taxCodes") match {
-      case Some(uri) => Some(payeMicroService.taxCodes(uri))
+      case Some(uri) => payeMicroService.taxCodes(uri)
       case _ => None
     }
   }

@@ -18,9 +18,10 @@ trait ActionWrappers extends MicroServices {
         val userId = "/auth/oid/jdensmore"
         val userAuthority = authMicroService.authority(userId)
 
-        action(User(
-          regime = getRegimeRootObjects(userAuthority.regimes),
-          userAuthority = userAuthority))(request)
+        userAuthority match {
+          case Some(ua) => action(User(regime = getRegimeRootObjects(ua.regimes), userAuthority = ua))(request)
+          case _ => Unauthorized(s"No authority found for user id '$userId'")
+        }
     }
   }
 

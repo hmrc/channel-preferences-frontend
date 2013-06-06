@@ -6,5 +6,5 @@ import microservice.auth.domain.UserAuthority
 
 class AuthMicroService(override val serviceUrl: String = MicroServiceConfig.authServiceUrl) extends MicroService {
 
-  def authority(uri: String) = Await.result(response[UserAuthority](httpResource(uri).get()), defaultTimeoutDuration)
+  def authority(uri: String) = get[UserAuthority](uri)
 }

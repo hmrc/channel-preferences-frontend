@@ -3,13 +3,14 @@ package microservice
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import play.api.libs.ws.{ Response, WS }
-import play.api.http.Status
+import play.api.http.{ Writeable, Status }
 import controllers.domain.Transform._
 import scala.concurrent.{ Await, ExecutionContext }
 import ExecutionContext.Implicits.global
 import play.api.{ Logger, Play }
 import scala.concurrent.Future
 import microservice.domain.RegimeRoot
+import play.api.libs.json.JsValue
 
 trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
   def root(uri: String): A
@@ -30,20 +31,24 @@ trait MicroService extends Status {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def get[A](uri: String)(implicit m: Manifest[A]): A = Await.result(response[A](httpResource(uri).get), defaultTimeoutDuration)
+  protected def get[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get), defaultTimeoutDuration)
 
-  protected def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[A] = {
+  protected def post[A](uri: String, body: JsValue)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).post(body)), defaultTimeoutDuration)
+
+  protected def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[Option[A]] = {
     futureResponse map {
       res =>
         res.status match {
-          case OK => fromResponse[A](res.body)
+          case OK => Some(fromResponse[A](res.body))
           //          case success() => //do nothing
 
           //TODO: add some proper error handling
+          // 204 or 404 are returned to the micro service as None
+          case NO_CONTENT => None
+          case NOT_FOUND => None
           case BAD_REQUEST => throw new RuntimeException("Bad request")
           case UNAUTHORIZED => throw new RuntimeException("Unauthenticated request")
           case FORBIDDEN => throw new RuntimeException("Not authorised to make this request")
-          case NOT_FOUND => throw new RuntimeException("Resource not found")
           case CONFLICT => throw new RuntimeException("Invalid state")
           case _ => throw new RuntimeException("Internal server error")
         }
