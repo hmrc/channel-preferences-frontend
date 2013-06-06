@@ -3,6 +3,7 @@ package controllers
 import play.api.mvc._
 import controllers.service._
 import microservice.domain.{ RegimeRoots, TaxRegime, User }
+import microservice.auth.domain.UserAuthority
 
 trait ActionWrappers extends MicroServices {
   self: Controller =>
@@ -16,7 +17,9 @@ trait ActionWrappers extends MicroServices {
         // TODO: This will need to handle session management / authentication when we support IDA
 
         val userId = "/auth/oid/jdensmore"
-        val userAuthority = authMicroService.authority(userId)
+        //        val userAuthority = authMicroService.authority(userId)
+        val userAuthority = UserAuthority(
+          regimes = Map("paye" -> "/personal/paye/AA020513B"))
 
         action(User(
           regime = getRegimeRootObjects(userAuthority.regimes),
