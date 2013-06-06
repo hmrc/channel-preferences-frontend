@@ -12,14 +12,13 @@ private[controllers] class PayeController extends BaseController with ActionWrap
     implicit user =>
       implicit request =>
 
-        val payeData = user.regime.paye.getOrElse(throw new Exception("Regime paye not found"))
+        // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
+        val payeData = user.regime.paye.get
 
-        val employments = payeData.employments.getOrElse(throw new Exception("No employments found"))
-        val taxCodes = payeData.taxCodes.getOrElse(throw new Exception("No tax codes found"))
-        val hasBenefits = payeData.benefits.isDefined && !payeData.benefits.isEmpty
+        val hasBenefits = !payeData.benefits.isEmpty
 
-        Ok(views.html.home(firstName = "John", employments = employments, taxCodes = taxCodes, hasBenefits = hasBenefits))
-
+        Ok(views.html.home(name = payeData.name, employments = payeData.employments,
+          taxCodes = payeData.taxCodes, hasBenefits = hasBenefits))
   }
 
 }

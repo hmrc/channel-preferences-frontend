@@ -19,27 +19,27 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   private val mockPayeMicroService = mock[PayeMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-    UserAuthority(
-      regimes = Map("paye" -> "/personal/paye/AB123456C")))
+    Some(UserAuthority(
+      regimes = Map("paye" -> "/personal/paye/AB123456C"))))
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
-      designatoryDetails = PayeDesignatoryDetails(name = "John Densmore"),
-      links = Map("taxCode" -> "/personal/paye/AB123456C/taxcode")
+      designatoryDetails = PayeDesignatoryDetails("John", "Densmore"),
+      links = Map("taxCodes" -> "/personal/paye/AB123456C/tax-codes")
     )
   )
 
-  when(mockPayeMicroService.taxCode("/personal/paye/AB123456C/taxcode")).thenReturn(
-    TaxCode("430L")
+  when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/personal/paye/AB123456C/tax-codes")).thenReturn(
+    Some(Seq(TaxCode("430L")))
   )
 
-  private val payeController = new PayeController with MockMicroServicesForTests {
+  private def payeController = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
   }
 
   "Paye controller" should {
-    "display name for john densmore" in new WithApplication(FakeApplication()) {
+    "display name for John Densmore" in new WithApplication(FakeApplication()) {
       val home = payeController.home
       val result = home(FakeRequest())
 
@@ -47,7 +47,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       contentAsString(result) should be("John Densmore")
     }
 
-    "display tax code for John Densmore" in new WithApplication(FakeApplication()) {
+    "display the tax taxCode for John Densmore" in new WithApplication(FakeApplication()) {
       val taxCode = payeController.taxCode
       val result = taxCode(FakeRequest())
 

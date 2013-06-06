@@ -1,21 +1,27 @@
-@(firstName: String, employments: List[microservice.paye.domain.Employment], taxCodes: List[microservice.paye.domain.TaxCode], hasBenefits: Boolean)
+@(name: String, employments: Seq[microservice.paye.domain.Employment], taxCodes: Seq[microservice.paye.domain.TaxCode], hasBenefits: Boolean)
 @main(title = "Your tax home") {
 
-    <h2>Welcome, @firstName</h2>
+    <h2>Welcome, @name</h2>
     <h2>Employments in current tax year</h2>
     <ul>
         @employments.map { employment =>
             <li>@employment.taxDistrictNumber / @employment.payeNumber (@employment.startDate - @employment.endDate)</li>
         }
     </ul>
-    <h2>Tax codes in current tax year</h2>
+
+    @{taxCodes.size match {
+        case 0 =>
+        case 1 => {<h3>Your Tax Code</h3>}
+        case _ => {<h3>Your Tax Codes</h3>}
+    }}
+
     <ul>
-        @taxCodes.map { taxCode =>
-        <li>@taxCode.taxCode</li>
+        @for(tc <- taxCodes) {
+            <li>@tc.taxCode</li>
         }
     </ul>
 
-    @if(hasBenefits){<a href="#" >Click here to see benefits</a>}
-
-
+    @if(hasBenefits) {
+        <a href="#">Click here to see your benefits</a>
+    }
 }

@@ -20,13 +20,9 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
   private val mockAuthMicroService = mock[AuthMicroService]
   private val mockPayeMicroService = mock[PayeMicroService]
 
-  when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-    UserAuthority(
-      regimes = Map("paye" -> "/personal/paye/AB123456C")))
-
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
-      designatoryDetails = PayeDesignatoryDetails(name = "John Densmore"),
+      designatoryDetails = PayeDesignatoryDetails("John", "Densmore"),
       links = Map.empty
     )
   )
@@ -39,22 +35,30 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     def test = AuthorisedForAction[PayeRegime] {
       implicit user =>
         implicit request =>
-          Async {
-            val userPayeRegimeRoot = user.regime.paye.getOrElse(throw new Exception("No PAYE regime for user"))
-            val userName = userPayeRegimeRoot.designatoryDetails.name
-
-            Future(Ok(userName))
-          }
+          val userPayeRegimeRoot = user.regime.paye.getOrElse(throw new Exception("No PAYE regime for user"))
+          val userName = userPayeRegimeRoot.designatoryDetails.firstName + " " + userPayeRegimeRoot.designatoryDetails.lastName
+          Ok(userName)
     }
   }
 
   "basic homepage test" should {
     "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
-      val asyncResult = TestController.test(FakeRequest()).asInstanceOf[AsyncResult]
-      val result = await(asyncResult.result, 1)
+      when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
+        Some(UserAuthority(regimes = Map("paye" -> "/personal/paye/AB123456C"))))
+
+      val result = TestController.test(FakeRequest())
 
       status(result) should equal(200)
       contentAsString(result) should include("John Densmore")
+    }
+  }
+
+  "AuthorisedForAction" should {
+    "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
+      when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(None)
+
+      val result = TestController.test(FakeRequest())
+      status(result) should equal(401)
     }
   }
 

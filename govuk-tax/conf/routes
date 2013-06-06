@@ -2,4 +2,4 @@
 # This file defines all application routes (Higher priority routes first)
 
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-GET     /paye                       controllers.PayeController.home
+GET     /                        controllers.PayeController.home

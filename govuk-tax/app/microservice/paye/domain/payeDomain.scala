@@ -7,23 +7,21 @@ class PayeRegime extends TaxRegime
 
 case class PayeRoot(name: String, links: Map[String, String]) extends RegimeRoot {
 
-  def taxCodes(implicit payeMicroService: PayeMicroService): Option[List[TaxCode]] = {
-    links.get("taxCode") match {
-      case Some(uri) => Some(payeMicroService.taxCodes(uri))
-      case _ => None
-    }
+  def taxCodes(implicit payeMicroService: PayeMicroService): Seq[TaxCode] = {
+    resourceFor[Seq[TaxCode]]("taxCode").getOrElse(Seq.empty)
   }
 
-  def employments(implicit payeMicroService: PayeMicroService): Option[List[Employment]] = {
-    links.get("employments") match {
-      case Some(uri) => Some(payeMicroService.employments(uri))
-      case _ => None
-    }
+  def benefits(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
+    resourceFor[Seq[Benefit]]("benefits").getOrElse(Seq.empty)
   }
 
-  def benefits(implicit payeMicroService: PayeMicroService): Option[List[Benefit]] = {
-    links.get("benefits") match {
-      case Some(uri) => Some(payeMicroService.benefits(uri))
+  def employments(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
+    resourceFor[Seq[Employment]]("employments").getOrElse(Seq.empty)
+  }
+
+  private def resourceFor[T](resource: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] = {
+    links.get(resource) match {
+      case Some(uri) => payeMicroService.linkedResource[T](uri)
       case _ => None
     }
   }
