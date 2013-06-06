@@ -7,12 +7,12 @@ class PayeRegime extends TaxRegime
 
 case class PayeRoot(designatoryDetails: PayeDesignatoryDetails, links: Map[String, String]) extends RegimeRoot {
 
-  def taxCodes(implicit payeMicroService: PayeMicroService): Option[Seq[TaxCode]] = {
-    resourceFor[Seq[TaxCode]]("taxCodes")
+  def taxCodes(implicit payeMicroService: PayeMicroService): Seq[TaxCode] = {
+    resourceFor[Seq[TaxCode]]("taxCodes").getOrElse(Seq.empty)
   }
 
-  def benefits(implicit payeMicroService: PayeMicroService): Option[Seq[Benefit]] = {
-    resourceFor[Seq[Benefit]]("benefits")
+  def benefits(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
+    resourceFor[Seq[Benefit]]("benefits").getOrElse(Seq.empty)
   }
 
   private def resourceFor[T](resource: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] = {
@@ -24,7 +24,9 @@ case class PayeRoot(designatoryDetails: PayeDesignatoryDetails, links: Map[Strin
 
 }
 
-case class PayeDesignatoryDetails(firstName: String, lastName: String)
+case class PayeDesignatoryDetails(firstName: String, lastName: String) {
+  def name = firstName + " " + lastName
+}
 
 case class TaxCode(code: String)
 

@@ -9,7 +9,7 @@ import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import microservice.auth.domain.UserAuthority
-import microservice.paye.domain.{ TaxCode, PayeRoot, PayeDesignatoryDetails }
+import microservice.paye.domain.{ Benefit, TaxCode, PayeRoot, PayeDesignatoryDetails }
 
 class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -31,6 +31,10 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/personal/paye/AB123456C/tax-codes")).thenReturn(
     Some(Seq(TaxCode("430L")))
+  )
+
+  when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits")).thenReturn(
+    Some(Seq(Benefit(taxYear = "2102", grossAmount = 135.33)))
   )
 
   private def controller = new HomeController with MockMicroServicesForTests {
