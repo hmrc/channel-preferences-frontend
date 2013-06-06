@@ -22,8 +22,7 @@ object ApplicationBuild extends Build {
         "-encoding", "UTF-8"
       ),
       resolvers ++= Repositories.localAndSonatype,
-      retrieveManaged := true,
-      initialCommands in console := "import uk.gov.hmrc._"
+      retrieveManaged := true
     )
 
   val appDependencies = Seq(
