@@ -19,8 +19,8 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   private val mockPayeMicroService = mock[PayeMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-    UserAuthority(
-      regimes = Map("paye" -> "/personal/paye/AB123456C")))
+    Some(UserAuthority(
+      regimes = Map("paye" -> "/personal/paye/AB123456C"))))
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
@@ -30,7 +30,7 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   )
 
   when(mockPayeMicroService.taxCodes("/personal/paye/AB123456C/tax-codes")).thenReturn(
-    Seq(TaxCode("430L"))
+    Some(Seq(TaxCode("430L")))
   )
 
   private def controller = new HomeController with MockMicroServicesForTests {
