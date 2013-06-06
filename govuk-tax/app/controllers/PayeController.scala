@@ -1,12 +1,8 @@
 package controllers
 
-import microservice.paye.domain.{ Benefit, PayeRegime }
-import microservice.domain.User
-import play.api.mvc.Action
+import microservice.paye.domain.PayeRegime
 
-object PayeController extends PayeController
-
-private[controllers] class PayeController extends BaseController with ActionWrappers {
+class PayeController extends BaseController with ActionWrappers {
 
   def home = AuthorisedForAction[PayeRegime] {
     implicit user =>

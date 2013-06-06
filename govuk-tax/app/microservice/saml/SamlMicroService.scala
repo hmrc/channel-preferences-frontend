@@ -7,7 +7,7 @@ import play.api.libs.json.Json
 
 class SamlMicroService extends MicroService {
 
-  override val serviceUrl = MicroServiceConfig.payeServiceUrl
+  override val serviceUrl = MicroServiceConfig.samlServiceUrl
 
   def create = get[AuthRequestFormData]("/saml/create")
     .getOrElse(throw new IllegalStateException("Expected SAML auth response but none returned"))
