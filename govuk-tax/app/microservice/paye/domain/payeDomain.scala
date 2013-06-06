@@ -17,7 +17,7 @@ case class PayeRoot(designatoryDetails: PayeDesignatoryDetails, links: Map[Strin
 
   private def resourceFor[T](resource: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] = {
     links.get(resource) match {
-      case Some(uri) => Some(payeMicroService.linkedResource[T](uri))
+      case Some(uri) => payeMicroService.linkedResource[T](uri)
       case _ => None
     }
   }

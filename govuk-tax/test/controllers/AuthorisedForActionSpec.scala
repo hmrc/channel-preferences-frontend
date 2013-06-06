@@ -22,7 +22,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
-      designatoryDetails = PayeDesignatoryDetails(name = "John Densmore"),
+      designatoryDetails = PayeDesignatoryDetails("John", "Densmore"),
       links = Map.empty
     )
   )
@@ -36,7 +36,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       implicit user =>
         implicit request =>
           val userPayeRegimeRoot = user.regime.paye.getOrElse(throw new Exception("No PAYE regime for user"))
-          val userName = userPayeRegimeRoot.designatoryDetails.name
+          val userName = userPayeRegimeRoot.designatoryDetails.firstName + " " + userPayeRegimeRoot.designatoryDetails.lastName
           Ok(userName)
     }
   }
