@@ -3,3 +3,4 @@
 
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /paye                       controllers.PayeController.home
+GET     /                           controllers.HomeController.home

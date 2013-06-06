@@ -8,9 +8,9 @@ class PayeRegime extends TaxRegime
 case class PayeRoot(designatoryDetails: PayeDesignatoryDetails,
     links: Map[String, String]) extends RegimeRoot {
 
-  def taxCode(implicit payeMicroService: PayeMicroService): Option[TaxCode] = {
-    links.get("taxCode") match {
-      case Some(uri) => Some(payeMicroService.taxCode(uri))
+  def taxCodes(implicit payeMicroService: PayeMicroService): Option[Seq[TaxCode]] = {
+    links.get("taxCodes") match {
+      case Some(uri) => Some(payeMicroService.taxCodes(uri))
       case _ => None
     }
   }

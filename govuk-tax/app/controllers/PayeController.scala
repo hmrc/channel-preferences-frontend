@@ -21,7 +21,7 @@ private[controllers] class PayeController extends BaseController with ActionWrap
 
         val payeData = user.regime.paye.getOrElse(throw new Exception("Regime paye not found"))
 
-        val taxCode = payeData.taxCode.getOrElse(throw new Exception("No tax code found")).code
+        val taxCode = payeData.taxCodes.getOrElse(throw new Exception("No tax code found")).head.code
 
         Ok(taxCode)
   }

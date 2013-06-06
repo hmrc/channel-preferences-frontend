@@ -11,7 +11,7 @@ import org.mockito.Mockito._
 import microservice.auth.domain.UserAuthority
 import microservice.paye.domain.{ TaxCode, PayeRoot, PayeDesignatoryDetails }
 
-class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
+class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
   import play.api.test.Helpers._
 
@@ -33,26 +33,30 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     Seq(TaxCode("430L"))
   )
 
-  private def payeController = new PayeController with MockMicroServicesForTests {
+  private def controller = new HomeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
   }
 
-  "Paye controller" should {
-    "display name for John Densmore" in new WithApplication(FakeApplication()) {
-      val home = payeController.home
+  "The home method" should {
+
+    "return the name for John Densmore" in new WithApplication(FakeApplication()) {
+      val content = requestHome
+      content should include("John Densmore")
+    }
+
+    "return the tax code for John Densmore" in new WithApplication(FakeApplication()) {
+      val content = requestHome
+      content should include("430L")
+    }
+
+    def requestHome: String = {
+      val home = controller.home
       val result = home(FakeRequest())
 
       status(result) should be(200)
-      contentAsString(result) should be("John Densmore")
-    }
 
-    "display the tax code for John Densmore" in new WithApplication(FakeApplication()) {
-      val taxCode = payeController.taxCode
-      val result = taxCode(FakeRequest())
-
-      status(result) should be(200)
-      contentAsString(result) should be("430L")
+      contentAsString(result)
     }
   }
 }

@@ -9,5 +9,5 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
   def root(uri: String) = get[PayeRoot](uri)
 
-  def taxCode(uri: String) = get[TaxCode](uri)
+  def taxCodes(uri: String) = get[Seq[TaxCode]](uri)
 }

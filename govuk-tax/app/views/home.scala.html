@@ -1,8 +1,18 @@
-@(firstName: String, hasBenefits: Boolean)
-@main(title = "Your tax home") {
+@(name: String, taxCodes: Seq[microservice.paye.domain.TaxCode])
 
-    <h2>Welcome, @firstName</h2>
-    @if(hasBenefits){<a href="#" >Click here to see benefits</a>}
+@main(title = "Your Tax") {
 
+    <h2>Welcome, @name</h2>
 
+    @{taxCodes.size match {
+        case 0 =>
+        case 1 => {<h3>Your Tax Code</h3>}
+        case _ => {<h3>Your Tax Codes</h3>}
+    }}
+
+    <ul>
+        @for(tc <- taxCodes) {
+            <li>@tc.code</li>
+        }
+    </ul>
 }
