@@ -24,12 +24,12 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
-      designatoryDetails = PayeDesignatoryDetails(name = "John Densmore"),
-      links = Map("taxCodes" -> "/personal/paye/AB123456C/tax-codes")
+      designatoryDetails = PayeDesignatoryDetails("John", "Densmore"),
+      links = Map("taxCodes" -> "/personal/paye/AB123456C/tax-codes", "benefits" -> "/personal/paye/AB123456C/benefits")
     )
   )
 
-  when(mockPayeMicroService.taxCodes("/personal/paye/AB123456C/tax-codes")).thenReturn(
+  when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/personal/paye/AB123456C/tax-codes")).thenReturn(
     Some(Seq(TaxCode("430L")))
   )
 
@@ -48,6 +48,11 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     "return the tax code for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
       content should include("430L")
+    }
+
+    "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
+      val content = requestHome
+      content should include("Click here to see your benefits")
     }
 
     def requestHome: String = {

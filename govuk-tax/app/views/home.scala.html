@@ -1,4 +1,4 @@
-@(name: String, taxCodes: Seq[microservice.paye.domain.TaxCode])
+@(name: String, taxCodes: Seq[microservice.paye.domain.TaxCode], hasBenefits: Boolean)
 
 @main(title = "Your Tax") {
 
@@ -15,4 +15,8 @@
             <li>@tc.code</li>
         }
     </ul>
+
+    @if(hasBenefits) {
+        <a href="#">Click here to see your benefits</a>
+    }
 }

@@ -24,12 +24,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
-      designatoryDetails = PayeDesignatoryDetails(name = "John Densmore"),
+      designatoryDetails = PayeDesignatoryDetails("John", "Densmore"),
       links = Map("taxCodes" -> "/personal/paye/AB123456C/tax-codes")
     )
   )
 
-  when(mockPayeMicroService.taxCodes("/personal/paye/AB123456C/tax-codes")).thenReturn(
+  when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/personal/paye/AB123456C/tax-codes")).thenReturn(
     Some(Seq(TaxCode("430L")))
   )
 

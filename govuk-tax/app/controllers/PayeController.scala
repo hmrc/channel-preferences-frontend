@@ -12,7 +12,7 @@ private[controllers] class PayeController extends BaseController with ActionWrap
 
         val payeData = user.regime.paye.getOrElse(throw new Exception("Regime paye not found"))
 
-        Ok(payeData.designatoryDetails.name)
+        Ok(payeData.designatoryDetails.firstName + " " + payeData.designatoryDetails.lastName)
   }
 
   def taxCode = AuthorisedForAction[PayeRegime] {

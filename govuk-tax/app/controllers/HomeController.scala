@@ -12,7 +12,8 @@ private[controllers] class HomeController extends BaseController with ActionWrap
 
         val payeData = user.regime.paye.getOrElse(throw new Exception("Regime paye not found"))
         val taxCodes = payeData.taxCodes.getOrElse(Seq.empty)
+        val hasBenefits = payeData.links.get("benefits").isDefined
 
-        Ok(views.html.home(payeData.designatoryDetails.name, taxCodes))
+        Ok(views.html.home(payeData.designatoryDetails.firstName + " " + payeData.designatoryDetails.lastName, taxCodes, hasBenefits))
   }
 }
