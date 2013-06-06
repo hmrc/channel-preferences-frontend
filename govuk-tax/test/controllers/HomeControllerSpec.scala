@@ -49,7 +49,7 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       content should include("John Densmore")
     }
 
-    "return the tax code for John Densmore" in new WithApplication(FakeApplication()) {
+    "return the tax taxCode for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
       content should include("430L")
     }

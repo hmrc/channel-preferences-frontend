@@ -28,7 +28,7 @@ case class PayeDesignatoryDetails(firstName: String, lastName: String) {
   def name = firstName + " " + lastName
 }
 
-case class TaxCode(code: String)
+case class TaxCode(taxCode: String)
 
 case class Benefit(taxYear: String, grossAmount: Double)
 

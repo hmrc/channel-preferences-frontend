@@ -47,7 +47,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       contentAsString(result) should be("John Densmore")
     }
 
-    "display the tax code for John Densmore" in new WithApplication(FakeApplication()) {
+    "display the tax taxCode for John Densmore" in new WithApplication(FakeApplication()) {
       val taxCode = payeController.taxCode
       val result = taxCode(FakeRequest())
 
