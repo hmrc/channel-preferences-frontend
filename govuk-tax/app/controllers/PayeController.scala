@@ -1,6 +1,6 @@
 package controllers
 
-import microservice.paye.domain.PayeRegime
+import microservice.paye.domain._
 
 class PayeController extends BaseController with ActionWrappers {
 
@@ -18,6 +18,13 @@ class PayeController extends BaseController with ActionWrappers {
           taxCodes = payeData.taxCodes,
           hasBenefits = hasBenefits)
         )
+  }
+
+  def benefits = AuthorisedForAction[PayeRegime] {
+    implicit user =>
+      implicit request =>
+        val benefits = user.regime.paye.get.benefits
+        Ok(views.html.benefits(benefits))
   }
 
 }

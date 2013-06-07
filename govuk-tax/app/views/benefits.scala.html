@@ -1,0 +1,11 @@
+@(benefits: Seq[microservice.paye.domain.Benefit])
+@main(title = "Your tax home") {
+
+    <h2>Benefits</h2>
+    <ul>
+    @benefits.map { b =>
+        <li>@b.grossAmount</li>
+    }
+    </ul>
+
+}
