@@ -3,13 +3,18 @@ package controllers
 import test.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{ FakeRequest, WithApplication, FakeApplication }
+import play.api.test.{ FakeRequest, WithApplication }
 import microservices.MockMicroServicesForTests
 import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito._
+import microservice.paye.domain._
 import microservice.auth.domain.UserAuthority
-import microservice.paye.domain.{ Benefit, TaxCode, PayeRoot, PayeDesignatoryDetails }
+import microservice.paye.domain.PayeRoot
+import play.api.test.FakeApplication
+import microservice.paye.domain.Benefit
+import scala.Some
+import microservice.paye.domain.TaxCode
 
 class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -24,34 +29,47 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
-      designatoryDetails = PayeDesignatoryDetails("John", "Densmore"),
-      links = Map("taxCodes" -> "/personal/paye/AB123456C/tax-codes", "benefits" -> "/personal/paye/AB123456C/benefits")
+      name = "John Densmore",
+      links = Map(
+        "taxCode" -> "/personal/paye/AB123456C/tax-codes/2013",
+        "employments" -> "/personal/paye/AB123456C/employments/2013",
+        "benefits" -> "/personal/paye/AB123456C/benefits/2013")
     )
   )
 
-  when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/personal/paye/AB123456C/tax-codes")).thenReturn(
+  when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/personal/paye/AB123456C/tax-codes/2013")).thenReturn(
     Some(Seq(TaxCode("430L")))
   )
 
-  when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits")).thenReturn(
+  when(mockPayeMicroService.linkedResource[Seq[Employment]]("/personal/paye/AB123456C/employments/2013")).thenReturn(
+    Some(Seq(Employment(startDate = "01/07/2013", endDate = "08/10/2013", taxDistrictNumber = "898", payeNumber = "9900112")))
+  )
+
+  when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(Benefit(taxYear = "2102", grossAmount = 135.33)))
   )
 
-  private def controller = new HomeController with MockMicroServicesForTests {
+  private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
   }
 
   "The home method" should {
 
-    "return the name for John Densmore" in new WithApplication(FakeApplication()) {
+    "display the name for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
       content should include("John Densmore")
     }
 
-    "return the tax taxCode for John Densmore" in new WithApplication(FakeApplication()) {
+    "display the tax codes for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
       content should include("430L")
+    }
+
+    "display the employments for John Densmore" in new WithApplication(FakeApplication()) {
+      val content = requestHome
+      content should include("898")
+      content should include("9900112")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
