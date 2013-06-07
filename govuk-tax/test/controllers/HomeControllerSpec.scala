@@ -20,12 +20,17 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   import play.api.test.Helpers._
 
+  // Configure auth service mock
+
   private val mockAuthMicroService = mock[AuthMicroService]
-  private val mockPayeMicroService = mock[PayeMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
     Some(UserAuthority(
       regimes = Map("paye" -> "/personal/paye/AB123456C"))))
+
+  // Configure paye service mock
+
+  private val mockPayeMicroService = mock[PayeMicroService]
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
@@ -49,10 +54,14 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     Some(Seq(Benefit(taxYear = "2102", grossAmount = 135.33)))
   )
 
+  // Inject mocks
+
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
   }
+
+  // Specs
 
   "The home method" should {
 
@@ -86,4 +95,15 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       contentAsString(result)
     }
   }
+
+  "The benefits method" should {
+
+    "return John's benefits" in new WithApplication(FakeApplication()) {
+      val result = controller.benefits(FakeRequest())
+      status(result) shouldBe 200
+      contentAsString(result) should include("135.33")
+    }
+
+  }
+
 }
