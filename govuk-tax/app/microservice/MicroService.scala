@@ -60,9 +60,9 @@ object MicroServiceConfig {
 
   import play.api.Play.current
 
-  private val env = Play.mode
+  private lazy val env = Play.mode
 
-  val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
+  lazy val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
 
   lazy val authServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.auth.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.auth.port").getOrElse(8500)}"
   lazy val payeServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.personal.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.personal.port").getOrElse(8600)}"
