@@ -3,17 +3,15 @@ package controllers
 import test.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.matchers.ShouldMatchers
-import play.api.mvc.{ AsyncResult, Controller }
-import scala.concurrent.Future
+import play.api.mvc.Controller
 import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito.when
 import microservice.auth.domain.UserAuthority
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
-import scala.concurrent.ExecutionContext.Implicits._
 import microservices.MockMicroServicesForTests
-import microservice.paye.domain.{ PayeRegime, PayeDesignatoryDetails, PayeRoot }
+import microservice.paye.domain.{ PayeRegime, PayeRoot }
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -22,7 +20,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
-      designatoryDetails = PayeDesignatoryDetails("John", "Densmore"),
+      name = "John Densmore",
       links = Map.empty
     )
   )
@@ -36,7 +34,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       implicit user =>
         implicit request =>
           val userPayeRegimeRoot = user.regime.paye.getOrElse(throw new Exception("No PAYE regime for user"))
-          val userName = userPayeRegimeRoot.designatoryDetails.firstName + " " + userPayeRegimeRoot.designatoryDetails.lastName
+          val userName = userPayeRegimeRoot.name
           Ok(userName)
     }
   }

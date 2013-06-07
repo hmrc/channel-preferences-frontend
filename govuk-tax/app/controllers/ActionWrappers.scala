@@ -17,21 +17,17 @@ trait ActionWrappers extends MicroServices {
         // TODO: This will need to handle session management / authentication when we support IDA
 
         val userId = "/auth/oid/jdensmore"
-        //        val userAuthority = authMicroService.authority(userId)
-        val userAuthority = UserAuthority(
-          regimes = Map("paye" -> "/personal/paye/AA020513B"))
+        val userAuthority = authMicroService.authority(userId)
 
-        action(User(regime = getRegimeRootObjects(userAuthority.regimes), userAuthority = userAuthority))(request)
-      //        userAuthority match {
-      //          case Some(ua: UserAuthority) => action(User(regime = getRegimeRootObjects(ua.regimes), userAuthority = ua))(request)
-      //          case _ => Unauthorized(s"No authority found for user id '$userId'")
-      //        }
+        userAuthority match {
+          case Some(ua: UserAuthority) => action(User(regime = getRegimeRootObjects(ua.regimes), userAuthority = ua))(request)
+          case _ => Unauthorized(s"No authority found for user id '$userId'")
+        }
     }
   }
 
   private def getRegimeRootObjects(regimes: Map[String, String]): RegimeRoots = {
     val payeRegimeUri = regimes("paye")
-
     RegimeRoots(paye = Some(payeMicroService.root(payeRegimeUri)))
   }
 }

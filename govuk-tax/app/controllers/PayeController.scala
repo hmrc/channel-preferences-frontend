@@ -14,11 +14,14 @@ private[controllers] class PayeController extends BaseController with ActionWrap
 
         // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
         val payeData = user.regime.paye.get
-
         val hasBenefits = !payeData.benefits.isEmpty
 
-        Ok(views.html.home(name = payeData.name, employments = payeData.employments,
-          taxCodes = payeData.taxCodes, hasBenefits = hasBenefits))
+        Ok(views.html.home(
+          name = payeData.name,
+          employments = payeData.employments,
+          taxCodes = payeData.taxCodes,
+          hasBenefits = hasBenefits)
+        )
   }
 
 }
