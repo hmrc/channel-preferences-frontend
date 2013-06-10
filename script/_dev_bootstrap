@@ -1,3 +1,4 @@
 #!/bin/bash
- 
-./play "compile idea update-sbt-classifiers"
+
+cd govuk-tax 
+./sbt compile "gen-idea sbt-classifiers"
