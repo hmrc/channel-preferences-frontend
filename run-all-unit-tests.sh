@@ -1,3 +1,4 @@
 #!/bin/sh
 
-./play test
+cd govuk-tax
+./sbt test

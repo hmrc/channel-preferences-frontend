@@ -1,7 +1,0 @@
-#!/bin/bash
-
-. ./build-env
-
-cd govuk-tax
-play $@
-cd -
