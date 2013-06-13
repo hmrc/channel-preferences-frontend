@@ -20,15 +20,11 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   import play.api.test.Helpers._
 
-  // Configure auth service mock
-
   private val mockAuthMicroService = mock[AuthMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
     Some(UserAuthority(
       regimes = Map("paye" -> "/personal/paye/AB123456C"))))
-
-  // Configure paye service mock
 
   private val mockPayeMicroService = mock[PayeMicroService]
 
@@ -54,14 +50,11 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     Some(Seq(Benefit(taxYear = "2102", grossAmount = 13533, employmentSequenceNumber = 1), Benefit(taxYear = "2013", grossAmount = 2222, employmentSequenceNumber = 2)))
   )
 
-  // Inject mocks
-
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
   }
 
-  // Specs
 
   "The home method" should {
 
