@@ -47,7 +47,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   )
 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
-    Some(Seq(Benefit(taxYear = "2102", grossAmount = 13533, employmentSequenceNumber = 1), Benefit(taxYear = "2013", grossAmount = 2222, employmentSequenceNumber = 2)))
+    Some(Seq(
+      Benefit(benefitType = 30, taxYear = "2013", grossAmount = 13533, employmentSequenceNumber = 1, cars = List()),
+      Benefit(benefitType = 31, taxYear = "2013", grossAmount = 2222, employmentSequenceNumber = 2,
+        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = "04/07/2011"))),
+      Benefit(benefitType = 31, taxYear = "2013", grossAmount = 32142, employmentSequenceNumber = 1,
+        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = "12/12/2012")))))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {
@@ -90,12 +95,19 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   "The benefits method" should {
 
-    "return John's benefits" in new WithApplication(FakeApplication()) {
-      requestBenefits should include("13533")
+    "display John's benefits" in new WithApplication(FakeApplication()) {
+      requestBenefits should include("£ 135.33")
     }
 
-    "not return a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
-      requestBenefits should not include "2222"
+    "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
+      requestBenefits should not include "£ 22.22"
+    }
+
+    "display car details" in new WithApplication(FakeApplication()) {
+      requestBenefits should include("Engine size: 1")
+      requestBenefits should include("Fuel type: 2")
+      requestBenefits should include("Date car registered: 12/12/2012")
+      requestBenefits should include("£ 321.42")
     }
 
     def requestBenefits = {
