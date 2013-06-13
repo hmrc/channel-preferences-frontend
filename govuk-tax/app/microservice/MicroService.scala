@@ -3,7 +3,7 @@ package microservice
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import play.api.libs.ws.{ Response, WS }
-import play.api.http.{ Writeable, Status }
+import play.api.http.Status
 import controllers.domain.Transform._
 import scala.concurrent.{ Await, ExecutionContext }
 import ExecutionContext.Implicits.global

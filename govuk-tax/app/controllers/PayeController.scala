@@ -10,8 +10,9 @@ class PayeController extends BaseController with ActionWrappers {
     implicit user =>
       implicit request =>
 
-        //this is safe as the AuthorisedForAction wrapper will have thrown Unauthorised if the root data isn't present
-        val payeData: PayeRoot = user.regime.paye.get
+        // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
+        val payeData = user.regimes.paye.get
+        val hasBenefits = !payeData.benefits.isEmpty
 
         Ok(views.html.home(
           name = payeData.name,
@@ -24,8 +25,8 @@ class PayeController extends BaseController with ActionWrappers {
   def benefits = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        val root: PayeRoot = user.regime.paye.get
-        Ok(views.html.benefits(matchBenefitWithCorrespondingEmployment(root.benefits, root.employments)))
+        val benefits = user.regimes.paye.get.benefits
+        Ok(views.html.benefits(benefits))
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[Tuple2[Benefit, Employment]] =

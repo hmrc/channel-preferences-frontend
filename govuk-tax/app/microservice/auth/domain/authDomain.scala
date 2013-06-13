@@ -1,3 +1,3 @@
 package microservice.auth.domain
 
-case class UserAuthority(regimes: Map[String, String])
+case class UserAuthority(id: String, regimes: Map[String, String])

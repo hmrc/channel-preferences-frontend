@@ -7,6 +7,6 @@ abstract class TaxRegime
 
 abstract class RegimeRoot
 
-case class User(userAuthority: UserAuthority, regime: RegimeRoots)
+case class User(user: String, userAuthority: UserAuthority, regimes: RegimeRoots)
 
 case class RegimeRoots(paye: Option[PayeRoot])

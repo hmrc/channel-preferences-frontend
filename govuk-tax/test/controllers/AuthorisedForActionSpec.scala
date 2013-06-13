@@ -5,7 +5,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.matchers.ShouldMatchers
 import play.api.mvc.Controller
 import microservice.auth.AuthMicroService
-import microservice.paye.PayeMicroService
+import microservice.paye.SaMicroService
 import org.mockito.Mockito.when
 import microservice.auth.domain.UserAuthority
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
@@ -16,7 +16,7 @@ import microservice.paye.domain.{ PayeRegime, PayeRoot }
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
   private val mockAuthMicroService = mock[AuthMicroService]
-  private val mockPayeMicroService = mock[PayeMicroService]
+  private val mockPayeMicroService = mock[SaMicroService]
 
   when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
     PayeRoot(
