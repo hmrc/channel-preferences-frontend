@@ -1,5 +1,7 @@
 package controllers
 
+import scala.collection.mutable.ListBuffer
+
 class PayeController extends BaseController with ActionWrappers {
 
   import microservice.paye.domain.{ Employment, Benefit, PayeRoot, PayeRegime }
@@ -8,8 +10,8 @@ class PayeController extends BaseController with ActionWrappers {
     implicit user =>
       implicit request =>
 
-        // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
-        val payeData = user.regime.paye.get
+        //this is safe as the AuthorisedForAction wrapper will have thrown Unauthorised if the root data isn't present
+        val payeData: PayeRoot = user.regime.paye.get
 
         Ok(views.html.home(
           name = payeData.name,
@@ -26,15 +28,16 @@ class PayeController extends BaseController with ActionWrappers {
         Ok(views.html.benefits(matchBenefitWithCorrespondingEmployment(root.benefits, root.employments)))
   }
 
-  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[(Benefit, Employment)] = {
-    benefits.flatMap(benefit => {
-      val correspondingEmployment = employments.find(_.sequenceNumber.equals(benefit.employmentSequenceNumber))
-      correspondingEmployment match {
-        case Some(e) => Some((benefit, e))
-        case _ => None
-      }
-    })
-  }
+  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[Tuple2[Benefit, Employment]] =
+    benefits.foldLeft(ListBuffer[(Benefit, Employment)]()) {
+      (matched, benefit) =>
+        {
+          employments.find(_.sequenceNumber == benefit.employmentSequenceNumber) match {
+            case Some(e: Employment) => matched += Tuple2(benefit, e); matched
+            case _ => matched
+          }
+        }
+    }
 
 }
 
