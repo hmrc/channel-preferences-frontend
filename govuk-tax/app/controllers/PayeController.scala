@@ -2,7 +2,7 @@ package controllers
 
 class PayeController extends BaseController with ActionWrappers {
 
-  import microservice.paye.domain.{Employment, Benefit, PayeRoot, PayeRegime}
+  import microservice.paye.domain.{ Employment, Benefit, PayeRoot, PayeRegime }
 
   def home = AuthorisedForAction[PayeRegime] {
     implicit user =>

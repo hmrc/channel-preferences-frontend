@@ -55,7 +55,6 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     override val payeMicroService = mockPayeMicroService
   }
 
-
   "The home method" should {
 
     "display the name for John Densmore" in new WithApplication(FakeApplication()) {
