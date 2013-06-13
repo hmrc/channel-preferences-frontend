@@ -16,7 +16,7 @@ import microservice.paye.domain.Benefit
 import scala.Some
 import microservice.paye.domain.TaxCode
 
-class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
+class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
   import play.api.test.Helpers._
 
@@ -47,11 +47,11 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   )
 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/personal/paye/AB123456C/employments/2013")).thenReturn(
-    Some(Seq(Employment(startDate = "01/07/2013", endDate = "08/10/2013", taxDistrictNumber = "898", payeNumber = "9900112")))
+    Some(Seq(Employment(sequenceNumber = 1, startDate = "02/07/2013", endDate = "08/10/2013", taxDistrictNumber = "898", payeNumber = "9900112")))
   )
 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
-    Some(Seq(Benefit(taxYear = "2102", grossAmount = 135.33)))
+    Some(Seq(Benefit(taxYear = "2102", grossAmount = 13533, employmentSequenceNumber = 1), Benefit(taxYear = "2013", grossAmount = 2222, employmentSequenceNumber = 2)))
   )
 
   // Inject mocks
@@ -99,9 +99,17 @@ class HomeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   "The benefits method" should {
 
     "return John's benefits" in new WithApplication(FakeApplication()) {
+      requestBenefits should include("13533")
+    }
+
+    "not return a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
+      requestBenefits should not include "2222"
+    }
+
+    def requestBenefits = {
       val result = controller.benefits(FakeRequest())
       status(result) shouldBe 200
-      contentAsString(result) should include("135.33")
+      contentAsString(result)
     }
 
   }

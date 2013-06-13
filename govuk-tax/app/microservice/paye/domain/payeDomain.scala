@@ -28,6 +28,6 @@ case class PayeRoot(name: String, links: Map[String, String]) extends RegimeRoot
 }
 
 case class TaxCode(taxCode: String)
-case class Benefit(taxYear: String, grossAmount: Double)
-case class Employment(startDate: String, endDate: String, taxDistrictNumber: String, payeNumber: String)
+case class Benefit(taxYear: String, grossAmount: Long, employmentSequenceNumber: Int)
+case class Employment(sequenceNumber: Int, startDate: String, endDate: String, taxDistrictNumber: String, payeNumber: String)
 

@@ -23,8 +23,25 @@ class PayeController extends BaseController with ActionWrappers {
   def benefits = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        val benefits = user.regime.paye.get.benefits
-        Ok(views.html.benefits(benefits))
+        val root: PayeRoot = user.regime.paye.get
+
+        val benefits = root.benefits
+        val employments = root.employments
+
+        Ok(views.html.benefits(matchBenefitWithCorrespondingEmployment(benefits, employments)))
+  }
+
+  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[(Benefit, Employment)] = {
+
+    // TODO Refactor this with a simpler solution. EG: use collect instead of flatMap
+    benefits.flatMap(benefit => {
+      val correspondingEmployment = employments.find(_.sequenceNumber.equals(benefit.employmentSequenceNumber))
+      correspondingEmployment match {
+        case Some(e) => Some((benefit, e))
+        case _ => None
+      }
+    })
   }
 
 }
+
