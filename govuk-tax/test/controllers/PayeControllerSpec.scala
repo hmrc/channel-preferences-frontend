@@ -15,6 +15,7 @@ import play.api.test.FakeApplication
 import microservice.paye.domain.Benefit
 import scala.Some
 import microservice.paye.domain.TaxCode
+import play.api.mvc.Cookie
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -86,7 +87,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     def requestHome: String = {
       val home = controller.home
-      val result = home(FakeRequest())
+      val result = home(FakeRequest().withCookies(Cookie("userId", "/auth/oid/jdensmore")))
 
       status(result) should be(200)
 
@@ -112,7 +113,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     def requestBenefits = {
-      val result = controller.benefits(FakeRequest())
+      val result = controller.benefits(FakeRequest().withCookies(Cookie("userId", "/auth/oid/jdensmore")))
       status(result) shouldBe 200
       contentAsString(result)
     }

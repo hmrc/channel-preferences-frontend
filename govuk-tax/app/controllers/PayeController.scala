@@ -26,7 +26,8 @@ class PayeController extends BaseController with ActionWrappers {
     implicit user =>
       implicit request =>
         val benefits = user.regimes.paye.get.benefits
-        Ok(views.html.benefits(benefits))
+        val employments = user.regimes.paye.get.employments
+        Ok(views.html.benefits(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[Tuple2[Benefit, Employment]] =
