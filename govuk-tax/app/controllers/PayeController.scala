@@ -13,7 +13,7 @@ class PayeController extends BaseController with ActionWrappers {
         // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
         val payeData = user.regimes.paye.get
 
-        Ok(views.html.home(
+        Ok(views.html.paye_home(
           name = payeData.name,
           employments = payeData.employments,
           taxCodes = payeData.taxCodes,
