@@ -41,7 +41,9 @@ trait ActionWrappers extends MicroServices {
   }
 
   private def getRegimeRootObjects(regimes: Map[String, String]): RegimeRoots = {
-    val payeRegimeUri = regimes("paye")
-    RegimeRoots(paye = Some(payeMicroService.root(payeRegimeUri)))
+    // TODO find a better datastructure for the regimes to avoid thej kind of thing that follows
+    val payeRegime = if (regimes("paye") != null) Some(payeMicroService.root(regimes("paye"))) else None
+    val saRegime = if (regimes("sa") != null) Some(payeMicroService.saRoot(regimes("sa"))) else None
+    RegimeRoots(payeRegime, saRegime)
   }
 }
