@@ -4,7 +4,7 @@ import scala.collection.mutable.ListBuffer
 
 class PayeController extends BaseController with ActionWrappers {
 
-  import microservice.paye.domain.{ Employment, Benefit, PayeRoot, PayeRegime }
+  import microservice.paye.domain.{ Employment, Benefit, PayeRegime }
 
   def home = AuthorisedForAction[PayeRegime] {
     implicit user =>

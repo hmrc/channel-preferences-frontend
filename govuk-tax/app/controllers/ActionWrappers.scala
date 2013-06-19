@@ -24,7 +24,7 @@ trait ActionWrappers extends MicroServices {
             val userId = cookie.value
             val userAuthority = authMicroService.authority(userId)
 
-            Logger.debug(s"Reveived user authority: $userAuthority")
+            Logger.debug(s"Revived user authority: $userAuthority")
 
             userAuthority match {
               case Some(ua: UserAuthority) => action(User(user = userId, regimes = getRegimeRootObjects(ua.regimes), userAuthority = ua))(request)

@@ -13,7 +13,13 @@ import microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
 
 trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
-  def root(uri: String): A
+
+  def root[A](uri: String)(implicit m: Manifest[A]): A = httpGet[A](uri).getOrElse(throw new IllegalStateException(s"Expected root not found at URI '$uri'"))
+
+  def linkedResource[T](uri: String)(implicit m: Manifest[T]) = {
+    Logger.debug(s"Loading linked resource uri: $uri")
+    httpGet[T](uri)
+  }
 }
 
 trait MicroService extends Status {
@@ -31,9 +37,9 @@ trait MicroService extends Status {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def get[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get), defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get), defaultTimeoutDuration)
 
-  protected def post[A](uri: String, body: JsValue)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).post(body)), defaultTimeoutDuration)
+  protected def httpPost[A](uri: String, body: JsValue)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).post(body)), defaultTimeoutDuration)
 
   protected def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[Option[A]] = {
     futureResponse map {
@@ -65,7 +71,7 @@ object MicroServiceConfig {
   lazy val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
 
   lazy val authServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.auth.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.auth.port").getOrElse(8500)}"
-  lazy val payeServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.personal.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.personal.port").getOrElse(8600)}"
+  lazy val personalServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.personal.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.personal.port").getOrElse(8600)}"
   lazy val businessServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.business.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.business.port").getOrElse(8700)}"
   lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8800)}"
 }
