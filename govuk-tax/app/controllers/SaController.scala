@@ -8,18 +8,25 @@ class SaController extends BaseController with ActionWrappers {
     implicit user =>
       implicit request =>
 
-        //        println("user: " + user)
-        //        println("user.regimes: " + user.regimes)
-        //        println("user.regimes.sa: " + user.regimes.sa)
         val userData: SaRoot = user.regimes.sa.get
-        //        println("userData: " + userData)
-        val personalDetails = userData.personalDetails.get
+        val personalDetailsUrl = userData.links.get("personalDetails").get
 
-        //        println("_________________________personal details: " + personalDetails)
-        //        println("_________________________personal details class: " + personalDetails.getClass)
-        //        println("_________________________name: " + personalDetails.name)
+        userData.personalDetails match {
+          case Some(person:SaPerson) => Ok(views.html.sa_home(userData.utr, person.name, personalDetailsUrl))
+          case _ => NotFound  //todo this should really be an error page
+        }
+  }
 
-        Ok(views.html.sa_home(userData.utr, personalDetails))
+  def details = AuthorisedForAction {
+    implicit user =>
+      implicit request =>
+
+        val userData: SaRoot = user.regimes.sa.get
+
+        userData.personalDetails match {
+          case Some(person: SaPerson) => Ok(views.html.sa_personal_details(person))
+          case _ => NotFound  //todo this should really be an error page
+        }
   }
 
 }

@@ -13,6 +13,7 @@ GET     /test/gfisher               @controllers.LoginController.enterAsGeoffFis
 POST    /ida/login                  @controllers.LoginController.idaLogin
 
 GET     /sa/home                    @controllers.SaController.home
+GET     /sa/details                 @controllers.SaController.details
 
 GET     /                           @controllers.HomeController.landing
 

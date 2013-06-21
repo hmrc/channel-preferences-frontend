@@ -44,7 +44,6 @@ trait ActionWrappers extends MicroServices {
   private def getRegimeRootsObject(regimes: Map[String, String]): RegimeRoots = {
     val payeRootUri = regimes.get("paye")
     val saRootUri = regimes.get("sa")
-    println("payeRootUri: " + payeRootUri + ", saRootUri: " + saRootUri)
 
     RegimeRoots(
       paye = payeRootUri match {

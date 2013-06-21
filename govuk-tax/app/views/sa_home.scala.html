@@ -1,11 +1,7 @@
-@(utr: String, personalDetails: microservice.sa.domain.SaPerson)
+@(utr: String, name: String, personalDetailsUrl:String)
 @main(title = "Your tax home") {
 
-    <h2>@personalDetails.name ( utr: @utr )</h2>
-        <p>@personalDetails.address.addressLine1</p>
-        <p>@personalDetails.address.addressLine2</p>
-        <p>@personalDetails.address.addressLine3</p>
-        <p>@personalDetails.address.addressLine4</p>
-        <p>@personalDetails.address.addressLine5</p>
+    <h2>@name ( utr: @utr )</h2>
+    <a href="/sa/details">My details</a>
 
 }

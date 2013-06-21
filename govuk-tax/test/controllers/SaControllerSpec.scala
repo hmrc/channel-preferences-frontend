@@ -11,7 +11,7 @@ import microservice.sa.domain._
 import microservice.auth.domain.UserAuthority
 import play.api.test.FakeApplication
 import scala.Some
-import play.api.mvc.Cookie
+import play.api.mvc.{AnyContent, Action, Cookie}
 import microservice.sa.SaMicroService
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
@@ -57,50 +57,34 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
   "The home method" should {
 
-    "display the name for Geoff Fisher" in new WithApplication(FakeApplication()) {
-      val content = requestHome
+    "display the name for Geoff Fisher and a  link to his individual SA address" in new WithApplication(FakeApplication()) {
+      val content = request(controller.home)
+
       content should include("Geoff Fisher")
+      content should include("My details</a>")
+      content should include("href=\"/sa/details\"")
     }
 
-    "return the link to show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
-      (pending)
-      //      val content = requestHome
-      //      content should include("Click here to see your SA address")
-    }
+  }
 
-    def requestHome: String = {
-      val home = controller.home
-      val result = home(FakeRequest().withCookies(Cookie("userId", "/auth/oid/gfisher")))
+  "The details page" should {
+    "show the individual SA address of Geoff Fisher" in {
 
-      status(result) should be(200)
+      val content = request(controller.details)
 
-      contentAsString(result)
+      content should include("address line 1")
+      content should include("address line 2")
+      content should include("address line 3")
+      content should include("address line 4")
+      content should include("address line 5")
     }
   }
 
-  //  "The benefits method" should {
-  //
-  //    "display John's benefits" in new WithApplication(FakeApplication()) {
-  //      requestBenefits should include("£ 135.33")
-  //    }
-  //
-  //    "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
-  //      requestBenefits should not include "£ 22.22"
-  //    }
-  //
-  //    "display car details" in new WithApplication(FakeApplication()) {
-  //      requestBenefits should include("Engine size: 1")
-  //      requestBenefits should include("Fuel type: 2")
-  //      requestBenefits should include("Date car registered: 12/12/2012")
-  //      requestBenefits should include("£ 321.42")
-  //    }
-  //
-  //    def requestBenefits = {
-  //      val result = controller.benefits(FakeRequest().withCookies(Cookie("userId", "/auth/oid/jdensmore")))
-  //      status(result) shouldBe 200
-  //      contentAsString(result)
-  //    }
-  //
-  //  }
+  def request(action: Action[AnyContent]):String = {
+    val result = action(FakeRequest().withCookies(Cookie("userId", "/auth/oid/gfisher")))
 
+    status(result) should be(200)
+
+    contentAsString(result)
+  }
 }
