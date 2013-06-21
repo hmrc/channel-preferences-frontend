@@ -1,6 +1,7 @@
 package microservice.domain
 
 import microservice.auth.domain.UserAuthority
+
 import microservice.paye.domain.PayeRoot
 import microservice.sa.domain.SaRoot
 

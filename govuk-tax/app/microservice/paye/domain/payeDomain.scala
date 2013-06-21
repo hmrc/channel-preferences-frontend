@@ -33,4 +33,6 @@ case class Benefit(benefitType: Int, taxYear: String, grossAmount: Long, employm
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmountToMoney)
 }
 case class Car(engineSize: Int, fuelType: Int, dateCarRegistered: String)
+
 case class Employment(sequenceNumber: Int, startDate: String, endDate: String, taxDistrictNumber: String, payeNumber: String)
+

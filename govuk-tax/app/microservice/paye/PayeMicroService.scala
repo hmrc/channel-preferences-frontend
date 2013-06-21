@@ -11,11 +11,11 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
   //todo ? bring back SA stuff here because SA is also personal stuff
 
-  def root(uri: String) = get[PayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Paye root not found at URI '$uri'"))
+  def root(uri: String) = httpGet[PayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Paye root not found at URI '$uri'"))
 
-  def linkedResource[T](uri: String)(implicit m: Manifest[T]) = {
+  override def linkedResource[T](uri: String)(implicit m: Manifest[T]) = {
     Logger.debug(s"Loading linked paye resource, uri: $uri")
-    get[T](uri)
+    httpGet[T](uri)
   }
 
 }
