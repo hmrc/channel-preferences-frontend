@@ -1,6 +1,11 @@
-@(name: String)
+@(utr: String, personalDetails: microservice.sa.domain.SaPerson)
 @main(title = "Your tax home") {
 
-    <h2>This is the SA home and if you're seeing this then you are Geoffrey Fisher!</h2>
+    <h2>@personalDetails.name ( utr: @utr )</h2>
+        <p>@personalDetails.address.addressLine1</p>
+        <p>@personalDetails.address.addressLine2</p>
+        <p>@personalDetails.address.addressLine3</p>
+        <p>@personalDetails.address.addressLine4</p>
+        <p>@personalDetails.address.addressLine5</p>
 
 }

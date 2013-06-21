@@ -31,7 +31,7 @@ trait MicroService extends Status {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def get[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get), defaultTimeoutDuration)
+  protected def get[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get()), defaultTimeoutDuration)
 
   protected def post[A](uri: String, body: JsValue)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).post(body)), defaultTimeoutDuration)
 
@@ -50,7 +50,7 @@ trait MicroService extends Status {
           case UNAUTHORIZED => throw new RuntimeException("Unauthenticated request")
           case FORBIDDEN => throw new RuntimeException("Not authorised to make this request")
           case CONFLICT => throw new RuntimeException("Invalid state")
-          case _ => throw new RuntimeException("Internal server error")
+          case x => throw new RuntimeException(s"Internal server error, response status is: $x, futureResponse: $futureResponse")
         }
     }
   }
@@ -66,7 +66,9 @@ object MicroServiceConfig {
 
   lazy val authServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.auth.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.auth.port").getOrElse(8500)}"
   lazy val payeServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.personal.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.personal.port").getOrElse(8600)}"
-  lazy val businessServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.business.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.business.port").getOrElse(8700)}"
-  lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8800)}"
+  lazy val businessServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.business.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.business.port").getOrElse(8510)}"
+  lazy val matchingServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.matching.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.matching.port").getOrElse(8510)}"
+  lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8540)}"
+  lazy val saServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.sa.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.sa.port").getOrElse(8900)}"
 }
 

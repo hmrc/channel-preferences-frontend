@@ -34,5 +34,3 @@ case class Benefit(benefitType: Int, taxYear: String, grossAmount: Long, employm
 }
 case class Car(engineSize: Int, fuelType: Int, dateCarRegistered: String)
 case class Employment(sequenceNumber: Int, startDate: String, endDate: String, taxDistrictNumber: String, payeNumber: String)
-
-case class SaRoot(name: String)
