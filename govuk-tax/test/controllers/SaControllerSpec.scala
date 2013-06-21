@@ -11,7 +11,7 @@ import microservice.sa.domain._
 import microservice.auth.domain.UserAuthority
 import play.api.test.FakeApplication
 import scala.Some
-import play.api.mvc.{AnyContent, Action, Cookie}
+import play.api.mvc.{ AnyContent, Action, Cookie }
 import microservice.sa.SaMicroService
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
@@ -80,7 +80,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
     }
   }
 
-  def request(action: Action[AnyContent]):String = {
+  def request(action: Action[AnyContent]): String = {
     val result = action(FakeRequest().withCookies(Cookie("userId", "/auth/oid/gfisher")))
 
     status(result) should be(200)

@@ -42,9 +42,7 @@ object ApplicationBuild extends Build {
     Version.thisPlayApp, appDependencies,
     settings = commonSettings ++ SassPlugin.sassSettings
 
-  ).configs(IntegrationTest)
-  .settings(Defaults.itSettings: _*)
-  .settings(parallelExecution in IntegrationTest := false)
+  )
 
 
   object Version {

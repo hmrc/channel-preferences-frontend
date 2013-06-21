@@ -11,7 +11,7 @@ import microservice.sa.domain._
 import microservice.auth.domain.UserAuthority
 import play.api.test.FakeApplication
 import scala.Some
-import play.api.mvc.{AnyContent, Action, Cookie}
+import play.api.mvc.{ AnyContent, Action, Cookie }
 import microservice.sa.SaMicroService
 
 class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
@@ -33,13 +33,10 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
     )
   )
 
-
-
   private def controller = new SaController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val saMicroService = mockSaMicroService
   }
-  //todo test what happens if user is not authorised to be in this regime - at the time of writing front-end does not do a check
 
   "The home method" should {
 
@@ -49,7 +46,6 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
       val result = controller.home(FakeRequest().withCookies(Cookie("userId", "/auth/oid/gfisher")))
 
       status(result) should be(404)
-      
 
     }
   }
@@ -61,6 +57,5 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
       status(result) should be(404)
     }
   }
-
 
 }

@@ -9,6 +9,7 @@ import play.Logger
 trait ActionWrappers extends MicroServices {
   self: Controller =>
 
+  //todo test what happens if user is not authorised to be in this regime - at the time of writing front-end does not do a check
   object AuthorisedForAction {
 
     def apply[A <: TaxRegime](action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
