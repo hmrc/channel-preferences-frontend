@@ -56,6 +56,5 @@ trait ActionWrappers extends MicroServices {
         case _ => None
       }
     )
-
   }
 }

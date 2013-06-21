@@ -13,6 +13,6 @@ class SamlMicroService extends MicroService {
     .getOrElse(throw new IllegalStateException("Expected SAML auth response but none returned"))
 
   def validate(authResponse: String) = httpPost[AuthResponseValidationResult](
-    "/saml/validate", Json.toJson(Map("authResponse" -> authResponse)))
+    "/saml/validate", Json.toJson(Map("samlResponse" -> authResponse)))
     .getOrElse(throw new IllegalStateException("Expected SAML validation response but none returned"))
 }
