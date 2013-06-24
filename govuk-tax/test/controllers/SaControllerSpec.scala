@@ -29,11 +29,11 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
     SaRoot(
       utr = "123456789012",
       links = Map(
-        "personalDetails" -> "/personal/sa/123456789012/personalDetails")
+        "personalDetails" -> "/personal/sa/123456789012/details")
     )
   )
 
-  when(mockSaMicroService.person("/personal/sa/123456789012/personalDetails")).thenReturn(
+  when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
     Some(SaPerson(
       name = "Geoff Fisher",
       utr = "123456789012",

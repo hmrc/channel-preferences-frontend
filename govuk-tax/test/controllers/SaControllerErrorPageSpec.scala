@@ -29,7 +29,7 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
     SaRoot(
       utr = "123456789012",
       links = Map(
-        "personalDetails" -> "/personal/sa/123456789012/personalDetails")
+        "personalDetails" -> "/personal/sa/123456789012/details")
     )
   )
 
@@ -42,7 +42,7 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
 
-      when(mockSaMicroService.person("/personal/sa/123456789012/personalDetails")).thenReturn(None)
+      when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(None)
       val result = controller.home(FakeRequest().withCookies(Cookie("userId", "/auth/oid/gfisher")))
 
       status(result) should be(404)
@@ -51,8 +51,8 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
   }
 
   "The details page" should {
-    "show the individual SA address of Geoff Fisher" in {
-      when(mockSaMicroService.person("/personal/sa/123456789012/personalDetails")).thenReturn(None)
+    "display an error page if personal details do not come back from backend service" in {
+      when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(None)
       val result = controller.details(FakeRequest().withCookies(Cookie("userId", "/auth/oid/gfisher")))
       status(result) should be(404)
     }

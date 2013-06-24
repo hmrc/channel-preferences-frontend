@@ -5,11 +5,6 @@ import microservice.sa.SaMicroService
 
 case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
 
-  //  def designatoryDetails(implicit saMicroService: SaMicroService) = {
-  //    resourceFor[DesignatoryDetails]("designatoryDetails").getOrElse(None)
-  //
-  //  }
-
   def personalDetails(implicit saMicroService: SaMicroService): Option[SaPerson] = {
     links.get("personalDetails") match {
       case Some(uri) => saMicroService.person(uri)
@@ -18,21 +13,6 @@ case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
   }
 
 }
-//case class DesignatoryDetails(links: Map[String, String]) {
-//
-//  def person(implicit saMicroService: SaMicroService) = {
-//    resourceFor[Person]("person").getOrElse(None)
-//  }
-//
-//  private def resourceFor[T](resource: String)(implicit saMicroService: SaMicroService, m: Manifest[T]): Option[T] = {
-//    links.get(resource) match {
-//      case Some(uri) => saMicroService.linkedResource[T](uri)
-//      case _ => None
-//    }
-//  }
-//}
-//
-//case class Person(name: String)
 
 case class SaTaxData(utr: String, links: Map[String, String])
 
