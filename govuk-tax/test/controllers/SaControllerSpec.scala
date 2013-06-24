@@ -61,7 +61,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
       val content = request(controller.home)
 
       content should include("Geoff Fisher")
-      content should include("My details</a>")
+      content should include("My Details</a>")
       content should include("href=\"/sa/details\"")
     }
 
