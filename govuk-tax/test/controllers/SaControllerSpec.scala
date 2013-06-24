@@ -77,6 +77,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
       content should include("address line 3")
       content should include("address line 4")
       content should include("address line 5")
+      content should include("postcode")
     }
   }
 
