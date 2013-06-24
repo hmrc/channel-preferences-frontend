@@ -2,6 +2,7 @@ package microservice.paye.domain
 
 import microservice.domain.{ RegimeRoot, TaxRegime }
 import microservice.paye.PayeMicroService
+import org.joda.time.LocalDate
 
 class PayeRegime extends TaxRegime
 
@@ -28,11 +29,10 @@ case class PayeRoot(name: String, links: Map[String, String]) extends RegimeRoot
 }
 
 case class TaxCode(taxCode: String)
-case class Benefit(benefitType: Int, taxYear: String, grossAmount: Long, employmentSequenceNumber: Int, cars: Seq[Car]) {
-  lazy val grossAmountToMoney = BigDecimal(grossAmount) / 100
-  def grossAmountToString(format: String = "%.2f") = format.format(grossAmountToMoney)
+case class Benefit(benefitType: Int, taxYear: Int, grossAmount: BigDecimal, employmentSequenceNumber: Int, cars: Seq[Car]) {
+  def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
-case class Car(engineSize: Int, fuelType: Int, dateCarRegistered: String)
+case class Car(engineSize: Int, fuelType: Int, dateCarRegistered: LocalDate)
 
-case class Employment(sequenceNumber: Int, startDate: String, endDate: String, taxDistrictNumber: String, payeNumber: String)
+case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: Int, payeNumber: String)
 

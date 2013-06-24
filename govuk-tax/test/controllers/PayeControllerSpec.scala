@@ -16,6 +16,7 @@ import microservice.paye.domain.Benefit
 import scala.Some
 import microservice.paye.domain.TaxCode
 import play.api.mvc.Cookie
+import org.joda.time.LocalDate
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
 
@@ -45,16 +46,18 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   )
 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/personal/paye/AB123456C/employments/2013")).thenReturn(
-    Some(Seq(Employment(sequenceNumber = 1, startDate = "02/07/2013", endDate = "08/10/2013", taxDistrictNumber = "898", payeNumber = "9900112")))
+    Some(Seq(
+      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = 898, payeNumber = "9900112"),
+      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = 899, payeNumber = "1212121")))
   )
 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(
-      Benefit(benefitType = 30, taxYear = "2013", grossAmount = 13533, employmentSequenceNumber = 1, cars = List()),
-      Benefit(benefitType = 31, taxYear = "2013", grossAmount = 2222, employmentSequenceNumber = 2,
-        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = "04/07/2011"))),
-      Benefit(benefitType = 31, taxYear = "2013", grossAmount = 32142, employmentSequenceNumber = 1,
-        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = "12/12/2012")))))
+      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
+      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
+        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2011, 7, 4)))),
+      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
+        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2012, 12, 12))))))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {
@@ -78,6 +81,10 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       val content = requestHome
       content should include("898")
       content should include("9900112")
+      content should include("899")
+      content should include("1212121")
+      content should include("July 2, 2013 to October 8, 2013")
+      content should include("October 14, 2013 to present")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
@@ -108,7 +115,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     "display car details" in new WithApplication(FakeApplication()) {
       requestBenefits should include("Engine size: 1")
       requestBenefits should include("Fuel type: 2")
-      requestBenefits should include("Date car registered: 12/12/2012")
+      requestBenefits should include("Date car registered: December 12, 2012")
       requestBenefits should include("£ 321.42")
     }
 
