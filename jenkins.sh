@@ -1,4 +1,6 @@
 #!/bin/bash
 
+. ./build-env
+
 cd govuk-tax
-./sbt -Dsbt.log.noformat=true clean test
+play clean test dist
