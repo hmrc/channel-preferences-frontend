@@ -29,7 +29,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   }
 
   "Login controller GET /login" should {
-    "forward to the login page" in {
+    "forward to the login page" in new WithApplication(FakeApplication()){
       val result = loginController.login()(FakeRequest())
 
       status(result) should be(200)
@@ -38,7 +38,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   }
 
   "Login controller GET /samllogin" should {
-    "return a form that contains the data from the saml service" in {
+    "return a form that contains the data from the saml service" in new WithApplication(FakeApplication()) {
       val result = loginController.samlLogin()(FakeRequest())
 
       status(result) should be(200)
