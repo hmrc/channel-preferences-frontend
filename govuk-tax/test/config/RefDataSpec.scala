@@ -3,7 +3,6 @@ package config
 import test.BaseSpec
 import config.RefData._
 
-
 class RefDataSpec extends BaseSpec {
 
   "The reference data" should {
@@ -35,7 +34,6 @@ class RefDataSpec extends BaseSpec {
       iabdTypeFor(36) mustBe "Van Fuel Benefit"
       iabdTypeFor(86) mustBe "Trusts, Settlements & Estates at Trust Rate"
       iabdTypeFor(124) mustBe "Child Benefit"
-
 
     }
   }
