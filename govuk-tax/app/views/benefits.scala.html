@@ -1,6 +1,7 @@
 @(benefits: Seq[(microservice.paye.domain.Benefit, microservice.paye.domain.Employment)])
 
 @import views.formatting.Dates._
+@import config.RefData._
 
 @main(title = "Your tax home") {
 
@@ -21,13 +22,13 @@
                 <td>@benefit._2.taxDistrictNumber / @benefit._2.payeNumber<br>
                     From @formatDate(benefit._2.startDate) to @formatDate(benefit._2.endDate, "present")
                 </td>
-                <td>Type id: @benefit._1.benefitType</td>
+                <td>@iabdTypeFor(benefit._1.benefitType)</td>
 
                 @if(benefit._1.cars.size > 0) {
                     <td>
                         @for(car <- benefit._1.cars) {
-                            Engine size: @car.engineSize<br>
-                            Fuel type: @car.fuelType<br>
+                            Engine size: @engineSizeFor(car.engineSize)<br>
+                            Fuel type: @fuelTypeFor(car.fuelType)<br>
                             Date car registered: @formatDate(car.dateCarRegistered)<br>
                         }
                     </td>

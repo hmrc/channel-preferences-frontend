@@ -36,5 +36,20 @@ class RefDataSpec extends BaseSpec {
       iabdTypeFor(124) mustBe "Child Benefit"
 
     }
+
+    "return Unknown if the code does not have a corresponding label" in {
+      fuelTypeFor(0) mustBe "Unknown"
+      fuelTypeFor(-1) mustBe "Unknown"
+      fuelTypeFor(200) mustBe "Unknown"
+
+      iabdTypeFor(0) mustBe "Unknown"
+      iabdTypeFor(-1) mustBe "Unknown"
+      iabdTypeFor(300) mustBe "Unknown"
+
+      engineSizeFor(0) mustBe "Unknown"
+      engineSizeFor(-1) mustBe "Unknown"
+      engineSizeFor(300) mustBe "Unknown"
+    }
   }
+
 }

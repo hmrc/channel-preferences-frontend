@@ -17,15 +17,17 @@ object RefData {
   }
 
   def engineSizeFor(code: Int) = {
-    data("ENGNSIZE")(code)
+    dataFor("ENGNSIZE", code)
   }
 
   def fuelTypeFor(code: Int) = {
-    data("FUELTYPE")(code)
+    dataFor("FUELTYPE", code)
   }
 
   def iabdTypeFor(code: Int) = {
-    data("IABDTYPE")(code)
+    dataFor("IABDTYPE", code)
   }
+
+  private def dataFor(key: String, code: Int) = data(key).getOrElse(code, "Unknown")
 
 }

@@ -113,8 +113,10 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "display car details" in new WithApplication(FakeApplication()) {
-      requestBenefits should include("Engine size: 1")
-      requestBenefits should include("Fuel type: 2")
+      requestBenefits should include("Medical Insurance")
+      requestBenefits should include("Car Benefit")
+      requestBenefits should include("Engine size: 0-1400 cc")
+      requestBenefits should include("Fuel type: Bi-Fuel")
       requestBenefits should include("Date car registered: December 12, 2012")
       requestBenefits should include("£ 321.42")
     }

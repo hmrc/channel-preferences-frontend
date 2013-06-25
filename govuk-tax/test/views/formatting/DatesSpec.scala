@@ -7,7 +7,6 @@ import org.joda.time.LocalDate
 
 class DatesSpec extends WordSpec with MustMatchers {
 
-
   "Calling formatDate with a LocalDate object" should {
 
     "return the formatted date" in {
