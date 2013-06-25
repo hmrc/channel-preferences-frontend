@@ -69,10 +69,10 @@ object ApplicationBuild extends Build {
   }
 
   object Repositories {
-    val hmrcNexusReleases = "hmrc-releases" at "http://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-releases"
-    val hmrcNexusSnapshots = "hmrc-snapshots" at "http://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-snapshots"
-    val hmrcThirdpartyReleases = "thirdparty-releases" at "http://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-releases"
-    val hmrcThirdpartySnapshots = "thirdparty-snapshots" at "http://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-snapshots"
+    val hmrcNexusReleases = "hmrc-releases" at "https://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-releases"
+    val hmrcNexusSnapshots = "hmrc-snapshots" at "https://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-snapshots"
+    val hmrcThirdpartyReleases = "thirdparty-releases" at "https://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-releases"
+    val hmrcThirdpartySnapshots = "thirdparty-snapshots" at "https://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-snapshots"
 
     val resolvers = Seq(
       hmrcNexusReleases,
