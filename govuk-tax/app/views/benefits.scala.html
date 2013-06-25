@@ -1,48 +1,43 @@
 @(benefits: Seq[(microservice.paye.domain.Benefit, microservice.paye.domain.Employment)])
 
+@import views.formatting.Dates._
 
-@import org.joda.time.format.DateTimeFormat
+@main(title = "Your tax home") {
 
-@defining(DateTimeFormat.forPattern("MMMM d, yyyy")) { dateFormatter =>
+    <h2>Current benefits-in-kind</h2>
+    <table>
 
-    @main(title = "Your tax home") {
+        <tr>
+            <th align="left" width="30%">Employment reference</th>
+            <th align="left" width="15%">Benefit Type</th>
+            <th align="left" width="40%">Description</th>
+            <th align="left" width="15%">Cash equivalent/Taxable amount</th>
+        </tr>
 
-        <h2>Current benefits-in-kind</h2>
-        <table>
+
+        @for(benefit <- benefits) {
 
             <tr>
-                <th align="left" width="30%">Employment reference</th>
-                <th align="left" width="15%">Benefit Type</th>
-                <th align="left" width="40%">Description</th>
-                <th align="left" width="15%">Cash equivalent/Taxable amount</th>
-            </tr>
+                <td>@benefit._2.taxDistrictNumber / @benefit._2.payeNumber<br>
+                    From @formatDate(benefit._2.startDate) to @formatDate(benefit._2.endDate, "present")
+                </td>
+                <td>Type id: @benefit._1.benefitType</td>
 
-
-            @for(benefit <- benefits) {
-
-                <tr>
-                    <td>@benefit._2.taxDistrictNumber / @benefit._2.payeNumber<br>
-                        From @dateFormatter.print(benefit._2.startDate) to @if(benefit._2.endDate) {@dateFormatter.print(benefit._2.endDate.get)} else {present}
+                @if(benefit._1.cars.size > 0) {
+                    <td>
+                        @for(car <- benefit._1.cars) {
+                            Engine size: @car.engineSize<br>
+                            Fuel type: @car.fuelType<br>
+                            Date car registered: @formatDate(car.dateCarRegistered)<br>
+                        }
                     </td>
-                    <td>Type id: @benefit._1.benefitType</td>
-
-                    @if(benefit._1.cars.size > 0) {
-                        <td>
-                            @for(car <- benefit._1.cars) {
-                                Engine size: @car.engineSize<br>
-                                Fuel type: @car.fuelType<br>
-                                Date car registered: @dateFormatter.print(car.dateCarRegistered)<br>
-                            }
-                        </td>
-                    } else {
-                        <td></td>
-                    }
-                    <td align="right" >£ @benefit._1.grossAmountToString()</td>
-                </tr>
+                } else {
+                    <td></td>
                 }
+                <td align="right" >£ @benefit._1.grossAmountToString()</td>
+            </tr>
+            }
 
-        </table>
-    }
+    </table>
 }
-
 
