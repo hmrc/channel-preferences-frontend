@@ -44,7 +44,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
         Some(UserAuthority("/auth/oid/jfisher", Map("paye" -> "/personal/paye/AB123456C"))))
 
-      val result = TestController.test(FakeRequest().withCookies(Cookie("userId", "/auth/oid/jdensmore")))
+      val result = TestController.test(FakeRequest().withSession(("userId", "/auth/oid/jdensmore")))
 
       status(result) should equal(200)
       contentAsString(result) should include("John Densmore")
@@ -55,7 +55,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(None)
 
-      val result = TestController.test(FakeRequest().withCookies(Cookie("userId", "/auth/oid/jdensmore")))
+      val result = TestController.test(FakeRequest().withSession(("userId", "/auth/oid/jdensmore")))
       status(result) should equal(401)
     }
   }

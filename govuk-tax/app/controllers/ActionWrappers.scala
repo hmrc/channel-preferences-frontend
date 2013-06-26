@@ -18,11 +18,10 @@ trait ActionWrappers extends MicroServices {
         // He has a oid of /auth/oid/jdensmore, so we'll get that from the auth service
         // TODO: This will need to handle session management / authentication when we support IDA
 
-        request.cookies.get("userId") match {
+        request.session.get("userId") match {
 
-          case Some(cookie) =>
+          case Some(userId) =>
 
-            val userId = cookie.value
             val userAuthority = authMicroService.authority(userId)
 
             Logger.debug(s"Received user authority: $userAuthority")

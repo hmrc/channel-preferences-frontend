@@ -66,9 +66,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       status(result) should be(303)
       redirectLocation(result).get should be("/home")
 
-      val cookie = cookies(result)("userId")
-      cookie.name should be("userId")
-      cookie.value should be(id)
+      val sess = session(result)
+      sess("userId") should be(id)
     }
 
     "return Unauthorised if the post does not contain a saml response" in new WithApplication(FakeApplication()) {

@@ -17,11 +17,11 @@ class LoginController extends BaseController with ActionWrappers {
   }
 
   def enterAsJohnDensmore = Action {
-    Redirect(routes.HomeController.home).withCookies(Cookie("userId", "/auth/oid/jdensmore"))
+    Redirect(routes.HomeController.home).withSession(("userId", "/auth/oid/jdensmore"))
   }
 
   def enterAsGeoffFisher = Action {
-    Redirect(routes.HomeController.home).withCookies(Cookie("userId", "/auth/oid/gfisher"))
+    Redirect(routes.HomeController.home).withSession(("userId", "/auth/oid/gfisher"))
   }
 
   case class SAMLResponse(response: String)
@@ -43,7 +43,7 @@ class LoginController extends BaseController with ActionWrappers {
         if (validationResult.valid) {
           authMicroService.authority(s"/auth/pid/${validationResult.hashPid.get}") match {
             case Some(authority) => {
-              Redirect(routes.HomeController.home).withCookies(Cookie("userId", authority.id))
+              Redirect(routes.HomeController.home).withSession(("userId", authority.id))
             }
             case _ => {
               Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")

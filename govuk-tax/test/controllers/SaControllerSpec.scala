@@ -68,7 +68,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
   }
 
   "The details page" should {
-    "show the individual SA address of Geoff Fisher" in {
+    "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
 
       val content = request(controller.details)
 
@@ -82,7 +82,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
   }
 
   def request(action: Action[AnyContent]): String = {
-    val result = action(FakeRequest().withCookies(Cookie("userId", "/auth/oid/gfisher")))
+    val result = action(FakeRequest().withSession(("userId", "/auth/oid/gfisher")))
 
     status(result) should be(200)
 
