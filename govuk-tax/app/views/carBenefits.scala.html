@@ -2,16 +2,38 @@
 
 @import views.formatting.Dates._
 @import config.RefData._
+@import org.joda.time.LocalDate
 
 @main(title = "Your tax home") {
 
-    <h2>Delete your car benefit</h2>
-        <p> Some text about your car</p>
-        <p>
-            Engine size: @engineSizeFor(car.engineSize)<br>
-            Fuel type: @fuelTypeFor(car.fuelType)<br>
-            Date car registered: @formatDate(car.dateCarRegistered)<br>
+    <h2>Remove your company benefit</h2>
+<p>Car provided by XXXXXXXX's Ltd.</br>
+Registered on @formatDate(car.dateCarRegistered).</br>
+Value of car benefit: £9999</p>
+
+<p>If XXXXXXXX's Ltd. have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
+
+<p>If you do not remove your car, XXXXXXXX's Ltd. will tell us about the change by MMMM YYYY.</p>
+
+<p>Removing your company car and fuel benefit will increase your Personal Allowance by £9999.
+    Your new Personal Allowance will be £9999.
+    This means we will need to issue you with a new tax code.</p>
+
+<form method="POST">
+    <p>
+    <label>
+        Date you gave back the car:
+        <input type="date" name="return_date" placeholder="@shortDate(LocalDate.now)">
+    </label>
         </p>
-        <p>Put date and form here</p>
+    <p>
+    <label>Sainsbury's Ltd. no longer provide me with a company car.
+        <input type="checkbox" name="confirm" />
+    </label>
+    </p>
+
+    <input type="submit" value="Confirm" />
+</form>
+
 }
 

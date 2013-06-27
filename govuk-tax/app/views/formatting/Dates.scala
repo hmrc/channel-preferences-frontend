@@ -6,6 +6,7 @@ import org.joda.time.LocalDate
 object Dates {
 
   private[formatting] val dateFormat = DateTimeFormat.forPattern("MMMM d, yyyy")
+  private[formatting] val shortDateFormat = DateTimeFormat.forPattern("dd/MM/yy")
 
   def formatDate(date: LocalDate) = dateFormat.print(date)
 
@@ -13,4 +14,6 @@ object Dates {
     case Some(d) => dateFormat.print(d)
     case None => default
   }
+
+  def shortDate(date: LocalDate) = shortDateFormat.print(date)
 }
