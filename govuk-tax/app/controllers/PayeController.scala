@@ -1,6 +1,8 @@
 package controllers
 
 import scala.collection.mutable.ListBuffer
+import org.joda.time.LocalDate
+import microservice.paye.domain.{ Car, Benefit, Employment }
 
 class PayeController extends BaseController with ActionWrappers {
 
@@ -40,16 +42,12 @@ class PayeController extends BaseController with ActionWrappers {
           .getOrElse(NotFound)
   }
 
-  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[Tuple2[Benefit, Employment]] =
-    benefits.foldLeft(ListBuffer[(Benefit, Employment)]()) {
-      (matched, benefit) =>
-        {
-          employments.find(_.sequenceNumber == benefit.employmentSequenceNumber) match {
-            case Some(e: Employment) => matched += Tuple2(benefit, e); matched
-            case _ => matched
-          }
-        }
+  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] =
+    benefits.flatMap { benefit =>
+      if (benefit.cars.isEmpty) DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, None) :: Nil
+      else benefit.cars.map(car => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, Some(car)))
     }
 
 }
 
+case class DisplayBenefit(employment: Employment, benefit: Benefit, car: Option[Car])

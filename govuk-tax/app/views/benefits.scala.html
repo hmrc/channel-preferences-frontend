@@ -1,4 +1,4 @@
-@(benefits: Seq[(microservice.paye.domain.Benefit, microservice.paye.domain.Employment)])
+@(benefits: Seq[controllers.DisplayBenefit])
 
 @import views.formatting.Dates._
 @import config.RefData._
@@ -20,28 +20,32 @@
         @for(benefit <- benefits) {
 
             <tr>
-                <td>@benefit._2.taxDistrictNumber / @benefit._2.payeNumber<br>
-                    From @formatDate(benefit._2.startDate) to @formatDate(benefit._2.endDate, "present")
+                <td>@benefit.employment.taxDistrictNumber / @benefit.employment.payeNumber<br>
+                    From @formatDate(benefit.employment.startDate) to @formatDate(benefit.employment.endDate, "present")
                 </td>
-                <td>@iabdTypeFor(benefit._1.benefitType)</td>
+                <td>@iabdTypeFor(benefit.benefit.benefitType)</td>
 
-                @if(benefit._1.cars.size > 0) {
+                @benefit.car.map { car =>
                     <td>
-                        @for(car <- benefit._1.cars) {
                             Engine size: @engineSizeFor(car.engineSize)<br>
                             Fuel type: @fuelTypeFor(car.fuelType)<br>
                             Date car registered: @formatDate(car.dateCarRegistered)<br>
-                        }
                     </td>
-                } else {
-                    <td>@iabdTypeFor(benefit._1.benefitType)</td>
+                }.getOrElse {
+                    <td>@iabdTypeFor(benefit.benefit.benefitType)</td>
                 }
-                <td align="right" >£ @benefit._1.grossAmountToString()</td>
-                <td><ul>
-                    <li>More Information</li>
-                    <li>Change Car</li>
-                    <li><a href="@routes.PayeController.carBenefit(benefit._1.sequenceNumber,24)">Delete Car</a></li>
-                </ul></td>
+                <td align="right" >£ @benefit.benefit.grossAmountToString()</td>
+                @benefit.car.map { car =>
+                <td>
+                    <ul>
+                        <li>Change</li>
+                        <li><a href="@routes.PayeController.carBenefit(benefit.benefit.sequenceNumber,car.sequenceNumber)">Remove</a></li>
+                </ul>
+                }.getOrElse {
+                <td>
+                    More Information
+                </td>
+                }
             </tr>
             }
 
