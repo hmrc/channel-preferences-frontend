@@ -17,11 +17,11 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   }
 
   def enterAsJohnDensmore = Action {
-    Redirect(routes.HomeController.home).withSession(("userId", "/auth/oid/jdensmore"))
+    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/jdensmore")))
   }
 
   def enterAsGeoffFisher = Action {
-    Redirect(routes.HomeController.home).withSession(("userId", "/auth/oid/gfisher"))
+    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/gfisher")))
   }
 
   case class SAMLResponse(response: String)
