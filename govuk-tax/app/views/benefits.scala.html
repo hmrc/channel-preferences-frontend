@@ -13,6 +13,7 @@
             <th align="left" width="15%">Benefit Type</th>
             <th align="left" width="40%">Description</th>
             <th align="left" width="15%">Cash equivalent/Taxable amount</th>
+            <th>Actions</th>
         </tr>
 
 
@@ -36,6 +37,11 @@
                     <td>@iabdTypeFor(benefit._1.benefitType)</td>
                 }
                 <td align="right" >£ @benefit._1.grossAmountToString()</td>
+                <td><ul>
+                    <li>More Information</li>
+                    <li>Change Car</li>
+                    <li><a href="@routes.PayeController.carBenefit(benefit._1.sequenceNumber,24)">Delete Car</a></li>
+                </ul></td>
             </tr>
             }
 

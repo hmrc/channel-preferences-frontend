@@ -29,6 +29,17 @@ class PayeController extends BaseController with ActionWrappers {
         Ok(views.html.benefits(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
+  def carBenefit(benefit: Int, car: Int) = AuthorisedForAction[PayeRegime] {
+    implicit user =>
+      implicit request =>
+        val benefits = user.regimes.paye.get.benefits
+        benefits
+          .find(_.sequenceNumber == benefit)
+          .flatMap(_.cars.find(_.sequenceNumber == car))
+          .map(c => Ok(views.html.carBenefits(c)))
+          .getOrElse(NotFound)
+  }
+
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[Tuple2[Benefit, Employment]] =
     benefits.foldLeft(ListBuffer[(Benefit, Employment)]()) {
       (matched, benefit) =>

@@ -29,10 +29,10 @@ case class PayeRoot(name: String, links: Map[String, String]) extends RegimeRoot
 }
 
 case class TaxCode(taxCode: String)
-case class Benefit(benefitType: Int, taxYear: Int, grossAmount: BigDecimal, employmentSequenceNumber: Int, cars: Seq[Car]) {
+case class Benefit(sequenceNumber: Int, benefitType: Int, taxYear: Int, grossAmount: BigDecimal, employmentSequenceNumber: Int, cars: Seq[Car]) {
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
-case class Car(engineSize: Int, fuelType: Int, dateCarRegistered: LocalDate)
+case class Car(sequenceNumber: Int, engineSize: Int, fuelType: Int, dateCarRegistered: LocalDate)
 
 case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: Int, payeNumber: String)
 
