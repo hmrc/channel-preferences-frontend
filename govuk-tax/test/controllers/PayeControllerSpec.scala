@@ -53,11 +53,11 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(
-      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
-      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
-        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2011, 7, 4)))),
-      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
-        cars = List(Car(engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2012, 12, 12))))))
+      Benefit(sequenceNumber = 1, benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
+      Benefit(sequenceNumber = 1, benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
+        cars = List(Car(sequenceNumber = 1, engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2011, 7, 4)))),
+      Benefit(sequenceNumber = 1, benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
+        cars = List(Car(sequenceNumber = 1, engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2012, 12, 12))))))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {
