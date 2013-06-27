@@ -18,7 +18,7 @@ import microservice.paye.domain.TaxCode
 import play.api.mvc.Cookie
 import org.joda.time.LocalDate
 
-class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
+class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
   import play.api.test.Helpers._
 
@@ -94,7 +94,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     def requestHome: String = {
       val home = controller.home
-      val result = home(FakeRequest().withSession(("userId", "/auth/oid/jdensmore")))
+      val result = home(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
 
       status(result) should be(200)
 
@@ -122,7 +122,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     def requestBenefits = {
-      val result = controller.benefits(FakeRequest().withSession(("userId", "/auth/oid/jdensmore")))
+      val result = controller.benefits(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
       contentAsString(result)
     }

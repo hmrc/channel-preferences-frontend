@@ -10,8 +10,9 @@ import microservices.MockMicroServicesForTests
 import play.api.test.{ FakeApplication, WithApplication, FakeRequest }
 import microservice.auth.AuthMicroService
 import microservice.auth.domain.UserAuthority
+import java.util
 
-class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
+class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
   import play.api.test.Helpers._
 
@@ -38,12 +39,19 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   }
 
   "Login controller GET /samllogin" should {
-    "return a form that contains the data from the saml service" in new WithApplication(FakeApplication()) {
+    "return a form that contains th§e data from the saml service" in new WithApplication(FakeApplication()) {
       val result = loginController.samlLogin()(FakeRequest())
 
       status(result) should be(200)
       contentAsString(result) should include("action=\"http://www.ida.gov.uk/saml\"")
       contentAsString(result) should include("value=\"0987654321\"")
+    }
+  }
+
+  "LoginController " should {
+    "encrypt cooke value" in new WithApplication(FakeApplication()) {
+      val enc = loginController.encrypt("/auth/oid/9875928746298467209348650298847235")
+      println("Encrypted cookie:" + enc)
     }
   }
 
@@ -67,7 +75,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       redirectLocation(result).get should be("/home")
 
       val sess = session(result)
-      sess("userId") should be(id)
+      decrypt(sess("userId")) should be(id)
     }
 
     "return Unauthorised if the post does not contain a saml response" in new WithApplication(FakeApplication()) {

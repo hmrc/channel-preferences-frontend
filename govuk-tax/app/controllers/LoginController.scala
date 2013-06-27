@@ -1,11 +1,11 @@
 package controllers
 
-import play.api.mvc.{ Cookie, Action }
+import play.api.mvc.Action
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
 
-class LoginController extends BaseController with ActionWrappers {
+class LoginController extends BaseController with ActionWrappers with CookieEncryption {
 
   def login = Action {
     Ok(views.html.login())
@@ -43,7 +43,7 @@ class LoginController extends BaseController with ActionWrappers {
         if (validationResult.valid) {
           authMicroService.authority(s"/auth/pid/${validationResult.hashPid.get}") match {
             case Some(authority) => {
-              Redirect(routes.HomeController.home).withSession(("userId", authority.id))
+              Redirect(routes.HomeController.home).withSession(("userId", encrypt(authority.id)))
             }
             case _ => {
               Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")
@@ -57,4 +57,5 @@ class LoginController extends BaseController with ActionWrappers {
       }
     )
   }
+
 }

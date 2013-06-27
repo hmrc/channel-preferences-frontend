@@ -6,7 +6,7 @@ import microservice.domain.{ RegimeRoots, TaxRegime, User }
 import microservice.auth.domain.UserAuthority
 import play.Logger
 
-trait ActionWrappers extends MicroServices {
+trait ActionWrappers extends MicroServices with CookieEncryption {
   self: Controller =>
 
   //todo test what happens if user is not authorised to be in this regime - at the time of writing front-end does not do a check
@@ -20,7 +20,9 @@ trait ActionWrappers extends MicroServices {
 
         request.session.get("userId") match {
 
-          case Some(userId) =>
+          case Some(encryptedUserId) =>
+
+            val userId = decrypt(encryptedUserId)
 
             val userAuthority = authMicroService.authority(userId)
 
