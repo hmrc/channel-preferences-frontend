@@ -1,0 +1,17 @@
+@(car: microservice.paye.domain.Car)
+
+@import views.formatting.Dates._
+@import config.RefData._
+
+@main(title = "Your tax home") {
+
+    <h2>Delete your car benefit</h2>
+        <p> Some text about your car</p>
+        <p>
+            Engine size: @engineSizeFor(car.engineSize)<br>
+            Fuel type: @fuelTypeFor(car.fuelType)<br>
+            Date car registered: @formatDate(car.dateCarRegistered)<br>
+        </p>
+        <p>Put date and form here</p>
+}
+
