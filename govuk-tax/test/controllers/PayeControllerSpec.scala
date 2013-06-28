@@ -54,9 +54,9 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(
       Benefit(sequenceNumber = 1, benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
-      Benefit(sequenceNumber = 1, benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
+      Benefit(sequenceNumber = 2, benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
         cars = List(Car(sequenceNumber = 1, engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2011, 7, 4)))),
-      Benefit(sequenceNumber = 1, benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
+      Benefit(sequenceNumber = 3, benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
         cars = List(Car(sequenceNumber = 1, engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2012, 12, 12))))))
   )
 
@@ -127,6 +127,19 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       contentAsString(result)
     }
 
+  }
+
+  "The remove benefit method" should {
+    "display car details" in new WithApplication(FakeApplication()) {
+      requestBenefits should include("Remove your company benefit")
+      requestBenefits should include("Value of car benefit: £ 321.42")
+    }
+
+    def requestBenefits = {
+      val result = controller.carBenefit(3, 1)(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      status(result) shouldBe 200
+      contentAsString(result)
+    }
   }
 
 }
