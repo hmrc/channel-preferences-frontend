@@ -1,7 +1,5 @@
 package controllers
 
-import scala.collection.mutable.ListBuffer
-import org.joda.time.LocalDate
 import microservice.paye.domain.{ Car, Benefit, Employment }
 
 class PayeController extends BaseController with ActionWrappers {
