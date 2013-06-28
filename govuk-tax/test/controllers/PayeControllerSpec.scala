@@ -47,8 +47,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/personal/paye/AB123456C/employments/2013")).thenReturn(
     Some(Seq(
-      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = 898, payeNumber = "9900112"),
-      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = 899, payeNumber = "1212121")))
+      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = 898, payeNumber = "9900112", employerName = "Weyland-Yutani Corp"),
+      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = 899, payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(

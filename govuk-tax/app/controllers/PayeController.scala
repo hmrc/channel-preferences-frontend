@@ -29,14 +29,15 @@ class PayeController extends BaseController with ActionWrappers {
         Ok(views.html.benefits(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
-  def carBenefit(benefit: Int, car: Int) = AuthorisedForAction[PayeRegime] {
+  def carBenefit(benefitId: Int, carId: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        val benefits = user.regimes.paye.get.benefits
-        benefits
-          .find(_.sequenceNumber == benefit)
-          .flatMap(_.cars.find(_.sequenceNumber == car))
-          .map(c => Ok(views.html.carBenefits(c)))
+        val benefit = user.regimes.paye.get.benefits.find(_.sequenceNumber == benefitId)
+        val displayBenefit = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)
+        displayBenefit
+          .filter(_.car.isDefined)
+          .find(_.car.get.sequenceNumber == carId)
+          .map(db => Ok(views.html.carBenefits(db)))
           .getOrElse(NotFound)
   }
 

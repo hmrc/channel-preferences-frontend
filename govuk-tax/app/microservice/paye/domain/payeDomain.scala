@@ -34,5 +34,5 @@ case class Benefit(sequenceNumber: Int, benefitType: Int, taxYear: Int, grossAmo
 }
 case class Car(sequenceNumber: Int, engineSize: Int, fuelType: Int, dateCarRegistered: LocalDate)
 
-case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: Int, payeNumber: String)
+case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: Int, payeNumber: String, employerName: String)
 

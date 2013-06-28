@@ -1,4 +1,4 @@
-@(car: microservice.paye.domain.Car)
+@(displayBenefit: controllers.DisplayBenefit)
 
 @import views.formatting.Dates._
 @import config.RefData._
@@ -7,13 +7,11 @@
 @main(title = "Your tax home") {
 
     <h2>Remove your company benefit</h2>
-<p>Car provided by XXXXXXXX's Ltd.<br/>
-Registered on @formatDate(car.dateCarRegistered).<br/>
-Value of car benefit: £9999</p>
+<p>Car provided by @displayBenefit.employment.employerName<br/>
+Registered on @formatDate(displayBenefit.car.get.dateCarRegistered).<br/>
+Value of car benefit: £ @displayBenefit.benefit.grossAmountToString()</p>
 
-<p>If XXXXXXXX's Ltd. have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
-
-<p>If you do not remove your car, XXXXXXXX's Ltd. will tell us about the change by MMMM YYYY.</p>
+<p>If @displayBenefit.employment.employerName have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
 <p>Removing your company car and fuel benefit will increase your Personal Allowance by £9999.
     Your new Personal Allowance will be £9999.
@@ -27,7 +25,7 @@ Value of car benefit: £9999</p>
     </label>
         </p>
     <p>
-    <label>Sainsbury's Ltd. no longer provide me with a company car.
+    <label>@displayBenefit.employment.employerName no longer provide me with a company car.
         <input type="checkbox" name="confirm" />
     </label>
     </p>
