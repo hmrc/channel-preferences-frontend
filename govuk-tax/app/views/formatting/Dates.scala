@@ -6,7 +6,7 @@ import org.joda.time.LocalDate
 object Dates {
 
   private[formatting] val dateFormat = DateTimeFormat.forPattern("MMMM d, yyyy")
-  private[formatting] val shortDateFormat = DateTimeFormat.forPattern("dd/MM/yy")
+  private[formatting] val shortDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 
   def formatDate(date: LocalDate) = dateFormat.print(date)
 

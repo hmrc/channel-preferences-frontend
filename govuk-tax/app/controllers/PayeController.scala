@@ -1,6 +1,9 @@
 package controllers
 
 import microservice.paye.domain.{ Car, Benefit, Employment }
+import org.joda.time.LocalDate
+import play.api.data._
+import play.api.data.Forms._
 
 class PayeController extends BaseController with ActionWrappers {
 
@@ -39,6 +42,29 @@ class PayeController extends BaseController with ActionWrappers {
           .find(_.car.get.sequenceNumber == carId)
           .map(db => Ok(views.html.carBenefits(db)))
           .getOrElse(NotFound)
+  }
+
+  def removeBenefit(benefitId: Int, carId: Int) = AuthorisedForAction[PayeRegime] {
+    implicit user =>
+      implicit request =>
+        val form = Form(single("return_date" -> jodaLocalDate))
+        val boundForm = form.bindFromRequest
+        boundForm.fold(
+          errors => {
+            println(errors)
+            BadRequest
+          },
+          formData => {
+            val benefit = user.regimes.paye.get.benefits.find(_.sequenceNumber == benefitId)
+            val displayBenefit = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)
+            displayBenefit
+              .filter(_.car.isDefined)
+              .find(_.car.get.sequenceNumber == carId)
+              .map(db => Ok(views.html.benefit_removed(formData)))
+              .getOrElse(BadRequest)
+          }
+        )
+
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] =

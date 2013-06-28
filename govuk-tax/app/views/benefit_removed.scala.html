@@ -1,0 +1,19 @@
+@(date: org.joda.time.LocalDate)
+
+@import views.formatting.Dates._
+@import config.RefData._
+@import org.joda.time.LocalDate
+
+@main(title = "Your tax home") {
+
+<h2>Company car and fuel benefit removed</h2>
+<p>Thank you for telling us about the change to your company benefits.</p>
+
+<p>Your benefits have been removed from your employment from @formatDate(date).</p>
+
+<p>We need to calculate a new tax code for you. We will notify you by email when this has happened. This should take less than 1 week.</p>
+
+<p><a href="/paye/home">Back to your tax overview</a></p>
+
+}
+
