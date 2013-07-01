@@ -35,36 +35,35 @@ class PayeController extends BaseController with ActionWrappers {
   def carBenefit(benefitId: Int, carId: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        val benefit = user.regimes.paye.get.benefits.find(_.sequenceNumber == benefitId)
-        val displayBenefit = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)
-        displayBenefit
-          .filter(_.car.isDefined)
-          .find(_.car.get.sequenceNumber == carId)
-          .map(db => Ok(views.html.carBenefits(db)))
+        val form = Form(single("return_date" -> jodaLocalDate))
+        getCarBenefit(user, benefitId, carId)
+          .map(db => Ok(views.html.carBenefits(db, form("return_date"))))
           .getOrElse(NotFound)
   }
 
   def removeBenefit(benefitId: Int, carId: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        val form = Form(single("return_date" -> jodaLocalDate))
-        val boundForm = form.bindFromRequest
-        boundForm.fold(
-          errors => {
-            println(errors)
-            BadRequest
-          },
-          formData => {
-            val benefit = user.regimes.paye.get.benefits.find(_.sequenceNumber == benefitId)
-            val displayBenefit = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)
-            displayBenefit
-              .filter(_.car.isDefined)
-              .find(_.car.get.sequenceNumber == carId)
-              .map(db => Ok(views.html.benefit_removed(formData)))
-              .getOrElse(BadRequest)
-          }
-        )
+        getCarBenefit(user, benefitId, carId)
+          .map(db => {
+            val form = Form(single("return_date" -> jodaLocalDate))
+            val boundForm = form.bindFromRequest
+            boundForm.fold(
+              errors => Ok(views.html.carBenefits(db, errors("return_date"))),
+              formData => Ok(views.html.benefit_removed(formData))
+            )
+          })
+          .getOrElse(NotFound)
 
+  }
+
+  import microservice.domain.User
+  private def getCarBenefit(user: User, benefitId: Int, carId: Int): Option[DisplayBenefit] = {
+    val benefit = user.regimes.paye.get.benefits.find(_.sequenceNumber == benefitId)
+    val displayBenefit = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)
+    displayBenefit
+      .filter(_.car.isDefined)
+      .find(_.car.get.sequenceNumber == carId)
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] =

@@ -1,4 +1,4 @@
-@(displayBenefit: controllers.DisplayBenefit)
+@(displayBenefit: controllers.DisplayBenefit, field: Field)
 
 @import views.formatting.Dates._
 @import config.RefData._
@@ -19,10 +19,15 @@ Value of car benefit: £ @displayBenefit.benefit.grossAmountToString()</p>
 
 <form method="POST">
     <p>
+        <div @if(field.error.isDefined){ class="error-notification" }>
     <label>
         Date you gave back the car:
         <input type="date" name="return_date" placeholder="@shortDate(LocalDate.now)">
+        @field.error.map { error =>
+        <p>Invalid Date: Use format YYYY-MM-DD, e.g. @shortDate(LocalDate.now)</p>
+        }
     </label>
+    </div>
         </p>
     <p>
     <label>@displayBenefit.employment.employerName no longer provide me with a company car.

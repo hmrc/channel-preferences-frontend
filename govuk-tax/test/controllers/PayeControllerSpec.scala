@@ -135,8 +135,29 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       requestBenefits should include("Value of car benefit: £ 321.42")
     }
 
+    "confirm successful remove benefit" in new WithApplication(FakeApplication()) {
+      val requestRemoval = postRemoveBenefit("2012-06-01")
+      requestRemoval should include("Your benefits have been removed from your employment")
+      requestRemoval should include("June 1, 2012")
+    }
+
+    "validate date" in new WithApplication(FakeApplication()) {
+      val requestRemoval = postRemoveBenefit("Flibble 1st")
+      requestRemoval should include("Remove your company benefit")
+      requestRemoval should include("Invalid Date")
+      requestRemoval should include("format YYYY-MM-DD")
+    }
+
     def requestBenefits = {
       val result = controller.carBenefit(3, 1)(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      status(result) shouldBe 200
+      contentAsString(result)
+    }
+
+    def postRemoveBenefit(date: String) = {
+      val result = controller.removeBenefit(3, 1)(FakeRequest()
+        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
+        .withFormUrlEncodedBody(("return_date" -> date), ("confirm" -> "checked")))
       status(result) shouldBe 200
       contentAsString(result)
     }
