@@ -122,7 +122,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     def requestBenefits = {
-      val result = controller.benefits(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = controller.listBenefits(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
       contentAsString(result)
     }
@@ -155,7 +155,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     def postRemoveBenefit(date: String) = {
-      val result = controller.removeBenefit(3, 1)(FakeRequest()
+      val result = controller.removeCarBenefit(3, 1)(FakeRequest()
         .withSession(("userId", encrypt("/auth/oid/jdensmore")))
         .withFormUrlEncodedBody(("return_date" -> date), ("confirm" -> "checked")))
       status(result) shouldBe 200

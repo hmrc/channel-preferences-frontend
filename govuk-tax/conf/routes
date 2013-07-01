@@ -1,22 +1,22 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
-GET     /paye/home                  @controllers.PayeController.home
-GET     /benefits                   @controllers.PayeController.benefits
-GET     /benefits/:benefit/:car     @controllers.PayeController.carBenefit(benefit: Int, car: Int)
-POST    /benefits/:benefit/:car     @controllers.PayeController.removeBenefit(benefit: Int, car: Int)
+GET     /assets/*file                   controllers.Assets.at(path="/public", file)
+GET     /paye/home                      @controllers.PayeController.home
+GET     /paye/benefits                  @controllers.PayeController.listBenefits
+GET     /paye/benefits/:benefit/:car    @controllers.PayeController.carBenefit(benefit: Int, car: Int)
+POST    /paye/benefits/:benefit/:car    @controllers.PayeController.removeCarBenefit(benefit: Int, car: Int)
 
 # routes for testing IDA integration
-GET     /login                      @controllers.LoginController.login
-GET     /samllogin                  @controllers.LoginController.samlLogin
-GET     /test/jdensmore             @controllers.LoginController.enterAsJohnDensmore
-GET     /test/gfisher               @controllers.LoginController.enterAsGeoffFisher
-POST    /ida/login                  @controllers.LoginController.idaLogin
+GET     /login                          @controllers.LoginController.login
+GET     /samllogin                      @controllers.LoginController.samlLogin
+GET     /test/jdensmore                 @controllers.LoginController.enterAsJohnDensmore
+GET     /test/gfisher                   @controllers.LoginController.enterAsGeoffFisher
+POST    /ida/login                      @controllers.LoginController.idaLogin
 
-GET     /sa/home                    @controllers.SaController.home
-GET     /sa/details                 @controllers.SaController.details
+GET     /sa/home                        @controllers.SaController.home
+GET     /sa/details                     @controllers.SaController.details
 
-GET     /                           @controllers.HomeController.landing
+GET     /                               @controllers.HomeController.landing
 
-GET     /home                       @controllers.HomeController.home
+GET     /home                           @controllers.HomeController.home

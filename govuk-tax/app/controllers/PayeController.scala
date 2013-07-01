@@ -24,12 +24,12 @@ class PayeController extends BaseController with ActionWrappers {
         )
   }
 
-  def benefits = AuthorisedForAction[PayeRegime] {
+  def listBenefits = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
         val benefits = user.regimes.paye.get.benefits
         val employments = user.regimes.paye.get.employments
-        Ok(views.html.benefits(matchBenefitWithCorrespondingEmployment(benefits, employments)))
+        Ok(views.html.paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
   def carBenefit(benefitId: Int, carId: Int) = AuthorisedForAction[PayeRegime] {
@@ -37,11 +37,11 @@ class PayeController extends BaseController with ActionWrappers {
       implicit request =>
         val form = Form(single("return_date" -> jodaLocalDate))
         getCarBenefit(user, benefitId, carId)
-          .map(db => Ok(views.html.carBenefits(db, form("return_date"))))
+          .map(db => Ok(views.html.paye_benefit_car(db, form("return_date"))))
           .getOrElse(NotFound)
   }
 
-  def removeBenefit(benefitId: Int, carId: Int) = AuthorisedForAction[PayeRegime] {
+  def removeCarBenefit(benefitId: Int, carId: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
         getCarBenefit(user, benefitId, carId)
@@ -49,8 +49,8 @@ class PayeController extends BaseController with ActionWrappers {
             val form = Form(single("return_date" -> jodaLocalDate))
             val boundForm = form.bindFromRequest
             boundForm.fold(
-              errors => Ok(views.html.carBenefits(db, errors("return_date"))),
-              formData => Ok(views.html.benefit_removed(formData))
+              errors => Ok(views.html.paye_benefit_car(db, errors("return_date"))),
+              formData => Ok(views.html.paye_benefit_car_removed(formData))
             )
           })
           .getOrElse(NotFound)
