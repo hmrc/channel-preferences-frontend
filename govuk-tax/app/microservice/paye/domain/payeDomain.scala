@@ -6,7 +6,7 @@ import org.joda.time.LocalDate
 
 class PayeRegime extends TaxRegime
 
-case class PayeRoot(name: String, links: Map[String, String]) extends RegimeRoot {
+case class PayeRoot(nino: String, name: String, links: Map[String, String]) extends RegimeRoot {
 
   def taxCodes(implicit payeMicroService: PayeMicroService): Seq[TaxCode] = {
     resourceFor[Seq[TaxCode]]("taxCode").getOrElse(Seq.empty)

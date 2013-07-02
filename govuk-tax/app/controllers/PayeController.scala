@@ -50,7 +50,11 @@ class PayeController extends BaseController with ActionWrappers {
             val boundForm = form.bindFromRequest
             boundForm.fold(
               errors => Ok(views.html.paye_benefit_car(db, errors("return_date"))),
-              formData => Ok(views.html.paye_benefit_car_removed(formData))
+              formData => {
+                payeMicroService.removeCarBenefit(user.regimes.paye.get.nino, benefitId, carId, formData)
+
+                Ok(views.html.paye_benefit_car_removed(formData))
+              }
             )
           })
           .getOrElse(NotFound)

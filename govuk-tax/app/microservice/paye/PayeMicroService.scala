@@ -4,6 +4,8 @@ import microservice.{ TaxRegimeMicroService, MicroServiceConfig }
 
 import microservice.paye.domain.PayeRoot
 import play.Logger
+import play.api.libs.json.Json
+import org.joda.time.LocalDate
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
@@ -17,5 +19,8 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     Logger.debug(s"Loading linked paye resource, uri: $uri")
     httpGet[T](uri)
   }
+
+  def removeCarBenefit(nino: String, benefitId: Int, carId: Int, dateRemoved: LocalDate) =
+    httpPost[Map[String, String]](s"/paye/$nino/remove_benefit", Json.obj("benefitId" -> benefitId, "carId" -> carId, "dateRemoved" -> dateRemoved))
 
 }
