@@ -13,6 +13,8 @@ GET     /samllogin                      @controllers.LoginController.samlLogin
 GET     /test/jdensmore                 @controllers.LoginController.enterAsJohnDensmore
 GET     /test/gfisher                   @controllers.LoginController.enterAsGeoffFisher
 POST    /ida/login                      @controllers.LoginController.idaLogin
+GET     /sa/login                       @controllers.LoginController.saLogin
+POST    /ggw/login                       @controllers.LoginController.ggwLogin
 
 GET     /sa/home                        @controllers.SaController.home
 GET     /sa/details                     @controllers.SaController.details

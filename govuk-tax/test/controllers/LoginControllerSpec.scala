@@ -112,4 +112,38 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       status(result) should be(401)
     }
   }
+
+  "On logging in to SA via Government Gateway Geoff Fisher" should {
+
+    "be presented with a login form asking for his GGW user id and password" in new WithApplication(FakeApplication()) {
+
+      val response = route(FakeRequest(GET, "/sa/login"))
+
+      response match {
+        case Some(result) =>
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "text/html"
+          charset(result).get shouldBe "utf-8"
+          contentAsString(result) should include ("form")
+          contentAsString(result) should include ("Government Gateway user ID")
+          contentAsString(result) should include ("Government Gateway password")
+          contentAsString(result) should include ("Log in")
+        case _ => fail("no response to /sa/login")
+      }
+
+    }
+
+    "see his SA homepage with his UTR and name returned from GGW after submitting valid GGW credentials and is authorized to see SA data" in {
+      pending
+    }
+
+    "should see an error page if his login credentials are not valid" in {
+      pending
+    }
+
+    "should see an error page if his login credentials are valid but he is not authorized to see SA data" in {
+      pending
+    }
+
+  }
 }

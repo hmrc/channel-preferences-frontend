@@ -9,10 +9,9 @@ class SaController extends BaseController with ActionWrappers {
       implicit request =>
 
         val userData: SaRoot = user.regimes.sa.get
-        val personalDetailsUrl = userData.links.get("personalDetails").get //todo can this return None?
 
         userData.personalDetails match {
-          case Some(person: SaPerson) => Ok(views.html.sa_home(userData.utr, person.name, personalDetailsUrl))
+          case Some(person: SaPerson) => Ok(views.html.sa_home(userData.utr, person.name))
           case _ => NotFound //todo this should really be an error page
         }
   }

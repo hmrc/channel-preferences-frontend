@@ -1,0 +1,9 @@
+@main(title = "Log in to Self Assessment (SA) via Government Gateway") {
+
+    <form action="@routes.LoginController.ggwLogin" method="POST">
+        <label for="ggw-userid">Government Gateway user ID</label><input type="text" id="ggw-userid" name="userId"/>
+        <label for="ggw-password">Government Gateway password</label><input type="password" id="ggw-password" name="password"/>
+        <input type="submit" value="Log in"/>
+    </form>
+
+}

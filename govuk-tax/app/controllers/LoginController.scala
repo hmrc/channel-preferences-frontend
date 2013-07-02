@@ -4,6 +4,9 @@ import play.api.mvc.Action
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
+import microservice.ggw.Credentials
+import microservice.auth.domain.UserAuthority
+import play.mvc.Result
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption {
 
@@ -16,8 +19,37 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
   }
 
+  def saLogin = Action {
+    Ok(views.html.sa_login_form())
+  }
+
+  def ggwLogin = Action { implicit request =>
+    import play.api.data.Forms._
+
+    val loginForm = Form(
+      mapping(
+        "userId" -> text,
+        "password" -> text
+      )(Credentials.apply)(Credentials.unapply)
+    )
+    //todo - send request to GGW service /government-gateway/login with Credentials object - that will communicate
+    //todo  with GGW, create the Auth record and return an Authority object here - if all is good we drop cookie here and redirect to SaController
+
+    loginForm.bindFromRequest.fold(
+      formWithErrors => {
+        //todo form binding errors
+      },
+      credentials => {
+        val userAuthority:UserAuthority = ggwMicroService.login(credentials) //todo 401 might come back - sort out exception mapping
+        //todo check if sa is there
+      }
+    )
+
+    Redirect(routes.SaController.home()).withSession(("userId", encrypt("/auth/oid/gfisher")))
+  }
+
   def enterAsJohnDensmore = Action {
-    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/jdensmore")))
+    Redirect(routes.HomeController.home()).withSession(("userId", encrypt("/auth/oid/jdensmore")))
   }
 
   def enterAsGeoffFisher = Action {
