@@ -29,7 +29,7 @@
                     <td>
                             Engine size: @engineSizeFor(car.engineSize)<br>
                             Fuel type: @fuelTypeFor(car.fuelType)<br>
-                            Date car registered: @formatDate(car.dateCarRegistered)<br>
+                            Date car registered: @formatDate(car.dateCarRegistered.get)<br>
                     </td>
                 }.getOrElse {
                     <td>@iabdTypeFor(benefit.benefit.benefitType)</td>
@@ -39,7 +39,7 @@
                 <td>
                     <ul>
                         <li>Change</li>
-                        <li><a href="@routes.PayeController.carBenefit(benefit.benefit.sequenceNumber,car.sequenceNumber)">Remove</a></li>
+                        <li><a href="@routes.PayeController.carBenefit(benefit.benefit.sequenceNumber)">Remove</a></li>
                 </ul>
                 }.getOrElse {
                 <td>

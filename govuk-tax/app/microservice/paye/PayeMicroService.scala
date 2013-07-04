@@ -2,10 +2,8 @@ package microservice.paye
 
 import microservice.{ TaxRegimeMicroService, MicroServiceConfig }
 
-import microservice.paye.domain.PayeRoot
+import microservice.paye.domain.{ Benefit, PayeRoot }
 import play.Logger
-import play.api.libs.json.Json
-import org.joda.time.LocalDate
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
@@ -18,7 +16,13 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     httpGet[T](uri)
   }
 
-  def removeCarBenefit(nino: String, benefitId: Int, carId: Int, dateRemoved: LocalDate) =
-    httpPost[Map[String, String]](s"/paye/$nino/remove_benefit", Json.obj("benefitId" -> benefitId, "carId" -> carId, "dateRemoved" -> dateRemoved))
+  def removeCarBenefit(nino: String, employment: Int, benefit: Benefit) = {
 
+    benefit.copy(grossAmount = 0)
+
+    httpPost[Map[String, String]](s"/paye/$nino/benefits/2013/$employment/update/car", null)
+
+  }
+
+  //  @Path("/{nino}/benefits/{year}/{employment}/update/car")
 }
