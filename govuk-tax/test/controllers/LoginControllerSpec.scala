@@ -8,7 +8,7 @@ import org.mockito.Mockito._
 import microservices.MockMicroServicesForTests
 import play.api.test.{ WithApplication, FakeRequest }
 import microservice.auth.AuthMicroService
-import microservice.ggw.GgwMicroService
+import microservice.ggw.{ GovernmentGatewayResponse, GgwMicroService, Credentials }
 import play.api.http._
 import org.scalatest.BeforeAndAfterEach
 import microservice.auth.domain.UserAuthority
@@ -16,7 +16,6 @@ import microservice.saml.domain.AuthRequestFormData
 import microservice.UnauthorizedException
 import scala.Some
 import microservice.saml.domain.AuthResponseValidationResult
-import microservice.ggw.Credentials
 import play.api.test.FakeApplication
 
 class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
@@ -189,22 +188,12 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       session(result).get("userId") shouldBe None
     }
 
-    "not be able to log in and should return to the login form with an error message on submitting valid GGW credentials but not being enrolled for SA service there" in new WithApplication(FakeApplication()) {
-      val validAuthorityButNotForSa = UserAuthority("notused", Map("paye" -> "/paye/DD334467B"))
-      when(mockGgwMicroService.login(Credentials(ggwUserId, ggwPassword))).thenReturn(validAuthorityButNotForSa)
+    "be redirected to his SA homepage on submitting valid GGW credentials with a cookie set containing his GGW name" in new WithApplication(FakeApplication()) {
 
-      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ggwPassword)) //todo ? password encoded - if not then https...
-      status(result) shouldBe OK
-      contentAsString(result) should include("form")
-      contentAsString(result) should include("You are not enrolled for Self Assessment (SA) services at the Government Gateway. Please enrol first.")
+      val ggwName = "Geoff G.G.W. Fisher"
+      val authId = "/auth/oid/gfisher"
 
-      session(result).get("userId") shouldBe None
-    }
-
-    "be redirected to his SA homepage on submitting valid GGW credentials and is also enrolled for SA service there" in new WithApplication(FakeApplication()) {
-
-      val validAuthorityForSa = UserAuthority("notused", Map("sa" -> "/sa/1234567890", "paye" -> "/paye/DD334467B"))
-      when(mockGgwMicroService.login(Credentials(ggwUserId, ggwPassword))).thenReturn(validAuthorityForSa)
+      when(mockGgwMicroService.login(Credentials(ggwUserId, ggwPassword))).thenReturn(GovernmentGatewayResponse(authId, ggwName))
 
       val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ggwPassword)) //todo ? password encoded - if not then https...
 
@@ -212,7 +201,9 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       redirectLocation(result).get shouldBe routes.SaController.home().toString()
 
       val sess = session(result)
-      decrypt(sess("userId")) shouldBe "/auth/oid/gfisher"
+      sess("ggwName") shouldBe ggwName
+      decrypt(sess("userId")) shouldBe authId
+
     }
 
   }

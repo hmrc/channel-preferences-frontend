@@ -2,7 +2,6 @@ package microservice.ggw
 
 import microservice.{ MicroService, MicroServiceConfig }
 import play.api.libs.json._
-import microservice.auth.domain.UserAuthority
 import scala.collection.Seq
 
 //todo make GGW a Play submodule
@@ -15,10 +14,11 @@ class GgwMicroService extends MicroService {
   }
 
   def login(credentials: Credentials) = {
-    httpPost[UserAuthority]("/government-gateway/login", Json.toJson(credentials)).getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
+    httpPost[GovernmentGatewayResponse]("/government-gateway/login", Json.toJson(credentials)).getOrElse(throw new IllegalStateException(s"Expected a ${GovernmentGatewayResponse.getClass.getName} but none returned"))
   }
 
 }
 //TODO add name to this - ? how will we render the name in the page
 case class Credentials(userId: String, password: String)
+case class GovernmentGatewayResponse(authId: String, name: String)
 

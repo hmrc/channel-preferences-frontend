@@ -4,8 +4,7 @@ import play.api.mvc.{ AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-import microservice.ggw.Credentials
-import microservice.auth.domain.UserAuthority
+import microservice.ggw.{ GovernmentGatewayResponse, Credentials }
 import microservice.UnauthorizedException
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption {
@@ -36,12 +35,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
       Ok(views.html.sa_login_form(boundForm))
     } else {
       try {
-        val userAuthority: UserAuthority = ggwMicroService.login(boundForm.value.get)
-        userAuthority.regimes.get("sa") match {
-          case Some(uri: String) => Redirect(routes.SaController.home()).withSession(("userId", encrypt("/auth/oid/gfisher")))
-          //todo display a link to enrolment here - gets html escaped if we just type it in here - also make sure the error message is clear to the user
-          case _ => Ok(views.html.sa_login_form(boundForm.withGlobalError("You are not enrolled for Self Assessment (SA) services at the Government Gateway. Please enrol first.")))
-        }
+        val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(boundForm.value.get)
+        Redirect(routes.SaController.home()).withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwResponse.name)
       } catch {
         case e: UnauthorizedException => {
           Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid user ID or password")))
