@@ -60,7 +60,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   }
 
   def enterAsJohnDensmore = Action {
-    Redirect(routes.HomeController.home()).withSession(("userId", encrypt("/auth/oid/jdensmore")))
+    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/newjdensmore")))
   }
 
   def enterAsGeoffFisher = Action {
