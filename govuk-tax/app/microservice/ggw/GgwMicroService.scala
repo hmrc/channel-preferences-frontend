@@ -5,6 +5,7 @@ import play.api.libs.json._
 import scala.collection.Seq
 
 //todo make GGW a Play submodule
+//todo ? encode password - if not then https...
 class GgwMicroService extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.ggwServiceUrl
@@ -18,7 +19,7 @@ class GgwMicroService extends MicroService {
   }
 
 }
-//TODO add name to this - ? how will we render the name in the page
+
 case class Credentials(userId: String, password: String)
 case class GovernmentGatewayResponse(authId: String, name: String)
 

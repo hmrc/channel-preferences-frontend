@@ -149,7 +149,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     }
 
     "not be able to log in and should return to the login form with an error message if he submits an empty GGW user id" in new WithApplication(FakeApplication()) {
-      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> "", "password" -> ggwPassword)) //todo ? password encoded - if not then https...
+      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> "", "password" -> ggwPassword))
 
       status(result) shouldBe OK
       contentAsString(result) should include("form")
@@ -195,7 +195,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       when(mockGgwMicroService.login(Credentials(ggwUserId, ggwPassword))).thenReturn(GovernmentGatewayResponse(authId, ggwName))
 
-      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ggwPassword)) //todo ? password encoded - if not then https...
+      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ggwPassword))
 
       status(result) shouldBe Status.SEE_OTHER
       redirectLocation(result).get shouldBe routes.SaController.home().toString()
@@ -213,12 +213,10 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "respond with 200 and an AuthorityResponse object containing the auth details user's name and the last login time if the login is successful" in {
       pending
-      // TODO In addition to the existing AuthorityResponse we need to include the user's GG registered name and their last-login time
     }
 
     "respond with 200 and an AuthorityResponse object containing the auth details and user's name but no last login time if the login is successful and this is the first time the user has logged in" in {
       pending
-      // TODO In addition to the existing AuthorityResponse we need to include the user's GG registered name and their last-login time
     }
   }
 
