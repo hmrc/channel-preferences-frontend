@@ -33,9 +33,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     )
   )
 
+  val saName = "Geoff Fisher From SA"
   when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
     Some(SaPerson(
-      name = "Geoff Fisher",
+      name = saName,
       utr = "123456789012",
       address = SaIndividualAddress(
         addressLine1 = "address line 1",
@@ -57,10 +58,17 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
   "The home method" should {
 
-    "display the name for Geoff Fisher and a  link to his individual SA address" in new WithApplication(FakeApplication()) {
-      val content = request(controller.home)
+    "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to his individual SA address" in new WithApplication(FakeApplication()) {
 
-      content should include("Geoff Fisher")
+      val ggwName = "Geoffrey From GGW"
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwName))
+
+      status(result) should be(200)
+
+      val content = contentAsString(result)
+
+      content should include(saName)
+      content should include(ggwName)
       content should include("My Details</a>")
       content should include("href=\"/sa/details\"")
     }

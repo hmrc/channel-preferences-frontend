@@ -17,12 +17,12 @@ class HomeController extends BaseController with ActionWrappers {
     user =>
       request =>
 
-        Logger.debug("Chosing home for $user")
+        Logger.debug("Choosing home for $user")
 
         user match {
-          case User("/auth/oid/jdensmore", _, _) => Redirect(routes.PayeController.home())
-          case User("/auth/oid/newjdensmore", _, _) => Redirect(routes.PayeController.home())
-          case User("/auth/oid/gfisher", _, _) => Redirect(routes.SaController.home())
+          case User("/auth/oid/jdensmore", _, _, _) => Redirect(routes.PayeController.home())
+          case User("/auth/oid/newjdensmore", _, _, _) => Redirect(routes.PayeController.home())
+          case User("/auth/oid/gfisher", _, _, _) => Redirect(routes.SaController.home())
         }
 
   }

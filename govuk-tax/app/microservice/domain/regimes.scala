@@ -9,6 +9,6 @@ abstract class TaxRegime
 
 abstract class RegimeRoot
 
-case class User(user: String, userAuthority: UserAuthority, regimes: RegimeRoots)
+case class User(user: String, userAuthority: UserAuthority, regimes: RegimeRoots, ggwName: Option[String] = None)
 
 case class RegimeRoots(paye: Option[PayeRoot], sa: Option[SaRoot])

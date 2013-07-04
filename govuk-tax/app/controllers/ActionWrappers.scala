@@ -29,7 +29,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
             Logger.debug(s"Received user authority: $userAuthority")
 
             userAuthority match {
-              case Some(ua: UserAuthority) => action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua))(request)
+              case Some(ua: UserAuthority) => action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, ggwName = request.session.get("ggwName")))(request)
               case _ => Unauthorized(s"No authority found for user id '$userId'")
             }
           case None => {
