@@ -1,9 +1,24 @@
+@(errors:Map[String, Seq[String]] = Map[String, Seq[String]]())
+
 @main(title = "Log in to Self Assessment (SA) via Government Gateway") {
 
     <form action="@routes.LoginController.ggwLogin" method="POST">
-        <label for="ggw-userid">Government Gateway user ID</label><input type="text" id="ggw-userid" name="userId"/>
-        <label for="ggw-password">Government Gateway password</label><input type="password" id="ggw-password" name="password"/>
+        <label for="userId">Government Gateway user ID<input type="text" id="userId" name="userId" /></label>
+
+        @errors.get("userId").map{ errorMessage =>
+            <p class="error userId">Invalid user ID: @errorMessage</p>
+        }
+
+        <label for="password">Government Gateway password<input type="password" id="password" name="password" /></label>
+
+        @errors.get("password").map{ errorMessage =>
+            <p class="error password">Invalid password: @errorMessage</p>
+        }
         <input type="submit" value="Log in"/>
+
+        @errors.get("global").map{ errorMessage =>
+            <p class="error password">@errorMessage</p>
+        }
     </form>
 
 }

@@ -53,7 +53,7 @@ trait MicroService extends Status {
           case NO_CONTENT => None
           case NOT_FOUND => None
           case BAD_REQUEST => throw new RuntimeException("Bad request")
-          case UNAUTHORIZED => throw new RuntimeException("Unauthenticated request")
+          case UNAUTHORIZED => throw UnauthorizedException("Unauthenticated request")
           case FORBIDDEN => throw new RuntimeException("Not authorised to make this request")
           case CONFLICT => throw new RuntimeException("Invalid state")
           case x => throw new RuntimeException(s"Internal server error, response status is: $x, futureResponse: $futureResponse")
@@ -61,6 +61,8 @@ trait MicroService extends Status {
     }
   }
 }
+
+case class UnauthorizedException(message: String) extends RuntimeException
 
 object MicroServiceConfig {
 

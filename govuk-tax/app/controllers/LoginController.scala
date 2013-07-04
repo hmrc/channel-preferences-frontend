@@ -6,7 +6,8 @@ import play.api.data._
 import play.api.data.Forms._
 import microservice.ggw.Credentials
 import microservice.auth.domain.UserAuthority
-import play.mvc.Result
+import play.api.i18n.Messages
+import microservice.UnauthorizedException
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption {
 
@@ -24,28 +25,38 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   }
 
   def ggwLogin = Action { implicit request =>
-    import play.api.data.Forms._
 
     val loginForm = Form(
       mapping(
-        "userId" -> text,
-        "password" -> text
+        "userId" -> nonEmptyText,
+        "password" -> nonEmptyText
       )(Credentials.apply)(Credentials.unapply)
     )
-    //todo - send request to GGW service /government-gateway/login with Credentials object - that will communicate
-    //todo  with GGW, create the Auth record and return an Authority object here - if all is good we drop cookie here and redirect to SaController
 
     loginForm.bindFromRequest.fold(
       formWithErrors => {
-        //todo form binding errors
+
+        //todo fix this  - the map should not contain the field name key if that field has no error(s)
+        val allErrors = Map("userId" -> formWithErrors("userId").errors.map(error => Messages(error.message)), "password" -> formWithErrors("password").errors.map(error => Messages(error.message)))
+        Ok(views.html.sa_login_form(allErrors))
       },
       credentials => {
-        val userAuthority:UserAuthority = ggwMicroService.login(credentials) //todo 401 might come back - sort out exception mapping
-        //todo check if sa is there
+        try {
+          val userAuthority: UserAuthority = ggwMicroService.login(credentials)
+          userAuthority.regimes.get("sa") match {
+            case Some(uri: String) => Redirect(routes.SaController.home()).withSession(("userId", encrypt("/auth/oid/gfisher")))
+            //todo display a link to enrolment here - gets html escaped if we just type it in here - also make sure the error message is clear to the user
+            case _ => Ok(views.html.sa_login_form(Map("global" -> Seq("""You are not enrolled for Self Assessment (SA) services at the Government Gateway. Please enrol first."""))))
+          }
+        } catch {
+          case e: UnauthorizedException => {
+            Ok(views.html.sa_login_form(Map("global" -> Seq("Invalid user ID or password"))))
+          }
+        }
+
       }
     )
 
-    Redirect(routes.SaController.home()).withSession(("userId", encrypt("/auth/oid/gfisher")))
   }
 
   def enterAsJohnDensmore = Action {
