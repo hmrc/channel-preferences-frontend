@@ -1,12 +1,11 @@
 package controllers
 
-import play.api.mvc.Action
+import play.api.mvc.{ AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
 import microservice.ggw.Credentials
 import microservice.auth.domain.UserAuthority
-import play.api.i18n.Messages
 import microservice.UnauthorizedException
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption {
@@ -24,7 +23,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     Ok(views.html.sa_login_form())
   }
 
-  def ggwLogin = Action { implicit request =>
+  def ggwLogin: Action[AnyContent] = Action { implicit request =>
 
     val loginForm = Form(
       mapping(
@@ -32,31 +31,23 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         "password" -> nonEmptyText
       )(Credentials.apply)(Credentials.unapply)
     )
-
-    loginForm.bindFromRequest.fold(
-      formWithErrors => {
-
-        //todo fix this  - the map should not contain the field name key if that field has no error(s)
-        val allErrors = Map("userId" -> formWithErrors("userId").errors.map(error => Messages(error.message)), "password" -> formWithErrors("password").errors.map(error => Messages(error.message)))
-        Ok(views.html.sa_login_form(allErrors))
-      },
-      credentials => {
-        try {
-          val userAuthority: UserAuthority = ggwMicroService.login(credentials)
-          userAuthority.regimes.get("sa") match {
-            case Some(uri: String) => Redirect(routes.SaController.home()).withSession(("userId", encrypt("/auth/oid/gfisher")))
-            //todo display a link to enrolment here - gets html escaped if we just type it in here - also make sure the error message is clear to the user
-            case _ => Ok(views.html.sa_login_form(Map("global" -> Seq("""You are not enrolled for Self Assessment (SA) services at the Government Gateway. Please enrol first."""))))
-          }
-        } catch {
-          case e: UnauthorizedException => {
-            Ok(views.html.sa_login_form(Map("global" -> Seq("Invalid user ID or password"))))
-          }
+    val boundForm: Form[Credentials] = loginForm.bindFromRequest()
+    if (boundForm.hasErrors) {
+      Ok(views.html.sa_login_form(boundForm))
+    } else {
+      try {
+        val userAuthority: UserAuthority = ggwMicroService.login(boundForm.value.get)
+        userAuthority.regimes.get("sa") match {
+          case Some(uri: String) => Redirect(routes.SaController.home()).withSession(("userId", encrypt("/auth/oid/gfisher")))
+          //todo display a link to enrolment here - gets html escaped if we just type it in here - also make sure the error message is clear to the user
+          case _ => Ok(views.html.sa_login_form(boundForm.withGlobalError("You are not enrolled for Self Assessment (SA) services at the Government Gateway. Please enrol first.")))
         }
-
+      } catch {
+        case e: UnauthorizedException => {
+          Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid user ID or password")))
+        }
       }
-    )
-
+    }
   }
 
   def enterAsJohnDensmore = Action {

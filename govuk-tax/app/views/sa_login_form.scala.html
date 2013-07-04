@@ -1,23 +1,31 @@
-@(errors:Map[String, Seq[String]] = Map[String, Seq[String]]())
+@(formWithErrors:Form[microservice.ggw.Credentials] = Form(
+        Forms.mapping(
+            "userId" -> Forms.of[String](play.api.data.format.Formats.stringFormat),
+            "password" -> Forms.of[String](play.api.data.format.Formats.stringFormat)
+        )(microservice.ggw.Credentials.apply)(microservice.ggw.Credentials.unapply)
+    )
+)
+
+@import play.api.data.format.Formats._
 
 @main(title = "Log in to Self Assessment (SA) via Government Gateway") {
 
     <form action="@routes.LoginController.ggwLogin" method="POST">
-        <label for="userId">Government Gateway user ID<input type="text" id="userId" name="userId" /></label>
+        <label for="userId">Government Gateway user ID<input type="text" id="userId" name="userId" required /></label>
 
-        @errors.get("userId").map{ errorMessage =>
-            <p class="error userId">Invalid user ID: @errorMessage</p>
+        @formWithErrors.errors("userId").map{ error =>
+            <p class="error userId">Invalid user ID: @Messages(error.message)</p>
         }
 
-        <label for="password">Government Gateway password<input type="password" id="password" name="password" /></label>
+        <label for="password">Government Gateway password<input type="password" id="password" name="password" required /></label>
 
-        @errors.get("password").map{ errorMessage =>
-            <p class="error password">Invalid password: @errorMessage</p>
+        @formWithErrors.errors("password").map{ error =>
+            <p class="error password">Invalid password: @Messages(error.message)</p>
         }
         <input type="submit" value="Log in"/>
 
-        @errors.get("global").map{ errorMessage =>
-            <p class="error password">@errorMessage</p>
+        @formWithErrors.globalErrors.map{ error =>
+            <p class="error password">@Messages(error.message)</p>
         }
     </form>
 
