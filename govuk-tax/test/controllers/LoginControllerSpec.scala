@@ -190,8 +190,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "be redirected to his SA homepage on submitting valid GGW credentials with a cookie set containing his GGW name" in new WithApplication(FakeApplication()) {
 
-      val ggwName = "Geoff G.G.W. Fisher"
-      val authId = "/auth/oid/gfisher"
+      val ggwName = "Geoff G.G.W. Nott-Fisher"
+      val authId = "/auth/oid/notGeoff"
 
       when(mockGgwMicroService.login(Credentials(ggwUserId, ggwPassword))).thenReturn(GovernmentGatewayResponse(authId, ggwName))
 
