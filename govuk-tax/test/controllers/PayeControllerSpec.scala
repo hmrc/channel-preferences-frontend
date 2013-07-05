@@ -56,9 +56,9 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     Some(Seq(
       Benefit(sequenceNumber = 1, benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
       Benefit(sequenceNumber = 2, benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
-        cars = List(Car(sequenceNumber = 1, engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2011, 7, 4)))),
+        cars = List(Car(None, None, Some(new LocalDate(2011, 7, 4)), 0, 2, 124, 1, "B", BigDecimal("12343.21")))),
       Benefit(sequenceNumber = 3, benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
-        cars = List(Car(sequenceNumber = 1, engineSize = 1, fuelType = 2, dateCarRegistered = new LocalDate(2012, 12, 12))))))
+        cars = List(Car(None, None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))))))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {

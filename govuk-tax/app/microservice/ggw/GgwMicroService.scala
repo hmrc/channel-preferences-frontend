@@ -3,6 +3,7 @@ package microservice.ggw
 import microservice.{ MicroService, MicroServiceConfig }
 import play.api.libs.json._
 import scala.collection.Seq
+import microservice.auth.domain.UserAuthority
 
 //todo make GGW a Play submodule
 //todo ? encode password - if not then https...
@@ -15,7 +16,7 @@ class GgwMicroService extends MicroService {
   }
 
   def login(credentials: Credentials) = {
-    httpPost[GovernmentGatewayResponse]("/government-gateway/login", Json.toJson(credentials)).getOrElse(throw new IllegalStateException(s"Expected a ${GovernmentGatewayResponse.getClass.getName} but none returned"))
+    httpPost[UserAuthority]("/government-gateway/login", Json.toJson(credentials), Map.empty).getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
   }
 
 }
