@@ -15,7 +15,7 @@ class GgwMicroService extends MicroService {
   }
 
   def login(credentials: Credentials) = {
-    httpPost[UserAuthority]("/government-gateway/login", Json.toJson(credentials)).getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
+    httpPost[UserAuthority]("/government-gateway/login", Json.toJson(credentials), Map.empty).getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
   }
 
 }

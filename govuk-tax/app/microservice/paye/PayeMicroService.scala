@@ -7,6 +7,12 @@ import play.Logger
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
+  import org.json4s._
+  import org.json4s.jackson.JsonMethods._
+  import play.api.libs.json.Json
+
+  implicit val formats = DefaultFormats
+
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
   //todo ? bring back SA stuff here because SA is also personal stuff
@@ -22,7 +28,7 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
     benefit.copy(grossAmount = 0)
 
-    httpPost[Map[String, String]](s"/paye/$nino/benefits/2013/$employment/update/car", null)
+    httpPost[Map[String, String]](s"/paye/$nino/benefits/2013/$employment/update/car", Json.parse(compact(render(Extraction.decompose(benefit)))), Map("ETag" -> "44"))
 
   }
 
