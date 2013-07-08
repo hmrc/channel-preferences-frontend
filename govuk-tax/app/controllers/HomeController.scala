@@ -23,7 +23,7 @@ class HomeController extends BaseController with ActionWrappers {
         user.regimes match {
           case RegimeRoots(Some(paye), None) => Redirect(routes.PayeController.home())
           case RegimeRoots(None, Some(sa)) => Redirect(routes.SaController.home())
-          case _ => Unauthorized(login)
+          case _ => Unauthorized(login.render())
         }
 
   }
