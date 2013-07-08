@@ -53,16 +53,20 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(
-      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
+      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List(), Map.empty),
       Benefit(benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
-        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2011, 7, 4)), 0, 2, 124, 1, "B", BigDecimal("12343.21")))),
+        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2011, 7, 4)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1)),
       Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
-        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))))))
+        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1))))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
+  }
+
+  private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
+    Map("updateCar" -> s"/paye/$nino/benefits/$year/$esn/update/car")
   }
 
   "The home method" should {

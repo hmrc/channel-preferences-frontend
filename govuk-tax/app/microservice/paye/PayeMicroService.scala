@@ -25,12 +25,9 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
   def removeCarBenefit(nino: String, benefit: Benefit, dateCarWithdrawn: LocalDate) = {
 
-    val car = benefit.cars(0)
-    benefit.copy(grossAmount = 0, cars = List(car.copy(dateCarWithdrawn = Some(dateCarWithdrawn))))
+    benefit.copy(grossAmount = 0, cars = List(benefit.cars(0).copy(dateCarWithdrawn = Some(dateCarWithdrawn))))
 
-    val employmentSequenceNumber = benefit.employmentSequenceNumber
-
-    httpPost[Map[String, String]](s"/paye/$nino/benefits/2013/$employmentSequenceNumber/update/car", Json.parse(compact(render(Extraction.decompose(benefit)))), Map("ETag" -> "44"))
+    httpPost[Map[String, String]](benefit.actions("updateCar"), Json.parse(compact(render(Extraction.decompose(benefit)))), Map("ETag" -> "44"))
 
   }
 
