@@ -2,7 +2,8 @@ package controllers
 
 import play.api.mvc.Action
 import play.Logger
-import microservice.domain.User
+import microservice.domain.RegimeRoots
+import views.html.login
 
 class HomeController extends BaseController with ActionWrappers {
 
@@ -19,10 +20,10 @@ class HomeController extends BaseController with ActionWrappers {
 
         Logger.debug("Choosing home for $user")
 
-        user match {
-          case User("/auth/oid/jdensmore", _, _, _) => Redirect(routes.PayeController.home())
-          case User("/auth/oid/newjdensmore", _, _, _) => Redirect(routes.PayeController.home())
-          case User("/auth/oid/gfisher", _, _, _) => Redirect(routes.SaController.home())
+        user.regimes match {
+          case RegimeRoots(Some(paye), None) => Redirect(routes.PayeController.home())
+          case RegimeRoots(None, Some(sa)) => Redirect(routes.SaController.home())
+          case _ => Unauthorized(login)
         }
 
   }
