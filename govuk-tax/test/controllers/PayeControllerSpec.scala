@@ -55,9 +55,9 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     Some(Seq(
       Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
       Benefit(benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
-        cars = List(Car(None, None, Some(new LocalDate(2011, 7, 4)), 0, 2, 124, 1, "B", BigDecimal("12343.21")))),
+        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2011, 7, 4)), 0, 2, 124, 1, "B", BigDecimal("12343.21")))),
       Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
-        cars = List(Car(None, None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))))))
+        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))))))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {
@@ -136,28 +136,28 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "confirm successful remove benefit" in new WithApplication(FakeApplication()) {
-      val requestRemoval = postRemoveBenefit("2012-06-01")
+      val requestRemoval = benefitRemoved("2012-06-01")
       requestRemoval should include("Your benefits have been removed from your employment")
       requestRemoval should include("June 1, 2012")
     }
 
     "validate date" in new WithApplication(FakeApplication()) {
-      val requestRemoval = postRemoveBenefit("Flibble 1st")
+      (pending)
+      val requestRemoval = benefitRemoved("Flibble 1st")
       requestRemoval should include("Remove your company benefit")
       requestRemoval should include("Invalid Date")
       requestRemoval should include("format YYYY-MM-DD")
     }
 
     def requestBenefits = {
-      val result = controller.carBenefit(3)(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = controller.carBenefit(2013, 2)(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
       contentAsString(result)
     }
 
-    def postRemoveBenefit(date: String) = {
-      val result = controller.removeCarBenefit(3)(FakeRequest()
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withFormUrlEncodedBody(("return_date" -> date), ("confirm" -> "checked")))
+    def benefitRemoved(date: String) = {
+      val result = controller.benefitRemoved(2013, 2)(FakeRequest()
+        .withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
       contentAsString(result)
     }
