@@ -49,7 +49,8 @@ class PayeController extends BaseController with ActionWrappers {
         boundForm.fold(
           errors => Ok(views.html.paye_benefit_car(db, errors("return_date"))),
           dateCarWithdrawn => {
-            payeMicroService.removeCarBenefit(user.regimes.paye.get.nino, db.benefit, dateCarWithdrawn)
+            val payeRoot = user.regimes.paye.get
+            payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, dateCarWithdrawn)
 
             Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber))
           }

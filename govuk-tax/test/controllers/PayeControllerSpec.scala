@@ -34,6 +34,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     PayeRoot(
       name = "John Densmore",
       nino = "AB123456C",
+      version = 22,
       links = Map(
         "taxCode" -> "/personal/paye/AB123456C/tax-codes/2013",
         "employments" -> "/personal/paye/AB123456C/employments/2013",
