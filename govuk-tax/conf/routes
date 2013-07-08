@@ -4,8 +4,9 @@
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 GET     /paye/home                      @controllers.PayeController.home
 GET     /paye/benefits                  @controllers.PayeController.listBenefits
-GET     /paye/benefits/:employmentSequenceNumber    @controllers.PayeController.carBenefit(employmentSequenceNumber: Int)
-POST    /paye/benefits/:employmentSequenceNumber    @controllers.PayeController.removeCarBenefit(employmentSequenceNumber: Int)
+GET     /paye/benefits/:year/remove/:employmentSequenceNumber    @controllers.PayeController.carBenefit(year: Int, employmentSequenceNumber: Int)
+POST    /paye/benefits/:year/remove/:employmentSequenceNumber   @controllers.PayeController.removeCarBenefit(year: Int, employmentSequenceNumber: Int)
+GET     /paye/benefits/:year/remove/:employmentSequenceNumber/success    @controllers.PayeController.benefitRemoved(year: Int, employmentSequenceNumber: Int)
 
 # routes for testing IDA integration
 GET     /login                          @controllers.LoginController.login

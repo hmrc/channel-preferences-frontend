@@ -29,7 +29,7 @@ case class PayeRoot(nino: String, name: String, links: Map[String, String]) exte
 }
 
 case class TaxCode(taxCode: String)
-case class Benefit(sequenceNumber: Int, benefitType: Int, taxYear: Int, grossAmount: BigDecimal, employmentSequenceNumber: Int, cars: Seq[Car]) {
+case class Benefit(benefitType: Int, taxYear: Int, grossAmount: BigDecimal, employmentSequenceNumber: Int, cars: Seq[Car]) {
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
 case class Car(dateCarMadeAvailable: Option[LocalDate], dateCarWithdrawn: Option[LocalDate], dateCarRegistered: Option[LocalDate], employeeCapitalContribution: BigDecimal, fuelType: Int, co2Emissions: Int, engineSize: Int, mileageBand: String, carValue: BigDecimal)

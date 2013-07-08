@@ -4,6 +4,7 @@ import microservice.{ TaxRegimeMicroService, MicroServiceConfig }
 
 import microservice.paye.domain.{ Benefit, PayeRoot }
 import play.Logger
+import org.joda.time.LocalDate
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
@@ -22,11 +23,14 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     httpGet[T](uri)
   }
 
-  def removeCarBenefit(nino: String, employment: Int, benefit: Benefit) = {
+  def removeCarBenefit(nino: String, benefit: Benefit, dateCarWithdrawn: LocalDate) = {
 
-    benefit.copy(grossAmount = 0)
+    val car = benefit.cars(0)
+    benefit.copy(grossAmount = 0, cars = List(car.copy(dateCarWithdrawn = Some(dateCarWithdrawn))))
 
-    httpPost[Map[String, String]](s"/paye/$nino/benefits/2013/$employment/update/car", Json.parse(compact(render(Extraction.decompose(benefit)))), Map("ETag" -> "44"))
+    val employmentSequenceNumber = benefit.employmentSequenceNumber
+
+    httpPost[Map[String, String]](s"/paye/$nino/benefits/2013/$employmentSequenceNumber/update/car", Json.parse(compact(render(Extraction.decompose(benefit)))), Map("ETag" -> "44"))
 
   }
 

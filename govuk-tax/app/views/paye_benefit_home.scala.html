@@ -17,29 +17,29 @@
         </tr>
 
 
-        @for(benefit <- benefits) {
+        @for(displayBenefit <- benefits) {
 
             <tr>
-                <td>@benefit.employment.taxDistrictNumber / @benefit.employment.payeNumber<br>
-                    From @formatDate(benefit.employment.startDate) to @formatDate(benefit.employment.endDate, "present")
+                <td>@displayBenefit.employment.taxDistrictNumber / @displayBenefit.employment.payeNumber<br>
+                    From @formatDate(displayBenefit.employment.startDate) to @formatDate(displayBenefit.employment.endDate, "present")
                 </td>
-                <td>@iabdTypeFor(benefit.benefit.benefitType)</td>
+                <td>@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
 
-                @benefit.car.map { car =>
+                @displayBenefit.car.map { car =>
                     <td>
                             Engine size: @engineSizeFor(car.engineSize)<br>
                             Fuel type: @fuelTypeFor(car.fuelType)<br>
                             Date car registered: @formatDate(car.dateCarRegistered.get)<br>
                     </td>
                 }.getOrElse {
-                    <td>@iabdTypeFor(benefit.benefit.benefitType)</td>
+                    <td>@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
                 }
-                <td align="right" >£ @benefit.benefit.grossAmountToString()</td>
-                @benefit.car.map { car =>
+                <td align="right" >£ @displayBenefit.benefit.grossAmountToString()</td>
+                @displayBenefit.car.map { car =>
                 <td>
                     <ul>
                         <li>Change</li>
-                        <li><a href="@routes.PayeController.carBenefit(benefit.benefit.sequenceNumber)">Remove</a></li>
+                        <li><a href="@routes.PayeController.carBenefit(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
                 </ul>
                 }.getOrElse {
                 <td>

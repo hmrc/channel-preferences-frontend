@@ -15,7 +15,6 @@ import play.api.test.FakeApplication
 import microservice.paye.domain.Benefit
 import scala.Some
 import microservice.paye.domain.TaxCode
-import play.api.mvc.Cookie
 import org.joda.time.LocalDate
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
@@ -54,10 +53,10 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(
-      Benefit(sequenceNumber = 1, benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
-      Benefit(sequenceNumber = 2, benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
+      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List()),
+      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
         cars = List(Car(None, None, Some(new LocalDate(2011, 7, 4)), 0, 2, 124, 1, "B", BigDecimal("12343.21")))),
-      Benefit(sequenceNumber = 3, benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
+      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
         cars = List(Car(None, None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))))))
   )
 
