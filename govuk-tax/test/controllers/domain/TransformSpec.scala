@@ -3,6 +3,8 @@ package controllers.domain
 import test.BaseSpec
 import java.net.URI
 import org.json4s.MappingException
+import org.joda.time.LocalDate
+import microservice.paye.domain.{Car, Benefit}
 
 class TransformSpec extends BaseSpec {
 
@@ -44,8 +46,26 @@ class TransformSpec extends BaseSpec {
     }
   }
 
+  "Serialization" should {
+    "transform a LocalDate to string like yyyy-MM-dd" in {
+
+      val dateCont = LocalDateContainer(new LocalDate(2013, 3, 12))
+      toRequestBody(dateCont) mustBe """{"date":"2013-03-12"}"""
+
+    }
+
+    "transform a benefit to json" in {
+      val benefit = Benefit(31, 2013, 3333, 1, List(Car(None, None, Some(new LocalDate(2013, 3, 12)), 0,4,2,2,"B",9999)), Map.empty)
+      toRequestBody(benefit) mustBe """{"benefitType":31,"taxYear":2013,"grossAmount":3333,"employmentSequenceNumber":1,"cars":[{"dateCarRegistered":"2013-03-12","employeeCapitalContribution":0,"fuelType":4,"co2Emissions":2,"engineSize":2,"mileageBand":"B","carValue":9999}],"actions":{}}"""
+    }
+
+  }
+
 }
 
 sealed case class VariousFields(id: String, number: Int, strings: List[String])
 
 sealed case class HasURIField(id: URI)
+
+
+case class LocalDateContainer(date: LocalDate)

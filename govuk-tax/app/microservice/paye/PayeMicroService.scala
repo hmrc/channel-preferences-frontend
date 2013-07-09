@@ -8,11 +8,8 @@ import org.joda.time.LocalDate
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
-  import org.json4s._
-  import org.json4s.jackson.JsonMethods._
+  import controllers.domain.Transform._
   import play.api.libs.json.Json
-
-  implicit val formats = DefaultFormats
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
@@ -25,9 +22,9 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
   def removeCarBenefit(nino: String, version: Int, benefit: Benefit, dateCarWithdrawn: LocalDate) = {
 
-    benefit.copy(grossAmount = 0, cars = List(benefit.cars(0).copy(dateCarWithdrawn = Some(dateCarWithdrawn))))
+    val deletedBenefit = benefit.copy(grossAmount = 0, cars = List(benefit.cars(0).copy(dateCarWithdrawn = Some(dateCarWithdrawn))))
 
-    httpPost[Map[String, String]](benefit.actions("updateCar"), Json.parse(compact(render(Extraction.decompose(benefit)))), Map("Version" -> version.toString))
+    httpPost[Map[String, String]](deletedBenefit.actions("updateCar"), Json.parse(toRequestBody(deletedBenefit)), Map("Version" -> version.toString))
 
   }
 

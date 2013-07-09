@@ -60,9 +60,7 @@ class PayeController extends BaseController with ActionWrappers {
 
   def benefitRemoved(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
-      implicit request =>
-        val db = getCarBenefit(user, employmentSequenceNumber)
-        Ok(views.html.paye_benefit_car_removed(db.car.get.dateCarWithdrawn.get))
+      implicit request => Ok(views.html.paye_benefit_car_removed())
   }
 
   import microservice.domain.User
