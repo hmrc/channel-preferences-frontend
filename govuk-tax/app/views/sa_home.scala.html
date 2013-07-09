@@ -2,13 +2,17 @@
 @import views.formatting.Dates._
 @main(title = "Your tax home") {
 
-    <h2>@saName ( utr: @utr ) </h2>
-    <h2>@ggwName</h2>
-    <h3>@if(!previouslyLoggedInAt.isEmpty) {
+    @if(ggwName != ""){
+        <h2>Welcome @ggwName (UTR: @utr)</h2>
+    }
+    <p>@if(!previouslyLoggedInAt.isEmpty) {
         Last logged in on @formatEasyReadingTimestamp(previouslyLoggedInAt, "")
     } else {
         First ever login
-    }</h3>
-    <a href="/sa/details">My Details</a>
+    }</p>
+    <p>Services you have enrolled for and activated via the Government Gateway:</p>
+    <ul style="list-style-type:none;">
+        <li><a href="/sa/details">Self-assessment (SA)</a></li>
+    </ul>
 
 }

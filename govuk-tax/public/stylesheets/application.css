@@ -3143,3 +3143,52 @@ select:focus,
         #popup header .close {
           font-size: 1.4rem;
           line-height: 1.14286; } }
+
+/*
+temporary styles here for the demo
+*/
+
+#sa-details{
+    background-color:#ddd;
+    padding:10px;
+}
+/*
+
+*/
+#sa-details dl {
+    overflow:hidden;
+}
+#sa-details dt {
+    float:left;
+    clear:left;
+    width:50%;
+}
+#sa-details dd {
+    overflow:hidden;
+    float:left;
+}
+
+
+
+
+#sa-details ul{
+    list-style-type: none;
+}
+#sa-details ul.level-1 li {
+    clear:both;
+}
+#sa-details ul li p{
+    width: 240px;
+    float:left;
+    margin-bottom:20px;
+}
+#sa-details ul.level-2 li p{
+    width: 200px;
+}
+#sa-details ul.level-2{
+    padding-left: 40px;
+}
+
+
+
+
