@@ -1,8 +1,9 @@
-@(displayBenefit: controllers.DisplayBenefit, field: Field)
+@(displayBenefit: controllers.DisplayBenefit, updateForm: Form[org.joda.time.LocalDate])
 
 @import views.formatting.Dates._
 @import config.RefData._
 @import org.joda.time.LocalDate
+@import helper._
 
 @main(title = "Your tax home") {
 
@@ -17,25 +18,25 @@ Value of car benefit: £ @displayBenefit.benefit.grossAmountToString()</p>
     Your new Personal Allowance will be £9999.
     This means we will need to issue you with a new tax code.</p>
 
-<form method="POST">
-    <p>
-        <div @if(field.error.isDefined){ class="error-notification" }>
+@helper.form(action = routes.PayeController.removeCarBenefit(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+
+<p>
+@defining(updateForm("return_date")) { dateField =>
+<div class="@if(dateField.error.isDefined){error-notification}">
     <label>
         Date you gave back the car:
-        <input type="date" name="return_date" placeholder="@shortDate(LocalDate.now)">
-        @field.error.map { error =>
-        <p>Invalid Date: Use format YYYY-MM-DD, e.g. @shortDate(LocalDate.now)</p>
-        }
+        <input type="date" name="return_date" placeholder="@shortDate(LocalDate.now)" />
+        @if(dateField.error.isDefined){<p>@Messages(dateField.errors(0).message)</p>}
     </label>
-    </div>
-        </p>
-    <p>
+</div>
+}
+</p>
+<p>
     <label>@displayBenefit.employment.employerName no longer provide me with a company car. </br>
         <input type="submit" value="Confirm" />
     </label>
-    </p>
-
-</form>
+</p>
+}
 
 }
 

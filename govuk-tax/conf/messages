@@ -1,0 +1,2 @@
+error.date=Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013
+error.benefit.date.greater.35.days=Invalid date: Return date cannot be greater than 35 days from today

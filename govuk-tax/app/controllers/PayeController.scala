@@ -32,30 +32,27 @@ class PayeController extends BaseController with ActionWrappers {
         Ok(views.html.paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
+  val localDateMapping = jodaLocalDate verifying ("error.benefit.date.greater.35.days", date => date.minusDays(35).isBefore(new LocalDate()))
+  val updateBenefitForm = Form(single("return_date" -> localDateMapping))
+
   def carBenefit(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        val form = Form(single("return_date" -> jodaLocalDate))
-        val db = getCarBenefit(user, employmentSequenceNumber)
-        Ok(views.html.paye_benefit_car(db, form("return_date")))
+        Ok(views.html.paye_benefit_car(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
   }
 
   def removeCarBenefit(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
-        val form = Form(single("return_date" -> jodaLocalDate))
-        val boundForm = form.bindFromRequest
-        boundForm.fold(
-          errors => Ok(views.html.paye_benefit_car(db, errors("return_date"))),
+        updateBenefitForm.bindFromRequest.fold(
+          errors => BadRequest(views.html.paye_benefit_car(db, errors)),
           dateCarWithdrawn => {
             val payeRoot = user.regimes.paye.get
             payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, dateCarWithdrawn)
-
             Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber))
           }
         )
-
   }
 
   def benefitRemoved(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
