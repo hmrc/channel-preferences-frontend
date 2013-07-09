@@ -143,7 +143,6 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     "confirm successful remove benefit" in new WithApplication(FakeApplication()) {
       val requestRemoval = benefitRemoved("2012-06-01")
       requestRemoval should include("Your benefits have been removed from your employment")
-      requestRemoval should include("June 1, 2012")
     }
 
     "validate date" in new WithApplication(FakeApplication()) {
