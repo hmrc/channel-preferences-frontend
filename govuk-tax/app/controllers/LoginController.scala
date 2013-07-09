@@ -39,7 +39,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         Redirect(routes.SaController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
       } catch {
         case e: UnauthorizedException => {
-          Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid user ID or password")))
+          Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
         }
       }
     }

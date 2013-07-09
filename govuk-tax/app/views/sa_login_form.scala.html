@@ -11,18 +11,25 @@
 @main(title = "Log in to Self Assessment (SA) via Government Gateway") {
 
     <form action="@routes.LoginController.ggwLogin" method="POST">
-        <label for="userId">Government Gateway user ID<input type="text" id="userId" name="userId" required /></label>
+        <p>
+            <label for="userId">Government Gateway User ID</label> <input type="text" id="userId" name="userId" required />
+        </p>
 
         @formWithErrors.errors("userId").map{ error =>
-            <p class="error userId">Invalid user ID: @Messages(error.message)</p>
+            <p class="error userId">Invalid User ID: @Messages(error.message)</p>
         }
 
-        <label for="password">Government Gateway password<input type="password" id="password" name="password" required /></label>
+        <p>
+            <label for="password">Government Gateway Password</label> <input type="password" id="password" name="password" required />
+        </p>
 
         @formWithErrors.errors("password").map{ error =>
-            <p class="error password">Invalid password: @Messages(error.message)</p>
+            <p class="error password">Invalid Password: @Messages(error.message)</p>
         }
-        <input type="submit" value="Log in"/>
+
+        <p>
+            <input type="submit" value="Log in"/>
+        </p>
 
         @formWithErrors.globalErrors.map{ error =>
             <p class="error password">@Messages(error.message)</p>

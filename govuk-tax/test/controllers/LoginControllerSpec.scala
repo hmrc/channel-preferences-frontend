@@ -140,8 +140,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
           contentType(result).get shouldBe "text/html"
           charset(result).get shouldBe "utf-8"
           contentAsString(result) should include("form")
-          contentAsString(result) should include("Government Gateway user ID")
-          contentAsString(result) should include("Government Gateway password")
+          contentAsString(result) should include("Government Gateway User ID")
+          contentAsString(result) should include("Government Gateway Password")
           contentAsString(result) should include("Log in")
           contentAsString(result) should not include ("Invalid")
         case _ => fail("no response from /sa/login")
@@ -153,9 +153,9 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       status(result) shouldBe OK
       contentAsString(result) should include("form")
-      contentAsString(result) should include("Government Gateway user ID")
-      contentAsString(result) should include("Invalid user ID: This field is required")
-      contentAsString(result) should not include ("Invalid password")
+      contentAsString(result) should include("Government Gateway User ID")
+      contentAsString(result) should include("Invalid User ID: This field is required")
+      contentAsString(result) should not include ("Invalid Password")
 
       session(result).get("userId") shouldBe None
       verifyZeroInteractions(mockGgwMicroService)
@@ -166,9 +166,9 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ""))
 
       status(result) shouldBe OK
-      contentAsString(result) should include("Government Gateway password")
-      contentAsString(result) should include("Invalid password: This field is required")
-      contentAsString(result) should not include ("Invalid user ID")
+      contentAsString(result) should include("Government Gateway Password")
+      contentAsString(result) should include("Invalid Password: This field is required")
+      contentAsString(result) should not include ("Invalid User ID")
 
       session(result).get("userId") shouldBe None
       verifyZeroInteractions(mockGgwMicroService)
@@ -183,7 +183,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       status(result) shouldBe OK
       contentAsString(result) should include("form")
-      contentAsString(result) should include("Invalid user ID or password")
+      contentAsString(result) should include("Invalid User ID or Password")
 
       session(result).get("userId") shouldBe None
     }
