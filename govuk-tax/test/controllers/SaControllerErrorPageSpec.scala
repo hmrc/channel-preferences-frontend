@@ -13,6 +13,7 @@ import play.api.test.FakeApplication
 import scala.Some
 import play.api.mvc.{ AnyContent, Action, Cookie }
 import microservice.sa.SaMicroService
+import org.joda.time.DateTime
 
 class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -21,7 +22,7 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
   private val mockAuthMicroService = mock[AuthMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-    Some(UserAuthority("someIdWeDontCareAboutHere", Map("paye" -> "/personal/paye/DF334476B", "sa" -> "/personal/sa/123456789012"))))
+    Some(UserAuthority("someIdWeDontCareAboutHere", Map("paye" -> "/personal/paye/DF334476B", "sa" -> "/personal/sa/123456789012"), Some(new DateTime(2000L)))))
 
   private val mockSaMicroService = mock[SaMicroService]
 

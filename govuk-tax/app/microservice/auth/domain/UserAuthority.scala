@@ -1,3 +1,5 @@
 package microservice.auth.domain
 
-case class UserAuthority(id: String, regimes: Map[String, String])
+import org.joda.time.DateTime
+
+case class UserAuthority(id: String, regimes: Map[String, String], previouslyLoggedInAt: Option[DateTime])

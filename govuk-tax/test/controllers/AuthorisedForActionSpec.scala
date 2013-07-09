@@ -44,7 +44,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
   "basic homepage test" should {
     "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-        Some(UserAuthority("/auth/oid/jfisher", Map("paye" -> "/personal/paye/AB123456C"))))
+        Some(UserAuthority("/auth/oid/jfisher", Map("paye" -> "/personal/paye/AB123456C"), None)))
 
       val result = TestController.test(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
 

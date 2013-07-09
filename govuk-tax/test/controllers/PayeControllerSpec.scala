@@ -24,7 +24,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   private val mockAuthMicroService = mock[AuthMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-    Some(UserAuthority("/personal/paye/AB123456C", Map("paye" -> "/personal/paye/AB123456C"))))
+    Some(UserAuthority("/personal/paye/AB123456C", Map("paye" -> "/personal/paye/AB123456C"), None)))
 
   // Configure paye service mock
 

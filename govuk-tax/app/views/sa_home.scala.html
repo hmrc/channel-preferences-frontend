@@ -1,8 +1,14 @@
-@(utr: String, saName: String, ggwName: String)
+@(utr: String, saName: String, ggwName: String, previouslyLoggedInAt : Option[org.joda.time.DateTime])
+@import views.formatting.Dates._
 @main(title = "Your tax home") {
 
     <h2>@saName ( utr: @utr ) </h2>
     <h2>@ggwName</h2>
+    <h3>@if(!previouslyLoggedInAt.isEmpty) {
+        Last logged in on @formatEasyReadingTimestamp(previouslyLoggedInAt, "")
+    } else {
+        First ever login
+    }</h3>
     <a href="/sa/details">My Details</a>
 
 }
