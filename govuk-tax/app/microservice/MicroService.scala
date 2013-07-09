@@ -26,7 +26,6 @@ trait MicroService extends Status {
 
   protected val serviceUrl: String
   protected val success = Statuses(OK to MULTI_STATUS)
-  protected val defaultTimeoutDuration = Duration(5, TimeUnit.SECONDS)
 
   protected def httpResource(uri: String) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
@@ -37,11 +36,11 @@ trait MicroService extends Status {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get()), defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get()), MicroServiceConfig.defaultTimeoutDuration)
 
   protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body)), defaultTimeoutDuration)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body)), MicroServiceConfig.defaultTimeoutDuration)
   }
 
   protected def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[Option[A]] = {
@@ -83,6 +82,8 @@ object MicroServiceConfig {
   lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8540)}"
   lazy val ggwServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.ggw.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.ggw.port").getOrElse(8570)}"
   lazy val saServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.sa.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.sa.port").getOrElse(8900)}"
+
+  lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 
 }
 
