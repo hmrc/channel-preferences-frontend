@@ -1,13 +1,13 @@
 package views.formatting
 
 import org.joda.time.format.DateTimeFormat
-import org.joda.time.{ DateTime, LocalDate }
+import org.joda.time.{ DateTime, LocalDate, DateTimeZone }
 
 object Dates {
 
-  private[formatting] val dateFormat = DateTimeFormat.forPattern("MMMM d, yyyy")
-  private[formatting] val shortDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
-  private[formatting] val easyReadingTimestampFormat = DateTimeFormat.forPattern("EEEE MMMM d, yyyy 'at' hh:mm aa")
+  private[formatting] val dateFormat = DateTimeFormat.forPattern("MMMM d, yyyy").withZone(DateTimeZone.forID("Europe/London"))
+  private[formatting] val shortDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(DateTimeZone.forID("Europe/London"))
+  private[formatting] val easyReadingTimestampFormat = DateTimeFormat.forPattern("EEEE MMMM d, yyyy 'at' h:mmaa").withZone(DateTimeZone.forID("Europe/London"))
 
   def formatDate(date: LocalDate) = dateFormat.print(date)
 
