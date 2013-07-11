@@ -50,7 +50,23 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   }
 
   def enterAsGeoffFisher = Action {
-    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/gfisher")))
+    val credentials = Credentials("805933359724", "passw0rd")
+
+    try {
+      val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(credentials)
+      Redirect(routes.SaController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
+    } catch {
+      case e: UnauthorizedException => {
+        val loginForm = Form(
+          mapping(
+            "userId" -> nonEmptyText,
+            "password" -> nonEmptyText
+          )(Credentials.apply)(Credentials.unapply)
+        )
+        val boundForm: Form[Credentials] = loginForm.fill(credentials)
+        Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+      }
+    }
   }
 
   case class SAMLResponse(response: String)
