@@ -2,6 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
+
+#
+# PAYE
+#
 GET     /paye/home                      @controllers.PayeController.home
 GET     /paye/benefits                  @controllers.PayeController.listBenefits
 GET     /paye/benefits/:year/remove/:employmentSequenceNumber    @controllers.PayeController.carBenefit(year: Int, employmentSequenceNumber: Int)
@@ -15,11 +19,16 @@ GET     /test/jdensmore                 @controllers.LoginController.enterAsJohn
 GET     /test/gfisher                   @controllers.LoginController.enterAsGeoffFisher
 POST    /ida/login                      @controllers.LoginController.idaLogin
 GET     /sa/login                       @controllers.LoginController.saLogin
-POST    /ggw/login                       @controllers.LoginController.ggwLogin
+POST    /ggw/login                      @controllers.LoginController.ggwLogin
+
+# Agents
+GET     /agent/reason-for-application   @controllers.AgentController.reasonForApplication
+GET     /agent/sro-check                @controllers.AgentController.sroCheck
+POST    /agent/sro-check                @controllers.AgentController.submitAgreement
 
 GET     /sa/home                        @controllers.SaController.home
 GET     /sa/details                     @controllers.SaController.details
 
-GET     /                               @controllers.HomeController.landing
-
 GET     /home                           @controllers.HomeController.home
+
+GET     /                               @controllers.HomeController.landing
