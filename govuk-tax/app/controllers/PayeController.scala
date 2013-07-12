@@ -4,6 +4,7 @@ import microservice.paye.domain.{ Car, Benefit, Employment }
 import org.joda.time.LocalDate
 import play.api.data._
 import play.api.data.Forms._
+import views.html.paye._
 
 class PayeController extends BaseController with ActionWrappers {
 
@@ -16,7 +17,7 @@ class PayeController extends BaseController with ActionWrappers {
         // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
         val payeData = user.regimes.paye.get
 
-        Ok(views.html.paye_home(
+        Ok(paye_home(
           name = payeData.name,
           employments = payeData.employments,
           taxCodes = payeData.taxCodes,
@@ -29,7 +30,7 @@ class PayeController extends BaseController with ActionWrappers {
       implicit request =>
         val benefits = user.regimes.paye.get.benefits
         val employments = user.regimes.paye.get.employments
-        Ok(views.html.paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
+        Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
   val localDateMapping = jodaLocalDate verifying ("error.benefit.date.greater.35.days", date => date.minusDays(35).isBefore(new LocalDate()))
@@ -38,7 +39,7 @@ class PayeController extends BaseController with ActionWrappers {
   def carBenefit(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        Ok(views.html.paye_benefit_car(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
+        Ok(paye_benefit_car(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
   }
 
   def removeCarBenefit(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
@@ -46,7 +47,7 @@ class PayeController extends BaseController with ActionWrappers {
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
         updateBenefitForm.bindFromRequest.fold(
-          errors => BadRequest(views.html.paye_benefit_car(db, errors)),
+          errors => BadRequest(paye_benefit_car(db, errors)),
           dateCarWithdrawn => {
             val payeRoot = user.regimes.paye.get
             payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, dateCarWithdrawn)
@@ -57,7 +58,7 @@ class PayeController extends BaseController with ActionWrappers {
 
   def benefitRemoved(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
-      implicit request => Ok(views.html.paye_benefit_car_removed())
+      implicit request => Ok(paye_benefit_car_removed())
   }
 
   import microservice.domain.User

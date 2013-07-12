@@ -3,7 +3,7 @@ package controllers
 import play.api.mvc._
 import controllers.service._
 import microservice.domain.{ RegimeRoots, TaxRegime, User }
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import play.Logger
 
 trait ActionWrappers extends MicroServices with CookieEncryption {
@@ -43,9 +43,9 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
   }
 
   //todo maybe move this logic into UserAuthority object?
-  private def getRegimeRootsObject(regimes: Map[String, String]): RegimeRoots = {
-    val payeRootUri = regimes.get("paye")
-    val saRootUri = regimes.get("sa")
+  private def getRegimeRootsObject(regimes: Regimes): RegimeRoots = {
+    val payeRootUri = regimes.paye
+    val saRootUri = regimes.sa
 
     RegimeRoots(
       paye = payeRootUri match {

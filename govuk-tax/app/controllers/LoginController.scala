@@ -6,6 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import microservice.ggw.{ GovernmentGatewayResponse, Credentials }
 import microservice.UnauthorizedException
+import views.html.sa._
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption {
 
@@ -19,7 +20,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   }
 
   def saLogin = Action {
-    Ok(views.html.sa_login_form())
+    Ok(sa_login_form())
   }
 
   def ggwLogin: Action[AnyContent] = Action { implicit request =>
@@ -32,14 +33,14 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     )
     val boundForm: Form[Credentials] = loginForm.bindFromRequest()
     if (boundForm.hasErrors) {
-      Ok(views.html.sa_login_form(boundForm))
+      Ok(sa_login_form(boundForm))
     } else {
       try {
         val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(boundForm.value.get)
         Redirect(routes.SaController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
       } catch {
         case e: UnauthorizedException => {
-          Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+          Ok(sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
         }
       }
     }
@@ -64,7 +65,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
           )(Credentials.apply)(Credentials.unapply)
         )
         val boundForm: Form[Credentials] = loginForm.fill(credentials)
-        Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+        Ok(sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
       }
     }
   }
