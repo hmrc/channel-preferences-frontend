@@ -8,7 +8,7 @@ import microservices.MockMicroServicesForTests
 import microservice.auth.AuthMicroService
 import org.mockito.Mockito._
 import microservice.sa.domain._
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import play.api.test.FakeApplication
 import scala.Some
 import play.api.mvc.{ AnyContent, Action, Cookie }
@@ -22,7 +22,7 @@ class SaControllerErrorPageSpec extends BaseSpec with ShouldMatchers with Mockit
   private val mockAuthMicroService = mock[AuthMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-    Some(UserAuthority("someIdWeDontCareAboutHere", Map("paye" -> "/personal/paye/DF334476B", "sa" -> "/personal/sa/123456789012"), Some(new DateTime(2000L)))))
+    Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(Some("/personal/paye/DF334476B"), Some("/personal/sa/123456789012")), Some(new DateTime(2000L)))))
 
   private val mockSaMicroService = mock[SaMicroService]
 

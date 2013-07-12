@@ -9,7 +9,7 @@ import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import microservice.paye.domain._
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import microservice.paye.domain.PayeRoot
 import play.api.test.FakeApplication
 import microservice.paye.domain.Benefit
@@ -24,7 +24,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   private val mockAuthMicroService = mock[AuthMicroService]
 
   when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-    Some(UserAuthority("/personal/paye/AB123456C", Map("paye" -> "/personal/paye/AB123456C"), None)))
+    Some(UserAuthority("/personal/paye/AB123456C", Regimes(Some("/personal/paye/AB123456C")), None)))
 
   // Configure paye service mock
 

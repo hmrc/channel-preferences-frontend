@@ -11,7 +11,7 @@ import microservice.auth.AuthMicroService
 import microservice.ggw.{ GovernmentGatewayResponse, GgwMicroService, Credentials }
 import play.api.http._
 import org.scalatest.BeforeAndAfterEach
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import microservice.saml.domain.AuthRequestFormData
 import microservice.UnauthorizedException
 import scala.Some
@@ -79,7 +79,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
 
-      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Map.empty, None)))
+      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 

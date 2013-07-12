@@ -1,7 +1,7 @@
 package controllers
 
 import test.BaseSpec
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 
 class AgentControllerSpec extends BaseSpec {
 
