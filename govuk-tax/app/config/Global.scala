@@ -37,7 +37,7 @@ object Global extends WithFilters(MetricsFilter, AccessLoggingFilter) {
   override def onStart(app: Application) {
     val env = app.mode
     if (app.configuration.getBoolean("metrics.enabled").getOrElse(false) &&
-        app.configuration.getBoolean(s"govuk-tax.$env.metrics.graphite.enabled").getOrElse(false)) {
+      app.configuration.getBoolean(s"govuk-tax.$env.metrics.graphite.enabled").getOrElse(false)) {
       startGraphite(app)
     }
   }
@@ -57,7 +57,6 @@ object Global extends WithFilters(MetricsFilter, AccessLoggingFilter) {
       .filter(MetricFilter.ALL)
       .build(graphite)
 
-
-    reporter.start(app.configuration.getInt(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(60), TimeUnit.SECONDS)
+    reporter.start(app.configuration.getLong(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(60L), TimeUnit.SECONDS)
   }
 }
