@@ -53,7 +53,7 @@ object Global extends WithFilters(MetricsFilter, AccessLoggingFilter) {
 
     val reporter = GraphiteReporter.forRegistry(
       SharedMetricRegistries.getOrCreate(app.configuration.getString("metrics.name").getOrElse("default")))
-      .prefixedWith(s"$prefix${java.net.InetAddress.getLocalHost.getHostName}")
+      .prefixedWith(s"$prefix.${java.net.InetAddress.getLocalHost.getHostName}")
       .convertRatesTo(TimeUnit.SECONDS)
       .convertDurationsTo(TimeUnit.MILLISECONDS)
       .filter(MetricFilter.ALL)

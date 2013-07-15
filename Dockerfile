@@ -8,4 +8,4 @@ run rm -rf /src/govuk-tax
 
 expose 8080
 
-cmd ["sh", "-ex", "/src/govuk-tax-0.0.1-SNAPSHOT/start", "-Dhttp.port=8080"]
+cmd ["sh", "-ex", "/src/start-docker.sh"]
