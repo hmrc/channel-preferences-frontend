@@ -49,9 +49,11 @@ object Global extends WithFilters(MetricsFilter, AccessLoggingFilter) {
       app.configuration.getString(s"govuk-tax.$env.metrics.graphite.host").getOrElse("graphite"),
       app.configuration.getInt(s"govuk-tax.$env.metrics.graphite.port").getOrElse(2003)))
 
+    val prefix = app.configuration.getString(s"govuk-tax.$env.metrics.graphite.prefix").getOrElse("tax")
+
     val reporter = GraphiteReporter.forRegistry(
       SharedMetricRegistries.getOrCreate(app.configuration.getString("metrics.name").getOrElse("default")))
-      .prefixedWith(app.configuration.getString(s"govuk-tax.$env.metrics.graphite.prefix").getOrElse("tax"))
+      .prefixedWith(s"$prefix${java.net.InetAddress.getLocalHost.getHostName}")
       .convertRatesTo(TimeUnit.SECONDS)
       .convertDurationsTo(TimeUnit.MILLISECONDS)
       .filter(MetricFilter.ALL)
