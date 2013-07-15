@@ -4,29 +4,30 @@ import test.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication }
+import play.api.test.FakeApplication
 import microservices.MockMicroServicesForTests
 import microservice.auth.AuthMicroService
 import org.mockito.Mockito._
-import microservice.sa.domain._
-import microservice.auth.domain.{ Regimes, UserAuthority }
-import play.api.test.FakeApplication
 import scala.Some
-import play.api.mvc.{ AnyContent, Action, Cookie }
-import microservice.sa.SaMicroService
-import org.joda.time.DateTime
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import java.net.URI
+import org.joda.time.DateTime
+import microservice.sa.SaMicroService
+import play.api.test.Helpers._
+import microservice.sa.domain.{ SaIndividualAddress, SaPerson, SaRoot }
 
-class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
-
-  import play.api.test.Helpers._
+class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
   private val mockAuthMicroService = mock[AuthMicroService]
   private val mockSaMicroService = mock[SaMicroService]
 
-  private def controller = new SaController with MockMicroServicesForTests {
+  private def controller = new BusinessTaxController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val saMicroService = mockSaMicroService
   }
+
+  val saName = "Geoff Fisher From SA"
+  val ggwName = "Geoffrey From GGW"
 
   when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
     Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)))))
@@ -39,11 +40,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     )
   )
 
-  val saName = "Geoff Fisher From SA"
-  val ggwName = "Geoffrey From GGW"
+  "The home method" should {
 
-  "The details page" should {
-    "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
+    "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to his individual SA address" in new WithApplication(FakeApplication()) {
 
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
         Some(SaPerson(
@@ -62,30 +61,29 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
         ))
       )
 
-      val content = request(controller.details)
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwName))
 
-      content should include(saName)
+      status(result) should be(200)
+
+      val content = contentAsString(result)
+
       content should include(ggwName)
-      content should include("address line 1")
-      content should include("address line 2")
-      content should include("address line 3")
-      content should include("address line 4")
-      content should include("address line 5")
-      content should include("postcode")
+      content should include("Self-assessment (SA)</a>")
+      content should include("href=\"/sa/details\"")
+      content should include("Value Added Tax (VAT)</a>")
+      content should include("href=\"#\"")
+
     }
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
+
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(None)
-      val result = controller.details(FakeRequest().withSession(("userId", encrypt("/auth/oid/gfisher"))))
+      val result = controller.home(FakeRequest().withSession(("userId", encrypt("/auth/oid/gfisher"))))
+
       status(result) should be(404)
+
     }
+
   }
 
-  def request(action: Action[AnyContent]): String = {
-    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwName))
-
-    status(result) should be(200)
-
-    contentAsString(result)
-  }
 }

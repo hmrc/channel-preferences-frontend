@@ -18,8 +18,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
   }
 
-  def saLogin = Action {
-    Ok(views.html.sa_login_form())
+  def businessTaxLogin = Action {
+    Ok(views.html.business_tax_login_form())
   }
 
   def ggwLogin: Action[AnyContent] = Action { implicit request =>
@@ -32,14 +32,14 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     )
     val boundForm: Form[Credentials] = loginForm.bindFromRequest()
     if (boundForm.hasErrors) {
-      Ok(views.html.sa_login_form(boundForm))
+      Ok(views.html.business_tax_login_form(boundForm))
     } else {
       try {
         val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(boundForm.value.get)
-        Redirect(routes.SaController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
+        Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
       } catch {
         case e: UnauthorizedException => {
-          Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+          Ok(views.html.business_tax_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
         }
       }
     }
@@ -54,7 +54,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
 
     try {
       val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(credentials)
-      Redirect(routes.SaController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
+      Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
     } catch {
       case e: UnauthorizedException => {
         val loginForm = Form(
@@ -64,7 +64,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
           )(Credentials.apply)(Credentials.unapply)
         )
         val boundForm: Form[Credentials] = loginForm.fill(credentials)
-        Ok(views.html.sa_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+        Ok(views.html.business_tax_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
       }
     }
   }

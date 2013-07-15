@@ -3,8 +3,9 @@ package controllers
 import play.api.mvc._
 import controllers.service._
 import microservice.domain.{ RegimeRoots, TaxRegime, User }
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import play.Logger
+import java.net.URI
 
 trait ActionWrappers extends MicroServices with CookieEncryption {
   self: Controller =>
@@ -43,19 +44,16 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
   }
 
   //todo maybe move this logic into UserAuthority object?
-  private def getRegimeRootsObject(regimes: Map[String, String]): RegimeRoots = {
-    val payeRootUri = regimes.get("paye")
-    val saRootUri = regimes.get("sa")
+  private def getRegimeRootsObject(regimes: Regimes): RegimeRoots = RegimeRoots(
+    paye = regimes.paye match {
+      case Some(x: URI) => Some(payeMicroService.root(x.toString))
+      case _ => None
+    },
+    sa = regimes.sa match {
+      case Some(x: URI) => Some(saMicroService.root(x.toString))
+      case _ => None
+    },
+    vat = if (regimes.vat.isEmpty) { None } else { Some("#") } //todo change it once we have VAT service / its stub ready
+  )
 
-    RegimeRoots(
-      paye = payeRootUri match {
-        case Some(x: String) => Some(payeMicroService.root(x))
-        case _ => None
-      },
-      sa = saRootUri match {
-        case Some(x: String) => Some(saMicroService.root(x))
-        case _ => None
-      }
-    )
-  }
 }

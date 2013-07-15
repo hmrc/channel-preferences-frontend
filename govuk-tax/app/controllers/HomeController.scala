@@ -21,8 +21,9 @@ class HomeController extends BaseController with ActionWrappers {
         Logger.debug("Choosing home for $user")
 
         user.regimes match {
-          case RegimeRoots(Some(paye), None) => Redirect(routes.PayeController.home())
-          case RegimeRoots(None, Some(sa)) => Redirect(routes.SaController.home())
+          case RegimeRoots(Some(paye), None, None) => Redirect(routes.PayeController.home())
+          case RegimeRoots(None, Some(sa), _) => Redirect(routes.BusinessTaxController.home())
+          case RegimeRoots(None, _, Some(vat)) => Redirect(routes.BusinessTaxController.home())
           case _ => Unauthorized(login.render())
         }
 

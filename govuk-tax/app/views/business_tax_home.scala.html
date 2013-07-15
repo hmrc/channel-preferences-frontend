@@ -1,4 +1,4 @@
-@(utr: String, saName: String, ggwName: String, previouslyLoggedInAt : Option[org.joda.time.DateTime])
+@(regimeRoots: microservice.domain.RegimeRoots, utr: String, saName: String, ggwName: String, previouslyLoggedInAt : Option[org.joda.time.DateTime])
 @import views.formatting.Dates._
 @main(title = "Your tax home") {
 
@@ -12,7 +12,13 @@
     }</p>
     <p>Services you have enrolled for and activated via the Government Gateway:</p>
     <ul style="list-style-type:none;">
-        <li><a href="/sa/details">Self-assessment (SA)</a></li>
+        @if(regimeRoots.sa.isDefined){
+            <li><a href="/sa/details">Self-assessment (SA)</a></li>
+        }
+        @if(regimeRoots.vat.isDefined){
+            <li><a href="#">Value Added Tax (VAT)</a></li>
+        }
+
     </ul>
 
 }

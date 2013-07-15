@@ -18,15 +18,15 @@ GET     /samllogin                      @controllers.LoginController.samlLogin
 GET     /test/jdensmore                 @controllers.LoginController.enterAsJohnDensmore
 GET     /test/gfisher                   @controllers.LoginController.enterAsGeoffFisher
 POST    /ida/login                      @controllers.LoginController.idaLogin
-GET     /sa/login                       @controllers.LoginController.saLogin
+GET     /business-tax/login             @controllers.LoginController.businessTaxLogin
 POST    /ggw/login                      @controllers.LoginController.ggwLogin
+GET     /business-tax/home              @controllers.BusinessTaxController.home
 
 # Agents
 GET     /agent/reason-for-application   @controllers.AgentController.reasonForApplication
 GET     /agent/sro-check                @controllers.AgentController.sroCheck
 POST    /agent/sro-check                @controllers.AgentController.submitAgreement
 
-GET     /sa/home                        @controllers.SaController.home
 GET     /sa/details                     @controllers.SaController.details
 
 GET     /home                           @controllers.HomeController.home

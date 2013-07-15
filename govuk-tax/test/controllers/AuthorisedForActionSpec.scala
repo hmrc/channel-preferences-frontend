@@ -7,11 +7,12 @@ import play.api.mvc.{ Cookie, Controller }
 import microservice.auth.AuthMicroService
 import microservice.paye.PayeMicroService
 import org.mockito.Mockito.when
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
 import microservices.MockMicroServicesForTests
 import microservice.paye.domain.{ PayeRegime, PayeRoot }
+import java.net.URI
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -44,7 +45,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
   "basic homepage test" should {
     "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-        Some(UserAuthority("/auth/oid/jfisher", Map("paye" -> "/personal/paye/AB123456C"), None)))
+        Some(UserAuthority("/auth/oid/jfisher", Regimes(paye = Some(URI.create("/personal/paye/AB123456C"))), None)))
 
       val result = TestController.test(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
 

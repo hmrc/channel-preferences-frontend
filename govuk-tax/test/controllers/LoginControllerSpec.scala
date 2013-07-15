@@ -11,7 +11,7 @@ import microservice.auth.AuthMicroService
 import microservice.ggw.{ GovernmentGatewayResponse, GgwMicroService, Credentials }
 import play.api.http._
 import org.scalatest.BeforeAndAfterEach
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 import microservice.saml.domain.AuthRequestFormData
 import microservice.UnauthorizedException
 import scala.Some
@@ -79,7 +79,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
 
-      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Map.empty, None)))
+      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
@@ -132,7 +132,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "see the login form asking for his GGW user id and password" in new WithApplication(FakeApplication()) {
 
-      val response = route(FakeRequest(GET, "/sa/login"))
+      val response = route(FakeRequest(GET, "/business-tax/login"))
 
       response match {
         case Some(result) =>
@@ -144,7 +144,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
           contentAsString(result) should include("Government Gateway Password")
           contentAsString(result) should include("Log in")
           contentAsString(result) should not include ("Invalid")
-        case _ => fail("no response from /sa/login")
+        case _ => fail("no response from /business-tax/login")
       }
     }
 
@@ -198,7 +198,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ggwPassword))
 
       status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result).get shouldBe routes.SaController.home().toString()
+      redirectLocation(result).get shouldBe routes.BusinessTaxController.home().toString()
 
       val sess = session(result)
       sess("ggwName") shouldBe ggwName
