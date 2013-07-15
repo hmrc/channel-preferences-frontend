@@ -49,7 +49,7 @@ object ApplicationBuild extends Build {
 
   object Version {
     val thisPlayApp = "0.0.1-SNAPSHOT"
-    val scala = "2.10.1"
+    val scala = "2.10.2"
   }
 
   object Dependency {
