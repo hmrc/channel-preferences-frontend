@@ -5,7 +5,6 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication }
 import play.api.test.FakeApplication
-import microservices.MockMicroServicesForTests
 import microservice.auth.AuthMicroService
 import org.mockito.Mockito._
 import scala.Some
@@ -15,6 +14,7 @@ import org.joda.time.DateTime
 import microservice.sa.SaMicroService
 import play.api.test.Helpers._
 import microservice.sa.domain.{ SaIndividualAddress, SaPerson, SaRoot }
+import microservice.MockMicroServicesForTests
 
 class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
