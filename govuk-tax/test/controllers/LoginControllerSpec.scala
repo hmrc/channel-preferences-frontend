@@ -5,7 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import microservice.saml.SamlMicroService
 import org.mockito.Mockito._
-import microservices.MockMicroServicesForTests
+import microservice.MockMicroServicesForTests
 import play.api.test.{ WithApplication, FakeRequest }
 import microservice.auth.AuthMicroService
 import microservice.ggw.{ GovernmentGatewayResponse, GgwMicroService, Credentials }

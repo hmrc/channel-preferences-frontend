@@ -10,7 +10,7 @@ import org.mockito.Mockito.when
 import microservice.auth.domain.{ Regimes, UserAuthority }
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
-import microservices.MockMicroServicesForTests
+import microservice.MockMicroServicesForTests
 import microservice.paye.domain.{ PayeRegime, PayeRoot }
 import java.net.URI
 

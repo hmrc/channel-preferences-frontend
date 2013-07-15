@@ -22,4 +22,5 @@ object Dates {
   }
 
   def shortDate(date: LocalDate) = shortDateFormat.print(date)
+  def parseShortDate(str: String) = shortDateFormat.parseLocalDate(str)
 }

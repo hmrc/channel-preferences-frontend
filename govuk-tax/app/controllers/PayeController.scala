@@ -5,6 +5,7 @@ import org.joda.time.LocalDate
 import play.api.data._
 import play.api.data.Forms._
 import views.html.paye._
+import views.formatting.Dates
 
 class PayeController extends BaseController with ActionWrappers {
 
@@ -34,31 +35,40 @@ class PayeController extends BaseController with ActionWrappers {
   }
 
   val localDateMapping = jodaLocalDate verifying ("error.benefit.date.greater.35.days", date => date.minusDays(35).isBefore(new LocalDate()))
-  val updateBenefitForm = Form(single("return_date" -> localDateMapping))
+  val updateBenefitForm: Form[LocalDate] = Form(single("withdraw_date" -> localDateMapping))
 
-  def carBenefit(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
+  def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
-        Ok(paye_benefit_car(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
+        Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
   }
 
-  def removeCarBenefit(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
+  def removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
         updateBenefitForm.bindFromRequest.fold(
-          errors => BadRequest(paye_benefit_car(db, errors)),
-          dateCarWithdrawn => {
-            val payeRoot = user.regimes.paye.get
-            payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, dateCarWithdrawn)
-            Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber))
+          errors => BadRequest(remove_car_benefit_step1(db, errors)),
+          withdrawDate => {
+            val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, withdrawDate)
+            Ok(remove_car_benefit_step2(calculationResult.result(db.benefit.taxYear.toString), db.benefit)).withSession(request.session + ("withdraw_date", Dates.shortDate(withdrawDate)))
           }
         )
   }
 
+  def removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
+    implicit user =>
+      implicit request =>
+        val db = getCarBenefit(user, employmentSequenceNumber)
+        val payeRoot = user.regimes.paye.get
+        payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(request.session.get("withdraw_date").get))
+        Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber))
+
+  }
+
   def benefitRemoved(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
-      implicit request => Ok(paye_benefit_car_removed())
+      implicit request => Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get))))
   }
 
   import microservice.domain.User

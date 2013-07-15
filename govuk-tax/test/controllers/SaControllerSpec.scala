@@ -4,7 +4,7 @@ import test.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication }
-import microservices.MockMicroServicesForTests
+import microservice.MockMicroServicesForTests
 import microservice.auth.AuthMicroService
 import org.mockito.Mockito._
 import microservice.sa.domain._

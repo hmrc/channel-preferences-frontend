@@ -4,9 +4,9 @@ import test.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication }
-import microservices.MockMicroServicesForTests
+import microservice.MockMicroServicesForTests
 import microservice.auth.AuthMicroService
-import microservice.paye.PayeMicroService
+import microservice.paye.{ CalculationResult, PayeMicroService }
 import org.mockito.Mockito._
 import microservice.paye.domain._
 import microservice.auth.domain.{ Regimes, UserAuthority }
@@ -16,6 +16,8 @@ import microservice.paye.domain.Benefit
 import scala.Some
 import microservice.paye.domain.TaxCode
 import org.joda.time.LocalDate
+import views.formatting.Dates
+import org.mockito.Matchers
 import java.net.URI
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
@@ -53,13 +55,14 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
+  val carBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
+    cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1), Map.empty)
+
   when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(
-      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List(), Map.empty),
-      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3,
-        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2011, 7, 4)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1)),
-      Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
-        cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1))))
+      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List(), Map.empty, Map.empty),
+      Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3, cars = List(), actions("AB123456C", 2013, 1), Map.empty),
+      carBenefit))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {
@@ -136,35 +139,72 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   }
 
   "The remove benefit method" should {
-    "display car details" in new WithApplication(FakeApplication()) {
+    "in step 1 display car details" in new WithApplication(FakeApplication()) {
+      val result = controller.removeCarBenefitToStep1(2013, 2)(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      status(result) shouldBe 200
+      val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
+      requestBenefits should include("Registered on December 12, 2012.")
       requestBenefits should include("Value of car benefit: £ 321.42")
     }
 
-    "confirm successful remove benefit" in new WithApplication(FakeApplication()) {
-      val requestRemoval = benefitRemoved("2012-06-01")
-      requestRemoval should include("Your benefits have been removed from your employment")
+    "in step 1 display an error message when return date of car greater than 35 days" in new WithApplication(FakeApplication()) {
+      val invalidWithdrawDate = new LocalDate().plusDays(36)
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdraw_date" -> Dates.shortDate(invalidWithdrawDate)).withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      status(result) shouldBe 400
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Remove your company benefit")
+      requestBenefits should include("Registered on December 12, 2012.")
+      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include("Invalid date: Return date cannot be greater than 35 days from today")
     }
 
-    "validate date" in new WithApplication(FakeApplication()) {
-      (pending)
-      val requestRemoval = benefitRemoved("Flibble 1st")
-      requestRemoval should include("Remove your company benefit")
-      requestRemoval should include("Invalid Date")
-      requestRemoval should include("format YYYY-MM-DD")
+    "in step 1 display an error message when return date is not set" in new WithApplication(FakeApplication()) {
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdraw_date" -> "").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      status(result) shouldBe 400
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Remove your company benefit")
+      requestBenefits should include("Registered on December 12, 2012.")
+      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
     }
 
-    def requestBenefits = {
-      val result = controller.carBenefit(2013, 2)(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+    "in step 2 display the calculated value" in new WithApplication(FakeApplication()) {
+
+      val calculationResult = CalculationResult(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
+      when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(calculationResult)
+
+      val withdrawDate = new LocalDate()
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdraw_date" -> Dates.shortDate(withdrawDate)).withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
-      contentAsString(result)
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Personal Allowance by £ 197.96.")
     }
 
-    def benefitRemoved(date: String) = {
-      val result = controller.benefitRemoved(2013, 2)(FakeRequest()
-        .withSession(("userId", encrypt("/auth/oid/jdensmore"))))
-      status(result) shouldBe 200
-      contentAsString(result)
+    "in step 2 save the withdrawDate to the session" in new WithApplication(FakeApplication()) {
+
+      val calculationResult = CalculationResult(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
+      when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(calculationResult)
+
+      val withdrawDate = new LocalDate()
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdraw_date" -> Dates.shortDate(withdrawDate)).withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      session(result).get("withdraw_date") must not be 'empty
+
+    }
+
+    "in step 2 call the paye service to remove the benefit and render the success page" in new WithApplication(FakeApplication()) {
+
+      when(mockPayeMicroService.removeCarBenefit(Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(Some(Map("message" -> "Done!")))
+
+      val withdrawDate = new LocalDate(2013, 7, 18)
+      val result = controller.removeCarBenefitToStep3(2013, 2)(FakeRequest().withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate)))
+
+      verify(mockPayeMicroService, times(1)).removeCarBenefit("AB123456C", 22, carBenefit, withdrawDate)
+
+      status(result) shouldBe 303
+
+      headers(result).get("Location") mustBe Some("/paye/benefits/2013/remove/2/3")
+
     }
   }
 

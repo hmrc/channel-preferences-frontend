@@ -1,0 +1,23 @@
+@(newAmount: BigDecimal, benefit: microservice.paye.domain.Benefit)
+
+@import views.formatting.Dates._
+@import config.RefData._
+@import org.joda.time.LocalDate
+@import helper._
+
+@main(title = "Your tax home") {
+
+<h2>Remove your company car benefit</h2>
+
+<p>Removing your company car and fuel benefit will increase your Personal Allowance by £ @{benefit.grossAmount - newAmount}.
+    This means we will need to issue you with a new tax code.</p>
+
+@helper.form(action = routes.PayeController.removeCarBenefitToStep3(benefit.taxYear, benefit.employmentSequenceNumber)) {
+
+<p>
+   <input type="submit" value="Confirm" />
+</p>
+}
+
+}
+

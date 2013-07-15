@@ -1,4 +1,4 @@
-package microservices
+package microservice
 
 import org.scalatest.mock.MockitoSugar
 import microservice.auth.AuthMicroService

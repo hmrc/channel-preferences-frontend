@@ -14,26 +14,22 @@ Value of car benefit: £ @displayBenefit.benefit.grossAmountToString()</p>
 
 <p>If @displayBenefit.employment.employerName have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
-<p>Removing your company car and fuel benefit will increase your Personal Allowance by £9999.
-    Your new Personal Allowance will be £9999.
-    This means we will need to issue you with a new tax code.</p>
-
-@helper.form(action = routes.PayeController.removeCarBenefit(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+@helper.form(action = routes.PayeController.removeCarBenefitToStep2(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
 <p>
-@defining(updateForm("return_date")) { dateField =>
-<div class="@if(dateField.error.isDefined){error-notification}">
+@defining(updateForm("withdraw_date")) { withdrawDateField =>
+<div class="@if(withdrawDateField.error.isDefined){error-notification}">
     <label>
         Date you gave back the car:
-        <input type="date" name="return_date" placeholder="@shortDate(LocalDate.now)" />
-        @if(dateField.error.isDefined){<p>@Messages(dateField.errors(0).message)</p>}
+        <input type="date" name="withdraw_date" placeholder="@shortDate(LocalDate.now)" />
+        @if(withdrawDateField.error.isDefined){<p>@Messages(withdrawDateField.errors(0).message)</p>}
     </label>
 </div>
 }
 </p>
 <p>
     <label>@displayBenefit.employment.employerName no longer provide me with a company car. </br>
-        <input type="submit" value="Confirm" />
+        <input type="submit" value="Next" />
     </label>
 </p>
 }
