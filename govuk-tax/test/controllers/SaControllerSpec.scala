@@ -11,7 +11,7 @@ import microservice.sa.domain._
 import microservice.auth.domain.{ Regimes, UserAuthority }
 import play.api.test.FakeApplication
 import scala.Some
-import play.api.mvc.{ AnyContent, Action, Cookie }
+import play.api.mvc.{ AnyContent, Action }
 import microservice.sa.SaMicroService
 import org.joda.time.DateTime
 import java.net.URI

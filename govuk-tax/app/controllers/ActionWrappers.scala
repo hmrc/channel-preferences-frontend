@@ -43,7 +43,6 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
     }
   }
 
-  //todo maybe move this logic into UserAuthority object?
   private def getRegimeRootsObject(regimes: Regimes): RegimeRoots = RegimeRoots(
     paye = regimes.paye match {
       case Some(x: URI) => Some(payeMicroService.root(x.toString))

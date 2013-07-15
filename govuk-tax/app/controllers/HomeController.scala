@@ -10,7 +10,7 @@ class HomeController extends BaseController with ActionWrappers {
   def landing = Action {
 
     Logger.debug("Landing...")
-    Ok(views.html.login())
+    Ok(login())
 
   }
 

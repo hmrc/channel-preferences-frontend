@@ -1,7 +1,7 @@
 package controllers
 
 import microservice.sa.domain.{ SaPerson, SaRoot }
-import org.joda.time.DateTime
+import views.html.sa.sa_personal_details
 
 class SaController extends BaseController with ActionWrappers {
 
@@ -12,7 +12,7 @@ class SaController extends BaseController with ActionWrappers {
         val userData: SaRoot = user.regimes.sa.get
 
         userData.personalDetails match {
-          case Some(person: SaPerson) => Ok(views.html.sa_personal_details(userData.utr, person, user.ggwName.getOrElse("")))
+          case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.ggwName.getOrElse("")))
           case _ => NotFound //todo this should really be an error page
         }
   }

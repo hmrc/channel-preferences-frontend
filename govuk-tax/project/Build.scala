@@ -31,6 +31,8 @@ object ApplicationBuild extends Build {
     Dependency.Compile.json4sExt,
     Dependency.Compile.json4sJackson,
     Dependency.Compile.guava,
+    Dependency.Compile.playMetrics,
+    Dependency.Compile.metricsGraphite,
 
     Dependency.Test.junit,
     Dependency.Test.scalaTest,
@@ -47,7 +49,7 @@ object ApplicationBuild extends Build {
 
   object Version {
     val thisPlayApp = "0.0.1-SNAPSHOT"
-    val scala = "2.10.1"
+    val scala = "2.10.2"
   }
 
   object Dependency {
@@ -57,6 +59,8 @@ object ApplicationBuild extends Build {
       val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.4"
       val json4sExt = "org.json4s" %% "json4s-ext" % "3.2.4"
       val guava = "com.google.guava" % "guava" % "14.0.1"
+      val playMetrics = "com.kenshoo" %% "metrics-play" % "0.1.1"
+      val metricsGraphite = "com.codahale.metrics" % "metrics-graphite" % "3.0.0"
     }
 
     object Test {
