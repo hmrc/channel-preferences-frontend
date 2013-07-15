@@ -29,9 +29,6 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
   val saName = "Geoff Fisher From SA"
   val ggwName = "Geoffrey From GGW"
 
-  when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-    Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)))))
-
   when(mockSaMicroService.root("/personal/sa/123456789012")).thenReturn(
     SaRoot(
       utr = "123456789012",
@@ -42,7 +39,10 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
   "The home method" should {
 
-    "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to his individual SA address" in new WithApplication(FakeApplication()) {
+    "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to details page of the regimes he has actively enrolled online services for (SA and VAT here)" in new WithApplication(FakeApplication()) {
+
+      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)))))
 
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
         Some(SaPerson(
@@ -75,12 +75,20 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
     }
 
-    "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
+    "display the Government Gateway name for Geoff Fisher and a respective notice if he is not actively enrolled for any online services" in new WithApplication(FakeApplication()) {
 
-      when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(None)
-      val result = controller.home(FakeRequest().withSession(("userId", encrypt("/auth/oid/gfisher"))))
+      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      status(result) should be(404)
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwName))
+
+      status(result) should be(200)
+
+      val content = contentAsString(result)
+
+      content should include("You are not currently actively enrolled for any online services")
+      content should not include ("Self-assessment (SA)</a>")
+      content should not include ("Value Added Tax (VAT)</a>")
 
     }
 

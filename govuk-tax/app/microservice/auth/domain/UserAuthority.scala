@@ -3,6 +3,14 @@ package microservice.auth.domain
 import org.joda.time.DateTime
 import java.net.URI
 
-case class UserAuthority(id: String, regimes: Regimes, previouslyLoggedInAt: Option[DateTime])
+//case class Utr(utr: String) {
+//  override lazy val toString = utr
+//}
+//
+//case class Vrn(vrn: String) {
+//  override lazy val toString = vrn
+//}
+
+case class UserAuthority(id: String, regimes: Regimes, previouslyLoggedInAt: Option[DateTime], utr: Option[String] = None, vrn: Option[String] = None)
 case class Regimes(paye: Option[URI] = None, sa: Option[URI] = None, vat: Set[URI] = Set(), ct: Set[URI] = Set())
 
