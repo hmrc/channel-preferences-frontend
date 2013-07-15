@@ -59,6 +59,6 @@ object Global extends WithFilters(MetricsFilter, AccessLoggingFilter) {
       .filter(MetricFilter.ALL)
       .build(graphite)
 
-    reporter.start(app.configuration.getLong(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(60L), TimeUnit.SECONDS)
+    reporter.start(app.configuration.getLong(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(10L), TimeUnit.SECONDS)
   }
 }
