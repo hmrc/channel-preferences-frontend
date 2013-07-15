@@ -41,8 +41,10 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
     "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to details page of the regimes he has actively enrolled online services for (SA and VAT here)" in new WithApplication(FakeApplication()) {
 
+      val utr = "1234567890"
+      val vrn = "666777889"
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)))))
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
 
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
         Some(SaPerson(
@@ -68,6 +70,8 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       val content = contentAsString(result)
 
       content should include(ggwName)
+      content should include("UTR: "+utr)
+      content should include("VRN: "+vrn)
       content should include("Self-assessment (SA)</a>")
       content should include("href=\"/sa/details\"")
       content should include("Value Added Tax (VAT)</a>")
