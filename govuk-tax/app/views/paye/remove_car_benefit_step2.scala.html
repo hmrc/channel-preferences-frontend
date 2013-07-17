@@ -9,7 +9,7 @@
 
 <h2>Remove your company car benefit</h2>
 
-<p>Removing your company car and fuel benefit will increase your Personal Allowance by £ @{benefit.grossAmount - newAmount}.
+<p>Removing your company car will increase your Personal Allowance by £ @{benefit.grossAmount - newAmount}.
     This means we will need to issue you with a new tax code.</p>
 
 @helper.form(action = routes.PayeController.removeCarBenefitToStep3(benefit.taxYear, benefit.employmentSequenceNumber)) {

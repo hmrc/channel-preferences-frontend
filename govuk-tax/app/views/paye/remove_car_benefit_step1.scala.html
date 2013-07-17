@@ -1,38 +1,40 @@
-@(displayBenefit: controllers.DisplayBenefit, updateForm: Form[org.joda.time.LocalDate])
+@(displayBenefit: controllers.DisplayBenefit, updateForm: Form[RemoveBenefitFormData])
 
 @import views.formatting.Dates._
 @import config.RefData._
 @import org.joda.time.LocalDate
-@import helper._
 
+@import views.helpers.CustomHelpers._
+@import helper._
 @main(title = "Your tax home") {
 
-    <h2>Remove your company benefit</h2>
+<h2>Remove your company benefit</h2>
 <p>Car provided by @displayBenefit.employment.employerName<br/>
 Registered on @formatDate(displayBenefit.car.get.dateCarRegistered.get).<br/>
 Value of car benefit: £ @displayBenefit.benefit.grossAmountToString()</p>
 
 <p>If @displayBenefit.employment.employerName have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
-@helper.form(action = routes.PayeController.removeCarBenefitToStep2(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+    @helper.form(action = routes.PayeController.removeCarBenefitToStep2(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
-<p>
-@defining(updateForm("withdraw_date")) { withdrawDateField =>
-<div class="@if(withdrawDateField.error.isDefined){error-notification}">
-    <label>
-        Date you gave back the car:
-        <input type="date" name="withdraw_date" placeholder="@shortDate(LocalDate.now)" />
-        @if(withdrawDateField.error.isDefined){<p>@Messages(withdrawDateField.errors(0).message)</p>}
-    </label>
-</div>
-}
-</p>
-<p>
-    <label>@displayBenefit.employment.employerName no longer provide me with a company car. </br>
+        @defining(updateForm("withdrawDate")) { withdrawDateField =>
+        <div class="@if(withdrawDateField.error.isDefined){error-notification}">
+            <label>
+                Date you gave back the car:
+                <input type="date" name="withdrawDate" placeholder="@shortDate(LocalDate.now)" />
+                @if(withdrawDateField.error.isDefined){<p>@Messages(withdrawDateField.errors(0).message)</p>}
+            </label>
+        </div>
+        }
+        <p>
+            @checkbox(
+            updateForm("agreement"),
+            '_id -> "agreement",
+            '_label -> s"${displayBenefit.employment.employerName} no longer provide me with a company car",
+            '_showConstraints -> false
+            )
+        </p>
         <input type="submit" value="Next" />
-    </label>
-</p>
-}
-
+    }
 }
 

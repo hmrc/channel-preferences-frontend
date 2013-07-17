@@ -34,8 +34,14 @@ class PayeController extends BaseController with ActionWrappers {
         Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
-  val localDateMapping = jodaLocalDate verifying ("error.benefit.date.greater.35.days", date => date.minusDays(35).isBefore(new LocalDate()))
-  val updateBenefitForm: Form[LocalDate] = Form(single("withdraw_date" -> localDateMapping))
+  val localDateMapping = jodaLocalDate verifying ("error.paye.benefit.date.greater.35.days", date => date.minusDays(35).isBefore(new LocalDate()))
+
+  val updateBenefitForm = Form[RemoveBenefitFormData](
+    mapping(
+      "withdrawDate" -> localDateMapping,
+      "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement")
+    )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
+  )
 
   def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction[PayeRegime] {
     implicit user =>
@@ -49,11 +55,11 @@ class PayeController extends BaseController with ActionWrappers {
         val db = getCarBenefit(user, employmentSequenceNumber)
         updateBenefitForm.bindFromRequest.fold(
           errors => BadRequest(remove_car_benefit_step1(db, errors)),
-          withdrawDate => {
-            val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, withdrawDate)
+          removeBenefitData => {
+            val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
             val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
             Ok(remove_car_benefit_step2(revisedAmount, db.benefit)).withSession(request.session
-              + ("withdraw_date", Dates.shortDate(withdrawDate))
+              + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
               + ("revised_amount", revisedAmount.toString()))
           }
         )
@@ -89,3 +95,4 @@ class PayeController extends BaseController with ActionWrappers {
 }
 
 case class DisplayBenefit(employment: Employment, benefit: Benefit, car: Option[Car])
+case class RemoveBenefitFormData(withdrawDate: LocalDate, agreement: Boolean)
