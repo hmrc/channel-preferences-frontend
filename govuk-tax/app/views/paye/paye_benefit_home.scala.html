@@ -35,17 +35,20 @@
                     <td>@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
                 }
                 <td align="right" >£ @displayBenefit.benefit.grossAmountToString()</td>
-                @displayBenefit.car.map { car =>
+
                 <td>
-                    <ul>
-                        <li>Change</li>
-                        <li><a href="@routes.PayeController.removeCarBenefitToStep1(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
-                </ul>
+                @displayBenefit.car.map { car => @if(car.dateCarWithdrawn.isEmpty) {
+                        <ul>
+                            <li>Change</li>
+                            <li><a href="@routes.PayeController.removeCarBenefitToStep1(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
+                        </ul>
+                    } else {
+                        Car removed on @formatDate(car.dateCarWithdrawn.get)
+                    }
                 }.getOrElse {
-                <td>
                     More Information
-                </td>
                 }
+                </td>
             </tr>
             }
 

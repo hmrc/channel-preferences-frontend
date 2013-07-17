@@ -78,18 +78,14 @@ class PayeController extends BaseController with ActionWrappers {
 
   import microservice.domain.User
   private def getCarBenefit(user: User, employmentSequenceNumber: Int): DisplayBenefit = {
-    val benefit = user.regimes.paye.get.benefits.find(b => b.employmentSequenceNumber == employmentSequenceNumber && !b.cars.isEmpty)
+    val benefit = user.regimes.paye.get.benefits.find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.car.isDefined)
     matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)(0)
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] =
     benefits
       .filter { benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber) }
-      .flatMap { benefit =>
-        if (benefit.cars.isEmpty) DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, None) :: Nil
-        else benefit.cars.map(car => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, Some(car)))
-      }
-
+      .map { benefit: Benefit => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, benefit.car) }
 }
 
 case class DisplayBenefit(employment: Employment, benefit: Benefit, car: Option[Car])

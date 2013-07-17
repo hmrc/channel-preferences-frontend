@@ -25,44 +25,61 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   import play.api.test.Helpers._
 
   private val mockAuthMicroService = mock[AuthMicroService]
-
-  when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-    Some(UserAuthority("/personal/paye/AB123456C", Regimes(paye = Some(URI.create("/personal/paye/AB123456C"))), None)))
-
-  // Configure paye service mock
-
   private val mockPayeMicroService = mock[PayeMicroService]
 
-  when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
-    PayeRoot(
-      name = "John Densmore",
-      nino = "AB123456C",
-      version = 22,
-      links = Map(
-        "taxCode" -> "/personal/paye/AB123456C/tax-codes/2013",
-        "employments" -> "/personal/paye/AB123456C/employments/2013",
-        "benefits" -> "/personal/paye/AB123456C/benefits/2013")
-    )
-  )
+  private def setupUser(id: String, nino: String, name: String) {
+    when(mockAuthMicroService.authority(s"/auth/oid/$id")).thenReturn(
+      Some(UserAuthority(s"/personal/paye/$nino", Regimes(paye = Some(URI.create(s"/personal/paye/$nino"))), None)))
 
-  when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/personal/paye/AB123456C/tax-codes/2013")).thenReturn(
+    when(mockPayeMicroService.root(s"/personal/paye/$nino")).thenReturn(
+      PayeRoot(
+        name = name,
+        nino = nino,
+        version = 22,
+        links = Map(
+          "taxCode" -> s"/paye/$nino/tax-codes/2013",
+          "employments" -> s"/paye/$nino/employments/2013",
+          "benefits" -> s"/paye/$nino/benefits/2013")
+      )
+    )
+  }
+
+  setupUser("jdensmore", "AB123456C", "John Densmore")
+  setupUser("removedCar", "RC123456B", "User With Removed Car")
+
+  when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(
     Some(Seq(TaxCode("430L")))
   )
 
-  when(mockPayeMicroService.linkedResource[Seq[Employment]]("/personal/paye/AB123456C/employments/2013")).thenReturn(
+  when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(
     Some(Seq(
       Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = "Weyland-Yutani Corp"),
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
   val carBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
-    cars = List(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1), Map.empty)
+    car = Some(Car(None, None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1), Map.empty)
 
-  when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/personal/paye/AB123456C/benefits/2013")).thenReturn(
+  when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(
     Some(Seq(
-      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, cars = List(), Map.empty, Map.empty),
-      Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3, cars = List(), actions("AB123456C", 2013, 1), Map.empty),
+      Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, car = None, Map.empty, Map.empty),
+      Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3, car = None, actions("AB123456C", 2013, 1), Map.empty),
       carBenefit))
+  )
+
+  val removedCarBenefit = Benefit(benefitType = 31, taxYear = 2014, grossAmount = 321.42, employmentSequenceNumber = 2,
+    car = Some(Car(None, Some(new LocalDate(2013, 7, 12)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("RC123456B", 2013, 1), Map.empty)
+
+  when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(
+    Some(Seq(
+      Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3, car = None, actions("RC123456B", 2013, 1), Map.empty),
+      removedCarBenefit))
+  )
+
+  when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(
+    Some(Seq(
+      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = "Weyland-Yutani Corp"),
+      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
   private def controller = new PayeController with MockMicroServicesForTests {
@@ -111,27 +128,34 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
   }
 
-  "The benefits method" should {
+  "The benefits list page" should {
 
     "display John's benefits" in new WithApplication(FakeApplication()) {
-      requestBenefits should include("£ 135.33")
+      requestBenefits("jdensmore") should include("£ 135.33")
     }
 
     "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
-      requestBenefits should not include "£ 22.22"
+      requestBenefits("jdensmore") should not include "£ 22.22"
     }
 
     "display car details" in new WithApplication(FakeApplication()) {
-      requestBenefits should include("Medical Insurance")
-      requestBenefits should include("Car Benefit")
-      requestBenefits should include("Engine size: 0-1400 cc")
-      requestBenefits should include("Fuel type: Bi-Fuel")
-      requestBenefits should include("Date car registered: December 12, 2012")
-      requestBenefits should include("£ 321.42")
+      requestBenefits("jdensmore") should include("Medical Insurance")
+      requestBenefits("jdensmore") should include("Car Benefit")
+      requestBenefits("jdensmore") should include("Engine size: 0-1400 cc")
+      requestBenefits("jdensmore") should include("Fuel type: Bi-Fuel")
+      requestBenefits("jdensmore") should include("Date car registered: December 12, 2012")
+      requestBenefits("jdensmore") should include("£ 321.42")
+    }
+    "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
+      requestBenefits("jdensmore") should include("""<a href="/paye/benefits/2013/remove/2/1">Remove</a>""")
     }
 
-    def requestBenefits = {
-      val result = controller.listBenefits(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+    "display a Car removed if the withdrawn date is set" in new WithApplication(FakeApplication()) {
+      requestBenefits("removedCar") should include("Car removed on July 12, 2013")
+    }
+
+    def requestBenefits(id: String) = {
+      val result = controller.listBenefits(FakeRequest().withSession(("userId", encrypt(s"/auth/oid/$id"))))
       status(result) shouldBe 200
       contentAsString(result)
     }
