@@ -51,7 +51,10 @@ class PayeController extends BaseController with ActionWrappers {
           errors => BadRequest(remove_car_benefit_step1(db, errors)),
           withdrawDate => {
             val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, withdrawDate)
-            Ok(remove_car_benefit_step2(calculationResult.result(db.benefit.taxYear.toString), db.benefit)).withSession(request.session + ("withdraw_date", Dates.shortDate(withdrawDate)))
+            val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
+            Ok(remove_car_benefit_step2(revisedAmount, db.benefit)).withSession(request.session
+              + ("withdraw_date", Dates.shortDate(withdrawDate))
+              + ("revised_amount", revisedAmount.toString()))
           }
         )
   }
@@ -61,7 +64,9 @@ class PayeController extends BaseController with ActionWrappers {
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
         val payeRoot = user.regimes.paye.get
-        payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(request.session.get("withdraw_date").get))
+        val withdrawDate = request.session.get("withdraw_date").get
+        val revisedAmount = request.session.get("revised_amount").get
+        payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
         Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber))
 
   }

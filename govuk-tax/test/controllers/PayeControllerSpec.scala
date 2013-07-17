@@ -182,24 +182,29 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 2 save the withdrawDate to the session" in new WithApplication(FakeApplication()) {
+      val revisedAmount = BigDecimal(123.46)
+      val withdrawDate = new LocalDate()
 
-      val calculationResult = CalculationResult(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
+      val calculationResult = CalculationResult(Map("2013" -> revisedAmount, "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(calculationResult)
 
-      val withdrawDate = new LocalDate()
       val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdraw_date" -> Dates.shortDate(withdrawDate)).withSession(("userId", encrypt("/auth/oid/jdensmore"))))
-      session(result).get("withdraw_date") must not be 'empty
+
+      session(result).data must contain key "withdraw_date"
+      session(result).data must contain key "revised_amount"
+      Dates.parseShortDate(session(result)("withdraw_date")) mustBe withdrawDate
+      BigDecimal(session(result)("revised_amount")) mustBe revisedAmount
 
     }
 
     "in step 2 call the paye service to remove the benefit and render the success page" in new WithApplication(FakeApplication()) {
 
-      when(mockPayeMicroService.removeCarBenefit(Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(Some(Map("message" -> "Done!")))
+      when(mockPayeMicroService.removeCarBenefit(Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate](), Matchers.any[BigDecimal]())).thenReturn(Some(Map("message" -> "Done!")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val result = controller.removeCarBenefitToStep3(2013, 2)(FakeRequest().withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate)))
+      val result = controller.removeCarBenefitToStep3(2013, 2)(FakeRequest().withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate), "revised_amount" -> "123.45"))
 
-      verify(mockPayeMicroService, times(1)).removeCarBenefit("AB123456C", 22, carBenefit, withdrawDate)
+      verify(mockPayeMicroService, times(1)).removeCarBenefit("AB123456C", 22, carBenefit, withdrawDate, BigDecimal("123.45"))
 
       status(result) shouldBe 303
 

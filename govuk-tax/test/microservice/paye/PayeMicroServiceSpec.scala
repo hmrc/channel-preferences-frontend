@@ -5,9 +5,11 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
-import microservice.paye.domain.{ Car, Benefit }
+import microservice.paye.domain.{RemoveCarBenefit, Car, Benefit}
 import org.joda.time.LocalDate
 import play.api.test.{ FakeApplication, WithApplication }
+import org.mockito.ArgumentCaptor
+import controllers.domain.Transform
 
 class PayeMicroServiceSpec extends BaseSpec {
 
@@ -20,10 +22,10 @@ class PayeMicroServiceSpec extends BaseSpec {
     "perform a post to the paye service with the correct uri" in new WithApplication(FakeApplication()) {
 
       val service = new HttpMockedPayeMicroService
-      val uri = "/paye/AB123456C/benefits/2013/1/update/car"
+      val uri = "/paye/AB123456C/benefits/2013/1/update/cars"
 
       when(service.httpWrapper.post[Map[String, String]](org.mockito.Matchers.eq(uri), any[JsValue], any[Map[String, String]])).thenReturn(Some(Map("message" -> "Yeah!")))
-      val result: Option[Map[String, String]] = service.removeCarBenefit("AB123456C", 22, carBenefit, new LocalDate(2013, 7, 18))
+      val result: Option[Map[String, String]] = service.removeCarBenefit("AB123456C", 22, carBenefit, new LocalDate(2013, 7, 18), BigDecimal("0"))
 
       verify(service.httpWrapper, times(1)).post(org.mockito.Matchers.eq(uri), any[JsValue], any[Map[String, String]])
       result.get("message") mustBe "Yeah!"
@@ -34,14 +36,19 @@ class PayeMicroServiceSpec extends BaseSpec {
       val service = new HttpMockedPayeMicroService
 
       val headers: Map[String, String] = Map("Version" -> "22")
-      service.removeCarBenefit("AB123456C", 22, carBenefit, new LocalDate(2013, 7, 18))
+      val dateCarWithdrawn = new LocalDate(2013, 7, 18)
+      val version = 22
+      val grossAmount = BigDecimal(123.45)
+      service.removeCarBenefit("AB123456C", version, carBenefit, dateCarWithdrawn, grossAmount)
 
-      verify(service.httpWrapper, times(1)).post(any[String], any[JsValue], org.mockito.Matchers.eq(headers))
+      val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
+      verify(service.httpWrapper, times(1)).post(any[String], capturedBody.capture, any[Map[String, String]])
 
-    }
+      val capturedRemovedCarBenefit = Transform.fromResponse[RemoveCarBenefit](capturedBody.getValue.toString())
+      capturedRemovedCarBenefit.revisedAmount mustBe grossAmount
+      capturedRemovedCarBenefit.withdrawDate mustBe dateCarWithdrawn
+      capturedRemovedCarBenefit.version mustBe version
 
-    "alter correctly the benefit for the post to paye service" in new WithApplication(FakeApplication()) {
-      (pending)
     }
 
   }
@@ -61,7 +68,7 @@ class PayeMicroServiceSpec extends BaseSpec {
   }
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
-    Map("updateCar" -> s"/paye/$nino/benefits/$year/$esn/update/car")
+    Map("removeCar" -> s"/paye/$nino/benefits/$year/$esn/update/cars")
   }
 
 }

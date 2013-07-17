@@ -33,6 +33,6 @@ case class Benefit(benefitType: Int, taxYear: Int, grossAmount: BigDecimal, empl
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
 case class Car(dateCarMadeAvailable: Option[LocalDate], dateCarWithdrawn: Option[LocalDate], dateCarRegistered: Option[LocalDate], employeeCapitalContribution: BigDecimal, fuelType: Int, co2Emissions: Int, engineSize: Int, mileageBand: String, carValue: BigDecimal)
+case class RemoveCarBenefit(version: Int, benefit: Benefit, revisedAmount: BigDecimal, withdrawDate: LocalDate)
 
 case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: String, payeNumber: String, employerName: String)
-

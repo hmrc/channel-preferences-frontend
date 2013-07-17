@@ -38,7 +38,7 @@ trait MicroService extends Status {
 
   protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get()), MicroServiceConfig.defaultTimeoutDuration)
 
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = {
+  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
     Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body)), MicroServiceConfig.defaultTimeoutDuration)
   }
