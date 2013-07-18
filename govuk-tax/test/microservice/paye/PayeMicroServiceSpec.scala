@@ -13,7 +13,7 @@ import controllers.domain.Transform
 
 class PayeMicroServiceSpec extends BaseSpec {
 
-  val carBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2,
+  val carBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
     car = Some(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))),
     actions("AB123456C", 2013, 1), Map("withdraw" -> "someUrl/{withdrawDate}"))
 

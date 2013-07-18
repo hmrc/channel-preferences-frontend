@@ -55,8 +55,8 @@ class TransformSpec extends BaseSpec {
     }
 
     "transform a benefit to json" in {
-      val benefit = Benefit(31, 2013, 3333, 1, Some(Car(None, None, Some(new LocalDate(2013, 3, 12)), 0, 4, 2, 2, "B", 9999)), Map.empty, Map.empty)
-      toRequestBody(benefit) mustBe """{"benefitType":31,"taxYear":2013,"grossAmount":3333,"employmentSequenceNumber":1,"car":{"dateCarRegistered":"2013-03-12","employeeCapitalContribution":0,"fuelType":4,"co2Emissions":2,"engineSize":2,"mileageBand":"B","carValue":9999},"actions":{},"calculations":{}}"""
+      val benefit = Benefit(31, 2013, 3333, 1, null, null, null, null, null, null, Some(Car(None, None, Some(new LocalDate(2013, 3, 12)), 0, 4, 2, 2, "B", 9999)), Map.empty, Map.empty)
+      toRequestBody(benefit) mustBe """{"benefitType":31,"taxYear":2013,"grossAmount":3333,"employmentSequenceNumber":1,"costAmount":null,"amountMadeGood":null,"cashEquivalent":null,"expensesIncurred":null,"amountOfRelief":null,"paymentOrBenefitDescription":null,"car":{"dateCarRegistered":"2013-03-12","employeeCapitalContribution":0,"fuelType":4,"co2Emissions":2,"engineSize":2,"mileageBand":"B","carValue":9999},"actions":{},"calculations":{}}"""
     }
 
   }
