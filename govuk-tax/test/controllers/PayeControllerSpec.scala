@@ -183,6 +183,28 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       requestBenefits should include("Invalid date: Return date cannot be greater than 35 days from today")
     }
 
+    "in step 1 display an error message when return date of the car is in the previous tax year" in new WithApplication(FakeApplication()) {
+      val invalidWithdrawDate = new LocalDate(1999, 2, 1)
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      status(result) shouldBe 400
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Remove your company benefit")
+      requestBenefits should include("Registered on December 12, 2012.")
+      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include("Invalid date: Return date cannot be in previous tax years")
+    }
+
+    "in step 1 display an error message when return date of the car is in the next tax year" in new WithApplication(FakeApplication()) {
+      val invalidWithdrawDate = new LocalDate(2030, 2, 1)
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      status(result) shouldBe 400
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Remove your company benefit")
+      requestBenefits should include("Registered on December 12, 2012.")
+      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include("Invalid date: Return date cannot be in next tax years")
+    }
+
     "in step 1 display an error message when return date is not set" in new WithApplication(FakeApplication()) {
       val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "", "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 400
