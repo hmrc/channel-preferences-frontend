@@ -22,6 +22,9 @@ object ApplicationBuild extends Build {
         "-encoding", "UTF-8"
       ),
       resolvers ++= Repositories.resolvers,
+      testOptions in Test <+= (target in Test) map {
+        t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
+      },
       retrieveManaged := true
     )
 
@@ -43,7 +46,6 @@ object ApplicationBuild extends Build {
     appName,
     Version.thisPlayApp, appDependencies,
     settings = commonSettings ++ SassPlugin.sassSettings
-
   )
 
 
@@ -55,7 +57,7 @@ object ApplicationBuild extends Build {
   object Dependency {
 
     object Compile {
-      val nscalaTime = "com.github.nscala-time" %% "nscala-time" % "0.4.0"
+      val nscalaTime = "com.github.nscala-time" %% "nscala-time" % "0.4.2"
       val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.4"
       val json4sExt = "org.json4s" %% "json4s-ext" % "3.2.4"
       val guava = "com.google.guava" % "guava" % "14.0.1"
