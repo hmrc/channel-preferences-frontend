@@ -34,7 +34,10 @@ class PayeController extends BaseController with ActionWrappers {
         Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 
-  val localDateMapping = jodaLocalDate verifying ("error.paye.benefit.date.greater.35.days", date => date.minusDays(35).isBefore(new LocalDate()))
+  val localDateMapping = jodaLocalDate
+    .verifying("error.paye.benefit.date.greater.35.days", date => date.minusDays(35).isBefore(new LocalDate()))
+    .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(currentTaxYear + 1, 4, 6)))
+    .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(currentTaxYear, 4, 5)))
 
   val updateBenefitForm = Form[RemoveBenefitFormData](
     mapping(
@@ -92,6 +95,12 @@ class PayeController extends BaseController with ActionWrappers {
     benefits
       .filter { benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber) }
       .map { benefit: Benefit => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, benefit.car) }
+
+  private def currentTaxYear = {
+    val now = new LocalDate
+    val year = now.year.get
+    if (now.isBefore(new LocalDate(year, 4, 6))) year - 1 else year
+  }
 }
 
 case class DisplayBenefit(employment: Employment, benefit: Benefit, car: Option[Car])
