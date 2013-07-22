@@ -19,6 +19,8 @@ GET     /login                          @controllers.LoginController.login
 GET     /samllogin                      @controllers.LoginController.samlLogin
 GET     /test/jdensmore                 @controllers.LoginController.enterAsJohnDensmore
 GET     /test/gfisher                   @controllers.LoginController.enterAsGeoffFisher
+GET     /test/cesa-exemplar-1           @controllers.LoginController.enterAsCesaExemplar1
+GET     /test/cesa-exemplar-2           @controllers.LoginController.enterAsCesaExemplar2
 POST    /ida/login                      @controllers.LoginController.idaLogin
 GET     /business-tax/login             @controllers.LoginController.businessTaxLogin
 POST    /ggw/login                      @controllers.LoginController.ggwLogin
