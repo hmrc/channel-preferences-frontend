@@ -49,16 +49,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/newjdensmore")))
   }
 
-  def enterAsCesaExemplar1 = Action {
-    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/cesaExemplar1")))
-  }
-
-  def enterAsCesaExemplar2 = Action {
-    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/cesaExemplar2")))
-  }
-
   def enterAsGeoffFisher = Action {
-    val credentials = Credentials("805933359724", "passw0rd")
+    val credentials = Credentials("661023221098", "passw0rd")
 
     try {
       val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(credentials)
