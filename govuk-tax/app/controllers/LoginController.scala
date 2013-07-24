@@ -50,7 +50,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   }
 
   def enterAsGeoffFisher = Action {
-    val credentials = Credentials("661023221098", "passw0rd")
+    val credentials = Credentials("805933359724", "passw0rd")
 
     try {
       val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(credentials)
