@@ -34,3 +34,5 @@ GET     /sa/details                     @controllers.SaController.details
 GET     /home                           @controllers.HomeController.home
 
 GET     /                               @controllers.HomeController.landing
+
+POST    /ssoin                          @controllers.SsoInController.in
