@@ -3,14 +3,13 @@ package controllers
 import test.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{FakeRequest, WithApplication, FakeApplication}
+import play.api.test.{ FakeRequest, WithApplication, FakeApplication }
 import microservice.MockMicroServicesForTests
-import microservice.ggw.{GovernmentGatewayResponse, ValidateTokenRequest, GgwMicroService}
+import microservice.ggw.{ GovernmentGatewayResponse, ValidateTokenRequest, GgwMicroService }
 import org.mockito.Mockito._
-import play.api.mvc.{SimpleResult, Result}
+import play.api.mvc.{ SimpleResult, Result }
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
-
 
   private val mockGovernmentGatewayService = mock[GgwMicroService]
   val redirectUrl = "www.redirect-url.co.uk"
