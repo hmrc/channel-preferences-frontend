@@ -28,6 +28,6 @@ class GovernmentGatewayMicroService extends MicroService {
 }
 
 case class Credentials(userId: String, password: String)
-case class GovernmentGatewayResponse(authId: String, name: String)
+case class GovernmentGatewayResponse(authId: String, name: String, encodedGovernmentGatewayToken: String)
 case class ValidateTokenRequest(token: String, timestamp: String)
 

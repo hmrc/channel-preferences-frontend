@@ -13,6 +13,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
   private val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
   val redirectUrl = "www.redirect-url.co.uk"
+  val encodedToken = "someEncodedToken"
 
   private def controller = new SsoInController with MockMicroServicesForTests {
     override val governmentGatewayMicroService = mockGovernmentGatewayService
@@ -22,7 +23,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "create a new session when the token is valid, the time not expired and no session exists" in new WithApplication(FakeApplication()) {
       val token: String = "token1"
       val userName = "john"
-      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(token, "2013-07-12"))).thenReturn(GovernmentGatewayResponse("http://authId", userName))
+      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(token, "2013-07-12"))).thenReturn(GovernmentGatewayResponse("http://authId", userName, encodedToken))
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12"))
       result match {
@@ -40,7 +41,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "leave the session if one exists and the login is correct" in new WithApplication(FakeApplication()) {
       val userName = "johnny"
       val token: String = "token2"
-      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(token, "2013-07-12"))).thenReturn(GovernmentGatewayResponse("http://authId", userName))
+      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(token, "2013-07-12"))).thenReturn(GovernmentGatewayResponse("http://authId", userName, encodedToken))
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12").withSession("userId" -> "john", "nameFromGovernmentGateway" -> "john"))
       result match {

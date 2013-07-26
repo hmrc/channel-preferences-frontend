@@ -196,8 +196,9 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val nameFromGovernmentGateway = "Geoff G.G.W. Nott-Fisher"
       val authId = "/auth/oid/notGeoff"
+      val encodedGovernmentGatewayToken = "someencodedtoken"
 
-      when(mockGovernmentGatewayMicroService.login(Credentials(userId, password))).thenReturn(GovernmentGatewayResponse(authId, nameFromGovernmentGateway))
+      when(mockGovernmentGatewayMicroService.login(Credentials(userId, password))).thenReturn(GovernmentGatewayResponse(authId, nameFromGovernmentGateway, encodedGovernmentGatewayToken))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> userId, "password" -> password))
 
@@ -207,44 +208,9 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val sess = session(result)
       sess("nameFromGovernmentGateway") shouldBe nameFromGovernmentGateway
       decrypt(sess("userId")) shouldBe authId
+      sess("encodedGovernmentGatewayToken") shouldBe encodedGovernmentGatewayToken
 
     }
 
-  }
-
-  //copied here from the service test
-  "Logging in with username and password" should {
-
-    "respond with 200 and an AuthorityResponse object containing the auth details user's name and the last login time if the login is successful" in {
-      pending
-    }
-
-    "respond with 200 and an AuthorityResponse object containing the auth details and user's name but no last login time if the login is successful and this is the first time the user has logged in" in {
-      pending
-    }
-  }
-
-  //copied here from the service test
-  "Logging-in multiple times with the same user" should {
-
-    "return no last login time for the first login" in {
-      pending // Checks that first time this isn't set.
-    }
-
-    "return last login time set to the first login time with the second login" in {
-      pending // Checks that the last login time is set correctly the first time the user logs in.
-    }
-
-    "return last login time set to the second login time with the third login" in {
-      pending // Checks that the last login time is correctly updated when the user logs in subsequently.
-    }
-
-    "return the user's name the first time they login" in {
-      pending
-    }
-
-    "return the user's updated name upon the second login if they changed it on the Gateway before the second login" in {
-      pending // This test will be possible with a stubbed gateway, but probably not with the real thing without getting into quite a lot of complexity
-    }
   }
 }
