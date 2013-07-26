@@ -1,9 +1,9 @@
-@(regimeRoots: microservice.domain.RegimeRoots, utr: Option[microservice.auth.domain.Utr], vrn: Option[microservice.auth.domain.Vrn], ggwName: String, previouslyLoggedInAt : Option[org.joda.time.DateTime])
+@(regimeRoots: microservice.domain.RegimeRoots, utr: Option[microservice.auth.domain.Utr], vrn: Option[microservice.auth.domain.Vrn], nameFromGovernmentGateway: String, previouslyLoggedInAt : Option[org.joda.time.DateTime])
 @import views.formatting.Dates._
 @main(title = "Your tax home") {
 
-    @if(ggwName != ""){
-        <h2>Welcome @ggwName</h2>
+    @if(nameFromGovernmentGateway != ""){
+        <h2>Welcome @nameFromGovernmentGateway</h2>
     }
     <p>@if(!previouslyLoggedInAt.isEmpty) {
         Last logged in on @formatEasyReadingTimestamp(previouslyLoggedInAt, "")

@@ -13,7 +13,7 @@ class BusinessTaxController extends BaseController with ActionWrappers {
 
         val previouslyLoggedIn: Option[DateTime] = userAuthority.previouslyLoggedInAt
 
-        Ok(views.html.business_tax_home(user.regimes, userAuthority.utr, userAuthority.vrn, user.ggwName.getOrElse(""), previouslyLoggedIn))
+        Ok(views.html.business_tax_home(user.regimes, userAuthority.utr, userAuthority.vrn, user.nameFromGovernmentGateway.getOrElse(""), previouslyLoggedIn))
 
   }
 }

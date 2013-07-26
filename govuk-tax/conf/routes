@@ -21,7 +21,7 @@ GET     /test/jdensmore                 @controllers.LoginController.enterAsJohn
 GET     /test/gfisher                   @controllers.LoginController.enterAsGeoffFisher
 POST    /ida/login                      @controllers.LoginController.idaLogin
 GET     /business-tax/login             @controllers.LoginController.businessTaxLogin
-POST    /ggw/login                      @controllers.LoginController.ggwLogin
+POST    /government-gateway/login       @controllers.LoginController.governmentGatewayLogin
 GET     /business-tax/home              @controllers.BusinessTaxController.home
 
 # Agents

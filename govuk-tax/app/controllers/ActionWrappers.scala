@@ -15,9 +15,6 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
 
     def apply[A <: TaxRegime](action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
-        // Today, as there is no IDA we'll assume that you are John Densmore
-        // He has a oid of /auth/oid/jdensmore, so we'll get that from the auth service
-        // TODO: This will need to handle session management / authentication when we support IDA
 
         request.session.get("userId") match {
 
@@ -30,7 +27,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
             Logger.debug(s"Received user authority: $userAuthority")
 
             userAuthority match {
-              case Some(ua: UserAuthority) => action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, ggwName = request.session.get("ggwName")))(request)
+              case Some(ua: UserAuthority) => action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway")))(request)
               case _ => Unauthorized(s"No authority found for user id '$userId'")
             }
           case None => {

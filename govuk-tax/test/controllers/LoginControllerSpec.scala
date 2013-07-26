@@ -8,7 +8,7 @@ import org.mockito.Mockito._
 import microservice.MockMicroServicesForTests
 import play.api.test.{ WithApplication, FakeRequest }
 import microservice.auth.AuthMicroService
-import microservice.ggw.{ GovernmentGatewayResponse, GgwMicroService, Credentials }
+import microservice.governmentgateway.{ GovernmentGatewayResponse, GovernmentGatewayMicroService, Credentials }
 import play.api.http._
 import org.scalatest.BeforeAndAfterEach
 import microservice.auth.domain.{ Regimes, UserAuthority }
@@ -25,7 +25,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   private val mockSamlMicroService = mock[SamlMicroService]
 
   private val mockAuthMicroService = mock[AuthMicroService]
-  private var mockGgwMicroService = mock[GgwMicroService]
+  private var mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
 
   when(mockSamlMicroService.create).thenReturn(
     AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
@@ -34,11 +34,11 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   lazy val loginController = new LoginController with MockMicroServicesForTests {
     override val samlMicroService = mockSamlMicroService
     override val authMicroService = mockAuthMicroService
-    override val ggwMicroService = mockGgwMicroService
+    override val governmentGatewayMicroService = mockGovernmentGatewayMicroService
   }
 
   override def beforeEach() {
-    reset(mockGgwMicroService) //todo instead of resetting mocks it would be better to set a new one up before each test
+    reset(mockGovernmentGatewayMicroService) //todo instead of resetting mocks it would be better to set a new one up before each test
   }
 
   "Login controller GET /login" should {
@@ -127,10 +127,10 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
   "Attempting to log in to SA via Government Gateway Geoff Fisher" should {
 
-    val ggwUserId = "805933359724"
-    val ggwPassword = "passw0rd"
+    val userId = "805933359724"
+    val password = "passw0rd"
 
-    "see the login form asking for his GGW user id and password" in new WithApplication(FakeApplication()) {
+    "see the login form asking for his Government Gateway user id and password" in new WithApplication(FakeApplication()) {
 
       val response = route(FakeRequest(GET, "/business-tax/login"))
 
@@ -148,8 +148,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       }
     }
 
-    "not be able to log in and should return to the login form with an error message if he submits an empty GGW user id" in new WithApplication(FakeApplication()) {
-      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> "", "password" -> ggwPassword))
+    "not be able to log in and should return to the login form with an error message if he submits an empty Government Gateway user id" in new WithApplication(FakeApplication()) {
+      val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> "", "password" -> password))
 
       status(result) shouldBe OK
       contentAsString(result) should include("form")
@@ -158,12 +158,12 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       contentAsString(result) should not include ("Invalid Password")
 
       session(result).get("userId") shouldBe None
-      verifyZeroInteractions(mockGgwMicroService)
+      verifyZeroInteractions(mockGovernmentGatewayMicroService)
     }
 
-    "not be able to log in and should return to the login form with an error message if he submits an empty GGW password" in new WithApplication(FakeApplication()) {
+    "not be able to log in and should return to the login form with an error message if he submits an empty Government Gateway password" in new WithApplication(FakeApplication()) {
 
-      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ""))
+      val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> userId, "password" -> ""))
 
       status(result) shouldBe OK
       contentAsString(result) should include("Government Gateway Password")
@@ -171,15 +171,15 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       contentAsString(result) should not include ("Invalid User ID")
 
       session(result).get("userId") shouldBe None
-      verifyZeroInteractions(mockGgwMicroService)
+      verifyZeroInteractions(mockGovernmentGatewayMicroService)
 
     }
 
-    "not be able to log in and should return to the login form with an error message on submitting invalid GGW credentials" in new WithApplication(FakeApplication()) {
+    "not be able to log in and should return to the login form with an error message on submitting invalid Government Gateway credentials" in new WithApplication(FakeApplication()) {
 
-      when(mockGgwMicroService.login(Credentials(ggwUserId, ggwPassword))).thenThrow(UnauthorizedException("Unauthenticated request"))
+      when(mockGovernmentGatewayMicroService.login(Credentials(userId, password))).thenThrow(UnauthorizedException("Unauthenticated request"))
 
-      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ggwPassword))
+      val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> userId, "password" -> password))
 
       status(result) shouldBe OK
       contentAsString(result) should include("form")
@@ -188,20 +188,20 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       session(result).get("userId") shouldBe None
     }
 
-    "be redirected to his SA homepage on submitting valid GGW credentials with a cookie set containing his GGW name" in new WithApplication(FakeApplication()) {
+    "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name" in new WithApplication(FakeApplication()) {
 
-      val ggwName = "Geoff G.G.W. Nott-Fisher"
+      val nameFromGovernmentGateway = "Geoff G.G.W. Nott-Fisher"
       val authId = "/auth/oid/notGeoff"
 
-      when(mockGgwMicroService.login(Credentials(ggwUserId, ggwPassword))).thenReturn(GovernmentGatewayResponse(authId, ggwName))
+      when(mockGovernmentGatewayMicroService.login(Credentials(userId, password))).thenReturn(GovernmentGatewayResponse(authId, nameFromGovernmentGateway))
 
-      val result = loginController.ggwLogin(FakeRequest().withFormUrlEncodedBody("userId" -> ggwUserId, "password" -> ggwPassword))
+      val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> userId, "password" -> password))
 
       status(result) shouldBe Status.SEE_OTHER
       redirectLocation(result).get shouldBe routes.BusinessTaxController.home().toString()
 
       val sess = session(result)
-      sess("ggwName") shouldBe ggwName
+      sess("nameFromGovernmentGateway") shouldBe nameFromGovernmentGateway
       decrypt(sess("userId")) shouldBe authId
 
     }

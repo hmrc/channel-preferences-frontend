@@ -12,7 +12,7 @@ class SaController extends BaseController with ActionWrappers {
         val userData: SaRoot = user.regimes.sa.get
 
         userData.personalDetails match {
-          case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.ggwName.getOrElse("")))
+          case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
           case _ => NotFound //todo this should really be an error page
         }
   }

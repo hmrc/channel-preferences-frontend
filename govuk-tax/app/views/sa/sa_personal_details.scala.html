@@ -1,8 +1,8 @@
-@(utr: String, personalDetails: microservice.sa.domain.SaPerson, ggwName: String)
+@(utr: String, personalDetails: microservice.sa.domain.SaPerson, nameFromGovernmentGateway: String)
 @main(title = "My Details") {
 
-@if(ggwName != ""){
-    <h2>Welcome to Self-assessment (SA), @ggwName (UTR: @utr)</h2>
+@if(nameFromGovernmentGateway != ""){
+    <h2>Welcome to Self-assessment (SA), @nameFromGovernmentGateway (UTR: @utr)</h2>
 }
 <h2>My details</h2>
 <div id="sa-details">

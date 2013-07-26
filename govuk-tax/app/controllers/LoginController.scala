@@ -4,7 +4,7 @@ import play.api.mvc.{ AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-import microservice.ggw.{ GovernmentGatewayResponse, Credentials }
+import microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
 import microservice.UnauthorizedException
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption {
@@ -22,7 +22,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     Ok(views.html.business_tax_login_form())
   }
 
-  def ggwLogin: Action[AnyContent] = Action { implicit request =>
+  def governmentGatewayLogin: Action[AnyContent] = Action { implicit request =>
 
     val loginForm = Form(
       mapping(
@@ -35,8 +35,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
       Ok(views.html.business_tax_login_form(boundForm))
     } else {
       try {
-        val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(boundForm.value.get)
-        Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
+        val response: GovernmentGatewayResponse = governmentGatewayMicroService.login(boundForm.value.get)
+        Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(response.authId), "nameFromGovernmentGateway" -> response.name)
       } catch {
         case e: UnauthorizedException => {
           Ok(views.html.business_tax_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
@@ -53,8 +53,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     val credentials = Credentials("805933359724", "passw0rd")
 
     try {
-      val ggwResponse: GovernmentGatewayResponse = ggwMicroService.login(credentials)
-      Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
+      val loginResponse: GovernmentGatewayResponse = governmentGatewayMicroService.login(credentials)
+      Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(loginResponse.authId), "nameFromGovernmentGateway" -> loginResponse.name)
     } catch {
       case e: UnauthorizedException => {
         val loginForm = Form(

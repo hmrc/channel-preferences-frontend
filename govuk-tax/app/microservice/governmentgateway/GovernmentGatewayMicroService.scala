@@ -1,15 +1,13 @@
-package microservice.ggw
+package microservice.governmentgateway
 
 import microservice.{ MicroService, MicroServiceConfig }
 import play.api.libs.json._
 import scala.collection.Seq
 import microservice.auth.domain.UserAuthority
 
-//todo make GGW a Play submodule
-//todo ? encode password - if not then https...
-class GgwMicroService extends MicroService {
+class GovernmentGatewayMicroService extends MicroService {
 
-  override val serviceUrl = MicroServiceConfig.ggwServiceUrl
+  override val serviceUrl = MicroServiceConfig.governmentGatewayServiceUrl
 
   implicit object CredentialsWrites extends Writes[Credentials] {
     def writes(c: Credentials): JsValue = JsObject(Seq("userId" -> JsString(c.userId), "password" -> JsString(c.password)))

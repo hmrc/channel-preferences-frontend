@@ -1,8 +1,8 @@
-@(formWithErrors:Form[microservice.ggw.Credentials] = Form(
+@(formWithErrors:Form[microservice.governmentgateway.Credentials] = Form(
         Forms.mapping(
             "userId" -> Forms.of[String](play.api.data.format.Formats.stringFormat),
             "password" -> Forms.of[String](play.api.data.format.Formats.stringFormat)
-        )(microservice.ggw.Credentials.apply)(microservice.ggw.Credentials.unapply)
+        )(microservice.governmentgateway.Credentials.apply)(microservice.governmentgateway.Credentials.unapply)
     )
 )
 
@@ -10,7 +10,7 @@
 
 @main(title = "Log in to Self Assessment (SA) via Government Gateway") {
 
-    <form action="@routes.LoginController.ggwLogin" method="POST">
+    <form action="@routes.LoginController.governmentGatewayLogin" method="POST">
         <p>
             <label for="userId">Government Gateway User ID</label> <input type="text" id="userId" name="userId" required />
         </p>

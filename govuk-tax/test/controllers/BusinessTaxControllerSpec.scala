@@ -26,8 +26,8 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
     override val saMicroService = mockSaMicroService
   }
 
-  val saName = "Geoff Fisher From SA"
-  val ggwName = "Geoffrey From GGW"
+  val nameFromSa = "Geoff Fisher From SA"
+  val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
 
   when(mockSaMicroService.root("/personal/sa/123456789012")).thenReturn(
     SaRoot(
@@ -48,7 +48,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
         Some(SaPerson(
-          name = saName,
+          name = nameFromSa,
           utr = "123456789012",
           address = SaIndividualAddress(
             addressLine1 = "address line 1",
@@ -63,13 +63,13 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
         ))
       )
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwName))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway))
 
       status(result) should be(200)
 
       val content = contentAsString(result)
 
-      content should include(ggwName)
+      content should include(nameFromGovernmentGateway)
       content should include("UTR: " + utr)
       content should include("VRN: " + vrn)
       content should include("Self-assessment (SA)</a>")
@@ -84,7 +84,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwName))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway))
 
       status(result) should be(200)
 

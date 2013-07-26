@@ -39,15 +39,15 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     )
   )
 
-  val saName = "Geoff Fisher From SA"
-  val ggwName = "Geoffrey From GGW"
+  val nameFromSa = "Geoff Fisher From SA"
+  val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
 
   "The details page" should {
     "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
 
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
         Some(SaPerson(
-          name = saName,
+          name = nameFromSa,
           utr = "123456789012",
           address = SaIndividualAddress(
             addressLine1 = "address line 1",
@@ -64,8 +64,8 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val content = request(controller.details)
 
-      content should include(saName)
-      content should include(ggwName)
+      content should include(nameFromSa)
+      content should include(nameFromGovernmentGateway)
       content should include("address line 1")
       content should include("address line 2")
       content should include("address line 3")
@@ -82,7 +82,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   }
 
   def request(action: Action[AnyContent]): String = {
-    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "ggwName" -> ggwName))
+    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway))
 
     status(result) should be(200)
 
