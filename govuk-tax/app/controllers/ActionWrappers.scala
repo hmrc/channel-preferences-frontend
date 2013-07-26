@@ -6,6 +6,9 @@ import microservice.domain.{ RegimeRoots, TaxRegime, User }
 import microservice.auth.domain.{ Regimes, UserAuthority }
 import play.Logger
 import java.net.URI
+import org.slf4j.MDC
+import java.util.UUID
+import views.html.server_error
 
 trait ActionWrappers extends MicroServices with CookieEncryption {
   self: Controller =>
@@ -22,21 +25,33 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
 
             val userId = decrypt(encryptedUserId)
 
+            MDC.put("Authorization", s"Bearer $userId")
+            MDC.put("X-Request-ID", "FE-" + UUID.randomUUID().toString)
+
             val userAuthority = authMicroService.authority(userId)
 
             Logger.debug(s"Received user authority: $userAuthority")
 
             userAuthority match {
-              case Some(ua: UserAuthority) => action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway")))(request)
+              case Some(ua: UserAuthority) => {
+                try {
+                  action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway")))(request)
+                } catch {
+                  case t: Throwable => {
+                    Logger.error("Action failed", t)
+                    InternalServerError(server_error(t))
+                  }
+                } finally {
+                  MDC.clear
+                }
+              }
               case _ => Unauthorized(s"No authority found for user id '$userId'")
             }
           case None => {
             Logger.debug("No identity cookie found - redirecting to login.")
             Redirect(routes.HomeController.landing())
           }
-
         }
-
     }
   }
 
