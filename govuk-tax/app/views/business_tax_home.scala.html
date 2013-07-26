@@ -1,31 +1,35 @@
-@(regimeRoots: microservice.domain.RegimeRoots, utr: Option[microservice.auth.domain.Utr], vrn: Option[microservice.auth.domain.Vrn], nameFromGovernmentGateway: String, previouslyLoggedInAt : Option[org.joda.time.DateTime])
+@(businessUser: controllers.BusinessUser)
+
 @import views.formatting.Dates._
+@import config.PortalConfig
 @main(title = "Your tax home") {
 
-    @if(nameFromGovernmentGateway != ""){
-        <h2>Welcome @nameFromGovernmentGateway</h2>
+
+
+    @if(businessUser.name != ""){
+        <h2>Welcome @businessUser.name</h2>
     }
-    <p>@if(!previouslyLoggedInAt.isEmpty) {
-        Last logged in on @formatEasyReadingTimestamp(previouslyLoggedInAt, "")
+    <p>@if(!businessUser.previouslyLoggedInAt.isEmpty) {
+        Last logged in on @formatEasyReadingTimestamp(businessUser.previouslyLoggedInAt, "")
     } else {
         First ever login
     }</p>
 
-    @if(utr.isDefined) {
-        <p>UTR: @utr.get.utr</p>
+    @if(businessUser.utr.isDefined) {
+        <p>UTR: @businessUser.utr.get</p>
     }
 
-    @if(vrn.isDefined) {
-        <p>VRN: @vrn.get.vrn</p>
+    @if(businessUser.vrn.isDefined) {
+        <p>VRN: @businessUser.vrn.get</p>
     }
 
-    @if(regimeRoots.hasBusinessTaxRegime) {
+    @if(businessUser.regimeRoots.hasBusinessTaxRegime) {
         <p>Services you have enrolled for and activated via the Government Gateway:</p>
         <ul style="list-style-type:none;">
-            @if(regimeRoots.sa.isDefined){
+            @if(businessUser.regimeRoots.sa.isDefined){
             <li><a href="/sa/details">Self-assessment (SA)</a></li>
             }
-            @if(regimeRoots.vat.isDefined){
+            @if(businessUser.regimeRoots.vat.isDefined){
             <li><a href="#">Value Added Tax (VAT)</a></li>
             }
 
@@ -34,5 +38,46 @@
         <p>You are not currently actively enrolled for any online services</p>
     }
 
-
+        <ul style="list-style-type:none;">
+            <li><a id="portalLink" href="@PortalConfig.destinationRoot/home">Take me to the portal....</a></li>
+        </ul>
 }
+
+<script language="javascript">
+
+    var link = document.getElementById("portalLink");
+
+    var destinationAddress = link.href;
+    var ssoAddress = "@PortalConfig.ssoRoot?dest=" + escape(destinationAddress);
+    var gatewayToken = "@businessUser.encodedGovernmentGatewayToken";
+    var nowTimestamp = "@portalCompatibleTimestamp";
+
+    link.onclick = function()
+    {
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = ssoAddress;
+
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'gw';
+    input.value = gatewayToken;
+
+    var now = new Date();
+    var time = document.createElement('input');
+    time.type = 'hidden';
+    time.name = 'time';
+    time.value = nowTimestamp;
+
+    document.body.appendChild(form);
+    form.appendChild(input);
+    form.appendChild(time);
+
+    // POST form
+    form.submit();
+
+    // cancel link click event if everything is successful
+    return false;
+    }
+
+</script>

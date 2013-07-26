@@ -1,7 +1,8 @@
 package controllers
 
-import microservice.sa.domain.{ SaPerson, SaRoot }
 import org.joda.time.DateTime
+import microservice.auth.domain._
+import microservice.domain._
 
 class BusinessTaxController extends BaseController with ActionWrappers {
 
@@ -10,10 +11,13 @@ class BusinessTaxController extends BaseController with ActionWrappers {
       implicit request =>
 
         val userAuthority = user.userAuthority
+        val encodedGovernmentGatewayToken = request.session.get("encodedGovernmentGatewayToken").get
+        val businessUser = BusinessUser(user.regimes, userAuthority.utr, userAuthority.vrn, user.nameFromGovernmentGateway.getOrElse(""), userAuthority.previouslyLoggedInAt, encodedGovernmentGatewayToken)
 
-        val previouslyLoggedIn: Option[DateTime] = userAuthority.previouslyLoggedInAt
-
-        Ok(views.html.business_tax_home(user.regimes, userAuthority.utr, userAuthority.vrn, user.nameFromGovernmentGateway.getOrElse(""), previouslyLoggedIn))
+        Ok(views.html.business_tax_home(businessUser))
 
   }
 }
+
+case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[Vrn], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)
+

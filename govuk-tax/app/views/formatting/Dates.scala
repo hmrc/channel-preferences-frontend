@@ -1,6 +1,6 @@
 package views.formatting
 
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{ ISODateTimeFormat, DateTimeFormat }
 import org.joda.time.{ DateTime, LocalDate, DateTimeZone }
 
 object Dates {
@@ -8,6 +8,7 @@ object Dates {
   private[formatting] val dateFormat = DateTimeFormat.forPattern("MMMM d, yyyy").withZone(DateTimeZone.forID("Europe/London"))
   private[formatting] val shortDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(DateTimeZone.forID("Europe/London"))
   private[formatting] val easyReadingTimestampFormat = DateTimeFormat.forPattern("EEEE MMMM d, yyyy 'at' h:mmaa").withZone(DateTimeZone.forID("Europe/London"))
+  private[formatting] val portalCompatibleTimestampFormat = ISODateTimeFormat.dateTimeNoMillis.withZoneUTC
 
   def formatDate(date: LocalDate) = dateFormat.print(date)
 
@@ -23,4 +24,6 @@ object Dates {
 
   def shortDate(date: LocalDate) = shortDateFormat.print(date)
   def parseShortDate(str: String) = shortDateFormat.parseLocalDate(str)
+
+  def portalCompatibleTimestamp = portalCompatibleTimestampFormat.print(new DateTime)
 }

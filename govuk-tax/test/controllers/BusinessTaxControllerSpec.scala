@@ -28,6 +28,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
   val nameFromSa = "Geoff Fisher From SA"
   val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
+  val encodedGovernmentGatewayToken = "someEncodedToken"
 
   when(mockSaMicroService.root("/personal/sa/123456789012")).thenReturn(
     SaRoot(
@@ -63,7 +64,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
         ))
       )
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway, "encodedGovernmentGatewayToken" -> encodedGovernmentGatewayToken))
 
       status(result) should be(200)
 
@@ -84,7 +85,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway, "encodedGovernmentGatewayToken" -> encodedGovernmentGatewayToken))
 
       status(result) should be(200)
 
