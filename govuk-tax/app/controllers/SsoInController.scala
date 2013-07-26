@@ -3,7 +3,7 @@ package controllers
 import play.api.mvc.Action
 import play.api.data.Forms._
 import play.api.data._
-import microservice.ggw.ValidateTokenRequest
+import microservice.governmentgateway.ValidateTokenRequest
 import controllers.service.MicroServices
 import play.api.Logger
 
@@ -19,8 +19,8 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
       val (gw, time) = form.bindFromRequest.get
       val tokenRequest = ValidateTokenRequest(gw, time)
       try {
-        val ggwResponse = ggwMicroService.validateToken(tokenRequest)
-        Redirect(destUri).withSession("userId" -> encrypt(ggwResponse.authId), "ggwName" -> ggwResponse.name)
+        val response = governmentGatewayMicroService.validateToken(tokenRequest)
+        Redirect(destUri).withSession("userId" -> encrypt(response.authId), "nameFromGovernmentGateway" -> response.name)
       } catch {
         case e: Exception => {
           Logger.info("Failed to validate a token.", e)

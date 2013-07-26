@@ -5,17 +5,17 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication, FakeApplication }
 import microservice.MockMicroServicesForTests
-import microservice.ggw.{ GovernmentGatewayResponse, ValidateTokenRequest, GgwMicroService }
+import microservice.governmentgateway.{ GovernmentGatewayResponse, ValidateTokenRequest, GovernmentGatewayMicroService }
 import org.mockito.Mockito._
 import play.api.mvc.{ SimpleResult, Result }
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
-  private val mockGovernmentGatewayService = mock[GgwMicroService]
+  private val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
   val redirectUrl = "www.redirect-url.co.uk"
 
   private def controller = new SsoInController with MockMicroServicesForTests {
-    override val ggwMicroService = mockGovernmentGatewayService
+    override val governmentGatewayMicroService = mockGovernmentGatewayService
   }
 
   "The Single Sign-on input page" should {
@@ -24,13 +24,13 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val userName = "john"
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(token, "2013-07-12"))).thenReturn(GovernmentGatewayResponse("http://authId", userName))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.ggw.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12"))
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12"))
       result match {
         case SimpleResult(header, _) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
           header.headers("Set-Cookie") should include("userId")
-          header.headers("Set-Cookie") should include regex "ggwName.*john".r
+          header.headers("Set-Cookie") should include regex "nameFromGovernmentGateway.*john".r
         }
         case _ => fail("the response from the SsoIn controller was not of the expected format")
       }
@@ -42,13 +42,13 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val token: String = "token2"
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(token, "2013-07-12"))).thenReturn(GovernmentGatewayResponse("http://authId", userName))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.ggw.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12").withSession("userId" -> "john", "ggwName" -> "john"))
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12").withSession("userId" -> "john", "nameFromGovernmentGateway" -> "john"))
       result match {
         case SimpleResult(header, _) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
           header.headers("Set-Cookie") should include("userId")
-          header.headers("Set-Cookie") should include regex "ggwName.*john".r
+          header.headers("Set-Cookie") should include regex "nameFromGovernmentGateway.*john".r
         }
         case _ => fail("the response from the SsoIn controller was not of the expected format")
       }
@@ -60,7 +60,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val token: String = "token3"
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(token, "2013-07-12"))).thenThrow(new IllegalStateException("error"))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.ggw.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12").withSession("userId" -> "john", "ggwName" -> "john"))
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> token, "time" -> "2013-07-12").withSession("userId" -> "john", "nameFromGovernmentGateway" -> "john"))
       result match {
         case SimpleResult(header, _) => {
           header.status shouldBe 303
