@@ -11,6 +11,9 @@ import play.api.{ Logger, Play }
 import scala.concurrent.Future
 import microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
+import org.slf4j.MDC
+import play.api.libs.ws.WS.WSRequestHolder
+import controllers.HeaderNames
 
 trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
 
@@ -22,14 +25,21 @@ trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
   }
 }
 
-trait MicroService extends Status {
+trait MicroService extends Status with HeaderNames {
 
   protected val serviceUrl: String
   protected val success = Statuses(OK to MULTI_STATUS)
 
+  private def setHeaders(client: WSRequestHolder) {
+    if (Option(MDC.get(authorisation)).isDefined) client.withHeaders((authorisation, MDC.get(authorisation)))
+    if (Option(MDC.get(requestId)).isDefined) client.withHeaders((requestId, MDC.get(requestId)))
+  }
+
   protected def httpResource(uri: String) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
-    WS.url(s"$serviceUrl$uri")
+    val client = WS.url(s"$serviceUrl$uri")
+    setHeaders(client)
+    client
   }
 
   protected case class Statuses(r: Range) {
