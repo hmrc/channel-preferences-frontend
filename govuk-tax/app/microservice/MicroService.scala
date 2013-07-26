@@ -30,16 +30,14 @@ trait MicroService extends Status with HeaderNames {
   protected val serviceUrl: String
   protected val success = Statuses(OK to MULTI_STATUS)
 
-  private def setHeaders(client: WSRequestHolder) {
-    if (Option(MDC.get(authorisation)).isDefined) client.withHeaders((authorisation, MDC.get(authorisation)))
-    if (Option(MDC.get(requestId)).isDefined) client.withHeaders((requestId, MDC.get(requestId)))
+  private def setHeaders(client: WSRequestHolder): WSRequestHolder = {
+    val requestHolder = if (Option(MDC.get(authorisation)).isDefined) client.withHeaders((authorisation, MDC.get(authorisation))) else client
+    if (Option(MDC.get(requestId)).isDefined) requestHolder.withHeaders((requestId, MDC.get(requestId))) else requestHolder
   }
 
   protected def httpResource(uri: String) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
-    val client = WS.url(s"$serviceUrl$uri")
-    setHeaders(client)
-    client
+    setHeaders(WS.url(s"$serviceUrl$uri"))
   }
 
   protected case class Statuses(r: Range) {
