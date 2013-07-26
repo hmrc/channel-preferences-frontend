@@ -38,19 +38,41 @@ trait ActionWrappers extends MicroServices with CookieEncryption {
                   action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway")))(request)
                 } catch {
                   case t: Throwable => {
-                    Logger.error("Action failed", t)
+                    Logger.error("Authorised Action failed", t)
                     InternalServerError(server_error(t))
                   }
                 } finally {
                   MDC.clear
                 }
               }
-              case _ => Unauthorized(s"No authority found for user id '$userId'")
+              case _ => {
+                Logger.warn(s"No authority found for user id '$userId'")
+                Unauthorized(routes.HomeController.landing())
+              }
             }
           case None => {
             Logger.debug("No identity cookie found - redirecting to login.")
             Redirect(routes.HomeController.landing())
           }
+        }
+    }
+  }
+
+  object UnauthorisedAction {
+    def apply[A <: TaxRegime](action: (Request[AnyContent] => Result)): Action[AnyContent] = Action {
+      request =>
+
+        MDC.put("X-Request-ID", "FE-" + UUID.randomUUID().toString)
+
+        try {
+          action(request)
+        } catch {
+          case t: Throwable => {
+            Logger.error("Unauthorised Action failed", t)
+            InternalServerError(server_error(t))
+          }
+        } finally {
+          MDC.clear
         }
     }
   }
