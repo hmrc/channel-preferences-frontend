@@ -81,7 +81,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     responseForm.bindFromRequest.fold(
       errors => {
         Logger.warn("SAML authentication response received without SAMLResponse data")
-        Unauthorized(views.html.login())
+        Unauthorized(views.html.login_error())
       },
       samlResponse => {
         val validationResult = samlMicroService.validate(samlResponse.response)
@@ -92,12 +92,12 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
             }
             case _ => {
               Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")
-              Unauthorized(views.html.login())
+              Unauthorized(views.html.login_error())
             }
           }
         } else {
           Logger.warn("SAMLResponse failed validation")
-          Unauthorized(views.html.login())
+          Unauthorized(views.html.login_error())
         }
       }
     )

@@ -95,6 +95,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("Noddy", "BigEars")))
 
       status(result) should be(401)
+      contentAsString(result) should include("Login error")
     }
 
     "return Unauthorised if the post contains an empty saml response" in new WithApplication(FakeApplication()) {
@@ -102,6 +103,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", "")))
 
       status(result) should be(401)
+      contentAsString(result) should include("Login error")
     }
 
     "return Unauthorised if the saml response fails validation" in new WithApplication(FakeApplication()) {
@@ -111,6 +113,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
       status(result) should be(401)
+      contentAsString(result) should include("Login error")
     }
 
     "return Unauthorised if there is no Authority record matching the hash pid" in new WithApplication(FakeApplication()) {
@@ -122,6 +125,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
       status(result) should be(401)
+      contentAsString(result) should include("Login error")
     }
   }
 
