@@ -32,7 +32,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
             val userId = decrypt(encryptedUserId)
 
             MDC.put(authorisation, s"Bearer $userId")
-            MDC.put(requestId, "TAX-" + UUID.randomUUID().toString)
+            MDC.put(requestId, "tax-" + UUID.randomUUID().toString)
 
             try {
               val userAuthority = authMicroService.authority(userId)
@@ -72,7 +72,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
     def apply[A <: TaxRegime](action: (Request[AnyContent] => Result)): Action[AnyContent] = Action {
       request =>
 
-        MDC.put(requestId, "TAX-" + UUID.randomUUID().toString)
+        MDC.put(requestId, "tax-" + UUID.randomUUID().toString)
 
         try {
           action(request)
