@@ -35,18 +35,26 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
             MDC.put(authorisation, s"Bearer $userId")
             MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
 
-            val userAuthority = authMicroService.authority(userId)
+            try {
+              val userAuthority = authMicroService.authority(userId)
 
-            Logger.debug(s"Received user authority: $userAuthority")
+              Logger.debug(s"Received user authority: $userAuthority")
 
-            userAuthority match {
-              case Some(ua: UserAuthority) => {
-                tryAction(request, action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway"))))
+              userAuthority match {
+                case Some(ua: UserAuthority) => {
+                  try {
+                    action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway")))(request)
+                  } catch {
+                    case t: Throwable => internalServerError(request, t)
+                  }
+                }
+                case _ => {
+                  Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
+                  Unauthorized(login())
+                }
               }
-              case _ => {
-                Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-                Unauthorized(login())
-              }
+            } finally {
+              MDC.clear
             }
           }
 
@@ -61,18 +69,16 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
   object UnauthorisedAction {
     def apply[A <: TaxRegime](action: (Request[AnyContent] => Result)): Action[AnyContent] = Action {
       request =>
-        MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
-        tryAction(request, action)
-    }
-  }
 
-  private def tryAction(request: Request[AnyContent], action: (Request[AnyContent] => Result)): Result = {
-    try {
-      action(request)
-    } catch {
-      case t: Throwable => internalServerError(request, t)
-    } finally {
-      MDC.clear
+        MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
+
+        try {
+          action(request)
+        } catch {
+          case t: Throwable => internalServerError(request, t)
+        } finally {
+          MDC.clear
+        }
     }
   }
 

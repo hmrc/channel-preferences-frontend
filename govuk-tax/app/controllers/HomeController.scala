@@ -7,7 +7,7 @@ import views.html.login
 
 class HomeController extends BaseController with ActionWrappers {
 
-  def landing = Action {
+  def landing = UnauthorisedAction { implicit request =>
 
     Logger.debug("Landing...")
     Ok(login())
