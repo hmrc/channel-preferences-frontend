@@ -10,11 +10,11 @@ import org.slf4j.MDC
 import java.util.UUID
 import views.html.{ login, server_error }
 import play.api.{ Mode, Play }
+import com.google.common.net.HttpHeaders
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
-  // American spelling because it's an OAuth format header (although we may not strictly be using OAuth)
-  val authorisation = "Authorization"
+  val authorisation = HttpHeaders.AUTHORIZATION
 }
 
 trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames {

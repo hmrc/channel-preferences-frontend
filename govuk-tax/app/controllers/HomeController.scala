@@ -1,6 +1,5 @@
 package controllers
 
-import play.api.mvc.Action
 import play.Logger
 import microservice.domain.RegimeRoots
 import views.html.login

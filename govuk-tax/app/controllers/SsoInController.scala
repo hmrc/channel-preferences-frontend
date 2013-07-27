@@ -1,6 +1,5 @@
 package controllers
 
-import play.api.mvc.Action
 import play.api.data.Forms._
 import play.api.data._
 import microservice.governmentgateway.ValidateTokenRequest
@@ -8,7 +7,7 @@ import controllers.service.MicroServices
 import play.api.Logger
 
 class SsoInController extends BaseController with ActionWrappers with MicroServices {
-  def in = Action {
+  def in = UnauthorisedAction {
     implicit request =>
       val form = Form(tuple(
         "gw" -> text,

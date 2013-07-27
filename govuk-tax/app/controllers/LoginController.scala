@@ -9,20 +9,20 @@ import microservice.UnauthorizedException
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption {
 
-  def login = Action {
+  def login = UnauthorisedAction { implicit request =>
     Ok(views.html.login())
   }
 
-  def samlLogin = Action {
+  def samlLogin = UnauthorisedAction { implicit request =>
     val authRequestFormData = samlMicroService.create
     Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
   }
 
-  def businessTaxLogin = Action {
+  def businessTaxLogin = UnauthorisedAction { implicit request =>
     Ok(views.html.business_tax_login_form())
   }
 
-  def governmentGatewayLogin: Action[AnyContent] = Action { implicit request =>
+  def governmentGatewayLogin: Action[AnyContent] = UnauthorisedAction { implicit request =>
 
     val loginForm = Form(
       mapping(
@@ -45,11 +45,11 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     }
   }
 
-  def enterAsJohnDensmore = Action {
+  def enterAsJohnDensmore = UnauthorisedAction { implicit request =>
     Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/newjdensmore")))
   }
 
-  def enterAsGeoffFisher = Action {
+  def enterAsGeoffFisher = UnauthorisedAction { implicit request =>
     val credentials = Credentials("805933359724", "passw0rd")
 
     try {
@@ -77,7 +77,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     )(SAMLResponse.apply)(SAMLResponse.unapply)
   )
 
-  def idaLogin = Action { implicit request =>
+  def idaLogin = UnauthorisedAction { implicit request =>
     responseForm.bindFromRequest.fold(
       errors => {
         Logger.warn("SAML authentication response received without SAMLResponse data")
