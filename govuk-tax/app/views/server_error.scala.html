@@ -1,12 +1,25 @@
-@(t: Throwable)
+@(t: Throwable, request: Request[AnyContent], requestId: String)
 @main(title = "Your tax home") {
 
     <h2>Oops, something went a bit wrong!</h2>
 
-<!--
-Message:
+    <div style="color:grey; font-family:monospace; white-space:pre;">
+<strong>Message</strong>
 @t.getMessage
-StackTrace:
+<strong>StackTrace</strong>
 @t.getStackTraceString
--->
+<strong>RequestID</strong>
+@requestId
+<strong>Request</strong>
+@request
+<strong>Headers</strong>@for((k,v) <- request.headers.toSimpleMap) {<br/>@k:@v}
+<strong>Controller</strong>
+@request.tags.get("ROUTE_CONTROLLER")
+<strong>Method</strong>
+@request.tags.get("ROUTE_ACTION_METHOD")
+<strong>Remote Address</strong>
+@request.remoteAddress
+<strong>Request Body</strong>
+@request.body.asText
+    </div>
 }

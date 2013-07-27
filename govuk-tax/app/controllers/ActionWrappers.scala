@@ -9,6 +9,7 @@ import java.net.URI
 import org.slf4j.MDC
 import java.util.UUID
 import views.html.{ login, server_error }
+import play.api.{ Mode, Play }
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -32,31 +33,20 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
             val userId = decrypt(encryptedUserId)
 
             MDC.put(authorisation, s"Bearer $userId")
-            MDC.put(requestId, "tax-" + UUID.randomUUID().toString)
+            MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
 
-            try {
-              val userAuthority = authMicroService.authority(userId)
+            val userAuthority = authMicroService.authority(userId)
 
-              Logger.debug(s"Received user authority: $userAuthority")
+            Logger.debug(s"Received user authority: $userAuthority")
 
-              userAuthority match {
-                case Some(ua: UserAuthority) => {
-                  try {
-                    action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway")))(request)
-                  } catch {
-                    case t: Throwable => {
-                      Logger.error("Authorised Action failed", t)
-                      InternalServerError(server_error(t))
-                    }
-                  }
-                }
-                case _ => {
-                  Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-                  Unauthorized(login())
-                }
+            userAuthority match {
+              case Some(ua: UserAuthority) => {
+                tryAction(request, action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway"))))
               }
-            } finally {
-              MDC.clear
+              case _ => {
+                Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
+                Unauthorized(login())
+              }
             }
           }
 
@@ -71,19 +61,28 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
   object UnauthorisedAction {
     def apply[A <: TaxRegime](action: (Request[AnyContent] => Result)): Action[AnyContent] = Action {
       request =>
+        MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
+        tryAction(request, action)
+    }
+  }
 
-        MDC.put(requestId, "tax-" + UUID.randomUUID().toString)
+  private def tryAction(request: Request[AnyContent], action: (Request[AnyContent] => Result)): Result = {
+    try {
+      action(request)
+    } catch {
+      case t: Throwable => internalServerError(request, t)
+    } finally {
+      MDC.clear
+    }
+  }
 
-        try {
-          action(request)
-        } catch {
-          case t: Throwable => {
-            Logger.error("Unauthorised Action failed", t)
-            InternalServerError(server_error(t))
-          }
-        } finally {
-          MDC.clear
-        }
+  private def internalServerError(request: Request[AnyContent], t: Throwable): Result = {
+    import play.api.Play.current
+    Logger.error("Action failed", t)
+    Play.application.mode match {
+      // different pages for prod and dev/test
+      case Mode.Dev | Mode.Test => InternalServerError(server_error(t, request, MDC.get(requestId)))
+      case Mode.Prod => InternalServerError(server_error(t, request, MDC.get(requestId)))
     }
   }
 
