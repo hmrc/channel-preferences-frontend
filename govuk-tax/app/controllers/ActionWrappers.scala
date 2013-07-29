@@ -11,6 +11,7 @@ import java.util.UUID
 import views.html.{ login, server_error }
 import play.api.{ Mode, Play }
 import com.google.common.net.HttpHeaders
+import microservice.{ HasResponse, UnauthorizedException, MicroServiceException }
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -81,12 +82,19 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
   }
 
   private def internalServerError(request: Request[AnyContent], t: Throwable): Result = {
+    logThrowable(t)
     import play.api.Play.current
-    Logger.error("Action failed", t)
     Play.application.mode match {
       // different pages for prod and dev/test
       case Mode.Dev | Mode.Test => InternalServerError(server_error(t, request, MDC.get(requestId)))
       case Mode.Prod => InternalServerError(server_error(t, request, MDC.get(requestId)))
+    }
+  }
+
+  private def logThrowable(t: Throwable) {
+    Logger.error("Action failed", t)
+    if (t.isInstanceOf[HasResponse]) {
+      Logger.error(s"MicroService Response '${t.asInstanceOf[HasResponse].response.body}'")
     }
   }
 

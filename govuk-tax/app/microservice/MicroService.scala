@@ -62,17 +62,23 @@ trait MicroService extends Status with HeaderNames {
           // 204 or 404 are returned to the micro service as None
           case NO_CONTENT => None
           case NOT_FOUND => None
-          case BAD_REQUEST => throw new RuntimeException("Bad request")
-          case UNAUTHORIZED => throw UnauthorizedException("Unauthenticated request")
-          case FORBIDDEN => throw new RuntimeException("Not authorised to make this request")
-          case CONFLICT => throw new RuntimeException("Invalid state")
-          case x => throw new RuntimeException(s"Internal server error, response status is: $x, futureResponse: $futureResponse")
+          case BAD_REQUEST => throw MicroServiceException("Bad request", res)
+          case UNAUTHORIZED => throw UnauthorizedException("Unauthenticated request", res)
+          case FORBIDDEN => throw MicroServiceException("Not authorised to make this request", res)
+          case CONFLICT => throw MicroServiceException("Invalid state", res)
+          case x => throw MicroServiceException(s"Internal server error, response status is: $x", res)
         }
     }
   }
 }
 
-case class UnauthorizedException(message: String) extends RuntimeException
+trait HasResponse {
+  val response: Response
+}
+
+case class MicroServiceException(message: String, response: Response) extends RuntimeException(message) with HasResponse
+
+case class UnauthorizedException(message: String, response: Response) extends RuntimeException(message) with HasResponse
 
 object MicroServiceConfig {
 
