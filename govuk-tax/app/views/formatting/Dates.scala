@@ -8,7 +8,7 @@ object Dates {
   private[formatting] val dateFormat = DateTimeFormat.forPattern("MMMM d, yyyy").withZone(DateTimeZone.forID("Europe/London"))
   private[formatting] val shortDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(DateTimeZone.forID("Europe/London"))
   private[formatting] val easyReadingTimestampFormat = DateTimeFormat.forPattern("EEEE MMMM d, yyyy 'at' h:mmaa").withZone(DateTimeZone.forID("Europe/London"))
-  private[formatting] val portalCompatibleTimestampFormat = ISODateTimeFormat.dateTimeNoMillis.withZoneUTC
+  private[formatting] val portalCompatibleTimestampFormat = ISODateTimeFormat.dateTime.withZoneUTC
 
   def formatDate(date: LocalDate) = dateFormat.print(date)
 
