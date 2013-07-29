@@ -17,6 +17,7 @@ import microservice.UnauthorizedException
 import scala.Some
 import microservice.saml.domain.AuthResponseValidationResult
 import play.api.test.FakeApplication
+import play.api.libs.ws.Response
 
 class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
@@ -186,7 +187,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "not be able to log in and should return to the login form with an error message on submitting invalid Government Gateway credentials" in new WithApplication(FakeApplication()) {
 
-      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(UnauthorizedException("Unauthenticated request"))
+      val mockResponse = mock[Response]
+      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(UnauthorizedException("Unauthenticated request", mockResponse))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
