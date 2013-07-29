@@ -32,7 +32,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
 
             val userId = decrypt(encryptedUserId)
 
-            MDC.put(authorisation, s"Bearer $userId")
+            MDC.put(authorisation, s"$userId")
             MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
 
             try {

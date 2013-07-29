@@ -31,7 +31,7 @@ trait MicroService extends Status with HeaderNames {
   protected val success = Statuses(OK to MULTI_STATUS)
 
   private def setHeaders(client: WSRequestHolder): WSRequestHolder = {
-    val requestHolder = if (Option(MDC.get(authorisation)).isDefined) client.withHeaders((authorisation, MDC.get(authorisation))) else client
+    val requestHolder = if (Option(MDC.get(authorisation)).isDefined) client.withHeaders((authorisation, s"Bearer ${MDC.get(authorisation)}")) else client
     if (Option(MDC.get(requestId)).isDefined) requestHolder.withHeaders((requestId, MDC.get(requestId))) else requestHolder
   }
 

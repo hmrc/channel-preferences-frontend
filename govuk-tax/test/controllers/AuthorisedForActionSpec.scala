@@ -98,9 +98,8 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       val result = TestController.testMdc(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) should equal(200)
       val strings = contentAsString(result).split(" ")
-      strings(0) should equal("Bearer")
-      strings(1) should equal("/auth/oid/jdensmore")
-      strings(2) should startWith("frontend-")
+      strings(0) should equal("/auth/oid/jdensmore")
+      strings(1) should startWith("frontend-")
     }
   }
 
