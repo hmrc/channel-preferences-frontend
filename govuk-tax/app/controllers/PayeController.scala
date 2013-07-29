@@ -31,6 +31,7 @@ class PayeController extends BaseController with ActionWrappers {
       implicit request =>
         val benefits = user.regimes.paye.get.benefits
         val employments = user.regimes.paye.get.employments
+	// TODO: add lowercase hyphenated formatter
         Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   }
 

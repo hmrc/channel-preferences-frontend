@@ -6,7 +6,7 @@
 @main(title = "Your tax home") {
 
     <h2>Current benefits-in-kind</h2>
-    <table>
+    <table id="@displayBenefit.employment.taxDistrictNumber-@displayBenefit.employment.payeNumber">
 
         <tr>
             <th align="left" width="30%">Employment reference</th>
@@ -19,14 +19,18 @@
 
         @for(displayBenefit <- benefits) {
 
+	    <!--
+		TODO: add lowercase hyphenated benefit type as id
+	    -->
             <tr>
-                <td>@displayBenefit.employment.taxDistrictNumber / @displayBenefit.employment.payeNumber<br>
-                    From @formatDate(displayBenefit.employment.startDate) to @formatDate(displayBenefit.employment.endDate, "present")
+
+		<td class="employment-reference">@displayBenefit.employment.taxDistrictNumber / @displayBenefit.employment.payeNumber
                 </td>
-                <td>@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
+
+		<td class="benefit-type">@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
 
                 @displayBenefit.car.map { car =>
-                    <td>
+		    <td id="benefit-description">
                             Engine size: @engineSizeFor(car.engineSize)<br>
                             Fuel type: @fuelTypeFor(car.fuelType)<br>
                             Date car registered: @formatDate(car.dateCarRegistered.get)<br>
@@ -34,16 +38,16 @@
                 }.getOrElse {
                     <td>@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
                 }
-                <td align="right" >£ @displayBenefit.benefit.grossAmountToString()</td>
+		<td class="benefit-amount" align="right" >£ @displayBenefit.benefit.grossAmountToString()</td>
 
                 <td>
                 @displayBenefit.car.map { car => @if(car.dateCarWithdrawn.isEmpty) {
                         <ul>
                             <li>Change</li>
-                            <li><a href="@routes.PayeController.removeCarBenefitToStep1(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
+			    <li><a class="cta cta--remove-benefit" href="@routes.PayeController.removeCarBenefitToStep1(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
                         </ul>
                     } else {
-                        Car removed on @formatDate(car.dateCarWithdrawn.get)
+			Car removed on <time datetime="">@formatDate(car.dateCarWithdrawn.get)</time>
                     }
                 }.getOrElse {
                     More Information

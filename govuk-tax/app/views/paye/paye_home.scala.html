@@ -6,14 +6,13 @@
 
     <h2>Welcome, @name</h2>
     <h2>Employments in current tax year</h2>
-    <ul>
-        @employments.map { employment =>
-            <li>
-                @employment.taxDistrictNumber / @employment.payeNumber
-                (@formatDate(employment.startDate) to @formatDate(employment.endDate, "present"))
-            </li>
-        }
-    </ul>
+
+    @employments.map { employment =>
+	<section class="employment">
+	    <div class="employment-ref">@employment.taxDistrictNumber / @employment.payeNumber</div>
+	    <div class="employment-term">(@formatDate(employment.startDate) to @formatDate(employment.endDate, "present"))</div>
+	</section>
+    }
 
     @{taxCodes.size match {
         case 0 =>
@@ -21,13 +20,11 @@
         case _ => {<h3>Your Tax Codes</h3>}
     }}
 
-    <ul>
-        @for(tc <- taxCodes) {
-            <li>@tc.taxCode</li>
-        }
-    </ul>
+    @for(tc <- taxCodes) {
+	<div class="tax-code">@tc.taxCode</div>
+    }
 
     @if(hasBenefits) {
-        <a href="@routes.PayeController.listBenefits">Click here to see your benefits</a>
+	<a class="cta cta--view-benefits" href="@routes.PayeController.listBenefits">Click here to see your benefits</a>
     }
 }
