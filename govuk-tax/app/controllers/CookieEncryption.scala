@@ -19,10 +19,12 @@ trait CookieEncryption {
     new String(Base64.encodeBase64(cipher.doFinal(id.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8)
   }
 
-  def decrypt(id: String) = {
+  def decrypt(id: String): String = {
     val cipher = Cipher.getInstance("AES")
 
     cipher.init(Cipher.DECRYPT_MODE, secretKey)
     new String(cipher.doFinal(Base64.decodeBase64(id.getBytes(StandardCharsets.UTF_8))))
   }
+
+  def decrypt(id: Option[String]): Option[String] = id.map(decrypt(_))
 }

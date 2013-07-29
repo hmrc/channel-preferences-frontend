@@ -42,7 +42,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
 
               userAuthority match {
                 case Some(ua: UserAuthority) => {
-                  action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = request.session.get("nameFromGovernmentGateway")))(request)
+                  action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = decrypt(request.session.get("name"))))(request)
                 }
                 case _ => {
                   Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")

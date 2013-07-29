@@ -64,7 +64,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
         ))
       )
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway, "encodedGovernmentGatewayToken" -> encodedGovernmentGatewayToken))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken)))
 
       status(result) should be(200)
 
@@ -85,7 +85,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway, "encodedGovernmentGatewayToken" -> encodedGovernmentGatewayToken))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken)))
 
       status(result) should be(200)
 

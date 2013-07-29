@@ -36,7 +36,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     } else {
       try {
         val response: GovernmentGatewayResponse = governmentGatewayMicroService.login(boundForm.value.get)
-        Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(response.authId), "nameFromGovernmentGateway" -> response.name, "encodedGovernmentGatewayToken" -> response.encodedGovernmentGatewayToken)
+        Redirect(routes.BusinessTaxController.home())
+          .withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
         case e: UnauthorizedException => {
           Ok(views.html.business_tax_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
@@ -54,7 +55,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
 
     try {
       val loginResponse: GovernmentGatewayResponse = governmentGatewayMicroService.login(credentials)
-      Redirect(routes.BusinessTaxController.home()).withSession("userId" -> encrypt(loginResponse.authId), "nameFromGovernmentGateway" -> loginResponse.name, "encodedGovernmentGatewayToken" -> loginResponse.encodedGovernmentGatewayToken)
+      Redirect(routes.BusinessTaxController.home())
+        .withSession("userId" -> encrypt(loginResponse.authId), "name" -> encrypt(loginResponse.name), "token" -> encrypt(loginResponse.encodedGovernmentGatewayToken))
     } catch {
       case e: UnauthorizedException => {
         val loginForm = Form(

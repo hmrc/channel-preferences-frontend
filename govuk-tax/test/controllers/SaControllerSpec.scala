@@ -82,7 +82,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   }
 
   def request(action: Action[AnyContent]): String = {
-    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "nameFromGovernmentGateway" -> nameFromGovernmentGateway))
+    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway)))
 
     status(result) should be(200)
 
