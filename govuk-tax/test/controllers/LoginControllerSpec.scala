@@ -24,9 +24,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   import play.api.test.Helpers._
 
   private val mockSamlMicroService = mock[SamlMicroService]
-
   private val mockAuthMicroService = mock[AuthMicroService]
-  private var mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
+  private val mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
 
   when(mockSamlMicroService.create).thenReturn(
     AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
@@ -215,4 +214,38 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     }
   }
+
+  "Calling logout" should {
+
+    "remove your existing session cookie and redirect you to the homepage" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
+
+      val result = loginController.logout(FakeRequest().withSession("someKey" -> "someValue"))
+
+      status(result) shouldBe Status.SEE_OTHER
+      redirectLocation(result).get shouldBe routes.HomeController.home().toString()
+      println("1111"  +result)
+      println("2222" + session(result))
+
+      session(result).isEmpty should be (true)
+    }
+
+
+//    "just redirect you to the homepage if you don't have a session cookie" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
+//
+//      val result = loginController.logout(FakeRequest())
+//
+//      status(result) shouldBe Status.SEE_OTHER
+//      redirectLocation(result).get shouldBe routes.HomeController.home().toString()
+//
+//      session(result).isEmpty should be (true)
+//    }
+  }
+
+
+  "Logout" should {
+    "redirect to gov.uk" in new LoginController {
+      logout shouldBe Redirect()
+    }
+  }
+
 }

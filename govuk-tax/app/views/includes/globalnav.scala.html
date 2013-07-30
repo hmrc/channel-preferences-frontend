@@ -12,10 +12,10 @@
 
 <nav role='navigation' class='content'>
     <ul id='navigation'>
-        <li>@if(current == "Home") { <span class='current-page'>Home</span> } else { <a href='#'>Home</a>}</li>
+        <li>@if(current == "Home") { <span class='current-page'>Home</span> } else { <a href='@routes.HomeController.home'>Home</a>}</li>
         <li>@if(current == "Statements") { <span class='current-page'>Statements</span> } else { <a href='#' >Statements</a> }</li>
         <li>@if(current == "Messages") { <span class='current-page'>Messages</span> } else { <a href='#' >Messages</a> }</li>
         <li>@if(current == "Calendar") { <span class='current-page'>Calendar</span> } else { <a href='#' >Calendar</a> }</li>
-        <li><a href='#'>Log out</a></li>
+        <li><a href='@routes.LoginController.logout'>Log out</a></li>
     </ul>
 </nav>
