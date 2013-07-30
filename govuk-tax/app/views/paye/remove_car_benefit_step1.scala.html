@@ -9,9 +9,9 @@
 @main(title = "Your tax home") {
 
 <h2>Remove your company benefit</h2>
-<p>Car provided by @displayBenefit.employment.employerName<br/>
-Registered on @formatDate(displayBenefit.car.get.dateCarRegistered.get).<br/>
-Value of car benefit: £ @displayBenefit.benefit.grossAmountToString()</p>
+<p>Car provided by <span class="employer">@displayBenefit.employment.employerName</span><br/>
+Registered on <span class="date">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.<br/>
+Value of car benefit: <span class="amount">£ @displayBenefit.benefit.grossAmountToString()</span></p>
 
 <p>If @displayBenefit.employment.employerName have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
@@ -19,22 +19,20 @@ Value of car benefit: £ @displayBenefit.benefit.grossAmountToString()</p>
 
         @defining(updateForm("withdrawDate")) { withdrawDateField =>
         <div class="@if(withdrawDateField.error.isDefined){error-notification}">
-            <label>
-                Date you gave back the car:
-                <input type="date" name="withdrawDate" placeholder="@shortDate(LocalDate.now)" />
-                @if(withdrawDateField.error.isDefined){<p>@Messages(withdrawDateField.errors(0).message)</p>}
-            </label>
+	    @if(withdrawDateField.error.isDefined){<p class="error">@Messages(withdrawDateField.errors(0).message)</p>}
+	    <label>Date you gave back the car: </label>
+	    <input class="return-date" type="date" name="withdrawDate" placeholder="@shortDate(LocalDate.now)" />
         </div>
         }
-        <p>
+	<div>
             @checkbox(
             updateForm("agreement"),
             '_id -> "agreement",
             '_label -> s"${displayBenefit.employment.employerName} no longer provide me with a company car",
             '_showConstraints -> false
             )
-        </p>
-        <input type="submit" value="Next" />
+	</div>
+	<input class="button button--submit" type="submit" value="Next" />
     }
 }
 
