@@ -11,11 +11,10 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
     implicit request =>
       val form = Form(tuple(
         "gw" -> text,
-        "time" -> text
+        "time" -> text,
+        "dest" -> text
       ))
-      val destUris = request.queryString("dest")
-      val destUri = destUris.headOption.get
-      val (gw, time) = form.bindFromRequest.get
+      val (gw, time, destUri) = form.bindFromRequest.get
       val tokenRequest = ValidateTokenRequest(gw, time)
       try {
         val response = governmentGatewayMicroService.validateToken(tokenRequest)

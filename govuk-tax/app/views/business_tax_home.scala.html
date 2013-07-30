@@ -48,35 +48,41 @@
     var link = document.getElementById("portalLink");
 
     var destinationAddress = link.href;
-    var ssoAddress = "@PortalConfig.ssoRoot?dest=" + escape(destinationAddress);
+    var ssoUrl = "@PortalConfig.ssoUrl";
     var gatewayToken = "@businessUser.encodedGovernmentGatewayToken";
+    var nowTimestamp = new Date().getTime();
 
     link.onclick = function()
     {
-    var form = document.createElement('form');
-    form.method = 'post';
-    form.action = ssoAddress;
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.action = ssoUrl;
 
-    var input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'gw';
-    input.value = gatewayToken;
+        var gw = document.createElement('input');
+        gw.type = 'hidden';
+        gw.name = 'gw';
+        gw.value = gatewayToken;
 
-    var now = new Date();
-    var time = document.createElement('input');
-    time.type = 'hidden';
-    time.name = 'time';
-    time.value = now.getTime();
+        var dest = document.createElement('input');
+        dest.type = 'hidden';
+        dest.name = 'dest';
+        dest.value = destinationAddress;
 
-    document.body.appendChild(form);
-    form.appendChild(input);
-    form.appendChild(time);
+        var time = document.createElement('input');
+        time.type = 'hidden';
+        time.name = 'time';
+        time.value = nowTimestamp;
 
-    // POST form
-    form.submit();
+        document.body.appendChild(form);
+        form.appendChild(gw);
+        form.appendChild(dest);
+        form.appendChild(time);
 
-    // cancel link click event if everything is successful
-    return false;
+        // POST form
+        form.submit();
+
+        // cancel link click event if everything is successful
+        return false;
     }
 
 </script>

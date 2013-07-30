@@ -8,7 +8,7 @@ import microservice.{ UnauthorizedException, MockMicroServicesForTests }
 import microservice.governmentgateway.{ GovernmentGatewayResponse, ValidateTokenRequest, GovernmentGatewayMicroService }
 import org.mockito.Mockito._
 import play.api.mvc.{ SimpleResult, Result }
-import java.net.{ URLEncoder, URL }
+import java.net.URLEncoder
 import play.api.libs.ws.Response
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
@@ -39,7 +39,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "create a new session when the token is valid, the time not expired and no session exists" in new WithApplication(FakeApplication()) {
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.loginTimestamp))).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.encodedToken))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl").withFormUrlEncodedBody("gw" -> john.encodedToken, "time" -> john.loginTimestamp))
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com").withFormUrlEncodedBody("gw" -> john.encodedToken, "time" -> john.loginTimestamp, "dest" -> redirectUrl))
       result match {
         case SimpleResult(header, _) => {
           header.status shouldBe 303
@@ -57,8 +57,8 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(bob.encodedToken, bob.loginTimestamp))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.encodedToken))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl")
-        .withFormUrlEncodedBody("gw" -> bob.encodedToken, "time" -> bob.loginTimestamp)
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("gw" -> bob.encodedToken, "time" -> bob.loginTimestamp, "dest" -> redirectUrl)
         .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
@@ -77,8 +77,8 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "invalidate the session if a session already exists but the login is incorrect" in new WithApplication(FakeApplication()) {
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.invalidEncodedToken, john.loginTimestamp))).thenThrow(new IllegalStateException("error"))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl")
-        .withFormUrlEncodedBody("gw" -> john.invalidEncodedToken, "time" -> john.loginTimestamp)
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("gw" -> john.invalidEncodedToken, "time" -> john.loginTimestamp, "dest" -> redirectUrl)
         .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
@@ -97,8 +97,8 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val mockResponse = mock[Response]
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl")
-        .withFormUrlEncodedBody("gw" -> john.encodedToken, "time" -> john.invalidLoginTimestamp)
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("gw" -> john.encodedToken, "time" -> john.invalidLoginTimestamp, "dest" -> redirectUrl)
         .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
 
       result match {

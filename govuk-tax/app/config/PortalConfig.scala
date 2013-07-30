@@ -9,6 +9,6 @@ object PortalConfig {
   private lazy val env = Play.mode
 
   lazy val destinationRoot = s"${Play.configuration.getString(s"govuk-tax.$env.portal.destinationRoot").getOrElse("http://localhost:8080/portal/ssoin")}"
-  lazy val ssoRoot = s"${Play.configuration.getString(s"govuk-tax.$env.portal.ssoRoot").getOrElse("http://localhost:8080")}"
+  lazy val ssoUrl = s"${Play.configuration.getString(s"govuk-tax.$env.portal.ssoUrl").getOrElse("http://localhost:8080")}"
 }
 
