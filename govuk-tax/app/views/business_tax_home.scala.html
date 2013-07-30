@@ -50,7 +50,6 @@
     var destinationAddress = link.href;
     var ssoAddress = "@PortalConfig.ssoRoot?dest=" + escape(destinationAddress);
     var gatewayToken = "@businessUser.encodedGovernmentGatewayToken";
-    var nowTimestamp = "@portalCompatibleTimestamp";
 
     link.onclick = function()
     {
@@ -67,7 +66,7 @@
     var time = document.createElement('input');
     time.type = 'hidden';
     time.name = 'time';
-    time.value = nowTimestamp;
+    time.value = now.getTime();
 
     document.body.appendChild(form);
     form.appendChild(input);
