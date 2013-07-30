@@ -42,21 +42,21 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
 
-    def test = AuthorisedForAction[PayeRegime] {
+    def test = AuthorisedForAction(Some()) {
       implicit user =>
         implicit request =>
-          val userPayeRegimeRoot = user.regimes.paye.getOrElse(throw new Exception("No PAYE regime for user"))
+          val userPayeRegimeRoot = user.regimes.paye.get //OrElse(throw new Exception("No PAYE regime for user"))
           val userName = userPayeRegimeRoot.name
           Ok(userName)
     }
 
-    def testThrowsException = AuthorisedForAction[PayeRegime] {
+    def testThrowsException = AuthorisedForAction(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
           throw new RuntimeException("ACTION TEST")
     }
 
-    def testMdc = AuthorisedForAction[PayeRegime] {
+    def testMdc = AuthorisedForAction(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
           Ok(s"${MDC.get(authorisation)} ${MDC.get(requestId)}")
@@ -100,6 +100,22 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       val strings = contentAsString(result).split(" ")
       strings(0) should equal("/auth/oid/jdensmore")
       strings(1) should startWith("frontend-")
+    }
+
+    "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in {
+      when(mockAuthMicroService.authority("/auth/oid/bob")).thenReturn(
+        Some(UserAuthority("/auth/oid/bob", Regimes(paye = Some(URI.create("/personal/paye/12345678"))), None)))
+
+      when(mockPayeMicroService.root("/personal/paye/12345678")).thenReturn(
+        PayeRoot(
+          name = "John Densmore",
+          version = 22,
+          nino = "AB123456C",
+          links = Map.empty
+        )
+      )
+
+      val result = TestController.testMdc(FakeRequest().withSession(("userId", encrypt("/auth/oid/bob"))))
     }
   }
 

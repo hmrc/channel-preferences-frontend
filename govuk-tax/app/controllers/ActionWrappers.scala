@@ -24,9 +24,8 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
   //todo test what happens if user is not authorised to be in this regime - at the time of writing front-end does not do a check
   object AuthorisedForAction {
 
-    def apply[A <: TaxRegime](action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
+    def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
-
         request.session.get("userId") match {
 
           case Some(encryptedUserId) => {

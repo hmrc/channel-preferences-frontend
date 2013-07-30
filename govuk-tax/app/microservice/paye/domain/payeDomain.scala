@@ -4,7 +4,7 @@ import microservice.domain.{ RegimeRoot, TaxRegime }
 import microservice.paye.PayeMicroService
 import org.joda.time.LocalDate
 
-class PayeRegime extends TaxRegime
+object PayeRegime extends TaxRegime
 
 case class PayeRoot(nino: String, version: Int, name: String, links: Map[String, String]) extends RegimeRoot {
 

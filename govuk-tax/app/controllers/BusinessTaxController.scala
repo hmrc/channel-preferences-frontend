@@ -6,7 +6,7 @@ import microservice.domain._
 
 class BusinessTaxController extends BaseController with ActionWrappers with CookieEncryption {
 
-  def home = AuthorisedForAction {
+  def home = AuthorisedForAction() {
     implicit user =>
       implicit request =>
 

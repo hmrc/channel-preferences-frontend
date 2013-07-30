@@ -5,7 +5,7 @@ import views.html.sa.sa_personal_details
 
 class SaController extends BaseController with ActionWrappers {
 
-  def details = AuthorisedForAction {
+  def details = AuthorisedForAction() {
     implicit user =>
       implicit request =>
 
