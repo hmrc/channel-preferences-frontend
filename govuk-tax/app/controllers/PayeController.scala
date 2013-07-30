@@ -93,7 +93,6 @@ class PayeController extends BaseController with ActionWrappers {
   }
 
   import microservice.domain.User
-
   private def getCarBenefit(user: User, employmentSequenceNumber: Int): DisplayBenefit = {
     val benefit = user.regimes.paye.get.benefits.find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.car.isDefined)
     matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)(0)
@@ -101,12 +100,8 @@ class PayeController extends BaseController with ActionWrappers {
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] =
     benefits
-      .filter {
-        benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber)
-      }
-      .map {
-        benefit: Benefit => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, benefit.car)
-      }
+      .filter { benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber) }
+      .map { benefit: Benefit => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, benefit.car) }
 
   private def currentTaxYear = {
     val now = new LocalDate
@@ -116,5 +111,4 @@ class PayeController extends BaseController with ActionWrappers {
 }
 
 case class DisplayBenefit(employment: Employment, benefit: Benefit, car: Option[Car])
-
 case class RemoveBenefitFormData(withdrawDate: LocalDate, agreement: Boolean)
