@@ -147,11 +147,11 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       requestBenefits("jdensmore") should include("£ 321.42")
     }
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
-      requestBenefits("jdensmore") should include("""<a href="/paye/benefits/2013/remove/2/1">Remove</a>""")
+      requestBenefits("jdensmore") should include("""href="/paye/benefits/2013/remove/2/1"""")
     }
 
     "display a Car removed if the withdrawn date is set" in new WithApplication(FakeApplication()) {
-      requestBenefits("removedCar") should include("Car removed on July 12, 2013")
+      requestBenefits("removedCar") should include regex "Car removed on.+July 12, 2013".r
     }
 
     def requestBenefits(id: String) = {
@@ -168,8 +168,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 200
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
-      requestBenefits should include("Registered on December 12, 2012.")
-      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include regex "Registered on.*December 12, 2012.".r
+      requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
     }
 
     "in step 1 display an error message when return date of car greater than 35 days" in new WithApplication(FakeApplication()) {
@@ -178,8 +178,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
-      requestBenefits should include("Registered on December 12, 2012.")
-      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include regex "Registered on.*December 12, 2012.".r
+      requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
       requestBenefits should include("Invalid date: Return date cannot be greater than 35 days from today")
     }
 
@@ -189,8 +189,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
-      requestBenefits should include("Registered on December 12, 2012.")
-      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include regex "Registered on.*December 12, 2012.".r
+      requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
       requestBenefits should include("Invalid date: Return date cannot be in previous tax years")
     }
 
@@ -200,8 +200,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
-      requestBenefits should include("Registered on December 12, 2012.")
-      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include regex "Registered on.*December 12, 2012.".r
+      requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
       requestBenefits should include("Invalid date: Return date cannot be in next tax years")
     }
 
@@ -210,8 +210,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
-      requestBenefits should include("Registered on December 12, 2012.")
-      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include regex "Registered on.*December 12, 2012.".r
+      requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
       requestBenefits should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
     }
 
@@ -220,8 +220,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
-      requestBenefits should include("Registered on December 12, 2012.")
-      requestBenefits should include("Value of car benefit: £ 321.42")
+      requestBenefits should include regex "Registered on.*December 12, 2012.".r
+      requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
       requestBenefits should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
     }
 
@@ -234,7 +234,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
       val requestBenefits = contentAsString(result)
-      requestBenefits should include("Personal Allowance by £ 197.96.")
+      requestBenefits should include regex "Personal Allowance by.*£ 197.96.".r
     }
 
     "in step 2 save the withdrawDate to the session" in new WithApplication(FakeApplication()) {
