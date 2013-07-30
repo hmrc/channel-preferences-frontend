@@ -9,6 +9,7 @@ import microservice.governmentgateway.{ GovernmentGatewayResponse, ValidateToken
 import org.mockito.Mockito._
 import play.api.mvc.{ SimpleResult, Result }
 import java.net.{ URLEncoder, URL }
+import play.api.libs.ws.Response
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -93,7 +94,8 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     }
 
     "invalidate the session if a session already exists but the login throws an Unauthorised Exception" in new WithApplication(FakeApplication()) {
-      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error"))
+      val mockResponse = mock[Response]
+      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com?dest=$redirectUrl")
         .withFormUrlEncodedBody("gw" -> john.encodedToken, "time" -> john.invalidLoginTimestamp)
