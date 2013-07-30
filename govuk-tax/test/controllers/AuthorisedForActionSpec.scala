@@ -16,6 +16,7 @@ import microservice.paye.domain.{ PayeRegime, PayeRoot }
 import java.net.URI
 import org.slf4j.MDC
 import org.scalatest.BeforeAndAfterEach
+import microservice.sa.domain.SaRegime
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
@@ -42,11 +43,19 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
 
-    def test = AuthorisedForAction(Some()) {
+    def test = AuthorisedForAction(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
-          val userPayeRegimeRoot = user.regimes.paye.get //OrElse(throw new Exception("No PAYE regime for user"))
+          val userPayeRegimeRoot = user.regimes.paye.get
           val userName = userPayeRegimeRoot.name
+          Ok(userName)
+    }
+
+    def testAuthorisation = AuthorisedForAction(Some(SaRegime)) {
+      implicit user =>
+        implicit request =>
+          val userPayeRegimeRoot = user.regimes.paye.get
+        val userName = userPayeRegimeRoot.name
           Ok(userName)
     }
 
@@ -102,7 +111,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       strings(1) should startWith("frontend-")
     }
 
-    "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in {
+    "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new  WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/bob")).thenReturn(
         Some(UserAuthority("/auth/oid/bob", Regimes(paye = Some(URI.create("/personal/paye/12345678"))), None)))
 
@@ -115,7 +124,8 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
         )
       )
 
-      val result = TestController.testMdc(FakeRequest().withSession(("userId", encrypt("/auth/oid/bob"))))
+      val result = TestController.testAuthorisation(FakeRequest().withSession(("userId", encrypt("/auth/oid/bob"))))
+      status(result) should equal(303)
     }
   }
 

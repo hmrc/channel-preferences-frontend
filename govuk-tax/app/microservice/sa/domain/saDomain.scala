@@ -1,7 +1,20 @@
 package microservice.sa.domain
 
-import microservice.domain.RegimeRoot
+import microservice.domain.{ TaxRegime, RegimeRoot }
 import microservice.sa.SaMicroService
+import microservice.auth.domain.Regimes
+import play.api.mvc.{ Call, AnyContent, Action }
+import controllers.routes
+
+object SaRegime extends TaxRegime {
+  override def isAuthorised(regimes: Regimes) = {
+    regimes.sa.isDefined
+  }
+
+  override def unauthorisedLandingPage: Call = {
+    routes.SaController.noEnrolment()
+  }
+}
 
 case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
 

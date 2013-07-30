@@ -4,7 +4,7 @@ import play.api.mvc._
 import controllers.service._
 import microservice.domain.{ RegimeRoots, TaxRegime, User }
 import microservice.auth.domain.{ Regimes, UserAuthority }
-import play.Logger
+import play.{ mvc, Logger }
 import java.net.URI
 import org.slf4j.MDC
 import java.util.UUID
@@ -40,14 +40,21 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
 
               Logger.debug(s"Received user authority: $userAuthority")
 
-              userAuthority match {
-                case Some(ua: UserAuthority) => {
-                  action(User(user = userId, regimes = getRegimeRootsObject(ua.regimes), userAuthority = ua, nameFromGovernmentGateway = decrypt(request.session.get("name"))))(request)
-                }
-                case _ => {
-                  Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-                  Unauthorized(login())
-                }
+              val authenticatedAction = userAuthority map {
+                ua: UserAuthority =>
+                  {
+                    taxRegime match {
+                      case Some(regime) if !regime.isAuthorised(ua.regimes) =>
+                        Redirect(regime.unauthorisedLandingPage)
+                      case _ =>
+                        val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")))
+                        action(user)(request)
+                    }
+                  }
+              }
+              authenticatedAction.getOrElse {
+                Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
+                Unauthorized(login())
               }
             } catch {
               case t: Throwable => internalServerError(request, t)
@@ -106,7 +113,11 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
       case Some(x: URI) => Some(saMicroService.root(x.toString))
       case _ => None
     },
-    vat = if (regimes.vat.isEmpty) { None } else { Some("#") } //todo change it once we have VAT service / its stub ready
+    vat = if (regimes.vat.isEmpty) {
+      None
+    } else {
+      Some("#")
+    } //todo change it once we have VAT service / its stub ready
   )
 
 }

@@ -1,12 +1,17 @@
 package microservice.domain
 
-import microservice.auth.domain.UserAuthority
+import microservice.auth.domain.{ Regimes, UserAuthority }
 
 import microservice.paye.domain.PayeRoot
 import microservice.sa.domain.SaRoot
 import org.joda.time.DateTime
+import play.api.mvc.{ Call, AnyContent, Action, Result }
 
-abstract class TaxRegime
+abstract class TaxRegime {
+  def isAuthorised(regimes: Regimes): Boolean
+
+  def unauthorisedLandingPage: Call
+}
 
 abstract class RegimeRoot
 

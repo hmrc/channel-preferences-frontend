@@ -8,6 +8,7 @@ GET     /assets/*file                   controllers.Assets.at(path="/public", fi
 #
 GET     /paye/home                      @controllers.PayeController.home
 GET     /paye/benefits                  @controllers.PayeController.listBenefits
+GET     /paye/no-enrolment              @controllers.PayeController.noEnrolment
 
 GET     /paye/benefits/:year/remove/:employmentSequenceNumber/1    @controllers.PayeController.removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int)
 POST    /paye/benefits/:year/remove/:employmentSequenceNumber/2   @controllers.PayeController.removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int)
@@ -32,6 +33,7 @@ GET     /agent/sro-check                @controllers.AgentController.sroCheck
 POST    /agent/sro-check                @controllers.AgentController.submitAgreement
 
 GET     /sa/details                     @controllers.SaController.details
+GET     /sa/no-enrolment                @controllers.SaController.noEnrolment
 
 GET     /home                           @controllers.HomeController.home
 

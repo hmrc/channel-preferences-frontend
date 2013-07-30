@@ -3,8 +3,20 @@ package microservice.paye.domain
 import microservice.domain.{ RegimeRoot, TaxRegime }
 import microservice.paye.PayeMicroService
 import org.joda.time.LocalDate
+import microservice.auth.domain.Regimes
+import play.api.mvc.{ AnyContent, Action }
+import controllers.routes
+import play.api.mvc.Call
 
-object PayeRegime extends TaxRegime
+object PayeRegime extends TaxRegime {
+  override def isAuthorised(regimes: Regimes) = {
+    regimes.paye.isDefined
+  }
+
+  override def unauthorisedLandingPage: Call = {
+    routes.PayeController.noEnrolment()
+  }
+}
 
 case class PayeRoot(nino: String, version: Int, name: String, links: Map[String, String]) extends RegimeRoot {
 
@@ -33,7 +45,9 @@ case class TaxCode(taxCode: String)
 case class Benefit(benefitType: Int, taxYear: Int, grossAmount: BigDecimal, employmentSequenceNumber: Int, costAmount: BigDecimal, amountMadeGood: BigDecimal, cashEquivalent: BigDecimal, expensesIncurred: BigDecimal, amountOfRelief: BigDecimal, paymentOrBenefitDescription: String, car: Option[Car], actions: Map[String, String], calculations: Map[String, String]) {
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
+
 case class Car(dateCarMadeAvailable: Option[LocalDate], dateCarWithdrawn: Option[LocalDate], dateCarRegistered: Option[LocalDate], employeeCapitalContribution: BigDecimal, fuelType: Int, co2Emissions: Int, engineSize: Int, mileageBand: String, carValue: BigDecimal)
+
 case class RemoveCarBenefit(version: Int, benefit: Benefit, revisedAmount: BigDecimal, withdrawDate: LocalDate)
 
 case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: String, payeNumber: String, employerName: String)

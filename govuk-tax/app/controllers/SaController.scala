@@ -17,4 +17,10 @@ class SaController extends BaseController with ActionWrappers {
         }
   }
 
+  def noEnrolment = AuthorisedForAction(None) {
+    user =>
+      request =>
+        Ok("dear me")
+  }
+
 }
