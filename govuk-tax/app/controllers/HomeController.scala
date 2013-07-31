@@ -13,7 +13,7 @@ class HomeController extends BaseController with ActionWrappers {
 
   }
 
-  def home = AuthorisedForAction() {
+  def home = AuthorisedForIdaAction() {
     user =>
       request =>
 

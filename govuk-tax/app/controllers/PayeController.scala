@@ -11,7 +11,7 @@ class PayeController extends BaseController with ActionWrappers {
 
   import microservice.paye.domain.{ Employment, Benefit, PayeRegime }
 
-  def home = AuthorisedForAction(Some(PayeRegime)) {
+  def home = AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
 
@@ -26,7 +26,7 @@ class PayeController extends BaseController with ActionWrappers {
         )
   }
 
-  def listBenefits = AuthorisedForAction(Some(PayeRegime)) {
+  def listBenefits = AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         val benefits = user.regimes.paye.get.benefits
@@ -47,13 +47,13 @@ class PayeController extends BaseController with ActionWrappers {
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction(Some(PayeRegime)) {
+  def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
   }
 
-  def removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction(Some(PayeRegime)) {
+  def removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
@@ -69,7 +69,7 @@ class PayeController extends BaseController with ActionWrappers {
         )
   }
 
-  def removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction(Some(PayeRegime)) {
+  def removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
@@ -81,13 +81,13 @@ class PayeController extends BaseController with ActionWrappers {
 
   }
 
-  def noEnrolment = AuthorisedForAction(None) {
+  def noEnrolment = AuthorisedForIdaAction(None) {
     user =>
       request =>
         Ok("dear me")
   }
 
-  def benefitRemoved(year: Int, employmentSequenceNumber: Int) = AuthorisedForAction(Some(PayeRegime)) {
+  def benefitRemoved(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request => Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get))))
   }

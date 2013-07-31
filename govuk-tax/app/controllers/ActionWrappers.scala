@@ -21,8 +21,10 @@ trait HeaderNames {
 trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames {
   self: Controller =>
 
+  //TODO we need to refactor these objects to remove the duplication
+
   //todo test what happens if user is not authorised to be in this regime - at the time of writing front-end does not do a check
-  object AuthorisedForAction {
+  object AuthorisedForIdaAction {
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
