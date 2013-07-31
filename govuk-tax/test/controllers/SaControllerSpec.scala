@@ -15,6 +15,7 @@ import play.api.mvc.{ AnyContent, Action }
 import microservice.sa.SaMicroService
 import org.joda.time.DateTime
 import java.net.URI
+import sun.security.krb5.internal.crypto.Aes128
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -76,13 +77,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(None)
-      val result = controller.details(FakeRequest().withSession(("userId", encrypt("/auth/oid/gfisher"))))
+      val result = controller.details(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>")))
       status(result) should be(404)
     }
   }
 
   def request(action: Action[AnyContent]): String = {
-    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway)))
+    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>")))
 
     status(result) should be(200)
 
