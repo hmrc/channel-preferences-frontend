@@ -106,6 +106,6 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   }
 
   def logout = Action {
-    Redirect(routes.HomeController.home)//.withNewSession
+    Redirect(routes.HomeController.home).withNewSession
   }
 }
