@@ -21,53 +21,49 @@ trait HeaderNames {
 trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames {
   self: Controller =>
 
-  //TODO we need to refactor these objects to remove the duplication
+  def act(userId: String, token: Option[String], request: Request[AnyContent], taxRegime: Option[TaxRegime], action: (User) => (Request[AnyContent]) => Result): Result = {
 
-  //todo test what happens if user is not authorised to be in this regime - at the time of writing front-end does not do a check
+    MDC.put(authorisation, s"$userId")
+    MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
+
+    try {
+      val userAuthority = authMicroService.authority(userId)
+
+      Logger.debug(s"Received user authority: $userAuthority")
+      userAuthority match {
+        case (Some(ua)) => {
+          taxRegime match {
+            case Some(regime) if !regime.isAuthorised(ua.regimes) =>
+              Logger.debug("user not authorised for " + regime.getClass)
+              Redirect(regime.unauthorisedLandingPage)
+            case _ =>
+              val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), token)
+              action(user)(request)
+          }
+        }
+        case _ => {
+          Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
+          Unauthorized(login())
+        }
+      }
+    } catch {
+      case t: Throwable => internalServerError(request, t)
+    } finally {
+      MDC.clear
+    }
+  }
+
   object AuthorisedForIdaAction {
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
-        request.session.get("userId") match {
-
-          case Some(encryptedUserId) => {
-
-            val userId = decrypt(encryptedUserId)
-
-            MDC.put(authorisation, s"$userId")
-            MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
-
-            try {
-              val userAuthority = authMicroService.authority(userId)
-
-              Logger.debug(s"Received user authority: $userAuthority")
-              val governmentGatewayToken = request.session.get("token")
-              (userAuthority, governmentGatewayToken) match {
-                case (Some(ua), None) => {
-                  taxRegime match {
-                    case Some(regime) if !regime.isAuthorised(ua.regimes) =>
-                      Logger.debug("user not authorised for " + regime.getClass)
-                      Redirect(regime.unauthorisedLandingPage)
-                    case _ =>
-                      val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), None)
-                      action(user)(request)
-                  }
-                }
-                case _ => {
-                  Logger.warn(s"No authority or a government gateway token was found for user id '$userId' from '${request.remoteAddress}'")
-                  Unauthorized(login())
-                }
-              }
-            } catch {
-              case t: Throwable => internalServerError(request, t)
-            } finally {
-              MDC.clear
-            }
-          }
-          case None => {
-            Logger.debug("No identity cookie found - redirecting to login.")
-            Redirect(routes.HomeController.landing())
-          }
+        val encryptedUserId: Option[String] = request.session.get("userId")
+        val token: Option[String] = request.session.get("token")
+        if (encryptedUserId.isEmpty || token.isDefined) {
+          Logger.debug("No identity cookie found or wrong user type - redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
+          Redirect(routes.HomeController.landing())
+        } else {
+          act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
         }
     }
   }
@@ -76,49 +72,16 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
-        request.session.get("userId") match {
-
-          case Some(encryptedUserId) => {
-
-            val userId = decrypt(encryptedUserId)
-
-            MDC.put(authorisation, s"$userId")
-            MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
-
-            try {
-              val userAuthority = authMicroService.authority(userId)
-
-              Logger.debug(s"Received user authority: $userAuthority")
-              val governmentGatewayToken = request.session.get("token")
-              Logger.debug("received token : " + governmentGatewayToken.isDefined)
-              (userAuthority, governmentGatewayToken) match {
-                case (Some(ua), Some(token)) => {
-                  taxRegime match {
-                    case Some(regime) if !regime.isAuthorised(ua.regimes) =>
-                      Logger.debug("user not authorised for " + regime.getClass)
-                      Redirect(regime.unauthorisedLandingPage)
-                    case _ =>
-                      val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), decrypt(Some(token)))
-                      action(user)(request)
-                  }
-                }
-                case _ => {
-                  Logger.warn(s"No authority or no token found for user id '$userId' from '${request.remoteAddress}'")
-                  Unauthorized(login())
-                }
-              }
-            } catch {
-              case t: Throwable => internalServerError(request, t)
-            } finally {
-              MDC.clear
-            }
-          }
-          case None => {
-            Logger.debug("No identity cookie found - redirecting to login.")
-            Redirect(routes.HomeController.landing())
-          }
+        val encryptedUserId: Option[String] = request.session.get("userId")
+        val token: Option[String] = request.session.get("token")
+        if (encryptedUserId.isEmpty || token.isEmpty) {
+          Logger.debug("No identity cookie found or no gateway token- redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
+          Redirect(routes.HomeController.landing())
+        } else {
+          act(decrypt(encryptedUserId.get), decrypt(token), request, taxRegime, action)
         }
     }
+
   }
 
   object UnauthorisedAction {
