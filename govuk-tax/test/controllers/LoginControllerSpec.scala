@@ -213,7 +213,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val sess = session(result)
       decrypt(sess("name")) shouldBe geoff.nameFromGovernmentGateway
       decrypt(sess("userId")) shouldBe geoff.userId
-      decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken
+      decrypt(sess("decryptedToken")) shouldBe geoff.encodedGovernmentGatewayToken
 
     }
   }

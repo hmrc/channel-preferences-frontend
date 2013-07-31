@@ -39,22 +39,22 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
               val userAuthority = authMicroService.authority(userId)
 
               Logger.debug(s"Received user authority: $userAuthority")
-
-              val authenticatedAction = userAuthority map {
-                ua: UserAuthority =>
-                  {
-                    taxRegime match {
-                      case Some(regime) if !regime.isAuthorised(ua.regimes) =>
-                        Redirect(regime.unauthorisedLandingPage)
-                      case _ =>
-                        val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")))
-                        action(user)(request)
-                    }
+              val governmentGatewayToken = request.session.get("token")
+              (userAuthority, governmentGatewayToken) match {
+                case (Some(ua), None) => {
+                  taxRegime match {
+                    case Some(regime) if !regime.isAuthorised(ua.regimes) =>
+                      Logger.debug("user not authorised for " + regime.getClass)
+                      Redirect(regime.unauthorisedLandingPage)
+                    case _ =>
+                      val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), None)
+                      action(user)(request)
                   }
-              }
-              authenticatedAction.getOrElse {
-                Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-                Unauthorized(login())
+                }
+                case _ => {
+                  Logger.warn(s"No authority or a government gateway token was found for user id '$userId' from '${request.remoteAddress}'")
+                  Unauthorized(login())
+                }
               }
             } catch {
               case t: Throwable => internalServerError(request, t)
@@ -62,7 +62,55 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
               MDC.clear
             }
           }
+          case None => {
+            Logger.debug("No identity cookie found - redirecting to login.")
+            Redirect(routes.HomeController.landing())
+          }
+        }
+    }
+  }
 
+  object AuthorisedForGovernmentGatewayAction {
+
+    def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
+      request =>
+        request.session.get("userId") match {
+
+          case Some(encryptedUserId) => {
+
+            val userId = decrypt(encryptedUserId)
+
+            MDC.put(authorisation, s"$userId")
+            MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
+
+            try {
+              val userAuthority = authMicroService.authority(userId)
+
+              Logger.debug(s"Received user authority: $userAuthority")
+              val governmentGatewayToken = request.session.get("token")
+              Logger.debug("received token : " + governmentGatewayToken.isDefined)
+              (userAuthority, governmentGatewayToken) match {
+                case (Some(ua), Some(token)) => {
+                  taxRegime match {
+                    case Some(regime) if !regime.isAuthorised(ua.regimes) =>
+                      Logger.debug("user not authorised for " + regime.getClass)
+                      Redirect(regime.unauthorisedLandingPage)
+                    case _ =>
+                      val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), decrypt(Some(token)))
+                      action(user)(request)
+                  }
+                }
+                case _ => {
+                  Logger.warn(s"No authority or no token found for user id '$userId' from '${request.remoteAddress}'")
+                  Unauthorized(login())
+                }
+              }
+            } catch {
+              case t: Throwable => internalServerError(request, t)
+            } finally {
+              MDC.clear
+            }
+          }
           case None => {
             Logger.debug("No identity cookie found - redirecting to login.")
             Redirect(routes.HomeController.landing())

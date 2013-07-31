@@ -6,12 +6,12 @@ import microservice.domain._
 
 class BusinessTaxController extends BaseController with ActionWrappers with CookieEncryption {
 
-  def home = AuthorisedForAction() {
+  def home = AuthorisedForGovernmentGatewayAction() {
     implicit user =>
       implicit request =>
 
         val userAuthority = user.userAuthority
-        val encodedGovernmentGatewayToken = decrypt(request.session.get("token").get)
+        val encodedGovernmentGatewayToken = user.decryptedToken.get
         val businessUser = BusinessUser(user.regimes, userAuthority.utr, userAuthority.vrn, user.nameFromGovernmentGateway.getOrElse(""), userAuthority.previouslyLoggedInAt, encodedGovernmentGatewayToken)
 
         Ok(views.html.business_tax_home(businessUser))

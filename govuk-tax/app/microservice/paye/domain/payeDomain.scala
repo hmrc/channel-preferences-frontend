@@ -14,7 +14,7 @@ object PayeRegime extends TaxRegime {
   }
 
   override def unauthorisedLandingPage: Call = {
-    routes.PayeController.noEnrolment()
+    routes.LoginController.login
   }
 }
 

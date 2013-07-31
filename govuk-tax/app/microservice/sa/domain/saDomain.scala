@@ -3,8 +3,9 @@ package microservice.sa.domain
 import microservice.domain.{ TaxRegime, RegimeRoot }
 import microservice.sa.SaMicroService
 import microservice.auth.domain.Regimes
-import play.api.mvc.{ Call, AnyContent, Action }
+import play.api.mvc.{ Results, Call, AnyContent, Action }
 import controllers.routes
+import views.html.sa.sa_personal_details
 
 object SaRegime extends TaxRegime {
   override def isAuthorised(regimes: Regimes) = {
@@ -12,7 +13,7 @@ object SaRegime extends TaxRegime {
   }
 
   override def unauthorisedLandingPage: Call = {
-    routes.SaController.noEnrolment()
+    routes.BusinessTaxController.home()
   }
 }
 

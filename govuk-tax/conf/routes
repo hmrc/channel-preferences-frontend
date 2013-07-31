@@ -33,7 +33,6 @@ GET     /agent/sro-check                @controllers.AgentController.sroCheck
 POST    /agent/sro-check                @controllers.AgentController.submitAgreement
 
 GET     /sa/details                     @controllers.SaController.details
-GET     /sa/no-enrolment                @controllers.SaController.noEnrolment
 
 GET     /home                           @controllers.HomeController.home
 

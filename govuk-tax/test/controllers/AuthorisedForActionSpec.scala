@@ -55,7 +55,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       implicit user =>
         implicit request =>
           val userPayeRegimeRoot = user.regimes.paye.get
-        val userName = userPayeRegimeRoot.name
+          val userName = userPayeRegimeRoot.name
           Ok(userName)
     }
 
@@ -111,7 +111,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       strings(1) should startWith("frontend-")
     }
 
-    "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new  WithApplication(FakeApplication()) {
+    "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/bob")).thenReturn(
         Some(UserAuthority("/auth/oid/bob", Regimes(paye = Some(URI.create("/personal/paye/12345678"))), None)))
 
