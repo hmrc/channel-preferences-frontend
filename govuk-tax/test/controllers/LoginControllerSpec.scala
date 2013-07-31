@@ -18,15 +18,17 @@ import scala.Some
 import microservice.saml.domain.AuthResponseValidationResult
 import play.api.test.FakeApplication
 import play.api.libs.ws.Response
+import play.mvc.Result
+import ShouldMatchers._
+import play.api.mvc.Cookie
 
 class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
   import play.api.test.Helpers._
 
   private val mockSamlMicroService = mock[SamlMicroService]
-
   private val mockAuthMicroService = mock[AuthMicroService]
-  private var mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
+  private val mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
 
   when(mockSamlMicroService.create).thenReturn(
     AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
@@ -213,6 +215,50 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       decrypt(sess("userId")) shouldBe geoff.userId
       decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken
 
+    }
+  }
+
+  "Calling logout" should {
+
+    "remove your existing session cookie and redirect you to the homepage" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
+
+      val result = loginController.logout(FakeRequest().withSession("someKey" -> "someValue"))
+
+      status(result) shouldBe Status.SEE_OTHER
+
+      redirectLocation(result).get shouldBe routes.HomeController.home().toString()
+
+      val playSessionCookie = cookies(result).get("PLAY_SESSION")
+
+      playSessionCookie should not equal None
+
+      val c: Cookie = playSessionCookie.get
+
+      c.maxAge should not be None
+      c.maxAge.get should be <= 0
+      c.value shouldBe ""
+
+      session(result).isEmpty should be(true)
+    }
+
+    "just redirect you to the homepage if you do not have a session cookie" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
+
+      val result = loginController.logout(FakeRequest())
+
+      status(result) shouldBe Status.SEE_OTHER
+      redirectLocation(result).get shouldBe routes.HomeController.home().toString()
+
+      val playSessionCookie = cookies(result).get("PLAY_SESSION")
+
+      playSessionCookie should not equal None
+
+      val c: Cookie = playSessionCookie.get
+
+      c.maxAge should not be None
+      c.maxAge.get should be <= 0
+      c.value shouldBe ""
+
+      session(result).isEmpty should be(true)
     }
   }
 }

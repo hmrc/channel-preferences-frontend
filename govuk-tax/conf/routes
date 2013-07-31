@@ -22,6 +22,8 @@ GET     /test/gfisher                   @controllers.LoginController.enterAsGeof
 POST    /ida/login                      @controllers.LoginController.idaLogin
 GET     /business-tax/login             @controllers.LoginController.businessTaxLogin
 POST    /government-gateway/login       @controllers.LoginController.governmentGatewayLogin
+GET     /logout                         @controllers.LoginController.logout
+
 GET     /business-tax/home              @controllers.BusinessTaxController.home
 
 # Agents
@@ -36,3 +38,4 @@ GET     /home                           @controllers.HomeController.home
 GET     /                               @controllers.HomeController.landing
 
 POST    /ssoin                          @controllers.SsoInController.in
+
