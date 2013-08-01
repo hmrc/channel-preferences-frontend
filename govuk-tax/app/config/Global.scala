@@ -1,6 +1,6 @@
 package config
 
-import play.api.{ mvc, Application, Logger }
+import play.api.{ Application, Logger }
 import play.api.mvc._
 import scala.concurrent.ExecutionContext.Implicits._
 import java.text.SimpleDateFormat
@@ -8,15 +8,9 @@ import java.util.Date
 import com.kenshoo.play.metrics.MetricsFilter
 import com.codahale.metrics.graphite.{ GraphiteReporter, Graphite }
 import java.net.InetSocketAddress
-import com.codahale.metrics.{ MetricFilter, SharedMetricRegistries, MetricRegistry }
+import com.codahale.metrics.{ MetricFilter, SharedMetricRegistries }
 import java.util.concurrent.TimeUnit
-import play.api.http.HeaderNames._
 import play.api.mvc.AsyncResult
-import scala.Some
-import scala.collection.JavaConversions
-import JavaConversions._
-import controllers.CookieEncryption
-import org.joda.time.{ Duration, DateTime }
 
 object AccessLoggingFilter extends Filter {
   def apply(next: (RequestHeader) => Result)(rh: RequestHeader) = {
@@ -39,7 +33,7 @@ object AccessLoggingFilter extends Filter {
   }
 }
 
-object Global extends WithFilters(MetricsFilter, AccessLoggingFilter, TimeoutFilter) {
+object Global extends WithFilters(MetricsFilter, AccessLoggingFilter, LastRequestTimestampFilter) {
 
   override def onStart(app: Application) {
     val env = app.mode

@@ -3,10 +3,12 @@ package config
 import play.api.mvc._
 import controllers.CookieEncryption
 import org.joda.time.DateTime
-import play.api.Logger
-import scala.Some
 
-object TimeoutFilter extends Filter with CookieEncryption {
+object LastRequestTimestampFilter extends LastRequestTimestampFilter {
+  override def now = new DateTime
+}
+
+trait LastRequestTimestampFilter extends Filter with CookieEncryption {
 
   private[config] val lastRequestTimestampCookieName = "PLAY_REQUEST"
   private[config] val timeoutMinutes = 15
@@ -53,12 +55,8 @@ object TimeoutFilter extends Filter with CookieEncryption {
   //    }
   //  }
   //
-  private def toCookieValue(value: Long) = value.toString
-  //  //  private def toCookieValue(value: Long) = encrypt(value.toString)
-  //
-  //  private def fromCookieValue(value: String) = value.toLong
-  //  //  private def fromCookieValue(value: String) = decrypt(value).toLong
+  private def toCookieValue(requestTimestamp: DateTime) = encrypt(requestTimestamp.getMillis.toString)
 
-  private def now = (new DateTime).getMillis
+  protected def now: DateTime
 }
 
