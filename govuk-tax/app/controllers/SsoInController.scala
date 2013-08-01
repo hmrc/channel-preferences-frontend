@@ -22,7 +22,7 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
       } catch {
         case e: Exception => {
           Logger.info("Failed to validate a token.", e)
-          Redirect(destUri).withNewSession
+          Redirect(routes.HomeController.landing()).withNewSession
         }
       }
   }

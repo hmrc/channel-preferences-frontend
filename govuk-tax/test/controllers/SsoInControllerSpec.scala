@@ -84,7 +84,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       result match {
         case SimpleResult(header, _) => {
           header.status shouldBe 303
-          header.headers("Location") shouldBe redirectUrl
+          header.headers("Location") shouldBe "/"
           header.headers("Set-Cookie") should not include "userId"
           header.headers("Set-Cookie") should not include "name"
           header.headers("Set-Cookie") should not include "token"
@@ -104,7 +104,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       result match {
         case SimpleResult(header, _) => {
           header.status shouldBe 303
-          header.headers("Location") shouldBe redirectUrl
+          header.headers("Location") shouldBe "/"
           header.headers("Set-Cookie") should not include "userId"
           header.headers("Set-Cookie") should not include "name"
           header.headers("Set-Cookie") should not include "token"
