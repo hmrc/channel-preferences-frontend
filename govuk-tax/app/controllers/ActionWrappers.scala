@@ -75,6 +75,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
         val encryptedUserId: Option[String] = request.session.get("userId")
         val token: Option[String] = request.session.get("token")
         if (encryptedUserId.isEmpty || token.isEmpty) {
+          // the redirect in this condition needs to be reviewed and updated. Important: It will be different from the AuthorisedForIdaAction redirect location
           Logger.debug("No identity cookie found or no gateway token- redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
           Redirect(routes.HomeController.landing())
         } else {
