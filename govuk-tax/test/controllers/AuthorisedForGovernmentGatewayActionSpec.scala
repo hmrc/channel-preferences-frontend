@@ -17,7 +17,6 @@ import org.scalatest.BeforeAndAfterEach
 import microservice.sa.domain.{ SaRoot, SaRegime }
 import microservice.sa.SaMicroService
 import config.CookieSupport
-import java.security.GeneralSecurityException
 
 class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieSupport with BeforeAndAfterEach {
 
@@ -132,7 +131,7 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with ShouldMatch
     }
 
     "throw a security exception if the last timestamp cookie is present, but can't be decrypted" in new WithApplication(FakeApplication()) {
-      intercept[GeneralSecurityException] {
+      intercept[SecurityException] {
         TestController.test(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)).withCookies(brokenTimestampCookie))
       }
     }

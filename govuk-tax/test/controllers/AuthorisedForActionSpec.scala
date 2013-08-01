@@ -16,9 +16,7 @@ import microservice.paye.domain.{ PayeRegime, PayeRoot }
 import java.net.URI
 import org.slf4j.MDC
 import org.scalatest.BeforeAndAfterEach
-import config.{ CookieSupport, LastRequestTimestampCookie }
-import org.joda.time.{ Duration, DateTimeZone, DateTime }
-import java.security.GeneralSecurityException
+import config.CookieSupport
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieSupport with BeforeAndAfterEach {
 
@@ -146,7 +144,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     }
 
     "throw a security exception if the last timestamp cookie is present, but cannot be decrypted" in new WithApplication(FakeApplication()) {
-      intercept[GeneralSecurityException] {
+      intercept[SecurityException] {
         TestController.test(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john")).withCookies(brokenTimestampCookie))
       }
     }

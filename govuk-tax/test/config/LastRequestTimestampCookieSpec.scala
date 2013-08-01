@@ -6,7 +6,6 @@ import org.scalatest.mock.MockitoSugar
 import controllers.CookieEncryption
 import org.joda.time.{ DateTimeZone, Duration, DateTime }
 import play.api.test.{ WithApplication, FakeApplication }
-import java.security.GeneralSecurityException
 
 class LastRequestTimestampCookieSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -64,7 +63,7 @@ class LastRequestTimestampCookieSpec extends BaseSpec with MockitoSugar with Coo
     }
 
     "throw an exception if the timestamp is not encrypted" in new WithApplication(FakeApplication()) {
-      intercept[GeneralSecurityException] {
+      intercept[SecurityException] {
         LastRequestTimestampCookie(validHttpCookie.copy(value = validRequestTime.getMillis.toString))
       }
     }

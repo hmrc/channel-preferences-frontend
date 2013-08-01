@@ -3,4 +3,6 @@
 . ./build-env
 
 cd govuk-tax
-play clean test dist
+
+./sbt clean test dist
+
