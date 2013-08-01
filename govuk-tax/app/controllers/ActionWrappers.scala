@@ -21,7 +21,7 @@ trait HeaderNames {
 trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames {
   self: Controller =>
 
-  def act(userId: String, token: Option[String], request: Request[AnyContent], taxRegime: Option[TaxRegime], action: (User) => (Request[AnyContent]) => Result): Result = {
+  private[ActionWrappers] def act(userId: String, token: Option[String], request: Request[AnyContent], taxRegime: Option[TaxRegime], action: (User) => (Request[AnyContent]) => Result): Result = {
 
     MDC.put(authorisation, s"$userId")
     MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
