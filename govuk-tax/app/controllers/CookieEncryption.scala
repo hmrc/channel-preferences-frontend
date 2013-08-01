@@ -26,5 +26,5 @@ trait CookieEncryption {
     new String(cipher.doFinal(Base64.decodeBase64(id.getBytes(StandardCharsets.UTF_8))))
   }
 
-  def decrypt(id: Option[String]): Option[String] = id.map(decrypt(_))
+  def decrypt(id: Option[String]): Option[String] = id.map(decrypt)
 }

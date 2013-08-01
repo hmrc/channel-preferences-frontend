@@ -2,61 +2,47 @@ package config
 
 import play.api.mvc._
 import controllers.CookieEncryption
-import org.joda.time.DateTime
+import org.joda.time.{ DateTimeZone, Duration, DateTime }
 
-object LastRequestTimestampFilter extends LastRequestTimestampFilter {
-  override def now = new DateTime
-}
+object LastRequestTimestampFilter extends LastRequestTimestampFilter
 
-trait LastRequestTimestampFilter extends Filter with CookieEncryption {
-
-  private[config] val lastRequestTimestampCookieName = "PLAY_REQUEST"
-  private[config] val timeoutMinutes = 15
+trait LastRequestTimestampFilter extends Filter with CookieEncryption with DateTimeProvider {
 
   def apply(next: RequestHeader => Result)(requestHeader: RequestHeader) = {
-    next(requestHeader).withCookies(Cookie(lastRequestTimestampCookieName, toCookieValue(now), Some(timeoutMinutes * 60)))
+    next(requestHeader).withCookies(LastRequestTimestampCookie(now()).toCookie)
   }
-
-  //  private def checkIncomingTimestamp(requestHeader: RequestHeader): RequestHeader = {
-  //    extractLastRequestTimestamp(requestHeader) match {
-  //      case None => deleteSession(requestHeader)
-  //      case Some(timestamp) if sessionHasExpired(timestamp) => deleteSession(requestHeader)
-  //      case _ => requestHeader
-  //    }
-  //  }
-  //
-  //  private def deleteSession(rh: RequestHeader): RequestHeader = {
-  //    val cookieHeaders: Seq[String] = rh.headers.toMap.get("Cookie").getOrElse(Nil)
-  //    val cookiesMinusSession: Seq[String] = cookieHeaders.filter(!_.startsWith(Session.COOKIE_NAME + "="))
-  //
-  //    val newHeaders = new Headers {
-  //      override val data: Seq[(String, Seq[String])] = (rh.headers.toMap + ("Cookie" -> cookiesMinusSession)).toSeq
-  //    }
-  //
-  //    rh.copy(headers = newHeaders)
-  //  }
-  //
-  //  private def sessionHasExpired(lastRequestTimestamp: Long) = {
-  //
-  //    val minutesSinceLastRequest = (now - lastRequestTimestamp) / (60L * 1000L)
-  //
-  //    Logger.debug("Last Request Timestamp: " + lastRequestTimestamp)
-  //    Logger.debug("Time Now: " + now)
-  //    Logger.debug("Minutes since last request: " + minutesSinceLastRequest)
-  //
-  //    minutesSinceLastRequest >= timeoutMinutes
-  //  }
-  //
-  //  private def extractLastRequestTimestamp(rh: RequestHeader): Option[Long] = {
-  //    try {
-  //      rh.cookies.get(lastRequestTimestampCookieName).map(cookie => fromCookieValue(cookie.value).toLong)
-  //    } catch {
-  //      case e: NumberFormatException => None
-  //    }
-  //  }
-  //
-  private def toCookieValue(requestTimestamp: DateTime) = encrypt(requestTimestamp.getMillis.toString)
-
-  protected def now: DateTime
 }
 
+case class LastRequestTimestampCookie(lastRequestTimestamp: DateTime) extends CookieEncryption {
+
+  import LastRequestTimestampCookie._
+
+  def toCookie: Cookie = Cookie(cookieName, cookieValue, Some(timeoutMinutes * 60))
+
+  def isValid(now: () => DateTime): Boolean = {
+    val sessionExpiryTimestamp = lastRequestTimestamp.withDurationAdded(Duration.standardMinutes(timeoutMinutes), 1)
+    now().isBefore(sessionExpiryTimestamp)
+  }
+
+  private def cookieValue = encrypt(lastRequestTimestamp.getMillis.toString)
+}
+
+object LastRequestTimestampCookie extends CookieEncryption {
+
+  val cookieName = "PLAY_REQUEST"
+
+  val timeoutMinutes = 15
+
+  def apply(cookie: Cookie): Option[LastRequestTimestampCookie] = {
+    require(cookie.name == cookieName)
+    decryptCookie(cookie).map(LastRequestTimestampCookie(_))
+  }
+
+  private def decryptCookie(cookie: Cookie): Option[DateTime] = {
+    try {
+      Some(new DateTime(decrypt(cookie.value).toLong, DateTimeZone.UTC))
+    } catch {
+      case e: NumberFormatException => None
+    }
+  }
+}
