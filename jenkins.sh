@@ -4,5 +4,5 @@
 
 cd govuk-tax
 
-./sbt clean test dist
+play clean test dist
 

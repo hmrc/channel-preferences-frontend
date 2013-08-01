@@ -17,6 +17,7 @@ import java.net.URI
 import org.slf4j.MDC
 import org.scalatest.BeforeAndAfterEach
 import config.CookieSupport
+import java.security.GeneralSecurityException
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieSupport with BeforeAndAfterEach {
 
@@ -144,7 +145,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     }
 
     "throw a security exception if the last timestamp cookie is present, but cannot be decrypted" in new WithApplication(FakeApplication()) {
-      intercept[SecurityException] {
+      intercept[GeneralSecurityException] {
         TestController.test(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john")).withCookies(brokenTimestampCookie))
       }
     }

@@ -36,7 +36,6 @@ object ApplicationBuild extends Build {
     Dependency.Compile.guava,
     Dependency.Compile.playMetrics,
     Dependency.Compile.metricsGraphite,
-    Dependency.Hmrc.secureUtils,
 
     Dependency.Test.junit,
     Dependency.Test.scalaTest,
@@ -72,10 +71,6 @@ object ApplicationBuild extends Build {
       val mockito = "org.mockito" % "mockito-all" % "1.9.5" % "test"
       val scalaMock = "org.scalamock" %% "scalamock-scalatest-support" % "3.1-SNAPSHOT" % "test"
       val junitdep = "junit" % "junit-dep" % "4.11" % "test"
-    }
-
-    object Hmrc {
-      val secureUtils = "uk.gov.hmrc" % "secure-utils" % "0.1.0-SNAPSHOT"
     }
   }
 

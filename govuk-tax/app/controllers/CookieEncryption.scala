@@ -2,8 +2,9 @@ package controllers
 
 import play.api.Play
 import org.apache.commons.codec.binary.Base64
+import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
-import uk.gov.hmrc.secure.{ SymmetricDecrypter, SymmetricEncrypter }
+import java.nio.charset.StandardCharsets
 
 trait CookieEncryption {
 
@@ -11,13 +12,19 @@ trait CookieEncryption {
 
   private lazy val secretKey = new SecretKeySpec(cookieEncryptionKey, "AES")
 
-  private val encrypter = new SymmetricEncrypter
+  def encrypt(id: String) = {
+    val cipher = Cipher.getInstance("AES")
 
-  private val decrypter = new SymmetricDecrypter
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+    new String(Base64.encodeBase64(cipher.doFinal(id.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8)
+  }
 
-  def encrypt(id: String) = encrypter.encrypt(id, secretKey)
+  def decrypt(id: String): String = {
+    val cipher = Cipher.getInstance("AES")
 
-  def decrypt(id: String): String = decrypter.decrypt(id, secretKey)
+    cipher.init(Cipher.DECRYPT_MODE, secretKey)
+    new String(cipher.doFinal(Base64.decodeBase64(id.getBytes(StandardCharsets.UTF_8))))
+  }
 
   def decrypt(id: Option[String]): Option[String] = id.map(decrypt)
 }
