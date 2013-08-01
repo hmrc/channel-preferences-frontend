@@ -17,7 +17,7 @@
 
     @if(businessUser.utr.isDefined) {
         <p>UTR: @businessUser.utr.get</p>
-    }
+    } <q></q>
 
     @if(businessUser.vrn.isDefined) {
         <p>VRN: @businessUser.vrn.get</p>
@@ -39,7 +39,7 @@
     }
 
         <ul style="list-style-type:none;">
-            <li><a id="portalLink" href="@PortalConfig.destinationRoot/home">Take me to the portal....</a></li>
+            <li><a id="portalLink" href="@PortalConfig.destinationRoot">Take me to the portal....</a></li>
         </ul>
 }
 
