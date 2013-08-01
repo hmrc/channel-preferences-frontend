@@ -4,7 +4,7 @@ import test.BaseSpec
 import play.api.mvc._
 import org.scalatest.mock.MockitoSugar
 import controllers.CookieEncryption
-import play.api.test.{FakeApplication, WithApplication, Helpers, FakeRequest}
+import play.api.test.{ FakeApplication, WithApplication, Helpers, FakeRequest }
 import org.joda.time.DateTime
 
 class LastRequestTimestampFilterSpec extends BaseSpec with MockitoSugar with CookieEncryption {
@@ -30,7 +30,7 @@ class LastRequestTimestampFilterSpec extends BaseSpec with MockitoSugar with Coo
       decrypt(newCookie.value).toLong mustBe currentRequestTime.getMillis
     }
 
-    "update the last request time cookie if there is an existing last request time cookie" in  new WithApplication(FakeApplication()) {
+    "update the last request time cookie if there is an existing last request time cookie" in new WithApplication(FakeApplication()) {
       val oldCookie = Cookie(cookieName, encrypt(previousRequestTime.getMillis.toString), Some(timeToExpiryOfPreviousCookie))
       val result = filter(nextFunction)(FakeRequest().withCookies(oldCookie))
       val newCookie = Helpers.cookies(result)(cookieName)
@@ -43,5 +43,4 @@ class LastRequestTimestampFilterSpec extends BaseSpec with MockitoSugar with Coo
     Results.Ok("FUNCTION CALLED")
   }
 }
-
 

@@ -4,8 +4,8 @@ import test.BaseSpec
 import play.api.mvc._
 import org.scalatest.mock.MockitoSugar
 import controllers.CookieEncryption
-import org.joda.time.{DateTimeZone, Duration, DateTime}
-import play.api.test.{WithApplication, FakeApplication}
+import org.joda.time.{ DateTimeZone, Duration, DateTime }
+import play.api.test.{ WithApplication, FakeApplication }
 import java.security.GeneralSecurityException
 
 class LastRequestTimestampCookieSpec extends BaseSpec with MockitoSugar with CookieEncryption {
@@ -75,5 +75,4 @@ class LastRequestTimestampCookieSpec extends BaseSpec with MockitoSugar with Coo
     }
   }
 }
-
 
