@@ -1,14 +1,10 @@
-@main(title = "Your tax home") {
+@main(title = "Login Error") {
 
-    <h2>Login error</h2>
+    <h2 id="error-title">Login error</h2>
 
-    <p>
-        Your credentials have not been recognised by HMRC.
-    </p>
-    <p>
-        Please try again by clicking <a href="@routes.LoginController.samlLogin">here</a>
-    </p>
-    <p>
-        If the problem persists please contact the HM Revenue &amp; Customs Online Services Helpdesk.
-    </p>
+    <p id="error-reason">Your credentials have not been recognised by HMRC.</p>
+
+    <p>Please try again by clicking <a href="@routes.LoginController.samlLogin">here</a></p>
+    
+    <p>If the problem persists please contact the HM Revenue &amp; Customs Online Services Helpdesk.</p>
 }
