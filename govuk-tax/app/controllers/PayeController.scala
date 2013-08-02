@@ -7,23 +7,25 @@ import play.api.data.Forms._
 import views.html.paye._
 import views.formatting.Dates
 
-class PayeController extends BaseController with ActionWrappers {
+class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   import microservice.paye.domain.{ Employment, Benefit, PayeRegime }
 
-  def home = AuthorisedForIdaAction(Some(PayeRegime)) {
-    implicit user =>
-      implicit request =>
+  def home = WithSessionTimeout {
+    AuthorisedForIdaAction(Some(PayeRegime)) {
+      implicit user =>
+        implicit request =>
 
-        // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
-        val payeData = user.regimes.paye.get
+          // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
+          val payeData = user.regimes.paye.get
 
-        Ok(paye_home(
-          name = payeData.name,
-          employments = payeData.employments,
-          taxCodes = payeData.taxCodes,
-          hasBenefits = !payeData.benefits.isEmpty)
-        )
+          Ok(paye_home(
+            name = payeData.name,
+            employments = payeData.employments,
+            taxCodes = payeData.taxCodes,
+            hasBenefits = !payeData.benefits.isEmpty)
+          )
+    }
   }
 
   def listBenefits = AuthorisedForIdaAction(Some(PayeRegime)) {
