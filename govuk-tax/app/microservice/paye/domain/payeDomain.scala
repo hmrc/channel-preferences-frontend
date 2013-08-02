@@ -51,3 +51,5 @@ case class Car(dateCarMadeAvailable: Option[LocalDate], dateCarWithdrawn: Option
 case class RemoveCarBenefit(version: Int, benefit: Benefit, revisedAmount: BigDecimal, withdrawDate: LocalDate)
 
 case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: String, payeNumber: String, employerName: String)
+
+case class TransactionId(oid: String)

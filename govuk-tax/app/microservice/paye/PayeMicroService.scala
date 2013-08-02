@@ -2,7 +2,7 @@ package microservice.paye
 
 import microservice.{ TaxRegimeMicroService, MicroServiceConfig }
 
-import microservice.paye.domain.{ RemoveCarBenefit, Benefit, PayeRoot }
+import microservice.paye.domain.{ TransactionId, RemoveCarBenefit, Benefit, PayeRoot }
 import play.Logger
 import org.joda.time.LocalDate
 import views.formatting.Dates
@@ -21,8 +21,8 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     httpGet[T](uri)
   }
 
-  def removeCarBenefit(nino: String, version: Int, benefit: Benefit, dateCarWithdrawn: LocalDate, revisedGrossAmount: BigDecimal): Option[Map[String, String]] = {
-    httpPost[Map[String, String]](benefit.actions("removeCar"), Json.parse(toRequestBody(RemoveCarBenefit(version, benefit, revisedGrossAmount, dateCarWithdrawn))))
+  def removeCarBenefit(nino: String, version: Int, benefit: Benefit, dateCarWithdrawn: LocalDate, revisedGrossAmount: BigDecimal): Option[TransactionId] = {
+    httpPost[TransactionId](benefit.actions("removeCar"), Json.parse(toRequestBody(RemoveCarBenefit(version, benefit, revisedGrossAmount, dateCarWithdrawn))))
   }
 
   def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate): CalculationResult = {

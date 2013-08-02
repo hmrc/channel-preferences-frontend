@@ -5,7 +5,7 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
-import microservice.paye.domain.{ RemoveCarBenefit, Car, Benefit }
+import microservice.paye.domain.{ TransactionId, RemoveCarBenefit, Car, Benefit }
 import org.joda.time.LocalDate
 import play.api.test.{ FakeApplication, WithApplication }
 import org.mockito.ArgumentCaptor
@@ -24,11 +24,11 @@ class PayeMicroServiceSpec extends BaseSpec {
       val service = new HttpMockedPayeMicroService
       val uri = "/paye/AB123456C/benefits/2013/1/update/cars"
 
-      when(service.httpWrapper.post[Map[String, String]](org.mockito.Matchers.eq(uri), any[JsValue], any[Map[String, String]])).thenReturn(Some(Map("message" -> "Yeah!")))
-      val result: Option[Map[String, String]] = service.removeCarBenefit("AB123456C", 22, carBenefit, new LocalDate(2013, 7, 18), BigDecimal("0"))
+      when(service.httpWrapper.post[TransactionId](org.mockito.Matchers.eq(uri), any[JsValue], any[Map[String, String]])).thenReturn(Some(TransactionId("someId")))
+      val result = service.removeCarBenefit("AB123456C", 22, carBenefit, new LocalDate(2013, 7, 18), BigDecimal("0"))
 
       verify(service.httpWrapper, times(1)).post(org.mockito.Matchers.eq(uri), any[JsValue], any[Map[String, String]])
-      result.get("message") mustBe "Yeah!"
+      result.get.oid mustBe "someId"
     }
 
     "forward the version as a Version header" in new WithApplication(FakeApplication()) {

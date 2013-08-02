@@ -76,8 +76,8 @@ class PayeController extends BaseController with ActionWrappers {
         val payeRoot = user.regimes.paye.get
         val withdrawDate = request.session.get("withdraw_date").get
         val revisedAmount = request.session.get("revised_amount").get
-        payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
-        Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber))
+        val transactionId = payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
+        Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber, transactionId.get.oid))
 
   }
 
@@ -87,9 +87,9 @@ class PayeController extends BaseController with ActionWrappers {
         Ok("dear me")
   }
 
-  def benefitRemoved(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
-      implicit request => Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get))))
+      implicit request => Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
   }
 
   import microservice.domain.User
