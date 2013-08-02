@@ -19,9 +19,8 @@ import org.joda.time.LocalDate
 import views.formatting.Dates
 import org.mockito.Matchers
 import java.net.URI
-import config.CookieSupport
 
-class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieSupport {
+class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
   import play.api.test.Helpers._
 
@@ -121,10 +120,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     def requestHome: String = {
       val home = controller.home
-
-      val result = home(FakeRequest()
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
+      val result = home(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
 
       status(result) should be(200)
 
@@ -159,11 +155,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     def requestBenefits(id: String) = {
-
-      val result = controller.listBenefits(FakeRequest()
-        .withSession(("userId", encrypt(s"/auth/oid/$id")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.listBenefits(FakeRequest().withSession(("userId", encrypt(s"/auth/oid/$id"))))
       status(result) shouldBe 200
       contentAsString(result)
     }
@@ -172,11 +164,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   "The remove benefit method" should {
     "in step 1 display car details" in new WithApplication(FakeApplication()) {
-
-      val result = controller.removeCarBenefitToStep1(2013, 2)(FakeRequest()
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.removeCarBenefitToStep1(2013, 2)(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
@@ -186,12 +174,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     "in step 1 display an error message when return date of car greater than 35 days" in new WithApplication(FakeApplication()) {
       val invalidWithdrawDate = new LocalDate().plusDays(36)
-
-      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest()
-        .withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true")
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
@@ -202,12 +185,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     "in step 1 display an error message when return date of the car is in the previous tax year" in new WithApplication(FakeApplication()) {
       val invalidWithdrawDate = new LocalDate(1999, 2, 1)
-
-      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest()
-        .withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true")
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
@@ -218,12 +196,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     "in step 1 display an error message when return date of the car is in the next tax year" in new WithApplication(FakeApplication()) {
       val invalidWithdrawDate = new LocalDate(2030, 2, 1)
-
-      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest()
-        .withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true")
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
@@ -233,12 +206,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 1 display an error message when return date is not set" in new WithApplication(FakeApplication()) {
-
-      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest()
-        .withFormUrlEncodedBody("withdrawDate" -> "", "agreement" -> "true")
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "", "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
@@ -248,12 +216,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 1 display an error message when agreement checkbox is not selected" in new WithApplication(FakeApplication()) {
-
-      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest()
-        .withFormUrlEncodedBody("withdrawDate" -> "")
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
@@ -268,12 +231,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(calculationResult)
 
       val withdrawDate = new LocalDate()
-
-      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest()
-        .withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> "true")
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
-
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
       status(result) shouldBe 200
       val requestBenefits = contentAsString(result)
       requestBenefits should include regex "Personal Allowance by.*£ 197.96.".r
@@ -286,10 +244,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       val calculationResult = CalculationResult(Map("2013" -> revisedAmount, "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(calculationResult)
 
-      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest()
-        .withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> "true")
-        .withSession(("userId", encrypt("/auth/oid/jdensmore")))
-        .withCookies(validTimestampCookie))
+      val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> "true").withSession(("userId", encrypt("/auth/oid/jdensmore"))))
 
       session(result).data must contain key "withdraw_date"
       session(result).data must contain key "revised_amount"
@@ -303,10 +258,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       when(mockPayeMicroService.removeCarBenefit(Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate](), Matchers.any[BigDecimal]())).thenReturn(Some(Map("message" -> "Done!")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-
-      val result = controller.removeCarBenefitToStep3(2013, 2)(FakeRequest()
-        .withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate), "revised_amount" -> "123.45")
-        .withCookies(validTimestampCookie))
+      val result = controller.removeCarBenefitToStep3(2013, 2)(FakeRequest().withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate), "revised_amount" -> "123.45"))
 
       verify(mockPayeMicroService, times(1)).removeCarBenefit("AB123456C", 22, carBenefit, withdrawDate, BigDecimal("123.45"))
 

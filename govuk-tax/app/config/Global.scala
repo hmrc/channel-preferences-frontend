@@ -33,7 +33,7 @@ object AccessLoggingFilter extends Filter {
   }
 }
 
-object Global extends WithFilters(MetricsFilter, AccessLoggingFilter, LastRequestTimestampFilter) {
+object Global extends WithFilters(MetricsFilter, AccessLoggingFilter) {
 
   override def onStart(app: Application) {
     val env = app.mode

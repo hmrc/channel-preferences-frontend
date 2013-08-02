@@ -15,9 +15,8 @@ import microservice.sa.SaMicroService
 import play.api.test.Helpers._
 import microservice.sa.domain.{ SaIndividualAddress, SaPerson, SaRoot }
 import microservice.MockMicroServicesForTests
-import config.CookieSupport
 
-class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieSupport {
+class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
   private val mockAuthMicroService = mock[AuthMicroService]
   private val mockSaMicroService = mock[SaMicroService]
@@ -65,9 +64,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
         ))
       )
 
-      val result = controller.home(FakeRequest()
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken))
-        .withCookies(validTimestampCookie))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken)))
 
       status(result) should be(200)
 
@@ -88,9 +85,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      val result = controller.home(FakeRequest()
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken))
-        .withCookies(validTimestampCookie))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken)))
 
       status(result) should be(200)
 
@@ -101,7 +96,5 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       content should not include ("Value Added Tax (VAT)</a>")
 
     }
-
   }
-
 }

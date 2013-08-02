@@ -12,14 +12,13 @@ import views.html.{ login, server_error }
 import play.api.{ Mode, Play }
 import com.google.common.net.HttpHeaders
 import microservice.HasResponse
-import config.{ DateTimeProvider, LastRequestTimestampCookie }
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
   val authorisation = HttpHeaders.AUTHORIZATION
 }
 
-trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames with DateTimeProvider {
+trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames {
   self: Controller =>
 
   private[ActionWrappers] def act(userId: String, token: Option[String], request: Request[AnyContent], taxRegime: Option[TaxRegime], action: (User) => (Request[AnyContent]) => Result): Result = {
@@ -54,59 +53,36 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
     }
   }
 
-  private def sessionIsValid(request: Request[_]): Boolean = {
-
-    val timestampCookie = request.cookies.get(LastRequestTimestampCookie.cookieName).flatMap(LastRequestTimestampCookie(_))
-
-    timestampCookie.isDefined && timestampCookie.get.isValid(now)
-  }
-
   object AuthorisedForIdaAction {
-
-    private def checkAuthorisation(request: Request[_]): Option[String] = {
-      if (sessionIsValid(request)) {
-        val encryptedUserId: Option[String] = request.session.get("userId")
-        val token: Option[String] = request.session.get("token")
-        if (encryptedUserId.isDefined && token.isEmpty) {
-          Some(encryptedUserId.get)
-        } else None
-      } else None
-    }
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
-        checkAuthorisation(request) match {
-          case None =>
-            Logger.debug("No identity cookie found or wrong user type - redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
-            Redirect(routes.HomeController.landing()).withNewSession
-          case Some(encryptedUserId) =>
-            act(decrypt(encryptedUserId), None, request, taxRegime, action)
+        val encryptedUserId: Option[String] = request.session.get("userId")
+        val token: Option[String] = request.session.get("token")
+        if (encryptedUserId.isEmpty || token.isDefined) {
+          Logger.debug("No identity cookie found or wrong user type - redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
+          Redirect(routes.HomeController.landing()).withNewSession
+        } else {
+          act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
         }
     }
   }
 
   object AuthorisedForGovernmentGatewayAction {
-    private def checkAuthorisation(request: Request[_]): Option[(String, String)] = {
-      if (sessionIsValid(request)) {
-        val encryptedUserId: Option[String] = request.session.get("userId")
-        val token: Option[String] = request.session.get("token")
-        if (encryptedUserId.isDefined && token.isDefined) {
-          Some((encryptedUserId.get, token.get))
-        } else None
-      } else None
-    }
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
-        checkAuthorisation(request) match {
-          case None =>
-            // the redirect in this condition needs to be reviewed and updated. Important: It will be different from the AuthorisedForIdaAction redirect location
-            Logger.debug("No identity cookie found or no gateway token- redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
-            Redirect(routes.HomeController.landing()).withNewSession
-          case Some((encryptedUserId, token)) =>
-            act(decrypt(encryptedUserId), Some(decrypt(token)), request, taxRegime, action)
+        val encryptedUserId: Option[String] = request.session.get("userId")
+        val token: Option[String] = request.session.get("token")
+        if (encryptedUserId.isEmpty || token.isEmpty) {
+          // the redirect in this condition needs to be reviewed and updated. Important: It will be different from the AuthorisedForIdaAction redirect location
+          Logger.debug("No identity cookie found or no gateway token- redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
+          Redirect(routes.HomeController.landing()).withNewSession
+        } else {
+          act(decrypt(encryptedUserId.get), decrypt(token), request, taxRegime, action)
         }
     }
+
   }
 
   object UnauthorisedAction {
