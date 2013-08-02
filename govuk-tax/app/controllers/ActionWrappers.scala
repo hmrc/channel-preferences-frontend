@@ -13,7 +13,6 @@ import play.api.{ Mode, Play }
 import com.google.common.net.HttpHeaders
 import microservice.HasResponse
 import config.{ DateTimeProvider, LastRequestTimestampCookie }
-import org.joda.time.{ DateTimeZone, DateTime }
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
