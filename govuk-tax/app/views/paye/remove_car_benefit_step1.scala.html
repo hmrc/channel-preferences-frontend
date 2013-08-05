@@ -9,11 +9,11 @@
 @main(title = "Your tax home") {
 
 <h2>Remove your company benefit</h2>
-<p>Car provided by <span class="employer">@displayBenefit.employment.employerName</span><br/>
-Registered on <span class="date">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.<br/>
+<p>Car provided by <span class="employer-name">@displayBenefit.employment.employerName</span><br/>
+Registered on <span class="date date--registered">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.<br/>
 Value of car benefit: <span class="amount">£ @displayBenefit.benefit.grossAmountToString()</span></p>
 
-<p>If @displayBenefit.employment.employerName have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
+<p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
     @helper.form(action = routes.PayeController.removeCarBenefitToStep2(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
@@ -32,7 +32,7 @@ Value of car benefit: <span class="amount">£ @displayBenefit.benefit.grossAmoun
             '_showConstraints -> false
             )
 	</div>
-	<input class="button button--submit" type="submit" value="Next" />
+	<input class="button button--next" type="submit" value="Next" />
     }
 }
 
