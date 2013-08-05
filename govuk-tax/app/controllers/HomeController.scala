@@ -4,7 +4,7 @@ import play.Logger
 import microservice.domain.RegimeRoots
 import views.html.login
 
-class HomeController extends BaseController with ActionWrappers {
+class HomeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def landing = UnauthorisedAction { implicit request =>
 
@@ -13,7 +13,7 @@ class HomeController extends BaseController with ActionWrappers {
 
   }
 
-  def home = AuthorisedForIdaAction() {
+  def home = WithSessionTimeoutValidation(AuthorisedForIdaAction() {
     user =>
       request =>
 
@@ -26,6 +26,6 @@ class HomeController extends BaseController with ActionWrappers {
           case _ => Unauthorized(login.render())
         }
 
-  }
+  })
 
 }

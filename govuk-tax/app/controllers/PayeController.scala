@@ -7,33 +7,35 @@ import play.api.data.Forms._
 import views.html.paye._
 import views.formatting.Dates
 
-class PayeController extends BaseController with ActionWrappers {
+class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   import microservice.paye.domain.{ Employment, Benefit, PayeRegime }
 
-  def home = AuthorisedForIdaAction(Some(PayeRegime)) {
-    implicit user =>
-      implicit request =>
+  def home = WithSessionTimeoutValidation {
+    AuthorisedForIdaAction(Some(PayeRegime)) {
+      implicit user =>
+        implicit request =>
 
-        // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
-        val payeData = user.regimes.paye.get
+          // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
+          val payeData = user.regimes.paye.get
 
-        Ok(paye_home(
-          name = payeData.name,
-          employments = payeData.employments,
-          taxCodes = payeData.taxCodes,
-          hasBenefits = !payeData.benefits.isEmpty)
-        )
+          Ok(paye_home(
+            name = payeData.name,
+            employments = payeData.employments,
+            taxCodes = payeData.taxCodes,
+            hasBenefits = !payeData.benefits.isEmpty)
+          )
+    }
   }
 
-  def listBenefits = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         val benefits = user.regimes.paye.get.benefits
         val employments = user.regimes.paye.get.employments
         // TODO: add lowercase hyphenated formatter
         Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
-  }
+  })
 
   val localDateMapping = jodaLocalDate
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(currentTaxYear + 1, 4, 6)))
@@ -47,13 +49,13 @@ class PayeController extends BaseController with ActionWrappers {
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
-  }
+  })
 
-  def removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
@@ -67,9 +69,9 @@ class PayeController extends BaseController with ActionWrappers {
               + ("revised_amount", revisedAmount.toString()))
           }
         )
-  }
+  })
 
-  def removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int) = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
@@ -79,18 +81,12 @@ class PayeController extends BaseController with ActionWrappers {
         val transactionId = payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
         Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber, transactionId.get.oid))
 
-  }
+  })
 
-  def noEnrolment = AuthorisedForIdaAction(None) {
-    user =>
-      request =>
-        Ok("dear me")
-  }
-
-  def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request => Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
-  }
+  })
 
   import microservice.domain.User
   private def getCarBenefit(user: User, employmentSequenceNumber: Int): DisplayBenefit = {
