@@ -185,7 +185,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
     }
 
-    "in step 1 display an error message when return date of car greater than 35 days" in new WithApplication(FakeApplication()) {
+    "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
       val invalidWithdrawDate = new LocalDate().plusDays(36)
       val result = controller.removeCarBenefitToStep2(2013, 2)(FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(invalidWithdrawDate), "agreement" -> "true")
         .withSession("userId" -> encrypt("/auth/oid/jdensmore"), sessionTimestampKey -> controller.now().getMillis.toString))
@@ -194,7 +194,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       requestBenefits should include("Remove your company benefit")
       requestBenefits should include regex "Registered on.*December 12, 2012.".r
       requestBenefits should include regex "Value of car benefit:.*£ 321.42".r
-      requestBenefits should include("Invalid date: Return date cannot be greater than 35 days from today")
+      requestBenefits should include("Invalid date: Return date cannot be greater than 7 days from today")
     }
 
     "in step 1 display an error message when return date of the car is in the previous tax year" in new WithApplication(FakeApplication()) {
