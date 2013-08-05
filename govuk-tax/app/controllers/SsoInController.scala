@@ -6,8 +6,8 @@ import microservice.governmentgateway.ValidateTokenRequest
 import controllers.service.MicroServices
 import play.api.Logger
 
-class SsoInController extends BaseController with ActionWrappers with MicroServices {
-  def in = UnauthorisedAction {
+class SsoInController extends BaseController with ActionWrappers with MicroServices with SessionTimeoutWrapper {
+  def in = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
       val form = Form(tuple(
         "gw" -> text,
@@ -25,5 +25,5 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
           Redirect(routes.HomeController.landing()).withNewSession
         }
       }
-  }
+  })
 }

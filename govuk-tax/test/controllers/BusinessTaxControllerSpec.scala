@@ -15,6 +15,16 @@ import microservice.sa.SaMicroService
 import play.api.test.Helpers._
 import microservice.sa.domain.{ SaIndividualAddress, SaPerson, SaRoot }
 import microservice.MockMicroServicesForTests
+import controllers.SessionTimeoutWrapper._
+import microservice.auth.domain.UserAuthority
+import microservice.sa.domain.SaRoot
+import microservice.sa.domain.SaIndividualAddress
+import microservice.auth.domain.Utr
+import scala.Some
+import microservice.auth.domain.Vrn
+import microservice.auth.domain.Regimes
+import microservice.sa.domain.SaPerson
+import play.api.test.FakeApplication
 
 class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -64,7 +74,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
         ))
       )
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken)))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
 
       status(result) should be(200)
 
@@ -85,7 +95,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken)))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
 
       status(result) should be(200)
 

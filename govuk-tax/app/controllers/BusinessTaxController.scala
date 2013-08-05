@@ -4,9 +4,9 @@ import org.joda.time.DateTime
 import microservice.auth.domain._
 import microservice.domain._
 
-class BusinessTaxController extends BaseController with ActionWrappers with CookieEncryption {
+class BusinessTaxController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
 
-  def home = AuthorisedForGovernmentGatewayAction() {
+  def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
     implicit user =>
       implicit request =>
 
@@ -16,7 +16,7 @@ class BusinessTaxController extends BaseController with ActionWrappers with Cook
 
         Ok(views.html.business_tax_home(businessUser))
 
-  }
+  })
 }
 
 case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[Vrn], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)

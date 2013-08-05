@@ -7,22 +7,22 @@ import play.api.data.Forms._
 import microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
 import microservice.UnauthorizedException
 
-class LoginController extends BaseController with ActionWrappers with CookieEncryption {
+class LoginController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
 
-  def login = UnauthorisedAction { implicit request =>
+  def login = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     Ok(views.html.login())
-  }
+  })
 
   def samlLogin = UnauthorisedAction { implicit request =>
     val authRequestFormData = samlMicroService.create
     Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
   }
 
-  def businessTaxLogin = UnauthorisedAction { implicit request =>
+  def businessTaxLogin = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     Ok(views.html.business_tax_login_form())
-  }
+  })
 
-  def governmentGatewayLogin: Action[AnyContent] = UnauthorisedAction { implicit request =>
+  def governmentGatewayLogin: Action[AnyContent] = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
 
     val loginForm = Form(
       mapping(
@@ -44,13 +44,13 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         }
       }
     }
-  }
+  })
 
-  def enterAsJohnDensmore = UnauthorisedAction { implicit request =>
+  def enterAsJohnDensmore = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/newjdensmore")))
-  }
+  })
 
-  def enterAsGeoffFisher = UnauthorisedAction { implicit request =>
+  def enterAsGeoffFisher = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     val credentials = Credentials("805933359724", "passw0rd")
 
     try {
@@ -69,7 +69,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         Ok(views.html.business_tax_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
       }
     }
-  }
+  })
 
   case class SAMLResponse(response: String)
 
@@ -79,7 +79,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     )(SAMLResponse.apply)(SAMLResponse.unapply)
   )
 
-  def idaLogin = UnauthorisedAction { implicit request =>
+  def idaLogin = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     responseForm.bindFromRequest.fold(
       errors => {
         Logger.warn("SAML authentication response received without SAMLResponse data")
@@ -103,7 +103,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         }
       }
     )
-  }
+  })
 
   def logout = Action {
     Redirect(routes.HomeController.home).withNewSession

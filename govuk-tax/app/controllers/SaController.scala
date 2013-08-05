@@ -3,9 +3,9 @@ package controllers
 import microservice.sa.domain.{ SaRegime, SaPerson, SaRoot }
 import views.html.sa.sa_personal_details
 
-class SaController extends BaseController with ActionWrappers {
+class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
-  def details = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
     implicit user =>
       implicit request =>
 
@@ -15,6 +15,6 @@ class SaController extends BaseController with ActionWrappers {
           case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
           case _ => NotFound //todo this should really be an error page
         }
-  }
+  })
 
 }
