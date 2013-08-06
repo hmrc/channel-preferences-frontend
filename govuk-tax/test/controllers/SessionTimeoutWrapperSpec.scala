@@ -102,7 +102,7 @@ class SessionTimeoutWrapperSpec extends BaseSpec with ShouldMatchers {
 
     "return unauthorised if the incoming timestamp is just invalid" in new WithApplication(FakeApplication()) {
       val result = TestController.testValidateSession(FakeRequest().withSession(sessionTimestampKey -> justInvalidTime))
-      status(result) mustBe 200
+      status(result) mustBe 401
     }
 
     "return ok if the incoming timestamp is just valid" in new WithApplication(FakeApplication()) {

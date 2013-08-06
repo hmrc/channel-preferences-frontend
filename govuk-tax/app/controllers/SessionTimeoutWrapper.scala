@@ -96,5 +96,5 @@ trait SessionTimeoutWrapper extends DateTimeProvider {
 
 object SessionTimeoutWrapper {
   val sessionTimestampKey = "ts"
-  val timeoutSeconds = 10
+  val timeoutSeconds = 900
 }
