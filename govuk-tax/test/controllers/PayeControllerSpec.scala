@@ -120,6 +120,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       content should include("9900112")
       content should include("899")
       content should include("1212121")
+      content should include("Weyland-Yutani Corp")
       content should include("July 2, 2013 to October 8, 2013")
       content should include("October 14, 2013 to present")
     }
@@ -152,6 +153,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     "display car details" in new WithApplication(FakeApplication()) {
       requestBenefits("jdensmore") should include("Medical Insurance")
       requestBenefits("jdensmore") should include("Car Benefit")
+      requestBenefits("jdensmore") should include("Weyland-Yutani Corp")
       requestBenefits("jdensmore") should include("Engine size: 0-1400 cc")
       requestBenefits("jdensmore") should include("Fuel type: Bi-Fuel")
       requestBenefits("jdensmore") should include("Date car registered: December 12, 2012")

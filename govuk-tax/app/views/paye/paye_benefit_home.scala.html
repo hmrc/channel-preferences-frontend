@@ -10,6 +10,7 @@
     <table class="table table--benefits">
 
 	<thead>
+            <th align="left" width="30%">Employer</th>
             <th align="left" width="15%">Benefit Type</th>
             <th align="left" width="40%">Description</th>
             <th align="left" width="15%">Cash equivalent/Taxable amount</th>
@@ -22,7 +23,7 @@
 		TODO: add lowercase hyphenated benefit type as id
 	    -->
 	<tr id="" class="@iabdTypeFor(displayBenefit.benefit.benefitType)">
-		<td class="employment-reference">@displayBenefit.employment.taxDistrictNumber / @displayBenefit.employment.payeNumber</td>
+		<td class="employment-reference">@displayBenefit.employment.employerName</td>
 		<td class="benefit-type">@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
 
                 @displayBenefit.car.map { car =>
