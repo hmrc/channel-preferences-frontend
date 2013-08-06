@@ -37,7 +37,6 @@ class SessionTimeoutWrapperSpec extends BaseSpec with ShouldMatchers {
         Ok("").withSession("userId" -> "Tim")
     })
 
-    def testValidateSession = ValidateSession()
   }
 
   import TestController.now
@@ -86,31 +85,6 @@ class SessionTimeoutWrapperSpec extends BaseSpec with ShouldMatchers {
     "perform the wrapped action successfully and update the timestamp if the incoming timestamp is valid" in new WithApplication(FakeApplication()) {
       val result = TestController.testWithSessionTimeoutValidation(FakeRequest().withSession(sessionTimestampKey -> validTime))
       session(result) mustBe Session(Map(sessionTimestampKey -> now().getMillis.toString, "userId" -> "Tim"))
-      status(result) mustBe 200
-    }
-  }
-
-  "validateSession" should {
-    "return unauthorised if the incoming session is empty" in new WithApplication(FakeApplication()) {
-      val result = TestController.testValidateSession(FakeRequest())
-      status(result) mustBe 401
-    }
-    "return unauthorised if the incoming timestamp is invalid" in new WithApplication(FakeApplication()) {
-      val result = TestController.testValidateSession(FakeRequest().withSession(sessionTimestampKey -> invalidTime))
-      status(result) mustBe 401
-    }
-
-    "return unauthorised if the incoming timestamp is just invalid" in new WithApplication(FakeApplication()) {
-      val result = TestController.testValidateSession(FakeRequest().withSession(sessionTimestampKey -> justInvalidTime))
-      status(result) mustBe 401
-    }
-
-    "return ok if the incoming timestamp is just valid" in new WithApplication(FakeApplication()) {
-      val result = TestController.testValidateSession(FakeRequest().withSession(sessionTimestampKey -> justValidTime))
-      status(result) mustBe 200
-    }
-    "return ok if the incoming timestamp is valid" in new WithApplication(FakeApplication()) {
-      val result = TestController.testValidateSession(FakeRequest().withSession(sessionTimestampKey -> validTime))
       status(result) mustBe 200
     }
   }

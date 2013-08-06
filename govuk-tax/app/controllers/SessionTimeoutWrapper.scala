@@ -5,7 +5,6 @@ import org.joda.time.{ Duration, DateTimeZone, DateTime }
 import config.DateTimeProvider
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import play.Logger
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
   self: Controller =>
@@ -37,19 +36,6 @@ trait SessionTimeoutWrapper extends DateTimeProvider {
 
           val result = action(request)
           addTimestamp(request, result)
-        }
-    }
-  }
-
-  object ValidateSession {
-    def apply() = Action {
-      request: Request[AnyContent] =>
-        {
-          if (hasValidTimestamp(request.session)) {
-            Ok("ok")
-          } else {
-            Unauthorized("unauthorised")
-          }
         }
     }
   }
