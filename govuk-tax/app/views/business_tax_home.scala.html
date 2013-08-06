@@ -43,6 +43,7 @@
         </ul>
 }
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"> </script>
 <script language="javascript">
 
     var link = document.getElementById("portalLink");
@@ -51,9 +52,25 @@
     var ssoUrl = "@PortalConfig.ssoUrl";
     var gatewayToken = "@businessUser.encodedGovernmentGatewayToken";
     var nowTimestamp = new Date().getTime();
+    var validationLink = "/business-tax/validateSession";
 
-    link.onclick = function()
-    {
+    link.onclick = function () {
+
+        var request = $.ajax({
+            url : validationLink,
+            timeout : 5000,
+            cache : false,
+            statusCode: {
+                200 : redirectToPortal,
+                401 :redirectToLogin
+
+            }
+        });
+        // cancel link click event
+        return false;
+    }
+
+    var redirectToPortal = function() {
         var form = document.createElement('form');
         form.method = 'post';
         form.action = ssoUrl;
@@ -80,8 +97,11 @@
 
         // POST form
         form.submit();
+        return false;
+    }
 
-        // cancel link click event if everything is successful
+    var redirectToLogin = function() {
+        window.location.replace("/");
         return false;
     }
 

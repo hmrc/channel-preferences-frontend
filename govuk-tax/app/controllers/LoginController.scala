@@ -13,10 +13,10 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     Ok(views.html.login())
   })
 
-  def samlLogin = UnauthorisedAction { implicit request =>
+  def samlLogin = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     val authRequestFormData = samlMicroService.create
     Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
-  }
+  })
 
   def businessTaxLogin = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     Ok(views.html.business_tax_login_form())

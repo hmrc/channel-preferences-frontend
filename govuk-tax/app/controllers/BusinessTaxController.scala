@@ -17,6 +17,8 @@ class BusinessTaxController extends BaseController with ActionWrappers with Cook
         Ok(views.html.business_tax_home(businessUser))
 
   })
+
+  def validateSession = ValidateSession()
 }
 
 case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[Vrn], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)

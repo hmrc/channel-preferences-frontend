@@ -25,6 +25,7 @@ POST    /government-gateway/login       @controllers.LoginController.governmentG
 GET     /logout                         @controllers.LoginController.logout
 
 GET     /business-tax/home              @controllers.BusinessTaxController.home
+GET     /business-tax/validateSession   @controllers.BusinessTaxController.validateSession
 
 # Agents
 GET     /agent/reason-for-application   @controllers.AgentController.reasonForApplication
