@@ -27,7 +27,7 @@ object GovUkTaxBuild extends Build {
     appName,
     Version.thisApp, appDependencies,
     settings = Common.commonSettings ++ SassPlugin.sassSettings
-  ).settings(publishArtifact := false)
+  ).settings(publishArtifact := true)
 
 }
 
