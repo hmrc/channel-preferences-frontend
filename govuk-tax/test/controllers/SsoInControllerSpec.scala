@@ -22,6 +22,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     val encodedToken = "bobsToken"
     val loginTimestamp = "bob's login timestamp iso8601 format"
   }
+
   private object john {
     val name = "John Smith"
     val userId = "authId/JOHNNY"
@@ -116,9 +117,8 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   }
 
   private def sessionEntry(key: String, unencryptedValue: String): String = {
-    val encryptedValue = encrypt(unencryptedValue)
-    val pair = s"$key:$encryptedValue"
-    URLEncoder.encode(pair, "UTF-8")
+    val encryptedValue = URLEncoder.encode(encrypt(unencryptedValue), "UTF8")
+    s"$key=$encryptedValue"
   }
 
 }

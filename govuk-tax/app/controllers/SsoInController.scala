@@ -15,9 +15,12 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
         "dest" -> text
       ))
       val (gw, time, destUri) = form.bindFromRequest.get
+      Logger.debug(s"time: $time dest: $destUri")
+      Logger.debug(s"token: $gw")
       val tokenRequest = ValidateTokenRequest(gw, time)
       try {
         val response = governmentGatewayMicroService.validateToken(tokenRequest)
+        Logger.debug(s"successfully authenticated: $response.name")
         Redirect(destUri).withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
         case e: Exception => {
