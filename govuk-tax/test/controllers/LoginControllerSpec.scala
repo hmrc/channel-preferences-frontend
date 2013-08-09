@@ -78,7 +78,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     val id = "/auth/oid/0943809346039"
 
-    "redirect to the home page if the response is valid" in new WithApplication(FakeApplication()) {
+    "redirect to the home page if the response is valid and not registering an agent" in new WithApplication(FakeApplication()) {
 
       when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
 
@@ -91,6 +91,19 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val sess = session(result)
       decrypt(sess("userId")) should be(id)
+    }
+
+    "redirect to the agent contact details if it's registering an agent" in new WithApplication(FakeApplication()) {
+
+      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
+
+      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
+
+      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("register agent" -> "true"))
+
+      status(result) should be(303)
+      redirectLocation(result).get should be("/agent/contact-details")
+
     }
 
     "return Unauthorised if the post does not contain a saml response" in new WithApplication(FakeApplication()) {

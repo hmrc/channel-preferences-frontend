@@ -30,6 +30,7 @@ GET     /business-tax/home              @controllers.BusinessTaxController.home
 GET     /agent/reason-for-application   @controllers.AgentController.reasonForApplication
 GET     /agent/sro-check                @controllers.AgentController.sroCheck
 POST    /agent/sro-check                @controllers.AgentController.submitAgreement
+GET     /agent/contact-details          @controllers.AgentController.contactDetails
 
 GET     /sa/details                     @controllers.SaController.details
 

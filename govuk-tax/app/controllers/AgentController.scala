@@ -2,6 +2,7 @@ package controllers
 
 import play.api.data._
 import play.api.data.Forms._
+import play.api.mvc.Action
 
 class AgentController extends BaseController with ActionWrappers {
 
@@ -27,10 +28,15 @@ class AgentController extends BaseController with ActionWrappers {
           BadRequest(views.html.agents.sro_check(errors))
         },
         _ => {
-          Redirect(routes.LoginController.samlLogin)
+          Redirect(routes.LoginController.samlLogin).withSession(session.copy(Map("register agent" -> "true")))
         }
       )
   }
+
+  def contactDetails = Action {
+    Ok(views.html.agents.contact_details())
+  }
+
 }
 
 case class SroCheck(sroAgreement: Boolean = false, tncAgreement: Boolean = false)

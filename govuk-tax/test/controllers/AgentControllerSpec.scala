@@ -18,9 +18,7 @@ class AgentControllerSpec extends BaseSpec {
 
     "Return a BadRequest error if agreements are not checked" in new WithApplication(FakeApplication()) {
 
-      val request = FakeRequest().withFormUrlEncodedBody("sroAgreement" -> "false", "tncAgreement" -> "false")
-
-      val result = controller.submitAgreement()(request)
+      val result = controller.submitAgreement()(newRequest("false", "false"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please specify that you are the Senior Responsible Officer")
       contentAsString(result) should include("Please accept the terms and conditions")
@@ -29,13 +27,23 @@ class AgentControllerSpec extends BaseSpec {
 
     "Return a Redirect if agreements are checked" in new WithApplication(FakeApplication()) {
 
-      val request = FakeRequest().withFormUrlEncodedBody("sroAgreement" -> "true", "tncAgreement" -> "true")
+      val result = controller.submitAgreement()(newRequest("true", "true"))
 
-      val result = controller.submitAgreement()(request)
       status(result) shouldBe 303
       header("Location", result) shouldBe Some("/samllogin")
 
     }
   }
+
+  "The submit agreement page" should {
+    "add a register agent entry in the session" in new WithApplication(FakeApplication()) {
+      val result = controller.submitAgreement()(newRequest("true", "true"))
+
+      session(result).data("register agent") should equal("true")
+    }
+  }
+
+  def newRequest(sro: String, tnc: String) =
+    FakeRequest().withFormUrlEncodedBody("sroAgreement" -> sro, "tncAgreement" -> tnc)
 
 }
