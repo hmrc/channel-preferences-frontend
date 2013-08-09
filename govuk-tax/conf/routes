@@ -40,3 +40,5 @@ GET     /                               @controllers.HomeController.landing
 
 POST    /ssoin                          @controllers.SsoInController.in
 
+GET    /ssoout                          @controllers.SsoOutController.encryptPayload
+
