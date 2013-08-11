@@ -76,7 +76,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     val hashPid = "09weu03t8e4gfo8"
 
-    val id = "/auth/oid/0943809346039"
+    val oid = "0943809346039"
+    val id = s"/auth/oid/$oid"
 
     "redirect to the home page if the response is valid and not registering an agent" in new WithApplication(FakeApplication()) {
 
@@ -90,7 +91,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       redirectLocation(result).get should be("/home")
 
       val sess = session(result)
-      decrypt(sess("userId")) should be(id)
+      decrypt(sess("userId")) should be(oid)
     }
 
     "redirect to the agent contact details if it's registering an agent" in new WithApplication(FakeApplication()) {

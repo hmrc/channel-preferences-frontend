@@ -27,7 +27,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
     MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
 
     try {
-      val userAuthority = authMicroService.authority(userId)
+      val userAuthority = authMicroService.authorityFromOid(userId)
 
       Logger.debug(s"Received user authority: $userAuthority")
       userAuthority match {

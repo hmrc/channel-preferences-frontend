@@ -27,17 +27,24 @@ trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
 
 trait MicroService extends Status with HeaderNames {
 
+  import collection.JavaConversions._
+
   protected val serviceUrl: String
   protected val success = Statuses(OK to MULTI_STATUS)
 
-  private def setHeaders(client: WSRequestHolder): WSRequestHolder = {
-    val requestHolder = if (Option(MDC.get(authorisation)).isDefined) client.withHeaders((authorisation, s"Bearer ${MDC.get(authorisation)}")) else client
-    if (Option(MDC.get(requestId)).isDefined) requestHolder.withHeaders((requestId, MDC.get(requestId))) else requestHolder
+  private def headers(): Seq[(String, String)] = {
+    val headers = for {
+      (k, v) <- MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
+    } yield k match {
+      case `authorisation` => (k, s"Bearer $v")
+      case _ => (k, v)
+    }
+    headers.toSeq
   }
 
   protected def httpResource(uri: String) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
-    setHeaders(WS.url(s"$serviceUrl$uri"))
+    WS.url(s"$serviceUrl$uri").withHeaders(headers: _*)
   }
 
   protected case class Statuses(r: Range) {

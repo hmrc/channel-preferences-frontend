@@ -4,5 +4,6 @@ import microservice.{ MicroServiceConfig, MicroService }
 import microservice.auth.domain.UserAuthority
 
 class AuthMicroService(override val serviceUrl: String = MicroServiceConfig.authServiceUrl) extends MicroService {
-  def authority(uri: String) = httpGet[UserAuthority](uri)
+  def authorityFromOid(oid: String) = httpGet[UserAuthority](s"/auth/oid/$oid")
+  def authority(path: String) = httpGet[UserAuthority](path)
 }

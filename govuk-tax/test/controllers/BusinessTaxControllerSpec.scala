@@ -54,7 +54,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
       val utr = Utr("1234567890")
       val vrn = Vrn("666777889")
-      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
+      when(mockAuthMicroService.authorityFromOid("gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
 
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
@@ -74,7 +74,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
         ))
       )
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
 
       status(result) should be(200)
 
@@ -92,10 +92,10 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
     "display the Government Gateway name for Geoff Fisher and a respective notice if he is not actively enrolled for any online services" in new WithApplication(FakeApplication()) {
 
-      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
+      when(mockAuthMicroService.authorityFromOid("gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
 
       status(result) should be(200)
 

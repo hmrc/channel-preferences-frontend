@@ -93,7 +93,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
               val target = if (session.data.contains("register agent"))
                 routes.AgentController.contactDetails else routes.HomeController.home
               Logger.debug(s"Redirecting to $target")
-              Redirect(target).withSession(("userId", encrypt(authority.id)))
+              Redirect(target).withSession(("userId", encrypt(authority.oid)))
             }
             case _ => {
               Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")

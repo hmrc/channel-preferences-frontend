@@ -37,7 +37,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     override val saMicroService = mockSaMicroService
   }
 
-  when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
+  when(mockAuthMicroService.authorityFromOid("gfisher")).thenReturn(
     Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)))))
 
   when(mockSaMicroService.root("/personal/sa/123456789012")).thenReturn(
@@ -85,13 +85,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
       when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(None)
-      val result = controller.details(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.details(FakeRequest().withSession("userId" -> encrypt("gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }
 
   def request(action: Action[AnyContent]): String = {
-    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+    val result = action(FakeRequest().withSession("userId" -> encrypt("gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
 
     status(result) should be(200)
 

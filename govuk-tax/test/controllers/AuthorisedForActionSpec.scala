@@ -34,7 +34,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
         links = Map.empty
       )
     )
-    when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
+    when(mockAuthMicroService.authorityFromOid("jdensmore")).thenReturn(
       Some(UserAuthority("/auth/oid/jfisher", Regimes(paye = Some(URI.create("/personal/paye/AB123456C"))), None)))
   }
 
@@ -74,7 +74,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
 
   "basic homepage test" should {
     "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
-      val result = TestController.test(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.test(FakeRequest().withSession(("userId", encrypt("jdensmore"))))
 
       status(result) should equal(200)
       contentAsString(result) should include("John Densmore")
@@ -83,38 +83,38 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
 
   "AuthorisedForIdaAction" should {
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(None)
+      when(mockAuthMicroService.authorityFromOid("jdensmore")).thenReturn(None)
 
-      val result = TestController.test(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.test(FakeRequest().withSession(("userId", encrypt("jdensmore"))))
       status(result) should equal(401)
     }
 
     "return internal server error page if the Action throws an exception" in new WithApplication(FakeApplication()) {
-      val result = TestController.testThrowsException(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.testThrowsException(FakeRequest().withSession(("userId", encrypt("jdensmore"))))
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
     "return internal server error page if the AuthMicroService throws an exception" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
+      when(mockAuthMicroService.authorityFromOid("jdensmore")).thenThrow(new RuntimeException("TEST"))
 
-      val result = TestController.test(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.test(FakeRequest().withSession(("userId", encrypt("jdensmore"))))
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
     "include the authorisation and request ids in the MDC" in new WithApplication(FakeApplication()) {
-      val result = TestController.testMdc(FakeRequest().withSession(("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.testMdc(FakeRequest().withSession(("userId", encrypt("jdensmore"))))
       status(result) should equal(200)
       val strings = contentAsString(result).split(" ")
-      strings(0) should equal("/auth/oid/jdensmore")
+      strings(0) should equal("jdensmore")
       strings(1) should startWith("frontend-")
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
+      when(mockAuthMicroService.authorityFromOid("john")).thenReturn(
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/personal/sa/12345678"))), None)))
-      val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john")))
+      val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("john")))
       status(result) should equal(303)
       redirectLocation(result).get mustBe "/login"
     }
@@ -126,7 +126,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     }
 
     "redirect to the login page when the userId is found but a gateway token is present" in new WithApplication(FakeApplication()) {
-      val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john"), "token" -> encrypt("a-government-gateway-token")))
+      val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("john"), "token" -> encrypt("a-government-gateway-token")))
       status(result) should equal(303)
       redirectLocation(result).get mustBe "/"
     }
