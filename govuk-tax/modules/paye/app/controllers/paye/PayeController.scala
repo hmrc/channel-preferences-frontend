@@ -21,6 +21,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
           // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
           val payeData = user.regimes.paye.get
+          //val transactionDate = user.transactions.get
 
           Ok(paye_home(
             name = payeData.name,
