@@ -91,7 +91,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       redirectLocation(result).get should be("/home")
 
       val sess = session(result)
-      decrypt(sess("userId")) should be(oid)
+      decrypt(sess("userId")) should be(id)
     }
 
     "redirect to the agent contact details if it's registering an agent" in new WithApplication(FakeApplication()) {

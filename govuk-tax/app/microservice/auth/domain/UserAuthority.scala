@@ -11,9 +11,7 @@ case class Vrn(vrn: String) {
   override lazy val toString = vrn
 }
 
-case class UserAuthority(id: String, regimes: Regimes, previouslyLoggedInAt: Option[DateTime],
-    utr: Option[Utr] = None, vrn: Option[Vrn] = None) {
-  lazy val oid = id.substring(id.lastIndexOf("/") + 1)
-}
+case class UserAuthority(id: String, regimes: Regimes, previouslyLoggedInAt: Option[DateTime], utr: Option[Utr] = None, vrn: Option[Vrn] = None)
+
 case class Regimes(paye: Option[URI] = None, sa: Option[URI] = None, vat: Set[URI] = Set(), ct: Set[URI] = Set())
 
