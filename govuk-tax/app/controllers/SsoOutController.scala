@@ -19,7 +19,7 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
       encodedGovernmentGatewayToken match {
         case Some(token) => {
           val encodedGovernmentGatewayToken = decrypt(token)
-          val encryptedPayload = SsoPayloadEncryptor.encrypt(generateJsonPayload(encodedGovernmentGatewayToken, PortalConfig.ssoUrl))
+          val encryptedPayload = SsoPayloadEncryptor.encrypt(generateJsonPayload(encodedGovernmentGatewayToken, PortalConfig.destinationRoot + "/home"))
           Ok(encryptedPayload)
         }
         case None => BadRequest("Missing government gateway token")

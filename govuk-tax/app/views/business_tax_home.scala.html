@@ -46,43 +46,37 @@
 <script language="javascript">
 
     var link = document.getElementById("portalLink");
-
-    var destinationAddress = link.href;
-    var ssoUrl = "@PortalConfig.ssoUrl";
-    var gatewayToken = "@businessUser.encodedGovernmentGatewayToken";
-    var nowTimestamp = new Date().getTime();
+    var successful = true
 
     link.onclick = function()
     {
-        var form = document.createElement('form');
-        form.method = 'post';
-        form.action = ssoUrl;
 
-        var gw = document.createElement('input');
-        gw.type = 'hidden';
-        gw.name = 'gw';
-        gw.value = gatewayToken;
+        $.ajax({
+            url: '/ssoout',
+            type: 'GET',
+            success: function(data) {
 
-        var dest = document.createElement('input');
-        dest.type = 'hidden';
-        dest.name = 'dest';
-        dest.value = destinationAddress;
+                var form = document.createElement('form');
+                form.method = 'post';
+                form.action = '@PortalConfig.ssoUrl';
 
-        var time = document.createElement('input');
-        time.type = 'hidden';
-        time.name = 'time';
-        time.value = nowTimestamp;
+                var payload = document.createElement('input');
+                payload.type = 'hidden';
+                payload.name = 'payload';
+                payload.value = data;
 
-        document.body.appendChild(form);
-        form.appendChild(gw);
-        form.appendChild(dest);
-        form.appendChild(time);
+                document.body.appendChild(form);
+                form.appendChild(payload);
 
-        // POST form
-        form.submit();
+                // POST form
+                form.submit();
+            },
+            error: function() {successful = false}
+        });
+
 
         // cancel link click event if everything is successful
-        return false;
+        return !successful;
     }
 
 </script>

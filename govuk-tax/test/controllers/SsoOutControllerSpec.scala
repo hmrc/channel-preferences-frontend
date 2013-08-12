@@ -50,7 +50,7 @@ class SsoOutControllerSpec extends BaseSpec with ShouldMatchers with MockitoSuga
       val decryptedJson = Json.parse(decryptedResult)
 
       (decryptedJson \ "gw").as[String] must be(encodedGovernmentGatewayToken)
-      (decryptedJson \ "dest").as[String] must be(PortalConfig.ssoUrl)
+      (decryptedJson \ "dest").as[String] must be(PortalConfig.destinationRoot + "/home")
       (decryptedJson \ "time").asOpt[Long].isDefined must be(true)
 
     }
