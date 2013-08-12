@@ -1,6 +1,6 @@
 package uk.gov.hmrc.microservice.paye.domain
 
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.{ DateTime, LocalDate }
 import org.joda.time.format.DateTimeFormat
 import controllers.common.routes
 import play.api.mvc.{ AnyContent, Action }
@@ -40,7 +40,7 @@ case class PayeRoot(nino: String, version: Int, name: String, links: Map[String,
     transactionLinks.get(status) match {
       case Some(uri) => {
         val formattedDate = date.toString(dateFormat)
-        val uri : String = transactionLinks(status).replace("{from}", formattedDate)
+        val uri: String = transactionLinks(status).replace("{from}", formattedDate)
         txQueueMicroService.transaction(uri).getOrElse(Seq.empty)
       }
       case _ => Seq.empty[TxQueueTransaction]
@@ -68,3 +68,5 @@ case class RemoveCarBenefit(version: Int, benefit: Benefit, revisedAmount: BigDe
 case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: String, payeNumber: String, employerName: String)
 
 case class TransactionId(oid: String)
+
+case class RecentTransaction(messageCode: String, txTime: LocalDate, employer: String)

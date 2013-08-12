@@ -1,4 +1,8 @@
-@(name: String, employments: Seq[uk.gov.hmrc.microservice.paye.domain.Employment], taxCodes: Seq[uk.gov.hmrc.microservice.paye.domain.TaxCode], hasBenefits: Boolean)
+@(name: String,
+        employments: Seq[uk.gov.hmrc.microservice.paye.domain.Employment],
+        taxCodes: Seq[uk.gov.hmrc.microservice.paye.domain.TaxCode],
+        hasBenefits: Boolean,
+        recentTransactions:Seq[uk.gov.hmrc.microservice.paye.domain.RecentTransaction])
 
 @import views.formatting.Dates._
 

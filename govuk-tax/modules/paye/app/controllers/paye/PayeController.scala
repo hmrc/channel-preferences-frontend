@@ -1,14 +1,25 @@
 package controllers.paye
 
+<<<<<<< HEAD:govuk-tax/modules/paye/app/controllers/paye/PayeController.scala
 import uk.gov.hmrc.microservice.paye.domain.{ Car, Benefit, Employment }
 import org.joda.time.LocalDate
+=======
+import microservice.paye.domain.{ RecentTransaction, Car, Benefit, Employment }
+import org.joda.time.{ DateTimeZone, DateTime, DateTimeUtils, LocalDate }
+>>>>>>> Getting messages from transaction:govuk-tax/app/controllers/PayeController.scala
 import play.api.data._
 import play.api.data.Forms._
 import views.html.paye._
 import views.formatting.Dates
+<<<<<<< HEAD:govuk-tax/modules/paye/app/controllers/paye/PayeController.scala
 import scala._
 import scala.Some
 import controllers.common._
+=======
+import microservice.txqueue.TxQueueTransaction
+import java.net.URI
+import scala.collection.mutable.ListBuffer
+>>>>>>> Getting messages from transaction:govuk-tax/app/controllers/PayeController.scala
 
 class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -21,13 +32,24 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
           // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
           val payeData = user.regimes.paye.get
-          //val transactionDate = user.transactions.get
+          val transactions = payeData.transactionsWithStatusFromDate("accepted", new DateTime(DateTimeZone.UTC).minusMonths(1))
+          val employments = payeData.employments
+          // TODO: fix so employer is held on transaction
+          val employerName = employments.find(_.endDate.isEmpty).get.employerName
+
+          val recentTxs = for {
+            t <- transactions
+            tag = t.tags.get.filter(_.startsWith("message.code."))(0)
+            messageCode = tag.replace("message.code.", "")
+            date = t.createdAt.toLocalDate
+          } yield new RecentTransaction(messageCode, date, employerName)
 
           Ok(paye_home(
             name = payeData.name,
-            employments = payeData.employments,
+            employments = employments,
             taxCodes = payeData.taxCodes,
-            hasBenefits = !payeData.benefits.isEmpty)
+            hasBenefits = !payeData.benefits.isEmpty,
+            recentTransactions = recentTxs)
           )
     }
   }
