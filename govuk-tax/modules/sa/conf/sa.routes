@@ -1,0 +1,2 @@
+
+GET     /details                     @controllers.SaController.details

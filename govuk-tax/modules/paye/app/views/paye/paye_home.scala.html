@@ -1,0 +1,31 @@
+@(name: String, employments: Seq[uk.gov.hmrc.microservice.paye.domain.Employment], taxCodes: Seq[uk.gov.hmrc.microservice.paye.domain.TaxCode], hasBenefits: Boolean)
+
+@import views.formatting.Dates._
+
+@main(title = "Your tax home") {
+
+    <h2>Welcome, @name</h2>
+    <h2>Employments in current tax year</h2>
+
+    @employments.map { employment =>
+	<section class="employment">
+	    <div class="employment-ref">Employers Reference Number: @employment.taxDistrictNumber / @employment.payeNumber</div>
+        <div class="employment-employer-name">@employment.employerName</div>
+	    <div class="employment-term">(@formatDate(employment.startDate) to @formatDate(employment.endDate, "present"))</div>
+	</section>
+    }
+
+    @{taxCodes.size match {
+        case 0 =>
+        case 1 => {<h3>Your Tax Code</h3>}
+        case _ => {<h3>Your Tax Codes</h3>}
+    }}
+
+    @for(tc <- taxCodes) {
+	<div class="tax-code">@tc.taxCode</div>
+    }
+
+    @if(hasBenefits) {
+	<a class="cta cta--view-benefits" href="@routes.PayeController.listBenefits">Click here to see your benefits</a>
+    }
+}
