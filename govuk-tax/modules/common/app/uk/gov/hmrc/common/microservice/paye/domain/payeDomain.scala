@@ -1,13 +1,14 @@
 package uk.gov.hmrc.microservice.paye.domain
 
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.format.DateTimeFormat
 import controllers.common.routes
+import play.api.mvc.{ AnyContent, Action }
 import play.api.mvc.Call
 import uk.gov.hmrc.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.domain.{ TaxRegime, RegimeRoot }
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
-
 
 object PayeRegime extends TaxRegime {
   override def isAuthorised(regimes: Regimes) = {
@@ -33,10 +34,16 @@ case class PayeRoot(nino: String, version: Int, name: String, links: Map[String,
     resourceFor[Seq[Employment]]("employments").getOrElse(Seq.empty)
   }
 
-  def transactions(resource: String)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] = {
-    links.get(resource) match {
-      case Some(uri) => txQueueMicroService.transaction(uri).getOrElse(Seq.empty)
-      case _ => Seq.empty
+  val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
+
+  def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] = {
+    transactionLinks.get(status) match {
+      case Some(uri) => {
+        val formattedDate = date.toString(dateFormat)
+        val uri : String = transactionLinks(status).replace("{from}", formattedDate)
+        txQueueMicroService.transaction(uri).getOrElse(Seq.empty)
+      }
+      case _ => Seq.empty[TxQueueTransaction]
     }
   }
 
