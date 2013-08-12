@@ -47,7 +47,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   })
 
   def enterAsJohnDensmore = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
-    Redirect(routes.HomeController.home).withSession(("userId", encrypt("/auth/oid/newjdensmore")))
+    Redirect(routes.HomeController.home).withSession(("userId", encrypt("newjdensmore")))
   })
 
   def enterAsGeoffFisher = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
