@@ -20,7 +20,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     val name = "Bob Jones"
     val userId = "authId/ROBERT"
     val encodedToken = "bobsToken"
-    val loginTimestamp = "bob's login timestamp iso8601 format"
+    val loginTimestamp = 123456L
   }
 
   private object john {
@@ -28,8 +28,8 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     val userId = "authId/JOHNNY"
     val encodedToken = "johnsToken"
     val invalidEncodedToken = "invalidToken"
-    val loginTimestamp = "john's login timestamp iso8601 format"
-    val invalidLoginTimestamp = "john's invalid login timestamp"
+    val loginTimestamp = 12345L
+    val invalidLoginTimestamp = 2222L
   }
 
   private def controller = new SsoInController with MockMicroServicesForTests {
@@ -40,7 +40,8 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "create a new session when the token is valid, the time not expired and no session exists" in new WithApplication(FakeApplication()) {
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.loginTimestamp))).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.encodedToken))
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com").withFormUrlEncodedBody("gw" -> john.encodedToken, "time" -> john.loginTimestamp, "dest" -> redirectUrl))
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "${redirectUrl}"}""")
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com").withFormUrlEncodedBody("payload" -> encryptedPayload))
       result match {
         case SimpleResult(header, _) => {
           header.status shouldBe 303
@@ -58,8 +59,10 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(bob.encodedToken, bob.loginTimestamp))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.encodedToken))
 
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${bob.encodedToken}", "time": ${bob.loginTimestamp}, "dest": "${redirectUrl}"}""")
+
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
-        .withFormUrlEncodedBody("gw" -> bob.encodedToken, "time" -> bob.loginTimestamp, "dest" -> redirectUrl)
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
@@ -78,8 +81,10 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "invalidate the session if a session already exists but the login is incorrect" in new WithApplication(FakeApplication()) {
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.invalidEncodedToken, john.loginTimestamp))).thenThrow(new IllegalStateException("error"))
 
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "${redirectUrl}"}""")
+
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
-        .withFormUrlEncodedBody("gw" -> john.invalidEncodedToken, "time" -> john.loginTimestamp, "dest" -> redirectUrl)
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
@@ -98,8 +103,10 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val mockResponse = mock[Response]
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
 
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "${redirectUrl}"}""")
+
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
-        .withFormUrlEncodedBody("gw" -> john.encodedToken, "time" -> john.invalidLoginTimestamp, "dest" -> redirectUrl)
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
 
       result match {

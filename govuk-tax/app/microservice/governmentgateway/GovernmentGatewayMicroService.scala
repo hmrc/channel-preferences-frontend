@@ -14,7 +14,7 @@ class GovernmentGatewayMicroService extends MicroService {
   }
 
   implicit object ValidateTokenRequestWrites extends Writes[ValidateTokenRequest] {
-    def writes(g: ValidateTokenRequest): JsValue = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsString(g.timestamp)))
+    def writes(g: ValidateTokenRequest): JsValue = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsString(g.timestamp.toString)))
   }
 
   def login(credentials: Credentials) = {
@@ -29,5 +29,5 @@ class GovernmentGatewayMicroService extends MicroService {
 
 case class Credentials(userId: String, password: String)
 case class GovernmentGatewayResponse(authId: String, name: String, encodedGovernmentGatewayToken: String)
-case class ValidateTokenRequest(token: String, timestamp: String)
+case class ValidateTokenRequest(token: String, timestamp: Long)
 
