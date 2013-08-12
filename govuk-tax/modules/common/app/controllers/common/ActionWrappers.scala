@@ -131,8 +131,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
       None
     } else {
       Some("#")
-    },//todo change it once we have VAT service / its stub ready
-     Some("")
+    }//todo change it once we have VAT service / its stub ready
   )
 
 }

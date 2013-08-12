@@ -6,6 +6,8 @@ import play.api.mvc.Call
 import uk.gov.hmrc.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.domain.{ TaxRegime, RegimeRoot }
 import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
+
 
 object PayeRegime extends TaxRegime {
   override def isAuthorised(regimes: Regimes) = {
@@ -17,7 +19,7 @@ object PayeRegime extends TaxRegime {
   }
 }
 
-case class PayeRoot(nino: String, version: Int, name: String, links: Map[String, String]) extends RegimeRoot {
+case class PayeRoot(nino: String, version: Int, name: String, links: Map[String, String], transactionLinks: Map[String, String]) extends RegimeRoot {
 
   def taxCodes(implicit payeMicroService: PayeMicroService): Seq[TaxCode] = {
     resourceFor[Seq[TaxCode]]("taxCode").getOrElse(Seq.empty)
@@ -29,6 +31,13 @@ case class PayeRoot(nino: String, version: Int, name: String, links: Map[String,
 
   def employments(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
     resourceFor[Seq[Employment]]("employments").getOrElse(Seq.empty)
+  }
+
+  def transactions(resource: String)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] = {
+    links.get(resource) match {
+      case Some(uri) => txQueueMicroService.transaction(uri).getOrElse(Seq.empty)
+      case _ => Seq.empty
+    }
   }
 
   private def resourceFor[T](resource: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] = {

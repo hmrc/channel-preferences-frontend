@@ -31,7 +31,8 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
         name = "John Densmore",
         version = 22,
         nino = "AB123456C",
-        links = Map.empty
+        links = Map.empty,
+        transactionLinks = Map.empty
       )
     )
     when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
