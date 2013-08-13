@@ -31,19 +31,19 @@ object GovUkTaxBuild extends Build {
   )
 
   val paye = play.Project(
-    appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye")
+    appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
 
   val agent = play.Project(
-    appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent")
+    appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
 
   val sa = play.Project(
-    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa")
+    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
 
   val bt = play.Project(
-    appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax")
+    appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
 
 
