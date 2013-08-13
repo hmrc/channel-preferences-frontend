@@ -37,9 +37,13 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
           val recentTxs = for {
             t <- transactions
-            messageCodeTag = t.tags.get.filter(_.startsWith("message.code."))(0)
+            messageCodeTags = t.tags.get.filter(_.startsWith("message.code."))
+            if messageCodeTags.nonEmpty
+            messageCodeTag = messageCodeTags(0)
             messageCode = messageCodeTag.replace("message.code.", "")
-            employerNameTag = t.tags.get.filter(_.startsWith("employer.name."))(0)
+            employerNameTags = t.tags.get.filter(_.startsWith("employer.name."))
+            if employerNameTags.nonEmpty
+            employerNameTag = employerNameTags(0)
             employerName = employerNameTag.replace("employer.name.", "")
             date = t.createdAt.toLocalDate
           } yield new RecentTransaction(messageCode, date, employerName)

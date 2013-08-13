@@ -95,8 +95,10 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   def transactionWithTags(tags:List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(microservice.txqueue.Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(5))
 
   val testTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits", "employer.name.Weyland-Yutani Corp"))
+  val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
+  val testTransaction2 = transactionWithTags(List("paye", "test"))
 
-  when(mockTxQueueMicroService.transaction("/txqueue/current-status/paye/AB123456C/ACCEPTED/after/" + dateFormat.print(currentTestDate.minusMonths(1)))).thenReturn(Some(List(testTransaction)))
+  when(mockTxQueueMicroService.transaction("/txqueue/current-status/paye/AB123456C/ACCEPTED/after/" + dateFormat.print(currentTestDate.minusMonths(1)))).thenReturn(Some(List(testTransaction, testTransaction1, testTransaction2)))
 
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
