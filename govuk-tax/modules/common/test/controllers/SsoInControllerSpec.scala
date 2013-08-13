@@ -10,6 +10,7 @@ import play.api.mvc.{ SimpleResult, Result }
 import java.net.URLEncoder
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.BaseSpec
+import controllers.common._
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 

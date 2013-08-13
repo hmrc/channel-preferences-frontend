@@ -1,4 +1,4 @@
-@(displayBenefit: controllers.DisplayBenefit, updateForm: Form[RemoveBenefitFormData])
+@(displayBenefit: controllers.paye.DisplayBenefit, updateForm: Form[controllers.paye.RemoveBenefitFormData])
 
 @import views.formatting.Dates._
 @import config.RefData._
@@ -15,7 +15,7 @@ Value of car benefit: <span class="amount">£ @displayBenefit.benefit.grossAmoun
 
 <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
-    @helper.form(action = routes.PayeController.removeCarBenefitToStep2(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+    @helper.form(action = controllers.paye.routes.PayeController.removeCarBenefitToStep2(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
         @defining(updateForm("withdrawDate")) { withdrawDateField =>
         <div class="@if(withdrawDateField.error.isDefined){error-notification}">

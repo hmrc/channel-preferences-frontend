@@ -1,4 +1,4 @@
-package controllers
+package controllers.sa
 
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
@@ -7,7 +7,7 @@ import play.api.mvc.{ AnyContent, Action }
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import org.joda.time.DateTime
 import java.net.URI
-import controllers.SessionTimeoutWrapper._
+import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
@@ -19,6 +19,8 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
+import controllers.common.CookieEncryption
+import controllers.sa.SaController
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 

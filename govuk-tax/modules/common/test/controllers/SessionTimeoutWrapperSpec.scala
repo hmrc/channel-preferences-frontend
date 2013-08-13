@@ -5,6 +5,7 @@ import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.mvc._
 import org.joda.time.{ DateTimeZone, DateTime }
 import play.api.test.Helpers._
+import controllers.common._
 import SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 

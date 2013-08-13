@@ -1,2 +1,2 @@
 
-GET     /home              @controllers.BusinessTaxController.home
+GET     /home              @controllers.bt.BusinessTaxController.home

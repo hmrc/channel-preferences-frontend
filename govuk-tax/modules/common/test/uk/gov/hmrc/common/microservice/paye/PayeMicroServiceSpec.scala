@@ -8,7 +8,7 @@ import uk.gov.hmrc.microservice.paye.domain.{ TransactionId, RemoveCarBenefit, C
 import org.joda.time.LocalDate
 import play.api.test.{ FakeApplication, WithApplication }
 import org.mockito.ArgumentCaptor
-import controllers.domain.Transform
+import controllers.common.domain.Transform
 import uk.gov.hmrc.common.BaseSpec
 
 class PayeMicroServiceSpec extends BaseSpec {

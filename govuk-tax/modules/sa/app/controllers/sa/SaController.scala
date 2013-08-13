@@ -1,4 +1,4 @@
-package controllers
+package controllers.sa
 
 import uk.gov.hmrc.microservice.sa.domain.{ SaRegime, SaPerson, SaRoot }
 import views.html.sa.sa_personal_details

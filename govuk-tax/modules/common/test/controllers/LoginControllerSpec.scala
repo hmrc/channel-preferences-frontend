@@ -16,8 +16,7 @@ import scala.Some
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
 import play.api.test.FakeApplication
 import play.api.libs.ws.Response
-import play.mvc.Result
-import ShouldMatchers._
+import controllers.common._
 import play.api.mvc.Cookie
 import uk.gov.hmrc.common.BaseSpec
 

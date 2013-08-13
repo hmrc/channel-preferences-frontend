@@ -1,4 +1,4 @@
-package controllers
+package controllers.bt
 
 import org.joda.time.DateTime
 import uk.gov.hmrc.microservice.auth.domain._

@@ -8,7 +8,7 @@ import uk.gov.hmrc.common.BaseSpec
 
 class TransformSpec extends BaseSpec {
 
-  import controllers.domain.Transform._
+  import controllers.common.domain.Transform._
 
   implicit def stringToURI(s: String) = URI.create(s)
 

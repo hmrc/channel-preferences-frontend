@@ -1,4 +1,4 @@
-@(agentForm: Form[controllers.SroCheck])
+@(agentForm: Form[controllers.agent.SroCheck])
 
 @import views.helpers.CustomHelpers._
 @import helper._
@@ -18,7 +18,7 @@
         <lI>an office holder</lI>
     </ul>
 
-@helper.form(action = routes.AgentController.submitAgreement) {
+@helper.form(action = agent.routes.AgentController.submitAgreement) {
 
     <p>
         @checkbox(

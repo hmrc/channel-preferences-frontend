@@ -1,4 +1,4 @@
-package controllers
+package controllers.paye
 
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
@@ -7,7 +7,13 @@ import uk.gov.hmrc.microservice.paye.PayeMicroService
 import org.joda.time.LocalDate
 import views.formatting.Dates
 import java.net.URI
-import controllers.SessionTimeoutWrapper._
+import controllers.common.SessionTimeoutWrapper._
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.mock.MockitoSugar
+import org.mockito.Mockito._
+import org.mockito.Matchers
+import uk.gov.hmrc.common.BaseSpec
+import controllers.common.CookieEncryption
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.microservice.paye.CalculationResult
@@ -19,11 +25,6 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.paye.domain.TransactionId
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito._
-import org.mockito.Matchers
-import uk.gov.hmrc.common.BaseSpec
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -154,7 +155,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       requestBenefits("jdensmore") should include("£ 321.42")
     }
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
-      requestBenefits("jdensmore") should include("""href="/paye/benefits/2013/remove/2/1"""")
+      requestBenefits("jdensmore") should include("""href="/benefits/2013/remove/2/1"""")
     }
 
     "display a Car removed if the withdrawn date is set" in new WithApplication(FakeApplication()) {
@@ -279,7 +280,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
       status(result) shouldBe 303
 
-      headers(result).get("Location") mustBe Some("/paye/benefits/2013/remove/2/3/someId")
+      headers(result).get("Location") mustBe Some("/benefits/2013/remove/2/3/someId")
 
     }
   }

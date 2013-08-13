@@ -2,6 +2,7 @@ package controllers
 
 import play.api.test.{ FakeApplication, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
+import controllers.common._
 
 class CookieEncryptionSpec extends BaseSpec with CookieEncryption {
 

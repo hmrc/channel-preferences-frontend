@@ -1,4 +1,4 @@
-package controllers
+package controllers.paye
 
 import uk.gov.hmrc.microservice.paye.domain.{ Car, Benefit, Employment }
 import org.joda.time.LocalDate

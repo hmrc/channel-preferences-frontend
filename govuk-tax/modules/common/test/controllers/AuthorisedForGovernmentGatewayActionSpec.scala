@@ -16,6 +16,7 @@ import uk.gov.hmrc.microservice.sa.domain.{ SaRoot, SaRegime }
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import controllers.common._
 
 class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 

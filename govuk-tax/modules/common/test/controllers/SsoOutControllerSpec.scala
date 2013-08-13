@@ -2,33 +2,13 @@ package controllers
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{ FakeRequest, WithApplication, FakeApplication }
-import uk.gov.hmrc.microservice.UnauthorizedException
-import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, ValidateTokenRequest, GovernmentGatewayMicroService }
-import org.mockito.Mockito._
-import play.api.mvc.{ SimpleResult, Result }
-import java.net.{ URI, URLEncoder }
-import play.api.libs.ws.Response
-import play.api.libs.json.{ Json, JsString, JsObject, JsValue }
+import play.api.test.{ FakeRequest, WithApplication }
+import play.api.mvc.Result
+import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayResponse
-import uk.gov.hmrc.microservice.UnauthorizedException
-import play.api.libs.ws.Response
+import controllers.common._
+import SessionTimeoutWrapper._
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.governmentgateway.ValidateTokenRequest
-import play.api.mvc.SimpleResult
-import uk.gov.hmrc.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority, Vrn, Utr }
-import org.joda.time.DateTime
-import controllers.SessionTimeoutWrapper._
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.microservice.auth.domain.Regimes
-import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.auth.domain.Utr
-import scala.Some
-import uk.gov.hmrc.microservice.auth.domain.Vrn
-import uk.gov.hmrc.microservice.sa.SaMicroService
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import config.PortalConfig
 import uk.gov.hmrc.common.BaseSpec
 

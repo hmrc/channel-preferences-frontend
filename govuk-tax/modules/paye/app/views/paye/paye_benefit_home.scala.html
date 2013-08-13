@@ -1,4 +1,4 @@
-@(benefits: Seq[controllers.DisplayBenefit])
+@(benefits: Seq[controllers.paye.DisplayBenefit])
 
 @import views.formatting.Dates._
 @import config.RefData._
@@ -41,7 +41,7 @@
                 @displayBenefit.car.map { car => @if(car.dateCarWithdrawn.isEmpty) {
                         <ul>
                             <li>Change</li>
-			    <li><a class="cta cta--remove-benefit" href="@routes.PayeController.removeCarBenefitToStep1(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
+			    <li><a class="cta cta--remove-benefit" href="@controllers.paye.routes.PayeController.removeCarBenefitToStep1(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
                         </ul>
                     } else {
 			Car removed on <time datetime="">@formatDate(car.dateCarWithdrawn.get)</time>

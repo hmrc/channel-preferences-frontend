@@ -1,4 +1,4 @@
-package controllers
+package controllers.agent
 
 import play.api.data._
 import play.api.data.Forms._

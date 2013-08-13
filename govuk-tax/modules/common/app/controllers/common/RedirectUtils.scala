@@ -4,10 +4,10 @@ import play.Logger
 
 object RedirectUtils extends BaseController {
 
-  val payeHome = "/paye"
-  val saHome = "/sa"
-  val businessTaxHome = "/business-tax"
-  val agentHome = "/agent"
+  val payeHome = "/paye/home"
+  val saHome = "/sa/home"
+  val businessTaxHome = "/business-tax/home"
+  val agentHome = "/agent/home"
   val agentRegistration = "/agent/reason-for-application"
 
   def toPaye = {

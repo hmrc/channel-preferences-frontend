@@ -1,7 +1,8 @@
-package controllers
+package controllers.agent
 
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
+import controllers.agent.AgentController
 
 class AgentControllerSpec extends BaseSpec {
 

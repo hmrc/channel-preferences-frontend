@@ -14,9 +14,9 @@ import uk.gov.hmrc.microservice.paye.domain.{ PayeRegime, PayeRoot }
 import java.net.URI
 import org.slf4j.MDC
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import controllers.common._
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
