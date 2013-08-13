@@ -1,5 +1,6 @@
 package controllers.common.service
 
+import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.microservice.auth.AuthMicroService
 import uk.gov.hmrc.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.saml.SamlMicroService
@@ -13,4 +14,5 @@ trait MicroServices {
   implicit val samlMicroService = new SamlMicroService()
   implicit val saMicroService = new SaMicroService()
   implicit val governmentGatewayMicroService = new GovernmentGatewayMicroService()
+  implicit val txQueueMicroService = new TxQueueMicroService()
 }

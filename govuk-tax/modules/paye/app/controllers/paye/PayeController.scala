@@ -2,6 +2,8 @@ package controllers.paye
 
 import uk.gov.hmrc.microservice.paye.domain.{ Car, Benefit, Employment }
 import org.joda.time.LocalDate
+import uk.gov.hmrc.microservice.paye.domain.{ RecentTransaction, Car, Benefit, Employment }
+import org.joda.time.{ DateTimeZone, DateTime, DateTimeUtils, LocalDate }
 import play.api.data._
 import play.api.data.Forms._
 import views.html.paye._
@@ -9,6 +11,9 @@ import views.formatting.Dates
 import scala._
 import scala.Some
 import controllers.common._
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import java.net.URI
+import scala.collection.mutable.ListBuffer
 
 class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -21,12 +26,28 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
           // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
           val payeData = user.regimes.paye.get
+          val transactions = payeData.transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
+          val employments = payeData.employments
+
+          val recentTxs = for {
+            t <- transactions
+            messageCodeTags = t.tags.get.filter(_.startsWith("message.code."))
+            if messageCodeTags.nonEmpty
+            messageCodeTag = messageCodeTags(0)
+            messageCode = messageCodeTag.replace("message.code.", "")
+            employerNameTags = t.tags.get.filter(_.startsWith("employer.name."))
+            if employerNameTags.nonEmpty
+            employerNameTag = employerNameTags(0)
+            employerName = employerNameTag.replace("employer.name.", "")
+            date = t.createdAt.toLocalDate
+          } yield new RecentTransaction(messageCode, date, employerName)
 
           Ok(paye_home(
             name = payeData.name,
-            employments = payeData.employments,
+            employments = employments,
             taxCodes = payeData.taxCodes,
-            hasBenefits = !payeData.benefits.isEmpty)
+            hasBenefits = !payeData.benefits.isEmpty,
+            recentTransactions = recentTxs)
           )
     }
   }
@@ -106,6 +127,10 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     val now = new LocalDate
     val year = now.year.get
     if (now.isBefore(new LocalDate(year, 4, 6))) year - 1 else year
+  }
+
+  def currentDate: DateTime = {
+    new DateTime(DateTimeZone.UTC)
   }
 }
 
