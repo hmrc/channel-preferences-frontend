@@ -1,0 +1,43 @@
+@(agentForm: Form[controllers.agent.SroCheck])
+
+@import views.helpers.CustomHelpers._
+@import helper._
+
+@main(title = "Your tax home") {
+
+
+
+
+<h2>Senior Responsible Officer</h2>
+
+    <p>A senior responsible officer is either:</p>
+    <ul>
+        <li>the proprietor</li>
+        <li>a partner</li>
+        <li>a director, company secretary or</li>
+        <lI>an office holder</lI>
+    </ul>
+
+@helper.form(action = agent.routes.AgentController.submitAgreement) {
+
+    <p>
+        @checkbox(
+        agentForm("sroAgreement"),
+        '_id -> "sroAgreement",
+        '_label -> "Yes, I am the Senior Responsible Officer",
+        '_showConstraints -> false
+        )
+    </p>
+
+    <p>
+        @checkbox(
+        agentForm("tncAgreement"),
+        '_id -> "tncAgreement",
+        '_label -> "I accept the Terms & Conditions",
+        '_showConstraints -> false
+        )
+    </p>
+
+<p><input type="submit" value="Apply for UAR"/></p>
+}
+}

@@ -1,0 +1,82 @@
+@(businessUser: controllers.bt.BusinessUser)
+
+@import views.formatting.Dates._
+@import config.PortalConfig
+@main(title = "Your tax home") {
+
+
+
+@if(businessUser.name != ""){
+<h2>Welcome @businessUser.name</h2>
+}
+<p>@if(!businessUser.previouslyLoggedInAt.isEmpty) {
+    Last logged in on @formatEasyReadingTimestamp(businessUser.previouslyLoggedInAt, "")
+    } else {
+    First ever login
+    }</p>
+
+@if(businessUser.utr.isDefined) {
+<p class="utr">UTR: @businessUser.utr.get</p>
+} <q></q>
+
+@if(businessUser.vrn.isDefined) {
+<p class="vrn">VRN: @businessUser.vrn.get</p>
+}
+
+@if(businessUser.regimeRoots.hasBusinessTaxRegime) {
+<p>Services you have enrolled for and activated via the Government Gateway:</p>
+<ul style="list-style-type:none;">
+    @if(businessUser.regimeRoots.sa.isDefined){
+    <li><a class="cta cta--view-sa-details" href="/sa/details">Self-assessment (SA)</a></li>
+    }
+    @if(businessUser.regimeRoots.vat.isDefined){
+    <li><a class="cta cta--view-vat-details" href="#">Value Added Tax (VAT)</a></li>
+    }
+
+</ul>
+} else {
+<p>You are not currently actively enrolled for any online services</p>
+}
+
+<ul style="list-style-type:none;">
+    <li><a id="portalLink" href="@PortalConfig.destinationRoot/home">Take me to the portal....</a></li>
+</ul>
+}
+
+<script language="javascript">
+
+    var link = document.getElementById("portalLink");
+    var successful = true
+
+    link.onclick = function()
+    {
+
+        $.ajax({
+            url: '/ssoout',
+            type: 'GET',
+            success: function(data) {
+
+                var form = document.createElement('form');
+                form.method = 'post';
+                form.action = '@PortalConfig.ssoUrl';
+
+                var payload = document.createElement('input');
+                payload.type = 'hidden';
+                payload.name = 'payload';
+                payload.value = data;
+
+                document.body.appendChild(form);
+                form.appendChild(payload);
+
+                // POST form
+                form.submit();
+            },
+            error: function() {successful = false}
+        });
+
+
+        // cancel link click event if everything is successful
+        return !successful;
+    }
+
+</script>

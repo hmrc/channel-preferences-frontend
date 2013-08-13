@@ -1,0 +1,58 @@
+@(benefits: Seq[controllers.paye.DisplayBenefit])
+
+@import views.formatting.Dates._
+@import config.RefData._
+
+@main(title = "Your tax home") {
+
+    <h2>Current benefits-in-kind</h2>
+
+    <table class="table table--benefits">
+
+	<thead>
+            <th align="left" width="30%">Employer</th>
+            <th align="left" width="15%">Benefit Type</th>
+            <th align="left" width="40%">Description</th>
+            <th align="left" width="15%">Cash equivalent/Taxable amount</th>
+            <th>Actions</th>
+	</thead>
+
+        @for(displayBenefit <- benefits) {
+
+	    <!--
+		TODO: add lowercase hyphenated benefit type as id
+	    -->
+	<tr id="" class="@iabdTypeFor(displayBenefit.benefit.benefitType)">
+		<td class="employment-reference">@displayBenefit.employment.employerName</td>
+		<td class="benefit-type">@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
+
+                @displayBenefit.car.map { car =>
+		    <td id="benefit-description">
+                            Engine size: @engineSizeFor(car.engineSize)<br>
+                            Fuel type: @fuelTypeFor(car.fuelType)<br>
+                            Date car registered: @formatDate(car.dateCarRegistered.get)<br>
+                    </td>
+                }.getOrElse {
+                    <td>@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
+                }
+		<td class="benefit-amount" align="right" >£ @displayBenefit.benefit.grossAmountToString()</td>
+
+                <td>
+                @displayBenefit.car.map { car => @if(car.dateCarWithdrawn.isEmpty) {
+                        <ul>
+                            <li>Change</li>
+			    <li><a class="cta cta--remove-benefit" href="@controllers.paye.routes.PayeController.removeCarBenefitToStep1(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
+                        </ul>
+                    } else {
+			Car removed on <time datetime="">@formatDate(car.dateCarWithdrawn.get)</time>
+                    }
+                }.getOrElse {
+                    More Information
+                }
+                </td>
+            </tr>
+            }
+
+    </table>
+}
+

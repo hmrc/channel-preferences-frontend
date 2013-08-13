@@ -23,11 +23,35 @@ object GovUkTaxBuild extends Build {
     Dependencies.Test.mockito
   )
 
+  val allPhases = "test->test;test->compile;compile->compile"
+
+  val common = play.Project(
+    appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
+    settings = Common.commonSettings ++ SassPlugin.sassSettings
+  )
+
+  val paye = play.Project(
+    appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye")
+  ).dependsOn(common % allPhases)
+
+  val agent = play.Project(
+    appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent")
+  ).dependsOn(common % allPhases)
+
+  val sa = play.Project(
+    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa")
+  ).dependsOn(common % allPhases)
+
+  val bt = play.Project(
+    appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax")
+  ).dependsOn(common % allPhases)
+
+
   lazy val govukTax = play.Project(
     appName,
     Version.thisApp, appDependencies,
     settings = Common.commonSettings ++ SassPlugin.sassSettings
-  ).settings(publishArtifact := true)
+  ).settings(publishArtifact := true).dependsOn(paye, agent, sa, bt).aggregate(paye, agent, sa, bt)
 
 }
 
