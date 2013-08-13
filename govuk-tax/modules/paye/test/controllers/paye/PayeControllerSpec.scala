@@ -3,8 +3,14 @@ package controllers.paye
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.paye.PayeMicroService
-import org.joda.time.LocalDate
+import uk.gov.hmrc.microservice.paye.{ CalculationResult, PayeMicroService }
+import org.joda.time.{DateTimeZone, DateTime, LocalDate}
+import org.joda.time.format.DateTimeFormat
+
+import uk.gov.hmrc.microservice.paye.domain._
+import uk.gov.hmrc.microservice.auth.domain._
+import play.api.test.FakeApplication
+
 import views.formatting.Dates
 import java.net.URI
 import controllers.common.SessionTimeoutWrapper._
@@ -14,17 +20,8 @@ import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.microservice.paye.CalculationResult
-import scala.Some
-import uk.gov.hmrc.microservice.paye.domain.Employment
-import uk.gov.hmrc.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.paye.domain.Car
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.paye.domain.Benefit
-import uk.gov.hmrc.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.microservice.paye.domain.TransactionId
+import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -32,6 +29,10 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   private val mockAuthMicroService = mock[AuthMicroService]
   private val mockPayeMicroService = mock[PayeMicroService]
+  private val mockTxQueueMicroService = mock[TxQueueMicroService]
+
+  private val currentTestDate = new DateTime(DateTimeZone.UTC).dayOfMonth().setCopy(13).monthOfYear().setCopy(8).withYear(2013)
+  val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 
   private def setupUser(id: String, nino: String, name: String) {
     when(mockAuthMicroService.authority(id)).thenReturn(
@@ -46,7 +47,9 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
           "taxCode" -> s"/paye/$nino/tax-codes/2013",
           "employments" -> s"/paye/$nino/employments/2013",
           "benefits" -> s"/paye/$nino/benefits/2013"),
-          transactionLinks = Map.empty
+        transactionLinks =  Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
+          "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
+          "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}")
       )
     )
   }
@@ -89,9 +92,17 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
+  def transactionWithTags(tags:List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(microservice.txqueue.Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(5))
+
+  val testTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits", "employer.name.Weyland-Yutani Corp"))
+
+  when(mockTxQueueMicroService.transaction("/txqueue/current-status/paye/AB123456C/ACCEPTED/after/" + dateFormat.print(currentTestDate.minusMonths(1)))).thenReturn(Some(List(testTransaction)))
+
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
+    override val txQueueMicroService  = mockTxQueueMicroService
+    override def currentDate = currentTestDate
   }
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
@@ -119,6 +130,11 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       content should include("Weyland-Yutani Corp")
       content should include("July 2, 2013 to October 8, 2013")
       content should include("October 14, 2013 to present")
+    }
+
+    "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
+      val content = requestHome
+      content should include("On August 13, 2013, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {

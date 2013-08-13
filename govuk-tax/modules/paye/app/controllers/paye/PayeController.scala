@@ -32,15 +32,15 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
           // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
           val payeData = user.regimes.paye.get
-          val transactions = payeData.transactionsWithStatusFromDate("accepted", new DateTime(DateTimeZone.UTC).minusMonths(1))
+          val transactions = payeData.transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
           val employments = payeData.employments
-          // TODO: fix so employer is held on transaction
-          val employerName = employments.find(_.endDate.isEmpty).get.employerName
 
           val recentTxs = for {
             t <- transactions
-            tag = t.tags.get.filter(_.startsWith("message.code."))(0)
-            messageCode = tag.replace("message.code.", "")
+            messageCodeTag = t.tags.get.filter(_.startsWith("message.code."))(0)
+            messageCode = messageCodeTag.replace("message.code.", "")
+            employerNameTag = t.tags.get.filter(_.startsWith("employer.name."))(0)
+            employerName = employerNameTag.replace("employer.name.", "")
             date = t.createdAt.toLocalDate
           } yield new RecentTransaction(messageCode, date, employerName)
 
@@ -129,6 +129,10 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     val now = new LocalDate
     val year = now.year.get
     if (now.isBefore(new LocalDate(year, 4, 6))) year - 1 else year
+  }
+
+  def currentDate: DateTime = {
+    new DateTime(DateTimeZone.UTC)
   }
 }
 

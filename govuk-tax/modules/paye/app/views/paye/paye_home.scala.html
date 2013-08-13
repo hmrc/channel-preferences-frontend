@@ -12,7 +12,11 @@
 
     <h2>Recent Changes</h2>
 
-
+    <ul>
+    @for(tx <- recentTransactions) {
+        <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), tx.employer)</li>
+    }
+    </ul>
 
     <h2>Employments in current tax year</h2>
 
