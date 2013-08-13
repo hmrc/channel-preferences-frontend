@@ -90,7 +90,8 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         if (validationResult.valid) {
           authMicroService.authority(s"/auth/pid/${validationResult.hashPid.get}") match {
             case Some(authority) => {
-              Redirect(routes.HomeController.home()).withSession(("userId", encrypt(authority.id)))
+              val target = if (session.data.contains("register agent")) RedirectUtils.toAgent else RedirectUtils.toPaye
+              target.withSession(("userId", encrypt(authority.id)))
             }
             case _ => {
               Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")

@@ -3,7 +3,6 @@
 
 GET     /assets/*file                   controllers.common.Assets.at(path="/public", file)
 
-GET     /                               @controllers.common.HomeController.landing
 GET     /login                          @controllers.common.LoginController.login
 GET     /logout                         @controllers.common.LoginController.logout
 
@@ -22,3 +21,4 @@ GET     /ssoout                         @controllers.common.SsoOutController.enc
 
 
 GET     /home                           @controllers.common.HomeController.home
+GET     /                               @controllers.common.HomeController.landing

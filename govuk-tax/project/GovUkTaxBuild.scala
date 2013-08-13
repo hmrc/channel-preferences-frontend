@@ -51,7 +51,7 @@ object GovUkTaxBuild extends Build {
     appName,
     Version.thisApp, appDependencies,
     settings = Common.commonSettings ++ SassPlugin.sassSettings
-  ).settings(publishArtifact := true).dependsOn(paye, agent, sa, bt).aggregate(paye, agent, sa, bt)
+  ).settings(publishArtifact := true).dependsOn(paye, agent, sa, bt).aggregate(common, paye, agent, sa, bt)
 
 }
 

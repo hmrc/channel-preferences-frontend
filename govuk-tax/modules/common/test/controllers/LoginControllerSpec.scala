@@ -86,13 +86,13 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
       status(result) should be(303)
-      redirectLocation(result).get should be("/home")
+      redirectLocation(result).get should be("/paye/home")
 
       val sess = session(result)
       decrypt(sess("userId")) should be(id)
     }
 
-    "redirect to the agent contact details if it's registering an agent" in new WithApplication(FakeApplication()) {
+    "redirect to the agent contact details if it s registering an agent" in new WithApplication(FakeApplication()) {
 
       when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
 
@@ -101,7 +101,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("register agent" -> "true"))
 
       status(result) should be(303)
-      redirectLocation(result).get should be("/agent/contact-details")
+      redirectLocation(result).get should be("/agent/home")
 
     }
 
@@ -156,20 +156,16 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "see the login form asking for his Government Gateway user id and password" in new WithApplication(FakeApplication()) {
 
-      val response = route(FakeRequest(GET, "/business-tax/login"))
+      val result = loginController.businessTaxLogin(FakeRequest())
 
-      response match {
-        case Some(result) =>
-          status(result) shouldBe OK
-          contentType(result).get shouldBe "text/html"
-          charset(result).get shouldBe "utf-8"
-          contentAsString(result) should include("form")
-          contentAsString(result) should include("Government Gateway User ID")
-          contentAsString(result) should include("Government Gateway Password")
-          contentAsString(result) should include("Log in")
-          contentAsString(result) should not include ("Invalid")
-        case _ => fail("no response from /business-tax/login")
-      }
+      status(result) shouldBe OK
+      contentType(result).get shouldBe "text/html"
+      charset(result).get shouldBe "utf-8"
+      contentAsString(result) should include("form")
+      contentAsString(result) should include("Government Gateway User ID")
+      contentAsString(result) should include("Government Gateway Password")
+      contentAsString(result) should include("Log in")
+      contentAsString(result) should not include "Invalid"
     }
 
     "not be able to log in and should return to the login form with an error message if he submits an empty Government Gateway user id" in new WithApplication(FakeApplication()) {
@@ -238,19 +234,11 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       status(result) shouldBe Status.SEE_OTHER
 
-      redirectLocation(result).get shouldBe routes.HomeController.home().toString()
+      redirectLocation(result).get shouldBe routes.HomeController.landing().toString()
 
       val playSessionCookie = cookies(result).get("PLAY_SESSION")
 
-      playSessionCookie should not equal None
-
-      val c: Cookie = playSessionCookie.get
-
-      c.maxAge should not be None
-      c.maxAge.get should be <= 0
-      c.value shouldBe ""
-
-      session(result).isEmpty should be(true)
+      playSessionCookie shouldBe None
     }
 
     "just redirect you to the homepage if you do not have a session cookie" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
@@ -258,19 +246,11 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.logout(FakeRequest())
 
       status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result).get shouldBe routes.HomeController.home().toString()
+      redirectLocation(result).get shouldBe routes.HomeController.landing().toString()
 
       val playSessionCookie = cookies(result).get("PLAY_SESSION")
 
-      playSessionCookie should not equal None
-
-      val c: Cookie = playSessionCookie.get
-
-      c.maxAge should not be None
-      c.maxAge.get should be <= 0
-      c.value shouldBe ""
-
-      session(result).isEmpty should be(true)
+      playSessionCookie shouldBe None
     }
   }
 }

@@ -1,2 +1,2 @@
 
-GET     /details                     @controllers.sa.SaController.details
+GET     /home                     @controllers.sa.SaController.details
