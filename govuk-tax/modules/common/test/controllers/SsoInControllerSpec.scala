@@ -1,21 +1,29 @@
 package controllers
 
+import common.service.SsoWhiteListService
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{ FakeRequest, WithApplication, FakeApplication }
-import uk.gov.hmrc.microservice.{ MockMicroServicesForTests, UnauthorizedException }
-import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, ValidateTokenRequest, GovernmentGatewayMicroService }
+import play.api.test.{ FakeRequest, WithApplication }
+import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import org.mockito.Mockito._
-import play.api.mvc.{ SimpleResult, Result }
-import java.net.URLEncoder
-import play.api.libs.ws.Response
+import play.api.mvc.Result
+import java.net.{ URI, URLEncoder }
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
+import play.api.test.Helpers._
+import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayResponse
+import uk.gov.hmrc.microservice.UnauthorizedException
+import play.api.libs.ws.Response
+import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.governmentgateway.ValidateTokenRequest
+import play.api.mvc.SimpleResult
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
   private val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
-  private val redirectUrl = "www.redirect-url.co.uk"
+  private val mockSsoWhiteListService = mock[SsoWhiteListService]
+  private val redirectUrl = "http://www.redirect-url.co.uk"
 
   private object bob {
     val name = "Bob Jones"
@@ -35,11 +43,13 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
   private def controller = new SsoInController with MockMicroServicesForTests {
     override val governmentGatewayMicroService = mockGovernmentGatewayService
+    override private[controllers] val ssoWhiteListService = mockSsoWhiteListService
   }
 
   "The Single Sign-on input page" should {
     "create a new session when the token is valid, the time not expired and no session exists" in new WithApplication(FakeApplication()) {
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.loginTimestamp))).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.encodedToken))
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "${redirectUrl}"}""")
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com").withFormUrlEncodedBody("payload" -> encryptedPayload))
@@ -59,6 +69,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "replace the session details if a session already exists and the login is correct" in new WithApplication(FakeApplication()) {
 
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(bob.encodedToken, bob.loginTimestamp))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.encodedToken))
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${bob.encodedToken}", "time": ${bob.loginTimestamp}, "dest": "${redirectUrl}"}""")
 
@@ -81,7 +92,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "invalidate the session if a session already exists but the login is incorrect" in new WithApplication(FakeApplication()) {
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.invalidEncodedToken, john.loginTimestamp))).thenThrow(new IllegalStateException("error"))
-
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "${redirectUrl}"}""")
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
@@ -103,6 +114,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "invalidate the session if a session already exists but the login throws an Unauthorised Exception" in new WithApplication(FakeApplication()) {
       val mockResponse = mock[Response]
       when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "${redirectUrl}"}""")
 
@@ -120,6 +132,41 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
         }
         case _ => fail("the response from the SsoIn controller was not of the expected format")
       }
+    }
+
+    "return 400 if the provided dest field is not a valid URL" in new WithApplication(FakeApplication()) {
+      val invalidUrl = "invalid_url"
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "${invalidUrl}"}""")
+
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
+        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+
+      status(result) shouldBe 400
+
+    }
+
+    "return 400 if the dest field is not allowed by the white list" in new WithApplication(FakeApplication()) {
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(false)
+
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "${redirectUrl}"}""")
+
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
+        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+
+      status(result) shouldBe 400
+    }
+
+    "return 400 if the dest field is missing" in new WithApplication(FakeApplication()) {
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}}""")
+
+      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
+        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+
+      status(result) shouldBe 400
+
     }
 
   }
