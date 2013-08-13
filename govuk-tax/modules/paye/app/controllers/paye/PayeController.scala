@@ -14,6 +14,7 @@ import controllers.common._
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import java.net.URI
 import scala.collection.mutable.ListBuffer
+import play.api.Logger
 
 class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -28,6 +29,8 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
           val payeData = user.regimes.paye.get
           val transactions = payeData.transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
           val employments = payeData.employments
+
+          Logger.debug("Found transactions: " + transactions)
 
           val recentTxs = for {
             t <- transactions

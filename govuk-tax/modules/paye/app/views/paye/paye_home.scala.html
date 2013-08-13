@@ -38,6 +38,10 @@
 	<div class="tax-code">@tc.taxCode</div>
     }
 
+    @{if (recentTransactions.nonEmpty)
+        <div>(a new tax code is being calculated and this may change soon)</div>
+    }
+
     @if(hasBenefits) {
 	<a class="cta cta--view-benefits" href="@controllers.paye.routes.PayeController.listBenefits">Click here to see your benefits</a>
     }
