@@ -99,13 +99,14 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
-  def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(5))
+  def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(1))
 
   val testTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits", "employer.name.Weyland-Yutani Corp"))
   val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
   val testTransaction2 = transactionWithTags(List("paye", "test"))
 
   when(mockTxQueueMicroService.transaction("/txqueue/current-status/paye/AB123456C/ACCEPTED/after/" + dateFormat.print(currentTestDate.minusMonths(1)))).thenReturn(Some(List(testTransaction, testTransaction1, testTransaction2)))
+  when(mockTxQueueMicroService.transaction("/txqueue/current-status/paye/AB123456C/COMPLETED/after/" + dateFormat.print(currentTestDate.minusMonths(1)))).thenReturn(Some(List(testTransaction, testTransaction1, testTransaction2)))
 
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
@@ -143,7 +144,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
-      content should include("On August 13, 2013, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is (taxCode). Weyland-Yutani Corp have been notified.")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {

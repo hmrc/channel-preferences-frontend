@@ -2,7 +2,8 @@
         employments: Seq[uk.gov.hmrc.microservice.paye.domain.Employment],
         taxCodes: Seq[uk.gov.hmrc.microservice.paye.domain.TaxCode],
         hasBenefits: Boolean,
-        recentTransactions:Seq[uk.gov.hmrc.microservice.paye.domain.RecentTransaction])
+        recentAcceptedTransactions:Seq[uk.gov.hmrc.microservice.paye.domain.RecentTransaction],
+        recentCompletedTransactions:Seq[uk.gov.hmrc.microservice.paye.domain.RecentTransaction])
 
 @import views.formatting.Dates._
 
@@ -13,8 +14,8 @@
     <h2>Recent Changes</h2>
 
     <ul>
-    @for(tx <- recentTransactions) {
-        <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), tx.employer)</li>
+    @for(tx <- recentAcceptedTransactions ++ recentCompletedTransactions) {
+        <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), tx.employer, "(taxCode)")</li>
     }
     </ul>
 
@@ -38,8 +39,11 @@
 	<div class="tax-code">@tc.taxCode</div>
     }
 
-    @{if (recentTransactions.nonEmpty)
+    @if(recentAcceptedTransactions.nonEmpty) {
         <div>(a new tax code is being calculated and this may change soon)</div>
+    } else { @if(recentCompletedTransactions.nonEmpty) {
+        <div>This changed on @formatDate(recentCompletedTransactions(0).txTime)</div>
+        }
     }
 
     @if(hasBenefits) {

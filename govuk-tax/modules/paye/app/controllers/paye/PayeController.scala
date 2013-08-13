@@ -27,33 +27,34 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
           // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
           val payeData = user.regimes.paye.get
-          val transactions = payeData.transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
-          val employments = payeData.employments
-
-          Logger.debug("Found transactions: " + transactions)
-
-          val recentTxs = for {
-            t <- transactions
-            messageCodeTags = t.tags.get.filter(_.startsWith("message.code."))
-            if messageCodeTags.nonEmpty
-            messageCodeTag = messageCodeTags(0)
-            messageCode = messageCodeTag.replace("message.code.", "")
-            employerNameTags = t.tags.get.filter(_.startsWith("employer.name."))
-            if employerNameTags.nonEmpty
-            employerNameTag = employerNameTags(0)
-            employerName = employerNameTag.replace("employer.name.", "")
-            date = t.createdAt.toLocalDate
-          } yield new RecentTransaction(messageCode, date, employerName)
+          val acceptedTransactions = payeData.transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
+          val recentAcceptedTxMessages = messagesForTransacions(acceptedTransactions, "accepted")
+          val completedTransactions = payeData.transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
+          val recentCompletedTxMessages = messagesForTransacions(completedTransactions, "completed")
 
           Ok(paye_home(
             name = payeData.name,
-            employments = employments,
+            employments = payeData.employments,
             taxCodes = payeData.taxCodes,
             hasBenefits = !payeData.benefits.isEmpty,
-            recentTransactions = recentTxs)
+            recentAcceptedTransactions = recentAcceptedTxMessages,
+            recentCompletedTransactions = recentCompletedTxMessages)
           )
     }
   }
+
+  def messagesForTransacions(transactions: Seq[TxQueueTransaction], messageCodePrefix: String): Seq[RecentTransaction] = for {
+    t <- transactions
+    messageCodeTags = t.tags.get.filter(_.startsWith("message.code."))
+    if messageCodeTags.nonEmpty
+    messageCodeTag = messageCodeTags(0)
+    messageCode = messageCodeTag.replace("message.code", messageCodePrefix)
+    employerNameTags = t.tags.get.filter(_.startsWith("employer.name."))
+    if employerNameTags.nonEmpty
+    employerNameTag = employerNameTags(0)
+    employerName = employerNameTag.replace("employer.name.", "")
+    date = t.statusHistory(0).createdAt.toLocalDate
+  } yield new RecentTransaction(messageCode, date, employerName)
 
   def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>

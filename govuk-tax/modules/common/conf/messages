@@ -7,4 +7,6 @@ error.agent.accept.sroAgreement=Please specify that you are the Senior Responsib
 error.agent.accept.tncAgreement=Please accept the terms and conditions
 
 
-recent.transaction.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
+recent.transaction.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
+
+recent.transaction.completed.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This has been processed and your new Tax Code is {2}. {1} have been notified.
