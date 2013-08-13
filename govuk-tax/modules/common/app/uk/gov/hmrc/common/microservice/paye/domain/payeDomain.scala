@@ -8,7 +8,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.domain.{ TaxRegime, RegimeRoot }
 import uk.gov.hmrc.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
+import uk.gov.hmrc.microservice.txqueue.{ TxQueueTransaction, TxQueueMicroService }
 
 object PayeRegime extends TaxRegime {
   override def isAuthorised(regimes: Regimes) = {

@@ -1,26 +1,10 @@
 package controllers.paye
 
 import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
-import uk.gov.hmrc.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.paye.{ CalculationResult, PayeMicroService }
-import org.joda.time.{DateTimeZone, DateTime, LocalDate}
-import org.joda.time.format.DateTimeFormat
 
-import uk.gov.hmrc.microservice.paye.domain._
-import uk.gov.hmrc.microservice.auth.domain._
-import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.paye.{ CalculationResult, PayeMicroService }
-import org.mockito.Mockito._
-import uk.gov.hmrc.microservice.paye.domain._
-import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.paye.domain.Benefit
-import scala.Some
-import uk.gov.hmrc.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.microservice.paye.PayeMicroService
 import org.joda.time.{ DateTimeZone, DateTime, LocalDate }
 import views.formatting.Dates
 import java.net.URI
@@ -31,12 +15,20 @@ import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common.CookieEncryption
+import uk.gov.hmrc.microservice.txqueue._
+import org.joda.time.format.DateTimeFormat
+import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.microservice.paye.CalculationResult
+import scala.Some
+import uk.gov.hmrc.microservice.paye.domain.Employment
+import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.microservice.paye.domain.Car
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.microservice.txqueue.{ TxQueueTransaction, TxQueueMicroService }
-import org.joda.time.format.DateTimeFormat
+import uk.gov.hmrc.microservice.paye.domain.TransactionId
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -107,7 +99,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
-  def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(microservice.txqueue.Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(5))
+  def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(5))
 
   val testTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits", "employer.name.Weyland-Yutani Corp"))
   val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))

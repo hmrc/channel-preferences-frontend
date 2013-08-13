@@ -1,11 +1,8 @@
-package microservice.txqueue
+package uk.gov.hmrc.microservice.txqueue
 
 import java.net.{ URL, URI }
 import org.joda.time.DateTime
 
-/**
- * @author Eric Vlaanderen
- */
 object TxQueueRegime {
 
 }

@@ -1,11 +1,7 @@
-package microservice.txqueue
+package uk.gov.hmrc.microservice.txqueue
 
-import microservice.{ MicroService, MicroServiceConfig }
-import microservice.sa.domain.SaPerson
+import uk.gov.hmrc.microservice.{ MicroServiceConfig, MicroService }
 
-/**
- * @author Eric Vlaanderen
- */
 class TxQueueMicroService extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.txQueueUrl

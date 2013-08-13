@@ -2,7 +2,7 @@ package controllers.sa
 
 import uk.gov.hmrc.microservice.sa.domain.{ SaRegime, SaPerson, SaRoot }
 import views.html.sa.sa_personal_details
-import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
+import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
