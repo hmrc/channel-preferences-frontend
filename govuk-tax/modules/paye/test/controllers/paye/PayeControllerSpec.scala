@@ -10,7 +10,18 @@ import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.microservice.paye.domain._
 import uk.gov.hmrc.microservice.auth.domain._
 import play.api.test.FakeApplication
-
+import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.microservice.auth.AuthMicroService
+import uk.gov.hmrc.microservice.paye.{ CalculationResult, PayeMicroService }
+import org.mockito.Mockito._
+import uk.gov.hmrc.microservice.paye.domain._
+import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.paye.domain.Benefit
+import scala.Some
+import uk.gov.hmrc.microservice.paye.domain.TaxCode
+import org.joda.time.{ DateTimeZone, DateTime, LocalDate }
 import views.formatting.Dates
 import java.net.URI
 import controllers.common.SessionTimeoutWrapper._
@@ -22,6 +33,10 @@ import uk.gov.hmrc.common.BaseSpec
 import controllers.common.CookieEncryption
 import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
+import uk.gov.hmrc.microservice.paye.domain.Benefit
+import uk.gov.hmrc.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.microservice.txqueue.{ TxQueueTransaction, TxQueueMicroService }
+import org.joda.time.format.DateTimeFormat
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -47,7 +62,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
           "taxCode" -> s"/paye/$nino/tax-codes/2013",
           "employments" -> s"/paye/$nino/employments/2013",
           "benefits" -> s"/paye/$nino/benefits/2013"),
-        transactionLinks =  Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
+        transactionLinks = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
           "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
           "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}")
       )
@@ -92,7 +107,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
   )
 
-  def transactionWithTags(tags:List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(microservice.txqueue.Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(5))
+  def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), None, List(microservice.txqueue.Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(5))
 
   val testTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits", "employer.name.Weyland-Yutani Corp"))
   val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
@@ -103,7 +118,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
-    override val txQueueMicroService  = mockTxQueueMicroService
+    override val txQueueMicroService = mockTxQueueMicroService
     override def currentDate = currentTestDate
   }
 
