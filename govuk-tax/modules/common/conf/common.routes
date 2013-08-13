@@ -3,10 +3,9 @@
 
 GET     /assets/*file                   controllers.common.Assets.at(path="/public", file)
 
+GET     /                               @controllers.common.HomeController.landing
 GET     /login                          @controllers.common.LoginController.login
 GET     /logout                         @controllers.common.LoginController.logout
-
-GET     /landing                        @controllers.common.HomeController.landing
 
 
 # routes for testing IDA integration
@@ -18,20 +17,8 @@ GET     /business-tax/login             @controllers.common.LoginController.busi
 POST    /government-gateway/login       @controllers.common.LoginController.governmentGatewayLogin
 
 
-
-
 POST    /ssoin                          @controllers.common.SsoInController.in
-GET     /ssoout                          @controllers.common.SsoOutController.encryptPayload
-
-
-
-
-
-
-
-
-
-
+GET     /ssoout                         @controllers.common.SsoOutController.encryptPayload
 
 
 GET     /home                           @controllers.common.HomeController.home
