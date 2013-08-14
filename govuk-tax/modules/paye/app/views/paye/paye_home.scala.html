@@ -9,7 +9,8 @@
 
     <h2>Welcome, @name</h2>
 
-    <h2>Recent Changes</h2>
+    @if(employmentData.flatMap(e => e.acceptedTransactions ++ e.completedTransactions).size > 0) {
+        <h2>Recent Changes</h2>
 
     <ul>
     @for(employment <- employmentData) {
@@ -18,7 +19,7 @@
         }
     }
     </ul>
-
+    }
     <h2>Employments in current tax year</h2>
 
     @employmentData.map { employment =>

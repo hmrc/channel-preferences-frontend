@@ -54,6 +54,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
             hasBenefits = !benefits.isEmpty,
             numberOfTaxCodes = taxCodes.size)
           )
+
     }
   }
 
