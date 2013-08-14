@@ -1,0 +1,49 @@
+@(name: String,
+        employmentData: Seq[uk.gov.hmrc.microservice.paye.domain.EmploymentData],
+        hasBenefits: Boolean,
+        numberOfTaxCodes: Int)
+
+@import views.formatting.Dates._
+
+@main(title = "Your tax home") {
+
+    <h2>Welcome, @name</h2>
+
+    <h2>Recent Changes</h2>
+
+    <ul>
+    @for(employment <- employmentData) {
+        @for(tx <- employment.acceptedTransactions ++ employment.completedTransactions) {
+            <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), employment.employment.employerName, employment.taxCode.get.taxCode)</li>
+        }
+    }
+    </ul>
+
+    <h2>Employments in current tax year</h2>
+
+    @employmentData.map { employment =>
+	<section class="employment">
+	    <div class="employment-ref">Employers Reference Number: @employment.employment.taxDistrictNumber / @employment.employment.payeNumber</div>
+        <div class="employment-employer-name">@employment.employment.employerName</div>
+	    <div class="employment-term">(@formatDate(employment.employment.startDate) to @formatDate(employment.employment.endDate, "present"))</div>
+	</section>
+    }
+
+    @{numberOfTaxCodes match {
+        case 0 =>
+        case 1 => {<h3>Your Tax Code</h3>}
+        case _ => {<h3>Your Tax Codes</h3>}
+    }}
+
+    @for(employment <- employmentData) {
+        @if(!employment.taxCode.isEmpty) {
+            <div class="tax-code">@employment.taxCode.get.taxCode @if(employment.acceptedTransactions.nonEmpty){(a new tax code is being calculated and this may change soon)} else {@if(employment.completedTransactions.nonEmpty) {(This changed on @formatDate(employment.completedTransactions(0).txTime))}} </div>
+        }
+    }
+
+
+
+    @if(hasBenefits) {
+	<a class="cta cta--view-benefits" href="@controllers.paye.routes.PayeController.listBenefits">Click here to see your benefits</a>
+    }
+}

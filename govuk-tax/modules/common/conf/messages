@@ -1,0 +1,12 @@
+error.date=Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013
+error.paye.benefit.date.greater.7.days=Invalid date: Return date cannot be greater than 7 days from today
+error.paye.benefit.date.next.taxyear=Invalid date: Return date cannot be in next tax years
+error.paye.benefit.date.previous.taxyear=Invalid date: Return date cannot be in previous tax years
+error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
+error.agent.accept.sroAgreement=Please specify that you are the Senior Responsible Officer
+error.agent.accept.tncAgreement=Please accept the terms and conditions
+
+
+recent.transaction.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
+
+recent.transaction.completed.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This has been processed and your new Tax Code is {2}. {1} have been notified.

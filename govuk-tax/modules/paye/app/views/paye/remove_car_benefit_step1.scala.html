@@ -1,0 +1,38 @@
+@(displayBenefit: controllers.paye.DisplayBenefit, updateForm: Form[controllers.paye.RemoveBenefitFormData])
+
+@import views.formatting.Dates._
+@import config.RefData._
+@import org.joda.time.LocalDate
+
+@import views.helpers.CustomHelpers._
+@import helper._
+@main(title = "Your tax home") {
+
+<h2>Remove your company benefit</h2>
+<p>Car provided by <span class="employer-name">@displayBenefit.employment.employerName</span><br/>
+Registered on <span class="date date--registered">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.<br/>
+Value of car benefit: <span class="amount">£ @displayBenefit.benefit.grossAmountToString()</span></p>
+
+<p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
+
+    @helper.form(action = controllers.paye.routes.PayeController.removeCarBenefitToStep2(displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+
+        @defining(updateForm("withdrawDate")) { withdrawDateField =>
+        <div class="@if(withdrawDateField.error.isDefined){error-notification}">
+	    @if(withdrawDateField.error.isDefined){<p class="error">@Messages(withdrawDateField.errors(0).message)</p>}
+	    <label>Date you gave back the car: </label>
+	    <input class="return-date" type="date" name="withdrawDate" placeholder="@shortDate(LocalDate.now)" />
+        </div>
+        }
+	<div>
+            @checkbox(
+            updateForm("agreement"),
+            '_id -> "agreement",
+            '_label -> s"${displayBenefit.employment.employerName} no longer provide me with a company car",
+            '_showConstraints -> false
+            )
+	</div>
+	<input class="button button--next" type="submit" value="Next" />
+    }
+}
+

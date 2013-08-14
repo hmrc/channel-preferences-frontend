@@ -1,0 +1,56 @@
+@(utr: String, personalDetails: uk.gov.hmrc.microservice.sa.domain.SaPerson, nameFromGovernmentGateway: String)
+@main(title = "My Details") {
+
+@if(nameFromGovernmentGateway != ""){
+    <h2>Welcome to Self-assessment (SA), @nameFromGovernmentGateway (UTR: @utr)</h2>
+}
+<h2>My details</h2>
+<div id="sa-details">
+    <h3>Self-assessment (SA)</h3>
+
+
+    <ul class="level-1">
+        <li><p>Name:</p><span>@personalDetails.name</span></li>
+        <li><p>UTR:</p><span>@personalDetails.utr</span></li>
+        <li>Main address: (a @{if(personalDetails.address.foreignCountry) "foreign" else "UK"} address)</li>
+        <ul class="level-2">
+            <li><p>Additional delivery information:</p><span>@personalDetails.address.additionalDeliveryInformation</span></li>
+            <li><p>Address line 1:</p><span>@personalDetails.address.addressLine1</span></li>
+            <li><p>Address line 2:</p><span>@personalDetails.address.addressLine2</span></li>
+            <li><p>Address line 3:</p><span>@personalDetails.address.addressLine3</span></li>
+            <li><p>Address line 4:</p><span>@personalDetails.address.addressLine4</span></li>
+            <li><p>Address line 5:</p><span>@personalDetails.address.addressLine5</span></li>
+            <li><p>Postcode:</p><span>@personalDetails.address.postcode</span></li>
+        </ul>
+
+    </ul>
+
+
+    <dl style="display:none;" class="level-1">
+        <dt>Name:</dt>
+        <dd>@personalDetails.name</dd>
+        <dt>UTR:</dt>
+        <dd>@personalDetails.utr</dd>
+        <dt>Main address: (a @{if(personalDetails.address.foreignCountry) "foreign" else "UK"} address)</dt>
+        <dd>
+            <dl class="level-2">
+                <dt>Additional delivery information:</dt>
+                <dd>@personalDetails.address.additionalDeliveryInformation</dd>
+                <dt>Address line 1:</dt>
+                <dd>@personalDetails.address.addressLine1</dd>
+                <dt>Address line 2:</dt>
+                <dd>@personalDetails.address.addressLine2</dd>
+                <dt>Address line 3:</dt>
+                <dd>@personalDetails.address.addressLine3</dd>
+                <dt>Address line 4:</dt>
+                <dd>@personalDetails.address.addressLine4</dd>
+                <dt>Address line 5:</dt>
+                <dd>@personalDetails.address.addressLine5</dd>
+                <dt>Postcode:</dt>
+                <dd>@personalDetails.address.postcode</dd>
+            </dl>
+        </dd>
+    </dl>
+</div>
+
+}

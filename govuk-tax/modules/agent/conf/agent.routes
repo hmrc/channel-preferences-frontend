@@ -1,0 +1,5 @@
+# Agents
+GET     /home                       @controllers.agent.AgentController.contactDetails
+GET     /reason-for-application     @controllers.agent.AgentController.reasonForApplication
+GET     /sro-check                  @controllers.agent.AgentController.sroCheck
+POST    /sro-check                  @controllers.agent.AgentController.submitAgreement

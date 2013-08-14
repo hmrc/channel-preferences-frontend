@@ -1,0 +1,24 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+
+GET     /assets/*file                   controllers.common.Assets.at(path="/public", file)
+
+GET     /login                          @controllers.common.LoginController.login
+GET     /logout                         @controllers.common.LoginController.logout
+
+
+# routes for testing IDA integration
+GET     /samllogin                      @controllers.common.LoginController.samlLogin
+GET     /test/jdensmore                 @controllers.common.LoginController.enterAsJohnDensmore
+GET     /test/gfisher                   @controllers.common.LoginController.enterAsGeoffFisher
+POST    /ida/login                      @controllers.common.LoginController.idaLogin
+GET     /business-tax/login             @controllers.common.LoginController.businessTaxLogin
+POST    /government-gateway/login       @controllers.common.LoginController.governmentGatewayLogin
+
+
+POST    /ssoin                          @controllers.common.SsoInController.in
+GET     /ssoout                         @controllers.common.SsoOutController.encryptPayload
+
+
+GET     /home                           @controllers.common.HomeController.home
+GET     /                               @controllers.common.HomeController.landing

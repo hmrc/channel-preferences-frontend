@@ -1,0 +1,17 @@
+@(withdrawDate: String, oid: String)
+@main(title = "Your tax home") {
+
+  <h2>Company car and fuel benefit removed</h2>
+  <p>Thank you for telling us about the change to your company benefits.</p>
+
+  <p>Your benefits have been removed from your employment from <span id="withdraw-date">@withdrawDate</span>.</p>
+
+  <p>We need to calculate a new tax code for you. We will notify you by email when this has happened. This should take less than 1 week.</p>
+
+  <p class="transaction-id">Transaction ID: @{oid.toUpperCase}</p>
+
+  <p><a class="cta cta--benefits" href="@controllers.paye.routes.PayeController.listBenefits">Back to your benefits</a></p>
+  <p><a class="cta cta--home" href="@controllers.paye.routes.PayeController.home">Back to your tax overview</a></p>
+
+}
+
