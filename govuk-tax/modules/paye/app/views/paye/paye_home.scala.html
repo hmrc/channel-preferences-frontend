@@ -1,9 +1,7 @@
 @(name: String,
-        employments: Seq[uk.gov.hmrc.microservice.paye.domain.Employment],
-        taxCodes: Seq[uk.gov.hmrc.microservice.paye.domain.TaxCode],
+        employmentData: Seq[uk.gov.hmrc.microservice.paye.domain.EmploymentData],
         hasBenefits: Boolean,
-        recentAcceptedTransactions:Seq[uk.gov.hmrc.microservice.paye.domain.RecentTransaction],
-        recentCompletedTransactions:Seq[uk.gov.hmrc.microservice.paye.domain.RecentTransaction])
+        numberOfTaxCodes: Int)
 
 @import views.formatting.Dates._
 
@@ -14,37 +12,36 @@
     <h2>Recent Changes</h2>
 
     <ul>
-    @for(tx <- recentAcceptedTransactions ++ recentCompletedTransactions) {
-        <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), tx.employer, "(taxCode)")</li>
+    @for(employment <- employmentData) {
+        @for(tx <- employment.acceptedTransactions ++ employment.completedTransactions) {
+            <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), employment.employment.employerName, employment.taxCode.get.taxCode)</li>
+        }
     }
     </ul>
 
     <h2>Employments in current tax year</h2>
 
-    @employments.map { employment =>
+    @employmentData.map { employment =>
 	<section class="employment">
-	    <div class="employment-ref">Employers Reference Number: @employment.taxDistrictNumber / @employment.payeNumber</div>
-        <div class="employment-employer-name">@employment.employerName</div>
-	    <div class="employment-term">(@formatDate(employment.startDate) to @formatDate(employment.endDate, "present"))</div>
+	    <div class="employment-ref">Employers Reference Number: @employment.employment.taxDistrictNumber / @employment.employment.payeNumber</div>
+        <div class="employment-employer-name">@employment.employment.employerName</div>
+	    <div class="employment-term">(@formatDate(employment.employment.startDate) to @formatDate(employment.employment.endDate, "present"))</div>
 	</section>
     }
 
-    @{taxCodes.size match {
+    @{numberOfTaxCodes match {
         case 0 =>
         case 1 => {<h3>Your Tax Code</h3>}
         case _ => {<h3>Your Tax Codes</h3>}
     }}
 
-    @for(tc <- taxCodes) {
-	<div class="tax-code">@tc.taxCode</div>
-    }
-
-    @if(recentAcceptedTransactions.nonEmpty) {
-        <div>(a new tax code is being calculated and this may change soon)</div>
-    } else { @if(recentCompletedTransactions.nonEmpty) {
-        <div>This changed on @formatDate(recentCompletedTransactions(0).txTime)</div>
+    @for(employment <- employmentData) {
+        @if(!employment.taxCode.isEmpty) {
+            <div class="tax-code">@employment.taxCode.get.taxCode @if(employment.acceptedTransactions.nonEmpty){(a new tax code is being calculated and this may change soon)} else {@if(employment.completedTransactions.nonEmpty) {(This changed on @formatDate(employment.completedTransactions(0).txTime))}} </div>
         }
     }
+
+
 
     @if(hasBenefits) {
 	<a class="cta cta--view-benefits" href="@controllers.paye.routes.PayeController.listBenefits">Click here to see your benefits</a>

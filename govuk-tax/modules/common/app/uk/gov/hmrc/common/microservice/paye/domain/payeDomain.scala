@@ -22,16 +22,16 @@ object PayeRegime extends TaxRegime {
 
 case class PayeRoot(nino: String, version: Int, name: String, links: Map[String, String], transactionLinks: Map[String, String]) extends RegimeRoot {
 
-  def taxCodes(implicit payeMicroService: PayeMicroService): Seq[TaxCode] = {
-    resourceFor[Seq[TaxCode]]("taxCode").getOrElse(Seq.empty)
+  def taxCodes(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[TaxCode] = {
+    getValuesForTaxYear[TaxCode]("taxCode", taxYear)
   }
 
-  def benefits(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
-    resourceFor[Seq[Benefit]]("benefits").getOrElse(Seq.empty)
+  def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
+    getValuesForTaxYear[Benefit]("benefits", taxYear)
   }
 
-  def employments(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
-    resourceFor[Seq[Employment]]("employments").getOrElse(Seq.empty)
+  def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
+    getValuesForTaxYear[Employment]("employments", taxYear)
   }
 
   val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
@@ -47,15 +47,19 @@ case class PayeRoot(nino: String, version: Int, name: String, links: Map[String,
     }
   }
 
-  private def resourceFor[T](resource: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] = {
+  private def getValuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Seq[T] = {
     links.get(resource) match {
-      case Some(uri) => payeMicroService.linkedResource[T](uri)
-      case _ => None
+      case Some(uri) => resourceFor[Seq[T]](uri.replace("{taxYear}", taxYear.toString)).getOrElse(Seq.empty)
+      case _ => Seq.empty
     }
+  }
+
+  private def resourceFor[T](uri: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] = {
+    payeMicroService.linkedResource[T](uri)
   }
 }
 
-case class TaxCode(taxCode: String)
+case class TaxCode(employmentSequenceNumber: Int, taxYear: Int, taxCode: String)
 
 case class Benefit(benefitType: Int, taxYear: Int, grossAmount: BigDecimal, employmentSequenceNumber: Int, costAmount: BigDecimal, amountMadeGood: BigDecimal, cashEquivalent: BigDecimal, expensesIncurred: BigDecimal, amountOfRelief: BigDecimal, paymentOrBenefitDescription: String, car: Option[Car], actions: Map[String, String], calculations: Map[String, String]) {
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
@@ -69,4 +73,6 @@ case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option
 
 case class TransactionId(oid: String)
 
-case class RecentTransaction(messageCode: String, txTime: LocalDate, employer: String)
+case class RecentTransaction(messageCode: String, txTime: LocalDate)
+
+case class EmploymentData(employment: Employment, taxCode: Option[TaxCode], acceptedTransactions: Seq[RecentTransaction], completedTransactions: Seq[RecentTransaction])

@@ -1,20 +1,30 @@
 package controllers.paye
 
-import uk.gov.hmrc.microservice.paye.domain.{ Car, Benefit, Employment }
+import uk.gov.hmrc.microservice.paye.domain._
 import org.joda.time.LocalDate
-import uk.gov.hmrc.microservice.paye.domain.{ RecentTransaction, Car, Benefit, Employment }
 import org.joda.time.{ DateTimeZone, DateTime, DateTimeUtils, LocalDate }
 import play.api.data._
 import play.api.data.Forms._
 import views.html.paye._
 import views.formatting.Dates
 import scala._
-import scala.Some
 import controllers.common._
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import java.net.URI
 import scala.collection.mutable.ListBuffer
 import play.api.Logger
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import scala.Some
+import controllers.paye.DisplayBenefit
+import controllers.paye.RemoveBenefitFormData
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import uk.gov.hmrc.microservice.paye.domain.RecentTransaction
+import scala.Some
+import controllers.paye.DisplayBenefit
+import uk.gov.hmrc.microservice.paye.domain.Employment
+import uk.gov.hmrc.microservice.paye.domain.Car
+import uk.gov.hmrc.microservice.paye.domain.Benefit
+import controllers.paye.RemoveBenefitFormData
 
 class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -25,42 +35,59 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
       implicit user =>
         implicit request =>
 
-          // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
           val payeData = user.regimes.paye.get
+          val taxYear = currentTaxYear
+          val benefits = payeData.benefits(taxYear)
+
           val acceptedTransactions = payeData.transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
-          val recentAcceptedTxMessages = messagesForTransacions(acceptedTransactions, "accepted")
           val completedTransactions = payeData.transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
-          val recentCompletedTxMessages = messagesForTransacions(completedTransactions, "completed")
+
+          // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
+          val employments = payeData.employments(taxYear)
+          val taxCodes = payeData.taxCodes(taxYear)
+          val employmentData: Seq[EmploymentData] =
+            toEmploymentData(employments, taxCodes, taxYear, acceptedTransactions, completedTransactions)
 
           Ok(paye_home(
             name = payeData.name,
-            employments = payeData.employments,
-            taxCodes = payeData.taxCodes,
-            hasBenefits = !payeData.benefits.isEmpty,
-            recentAcceptedTransactions = recentAcceptedTxMessages,
-            recentCompletedTransactions = recentCompletedTxMessages)
+            employmentData = employmentData,
+            hasBenefits = !benefits.isEmpty,
+            numberOfTaxCodes = taxCodes.size)
           )
     }
   }
 
-  def messagesForTransacions(transactions: Seq[TxQueueTransaction], messageCodePrefix: String): Seq[RecentTransaction] = for {
-    t <- transactions
-    messageCodeTags = t.tags.get.filter(_.startsWith("message.code."))
-    if messageCodeTags.nonEmpty
-    messageCodeTag = messageCodeTags(0)
-    messageCode = messageCodeTag.replace("message.code", messageCodePrefix)
-    employerNameTags = t.tags.get.filter(_.startsWith("employer.name."))
-    if employerNameTags.nonEmpty
-    employerNameTag = employerNameTags(0)
-    employerName = employerNameTag.replace("employer.name.", "")
-    date = t.statusHistory(0).createdAt.toLocalDate
-  } yield new RecentTransaction(messageCode, date, employerName)
+  private def toEmploymentData(employments: Seq[Employment], taxCodes: Seq[TaxCode], taxYear: Int,
+    acceptedTransactions: Seq[TxQueueTransaction],
+    completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentData] = {
+    for (e <- employments)
+      yield new EmploymentData(e,
+      taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
+      transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, "accepted"),
+      transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, "completed")
+    )
+  }
+
+  private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]): Option[TaxCode] = {
+    taxCodes.find(tc => { tc.employmentSequenceNumber == employmentSequenceNumber })
+  }
+
+  private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction], messageCodePrefix: String): Seq[RecentTransaction] = {
+    transactions.filter(tx => { tx.employmentSequenceNumber == employmentSequenceNumber && tx.taxYear == taxYear && tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty }).
+      map(tx => {
+        val messageCodeTags = tx.tags.get.filter(_.startsWith("message.code."))
+        val messageCode = messageCodeTags(0).replace("message.code", messageCodePrefix)
+        new RecentTransaction(messageCode, tx.statusHistory(0).createdAt.toLocalDate)
+      }
+      )
+  }
 
   def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
-        val benefits = user.regimes.paye.get.benefits
-        val employments = user.regimes.paye.get.employments
+        val taxYear = currentTaxYear
+        val benefits = user.regimes.paye.get.benefits(taxYear)
+        val employments = user.regimes.paye.get.employments(taxYear)
         // TODO: add lowercase hyphenated formatter
         Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   })
@@ -118,8 +145,9 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
   import uk.gov.hmrc.microservice.domain.User
   private def getCarBenefit(user: User, employmentSequenceNumber: Int): DisplayBenefit = {
-    val benefit = user.regimes.paye.get.benefits.find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.car.isDefined)
-    matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments)(0)
+    val taxYear = currentTaxYear
+    val benefit = user.regimes.paye.get.benefits(taxYear).find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.car.isDefined)
+    matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments(taxYear))(0)
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] =
