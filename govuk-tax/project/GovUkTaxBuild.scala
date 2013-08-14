@@ -20,31 +20,50 @@ object GovUkTaxBuild extends Build {
 
     Dependencies.Test.junit,
     Dependencies.Test.scalaTest,
-    Dependencies.Test.mockito
+    Dependencies.Test.mockito,
+    Dependencies.Test.jsoup
   )
 
-  val allPhases = "test->test;test->compile;compile->compile"
+  val allPhases = "tt->test;test->test;test->compile;compile->compile"
+
+  def templateSpecFilter(name: String): Boolean = name endsWith "TemplateSpec"
+
+  lazy val TemplateTest = config("tt") extend(Test)
 
   val common = play.Project(
     appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
     settings = Common.commonSettings ++ SassPlugin.sassSettings
-  )
+  ).configs(TemplateTest)
+   .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+   .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
   val paye = play.Project(
     appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
   val agent = play.Project(
     appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
   val sa = play.Project(
     appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
   val bt = play.Project(
     appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.commonSettings
   ).dependsOn(common % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
 
   lazy val govukTax = play.Project(
@@ -77,4 +96,5 @@ object Common {
       }
     ) ++
     Repositories.publishingSettings
+
 }
