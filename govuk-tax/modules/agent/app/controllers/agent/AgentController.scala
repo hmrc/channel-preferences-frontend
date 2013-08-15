@@ -2,10 +2,11 @@ package controllers.agent
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.mvc.Action
 import controllers.common._
+import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, PayeRegime }
+import com.sun.javafx.tools.packager.Log.Logger
 
-class AgentController extends BaseController with ActionWrappers {
+class AgentController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def reasonForApplication() = UnauthorisedAction { implicit request =>
     Ok(views.html.agents.reason_for_application())
@@ -34,11 +35,49 @@ class AgentController extends BaseController with ActionWrappers {
       )
   }
 
-  def contactDetails = Action {
-    Ok(views.html.agents.contact_details())
+  def contactDetails = WithSessionTimeoutValidation {
+
+    val contactForm = Form[AgentDetails](
+      mapping(
+        "title" -> text,
+        "firstName" -> text,
+        "middleName" -> text,
+        "lastName" -> text,
+        "dateOfBirth" -> text,
+        "nino" -> text,
+        "daytimePhoneNumber" -> text,
+        "mobilePhoneNumber" -> text,
+        "emailAddress" -> email
+      )(AgentDetails.apply)(AgentDetails.unapply)
+    )
+
+    AuthorisedForIdaAction(Some(PayeRegime)) {
+      user =>
+        request =>
+          val paye: PayeRoot = user.regimes.paye.get
+          val form = contactForm.fill(AgentDetails("Mr", "Will", "", "Shakespeare", "25/03/1986", "CE000103D", "", "", ""))
+          Ok(views.html.agents.contact_details(form))
+    }
+  }
+
+  def postContacts = WithSessionTimeoutValidation {
+    AuthorisedForIdaAction(Some(PayeRegime)) {
+      user =>
+        request =>
+          Logger.warn("TODO: Write the request")
+          Redirect(routes.AgentController.agentType)
+    }
+  }
+
+  def agentType = WithSessionTimeoutValidation {
+    AuthorisedForIdaAction(Some(PayeRegime)) { user =>
+      request =>
+        Ok("Agent type and legal entity")
+    }
   }
 
 }
 
 case class SroCheck(sroAgreement: Boolean = false, tncAgreement: Boolean = false)
+case class AgentDetails(title: String, firstName: String, middleName: String, lastName: String, dateOfBirth: String, nino: String, daytimePhoneNumber: String, mobilePhoneNumber: String, emailAddress: String)
 
