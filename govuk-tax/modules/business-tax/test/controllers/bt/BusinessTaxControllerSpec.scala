@@ -55,7 +55,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
 
-      when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
+      when(mockSaMicroService.person("/personal/sa/123456789012/home")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           utr = "123456789012",
@@ -82,7 +82,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       content should include("UTR: " + utr)
       content should include("VRN: " + vrn)
       content should include("Self-assessment (SA)</a>")
-      content should include("href=\"/sa/details\"")
+      content should include("href=\"/sa/home\"")
       content should include("Value Added Tax (VAT)</a>")
       content should include("href=\"#\"")
 
