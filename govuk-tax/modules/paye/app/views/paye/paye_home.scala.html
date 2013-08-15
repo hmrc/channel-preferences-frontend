@@ -25,7 +25,7 @@
     @employmentData.map { employment =>
 	<section class="employment">
 	    <div class="employment-ref">Employers Reference Number: @employment.employment.taxDistrictNumber / @employment.employment.payeNumber</div>
-        <div class="employment-employer-name">@employment.employment.employerName</div>
+        <div class="employment-employer-name">@employment.employment.employerNameOrReference</div>
 	    <div class="employment-term">(@formatDate(employment.employment.startDate) to @formatDate(employment.employment.endDate, "present"))</div>
 	</section>
     }

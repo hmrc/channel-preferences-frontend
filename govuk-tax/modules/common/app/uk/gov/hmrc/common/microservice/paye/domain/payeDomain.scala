@@ -69,7 +69,9 @@ case class Car(dateCarMadeAvailable: Option[LocalDate], dateCarWithdrawn: Option
 
 case class RemoveCarBenefit(version: Int, benefit: Benefit, revisedAmount: BigDecimal, withdrawDate: LocalDate)
 
-case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: String, payeNumber: String, employerName: String)
+case class Employment(sequenceNumber: Int, startDate: LocalDate, endDate: Option[LocalDate], taxDistrictNumber: String, payeNumber: String, employerName: Option[String]) {
+  lazy val employerNameOrReference = if (employerName.isDefined) employerName.get else taxDistrictNumber + "/" + payeNumber
+}
 
 case class TransactionId(oid: String)
 
