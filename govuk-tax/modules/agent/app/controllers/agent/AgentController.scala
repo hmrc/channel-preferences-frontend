@@ -4,7 +4,7 @@ import play.api.data._
 import play.api.data.Forms._
 import controllers.common._
 import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, PayeRegime }
-import com.sun.javafx.tools.packager.Log.Logger
+import play.api.Logger
 
 class AgentController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -37,20 +37,6 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
 
   def contactDetails = WithSessionTimeoutValidation {
 
-    val contactForm = Form[AgentDetails](
-      mapping(
-        "title" -> text,
-        "firstName" -> text,
-        "middleName" -> text,
-        "lastName" -> text,
-        "dateOfBirth" -> text,
-        "nino" -> text,
-        "daytimePhoneNumber" -> text,
-        "mobilePhoneNumber" -> text,
-        "emailAddress" -> email
-      )(AgentDetails.apply)(AgentDetails.unapply)
-    )
-
     AuthorisedForIdaAction(Some(PayeRegime)) {
       user =>
         request =>
@@ -63,8 +49,9 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
   def postContacts = WithSessionTimeoutValidation {
     AuthorisedForIdaAction(Some(PayeRegime)) {
       user =>
-        request =>
-          Logger.warn("TODO: Write the request")
+        implicit request =>
+          val agentDetails = contactForm.bindFromRequest.data
+          Logger.warn(s"TODO: Write this to backend systems: $agentDetails")
           Redirect(routes.AgentController.agentType)
     }
   }
@@ -75,6 +62,20 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
         Ok("Agent type and legal entity")
     }
   }
+
+  private val contactForm = Form[AgentDetails](
+    mapping(
+      "title" -> text,
+      "firstName" -> text,
+      "middleName" -> text,
+      "lastName" -> text,
+      "dateOfBirth" -> text,
+      "nino" -> text,
+      "daytimePhoneNumber" -> text,
+      "mobilePhoneNumber" -> text,
+      "emailAddress" -> email
+    )(AgentDetails.apply)(AgentDetails.unapply)
+  )
 
 }
 
