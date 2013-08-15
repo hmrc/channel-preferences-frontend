@@ -169,6 +169,41 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     }
 
+    "The Single Sign-on logout page" should {
+      " logout a logged-in user and redirect to the Portal loggedout page" in new WithApplication(FakeApplication()) {
+
+        val result: Result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+
+        result match {
+          case SimpleResult(header, _) => {
+            header.status shouldBe 303
+            header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
+            header.headers("Set-Cookie") should not include "userId"
+            header.headers("Set-Cookie") should not include "name"
+            header.headers("Set-Cookie") should not include "token"
+          }
+          case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
+        }
+
+      }
+
+      " logout a not logged-in user and redirect to the Portal loggedout page" in new WithApplication(FakeApplication()) {
+
+        val result: Result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("somePortalData" -> "somedata"))
+
+        result match {
+          case SimpleResult(header, _) => {
+            header.status shouldBe 303
+            header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
+            header.headers("Set-Cookie") should not include "userId"
+            header.headers("Set-Cookie") should not include "name"
+            header.headers("Set-Cookie") should not include "token"
+          }
+          case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
+        }
+
+      }
+    }
   }
 
   private def sessionEntry(key: String, unencryptedValue: String): String = {

@@ -40,6 +40,12 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
         }
       }
   })
+
+  def out = WithNewSessionTimeout(UnauthorisedAction {
+    implicit request =>
+      Redirect(FrontEndConfig.portalLoggedOutUrl).withNewSession
+  })
+
   private def checkDestination(dest: Option[String]): Boolean = {
     dest match {
       case Some(d) => {
