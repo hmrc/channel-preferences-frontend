@@ -48,6 +48,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     when(mockPayeMicroService.root(s"/personal/paye/$nino")).thenReturn(
       PayeRoot(
         name = name,
+        firstName = "Barney",
+        surname = "Rubble",
         nino = nino,
         version = 22,
         title = "Mr",

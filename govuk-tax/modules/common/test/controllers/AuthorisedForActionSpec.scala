@@ -29,6 +29,8 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
       PayeRoot(
         name = "John Densmore",
+        firstName = "John",
+        surname = "Densmore",
         version = 22,
         title = "Mr",
         nino = "AB123456C",
