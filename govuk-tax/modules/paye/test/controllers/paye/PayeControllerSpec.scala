@@ -60,7 +60,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
           "benefits" -> s"/paye/$nino/benefits/2013"),
         transactionLinks = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
           "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
-          "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}")
+          "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}",
+          "findByOid" -> "/txqueue/oid/{oid}")
       )
     )
   }
@@ -323,6 +324,32 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 303
 
       headers(result).get("Location") mustBe Some("/benefits/2013/remove/2/3/someId")
+
+    }
+
+    "in step 3 show the transaction id only if the transaction exists" in new WithApplication(FakeApplication()) {
+
+      val transaction: TxQueueTransaction = mock[TxQueueTransaction]
+      when(mockTxQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(Some(transaction))
+
+      val withdrawDate = new LocalDate(2013, 7, 18)
+      val result = controller.benefitRemoved(2013, 2, "123")(FakeRequest()
+        .withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 200
+      contentAsString(result) must include("123")
+
+    }
+
+    "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {
+
+      when(mockTxQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(None)
+
+      val withdrawDate = new LocalDate(2013, 7, 18)
+      val result = controller.benefitRemoved(2013, 2, "123")(FakeRequest()
+        .withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 404
 
     }
   }

@@ -5,10 +5,12 @@ import uk.gov.hmrc.microservice.auth.AuthMicroService
 import uk.gov.hmrc.microservice.paye.PayeMicroService
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.microservice.saml.SamlMicroService
+import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 
 trait MockMicroServicesForTests extends MicroServices with MockitoSugar {
 
   override val authMicroService = mock[AuthMicroService]
   override val payeMicroService = mock[PayeMicroService]
   override val samlMicroService = mock[SamlMicroService]
+  override val txQueueMicroService = mock[TxQueueMicroService]
 }

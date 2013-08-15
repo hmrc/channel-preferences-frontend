@@ -25,6 +25,7 @@ import uk.gov.hmrc.microservice.paye.domain.Employment
 import uk.gov.hmrc.microservice.paye.domain.Car
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import controllers.paye.RemoveBenefitFormData
+import controllers.common.service.MicroServices
 
 class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -141,7 +142,12 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
   def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
-      implicit request => Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+      implicit request => {
+        if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) { NotFound }
+        else {
+          Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+        }
+      }
   })
 
   import uk.gov.hmrc.microservice.domain.User
