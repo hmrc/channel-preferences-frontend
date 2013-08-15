@@ -141,25 +141,20 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       content should include("October 14, 2013 to present")
     }
 
-    "display employer id when the employer name is missing" in new WithApplication(FakeApplication()) {
+    "display employer ref when the employer name is missing" in new WithApplication(FakeApplication()) {
       when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(
-        (() => {
-          println("asdfasdf")
-          Some(Seq(
-            Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("")),
-            Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = Some(""))))
-        })()
+        Some(Seq(
+          Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None),
+          Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
       )
       val content = requestHome
-      println("YYYYYYYYYYYYYYYYYYYYY " + content)
-      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is (taxCode). Weyland-Yutani Corp have been notified.")
+      content should include("1212121")
     }
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
-      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      content should include("On August 8, 2013, you removed your company car benefit from 898/9900112. This is being processed and you will receive a new Tax Code within 2 days.")
+      content should include("On August 8, 2013, you removed your company car benefit from 898/9900112. This has been processed and your new Tax Code is 430L. 898/9900112 have been notified.")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
@@ -190,12 +185,13 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     "display car details" in new WithApplication(FakeApplication()) {
       requestBenefits("/auth/oid/jdensmore") should include("Medical Insurance")
       requestBenefits("/auth/oid/jdensmore") should include("Car Benefit")
-      requestBenefits("/auth/oid/jdensmore") should include("Weyland-Yutani Corp")
+      requestBenefits("/auth/oid/jdensmore") should include("898/9900112")
       requestBenefits("/auth/oid/jdensmore") should include("Engine size: 0-1400 cc")
       requestBenefits("/auth/oid/jdensmore") should include("Fuel type: Bi-Fuel")
       requestBenefits("/auth/oid/jdensmore") should include("Date car registered: December 12, 2012")
       requestBenefits("/auth/oid/jdensmore") should include("£ 321.42")
     }
+
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
       requestBenefits("/auth/oid/jdensmore") should include("""href="/benefits/2013/remove/2/1"""")
     }
