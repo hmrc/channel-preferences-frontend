@@ -15,7 +15,7 @@
     <ul>
     @for(employment <- employmentData) {
         @for(tx <- employment.acceptedTransactions ++ employment.completedTransactions) {
-            <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), employment.employment.employerName, employment.taxCode.get.taxCode)</li>
+            <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), employment.employment.employerNameOrReference, employment.taxCode.get.taxCode)</li>
         }
     }
     </ul>
