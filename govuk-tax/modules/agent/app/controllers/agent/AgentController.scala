@@ -41,7 +41,7 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
       user =>
         request =>
           val paye: PayeRoot = user.regimes.paye.get
-          val form = contactForm.fill(AgentDetails("Mr", "Will", "", "Shakespeare", "25/03/1986", "CE000103D", "", "", ""))
+          val form = contactForm.fill(AgentDetails(paye.title, paye.firstName, "", paye.surname, paye.dateOfBirth, paye.nino, "", "", ""))
           Ok(views.html.agents.contact_details(form))
     }
   }
