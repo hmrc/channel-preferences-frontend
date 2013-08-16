@@ -1,2 +1,3 @@
 
 GET     /home                     @controllers.sa.SaController.details
+GET     /prefs/:encodedJson       @controllers.sa.SaController.checkPrintPreferences(encodedJson)
