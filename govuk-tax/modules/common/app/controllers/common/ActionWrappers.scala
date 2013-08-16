@@ -12,6 +12,7 @@ import views.html.{ login, server_error }
 import play.api.{ Mode, Play }
 import uk.gov.hmrc.microservice.HasResponse
 import com.google.common.net.HttpHeaders
+import play.api.mvc.Result
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -66,6 +67,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
           act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
         }
     }
+
   }
 
   object AuthorisedForGovernmentGatewayAction {

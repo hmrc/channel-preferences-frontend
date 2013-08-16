@@ -5,6 +5,8 @@ import play.api.data.Forms._
 import controllers.common._
 import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, PayeRegime }
 import play.api.Logger
+import play.api.mvc.{Result, Request}
+import uk.gov.hmrc.microservice.domain.User
 
 class AgentController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -36,14 +38,15 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
   }
 
   def contactDetails = WithSessionTimeoutValidation {
-
     AuthorisedForIdaAction(Some(PayeRegime)) {
-      user =>
-        request =>
-          val paye: PayeRoot = user.regimes.paye.get
-          val form = contactForm.fill(AgentDetails(paye.title, paye.firstName, "", paye.surname, paye.dateOfBirth, paye.nino, "", "", ""))
-          Ok(views.html.agents.contact_details(form))
+      user => request => contactDetailsFunction(user, request)
     }
+  }
+
+  val contactDetailsFunction: (User, Request[_]) => Result = (user, request) => {
+    val paye: PayeRoot = user.regimes.paye.get
+    val form = contactForm.fill(AgentDetails(paye.title, paye.firstName, "", paye.surname, paye.dateOfBirth, paye.nino, "", "", ""))
+    Ok(views.html.agents.contact_details(form))
   }
 
   def postContacts = WithSessionTimeoutValidation {
