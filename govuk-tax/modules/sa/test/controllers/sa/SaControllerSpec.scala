@@ -1,7 +1,7 @@
 package controllers.sa
 
 import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.microservice.{ MicroServiceException, MockMicroServicesForTests }
 import uk.gov.hmrc.microservice.auth.AuthMicroService
 import play.api.mvc.{ AnyContent, Action }
 import uk.gov.hmrc.microservice.sa.SaMicroService
@@ -19,7 +19,8 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import controllers.common.CookieEncryption
+import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
+import uk.gov.hmrc.common.microservice.auth.domain.{ SaPreferences, Preferences }
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -84,6 +85,76 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       val result = controller.details(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
+  }
+
+  "Print preferences check" should {
+
+    val credId = "myCredId"
+
+    "return 200 and HTML code when the are no preferences for the given credId" in new WithApplication(FakeApplication()) {
+
+      when(mockAuthMicroService.preferences(credId)).thenReturn(None)
+
+      val encryptedJson = SsoPayloadEncryptor.encrypt("{ \"credId\":\"" + credId + "\", \"timestamp\":1376576265070}")
+
+      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody mustBe ("some text")
+    }
+
+    "return 200 and HTML code when the preferences for print have not been stored yet" in new WithApplication(FakeApplication()) {
+
+      when(mockAuthMicroService.preferences(credId)).thenReturn(Some(Preferences(Some(SaPreferences(None, None)))))
+
+      val encryptedJson = SsoPayloadEncryptor.encrypt("{ \"credId\":\"" + credId + "\", \"timestamp\":1376576265070}")
+
+      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody mustBe ("some text")
+    }
+
+    "return 200 and HTML code when the preferences for sa have not been stored yet" in new WithApplication(FakeApplication()) {
+
+      when(mockAuthMicroService.preferences(credId)).thenReturn(Some(Preferences(sa = None)))
+
+      val encryptedJson = SsoPayloadEncryptor.encrypt("{ \"credId\":\"" + credId + "\", \"timestamp\":1376576265070}")
+
+      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody mustBe ("some text")
+    }
+
+    "return 200 and no body when the preferences for print have been stored before" in new WithApplication(FakeApplication()) {
+      when(mockAuthMicroService.preferences(credId)).thenReturn(Some(Preferences(Some(SaPreferences(Some(false), None)))))
+
+      val encryptedJson = SsoPayloadEncryptor.encrypt("{ \"credId\":\"" + credId + "\", \"timestamp\":1376576265070}")
+
+      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody mustBe ("")
+    }
+
+    "return 400 and no body when the authority for credId doesn't exist" in new WithApplication(FakeApplication()) {
+      when(mockAuthMicroService.preferences(credId)).thenThrow(new MicroServiceException("Bad request", null))
+
+      val encryptedJson = SsoPayloadEncryptor.encrypt("{ \"credId\":\"" + credId + "\", \"timestamp\":1376576265070}")
+
+      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      status(result) should be(400)
+    }
+
+    "return 400 if the json body's timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {
+      pending
+    }
+
   }
 
   def request(action: Action[AnyContent]): String = {

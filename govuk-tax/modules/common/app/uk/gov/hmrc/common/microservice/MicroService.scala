@@ -51,18 +51,42 @@ trait MicroService extends Status with HeaderNames {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get()), MicroServiceConfig.defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get())(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+
+  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
+    val wsResource = httpResource(uri)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  }
+
+  protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
+    val wsResource = httpResource(uri)
+    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body))(extractNoResponse), MicroServiceConfig.defaultTimeoutDuration)
+  }
 
   protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body)), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
   }
 
-  protected def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[Option[A]] = {
+  protected def extractJSONResponse[A](response: Response)(implicit m: Manifest[A]): A = {
+    try {
+      fromResponse[A](response.body)
+    } catch {
+      case e: Throwable => {
+        throw new Exception("Malformed result")
+      }
+    }
+  }
+
+  protected def extractNoResponse(response: Response): Response = {
+    response
+  }
+
+  protected def response[A](futureResponse: Future[Response])(handleResponse: (Response) => A)(implicit m: Manifest[A]): Future[Option[A]] = {
     futureResponse map {
       res =>
         res.status match {
-          case OK => Some(fromResponse[A](res.body))
+          case OK => Some(handleResponse(res))
           //          case success() => //do nothing
 
           //TODO: add some proper error handling
@@ -77,6 +101,7 @@ trait MicroService extends Status with HeaderNames {
         }
     }
   }
+
 }
 
 trait HasResponse {
