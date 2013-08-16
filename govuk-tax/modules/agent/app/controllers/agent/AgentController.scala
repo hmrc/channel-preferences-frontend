@@ -5,7 +5,7 @@ import play.api.data.Forms._
 import controllers.common._
 import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, PayeRegime }
 import play.api.Logger
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{ Result, Request }
 import uk.gov.hmrc.microservice.domain.User
 
 class AgentController extends BaseController with ActionWrappers with SessionTimeoutWrapper {

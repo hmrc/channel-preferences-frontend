@@ -54,7 +54,7 @@ class AgentControllerSpec extends BaseSpec with Encryption with MockitoSugar {
   "The contact details page" should {
     "display known agent info" in new WithApplication(FakeApplication()) {
 
-      val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map())
+      val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map())
       val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
 
       val result = new AgentController().contactDetailsFunction(user, null)
