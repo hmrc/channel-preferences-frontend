@@ -77,7 +77,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(
     Some(Seq(
       Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp")),
-      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = Some("Weyland-Yutani Corp"))))
+      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
   )
 
   val carBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
@@ -102,7 +102,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(
     Some(Seq(
       Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp")),
-      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = Some("Weyland-Yutani Corp"))))
+      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
   )
 
   def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), 1, 2013, None, List(Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(1))
@@ -138,11 +138,9 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     "display the employments for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
-      content should include("898")
-      content should include("9900112")
+      content should include("Weyland-Yutani Corp")
       content should include("899")
       content should include("1212121")
-      content should include("Weyland-Yutani Corp")
       content should include("July 2, 2013 to October 8, 2013")
       content should include("October 14, 2013 to present")
     }

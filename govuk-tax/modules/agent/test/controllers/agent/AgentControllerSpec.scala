@@ -5,9 +5,9 @@ import uk.gov.hmrc.common.BaseSpec
 import controllers.common.service.Encryption
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.paye.PayeMicroService
-import org.mockito.{Matchers, Mockito}
+import org.mockito.{ Matchers, Mockito }
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.microservice.domain.{RegimeRoots, User}
+import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import views.PageSugar
 import org.jsoup.Jsoup
 
@@ -60,18 +60,17 @@ class AgentControllerSpec extends BaseSpec with Encryption with MockitoSugar {
       val result = new AgentController().contactDetailsFunction(user, null)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#title").first().`val` should be ("Mr")
-      doc.select("#firstName").first().`val` should be ("Will")
-      doc.select("#middleName").first().`val` should be ("")
-      doc.select("#lastName").first().`val` should be ("Shakespeare")
-      doc.select("#nino").first().`val` should be ("CE927349E")
-      doc.select("#dateOfBirth").first().`val` should be ("1983-01-02")
+      doc.select("#title").first().`val` should be("Mr")
+      doc.select("#firstName").first().`val` should be("Will")
+      doc.select("#middleName").first().`val` should be("")
+      doc.select("#lastName").first().`val` should be("Shakespeare")
+      doc.select("#nino").first().`val` should be("CE927349E")
+      doc.select("#dateOfBirth").first().`val` should be("1983-01-02")
     }
   }
 
   def newRequest(sro: String, tnc: String) =
     FakeRequest().withFormUrlEncodedBody("sroAgreement" -> sro, "tncAgreement" -> tnc)
-
 
   override val encryptionKey = "eU1qMlpESFRPN0hRNGJxNg=="
 }
