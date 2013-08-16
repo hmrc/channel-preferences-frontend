@@ -26,6 +26,8 @@ import uk.gov.hmrc.microservice.paye.domain.Car
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import controllers.paye.RemoveBenefitFormData
 import controllers.common.service.MicroServices
+import play.api.mvc.{ Request, Result }
+import uk.gov.hmrc.microservice.domain.User
 
 class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -108,25 +110,31 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
   def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
-      implicit request =>
-        Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
+      implicit request => removeCarBenefitToStep1Action(user, request, year, employmentSequenceNumber)
   })
 
+  val removeCarBenefitToStep1Action:(User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
+    Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
+  }
+
   def removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    implicit user =>
-      implicit request =>
-        val db = getCarBenefit(user, employmentSequenceNumber)
-        updateBenefitForm.bindFromRequest.fold(
-          errors => BadRequest(remove_car_benefit_step1(db, errors)),
-          removeBenefitData => {
-            val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
-            val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
-            Ok(remove_car_benefit_step2(revisedAmount, db.benefit)).withSession(request.session
-              + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
-              + ("revised_amount", revisedAmount.toString()))
-          }
-        )
+    user => request => removeCarBenefitToStep2Action(user, request, year, employmentSequenceNumber)
+
   })
+
+  val removeCarBenefitToStep2Action: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
+    val db = getCarBenefit(user, employmentSequenceNumber)
+    updateBenefitForm.bindFromRequest()(request).fold(
+      errors => BadRequest(remove_car_benefit_step1(db, errors)),
+      removeBenefitData => {
+        val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
+        val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
+        Ok(remove_car_benefit_step2(revisedAmount, db.benefit)).withSession(request.session
+          + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
+          + ("revised_amount", revisedAmount.toString()))
+      }
+    )
+  }
 
   def removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
@@ -142,25 +150,29 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
   def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
-      implicit request => {
-        if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) { NotFound }
-        else {
-          Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
-        }
-      }
+      implicit request => benefitRemovedAction(user, request, oid)
   })
+
+  val benefitRemovedAction: (User, Request[_], String) => play.api.mvc.Result = (user, request, oid) => {
+    if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) { NotFound }
+    else {
+      Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+    }
+  }
 
   import uk.gov.hmrc.microservice.domain.User
   private def getCarBenefit(user: User, employmentSequenceNumber: Int): DisplayBenefit = {
     val taxYear = currentTaxYear
     val benefit = user.regimes.paye.get.benefits(taxYear).find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.car.isDefined)
-    matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments(taxYear))(0)
+    val matchedBenefits = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments(taxYear))
+    matchedBenefits(0)
   }
 
-  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] =
-    benefits
-      .filter { benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber) }
-      .map { benefit: Benefit => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, benefit.car) }
+  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] = {
+    val matchedBenefits = benefits.filter { benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber) }
+
+    matchedBenefits.map { benefit: Benefit => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, benefit.car) }
+  }
 
   private def currentTaxYear = {
     val now = new LocalDate
