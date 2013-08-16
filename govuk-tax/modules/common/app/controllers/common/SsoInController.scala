@@ -2,7 +2,7 @@ package controllers.common
 
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.hmrc.microservice.governmentgateway.ValidateTokenRequest
+import uk.gov.hmrc.microservice.governmentgateway.SsoLoginRequest
 import service.{ FrontEndConfig, SsoWhiteListService, MicroServices }
 import play.api.Logger
 import play.api.libs.json.Json
@@ -26,9 +26,9 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
       checkDestination(dest) match {
         case false => BadRequest
         case true => {
-          val tokenRequest = ValidateTokenRequest(token, time)
+          val tokenRequest = SsoLoginRequest(token, time)
           try {
-            val response = governmentGatewayMicroService.validateToken(tokenRequest)
+            val response = governmentGatewayMicroService.ssoLogin(tokenRequest)
             Logger.debug(s"successfully authenticated: $response.name")
             Redirect(dest.get).withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken))
           } catch {

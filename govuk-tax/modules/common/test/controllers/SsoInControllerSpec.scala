@@ -16,7 +16,7 @@ import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayResponse
 import uk.gov.hmrc.microservice.UnauthorizedException
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.governmentgateway.ValidateTokenRequest
+import uk.gov.hmrc.microservice.governmentgateway.SsoLoginRequest
 import play.api.mvc.SimpleResult
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
@@ -48,7 +48,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
   "The Single Sign-on input page" should {
     "create a new session when the token is valid, the time not expired and no session exists" in new WithApplication(FakeApplication()) {
-      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.loginTimestamp))).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.encodedToken))
+      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.encodedToken, john.loginTimestamp))).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "${redirectUrl}"}""")
@@ -68,7 +68,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "replace the session details if a session already exists and the login is correct" in new WithApplication(FakeApplication()) {
 
-      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(bob.encodedToken, bob.loginTimestamp))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.encodedToken))
+      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(bob.encodedToken, bob.loginTimestamp))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${bob.encodedToken}", "time": ${bob.loginTimestamp}, "dest": "${redirectUrl}"}""")
@@ -91,7 +91,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     }
 
     "invalidate the session if a session already exists but the login is incorrect" in new WithApplication(FakeApplication()) {
-      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.invalidEncodedToken, john.loginTimestamp))).thenThrow(new IllegalStateException("error"))
+      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.invalidEncodedToken, john.loginTimestamp))).thenThrow(new IllegalStateException("error"))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "${redirectUrl}"}""")
 
@@ -113,7 +113,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
     "invalidate the session if a session already exists but the login throws an Unauthorised Exception" in new WithApplication(FakeApplication()) {
       val mockResponse = mock[Response]
-      when(mockGovernmentGatewayService.validateToken(ValidateTokenRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
+      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "${redirectUrl}"}""")
