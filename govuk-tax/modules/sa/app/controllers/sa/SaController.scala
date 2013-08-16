@@ -26,7 +26,7 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     implicit request =>
       val decryptedJson = SsoPayloadEncryptor.decrypt(encryptedJson)
       val json = Json.parse(decryptedJson)
-    //TODO - this needs to change to use the utr not the cred id
+      //TODO - this needs to change to use the utr not the cred id
       val credId = (json \ "credId").as[String]
       val time = (json \ "time").as[Long]
 
