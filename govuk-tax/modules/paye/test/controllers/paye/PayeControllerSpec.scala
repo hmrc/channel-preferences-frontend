@@ -49,6 +49,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       PayeRoot(
         name = name,
         firstName = "Barney",
+        secondName = None,
         surname = "Rubble",
         nino = nino,
         version = 22,

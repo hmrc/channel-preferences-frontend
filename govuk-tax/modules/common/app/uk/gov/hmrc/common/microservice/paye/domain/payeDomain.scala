@@ -20,7 +20,7 @@ object PayeRegime extends TaxRegime {
   }
 }
 
-case class PayeRoot(nino: String, version: Int, title: String, firstName: String, surname: String, name: String, dateOfBirth: String, links: Map[String, String], transactionLinks: Map[String, String]) extends RegimeRoot {
+case class PayeRoot(nino: String, version: Int, title: String, firstName: String, secondName: Option[String], surname: String, name: String, dateOfBirth: String, links: Map[String, String], transactionLinks: Map[String, String]) extends RegimeRoot {
 
   def taxCodes(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[TaxCode] = {
     getValuesForTaxYear[TaxCode]("taxCode", taxYear)

@@ -30,6 +30,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
       PayeRoot(
         name = "John Densmore",
         firstName = "John",
+        secondName = Some("Drummer"),
         surname = "Densmore",
         version = 22,
         title = "Mr",
