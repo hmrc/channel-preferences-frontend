@@ -394,7 +394,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
       val result = controller.removeCarBenefitToStep1Action(user, request, 2013, 1)
       val doc = Jsoup.parse(contentAsString(result))
-      println(doc.select("#agreement"))
+      println(doc.select(".checkbox"))
+      doc.select(".checkbox").text should not include("Some(")
     }
 
 

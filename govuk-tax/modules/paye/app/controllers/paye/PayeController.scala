@@ -113,7 +113,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
       implicit request => removeCarBenefitToStep1Action(user, request, year, employmentSequenceNumber)
   })
 
-  val removeCarBenefitToStep1Action:(User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
+  val removeCarBenefitToStep1Action: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
     Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
   }
 
