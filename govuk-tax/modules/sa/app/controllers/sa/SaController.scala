@@ -3,10 +3,10 @@ package controllers.sa
 import uk.gov.hmrc.microservice.sa.domain.{ SaRegime, SaPerson, SaRoot }
 import views.html.sa.sa_personal_details
 import controllers.common.{ SsoPayloadEncryptor, SessionTimeoutWrapper, ActionWrappers, BaseController }
-import play.api.mvc.Action
 import play.api.libs.json.Json
 import config.DateTimeProvider
 import org.joda.time.DateTime
+import controllers.sa.StaticHTMLBanner._
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider {
 
@@ -37,10 +37,11 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
           case None => NoContent
           case Some(pref) => pref.sa match {
             case Some(sa) if sa.digitalNotifications.isDefined => NoContent
-            //TODO - add real text in here
-            case _ => Ok("some text")
+            case _ => Ok(saPreferences())
           }
         }
       }
+
   }
+
 }

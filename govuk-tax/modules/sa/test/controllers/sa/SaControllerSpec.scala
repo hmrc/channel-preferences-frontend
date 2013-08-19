@@ -1,7 +1,7 @@
 package controllers.sa
 
 import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.microservice.{ MicroServiceException, MockMicroServicesForTests }
+import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.auth.AuthMicroService
 import play.api.mvc.{ AnyContent, Action }
 import uk.gov.hmrc.microservice.sa.SaMicroService
@@ -21,6 +21,7 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
 import uk.gov.hmrc.common.microservice.auth.domain.{ SaPreferences, Preferences }
+import controllers.sa.StaticHTMLBanner._
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -125,7 +126,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe ("some text")
+      htmlBody mustBe (saPreferences)
     }
 
     "return 200 and HTML code when no preferences for sa have yet been stored" in new WithApplication(FakeApplication()) {
@@ -138,7 +139,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe ("some text")
+      htmlBody mustBe (saPreferences)
     }
 
     "return 204 and no body when sa preferences for printing have already been stored" in new WithApplication(FakeApplication()) {
