@@ -38,7 +38,7 @@ class AgentControllerSpec extends BaseSpec with Encryption with MockitoSugar {
       val result = controller.submitAgreement()(newRequest("true", "true"))
 
       status(result) shouldBe 303
-      header("Location", result) shouldBe Some("/samllogin")
+      header("Location", result) shouldBe Some("/home")
 
     }
   }

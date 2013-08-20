@@ -32,16 +32,19 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
           BadRequest(views.html.agents.sro_check(errors))
         },
         _ => {
-          RedirectUtils.toSamlLogin.withSession(session.copy(Map("register agent" -> "true")))
+          Logger.debug(s"Redirecting to contact details. Session is $session")
+          Redirect(routes.AgentController.contactDetails).withSession(session + ("register agent" -> "true"))
         }
       )
   }
 
-  def contactDetails = WithSessionTimeoutValidation {
+  def contactDetails =
     AuthorisedForIdaAction(Some(PayeRegime)) {
-      user => request => contactDetailsFunction(user, request)
+      user =>
+        request => {
+          contactDetailsFunction(user, request)
+        }
     }
-  }
 
   val contactDetailsFunction: (User, Request[_]) => Result = (user, request) => {
     val paye: PayeRoot = user.regimes.paye.get

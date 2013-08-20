@@ -29,6 +29,9 @@ object RedirectUtils extends BaseController {
     Redirect(agentHome)
   }
 
-  def toSamlLogin = Redirect(routes.LoginController.samlLogin)
+  def toSamlLogin = {
+    Logger.debug("Redirecting to login")
+    Redirect(routes.LoginController.samlLogin)
+  }
 
 }

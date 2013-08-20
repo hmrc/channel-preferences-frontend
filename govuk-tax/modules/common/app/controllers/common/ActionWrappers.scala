@@ -4,15 +4,15 @@ import play.api.mvc._
 import controllers.common.service._
 import uk.gov.hmrc.microservice.domain.{ RegimeRoots, TaxRegime, User }
 import uk.gov.hmrc.microservice.auth.domain.Regimes
-import play.Logger
 import java.net.URI
 import org.slf4j.MDC
 import java.util.UUID
 import views.html.{ login, server_error }
-import play.api.{ Mode, Play }
+import play.api.{ Logger, Mode, Play }
 import uk.gov.hmrc.microservice.HasResponse
 import com.google.common.net.HttpHeaders
 import play.api.mvc.Result
+import play.api.Logger
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -58,11 +58,13 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] = Action {
       request =>
+        Logger.debug(s"Authorised action with session ${request.session}")
+        Logger.debug(s"Authorising request $request")
         val encryptedUserId: Option[String] = request.session.get("userId")
         val token: Option[String] = request.session.get("token")
         if (encryptedUserId.isEmpty || token.isDefined) {
-          Logger.debug("No identity cookie found or wrong user type - redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
-          Redirect(routes.HomeController.landing())
+          Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : $encryptedUserId tokenDefined : ${token.isDefined}")
+          RedirectUtils.toSamlLogin
         } else {
           act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
         }
@@ -90,6 +92,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
   object UnauthorisedAction {
     def apply[A <: TaxRegime](action: (Request[AnyContent] => Result)): Action[AnyContent] = Action {
       request =>
+        Logger.debug(s"Unauthorised action with session ${request.session}")
 
         MDC.put(requestId, "frontend-" + UUID.randomUUID().toString)
 

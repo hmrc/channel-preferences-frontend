@@ -29,7 +29,7 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.paye.domain.TransactionId
-import uk.gov.hmrc.microservice.domain.{RegimeRoots, User}
+import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import org.jsoup.Jsoup
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
@@ -342,7 +342,6 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     }
 
-
     "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {
 
       when(mockTxQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(None)
@@ -357,18 +356,18 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   }
 
   "benefitRemoved" should {
-    "render a view with correct elements" in new WithApplication(FakeApplication()){
+    "render a view with correct elements" in new WithApplication(FakeApplication()) {
 
       val car = Car(None, None, None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
-        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None))}
-        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(1, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String,String](), Map[String,String]()))}
+        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None)) }
+        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(1, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]())) }
       }
 
       val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
 
-      val request = FakeRequest().withFormUrlEncodedBody( "withdrawDate" -> "2013-07-13", "agreement" -> "true" )
+      val request = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])).thenReturn(CalculationResult(Map("2013" -> BigDecimal("123"))))
 
@@ -382,22 +381,21 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       val car = Car(None, None, Some(new LocalDate()), BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
-        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys")))}
-        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(1, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String,String](), Map[String,String]()))}
+        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys"))) }
+        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(1, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]())) }
       }
 
       val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
 
-      val request:play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody( "withdrawDate" -> "2013-07-13", "agreement" -> "true" )
+      val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])).thenReturn(CalculationResult(Map("2013" -> BigDecimal("123"))))
 
       val result = controller.removeCarBenefitToStep1Action(user, request, 2013, 1)
       val doc = Jsoup.parse(contentAsString(result))
       println(doc.select(".checkbox"))
-      doc.select(".checkbox").text should not include("Some(")
+      doc.select(".checkbox").text should not include ("Some(")
     }
-
 
   }
 
