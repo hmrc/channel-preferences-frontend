@@ -52,7 +52,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   })
 
   def enterAsGeoffFisher = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
-    val credentials = Credentials("805933359724", "passw0rd")
+    val credentials = Credentials("sa0054", "p5w5bskz")
 
     try {
       val loginResponse: GovernmentGatewayResponse = governmentGatewayMicroService.login(credentials)
