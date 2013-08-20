@@ -2,8 +2,8 @@ package controllers.sa
 
 object StaticHTMLBanner {
 
-  def saPreferences() = """<div style="margin-left: 0.85em; padding: 10px 0;">
-                             <a id="cta-setPreferences" href="{{insert link here}}"> set preferences</a>
+  def saPreferences(targetUrl: String) = s"""<div style="margin-left: 0.85em; padding: 10px 0;">
+                             <a id="cta-setPreferences" href="$targetUrl">set preferences</a>
                              <script>
                                      (function(window){
                                              /*

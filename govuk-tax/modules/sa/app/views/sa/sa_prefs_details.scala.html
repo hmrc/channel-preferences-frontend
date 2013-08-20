@@ -1,0 +1,39 @@
+@(printPrefForm: Form[controllers.sa.PrintPrefsForm])
+
+@import views.helpers.CustomHelpers._
+@import helper._
+
+@main(title = "My Preferences") {
+
+<h2>Preferences</h2>
+<div id="print-prefs">
+    <h3>Print preferences</h3>
+
+    @helper.form(action = controllers.sa.routes.SaController.submitPrefsForm) {
+        <p>
+            @inputRadioGroup(
+                printPrefForm("suppressPrinting"),
+                options = options("true"->"Yes","false"->"No"),
+                '_label -> "Suppress Printing")
+        </p>
+
+        <p>
+            @inputText(
+            printPrefForm("email"),
+            '_label -> "Email",
+            '_error -> printPrefForm("email").error.map(_.withMessage("Invalid Email format")))
+        </p>
+
+        @defining(printPrefForm("redirectUrl")) { redirectUrlField =>
+            <input type="hidden" name="@redirectUrlField.name" id="@redirectUrlField.id" value='@redirectUrlField.value' />
+        }
+        <p>
+            <input type="submit" value="Submit"/>
+        </p>
+
+    }
+
+
+</div>
+
+}

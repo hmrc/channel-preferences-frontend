@@ -8,9 +8,16 @@ import uk.gov.hmrc.microservice.sa.SaMicroService
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URI
 import controllers.common.SessionTimeoutWrapper._
+import uk.gov.hmrc.common.BaseSpec
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.mock.MockitoSugar
+import org.mockito.Mockito._
+import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
+import uk.gov.hmrc.common.microservice.auth.domain.{ SaPreferences, Preferences }
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import scala.Some
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
@@ -22,6 +29,21 @@ import org.mockito.Mockito._
 import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
 import uk.gov.hmrc.common.microservice.auth.domain.{ SaPreferences, Preferences }
 import controllers.sa.StaticHTMLBanner._
+
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import play.api.libs.ws.Response
+import play.api.test.Helpers._
+import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import play.api.libs.ws.Response
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import scala.Some
+import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import controllers.common.service.FrontEndConfig
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -94,7 +116,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
     val credId = "myCredId"
 
-    "return  204 and HTML code when then authority for credId doesn't exist" in new WithApplication(FakeApplication()) {
+    "return  204 and HTML code when then authority for credId does not exist" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.preferences(credId)).thenReturn(None)
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.getMillis}}""")
@@ -126,7 +148,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe (saPreferences)
+      htmlBody mustBe (saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs"))
     }
 
     "return 200 and HTML code when no preferences for sa have yet been stored" in new WithApplication(FakeApplication()) {
@@ -139,7 +161,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe (saPreferences)
+      htmlBody mustBe (saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs"))
     }
 
     "return 204 and no body when sa preferences for printing have already been stored" in new WithApplication(FakeApplication()) {
@@ -154,13 +176,90 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       htmlBody mustBe ("")
     }
 
-    "return 400 if the json body's timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {
+    "return 400 if the json body timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.minusMinutes(6).getMillis}}""")
 
       val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
       status(result) should be(400)
     }
 
+  }
+
+  "Print preferences details page " should {
+
+    "render a form with print preference fields to be entered" in new WithApplication(FakeApplication()) {
+
+      val result = controller.prefsForm()(FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody should include("Print preferences")
+      htmlBody should include("suppressPrinting_true")
+      htmlBody should include("suppressPrinting_false")
+      htmlBody should include("email")
+      htmlBody should include("redirectUrl")
+    }
+
+    "return a NotFound when the redirect url is missing" in new WithApplication(FakeApplication()) {
+
+      val result = controller.prefsForm()(FakeRequest().withFormUrlEncodedBody("email" -> "someuser@test.com")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) should be(404)
+    }
+  }
+
+  "Print preferences detail page for submit " should {
+
+    //TODO: Added validation that checks another form parameter for this test case
+    //    " show the email address error message the email is missing but print suppression is set to yes" in new WithApplication(FakeApplication()){
+    //
+    //      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("email" -> "", "suppressPrinting" -> "true")
+    //        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+    //
+    //      status(result) shouldBe 400
+    //      val requestBenefits = contentAsString(result)
+    //      requestBenefits should include("Invalid Email format")
+    //
+    //    }
+
+    " show the email address error message the email structure is invalid " in new WithApplication(FakeApplication()) {
+
+      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("email" -> "some@user@test.com", "suppressPrinting" -> "true")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Invalid Email format")
+
+    }
+
+    " show the suppress printing error message if no option is selected " in new WithApplication(FakeApplication()) {
+      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("email" -> "someuser@test.com")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Please select a Print Suppression Option")
+    }
+
+    " call the auth service to persist the preference data if the data entered is valid " in new WithApplication(FakeApplication()) {
+      val emailAddress = "someuser@test.com"
+      val mockResponse = mock[Response]
+      val redirectUrl = "www.some.redirect.url"
+      when(mockAuthMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(SaPreferences(Some(true), Some(emailAddress)))))).thenReturn(Some(mockResponse))
+
+      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("email" -> emailAddress, "suppressPrinting" -> "true", "redirectUrl" -> redirectUrl)
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"),
+          "name" -> encrypt(nameFromGovernmentGateway),
+          "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe redirectUrl
+    }
   }
 
   def request(action: Action[AnyContent]): String = {
