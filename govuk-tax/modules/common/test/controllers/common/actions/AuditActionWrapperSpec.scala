@@ -6,12 +6,14 @@ import play.api.mvc.{ Action, Controller }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.never
+import org.mockito.Matchers.any
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import org.slf4j.MDC
 import controllers.common.HeaderNames
 
-object AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {
+class AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {
 
   def test() = WithRequestAuditing {
     Action {
@@ -25,15 +27,17 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
 
   val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
 
-  "AuditActionWrapper" should {
-    "add values from the MDC to the audit event tags" in new WithApplication(FakeApplication()) {
+  "AuditActionWrapper enabled " should {
+    "add values from the MDC to the audit event tags" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.requestEnabled"->true))) {
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
 
-      try {
-        AuditTestController.test()(FakeRequest())
+      val controller = new AuditTestController()
 
-        verify(AuditTestController.auditMicroService).audit(auditEventCaptor.capture())
+      try {
+        controller.test()(FakeRequest())
+
+        verify(controller.auditMicroService).audit(auditEventCaptor.capture())
 
         val auditEvent = auditEventCaptor.getValue
         auditEvent.auditSource must be("frontend")
@@ -47,4 +51,22 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
       }
     }
   }
+
+  "AuditActionWrapper disabled " should {
+    "not record the request in the audit log" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.requestEnabled"->false))) {
+
+      val controller = new AuditTestController()
+
+      MDC.put(authorisation, "/auth/oid/123123123")
+      MDC.put(forwardedFor, "192.168.1.1")
+
+      try {
+        controller.test()(FakeRequest())
+        verify(controller.auditMicroService, never).audit(any(classOf[AuditEvent]))
+      } finally {
+        MDC.clear
+      }
+    }
+  }
+
 }
