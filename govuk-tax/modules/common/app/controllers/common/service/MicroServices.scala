@@ -6,6 +6,7 @@ import uk.gov.hmrc.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.saml.SamlMicroService
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 
 trait MicroServices {
 
@@ -15,4 +16,5 @@ trait MicroServices {
   implicit val saMicroService = new SaMicroService()
   implicit val governmentGatewayMicroService = new GovernmentGatewayMicroService()
   implicit val txQueueMicroService = new TxQueueMicroService()
+  implicit val auditMicroService = new AuditMicroService()
 }

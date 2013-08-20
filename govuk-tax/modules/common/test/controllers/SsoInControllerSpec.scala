@@ -75,7 +75,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
         case SimpleResult(header, _) => {
@@ -97,7 +97,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
         case SimpleResult(header, _) => {
@@ -120,7 +120,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
         case SimpleResult(header, _) => {
@@ -140,7 +140,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
       status(result) shouldBe 400
 
@@ -153,7 +153,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
       status(result) shouldBe 400
     }
@@ -163,7 +163,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
       status(result) shouldBe 400
 
@@ -172,7 +172,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     "The Single Sign-on logout page" should {
       " logout a logged-in user and redirect to the Portal loggedout page" in new WithApplication(FakeApplication()) {
 
-        val result: Result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken))
+        val result: Result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
         result match {
           case SimpleResult(header, _) => {

@@ -44,7 +44,7 @@ trait MicroService extends Status with HeaderNames {
 
   protected def httpResource(uri: String) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
-    WS.url(s"$serviceUrl$uri").withHeaders(headers: _*)
+    WS.url(s"$serviceUrl$uri").withHeaders(headers(): _*)
   }
 
   protected case class Statuses(r: Range) {
@@ -66,6 +66,11 @@ trait MicroService extends Status with HeaderNames {
   protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
     Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  }
+
+  protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
+    val wsResource = httpResource(uri)
+    wsResource.withHeaders(headers.toSeq: _*).post(body)
   }
 
   protected def extractJSONResponse[A](response: Response)(implicit m: Manifest[A]): A = {
