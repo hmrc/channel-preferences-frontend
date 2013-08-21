@@ -13,18 +13,47 @@ import controllers.sa.StaticHTMLBanner._
 import org.joda.time.{ LocalDate, DateTime }
 import uk.gov.hmrc.common.microservice.auth.domain.{ SaPreferences, Preferences }
 import controllers.common.service.FrontEndConfig
+import play.api.data.validation._
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import scala.Some
+import controllers.sa.PrintPrefsForm
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import scala.Some
+import controllers.sa.PrintPrefsForm
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider {
 
-  val printPrefsForm = Form[PrintPrefsForm](
+  val printPrefsForm: Form[PrintPrefsForm] = Form(
     mapping(
-      "suppressPrinting" -> checked("error.prefs.printsuppression"),
-      "email" -> optional(email),
-      "redirectUrl" -> text
-    )(PrintPrefsForm.apply)(PrintPrefsForm.unapply)
+
+      "prefs" -> tuple(
+        "suppressPrinting" -> boolean,
+        "email" -> optional(email)).verifying("When selecting Print Supression (true) the email address must be provided", printPrefs =>
+          !printPrefs._1 || (printPrefs._1 && !printPrefs._2.equals(""))
+
+        ),
+      "redirectUrl" -> text) {
+        (prefs, redirectUrl) => PrintPrefsForm(prefs._1, prefs._2, redirectUrl)
+      } {
+        form => Some((form.suppressPrinting, form.email), form.redirectUrl)
+      }
   )
+
+  //  val printPrefsForm: Form[PrintPrefsForm] = Form(
+  //    mapping(
+  //        "suppressPrinting" -> checked("error.prefs.printsuppression"),
+  //        "email" -> optional(email),
+  //        "redirectUrl" -> text)
+  //      (PrintPrefsForm.apply)(PrintPrefsForm.unapply)
+  //  )
 
   def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
     implicit user =>
