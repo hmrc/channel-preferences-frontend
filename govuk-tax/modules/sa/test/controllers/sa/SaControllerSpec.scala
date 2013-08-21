@@ -218,7 +218,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
     }
 
-    //TODO: Enable this test case once the tuple error message linking issue has been resolved
+    //TODO: Enable when error message linking issue is resolved
 //    " show the suppress printing error message if no option is selected " in new WithApplication(FakeApplication()) {
 //      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.email" -> "someuser@test.com")
 //        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
