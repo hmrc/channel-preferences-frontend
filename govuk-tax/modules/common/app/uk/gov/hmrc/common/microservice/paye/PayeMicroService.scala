@@ -5,11 +5,10 @@ import org.joda.time.LocalDate
 import views.formatting.Dates
 import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, TransactionId, RemoveCarBenefit, Benefit }
 import uk.gov.hmrc.microservice.{ TaxRegimeMicroService, MicroServiceConfig }
+import controllers.common.domain.Transform._
+import play.api.libs.json.Json
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
-
-  import controllers.common.domain.Transform._
-  import play.api.libs.json.Json
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
@@ -20,13 +19,26 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     httpGet[T](uri)
   }
 
-  def removeCarBenefit(nino: String, version: Int, benefit: Benefit, dateCarWithdrawn: LocalDate, revisedGrossAmount: BigDecimal): Option[TransactionId] = {
-    httpPost[TransactionId](benefit.actions("removeCar"), Json.parse(toRequestBody(RemoveCarBenefit(version, benefit, revisedGrossAmount, dateCarWithdrawn))))
-  }
+  def removeCarBenefit(nino: String,
+    version: Int,
+    benefit: Benefit,
+    dateCarWithdrawn: LocalDate,
+    revisedGrossAmount: BigDecimal): Option[TransactionId] =
+    httpPost[TransactionId](
+      uri = benefit.actions("removeCar"),
+      body = Json.parse(
+        toRequestBody(
+          RemoveCarBenefit(
+            version = version,
+            benefit = benefit,
+            revisedAmount = revisedGrossAmount,
+            withdrawDate = dateCarWithdrawn)
+        )
+      )
+    )
 
-  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate): CalculationResult = {
+  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate) =
     httpGet[CalculationResult](benefit.calculations("withdraw").replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
-  }
-
 }
+
 case class CalculationResult(result: Map[String, BigDecimal])

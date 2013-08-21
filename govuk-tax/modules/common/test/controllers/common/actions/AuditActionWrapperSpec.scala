@@ -28,7 +28,7 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
   val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
 
   "AuditActionWrapper enabled " should {
-    "add values from the MDC to the audit event tags" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.requestEnabled"->true))) {
+    "add values from the MDC to the audit event tags" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.requestEnabled" -> true))) {
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
 
@@ -53,7 +53,7 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
   }
 
   "AuditActionWrapper disabled " should {
-    "not record the request in the audit log" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.requestEnabled"->false))) {
+    "not record the request in the audit log" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.requestEnabled" -> false))) {
 
       val controller = new AuditTestController()
 

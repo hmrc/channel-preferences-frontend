@@ -6,7 +6,10 @@ import controllers.common.domain.Transform._
 import play.api.Play
 import play.api.Play.current
 
-case class AuditEvent(auditSource: String, auditType: String, tags: Map[String, String], detail: Map[String, String] = Map.empty)
+case class AuditEvent(auditSource: String,
+  auditType: String,
+  tags: Map[String, String] = Map.empty,
+  detail: Map[String, String] = Map.empty)
 
 class AuditMicroService(override val serviceUrl: String = MicroServiceConfig.auditServiceUrl) extends MicroService {
 

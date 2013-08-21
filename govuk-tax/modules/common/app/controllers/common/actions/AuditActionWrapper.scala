@@ -21,7 +21,7 @@ trait AuditActionWrapper extends MicroServices {
 
     def apply(action: Action[AnyContent]) = Action {
       request =>
-          if (requestEnabled){
+        if (requestEnabled) {
           val auditEvent = AuditEvent("frontend", "Request", fromMDC())
           auditMicroService.audit(auditEvent)
         }

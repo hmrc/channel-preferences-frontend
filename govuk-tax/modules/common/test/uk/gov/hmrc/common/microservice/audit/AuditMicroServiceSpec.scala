@@ -18,7 +18,7 @@ class TestAuditMicroService extends AuditMicroService {
 class AuditMicroServiceSpec extends WordSpec with MustMatchers {
 
   "AuditMicroService enabled" should {
-    "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.enabled"->true))) {
+    "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.enabled" -> true))) {
       val auditMicroService = new TestAuditMicroService()
 
       val auditEvent = AuditEvent("frontend", "request", Map("userId" -> "/auth/oid/099990"), Map("name" -> "Fred"))
@@ -35,7 +35,7 @@ class AuditMicroServiceSpec extends WordSpec with MustMatchers {
   }
 
   "AuditMicroService disabled" should {
-    "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.enabled"->false))) {
+    "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.enabled" -> false))) {
 
       val auditMicroService = new TestAuditMicroService()
       val auditEvent = AuditEvent("frontend", "request", Map("userId" -> "/auth/oid/099990"), Map("name" -> "Fred"))

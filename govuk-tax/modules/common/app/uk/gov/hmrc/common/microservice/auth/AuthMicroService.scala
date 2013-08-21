@@ -10,6 +10,10 @@ class AuthMicroService(override val serviceUrl: String = MicroServiceConfig.auth
   import play.api.libs.json.Json
 
   def authority(path: String) = httpGet[UserAuthority](path)
+
   def preferences(credId: String) = httpGet[Preferences](s"/auth/cred-id/${credId}/preferences")
-  def savePreferences(oid: String, preferences: Preferences) = httpPutNoResponse(s"/auth/oid/${oid}/preferences", Json.parse(toRequestBody(preferences)), Map.empty)
+
+  def savePreferences(oid: String, preferences: Preferences) = httpPutNoResponse(
+    uri = s"/auth/oid/${oid}/preferences",
+    body = Json.parse(toRequestBody(preferences)))
 }
