@@ -12,13 +12,13 @@ class GovernmentGatewayMicroService extends MicroService {
     def writes(c: Credentials) = JsObject(Seq("userId" -> JsString(c.userId), "password" -> JsString(c.password)))
   }
 
-  implicit object ValidateTokenRequestWrites extends Writes[SsoLoginRequest] {
-    def writes(g: SsoLoginRequest) = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsString(g.timestamp.toString)))
+  implicit object SsoLoginWrites extends Writes[SsoLoginRequest] {
+    def writes(g: SsoLoginRequest) = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsNumber(g.timestamp)))
   }
 
   def login(credentials: Credentials) = {
     val loginResponse = httpPost[GovernmentGatewayResponse](
-      uri = "/government-gateway/login",
+      uri = "/login",
       body = Json.toJson(credentials),
       headers = Map.empty)
 
@@ -27,7 +27,7 @@ class GovernmentGatewayMicroService extends MicroService {
 
   def ssoLogin(ssoLoginRequest: SsoLoginRequest) = {
     val ssoResponse = httpPost[GovernmentGatewayResponse](
-      uri = "/government-gateway/sso-login",
+      uri = "/sso-login",
       body = Json.toJson(ssoLoginRequest),
       headers = Map.empty)
 
@@ -36,12 +36,12 @@ class GovernmentGatewayMicroService extends MicroService {
 }
 
 case class Credentials(userId: String,
-  password: String)
+                       password: String)
 
 case class SsoLoginRequest(token: String,
-  timestamp: Long)
+                           timestamp: Long)
 
 case class GovernmentGatewayResponse(authId: String,
-  name: String,
-  encodedGovernmentGatewayToken: String)
+                                     name: String,
+                                     encodedGovernmentGatewayToken: String)
 
