@@ -73,6 +73,16 @@ trait MicroService extends Status with HeaderNames {
     wsResource.withHeaders(headers.toSeq: _*).post(body)
   }
 
+  protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
+    val wsResource = httpResource(uri)
+    wsResource.withHeaders(headers.toSeq: _*).put(body)
+  }
+
+  protected def httpDeleteAndForget(uri: String) {
+    val wsResource = httpResource(uri)
+    wsResource.delete()
+  }
+
   protected def extractJSONResponse[A](response: Response)(implicit m: Manifest[A]): A = {
     try {
       fromResponse[A](response.body)
@@ -135,6 +145,7 @@ object MicroServiceConfig {
   lazy val saServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.sa.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.sa.port").getOrElse(8900)}"
   lazy val txQueueUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.txqueue.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.txqueue.port").getOrElse(8700)}"
   lazy val auditServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.audit.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.audit.port").getOrElse(8100)}"
+  lazy val keyStoreServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.keystore.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.keystore.port").getOrElse(8400)}"
 
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 
