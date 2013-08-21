@@ -10,11 +10,10 @@
 
     @helper.form(action = controllers.sa.routes.SaController.submitPrefsForm) {
         <p>
-            @inputRadioGroup(
+            @checkbox(
                 printPrefForm("prefs.suppressPrinting"),
-                options = options("true"->"Yes","false"->"No"),
                 '_showConstraints -> false,
-                '_label -> "Suppress Printing"))
+                '_label -> "Suppress Printing")
         </p>
 
         <p>

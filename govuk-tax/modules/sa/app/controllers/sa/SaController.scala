@@ -2,28 +2,19 @@ package controllers.sa
 
 import play.api.data._
 import play.api.data.Forms._
+import play.api.data.validation.Constraints._
 
-import uk.gov.hmrc.microservice.sa.domain.{ SaRegime, SaPerson, SaRoot }
+import uk.gov.hmrc.microservice.sa.domain.SaRegime
 import views.html.sa.{ sa_prefs_details, sa_personal_details }
 import controllers.common.{ SsoPayloadEncryptor, SessionTimeoutWrapper, ActionWrappers, BaseController }
 import play.api.libs.json.Json
 import config.DateTimeProvider
 import controllers.sa.StaticHTMLBanner._
 
-import org.joda.time.{ LocalDate, DateTime }
-import uk.gov.hmrc.common.microservice.auth.domain.{ SaPreferences, Preferences }
+import org.joda.time.DateTime
 import controllers.common.service.FrontEndConfig
-import play.api.data.validation._
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
-import scala.Some
-import controllers.sa.PrintPrefsForm
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
-import scala.Some
-import controllers.sa.PrintPrefsForm
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 
@@ -36,9 +27,8 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
       "prefs" -> tuple(
         "suppressPrinting" -> boolean,
-        "email" -> optional(email)).verifying("When selecting Print Supression (true) the email address must be provided", printPrefs =>
-          !printPrefs._1 || (printPrefs._1 && !printPrefs._2.equals(""))
-
+        "email" -> optional(email)).verifying("error.prefs.email.missing", printPrefs =>
+          !printPrefs._1 || (printPrefs._1 && printPrefs._2.isDefined)
         ),
       "redirectUrl" -> text) {
         (prefs, redirectUrl) => PrintPrefsForm(prefs._1, prefs._2, redirectUrl)
@@ -46,14 +36,6 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         form => Some((form.suppressPrinting, form.email), form.redirectUrl)
       }
   )
-
-  //  val printPrefsForm: Form[PrintPrefsForm] = Form(
-  //    mapping(
-  //        "suppressPrinting" -> checked("error.prefs.printsuppression"),
-  //        "email" -> optional(email),
-  //        "redirectUrl" -> text)
-  //      (PrintPrefsForm.apply)(PrintPrefsForm.unapply)
-  //  )
 
   def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
     implicit user =>

@@ -178,8 +178,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val htmlBody = contentAsString(result)
       htmlBody should include("Print preferences")
-      htmlBody should include("suppressPrinting_true")
-      htmlBody should include("suppressPrinting_false")
+      htmlBody should include("prefs_suppressPrinting")
       htmlBody should include("email")
       htmlBody should include("redirectUrl")
     }
@@ -197,13 +196,12 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
     " show the email address error message the email is missing but print suppression is set to yes" in new WithApplication(FakeApplication()) {
 
-      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "true", "prefs.email" -> "")
+      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "true")
         .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
 
       status(result) shouldBe 400
-      //TODO: Enable these assertions to verify that the error message for this scenario is being displayed
-      //      val requestBenefits = contentAsString(result)
-      //      requestBenefits should include("This field is required")
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Email address must be provided")
 
     }
 
@@ -217,17 +215,6 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       requestBenefits should include("Valid email required")
 
     }
-
-    //TODO: Enable when error message linking issue is resolved
-    //    " show the suppress printing error message if no option is selected " in new WithApplication(FakeApplication()) {
-    //      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.email" -> "someuser@test.com")
-    //        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
-    //
-    //      status(result) shouldBe 400
-    //
-    //      val requestBenefits = contentAsString(result)
-    //      requestBenefits should include("Please select a Print Suppression Option")
-    //    }
 
     " call the auth service to persist the preference data if the data entered is valid with print suppression and email supplied" in new WithApplication(FakeApplication()) {
       val emailAddress = "someuser@test.com"
