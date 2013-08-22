@@ -30,21 +30,12 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
           val taxYear = currentTaxYear
           val benefits = payeData.benefits(taxYear)
 
-          val acceptedTransactions = payeData.transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
-          val completedTransactions = payeData.transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
-
           // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
           val employments = payeData.employments(taxYear)
           val taxCodes = payeData.taxCodes(taxYear)
-          val employmentData: Seq[EmploymentData] =
-            toEmploymentData(employments, taxCodes, taxYear, acceptedTransactions, completedTransactions)
+          val employmentViews: Seq[EmploymentView] = toEmploymentView(employments, taxCodes, taxYear, payeData.recentAcceptedTransactions(), payeData.recentCompletedTransactions())
 
-          Ok(paye_home(
-            name = payeData.name,
-            employmentData = employmentData,
-            hasBenefits = !benefits.isEmpty,
-            numberOfTaxCodes = taxCodes.size)
-          )
+          Ok(paye_home(PayeOverview(payeData.name, user.userAuthority.previouslyLoggedInAt, payeData.nino, employmentViews, !benefits.isEmpty)))
     }
   }
 
@@ -86,26 +77,29 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
       implicit request => benefitRemovedAction(user, request, oid)
   })
 
-  private def toEmploymentData(employments: Seq[Employment],
+  private def toEmploymentView(employments: Seq[Employment],
     taxCodes: Seq[TaxCode],
     taxYear: Int,
     acceptedTransactions: Seq[TxQueueTransaction],
     completedTransactions: Seq[TxQueueTransaction]) =
 
-    for (e <- employments) yield EmploymentData(
-      employment = e,
-      taxCode = taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
-      acceptedTransactions = transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, "accepted"),
-      completedTransactions = transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, "completed")
-    )
+    for (e <- employments) yield EmploymentView(e.employerNameOrReference, e.startDate, e.endDate, taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
+      (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, "accepted") ++ transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, "completed")).toList)
 
-  private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) =
-    taxCodes.find(tc => tc.employmentSequenceNumber == employmentSequenceNumber)
+  private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {
+    val taxCodeOption: Option[TaxCode] = taxCodes.find(tc => tc.employmentSequenceNumber == employmentSequenceNumber)
+    if (taxCodeOption.isDefined) {
+      taxCodeOption.get.taxCode
+    } else {
+      "N/A"
+    }
+
+  }
 
   private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int,
     taxYear: Int,
     transactions: Seq[TxQueueTransaction],
-    messageCodePrefix: String): Seq[RecentTransaction] =
+    messageCodePrefix: String): Seq[RecentChange] =
     transactions.filter(tx =>
       tx.properties("employmentSequenceNumber").toInt == employmentSequenceNumber && tx.properties("taxYear").toInt == taxYear && tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
     ).
@@ -114,9 +108,9 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
           val messageCodeTags = tx.tags.get.filter(_.startsWith("message.code."))
           val messageCode = messageCodeTags(0).replace("message.code", messageCodePrefix)
 
-          RecentTransaction(
-            messageCode = messageCode,
-            txTime = tx.statusHistory(0).createdAt.toLocalDate)
+          RecentChange(
+            messageCode,
+            tx.statusHistory(0).createdAt.toLocalDate)
       }
 
   private val localDateMapping = jodaLocalDate
@@ -195,3 +189,14 @@ case class DisplayBenefit(employment: Employment,
 
 case class RemoveBenefitFormData(withdrawDate: LocalDate,
   agreement: Boolean)
+
+case class EmploymentData(employment: Employment,
+    taxCode: Option[TaxCode],
+    acceptedTransactions: Seq[RecentTransaction],
+    completedTransactions: Seq[RecentTransaction]) {
+  lazy val recentChanges = acceptedTransactions ++ completedTransactions
+}
+
+case class PayeOverview(name: String, lastLogin: Option[DateTime], nino: String, employmentViews: Seq[EmploymentView], hasBenefits: Boolean)
+case class EmploymentView(companyName: String, startDate: LocalDate, endDate: Option[LocalDate], taxCode: String, recentChanges: Seq[RecentChange])
+case class RecentChange(messageCode: String, timeOfChange: LocalDate)

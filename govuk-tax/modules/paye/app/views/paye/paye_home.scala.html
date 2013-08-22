@@ -1,56 +1,60 @@
-@(name: String,
-        employmentData: Seq[uk.gov.hmrc.microservice.paye.domain.EmploymentData],
-        hasBenefits: Boolean,
-        numberOfTaxCodes: Int)
+@(payeOverview: controllers.paye.PayeOverview)
 
 @import views.formatting.Dates._
 
 @main(title = "Your tax home") {
 
-    <h2>Welcome, @name</h2>
+<h2>Welcome, @payeOverview.name</h2>
 
-    @if(employmentData.flatMap(e => e.acceptedTransactions ++ e.completedTransactions).size > 0) {
-        <h2>Recent Changes</h2>
+<section class="overview--no-border">
+    <h1 class="overview__heading">Overview</h1>
 
-    <ul>
-    @for(employment <- employmentData) {
-        @for(tx <- employment.acceptedTransactions ++ employment.completedTransactions) {
-            <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), employment.employment.employerNameOrReference, employment.taxCode.get.taxCode)</li>
-        }
+    @if(payeOverview.lastLogin.isDefined) {
+        <div class="overview__last-login">
+            Your last login was at @payeOverview.lastLogin.get.
+        </div>
     }
-    </ul>
-    }
-    <h2>Employments in current tax year</h2>
+    <div class="overview__actions">
+        <h2 class="overview__sub-heading">Recent changes</h2>
+        <ul class="overview__actions__done" data-recent-changes>
+            @if(payeOverview.employmentViews.flatMap(e => e.recentChanges).size > 0) {
+                @for(employmentView <- payeOverview.employmentViews) {
+                    @for(recentChange <- employmentView.recentChanges) {
+                        <li>@Messages("recent.transaction." + recentChange.messageCode, formatDate(recentChange.timeOfChange), employmentView.companyName, employmentView.taxCode)</li>
+                    }
+                }
+            } else {
+                <li>There are no changes to your tax in the last month.</li>
+            }
+        </ul>
+    </div>
+</section>
 
-    @employmentData.map { employment =>
-	<ul class="employment">
-        <li>
-        @if(employment.employment.employerName.isEmpty) {
-	        <div class="employment-ref">Employers Reference Number: @employment.employment.taxDistrictNumber / @employment.employment.payeNumber</div>
-        } else {
-            <div class="employment-employer-name">@employment.employment.employerName.get</div>
-        }
-	    <div class="employment-term">(@formatDate(employment.employment.startDate) to @formatDate(employment.employment.endDate, "present"))</div>
-        </li>
-	</ul>
-    }
+<section class="overview">
+    <h1 class="overview__heading">Pay As You Earn (PAYE)</h1>
+    <div class="overview__contacts">
+        <div class="overview__contacts__nino">
+            National Insurance number: @payeOverview.nino
+        </div>
+        <ul class="overview__contacts__companies">
 
-    @{numberOfTaxCodes match {
-        case 0 =>
-        case 1 => {<h3>Your Tax Code</h3>}
-        case _ => {<h3>Your Tax Codes</h3>}
-    }}
+            @for(employmentView <- payeOverview.employmentViews) {
+            <li>
+                <h2 class="overview__contacts__heading">@employmentView.companyName</h2>
+                <p>Employed from (@formatDate(employmentView.startDate) to @formatDate(employmentView.endDate, "present"))<p>
+                <h3 class="overview__contacts__sub-heading">Income Tax</h3>
+                <p>Tax code: @employmentView.taxCode</p>
+            </li>
+            }
 
-    <ul>
-    @for(employment <- employmentData) {
-        @if(!employment.taxCode.isEmpty) {
-            <li class="tax-code">@employment.taxCode.get.taxCode @if(employment.acceptedTransactions.nonEmpty){(a new tax code is being calculated and this may change soon)} else {@if(employment.completedTransactions.nonEmpty) {(This changed on @formatDate(employment.completedTransactions(0).txTime))}} </li>
-        }
-    }
-    </ul>
+        </ul>
+        <p>
+            @if(payeOverview.hasBenefits) {
+            <a class="cta cta--view-benefits" href="@controllers.paye.routes.PayeController.listBenefits">Click here to see your benefits</a>
+            }
+        </p>
+    </div>
+</section>
 
 
-    @if(hasBenefits) {
-	<a class="cta cta--view-benefits" href="@controllers.paye.routes.PayeController.listBenefits">Click here to see your benefits</a>
-    }
 }

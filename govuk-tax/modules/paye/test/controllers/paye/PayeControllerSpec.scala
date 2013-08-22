@@ -5,7 +5,7 @@ import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.auth.AuthMicroService
 import uk.gov.hmrc.microservice.paye.PayeMicroService
-import org.joda.time.{ DateTimeZone, DateTime, LocalDate }
+import org.joda.time.{ DateTime, LocalDate }
 import views.formatting.Dates
 import java.net.URI
 import controllers.common.SessionTimeoutWrapper._
@@ -40,7 +40,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   private val mockPayeMicroService = mock[PayeMicroService]
   private val mockTxQueueMicroService = mock[TxQueueMicroService]
 
-  private val currentTestDate = new DateTime(DateTimeZone.UTC).dayOfMonth().setCopy(13).monthOfYear().setCopy(8).withYear(2013)
+  private val currentTestDate = new DateTime()
   val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 
   private def setupUser(id: String, nino: String, name: String) {
@@ -121,14 +121,13 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
   val testTransaction2 = transactionWithTags(List("paye", "test"))
 
-  when(mockTxQueueMicroService.transaction("/txqueue/current-status/paye/AB123456C/ACCEPTED/after/" + dateFormat.print(currentTestDate.minusMonths(1)))).thenReturn(Some(List(testTransaction1, testTransaction2)))
-  when(mockTxQueueMicroService.transaction("/txqueue/current-status/paye/AB123456C/COMPLETED/after/" + dateFormat.print(currentTestDate.minusMonths(1)))).thenReturn(Some(List(testTransaction1, testTransaction2)))
+  when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List(testTransaction1, testTransaction2)))
+  when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List(testTransaction1, testTransaction2)))
 
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
-    override val txQueueMicroService = mockTxQueueMicroService
-    override def currentDate = currentTestDate
+    override implicit val txQueueMicroService = mockTxQueueMicroService
   }
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
@@ -168,8 +167,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
-      content should include("On August 8, 2013, you removed your company car benefit from 898/9900112. This is being processed and you will receive a new Tax Code within 2 days.")
-      content should include("On August 8, 2013, you removed your company car benefit from 898/9900112. This has been processed and your new Tax Code is 430L. 898/9900112 have been notified.")
+      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from 898/9900112. This is being processed and you will receive a new Tax Code within 2 days.")
+      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from 898/9900112. This has been processed and your new Tax Code is 430L. 898/9900112 have been notified.")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {

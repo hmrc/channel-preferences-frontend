@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import views.html.saml_auth_form
 
-class SamlAuthFormTemplateSpec extends BaseSpec with ShouldMatchers with PageSugar {
+class SamlAuthFormTemplateSpec extends BaseSpec with PageSugar {
 
   "SamlAuthForm" should {
     "have the right url and data" in {

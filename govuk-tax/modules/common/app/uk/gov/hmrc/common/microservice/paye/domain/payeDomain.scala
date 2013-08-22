@@ -1,6 +1,6 @@
 package uk.gov.hmrc.microservice.paye.domain
 
-import org.joda.time.{ DateTime, LocalDate }
+import org.joda.time.{ DateTimeZone, DateTime, LocalDate }
 import org.joda.time.format.DateTimeFormat
 import controllers.common.routes
 import uk.gov.hmrc.microservice.paye.PayeMicroService
@@ -28,6 +28,8 @@ case class PayeRoot(nino: String,
 
   private val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 
+  def currentDate = new DateTime(DateTimeZone.UTC)
+
   def taxCodes(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
@@ -37,7 +39,15 @@ case class PayeRoot(nino: String,
   def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
-  def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] =
+  def recentAcceptedTransactions()(implicit txQueueMicroService: TxQueueMicroService) = {
+    transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
+  }
+
+  def recentCompletedTransactions()(implicit txQueueMicroService: TxQueueMicroService) = {
+    transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
+  }
+
+  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] =
     transactionLinks.get(status) match {
       case Some(uri) =>
         val uri = transactionLinks(status).replace("{from}", date.toString(dateFormat))
@@ -112,7 +122,3 @@ case class TransactionId(oid: String)
 case class RecentTransaction(messageCode: String,
   txTime: LocalDate)
 
-case class EmploymentData(employment: Employment,
-  taxCode: Option[TaxCode],
-  acceptedTransactions: Seq[RecentTransaction],
-  completedTransactions: Seq[RecentTransaction])
