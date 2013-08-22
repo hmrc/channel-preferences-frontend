@@ -112,7 +112,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       "paye",
       URI.create("http://tax.com"),
       None,
-      List(Status("created", None, currentTestDate.minusDays(5))),
+      List(Status("created", None, currentTestDate)),
       Some(tags),
       Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013"),
       currentTestDate,
