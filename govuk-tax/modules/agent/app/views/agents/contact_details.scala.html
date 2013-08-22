@@ -1,4 +1,7 @@
-@(form:Form[controllers.agent.AgentDetails])
+@(agentForm:Form[controllers.agent.AgentDetails], paye: uk.gov.hmrc.microservice.paye.domain.PayeRoot)
+
+@import views.helpers.CustomHelpers._
+@import helper._
 
 @main(title = "Your tax home") {
 
@@ -20,21 +23,48 @@
     }
 </style>
 
-<form method="POST" action="@controllers.agent.routes.AgentController.postContacts()">
-    <div><label for='id'>Title:</label><input disabled='true' id='title' name="title" value='@form.data("title")'/></div>
-    <div><label for='firstName'>First name:</label><input disabled='true' id='firstName' name="firstName" value='@form.data("firstName")'/></div>
-    <div><label for='middleName'>Middle name:</label><input disabled='true' id='middleName' name="middleName" value='@form.data("middleName")'/></div>
-    <div><label for='lastName'>Last name:</label><input disabled='true' id='lastName' name="lastName" value='@form.data("lastName")'/></div>
-    <div><label for='dateOfBirth'>Date of birth:</label><input disabled='true' id='dateOfBirth' name="dateOfBirth" value='@form.data("dateOfBirth")'/></div>
-    <div><label for='nino'>National Insurance Number:</label><input disabled='true' id='nino' name="nino" value='@form.data("nino")'/></div>
+
+@helper.form(action = agent.routes.AgentController.postContacts) {
+
+    <div><label for='title'>Title:</label><input disabled='true' id='title' name="title" value='@paye.title'/></div>
+    <div><label for='firstName'>First name:</label><input disabled='true' id='firstName' name="firstName" value='@paye.firstName'/></div>
+    <div><label for='middleName'>Middle name:</label><input disabled='true' id='middleName' name="middleName" value=''/></div>
+    <div><label for='lastName'>Last name:</label><input disabled='true' id='lastName' name="lastName" value='@paye.surname'/></div>
+    <div><label for='dateOfBirth'>Date of birth:</label><input disabled='true' id='dateOfBirth' name="dateOfBirth" value='@paye.dateOfBirth'/></div>
+    <div><label for='nino'>National Insurance Number:</label><input disabled='true' id='nino' name="nino" value='@paye.nino'/></div>
 
     <p>Please provide at least one of the following details in case we need to contact you:</p>
-    <div><label for='daytimePhoneNumber'>Daytime phone number:</label><input id='daytimePhoneNumber' name="daytimePhoneNumber" value='@form.data("daytimePhoneNumber")'/></div>
-    <div><label for='mobilePhoneNumber'>Mobile phone number:</label><input id='mobilePhoneNumber' name="mobilePhoneNumber" value='@form.data("mobilePhoneNumber")'/></div>
-    <div><label for='emailAddress'>Email address:</label><input id='emailAddress' name="emailAddress" value='@form.data("emailAddress")'/></div>
+    <p>
+        @inputText(
+          agentForm("daytimePhoneNumber"),
+          '_id -> "daytimePhoneNumber",
+          '_name -> "daytimePhoneNumber",
+          '_label -> "Daytime phone number:",
+          '_showConstraints -> false
+        )
+    </p>
+    <p>
+        @inputText(
+          agentForm("mobilePhoneNumber"),
+          '_id -> "mobilePhoneNumber",
+          '_name -> "mobilePhoneNumber",
+          '_label -> "Mobile phone number:",
+          '_showConstraints -> false
+        )
+    </p>
+    <p>
+        @inputText(
+        agentForm("emailAddress"),
+          '_id -> "emailAddress",
+          '_name -> "emailAddress",
+          '_label -> "Email address:",
+          '_showConstraints -> false
+        )
+    </p>
 
-    <div><input type="submit" value="Next"/></div>
-</form>
+
+    <p><input type="submit" value="Next"/></p>
+}
 
 
 }

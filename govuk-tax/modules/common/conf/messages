@@ -5,6 +5,7 @@ error.paye.benefit.date.previous.taxyear=Invalid date: Return date cannot be in 
 error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
 error.agent.accept.sroAgreement=Please specify that you are the Senior Responsible Officer
 error.agent.accept.tncAgreement=Please accept the terms and conditions
+error.agent.phone=Please enter a valid phone number
 error.prefs.printsuppression=Please select a Print Suppression Option
 error.prefs.email.missing=Email address must be provided
 

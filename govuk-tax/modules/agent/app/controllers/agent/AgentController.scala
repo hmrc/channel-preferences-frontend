@@ -2,13 +2,16 @@ package controllers.agent
 
 import play.api.data._
 import play.api.data.Forms._
+import play.api.data.validation.Constraints.nonEmpty
 import controllers.common._
 import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, PayeRegime }
 import play.api.Logger
 import play.api.mvc.{ Result, Request }
 import uk.gov.hmrc.microservice.domain.User
+import controllers.common.service.MicroServices
+import java.util.regex.Pattern
 
-class AgentController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+class AgentController extends BaseController with SessionTimeoutWrapper with ActionWrappers {
 
   def reasonForApplication() = UnauthorisedAction { implicit request =>
     Ok(views.html.agents.reason_for_application())
@@ -48,17 +51,25 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
 
   val contactDetailsFunction: (User, Request[_]) => Result = (user, request) => {
     val paye: PayeRoot = user.regimes.paye.get
-    val form = contactForm.fill(AgentDetails(paye.title, paye.firstName, "", paye.surname, paye.dateOfBirth, paye.nino, "", "", ""))
-    Ok(views.html.agents.contact_details(form))
+    val form = contactForm.fill(AgentDetails())
+    Ok(views.html.agents.contact_details(form, paye))
   }
 
   def postContacts = WithSessionTimeoutValidation {
     AuthorisedForIdaAction(Some(PayeRegime)) {
       user =>
         implicit request =>
-          val agentDetails = contactForm.bindFromRequest.data
-          Logger.warn(s"TODO: Write this to backend systems: $agentDetails")
-          Redirect(routes.AgentController.agentType)
+          contactForm.bindFromRequest.fold(
+            errors => {
+              BadRequest(views.html.agents.contact_details(errors, user.regimes.paye.get))
+            },
+            _ => {
+              val agentDetails = contactForm.bindFromRequest.data
+              keyStoreMicroService.addKeyStoreEntry("Registration:" + session.get("PLAY_SESSION"), "agent", "contactForm", agentDetails)
+              Redirect(routes.AgentController.agentType)
+            }
+          )
+
     }
   }
 
@@ -71,20 +82,15 @@ class AgentController extends BaseController with ActionWrappers with SessionTim
 
   private val contactForm = Form[AgentDetails](
     mapping(
-      "title" -> text,
-      "firstName" -> text,
-      "middleName" -> text,
-      "lastName" -> text,
-      "dateOfBirth" -> text,
-      "nino" -> text,
-      "daytimePhoneNumber" -> text,
-      "mobilePhoneNumber" -> text,
-      "emailAddress" -> email
+      "daytimePhoneNumber" -> text.verifying("error.agent.phone", s => s.matches("\\d+")),
+      "mobilePhoneNumber" -> text.verifying("error.agent.phone", s => s.matches("\\d+")),
+      "emailAddress" -> email.verifying(nonEmpty)
     )(AgentDetails.apply)(AgentDetails.unapply)
   )
-
 }
 
 case class SroCheck(sroAgreement: Boolean = false, tncAgreement: Boolean = false)
-case class AgentDetails(title: String, firstName: String, middleName: String, lastName: String, dateOfBirth: String, nino: String, daytimePhoneNumber: String, mobilePhoneNumber: String, emailAddress: String)
+case class AgentDetails(daytimePhoneNumber: String = "", mobilePhoneNumber: String = "", emailAddress: String = "") {
+
+}
 

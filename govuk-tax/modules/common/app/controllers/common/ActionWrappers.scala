@@ -53,7 +53,7 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
               val encryptedUserId: Option[String] = request.session.get("userId")
               val token: Option[String] = request.session.get("token")
               if (encryptedUserId.isEmpty || token.isDefined) {
-                Logger.debug("No identity cookie found or wrong user type - redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
+                Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.get)} tokenDefined : ${token.isDefined}")
                 RedirectUtils.toSamlLogin
               } else {
                 act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
