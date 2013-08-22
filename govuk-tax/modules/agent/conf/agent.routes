@@ -9,3 +9,6 @@ POST        /sro-check                      @controllers.agent.AgentSroCheckCont
 
 GET         /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.agentType
 POST        /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.postDetails
+
+GET         /company-details                @controllers.agent.registration.AgentCompanyDetailsController.companyDetails
+POST         /company-details               @controllers.agent.registration.AgentCompanyDetailsController.postCompanyDetails

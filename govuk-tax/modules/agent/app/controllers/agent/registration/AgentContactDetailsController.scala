@@ -13,8 +13,8 @@ class AgentContactDetailsController extends BaseController with SessionTimeoutWr
 
   private val contactForm = Form[AgentContactDetails](
     mapping(
-      "daytimePhoneNumber" -> text.verifying("error.agent.phone", s => s.matches("\\d+")),
-      "mobilePhoneNumber" -> text.verifying("error.agent.phone", s => s.matches("\\d+")),
+      "daytimePhoneNumber" -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
+      "mobilePhoneNumber" -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
       "emailAddress" -> email
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )

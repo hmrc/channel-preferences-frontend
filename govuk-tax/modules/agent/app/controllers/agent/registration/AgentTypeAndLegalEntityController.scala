@@ -13,7 +13,7 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
       "agentType" -> nonEmptyText.verifying("error.illegal.value", v => { configuration.agentTypeOptions.contains(v) }),
-      "legalEntity" -> nonEmptyText.verifying("error.illegal.value",v => { configuration.agentTypeOptions.contains(v) })
+      "legalEntity" -> nonEmptyText.verifying("error.illegal.value", v => { configuration.legalEntityOptions.contains(v) })
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
@@ -36,7 +36,7 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
             _ => {
               val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest.data
               saveFormToKeyStore("agentTypeAndLegalEntityForm", agentTypeAndLegalEntityDetails)
-              Redirect(routes.AgentTypeAndLegalEntityController.agentType)
+              Redirect(routes.AgentCompanyDetailsController.companyDetails())
             }
           )
     }
