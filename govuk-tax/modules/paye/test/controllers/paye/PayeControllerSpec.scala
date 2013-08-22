@@ -107,7 +107,16 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
   )
 
-  def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), 1, 2013, None, List(Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(1))
+  def transactionWithTags(tags: List[String]) =
+    TxQueueTransaction(URI.create("http://tax.com"),
+      "paye",
+      URI.create("http://tax.com"),
+      None,
+      List(Status("created", None, currentTestDate.minusDays(5))),
+      Some(tags),
+      Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013"),
+      currentTestDate,
+      currentTestDate.minusDays(1))
 
   val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
   val testTransaction2 = transactionWithTags(List("paye", "test"))

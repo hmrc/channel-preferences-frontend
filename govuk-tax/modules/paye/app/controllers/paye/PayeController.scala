@@ -107,7 +107,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     transactions: Seq[TxQueueTransaction],
     messageCodePrefix: String): Seq[RecentTransaction] =
     transactions.filter(tx =>
-      tx.employmentSequenceNumber == employmentSequenceNumber && tx.taxYear == taxYear && tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
+      tx.properties("employmentSequenceNumber").toInt == employmentSequenceNumber && tx.properties("taxYear").toInt == taxYear && tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
     ).
       map {
         tx =>

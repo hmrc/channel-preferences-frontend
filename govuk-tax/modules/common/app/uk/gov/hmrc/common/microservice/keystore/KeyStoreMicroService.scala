@@ -9,8 +9,8 @@ case class KeyStore(id: String, dateCreated: DateTime, dateUpdated: DateTime, da
 
 class KeyStoreMicroService(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends MicroService {
 
-  def addKeyStoreEntry(id: String, source: String, key: String, data: Map[String, Any]){
-    val uri = buildUri(id, source)  + s"/data/${key}"
+  def addKeyStoreEntry(id: String, source: String, key: String, data: Map[String, Any]) {
+    val uri = buildUri(id, source) + s"/data/${key}"
     httpPutAndForget(uri, Json.parse(toRequestBody(data)))
   }
 

@@ -2,8 +2,8 @@ package uk.gov.hmrc.common.microservice.keystore
 
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
-import play.api.test.{FakeApplication, WithApplication}
-import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
+import play.api.test.{ FakeApplication, WithApplication }
+import uk.gov.hmrc.common.microservice.audit.{ AuditMicroService, AuditEvent }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
@@ -31,47 +31,47 @@ class TestKeyStoreMicroService extends KeyStoreMicroService {
 
 class KeyStoreMicroServiceSpec extends WordSpec with MustMatchers with MockitoSugar {
 
-    "KeyStoreMicroService" should {
-      "call the key store service when adding a key store entry " in new WithApplication(FakeApplication()) {
+  "KeyStoreMicroService" should {
+    "call the key store service when adding a key store entry " in new WithApplication(FakeApplication()) {
 
-        val keyStoreMicroService = new TestKeyStoreMicroService()
+      val keyStoreMicroService = new TestKeyStoreMicroService()
 
-        val id: String = "anId"
-        val source: String = "aSource"
-        val key: String = "aKey"
-        val data = Map("key1" -> "value1", "key2" -> "value2")
+      val id: String = "anId"
+      val source: String = "aSource"
+      val key: String = "aKey"
+      val data = Map("key1" -> "value1", "key2" -> "value2")
 
-        keyStoreMicroService.addKeyStoreEntry(id, source, key, data)
+      keyStoreMicroService.addKeyStoreEntry(id, source, key, data)
 
-        keyStoreMicroService.uri must be("/keystore/aSource/anId/data/aKey")
+      keyStoreMicroService.uri must be("/keystore/aSource/anId/data/aKey")
 
-        val body = keyStoreMicroService.body
-        (body \ "key1").as[String] must be("value1")
-        (body \ "key2").as[String] must be("value2")
-      }
-
-      "call the key store service when getting a key store " in new WithApplication(FakeApplication()) {
-
-        val keyStoreMicroService = new TestKeyStoreMicroService()
-
-        val id: String = "anId"
-        val source: String = "aSource"
-
-        keyStoreMicroService.getKeyStore(id, source)
-
-        keyStoreMicroService.uri must be("/keystore/aSource/anId")
-      }
-
-      "call the key store service when deleting a key store " in new WithApplication(FakeApplication()) {
-
-        val keyStoreMicroService = new TestKeyStoreMicroService()
-
-        val id: String = "anId"
-        val source: String = "aSource"
-
-        keyStoreMicroService.deleteKeyStore(id, source)
-
-        keyStoreMicroService.uri must be("/keystore/aSource/anId")
-      }
+      val body = keyStoreMicroService.body
+      (body \ "key1").as[String] must be("value1")
+      (body \ "key2").as[String] must be("value2")
     }
+
+    "call the key store service when getting a key store " in new WithApplication(FakeApplication()) {
+
+      val keyStoreMicroService = new TestKeyStoreMicroService()
+
+      val id: String = "anId"
+      val source: String = "aSource"
+
+      keyStoreMicroService.getKeyStore(id, source)
+
+      keyStoreMicroService.uri must be("/keystore/aSource/anId")
+    }
+
+    "call the key store service when deleting a key store " in new WithApplication(FakeApplication()) {
+
+      val keyStoreMicroService = new TestKeyStoreMicroService()
+
+      val id: String = "anId"
+      val source: String = "aSource"
+
+      keyStoreMicroService.deleteKeyStore(id, source)
+
+      keyStoreMicroService.uri must be("/keystore/aSource/anId")
+    }
+  }
 }
