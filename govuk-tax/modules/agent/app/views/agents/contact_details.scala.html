@@ -1,4 +1,4 @@
-@(agentForm:Form[controllers.agent.AgentDetails], paye: uk.gov.hmrc.microservice.paye.domain.PayeRoot)
+@(agentForm:Form[controllers.agent.registration.AgentContactDetails], paye: uk.gov.hmrc.microservice.paye.domain.PayeRoot)
 
 @import views.helpers.CustomHelpers._
 @import helper._
@@ -24,7 +24,7 @@
 </style>
 
 
-@helper.form(action = agent.routes.AgentController.postContacts) {
+@helper.form(action = agent.registration.routes.AgentContactDetailsController.postContacts) {
 
     <div><label for='title'>Title:</label><input disabled='true' id='title' name="title" value='@paye.title'/></div>
     <div><label for='firstName'>First name:</label><input disabled='true' id='firstName' name="firstName" value='@paye.firstName'/></div>

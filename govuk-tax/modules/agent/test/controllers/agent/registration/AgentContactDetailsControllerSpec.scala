@@ -1,4 +1,4 @@
-package controllers.agent
+package controllers.agent.registration
 
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
@@ -13,11 +13,11 @@ import controllers.common.SessionTimeoutWrapper
 import uk.gov.hmrc.microservice.auth.AuthMicroService
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
-import uk.gov.hmrc.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
 import java.net.URI
 import org.scalatest.BeforeAndAfterAll
 
-class AgentControllerSpec extends BaseSpec with Encryption with MockitoSugar with BeforeAndAfterAll {
+class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
   import play.api.test.Helpers._
 
@@ -34,48 +34,14 @@ class AgentControllerSpec extends BaseSpec with Encryption with MockitoSugar wit
   when(mockPayeMicroService.root(uri)).thenReturn(payeRoot)
   when(mockAuthMicroService.authority(Matchers.anyString())).thenReturn(Some(UserAuthority(authority, Regimes(paye = Some(URI.create(uri))))))
 
-  private def controller = new AgentController with MockMicroServicesForTests {
+  private def controller = new AgentContactDetailsController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
     override val payeMicroService = mockPayeMicroService
   }
 
-  "The sro check page" should {
-    "include two agreements" in new WithApplication(FakeApplication()) {
-      val content = contentAsString(controller.sroCheck()(FakeRequest()))
-      content should include("Yes, I am the Senior Responsible Officer")
-      content should include("I accept the Terms &amp; Conditions")
-    }
-
-    "Return a BadRequest error if agreements are not checked" in new WithApplication(FakeApplication()) {
-
-      val result = controller.submitAgreement()(newRequest("false", "false"))
-      status(result) shouldBe 400
-      contentAsString(result) should include("Please specify that you are the Senior Responsible Officer")
-      contentAsString(result) should include("Please accept the terms and conditions")
-
-    }
-
-    "Return a Redirect if agreements are checked" in new WithApplication(FakeApplication()) {
-
-      val result = controller.submitAgreement()(newRequest("true", "true"))
-
-      status(result) shouldBe 303
-      header("Location", result) shouldBe Some("/home")
-
-    }
-  }
-
-  "The submit agreement page" should {
-    "add a register agent entry in the session" in new WithApplication(FakeApplication()) {
-      val result = controller.submitAgreement()(newRequest("true", "true"))
-
-      session(result).data("register agent") should equal("true")
-    }
-  }
-
   "The contact details page" should {
     "display known agent info" in new WithApplication(FakeApplication()) {
-      val result = new AgentController().contactDetailsFunction(user, null)
+      val result = controller.contactDetailsFunction(user, null)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#title").first().`val` should be("Mr")
@@ -126,10 +92,6 @@ class AgentControllerSpec extends BaseSpec with Encryption with MockitoSugar wit
   def newRequestForContactDetails(daytimePhoneNumber: String, mobilePhoneNumber: String, emailAddress: String) =
     FakeRequest().withFormUrlEncodedBody("daytimePhoneNumber" -> daytimePhoneNumber, "mobilePhoneNumber" -> mobilePhoneNumber, "emailAddress" -> emailAddress)
       .withSession("userId" -> controller.encrypt(authority), "name" -> controller.encrypt("Will Shakespeare"),
-      SessionTimeoutWrapper.sessionTimestampKey -> controller.now().getMillis.toString)
+        SessionTimeoutWrapper.sessionTimestampKey -> controller.now().getMillis.toString)
 
-  def newRequest(sro: String, tnc: String) =
-    FakeRequest().withFormUrlEncodedBody("sroAgreement" -> sro, "tncAgreement" -> tnc)
-
-  override val encryptionKey = "eU1qMlpESFRPN0hRNGJxNg=="
 }
