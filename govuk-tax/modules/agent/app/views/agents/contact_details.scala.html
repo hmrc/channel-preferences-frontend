@@ -1,15 +1,70 @@
+@(agentForm:Form[controllers.agent.registration.AgentContactDetails], paye: uk.gov.hmrc.microservice.paye.domain.PayeRoot)
+
+@import views.helpers.CustomHelpers._
+@import helper._
+
 @main(title = "Your tax home") {
 
 
-
-
-<h2>Contact Details</h2>
+<h2 xmlns="http://www.w3.org/1999/html">Contact Details</h2>
 
 <p>We were able to determine the following details for you:</p>
 
-<p>.....</p>
-<p>.....</p>
-<p>.....</p>
+<style>
+    form {
+        width: 500px;
+        clear both;
+        text-align: right;
+    }
+    form input {
+        width: 50%;
+        clear: both;
+        margin: 10px;
+    }
+</style>
+
+
+@helper.form(action = agent.registration.routes.AgentContactDetailsController.postContacts) {
+
+    <div><label for='title'>Title:</label><input disabled='true' id='title' name="title" value='@paye.title'/></div>
+    <div><label for='firstName'>First name:</label><input disabled='true' id='firstName' name="firstName" value='@paye.firstName'/></div>
+    <div><label for='middleName'>Middle name:</label><input disabled='true' id='middleName' name="middleName" value=''/></div>
+    <div><label for='lastName'>Last name:</label><input disabled='true' id='lastName' name="lastName" value='@paye.surname'/></div>
+    <div><label for='dateOfBirth'>Date of birth:</label><input disabled='true' id='dateOfBirth' name="dateOfBirth" value='@paye.dateOfBirth'/></div>
+    <div><label for='nino'>National Insurance Number:</label><input disabled='true' id='nino' name="nino" value='@paye.nino'/></div>
+
+    <p>Please provide at least one of the following details in case we need to contact you:</p>
+    <p>
+        @inputText(
+          agentForm("daytimePhoneNumber"),
+          '_id -> "daytimePhoneNumber",
+          '_name -> "daytimePhoneNumber",
+          '_label -> "Daytime phone number:",
+          '_showConstraints -> false
+        )
+    </p>
+    <p>
+        @inputText(
+          agentForm("mobilePhoneNumber"),
+          '_id -> "mobilePhoneNumber",
+          '_name -> "mobilePhoneNumber",
+          '_label -> "Mobile phone number:",
+          '_showConstraints -> false
+        )
+    </p>
+    <p>
+        @inputText(
+        agentForm("emailAddress"),
+          '_id -> "emailAddress",
+          '_name -> "emailAddress",
+          '_label -> "Email address:",
+          '_showConstraints -> false
+        )
+    </p>
+
+
+    <p><input type="submit" value="Next"/></p>
+}
 
 
 }

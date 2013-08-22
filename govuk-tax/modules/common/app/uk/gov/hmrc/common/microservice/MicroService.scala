@@ -44,25 +44,64 @@ trait MicroService extends Status with HeaderNames {
 
   protected def httpResource(uri: String) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
-    WS.url(s"$serviceUrl$uri").withHeaders(headers: _*)
+    WS.url(s"$serviceUrl$uri").withHeaders(headers(): _*)
   }
 
   protected case class Statuses(r: Range) {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get()), MicroServiceConfig.defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get())(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+
+  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
+    val wsResource = httpResource(uri)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  }
+
+  protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
+    val wsResource = httpResource(uri)
+    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body))(extractNoResponse), MicroServiceConfig.defaultTimeoutDuration)
+  }
 
   protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body)), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
   }
 
-  protected def response[A](futureResponse: Future[Response])(implicit m: Manifest[A]): Future[Option[A]] = {
+  protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
+    val wsResource = httpResource(uri)
+    wsResource.withHeaders(headers.toSeq: _*).post(body)
+  }
+
+  protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
+    val wsResource = httpResource(uri)
+    wsResource.withHeaders(headers.toSeq: _*).put(body)
+  }
+
+  protected def httpDeleteAndForget(uri: String) {
+    val wsResource = httpResource(uri)
+    wsResource.delete()
+  }
+
+  protected def extractJSONResponse[A](response: Response)(implicit m: Manifest[A]): A = {
+    try {
+      fromResponse[A](response.body)
+    } catch {
+      case e: Throwable => {
+        throw new Exception("Malformed result")
+      }
+    }
+  }
+
+  protected def extractNoResponse(response: Response): Response = {
+    response
+  }
+
+  protected def response[A](futureResponse: Future[Response])(handleResponse: (Response) => A)(implicit m: Manifest[A]): Future[Option[A]] = {
     futureResponse map {
       res =>
         res.status match {
-          case OK => Some(fromResponse[A](res.body))
+          case OK => Some(handleResponse(res))
           //          case success() => //do nothing
 
           //TODO: add some proper error handling
@@ -77,6 +116,7 @@ trait MicroService extends Status with HeaderNames {
         }
     }
   }
+
 }
 
 trait HasResponse {
@@ -104,6 +144,8 @@ object MicroServiceConfig {
   lazy val governmentGatewayServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.government-gateway.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.government-gateway.port").getOrElse(8570)}"
   lazy val saServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.sa.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.sa.port").getOrElse(8900)}"
   lazy val txQueueUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.txqueue.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.txqueue.port").getOrElse(8700)}"
+  lazy val auditServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.audit.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.audit.port").getOrElse(8100)}"
+  lazy val keyStoreServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.keystore.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.keystore.port").getOrElse(8400)}"
 
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 

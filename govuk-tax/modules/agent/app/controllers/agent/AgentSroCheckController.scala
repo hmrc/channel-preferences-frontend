@@ -2,10 +2,10 @@ package controllers.agent
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.mvc.Action
 import controllers.common._
+import play.api.Logger
 
-class AgentController extends BaseController with ActionWrappers {
+class AgentSroCheckController extends BaseController with SessionTimeoutWrapper with ActionWrappers {
 
   def reasonForApplication() = UnauthorisedAction { implicit request =>
     Ok(views.html.agents.reason_for_application())
@@ -29,16 +29,13 @@ class AgentController extends BaseController with ActionWrappers {
           BadRequest(views.html.agents.sro_check(errors))
         },
         _ => {
-          RedirectUtils.toSamlLogin.withSession(session.copy(Map("register agent" -> "true")))
+          Logger.debug(s"Redirecting to contact details. Session is $session")
+          import controllers.agent.registration.routes
+          Redirect(routes.AgentContactDetailsController.contactDetails).withSession(session + ("register agent" -> "true"))
         }
       )
   }
 
-  def contactDetails = Action {
-    Ok(views.html.agents.contact_details())
-  }
-
 }
-
 case class SroCheck(sroAgreement: Boolean = false, tncAgreement: Boolean = false)
 

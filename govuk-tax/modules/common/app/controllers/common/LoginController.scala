@@ -1,11 +1,12 @@
 package controllers.common
 
-import play.api.mvc.{ AnyContent, Action }
+import play.api.mvc.{ Session, AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
 import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
 import uk.gov.hmrc.microservice.UnauthorizedException
+import controllers.common.service.FrontEndConfig
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
 
@@ -51,7 +52,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   })
 
   def enterAsGeoffFisher = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
-    val credentials = Credentials("805933359724", "passw0rd")
+    val credentials = Credentials("sa0054", "p5w5bskz")
 
     try {
       val loginResponse: GovernmentGatewayResponse = governmentGatewayMicroService.login(credentials)
@@ -107,6 +108,11 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
   })
 
   def logout = Action {
-    Redirect(routes.HomeController.landing())
+    Redirect(FrontEndConfig.portalSsoInLogoutUrl)
   }
+
+  def loggedout = WithNewSessionTimeout(UnauthorisedAction {
+    implicit request =>
+      Ok(views.html.logged_out()).withNewSession
+  })
 }

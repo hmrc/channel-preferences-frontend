@@ -19,6 +19,16 @@ import play.api.libs.ws.Response
 import controllers.common._
 import play.api.mvc.Cookie
 import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
+import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayResponse
+import uk.gov.hmrc.microservice.UnauthorizedException
+import play.api.libs.ws.Response
+import scala.Some
+import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
+import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.microservice.governmentgateway.Credentials
+import play.api.test.FakeApplication
 
 class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
@@ -228,29 +238,41 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
   "Calling logout" should {
 
-    "remove your existing session cookie and redirect you to the homepage" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
+    "remove your existing session cookie and redirect you to the portal logout page" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
 
       val result = loginController.logout(FakeRequest().withSession("someKey" -> "someValue"))
 
       status(result) shouldBe Status.SEE_OTHER
 
-      redirectLocation(result).get shouldBe routes.HomeController.landing().toString()
+      redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
 
       val playSessionCookie = cookies(result).get("PLAY_SESSION")
 
       playSessionCookie shouldBe None
     }
 
-    "just redirect you to the homepage if you do not have a session cookie" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
+    "just redirect you to the portal logout page if you do not have a session cookie" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
 
       val result = loginController.logout(FakeRequest())
 
       status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result).get shouldBe routes.HomeController.landing().toString()
+      redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
 
       val playSessionCookie = cookies(result).get("PLAY_SESSION")
 
       playSessionCookie shouldBe None
+    }
+  }
+
+  "Calling logged out" should {
+    "return the logged out view and clear any session data" in new WithApplication(FakeApplication(additionalConfiguration = Map("application.secret" -> "secret"))) {
+      val result = loginController.loggedout(FakeRequest().withSession("someKey" -> "someValue"))
+
+      status(result) should be(200)
+      contentAsString(result) should include("logged out")
+
+      val sess = session(result)
+      sess.get("someKey") mustBe None
     }
   }
 }

@@ -29,8 +29,13 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
       PayeRoot(
         name = "John Densmore",
+        firstName = "John",
+        secondName = Some("Drummer"),
+        surname = "Densmore",
         version = 22,
+        title = "Mr",
         nino = "AB123456C",
+        dateOfBirth = "1976-01-02",
         links = Map.empty,
         transactionLinks = Map.empty
       )
@@ -123,13 +128,13 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
     "redirect to the login page when the userId is not found in the session " in new WithApplication(FakeApplication()) {
       val result = TestController.testAuthorisation(FakeRequest())
       status(result) should equal(303)
-      redirectLocation(result).get mustBe "/"
+      redirectLocation(result).get mustBe "/samllogin"
     }
 
     "redirect to the login page when the userId is found but a gateway token is present" in new WithApplication(FakeApplication()) {
       val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john"), "token" -> encrypt("a-government-gateway-token")))
       status(result) should equal(303)
-      redirectLocation(result).get mustBe "/"
+      redirectLocation(result).get mustBe "/samllogin"
     }
 
   }

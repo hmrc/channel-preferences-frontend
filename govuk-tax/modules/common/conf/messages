@@ -5,7 +5,9 @@ error.paye.benefit.date.previous.taxyear=Invalid date: Return date cannot be in 
 error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
 error.agent.accept.sroAgreement=Please specify that you are the Senior Responsible Officer
 error.agent.accept.tncAgreement=Please accept the terms and conditions
-
+error.agent.phone=Please enter a valid phone number
+error.prefs.printsuppression=Please select a Print Suppression Option
+error.prefs.email.missing=Email address must be provided
 
 recent.transaction.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
 

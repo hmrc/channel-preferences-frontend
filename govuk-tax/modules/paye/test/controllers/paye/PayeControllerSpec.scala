@@ -29,6 +29,8 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.paye.domain.TransactionId
+import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
+import org.jsoup.Jsoup
 
 class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -48,15 +50,21 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     when(mockPayeMicroService.root(s"/personal/paye/$nino")).thenReturn(
       PayeRoot(
         name = name,
+        firstName = "Barney",
+        secondName = None,
+        surname = "Rubble",
         nino = nino,
         version = 22,
+        title = "Mr",
+        dateOfBirth = "1976-04-12",
         links = Map(
           "taxCode" -> s"/paye/$nino/tax-codes/2013",
           "employments" -> s"/paye/$nino/employments/2013",
           "benefits" -> s"/paye/$nino/benefits/2013"),
         transactionLinks = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
           "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
-          "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}")
+          "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}",
+          "findByOid" -> "/txqueue/oid/{oid}")
       )
     )
   }
@@ -70,8 +78,8 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(
     Some(Seq(
-      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = "Weyland-Yutani Corp"),
-      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
+      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp")),
+      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
   )
 
   val carBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
@@ -95,11 +103,20 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(
     Some(Seq(
-      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = "Weyland-Yutani Corp"),
-      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = "Weyland-Yutani Corp")))
+      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp")),
+      Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
   )
 
-  def transactionWithTags(tags: List[String]) = TxQueueTransaction(URI.create("http://tax.com"), "paye", URI.create("http://tax.com"), 1, 2013, None, List(Status("created", None, currentTestDate.minusDays(5))), Some(tags), currentTestDate, currentTestDate.minusDays(1))
+  def transactionWithTags(tags: List[String]) =
+    TxQueueTransaction(URI.create("http://tax.com"),
+      "paye",
+      URI.create("http://tax.com"),
+      None,
+      List(Status("created", None, currentTestDate.minusDays(5))),
+      Some(tags),
+      Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013"),
+      currentTestDate,
+      currentTestDate.minusDays(1))
 
   val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
   val testTransaction2 = transactionWithTags(List("paye", "test"))
@@ -132,19 +149,27 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
     "display the employments for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
-      content should include("898")
-      content should include("9900112")
+      content should include("Weyland-Yutani Corp")
       content should include("899")
       content should include("1212121")
-      content should include("Weyland-Yutani Corp")
       content should include("July 2, 2013 to October 8, 2013")
       content should include("October 14, 2013 to present")
     }
 
+    "display employer ref when the employer name is missing" in new WithApplication(FakeApplication()) {
+      when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(
+        Some(Seq(
+          Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None),
+          Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
+      )
+      val content = requestHome
+      content should include("1212121")
+    }
+
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
-      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      content should include("On August 8, 2013, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      content should include("On August 8, 2013, you removed your company car benefit from 898/9900112. This is being processed and you will receive a new Tax Code within 2 days.")
+      content should include("On August 8, 2013, you removed your company car benefit from 898/9900112. This has been processed and your new Tax Code is 430L. 898/9900112 have been notified.")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
@@ -175,12 +200,13 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     "display car details" in new WithApplication(FakeApplication()) {
       requestBenefits("/auth/oid/jdensmore") should include("Medical Insurance")
       requestBenefits("/auth/oid/jdensmore") should include("Car Benefit")
-      requestBenefits("/auth/oid/jdensmore") should include("Weyland-Yutani Corp")
+      requestBenefits("/auth/oid/jdensmore") should include("898/9900112")
       requestBenefits("/auth/oid/jdensmore") should include("Engine size: 0-1400 cc")
       requestBenefits("/auth/oid/jdensmore") should include("Fuel type: Bi-Fuel")
       requestBenefits("/auth/oid/jdensmore") should include("Date car registered: December 12, 2012")
       requestBenefits("/auth/oid/jdensmore") should include("£ 321.42")
     }
+
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
       requestBenefits("/auth/oid/jdensmore") should include("""href="/benefits/2013/remove/2/1"""")
     }
@@ -310,6 +336,76 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       headers(result).get("Location") mustBe Some("/benefits/2013/remove/2/3/someId")
 
     }
+
+    "in step 3 show the transaction id only if the transaction exists" in new WithApplication(FakeApplication()) {
+
+      val transaction: TxQueueTransaction = mock[TxQueueTransaction]
+      when(mockTxQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(Some(transaction))
+
+      val withdrawDate = new LocalDate(2013, 7, 18)
+      val result = controller.benefitRemoved(2013, 2, "123")(FakeRequest()
+        .withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 200
+      contentAsString(result) must include("123")
+
+    }
+
+    "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {
+
+      when(mockTxQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(None)
+
+      val withdrawDate = new LocalDate(2013, 7, 18)
+      val result = controller.benefitRemoved(2013, 2, "123")(FakeRequest()
+        .withSession("userId" -> encrypt("/auth/oid/jdensmore"), "withdraw_date" -> Dates.shortDate(withdrawDate), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 404
+
+    }
+  }
+
+  "benefitRemoved" should {
+    "render a view with correct elements" in new WithApplication(FakeApplication()) {
+
+      val car = Car(None, None, None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
+
+      val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
+        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None)) }
+        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(1, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]())) }
+      }
+
+      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
+
+      val request = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
+
+      when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])).thenReturn(CalculationResult(Map("2013" -> BigDecimal("123"))))
+
+      val result = controller.removeCarBenefitToStep2Action(user, request, 2013, 1)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("h2").first().text should be("Remove your company car benefit")
+    }
+
+    "Contain correct employee names" in new WithApplication(FakeApplication()) {
+
+      val car = Car(None, None, Some(new LocalDate()), BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
+
+      val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
+        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys"))) }
+        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(1, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]())) }
+      }
+
+      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
+
+      val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
+
+      when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])).thenReturn(CalculationResult(Map("2013" -> BigDecimal("123"))))
+
+      val result = controller.removeCarBenefitToStep1Action(user, request, 2013, 1)
+      val doc = Jsoup.parse(contentAsString(result))
+      println(doc.select(".checkbox"))
+      doc.select(".checkbox").text should not include ("Some(")
+    }
+
   }
 
 }

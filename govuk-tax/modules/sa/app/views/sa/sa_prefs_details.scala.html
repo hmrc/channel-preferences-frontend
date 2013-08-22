@@ -1,0 +1,39 @@
+@(printPrefForm: Form[controllers.sa.PrintPrefsForm])
+
+@import helper._
+
+@main(title = "My Preferences") {
+
+<h2>Preferences</h2>
+<div id="print-prefs">
+    <h3>Print preferences</h3>
+
+    @helper.form(action = controllers.sa.routes.SaController.submitPrefsForm) {
+        <p>
+            @checkbox(
+                printPrefForm("prefs.suppressPrinting"),
+                '_showConstraints -> false,
+                '_label -> "Suppress Printing")
+        </p>
+
+        <p>
+            @inputText(
+            printPrefForm("prefs.email"),
+            '_label -> "Email",
+            '_error -> printPrefForm.error("prefs"),
+            '_showConstraints -> false)
+        </p>
+
+        @defining(printPrefForm("redirectUrl")) { redirectUrlField =>
+            <input type="hidden" name="@redirectUrlField.name" id="@redirectUrlField.id" value='@redirectUrlField.value' />
+        }
+        <p>
+            <input type="submit" value="Submit"/>
+        </p>
+
+    }
+
+
+</div>
+
+}

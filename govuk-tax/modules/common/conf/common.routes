@@ -5,6 +5,7 @@ GET     /assets/*file                   controllers.common.Assets.at(path="/publ
 
 GET     /login                          @controllers.common.LoginController.login
 GET     /logout                         @controllers.common.LoginController.logout
+GET     /loggedout                      @controllers.common.LoginController.loggedout
 
 
 # routes for testing IDA integration
@@ -17,6 +18,7 @@ POST    /government-gateway/login       @controllers.common.LoginController.gove
 
 
 POST    /ssoin                          @controllers.common.SsoInController.in
+GET     /ssoin/logout                   @controllers.common.SsoInController.out
 GET     /ssoout                         @controllers.common.SsoOutController.encryptPayload
 
 

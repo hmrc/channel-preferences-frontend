@@ -1,2 +1,5 @@
 
 GET     /home                     @controllers.sa.SaController.details
+GET     /prefs                    @controllers.sa.SaController.prefsForm
+POST    /prefs                    @controllers.sa.SaController.submitPrefsForm
+GET     /prefs/:encodedJson       @controllers.sa.SaController.checkPrintPreferences(encodedJson)

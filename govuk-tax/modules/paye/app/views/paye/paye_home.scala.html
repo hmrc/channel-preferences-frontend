@@ -9,24 +9,30 @@
 
     <h2>Welcome, @name</h2>
 
-    <h2>Recent Changes</h2>
+    @if(employmentData.flatMap(e => e.acceptedTransactions ++ e.completedTransactions).size > 0) {
+        <h2>Recent Changes</h2>
 
     <ul>
     @for(employment <- employmentData) {
         @for(tx <- employment.acceptedTransactions ++ employment.completedTransactions) {
-            <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), employment.employment.employerName, employment.taxCode.get.taxCode)</li>
+            <li>@Messages("recent.transaction." + tx.messageCode, formatDate(tx.txTime), employment.employment.employerNameOrReference, employment.taxCode.get.taxCode)</li>
         }
     }
     </ul>
-
+    }
     <h2>Employments in current tax year</h2>
 
     @employmentData.map { employment =>
-	<section class="employment">
-	    <div class="employment-ref">Employers Reference Number: @employment.employment.taxDistrictNumber / @employment.employment.payeNumber</div>
-        <div class="employment-employer-name">@employment.employment.employerName</div>
+	<ul class="employment">
+        <li>
+        @if(employment.employment.employerName.isEmpty) {
+	        <div class="employment-ref">Employers Reference Number: @employment.employment.taxDistrictNumber / @employment.employment.payeNumber</div>
+        } else {
+            <div class="employment-employer-name">@employment.employment.employerName.get</div>
+        }
 	    <div class="employment-term">(@formatDate(employment.employment.startDate) to @formatDate(employment.employment.endDate, "present"))</div>
-	</section>
+        </li>
+	</ul>
     }
 
     @{numberOfTaxCodes match {
@@ -35,12 +41,13 @@
         case _ => {<h3>Your Tax Codes</h3>}
     }}
 
+    <ul>
     @for(employment <- employmentData) {
         @if(!employment.taxCode.isEmpty) {
-            <div class="tax-code">@employment.taxCode.get.taxCode @if(employment.acceptedTransactions.nonEmpty){(a new tax code is being calculated and this may change soon)} else {@if(employment.completedTransactions.nonEmpty) {(This changed on @formatDate(employment.completedTransactions(0).txTime))}} </div>
+            <li class="tax-code">@employment.taxCode.get.taxCode @if(employment.acceptedTransactions.nonEmpty){(a new tax code is being calculated and this may change soon)} else {@if(employment.completedTransactions.nonEmpty) {(This changed on @formatDate(employment.completedTransactions(0).txTime))}} </li>
         }
     }
-
+    </ul>
 
 
     @if(hasBenefits) {

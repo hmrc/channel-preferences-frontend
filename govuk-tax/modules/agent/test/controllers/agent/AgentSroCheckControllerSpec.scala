@@ -2,12 +2,13 @@ package controllers.agent
 
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
+import org.scalatest.mock.MockitoSugar
 
-class AgentControllerSpec extends BaseSpec {
+class AgentSroCheckControllerSpec extends BaseSpec with MockitoSugar {
 
   import play.api.test.Helpers._
 
-  private def controller = new AgentController
+  private def controller = new AgentSroCheckController()
 
   "The sro check page" should {
     "include two agreements" in new WithApplication(FakeApplication()) {
@@ -30,7 +31,7 @@ class AgentControllerSpec extends BaseSpec {
       val result = controller.submitAgreement()(newRequest("true", "true"))
 
       status(result) shouldBe 303
-      header("Location", result) shouldBe Some("/samllogin")
+      header("Location", result) shouldBe Some("/home")
 
     }
   }
@@ -42,7 +43,6 @@ class AgentControllerSpec extends BaseSpec {
       session(result).data("register agent") should equal("true")
     }
   }
-
   def newRequest(sro: String, tnc: String) =
     FakeRequest().withFormUrlEncodedBody("sroAgreement" -> sro, "tncAgreement" -> tnc)
 

@@ -5,3 +5,4 @@ GET     /benefits/:year/remove/:employmentSequenceNumber/1          @controllers
 POST    /benefits/:year/remove/:employmentSequenceNumber/2          @controllers.paye.PayeController.removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int)
 POST    /benefits/:year/remove/:employmentSequenceNumber/3          @controllers.paye.PayeController.removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int)
 GET     /benefits/:year/remove/:employmentSequenceNumber/3/:oid     @controllers.paye.PayeController.benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String)
+
