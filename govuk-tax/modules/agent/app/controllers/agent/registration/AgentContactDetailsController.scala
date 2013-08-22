@@ -5,12 +5,11 @@ import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseControlle
 import uk.gov.hmrc.microservice.paye.domain.PayeRegime
 import play.api.mvc.{ Result, Request }
 import play.api.data.Forms._
-import play.api.data.validation.Constraints._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import scala.Some
 
-class AgentContactDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers {
+class AgentContactDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration {
 
   private val contactForm = Form[AgentContactDetails](
     mapping(
@@ -31,7 +30,7 @@ class AgentContactDetailsController extends BaseController with SessionTimeoutWr
   val contactDetailsFunction: (User, Request[_]) => Result = (user, request) => {
     val paye: PayeRoot = user.regimes.paye.get
     val form = contactForm.fill(AgentContactDetails())
-    Ok(views.html.agents.contact_details(form, paye))
+    Ok(views.html.agents.registration.contact_details(form, paye))
   }
 
   def postContacts = WithSessionTimeoutValidation {
@@ -40,15 +39,14 @@ class AgentContactDetailsController extends BaseController with SessionTimeoutWr
         implicit request =>
           contactForm.bindFromRequest.fold(
             errors => {
-              BadRequest(views.html.agents.contact_details(errors, user.regimes.paye.get))
+              BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get))
             },
             _ => {
               val agentDetails = contactForm.bindFromRequest.data
-              keyStoreMicroService.addKeyStoreEntry("Registration:" + session.get("PLAY_SESSION"), "agent", "contactForm", agentDetails)
+              saveFormToKeyStore("contactForm", agentDetails)
               Redirect(routes.AgentTypeAndLegalEntityController.agentType)
             }
           )
-
     }
   }
 }

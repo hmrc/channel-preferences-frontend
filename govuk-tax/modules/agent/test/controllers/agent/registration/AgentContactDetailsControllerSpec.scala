@@ -2,7 +2,6 @@ package controllers.agent.registration
 
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
-import controllers.common.service.Encryption
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.paye.PayeMicroService
 import org.mockito.Matchers
@@ -15,7 +14,6 @@ import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
 import java.net.URI
-import org.scalatest.BeforeAndAfterAll
 
 class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 

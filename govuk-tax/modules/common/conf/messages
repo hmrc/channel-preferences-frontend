@@ -1,4 +1,5 @@
 error.date=Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013
+error.illegal.value=Please select a valid option
 error.paye.benefit.date.greater.7.days=Invalid date: Return date cannot be greater than 7 days from today
 error.paye.benefit.date.next.taxyear=Invalid date: Return date cannot be in next tax years
 error.paye.benefit.date.previous.taxyear=Invalid date: Return date cannot be in previous tax years

@@ -8,3 +8,4 @@ GET         /sro-check                      @controllers.agent.AgentSroCheckCont
 POST        /sro-check                      @controllers.agent.AgentSroCheckController.submitAgreement
 
 GET         /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.agentType
+POST        /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.postDetails

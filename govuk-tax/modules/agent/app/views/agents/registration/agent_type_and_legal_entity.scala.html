@@ -1,0 +1,55 @@
+@(agentForm:Form[controllers.agent.registration.AgentTypeAndLegalEntity], conf:controllers.agent.registration.Configuration)
+
+@import views.helpers.CustomHelpers._
+@import helper._
+
+@main(title = "Your tax home") {
+    <style>
+
+    </style>
+
+    <h2>Agent type and Legal entity</h2>
+
+    @helper.form(action = agent.registration.routes.AgentTypeAndLegalEntityController.postDetails) {
+        <div class='agentType @if(agentForm("agentType").hasErrors) {error}'>
+            <label for="agentType"><h4>Agent Type</h4></label>
+            @for(option <- conf.agentTypeOptions) {
+                <div class="button">
+                    <input
+                        type="radio"
+                        id="agentType_@option._1"
+                        name="agentType"
+                        value="@option._1"
+                        @if(agentForm("agentType").value.getOrElse("")==option._1){checked="checked"}
+                    > @option._2
+                </div>
+            }
+        </div>
+        @agentForm("agentType").errors.map { error =>
+            <span style="display: block" class="error-notification">@Messages(error.message)</span>
+        }
+        <div class='legalEntity @if(agentForm("agentType").hasErrors) {error}'>
+            <label for="legalEntity"><h4>Legal Entity</h4></label>
+            <p>(only for 'In business as an agent' and 'Employer acting for employees')</p>
+            @for(option <- conf.legalEntityOptions) {
+            <div class="button">
+                <input
+                        type="radio"
+                        id="legalEntity_@option._1"
+                        name="legalEntity"
+                        value="@option._1"
+                @if(agentForm("legalEntity").value.getOrElse("")==option._1){checked="checked"}
+                > @option._2
+            </div>
+            }
+        </div>
+        @agentForm("legalEntity").errors.map { error =>
+            <span style="display: block" class="error-notification">@Messages(error.message)</span>
+        }
+
+
+        <p><input type="submit" value="Next"/></p>
+
+    }
+
+}
