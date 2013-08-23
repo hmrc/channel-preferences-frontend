@@ -270,6 +270,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
   }
 
+  val expectedInvalidCharacterErrorMessage = """This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 -  , / &amp; space"""
   "Submit Change Address Page " should {
     " show the address line 1 error message if it is missing " in new WithApplication(FakeApplication()) {
       val result = controller.submitChangeAddressForm()(FakeRequest()
@@ -356,7 +357,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
       println(changeAddressSource)
-      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+      changeAddressSource should include(expectedInvalidCharacterErrorMessage)
     }
 
     "show the address line 2 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
@@ -367,7 +368,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
       println(changeAddressSource)
-      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+      changeAddressSource should include(expectedInvalidCharacterErrorMessage)
     }
 
     "show the address line 3 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
@@ -378,7 +379,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
       println(changeAddressSource)
-      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+      changeAddressSource should include(expectedInvalidCharacterErrorMessage)
     }
 
     "show the address line 4 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
@@ -389,7 +390,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
       println(changeAddressSource)
-      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+      changeAddressSource should include(expectedInvalidCharacterErrorMessage)
     }
 
     "allow all valid characters in address lines" in new WithApplication(FakeApplication()) {
