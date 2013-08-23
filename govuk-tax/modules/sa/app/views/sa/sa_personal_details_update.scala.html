@@ -1,0 +1,61 @@
+@(changeAddressForm: Form[controllers.sa.ChangeAddressForm])
+
+@import helper._
+@main(title = "Change My Details") {
+
+<h2>My details</h2>
+<div id="sa-details">
+    <h3>Change Your Address</h3>
+
+    @helper.form(action = controllers.sa.routes.SaController.submitChangeAddressForm) {
+    <p>
+        @inputText(
+        changeAddressForm("additionalDeliveryInfo"),
+        '_label -> "Additional Delivery Info",
+        '_showConstraints -> false)
+    </p>
+    <p>
+        @inputText(
+        changeAddressForm("addressLine1"),
+        '_label -> "Address Line 1",
+        '_error -> changeAddressForm.error("addressLine1"),
+        '_showConstraints -> false)
+    </p>
+    <p>
+        @inputText(
+        changeAddressForm("addressLine2"),
+        '_label -> "Address Line 2",
+        '_error -> changeAddressForm.error("addressLine2"),
+        '_showConstraints -> false)
+    </p>
+    <p>
+        @inputText(
+        changeAddressForm("optionalAddressLines.addressLine3"),
+        '_label -> "Address Line 3",
+        '_error -> changeAddressForm.error("optionalAddressLines"),
+        '_showConstraints -> false)
+    </p>
+    <p>
+        @inputText(
+        changeAddressForm("optionalAddressLines.addressLine4"),
+        '_label -> "Address Line 4",
+        '_error -> changeAddressForm.error("optionalAddressLines"),
+        '_showConstraints -> false)
+    </p>
+    <p>
+        @inputText(
+        changeAddressForm("postcode"),
+        '_label -> "Postcode",
+        '_error -> changeAddressForm.error("postcode"),
+        '_showConstraints -> false)
+    </p>
+
+    <p>
+        <input type="submit" value="Submit"/>
+    </p>
+
+    }
+
+</div>
+
+}

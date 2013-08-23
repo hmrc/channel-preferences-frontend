@@ -9,6 +9,12 @@ error.agent.accept.tncAgreement=Please accept the terms and conditions
 error.agent.phone=Please enter a valid phone number
 error.prefs.printsuppression=Please select a Print Suppression Option
 error.prefs.email.missing=Email address must be provided
+error.sa.address.line1.mandatory=Address Line 1 is required
+error.sa.address.line2.mandatory=Address Line 2 is required
+error.sa.address.line3.mandatory=Address Line 3 is required when using Address Line 4
+error.sa.address.mainlines.maxlengthviolation=This address line field must not be greater than 28 characters
+error.sa.address.optionallines.maxlengthviolation=This address line field must not be greater than 18 characters
+error.sa.address.invalidcharacter=This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / & ' - *
 
 recent.transaction.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
 

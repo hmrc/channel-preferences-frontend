@@ -5,7 +5,7 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 
 import uk.gov.hmrc.microservice.sa.domain.SaRegime
-import views.html.sa.{ sa_prefs_details, sa_personal_details }
+import views.html.sa.{ sa_personal_details_update, sa_prefs_details, sa_personal_details }
 import controllers.common.{ SsoPayloadEncryptor, SessionTimeoutWrapper, ActionWrappers, BaseController }
 import play.api.libs.json.Json
 import config.DateTimeProvider
@@ -19,6 +19,9 @@ import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
+
+case class ChangeAddressForm(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
+  addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider {
 
@@ -35,6 +38,38 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       } {
         form => Some((form.suppressPrinting, form.email), form.redirectUrl)
       }
+  )
+
+  private def notBlank(value: Option[String]) = value.isDefined && !value.get.trim.isEmpty
+  private def isBlank(value: Option[String]) = !notBlank(value)
+  private def isValidLength(maxLength: Int)(value: Option[String]): Boolean = value.getOrElse("").length <= maxLength
+  private def isMainAddressLineLengthValid = isValidLength(28)(_)
+  private def isOptionalAddressLineLengthValid = isValidLength(18)(_)
+
+  val changeAddressForm: Form[ChangeAddressForm] = Form(
+    mapping(
+      "additionalDeliveryInfo" -> optional(text),
+      "addressLine1" -> optional(text)
+        .verifying("error.sa.address.line1.mandatory", notBlank _)
+        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid(_))
+        .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_)),
+      "addressLine2" -> optional(text)
+        .verifying("error.sa.address.line2.mandatory", notBlank _)
+        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid(_))
+        .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_)),
+      "optionalAddressLines" -> tuple(
+        "addressLine3" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid(_))
+          .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_)),
+        "addressLine4" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid(_))
+          .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_))
+      ).verifying("error.sa.address.line3.mandatory", optionalLines => (isBlank(optionalLines._2)) || (notBlank(optionalLines._1) && notBlank(optionalLines._2))),
+      "postcode" -> optional(text)
+    ) {
+        (additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines, postcode) => ChangeAddressForm(additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines._1, optionalAddressLines._2, postcode)
+      } {
+        form => Some((form.additionalDeliveryInfo, form.addressLine1, form.addressLine2, (form.addressLine3, form.addressLine4), form.postcode))
+      }
+
   )
 
   def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
@@ -82,6 +117,25 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         }
   })
 
+  def changeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+    implicit user =>
+      implicit request =>
+        Ok(sa_personal_details_update(changeAddressForm))
+  })
+
+  def submitChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+    implicit user =>
+      implicit request =>
+
+        changeAddressForm.bindFromRequest()(request).fold(
+          errors => BadRequest(sa_personal_details_update(errors)),
+          form => {
+            Ok(sa_personal_details_update(changeAddressForm))
+          }
+        )
+
+  })
+
   def submitPrefsForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
     implicit user =>
       implicit request =>
@@ -98,4 +152,17 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         )
 
   })
+}
+
+object characterValidator {
+  //Valid Characters Alphanumeric (A-Z, a-z, 0-9), hyphen( - ), apostrophe ( ' ), comma ( , ), forward slash ( / ) ampersand ( & ) and space
+  private val invalidCharacterRegex = """[^A-Za-z0-9,/'\-& ]""".r
+
+  def isValid(value: Option[String]): Boolean = {
+    value match {
+      case Some(value) => invalidCharacterRegex.findFirstIn(value).isEmpty
+      case None => true
+    }
+
+  }
 }

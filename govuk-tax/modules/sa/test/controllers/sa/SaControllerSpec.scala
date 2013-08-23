@@ -250,6 +250,183 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
   }
 
+  "Change Address Page " should {
+    "render a form with address fields to be entered when a user is logged in and authorised for SA" in new WithApplication(FakeApplication()) {
+
+      val result = controller.changeMyAddressForm()(FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody should include("additionalDeliveryInfo")
+      htmlBody should include("addressLine1")
+      htmlBody should include("addressLine2")
+      htmlBody should include("addressLine3")
+      htmlBody should include("addressLine4")
+      htmlBody should not include ("addressLine5")
+      htmlBody should include("postcode")
+      htmlBody should not include ("country")
+    }
+  }
+
+  "Submit Change Address Page " should {
+    " show the address line 1 error message if it is missing " in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine2" -> "addressline2data")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("Address Line 1 is required")
+    }
+
+    " show the address line 1 error message if the data is greater than 28 characters " in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "12345678901234567890123456789", "addressLine2" -> "addressline2data")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This address line field must not be greater than 28 characters")
+    }
+
+    " show the address line 2 error message if the data is greater than 28 characters " in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "12345678901234567890123456789")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This address line field must not be greater than 28 characters")
+    }
+
+    " show the address line 3 error message if the data is greater than 18 characters " in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "1234567890123456789")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This address line field must not be greater than 18 characters")
+    }
+
+    " show the address line 4 error message if the data is greater than 18 characters " in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "addressline3data", "optionalAddressLines.addressLine4" -> "1234567890123456789")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This address line field must not be greater than 18 characters")
+    }
+
+    " show the address line 2 error message if it is missing " in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("Address Line 2 is required")
+    }
+
+    " show the address line 3 error message when address line 4 is present " in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine4" -> "addressline4data")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("Address Line 3 is required when using Address Line 4")
+    }
+
+    "show the address line 1 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "address_Line1BadData", "addressLine2" -> "addressLine2Data")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+    }
+
+    "show the address line 2 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2|BadData")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+    }
+
+    "show the address line 3 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data", "optionalAddressLines.addressLine3" -> "addressLine4~Bad")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+    }
+
+    "show the address line 4 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data", "optionalAddressLines.addressLine3" -> "addressLine3Data", "optionalAddressLines.addressLine4" -> "addressLine4!Bad")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 400
+      val changeAddressSource = contentAsString(result)
+      println(changeAddressSource)
+      changeAddressSource should include("This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 , . () / &amp;  - *")
+    }
+
+    "allow all valid characters in address lines" in new WithApplication(FakeApplication()) {
+      val result = controller.submitChangeAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123", "optionalAddressLines.addressLine3" -> "4567890 ,/&'-", "optionalAddressLines.addressLine4" -> "all valid")
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 200
+    }
+  }
+
+  //Valid Characters Alphanumeric (A-Z, a-z, 0-9), hyphen( - ), apostrophe ( ' ), comma ( , ), forward slash ( / ) ampersand ( & ) and space
+  // (48 to 57 0-9) (65 to 90 A-Z) (97 to 122 a-z) (32 space) (38 ampersand ( & )) (39 apostrophe ( ' )) (44 comma ( , ))   (45 hyphen( - )) (47 forward slash ( / ))
+
+  " Valid character checker " should {
+    " return false if an invalid character is present in an input " in {
+      var digits = for (i <- 48 to 57) yield i
+      var lowerCaseLetters = for (i <- 97 to 122) yield i
+      var upperCaseLetters = for (i <- 65 to 90) yield i
+      val specialCharacters = List(32, 38, 39, 44, 45, 47)
+
+      val validCharacters = digits ++ lowerCaseLetters ++ upperCaseLetters ++ specialCharacters
+
+      for (chr <- 0 to 1000) {
+        val c = chr.toChar
+        val str = s"this $chr contains $c"
+        characterValidator.isValid(Some(str)) match {
+          case true => validCharacters.contains(chr) must be(true)
+          case false => validCharacters.contains(chr) must be(false)
+        }
+      }
+    }
+    " return true when None is passed as the value" in {
+      characterValidator.isValid(None) must be(true)
+    }
+  }
+
   def request(action: Action[AnyContent]): String = {
     val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
 
