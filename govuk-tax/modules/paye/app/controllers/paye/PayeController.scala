@@ -9,7 +9,6 @@ import views.formatting.Dates
 import scala._
 import controllers.common._
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import uk.gov.hmrc.microservice.paye.domain.RecentTransaction
 import scala.Some
 import uk.gov.hmrc.microservice.paye.domain.Employment
 import uk.gov.hmrc.microservice.paye.domain.Car
@@ -189,13 +188,6 @@ case class DisplayBenefit(employment: Employment,
 
 case class RemoveBenefitFormData(withdrawDate: LocalDate,
   agreement: Boolean)
-
-case class EmploymentData(employment: Employment,
-    taxCode: Option[TaxCode],
-    acceptedTransactions: Seq[RecentTransaction],
-    completedTransactions: Seq[RecentTransaction]) {
-  lazy val recentChanges = acceptedTransactions ++ completedTransactions
-}
 
 case class PayeOverview(name: String, lastLogin: Option[DateTime], nino: String, employmentViews: Seq[EmploymentView], hasBenefits: Boolean)
 case class EmploymentView(companyName: String, startDate: LocalDate, endDate: Option[LocalDate], taxCode: String, recentChanges: Seq[RecentChange])
