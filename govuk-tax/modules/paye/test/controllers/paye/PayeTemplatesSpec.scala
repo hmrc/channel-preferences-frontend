@@ -59,7 +59,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       println(payeHome(".overview__contacts p").last().html())
 
-      payeHome(".overview__contacts p").last().html() must include("href")x
+      payeHome(".overview__contacts p").last().html() must include("href")
 
     }
 
