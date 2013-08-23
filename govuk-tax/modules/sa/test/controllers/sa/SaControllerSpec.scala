@@ -402,38 +402,38 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "take the user to a confirmation page that displays the form values entered" in new WithApplication(FakeApplication()) {
-            val additionalDeliveryInfomation = "someAdditionalDeliveryInfo"
-            val addressData1 = "ad1"
-            val addressData2 = "ad2"
-            val addressData3 = "ad3"
-            val addressData4 = "ad4"
-            val postcode = "XX1 0YY"
+      val additionalDeliveryInfomation = "someAdditionalDeliveryInfo"
+      val addressData1 = "ad1"
+      val addressData2 = "ad2"
+      val addressData3 = "ad3"
+      val addressData4 = "ad4"
+      val postcode = "XX1 0YY"
 
-            val result = controller.submitChangeAddressForm()(FakeRequest().withFormUrlEncodedBody("additionalDeliveryInfo" -> additionalDeliveryInfomation, "addressLine1" -> addressData1, "addressLine2" -> addressData2, "optionalAddressLines.addressLine3" -> addressData3, "optionalAddressLines.addressLine4" -> addressData4, "postcode" -> postcode)
-              .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.submitChangeAddressForm()(FakeRequest().withFormUrlEncodedBody("additionalDeliveryInfo" -> additionalDeliveryInfomation, "addressLine1" -> addressData1, "addressLine2" -> addressData2, "optionalAddressLines.addressLine3" -> addressData3, "optionalAddressLines.addressLine4" -> addressData4, "postcode" -> postcode)
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
 
-            status(result) should be(200)
+      status(result) should be(200)
 
-            // Assert displaying of values
-            val htmlBody = contentAsString(result)
-            htmlBody should include(additionalDeliveryInfomation)
-            htmlBody should include(addressData1)
-            htmlBody should include(addressData2)
-            htmlBody should include(addressData3)
-            htmlBody should include(addressData4)
-            htmlBody should include(postcode)
+      // Assert displaying of values
+      val htmlBody = contentAsString(result)
+      htmlBody should include(additionalDeliveryInfomation)
+      htmlBody should include(addressData1)
+      htmlBody should include(addressData2)
+      htmlBody should include(addressData3)
+      htmlBody should include(addressData4)
+      htmlBody should include(postcode)
 
-            // Assert hidden form
-            htmlBody should include("""form action="/changeAddressConfirm" method="POST"""")
-            htmlBody should include(s"""input type="hidden" name="additionalDeliveryInfo" id="additionalDeliveryInfo" value="${additionalDeliveryInfomation}" """)
-            htmlBody should include(s"""input type="hidden" name="addressLine1" id="addressLine1" value="${addressData1}" """)
-            htmlBody should include(s"""input type="hidden" name="addressLine2" id="addressLine2" value="${addressData2}" """)
-            htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine3" id="optionalAddressLines_addressLine3" value="${addressData3}" """)
-            htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine4" id="optionalAddressLines_addressLine4" value="${addressData4}" """)
-            htmlBody should include(s"""input type="hidden" name="postcode" id="postcode" value="${postcode}" """)
+      // Assert hidden form
+      htmlBody should include("""form action="/changeAddressConfirm" method="POST"""")
+      htmlBody should include(s"""input type="hidden" name="additionalDeliveryInfo" id="additionalDeliveryInfo" value="${additionalDeliveryInfomation}" """)
+      htmlBody should include(s"""input type="hidden" name="addressLine1" id="addressLine1" value="${addressData1}" """)
+      htmlBody should include(s"""input type="hidden" name="addressLine2" id="addressLine2" value="${addressData2}" """)
+      htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine3" id="optionalAddressLines_addressLine3" value="${addressData3}" """)
+      htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine4" id="optionalAddressLines_addressLine4" value="${addressData4}" """)
+      htmlBody should include(s"""input type="hidden" name="postcode" id="postcode" value="${postcode}" """)
 
-            htmlBody should not include ("addressLine5")
-            htmlBody should not include ("country")
+      htmlBody should not include ("addressLine5")
+      htmlBody should not include ("country")
     }
   }
 
