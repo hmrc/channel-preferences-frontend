@@ -44,25 +44,26 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
         val taxYear = currentTaxYear
         val benefits = user.regimes.paye.get.benefits(taxYear)
         val employments = user.regimes.paye.get.employments(taxYear)
+        val completedTransactions = user.regimes.paye.get.recentCompletedTransactions
 
         // TODO: add lowercase hyphenated formatter
-        Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
+        Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments, completedTransactions)))
   })
 
   def benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
-        benefitRemovalFormAction(user, request, year, employmentSequenceNumber)
+        benefitRemovalFormAction(kind, user, request, year, employmentSequenceNumber)
   })
 
   def requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => requestBenefitRemovalAction(user, request, year, employmentSequenceNumber)
+    user => request => requestBenefitRemovalAction(kind, user, request, year, employmentSequenceNumber)
   })
 
   def confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
-        val db = getCarBenefit(user, employmentSequenceNumber)
+        val db = getBenefit(kind, user, employmentSequenceNumber)
         val payeRoot = user.regimes.paye.get
         val withdrawDate = request.session.get("withdraw_date").get
         val revisedAmount = request.session.get("revised_amount").get
@@ -112,6 +113,12 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
             tx.statusHistory(0).createdAt.toLocalDate)
       }
 
+  def transactionMatches(benefit: Benefit, tx: TxQueueTransaction): Boolean = {
+    tx.properties("employmentSequenceNumber").toInt == benefit.employmentSequenceNumber &&
+      tx.properties("taxYear").toInt == benefit.taxYear &&
+      tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
+  }
+
   private val localDateMapping = jodaLocalDate
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(currentTaxYear + 1, 4, 6)))
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(new LocalDate()))
@@ -124,12 +131,12 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  val benefitRemovalFormAction: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
-    Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
+  val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
+    Ok(remove_car_benefit_step1(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
   }
 
-  val requestBenefitRemovalAction: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
-    val db = getCarBenefit(user, employmentSequenceNumber)
+  val requestBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
+    val db = getBenefit(kind, user, employmentSequenceNumber)
 
     updateBenefitForm.bindFromRequest()(request).fold(
       errors => BadRequest(remove_car_benefit_step1(db, errors)),
@@ -151,21 +158,33 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
       Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
     }
 
-  private def getCarBenefit(user: User, employmentSequenceNumber: Int): DisplayBenefit = {
+  private def getBenefit(kind: Int, user: User, employmentSequenceNumber: Int): DisplayBenefit = {
     val taxYear = currentTaxYear
-    val benefit = user.regimes.paye.get.benefits(taxYear).find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.car.isDefined)
-    val matchedBenefits = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments(taxYear))
+    val benefit = user.regimes.paye.get.benefits(taxYear).find(
+      b => b.employmentSequenceNumber == employmentSequenceNumber && include(kind, b))
+    val transactions = user.regimes.paye.get.recentCompletedTransactions
+    val matchedBenefits = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments(taxYear), transactions)
 
     matchedBenefits(0)
   }
 
-  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] = {
+  private val include = (kind: Int, b: Benefit) => {
+    if (kind == 31) b.car.isDefined else b.car.isEmpty
+  }
+
+  private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment],
+    transactions: Seq[TxQueueTransaction]): Seq[DisplayBenefit] = {
     val matchedBenefits = benefits.filter {
       benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber)
     }
 
     matchedBenefits.map {
-      benefit => DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get, benefit, benefit.car)
+      benefit =>
+        DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get,
+          benefit,
+          benefit.car,
+          transactions.find(transactionMatches(benefit, _))
+        )
     }
   }
 
@@ -184,7 +203,8 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
 case class DisplayBenefit(employment: Employment,
   benefit: Benefit,
-  car: Option[Car])
+  car: Option[Car],
+  transaction: Option[TxQueueTransaction])
 
 case class RemoveBenefitFormData(withdrawDate: LocalDate,
   agreement: Boolean)

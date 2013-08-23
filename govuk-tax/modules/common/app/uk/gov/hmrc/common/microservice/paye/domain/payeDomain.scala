@@ -98,7 +98,7 @@ case class Car(dateCarMadeAvailable: Option[LocalDate],
   mileageBand: String,
   carValue: BigDecimal)
 
-case class RemoveCarBenefit(version: Int,
+case class RemoveBenefit(version: Int,
   benefit: Benefit,
   revisedAmount: BigDecimal,
   withdrawDate: LocalDate)

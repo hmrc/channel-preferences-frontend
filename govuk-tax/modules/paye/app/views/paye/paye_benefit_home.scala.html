@@ -26,31 +26,36 @@
 		<td class="employment-reference">@displayBenefit.employment.employerNameOrReference</td>
 		<td class="benefit-type">@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
 
-                @displayBenefit.car.map { car =>
-		    <td id="benefit-description">
-                            Engine size: @engineSizeFor(car.engineSize)<br>
-                            Fuel type: @fuelTypeFor(car.fuelType)<br>
-                            Date car registered: @formatDate(car.dateCarRegistered.get)<br>
-                    </td>
-                }.getOrElse {
-                    <td>@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
-                }
-		<td class="benefit-amount" align="right" >£ @displayBenefit.benefit.grossAmountToString()</td>
+        <td id="benefit-description">
+        @if(displayBenefit.car.isDefined) {
+            Engine size: @engineSizeFor(displayBenefit.car.get.engineSize)<br>
+            Fuel type: @fuelTypeFor(displayBenefit.car.get.fuelType)<br>
+            Date car registered: @formatDate(displayBenefit.car.get.dateCarRegistered.get)<br>
+        } else {
+            @iabdTypeFor(displayBenefit.benefit.benefitType)
+        }
+        </td>
 
-                <td>
-                @displayBenefit.car.map { car => @if(car.dateCarWithdrawn.isEmpty) {
-                        <ul>
-                            <li>Change</li>
-			    <li><a class="cta cta--remove-benefit" href="@controllers.paye.routes.PayeController.benefitRemovalForm(displayBenefit.benefit.benefitType, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
-                        </ul>
-                    } else {
-			Car removed on <time datetime="">@formatDate(car.dateCarWithdrawn.get)</time>
-                    }
-                }.getOrElse {
-                    More Information
+		<td class="benefit-amount" align="right" >£ @displayBenefit.benefit.grossAmountToString()</td>
+        <td>
+        @displayBenefit.benefit.benefitType match {
+            case 31 | 29 => {
+                @if(displayBenefit.transaction.isDefined) {
+                   Benefit removed on <time datetime="">@formatDateTime(displayBenefit.transaction.get.createdAt)</time>
+                } else {
+                    <ul>
+                        <li>Change</li>
+                        <li><a class="cta cta--remove-benefit"
+                        href="@controllers.paye.routes.PayeController.benefitRemovalForm(displayBenefit.benefit.benefitType, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)">Remove</a></li>
+                    </ul>
                 }
-                </td>
-            </tr>
+            }
+            case _ => {
+                More Information
+            }
+        }
+        </td>
+    </tr>
             }
 
     </table>

@@ -3,7 +3,7 @@ package uk.gov.hmrc.microservice.paye
 import play.Logger
 import org.joda.time.LocalDate
 import views.formatting.Dates
-import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, TransactionId, RemoveCarBenefit, Benefit }
+import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, TransactionId, RemoveBenefit, Benefit }
 import uk.gov.hmrc.microservice.{ TaxRegimeMicroService, MicroServiceConfig }
 import controllers.common.domain.Transform._
 import play.api.libs.json.Json
@@ -19,16 +19,24 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     httpGet[T](uri)
   }
 
-  def removeCarBenefit(nino: String,
+  def removeCarBenefit(nino: String, version: Int, benefit: Benefit, dateWithdrawn: LocalDate, revisedGrossAmount: BigDecimal): Option[TransactionId] = {
+    removeBenefit(benefit.actions("removeCar"), nino, version, benefit, dateWithdrawn, revisedGrossAmount)
+  }
+
+  def removeFuelBenefit(nino: String, version: Int, benefit: Benefit, dateWithdrawn: LocalDate, revisedGrossAmount: BigDecimal): Option[TransactionId] = {
+    removeBenefit(benefit.actions("removeFuel"), nino, version, benefit, dateWithdrawn, revisedGrossAmount)
+  }
+
+  private def removeBenefit(uri: String, nino: String,
     version: Int,
     benefit: Benefit,
     dateCarWithdrawn: LocalDate,
-    revisedGrossAmount: BigDecimal): Option[TransactionId] =
+    revisedGrossAmount: BigDecimal): Option[TransactionId] = {
     httpPost[TransactionId](
       uri = benefit.actions("removeCar"),
       body = Json.parse(
         toRequestBody(
-          RemoveCarBenefit(
+          RemoveBenefit(
             version = version,
             benefit = benefit,
             revisedAmount = revisedGrossAmount,
@@ -36,6 +44,7 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
         )
       )
     )
+  }
 
   def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate) =
     httpGet[CalculationResult](benefit.calculations("withdraw").replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get

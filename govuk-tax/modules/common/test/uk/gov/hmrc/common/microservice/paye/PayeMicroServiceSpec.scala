@@ -4,7 +4,7 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.microservice.paye.domain.{ TransactionId, RemoveCarBenefit, Car, Benefit }
+import uk.gov.hmrc.microservice.paye.domain.{ TransactionId, RemoveBenefit, Car, Benefit }
 import org.joda.time.LocalDate
 import play.api.test.{ FakeApplication, WithApplication }
 import org.mockito.ArgumentCaptor
@@ -44,7 +44,7 @@ class PayeMicroServiceSpec extends BaseSpec {
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
       verify(service.httpWrapper, times(1)).post(any[String], capturedBody.capture, any[Map[String, String]])
 
-      val capturedRemovedCarBenefit = Transform.fromResponse[RemoveCarBenefit](capturedBody.getValue.toString())
+      val capturedRemovedCarBenefit = Transform.fromResponse[RemoveBenefit](capturedBody.getValue.toString())
       capturedRemovedCarBenefit.revisedAmount mustBe grossAmount
       capturedRemovedCarBenefit.withdrawDate mustBe dateCarWithdrawn
       capturedRemovedCarBenefit.version mustBe version

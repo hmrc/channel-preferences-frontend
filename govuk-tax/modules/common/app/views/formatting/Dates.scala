@@ -16,6 +16,13 @@ object Dates {
     case None => default
   }
 
+  def formatDateTime(date: DateTime) = dateFormat.print(date)
+
+  def formatDateTime(date: Option[DateTime], default: String) = date match {
+    case Some(d) => dateFormat.print(d)
+    case None => default
+  }
+
   def formatEasyReadingTimestamp(date: Option[DateTime], default: String) = date match {
     case Some(d) => easyReadingTimestampFormat.print(d)
     case None => default
