@@ -50,17 +50,17 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
         Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments)))
   })
 
-  def removeCarBenefitToStep1(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+  def benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         removeCarBenefitToStep1Action(user, request, year, employmentSequenceNumber)
   })
 
-  def removeCarBenefitToStep2(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+  def requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     user => request => removeCarBenefitToStep2Action(user, request, year, employmentSequenceNumber)
   })
 
-  def removeCarBenefitToStep3(year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+  def confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         val db = getCarBenefit(user, employmentSequenceNumber)
