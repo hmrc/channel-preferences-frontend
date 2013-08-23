@@ -103,7 +103,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(
     Some(Seq(
-      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp")),
+      Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Sansbury")),
       Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
   )
 
@@ -120,9 +120,10 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
   val testTransaction2 = transactionWithTags(List("paye", "test"))
+  val testTransaction3 = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"))
 
-  when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List(testTransaction1, testTransaction2)))
-  when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List(testTransaction1, testTransaction2)))
+  when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List(testTransaction1, testTransaction2, testTransaction3)))
+  when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List(testTransaction1, testTransaction2, testTransaction3)))
 
   private def controller = new PayeController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
@@ -156,19 +157,17 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "display employer ref when the employer name is missing" in new WithApplication(FakeApplication()) {
-      when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(
-        Some(Seq(
-          Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None),
-          Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)))
-      )
       val content = requestHome
       content should include("1212121")
     }
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHome
-      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from 898/9900112. This is being processed and you will receive a new Tax Code within 2 days.")
-      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from 898/9900112. This has been processed and your new Tax Code is 430L. 898/9900112 have been notified.")
+      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+
+      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
@@ -199,7 +198,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     "display car details" in new WithApplication(FakeApplication()) {
       requestBenefits("/auth/oid/jdensmore") should include("Medical Insurance")
       requestBenefits("/auth/oid/jdensmore") should include("Car Benefit")
-      requestBenefits("/auth/oid/jdensmore") should include("898/9900112")
+      requestBenefits("/auth/oid/jdensmore") should include("899/1212121")
       requestBenefits("/auth/oid/jdensmore") should include("Engine size: 0-1400 cc")
       requestBenefits("/auth/oid/jdensmore") should include("Fuel type: Bi-Fuel")
       requestBenefits("/auth/oid/jdensmore") should include("Date car registered: December 12, 2012")
