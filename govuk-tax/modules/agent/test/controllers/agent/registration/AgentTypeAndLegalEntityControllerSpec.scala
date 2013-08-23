@@ -8,7 +8,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers
 import java.net.URI
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.domain.User
@@ -16,7 +16,6 @@ import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import scala.Some
 import controllers.common.SessionTimeoutWrapper
-
 
 class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -71,6 +70,6 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
   def newRequest(agentType: String, legalEntity: String) =
     FakeRequest().withFormUrlEncodedBody("agentType" -> agentType, "legalEntity" -> legalEntity)
       .withSession("userId" -> controller.encrypt(authority), "name" -> controller.encrypt("Will Shakespeare"),
-      SessionTimeoutWrapper.sessionTimestampKey -> controller.now().getMillis.toString)
+        SessionTimeoutWrapper.sessionTimestampKey -> controller.now().getMillis.toString)
 
 }
