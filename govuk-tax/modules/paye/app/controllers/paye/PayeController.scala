@@ -53,11 +53,11 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
   def benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
-        removeCarBenefitToStep1Action(user, request, year, employmentSequenceNumber)
+        benefitRemovalFormAction(user, request, year, employmentSequenceNumber)
   })
 
   def requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => removeCarBenefitToStep2Action(user, request, year, employmentSequenceNumber)
+    user => request => requestBenefitRemovalAction(user, request, year, employmentSequenceNumber)
   })
 
   def confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
@@ -125,11 +125,11 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  val removeCarBenefitToStep1Action: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
+  val benefitRemovalFormAction: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
     Ok(remove_car_benefit_step1(getCarBenefit(user, employmentSequenceNumber), updateBenefitForm))
   }
 
-  val removeCarBenefitToStep2Action: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
+  val requestBenefitRemovalAction: (User, Request[_], Int, Int) => Result = (user, request, year, employmentSequenceNumber) => {
     val db = getCarBenefit(user, employmentSequenceNumber)
 
     updateBenefitForm.bindFromRequest()(request).fold(
