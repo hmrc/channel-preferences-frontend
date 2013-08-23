@@ -132,19 +132,19 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
   )
 
   val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    Ok(remove_car_benefit_step1(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+    Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
   }
 
   val requestBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
     val db = getBenefit(kind, user, employmentSequenceNumber)
 
     updateBenefitForm.bindFromRequest()(request).fold(
-      errors => BadRequest(remove_car_benefit_step1(db, errors)),
+      errors => BadRequest(remove_car_benefit_form(db, errors)),
       removeBenefitData => {
         val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
         val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
 
-        Ok(remove_car_benefit_step2(revisedAmount, db.benefit)).withSession(request.session
+        Ok(remove_car_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
           + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
           + ("revised_amount", revisedAmount.toString()))
       }
@@ -155,7 +155,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-      Ok(remove_car_benefit_step3(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+      Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
     }
 
   private def getBenefit(kind: Int, user: User, employmentSequenceNumber: Int): DisplayBenefit = {
