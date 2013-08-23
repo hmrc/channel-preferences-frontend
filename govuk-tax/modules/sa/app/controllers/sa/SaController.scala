@@ -5,7 +5,7 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 
 import uk.gov.hmrc.microservice.sa.domain.SaRegime
-import views.html.sa.{ sa_personal_details_update, sa_prefs_details, sa_personal_details }
+import views.html.sa.{ sa_personal_details_confirmation, sa_personal_details_update, sa_prefs_details, sa_personal_details }
 import controllers.common.{ SsoPayloadEncryptor, SessionTimeoutWrapper, ActionWrappers, BaseController }
 import play.api.libs.json.Json
 import config.DateTimeProvider
@@ -129,8 +129,8 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
         changeAddressForm.bindFromRequest()(request).fold(
           errors => BadRequest(sa_personal_details_update(errors)),
-          form => {
-            Ok(sa_personal_details_update(changeAddressForm))
+          formData => {
+            Ok(sa_personal_details_confirmation(changeAddressForm, formData))
           }
         )
 
@@ -151,6 +151,17 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
           }
         )
 
+  })
+
+  def submitConfirmChangeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+    implicit user =>
+      implicit request =>
+        changeAddressForm.bindFromRequest()(request).fold(
+          errors => BadRequest(sa_personal_details_update(errors)),
+          formData => {
+            Ok(sa_personal_details_confirmation(changeAddressForm, formData)) //TODO: Call TxService (via SA) to update user details
+          }
+        )
   })
 }
 
