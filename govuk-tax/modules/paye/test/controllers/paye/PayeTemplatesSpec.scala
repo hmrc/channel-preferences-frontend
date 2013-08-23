@@ -2,7 +2,7 @@ package controllers.paye
 
 import uk.gov.hmrc.common.BaseSpec
 import views.PageSugar
-import org.joda.time.{LocalDate, DateTime}
+import org.joda.time.{ LocalDate, DateTime }
 import views.html.paye.paye_home
 import play.api.templates.Html
 
@@ -13,7 +13,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
     "display a user name" in {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
-	List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
+        List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
       payeHome("h2.welcome").text() must include("John Densmore")
@@ -23,7 +23,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
     "recent changes must contain a list element" in {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
-	List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
+        List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
       payeHome(".overview__actions__done").html() must include("<li>")
@@ -33,7 +33,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
     "display a nino" in {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
-	List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
+        List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
       payeHome(".overview__contacts__nino").text() must include("CS700100A")
@@ -43,7 +43,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
     "render employments together with taxcodes" in {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
-	List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
+        List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
       payeHome(".overview__contacts__heading").first().text() must include("Sainsbury's")
@@ -54,7 +54,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
     "display a link to benefits page" in {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
-	List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
+        List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
       println(payeHome(".overview__contacts p").last().html())

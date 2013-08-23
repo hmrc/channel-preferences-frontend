@@ -381,7 +381,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])).thenReturn(CalculationResult(Map("2013" -> BigDecimal("123"))))
 
-      val result = controller.requestBenefitRemovalAction(user, request, 2013, 1)
+      val result = controller.requestBenefitRemovalAction(31, user, request, 2013, 1)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("h2").first().text should be("Remove your company car benefit")
     }
@@ -401,7 +401,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])).thenReturn(CalculationResult(Map("2013" -> BigDecimal("123"))))
 
-      val result = controller.benefitRemovalFormAction(user, request, 2013, 1)
+      val result = controller.benefitRemovalFormAction(31, user, request, 2013, 1)
       val doc = Jsoup.parse(contentAsString(result))
       println(doc.select(".checkbox"))
       doc.select(".checkbox").text should not include ("Some(")

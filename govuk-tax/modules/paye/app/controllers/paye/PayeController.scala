@@ -132,7 +132,10 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
   )
 
   val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+    if (kind == 31)
+      Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+    else
+      Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
   }
 
   val requestBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
@@ -161,15 +164,11 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
   private def getBenefit(kind: Int, user: User, employmentSequenceNumber: Int): DisplayBenefit = {
     val taxYear = currentTaxYear
     val benefit = user.regimes.paye.get.benefits(taxYear).find(
-      b => b.employmentSequenceNumber == employmentSequenceNumber && include(kind, b))
+      b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
     val transactions = user.regimes.paye.get.recentCompletedTransactions
     val matchedBenefits = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments(taxYear), transactions)
 
     matchedBenefits(0)
-  }
-
-  private val include = (kind: Int, b: Benefit) => {
-    if (kind == 31) b.car.isDefined else b.car.isEmpty
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment],
