@@ -41,7 +41,7 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
 
   "The agent type and legal entity" should {
     "not go to the next step if no agent type is chosen" in new WithApplication(FakeApplication()) {
-      val result = controller.postDetails()(newRequest("", "employer"))
+      val result = controller.postDetails()(newRequest("", "ltdCompany"))
       status(result) shouldBe 400
       contentAsString(result) should include("This field is required")
     }
@@ -52,7 +52,7 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
       contentAsString(result) should include("This field is required")
     }
     "go to the next step if all items are chosen" in new WithApplication(FakeApplication()) {
-      val result = controller.postDetails()(newRequest("inBusiness", "employer"))
+      val result = controller.postDetails()(newRequest("inBusiness", "ltdCompany"))
       status(result) shouldBe 303
     }
     "not go to the next step if an illegal legal entity is chosen" in new WithApplication(FakeApplication()) {
@@ -61,7 +61,7 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
       contentAsString(result) should include("Please select a valid option")
     }
     "not go to the next step if an illegal agent type is chosen" in new WithApplication(FakeApplication()) {
-      val result = controller.postDetails()(newRequest("aslkjddhjks", "employer"))
+      val result = controller.postDetails()(newRequest("aslkjddhjks", "ltdCompany"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please select a valid option")
     }
