@@ -1,6 +1,5 @@
 package views.formatting
 
-import play.api.i18n.Lang
 import org.apache.commons.lang3.text.WordUtils
 
 object Strings {

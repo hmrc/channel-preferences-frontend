@@ -2,7 +2,6 @@ package views.formatting
 
 import org.scalatest.WordSpec
 import org.scalatest.matchers.ShouldMatchers
-import play.api.i18n.Lang
 
 class StringsSpec extends WordSpec with ShouldMatchers {
 
