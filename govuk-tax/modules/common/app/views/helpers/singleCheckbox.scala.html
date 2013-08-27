@@ -1,0 +1,14 @@
+@(field: play.api.data.Field, args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+
+@elements = @{ new FieldElements(field.id, field, null, args.toMap, lang) }
+
+<div class="@if(elements.hasErrors) {error}">
+    <input type="checkbox" id="@elements.id" name="@elements.field.name" value="true" @if(elements.field.value) {checked="checked"}/>
+    <label class="checkbox" for="@elements.id"> @elements.label</label>
+    @elements.errors(elements.lang).map { error =>
+    <span style="display: block" class="error-notification">@Messages(error)</span>
+    }
+</div>

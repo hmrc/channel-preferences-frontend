@@ -7,6 +7,7 @@ error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no lon
 error.agent.accept.sroAgreement=Please specify that you are the Senior Responsible Officer
 error.agent.accept.tncAgreement=Please accept the terms and conditions
 error.agent.phone=Please enter a valid phone number
+error.agent.saUtr=Please enter a valid SA UTR value
 error.prefs.printsuppression=Please select a Print Suppression Option
 error.prefs.email.missing=Email address must be provided
 error.sa.address.line1.mandatory=Address Line 1 is required
@@ -15,6 +16,8 @@ error.sa.address.line3.mandatory=Address Line 3 is required when using Address L
 error.sa.address.mainlines.maxlengthviolation=This address line field must not be greater than 28 characters
 error.sa.address.optionallines.maxlengthviolation=This address line field must not be greater than 18 characters
 error.sa.address.invalidcharacter=This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 - ' , / & space
+error.agent.companyDetails.registered=You must be registered with HMRC to register as an agent
+error.agent.companyDetails.mandatory.phone=You must either specify a landline or mobile phone number
 
 
 recent.changes.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
