@@ -15,8 +15,15 @@ import org.mockito.Mockito._
 import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
 import controllers.sa.StaticHTMLBanner._
 
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.microservice.auth.domain.{ Utr, UserAuthority, Regimes }
 import play.api.libs.ws.Response
+import uk.gov.hmrc.microservice.sa.domain._
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import scala.Some
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import controllers.common.service.FrontEndConfig
+import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
@@ -24,8 +31,10 @@ import scala.Some
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import play.api.libs.ws.Response
+import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
-import controllers.common.service.FrontEndConfig
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -34,6 +43,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   private val mockAuthMicroService = mock[AuthMicroService]
   private val mockSaMicroService = mock[SaMicroService]
   private val currentTime = new DateTime(2012, 12, 21, 12, 4, 32, DateTimeZone.UTC)
+  val mockUtr = Utr("someUtr")
 
   private def controller = new SaController with MockMicroServicesForTests {
     override val authMicroService = mockAuthMicroService
@@ -42,7 +52,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   }
 
   when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-    Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)))))
+    Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(mockUtr))))
 
   when(mockSaMicroService.root("/personal/sa/123456789012")).thenReturn(
     SaRoot(
@@ -435,6 +445,33 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       htmlBody should not include ("addressLine5")
       htmlBody should not include ("country")
     }
+  }
+  "Submit Change Address Confirmation Page  " should {
+    // TODO: Post payload validation tests
+    " use the post payload to submit the changed address to the SA service" in new WithApplication(FakeApplication()) {
+
+      val add1 = "add1"
+      val add2 = "add2"
+      val utr = "someUtr"
+      val updateAddressUri = s"/sa/individual/${utr}/main-address"
+
+      //val mainAddress = MainAddress(None, Some(add1), Some(add2), None, None,None)
+
+      val transactionId = "sometransactionid"
+      when(mockSaMicroService.updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, None)).thenReturn(Some(TransactionId(transactionId)))
+
+      val result = controller.submitConfirmChangeMyAddressForm()(FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> add1, "addressLine2" -> add2)
+        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) shouldBe 200
+      val htmlBody = contentAsString(result)
+      htmlBody should include("Thank you for telling us about the change to your details.")
+      htmlBody should include("Transaction ID:")
+
+      verify(mockSaMicroService).updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, None)
+    }
+
   }
 
   //Valid Characters Alphanumeric (A-Z, a-z, 0-9), hyphen( - ), apostrophe ( ' ), comma ( , ), forward slash ( / ) ampersand ( & ) and space

@@ -40,3 +40,6 @@ case class SaIndividualAddress(
   postcode: String,
   foreignCountry: String,
   additionalDeliveryInformation: String)
+
+case class TransactionId(oid: String)
+

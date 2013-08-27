@@ -2,10 +2,9 @@ package controllers.sa
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.data.validation.Constraints._
 
-import uk.gov.hmrc.microservice.sa.domain.SaRegime
-import views.html.sa.{ sa_personal_details_confirmation, sa_personal_details_update, sa_prefs_details, sa_personal_details }
+import uk.gov.hmrc.microservice.sa.domain._
+import views.html.sa._
 import controllers.common.{ SsoPayloadEncryptor, SessionTimeoutWrapper, ActionWrappers, BaseController }
 import play.api.libs.json.Json
 import config.DateTimeProvider
@@ -13,15 +12,42 @@ import controllers.sa.StaticHTMLBanner._
 
 import org.joda.time.DateTime
 import controllers.common.service.FrontEndConfig
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import scala.Some
+import controllers.sa.PrintPrefsForm
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import controllers.sa.ChangeAddressForm
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import scala.Some
+import controllers.sa.PrintPrefsForm
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import controllers.sa.ChangeAddressForm
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
 case class ChangeAddressForm(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
   addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
+
+//case class MainAddress(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
+//                       addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
+//object MainAddress {
+//  def apply(changeAddressForm: ChangeAddressForm): MainAddress = MainAddress(
+//    additionalDeliveryInfo = changeAddressForm.additionalDeliveryInfo,
+//    addressLine1 = changeAddressForm.addressLine1,
+//    addressLine2 = changeAddressForm.addressLine2,
+//    addressLine3 = changeAddressForm.addressLine3,
+//    addressLine4 = changeAddressForm.addressLine4,
+//    postcode = changeAddressForm.postcode
+//  )
+//}
+
+//case class TransactionId(oid: String)
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider {
 
@@ -158,8 +184,10 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       implicit request =>
         changeAddressForm.bindFromRequest()(request).fold(
           errors => BadRequest(sa_personal_details_update(errors)),
-          formData => {
-            Ok(sa_personal_details_confirmation(changeAddressForm, formData)) //TODO: Call TxService (via SA) to update user details
+          formData => { //user.userAuthority.utr
+            val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
+            val transactionId = saMicroService.updateMainAddress(uri, formData.additionalDeliveryInfo, formData.addressLine1.get, formData.addressLine2.get, formData.addressLine3, formData.addressLine4, formData.postcode)
+            Ok(sa_personal_details_confirmation_receipt(transactionId.get))
           }
         )
   })
