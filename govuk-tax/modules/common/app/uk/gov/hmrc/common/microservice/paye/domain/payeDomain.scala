@@ -51,8 +51,8 @@ case class PayeRoot(nino: String,
     transactionLinks.get(status) match {
       case Some(uri) =>
         val uri = transactionLinks(status).replace("{from}", date.toString(dateFormat))
-        txQueueMicroService.transaction(uri).getOrElse(Seq.empty)
-
+        val tx = txQueueMicroService.transaction(uri)
+        tx.getOrElse(Seq.empty)
       case _ =>
         Seq.empty[TxQueueTransaction]
     }
