@@ -1,9 +1,5 @@
 error.date=Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013
 error.illegal.value=Please select a valid option
-error.paye.benefit.date.greater.7.days=Invalid date: Return date cannot be greater than 7 days from today
-error.paye.benefit.date.next.taxyear=Invalid date: Return date cannot be in next tax years
-error.paye.benefit.date.previous.taxyear=Invalid date: Return date cannot be in previous tax years
-error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
 error.agent.accept.sroAgreement=Please specify that you are the Senior Responsible Officer
 error.agent.accept.tncAgreement=Please accept the terms and conditions
 error.agent.phone=Please enter a valid phone number
@@ -21,8 +17,3 @@ error.agent.companyDetails.mandatory.phone=You must either specify a landline or
 error.agent.professionalBodyMembershipNumber.mandatory=You must specify a membership number for your professional body
 error.agent.professionalBodyMembership.mandatory=You must specify which professional body you belong to
 
-
-recent.changes.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
-recent.changes.completed.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This has been processed and your new Tax Code is {2}. {1} have been notified.
-recent.changes.accepted.removeFuelBenefits=On {0}, you removed your company car fuel benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
-recent.changes.completed.removeFuelBenefits=On {0}, you removed your company car fuel benefit from {1}. This has been processed and your new Tax Code is {2}. {1} have been notified.
