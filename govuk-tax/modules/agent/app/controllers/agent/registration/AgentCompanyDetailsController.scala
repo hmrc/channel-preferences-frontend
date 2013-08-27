@@ -66,7 +66,7 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
               _ => {
                 val agentCompanyDetails = companyDetailsForm.bindFromRequest.data
                 saveFormToKeyStore("companyDetailsForm", agentCompanyDetails, userId(user))
-                Ok("go to next step")
+                Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership)
 
               }
             )

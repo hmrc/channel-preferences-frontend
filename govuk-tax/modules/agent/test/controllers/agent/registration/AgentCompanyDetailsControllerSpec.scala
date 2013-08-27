@@ -113,17 +113,17 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "go to next step if required details are provided" in new WithApplication(FakeApplication()) {
       val result = controller.postCompanyDetails()(newRequestForCompanyDetails())
-      status(result) shouldBe 200
+      status(result) shouldBe 303
     }
 
   }
 
   def newRequestForCompanyDetails(companyName: String = "Alvaro Ltd", tradingName: Option[String] = Some("Alvarito"), landlineNumber: Option[String] = Some("1234"), mobileNumber: Option[String] = Some("5678"),
-                                  website: Option[String] = Some("alvarito.com"), email: String = "alvaro@alvaro.com", mainAddress: String = "Alvaro's house", communicationAddress: String = "Alvaro's house in Murcia",
-                                  businessAddress: String = "Alvaro's Company Location", saUtr: String = "7453627123", ctUtr: Option[String] = Some("ct"),
-                                  vatVrn: Option[String] = Some("vatvrn"), payeEmpRef: Option[String] = Some("payemp"), companyHouseNumber: Option[String] = Some("764536"), registeredOnHMRC: Boolean = true) =
+    website: Option[String] = Some("alvarito.com"), email: String = "alvaro@alvaro.com", mainAddress: String = "Alvaro's house", communicationAddress: String = "Alvaro's house in Murcia",
+    businessAddress: String = "Alvaro's Company Location", saUtr: String = "7453627123", ctUtr: Option[String] = Some("ct"),
+    vatVrn: Option[String] = Some("vatvrn"), payeEmpRef: Option[String] = Some("payemp"), companyHouseNumber: Option[String] = Some("764536"), registeredOnHMRC: Boolean = true) =
     FakeRequest().withFormUrlEncodedBody("companyName" -> companyName, "tradingName" -> tradingName.get, "phoneNumbers.landlineNumber" -> landlineNumber.getOrElse(""), "phoneNumbers.mobileNumber" -> mobileNumber.getOrElse(""), "website" -> website.get, "email" -> email,
-    "mainAddress"->mainAddress, "communicationAddress" -> communicationAddress, "businessAddress" -> businessAddress, "saUtr" -> saUtr, "ctUtr" -> ctUtr.get, "vaVrn" -> vatVrn.get, "payeEmpRef" -> payeEmpRef.get, "companyHouseNumber" -> companyHouseNumber.get, "registeredOnHMRC" -> registeredOnHMRC.toString
+      "mainAddress" -> mainAddress, "communicationAddress" -> communicationAddress, "businessAddress" -> businessAddress, "saUtr" -> saUtr, "ctUtr" -> ctUtr.get, "vaVrn" -> vatVrn.get, "payeEmpRef" -> payeEmpRef.get, "companyHouseNumber" -> companyHouseNumber.get, "registeredOnHMRC" -> registeredOnHMRC.toString
     )
       .withSession("userId" -> controller.encrypt(authority), "name" -> controller.encrypt("Will Shakespeare"),
         SessionTimeoutWrapper.sessionTimestampKey -> controller.now().getMillis.toString)

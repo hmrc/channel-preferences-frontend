@@ -18,6 +18,7 @@ error.sa.address.optionallines.maxlengthviolation=This address line field must n
 error.sa.address.invalidcharacter=This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 - ' , / & space
 error.agent.companyDetails.registered=You must be registered with HMRC to register as an agent
 error.agent.companyDetails.mandatory.phone=You must either specify a landline or mobile phone number
+error.agent.professionalBodyMembership.mandatory.details=You must specify a membership number for your professional body
 
 
 recent.changes.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.

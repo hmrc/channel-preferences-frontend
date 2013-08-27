@@ -11,4 +11,7 @@ GET         /agent-type                     @controllers.agent.registration.Agen
 POST        /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.postDetails
 
 GET         /company-details                @controllers.agent.registration.AgentCompanyDetailsController.companyDetails
-POST         /company-details               @controllers.agent.registration.AgentCompanyDetailsController.postCompanyDetails
+POST        /company-details                @controllers.agent.registration.AgentCompanyDetailsController.postCompanyDetails
+
+GET         /professional-body-membership   @controllers.agent.registration.AgentProfessionalBodyMembershipController.professionalBodyMembership
+POST        /professional-body-membership   @controllers.agent.registration.AgentProfessionalBodyMembershipController.postProfessionalBodyMembership

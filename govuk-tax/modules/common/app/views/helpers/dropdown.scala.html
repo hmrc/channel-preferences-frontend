@@ -8,18 +8,17 @@
 <div class="@elements.args.get('_groupDivClass) @if(elements.hasErrors) {error}">
     <label for="@elements.field.name"><h4>@elements.label</h4></label>
     @if(elements.args.contains('_additionalTitleText)){<p>@elements.args.get('_additionalTitleText)</p>}
-    @for(option <- elementOptions) {
-        <div class="button">
-            <input
-                    type="radio"
+    <select id="@elements.field.name" name="@elements.field.name">
+        <option value="">Please select</option>
+        @for(option <- elementOptions) {
+            <option
                     id="@elements.field.name-@option._1"
-                    name="@elements.field.name"
                     value="@option._1"
-                    @if(elements.field.value==option._1){checked="checked"}
+            @if(elements.field.value.getOrElse("")==option._1){selected="selected"}
             >
-                <label for="@elements.field.name-@option._1">@option._2</label>
-            </input>
-        </div>
-    }
+            @option._2
+            </option>
+        }
+    </select>
     @elements.errors.map { error => <span style="display: block" class="error-notification">@Messages(error)</span>}
 </div>

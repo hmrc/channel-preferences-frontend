@@ -8,12 +8,10 @@ import scala.Some
 
 class AgentTypeAndLegalEntityController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration {
 
-  val configuration = new Configuration()
-
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
-      "agentType" -> nonEmptyText.verifying("error.illegal.value", v => { configuration.agentTypeOptions.contains(v) }),
-      "legalEntity" -> nonEmptyText.verifying("error.illegal.value", v => { configuration.legalEntityOptions.contains(v) })
+      "agentType" -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.agentTypeOptions.contains(v) }),
+      "legalEntity" -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.legalEntityOptions.contains(v) })
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
@@ -21,7 +19,7 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
     AuthorisedForIdaAction(Some(PayeRegime)) {
       user =>
         implicit request =>
-          Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, configuration))
+          Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
     }
   }
 
@@ -31,7 +29,7 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
         implicit request =>
           agentTypeAndLegalEntityForm.bindFromRequest.fold(
             errors => {
-              BadRequest(views.html.agents.registration.agent_type_and_legal_entity(errors, configuration))
+              BadRequest(views.html.agents.registration.agent_type_and_legal_entity(errors, Configuration.config))
             },
             _ => {
               val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest.data
@@ -43,17 +41,4 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
   }
 }
 case class AgentTypeAndLegalEntity(agentType: String, legalEntity: String)
-
-case class Configuration(
-  agentTypeOptions: Map[String, String] = Map[String, String](
-    "inBusiness" -> "In business as an agent",
-    "unpaidAgentFamily" -> "Unpaid agent - Friends and family",
-    "unpaidAgentVoluntary" -> "Unpaid agent - Voluntary and Community Sector",
-    "employer" -> "Employer acting for employees"
-  ),
-  legalEntityOptions: Map[String, String] = Map[String, String](
-    "ltdCompany" -> "Limited Company",
-    "partnership" -> "Partnership (e.g. Ordinary Partnership, Limited Partnership, Limited Liability Partnership, Scottish Limited Partnership)",
-    "soleProprietor" -> "Sole Proprietor"
-  ))
 
