@@ -8,6 +8,7 @@ import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.agent.AgentMicroService
 
 trait MicroServices {
 
@@ -19,4 +20,6 @@ trait MicroServices {
   implicit val txQueueMicroService = new TxQueueMicroService()
   implicit val auditMicroService = new AuditMicroService()
   implicit val keyStoreMicroService = new KeyStoreMicroService()
+  implicit val agentMicroService = new AgentMicroService()
+
 }
