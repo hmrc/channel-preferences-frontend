@@ -11,9 +11,10 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
   private val professionalBodyMembershipForm: Form[AgentProfessionalBodyMembership] = Form(
     mapping(
       "professionalBodyMembership" -> tuple(
-        "professionalBody" -> optional(text),
+        "professionalBody" -> optional(text.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
         "membershipNumber" -> optional(text)
-      ).verifying("error.agent.professionalBodyMembership.mandatory.details", data => (data._1.isDefined && data._2.isDefined) || (!data._1.isDefined))
+      ).verifying("error.agent.professionalBodyMembershipNumber.mandatory", data => (!data._1.isDefined || data._2.isDefined))
+        .verifying("error.agent.professionalBodyMembership.mandatory", data => (data._1.isDefined || !data._2.isDefined))
     ) {
         (professionalBodyMembership) =>
           AgentProfessionalBodyMembership(professionalBodyMembership._1, professionalBodyMembership._2)

@@ -45,9 +45,21 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
 
   "AgentProfessionalMembershipController" should {
     "not go to the next step if professional body is specified but not the membership number" in new WithApplication(FakeApplication()) {
-      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("something", ""))
+      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify a membership number for your professional body")
+    }
+
+    "not go to the next step if professional body is invalid" in new WithApplication(FakeApplication()) {
+      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("sad", ""))
+      status(result) shouldBe 400
+      contentAsString(result) should include("Please select a valid option")
+    }
+
+    "not go to the next step if membership number is specified but not the professional body" in new WithApplication(FakeApplication()) {
+      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("", "asdsafd"))
+      status(result) shouldBe 400
+      contentAsString(result) should include("You must specify which professional body you belong to")
     }
 
     "go to the next step if no input data is entered" in new WithApplication(FakeApplication()) {
@@ -56,7 +68,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
-      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("some", "data"))
+      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
       status(result) shouldBe 200
     }
   }
