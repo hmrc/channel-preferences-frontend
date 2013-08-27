@@ -3,8 +3,9 @@ package controllers.paye
 import uk.gov.hmrc.common.BaseSpec
 import views.PageSugar
 import org.joda.time.{ LocalDate, DateTime }
-import views.html.paye.paye_home
+import views.html.paye.{ paye_benefit_home, paye_home }
 import play.api.templates.Html
+import uk.gov.hmrc.microservice.paye.domain.{ Benefit, Employment }
 
 class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
@@ -65,4 +66,19 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
   }
 
+  "Paye benefits home page" should {
+
+    "include the hyphenated benefit type as the table row id" in {
+      val displayBenefit = DisplayBenefit(
+        Employment(1, LocalDate.now(), None, "123", "934503945834", None),
+        Benefit(29, 2013, BigDecimal("100.00"), 1, null, null, null, null, null, "Description", None, Map.empty, Map.empty),
+        None,
+        None
+      )
+
+      val page = paye_benefit_home(Seq(displayBenefit))
+      println(page)
+      page("tr#car-fuel-benefit").size must be(1)
+    }
+  }
 }

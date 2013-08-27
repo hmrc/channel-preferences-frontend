@@ -1,6 +1,7 @@
 @(benefits: Seq[controllers.paye.DisplayBenefit])
 
 @import views.formatting.Dates._
+@import views.formatting.Strings._
 @import config.RefData._
 
 @main(title = "Your tax home") {
@@ -19,10 +20,8 @@
 
         @for(displayBenefit <- benefits) {
 
-	    <!--
-		TODO: add lowercase hyphenated benefit type as id
-	    -->
-	<tr id="" class="@iabdTypeFor(displayBenefit.benefit.benefitType)">
+	<tr id="@lowerCaseHyphenated(iabdTypeFor(displayBenefit.benefit.benefitType))"
+        class="@lowerCaseHyphenated(iabdTypeFor(displayBenefit.benefit.benefitType))">
 		<td class="employment-reference">@displayBenefit.employment.employerNameOrReference</td>
 		<td class="benefit-type">@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
 
