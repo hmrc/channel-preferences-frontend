@@ -35,7 +35,7 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
             },
             _ => {
               val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest.data
-              saveFormToKeyStore("agentTypeAndLegalEntityForm", agentTypeAndLegalEntityDetails)
+              saveFormToKeyStore("agentTypeAndLegalEntityForm", agentTypeAndLegalEntityDetails, userId(user))
               Redirect(routes.AgentCompanyDetailsController.companyDetails())
             }
           )

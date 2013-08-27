@@ -9,24 +9,36 @@ import play.api.mvc.{ Action, Result }
 
 class AgentCompanyDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration {
 
-  private val companyDetailsForm = Form[AgentCompanyDetails](
+  private val companyDetailsForm: Form[AgentCompanyDetails] = Form(
     mapping(
-      "companyName" -> text,
-      "tradingName" -> text,
-      "landlineNumber" -> text.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber),
-      "mobileNumber" -> text.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber),
-      "website" -> text.verifying(),
-      "email" -> text.verifying("error.email", validateOptionalEmail),
-      "mainAddress" -> text,
-      "communicationAddress" -> text,
-      "businessAddress" -> text,
+      "companyName" -> nonEmptyText,
+      "tradingName" -> optional(text),
+      "phoneNumbers" -> tuple(
+        "landlineNumber" -> optional(text.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber)),
+        "mobileNumber" -> optional(text.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber))
+      ).verifying("error.agent.companyDetails.mandatory.phone", data => data._1.isDefined || data._2.isDefined),
+      "website" -> optional(text),
+      "email" -> email,
+      "mainAddress" -> nonEmptyText,
+      "communicationAddress" -> nonEmptyText,
+      "businessAddress" -> nonEmptyText,
       "saUtr" -> text.verifying("error.agent.saUtr", validateSaUtr),
-      "ctUtr" -> text,
-      "vatVrn" -> text,
-      "payeEmpRef" -> text,
-      "companyHouseNumber" -> text,
-      "registeredOnHMRC" -> text
-    )(AgentCompanyDetails.apply)(AgentCompanyDetails.unapply)
+      "ctUtr" -> optional(text),
+      "vatVrn" -> optional(text),
+      "payeEmpRef" -> optional(text),
+      "companyHouseNumber" -> optional(text),
+      "registeredOnHMRC" -> boolean.verifying("error.agent.companyDetails.registered", e => { e })
+    ) {
+        (companyName, tradingName, phoneNumbers, website, email, mainAddress, communicationAddress, businessAddress, saUtr,
+        ctUtr, vatVrn, payeEmpRef, companyHouseNumber, registeredOnHMRC) =>
+          AgentCompanyDetails(companyName, tradingName, phoneNumbers._1, phoneNumbers._2, website, email, mainAddress,
+            communicationAddress, businessAddress, saUtr, ctUtr, vatVrn, payeEmpRef, companyHouseNumber, registeredOnHMRC)
+      } {
+        form =>
+          Some((form.companyName, form.tradingName, (form.landlineNumber, form.mobileNumber), form.website,
+            form.email, form.mainAddress, form.communicationAddress, form.businessAddress, form.saUtr, form.ctUtr,
+            form.vatVrn, form.payeEmpRef, form.companyHouseNumber, form.registeredOnHMRC))
+      }
   )
 
   def companyDetails =
@@ -53,16 +65,16 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
               },
               _ => {
                 val agentCompanyDetails = companyDetailsForm.bindFromRequest.data
-                saveFormToKeyStore("companyDetailsForm", agentCompanyDetails)
-                //Redirect(routes.AgentTypeAndLegalEntityController.agentType)
-                Ok("No more forms please!!!!")
+                saveFormToKeyStore("companyDetailsForm", agentCompanyDetails, userId(user))
+                Ok("go to next step")
+
               }
             )
       }
     }
 }
 
-case class AgentCompanyDetails(companyName: String = "", tradingName: String = "", landlineNumber: String = "", mobileNumber: String = "",
-  website: String = "", email: String = "", mainAddress: String = "", communicationAddress: String = "",
-  businessAddress: String = "", saUtr: String = "", ctUtr: String = "",
-  vatVrn: String = "", payeEmpRef: String = "", companyHouseNumber: String = "", registeredOnHMRC: String = "")
+case class AgentCompanyDetails(companyName: String = "", tradingName: Option[String] = None, landlineNumber: Option[String] = None, mobileNumber: Option[String] = None,
+  website: Option[String] = None, email: String = "", mainAddress: String = "", communicationAddress: String = "",
+  businessAddress: String = "", saUtr: String = "", ctUtr: Option[String] = None,
+  vatVrn: Option[String] = None, payeEmpRef: Option[String] = None, companyHouseNumber: Option[String] = None, registeredOnHMRC: Boolean = false)

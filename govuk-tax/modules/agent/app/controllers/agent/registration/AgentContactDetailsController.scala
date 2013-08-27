@@ -43,7 +43,7 @@ class AgentContactDetailsController extends BaseController with SessionTimeoutWr
             },
             _ => {
               val agentDetails = contactForm.bindFromRequest.data
-              saveFormToKeyStore("contactForm", agentDetails)
+              saveFormToKeyStore("contactForm", agentDetails, userId(user))
               Redirect(routes.AgentTypeAndLegalEntityController.agentType)
             }
           )

@@ -1,0 +1,25 @@
+@(field: play.api.data.Field, elementOptions: Map[String, String], args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+
+@elements = @{ new FieldElements(field.id, field, null, args.toMap, lang) }
+
+<div class="@elements.args.get('_groupDivClass) @if(elements.hasErrors) {error}">
+    <label for="@elements.field.name"><h4>@elements.label</h4></label>
+    @if(elements.args.contains('_additionalTitleText)){<p>@elements.args.get('_additionalTitleText)</p>}
+    @for(option <- elementOptions) {
+        <div class="button">
+            <input
+                    type="radio"
+                    id="@elements.field.name + '_' + @option._1"
+                    name="@elements.field.name"
+                    value="@option._1"
+                    @if(elements.field.value==option._1){checked="checked"}
+            >
+                <label for="@elements.field.name + '_' + @option._1">@option._2</label>
+            </input>
+        </div>
+    }
+    @elements.errors.map { error => <span style="display: block" class="error-notification">@Messages(error)</span>}
+</div>

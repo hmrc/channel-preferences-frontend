@@ -1,168 +1,41 @@
 @(companyDetailsForm:Form[controllers.agent.registration.AgentCompanyDetails])
 
-@import views.helpers.CustomHelpers._
-@import helper._
-
 @main(title = "Your tax home") {
 
-
-<h2 xmlns="http://www.w3.org/1999/html">Contact Details</h2>
+<h2>Company Details</h2>
 
 @helper.form(action = agent.registration.routes.AgentCompanyDetailsController.postCompanyDetails) {
 
-    <p>
-        @inputText(
-        companyDetailsForm("companyName"),
-          '_id -> "companyName",
-          '_name -> "companyName",
-          '_label -> "Company Name:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("companyName"), '_label -> "Company Name:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("tradingName"),
-          '_id -> "tradingName",
-          '_name -> "tradingName",
-          '_label -> "Trading Name (if different):",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("tradingName"), '_label -> "Trading Name (if different):")
 
-    <p>
-        @inputText(
-        companyDetailsForm("landlineNumber"),
-          '_id -> "landlineNumber",
-          '_name -> "landlineNumber",
-          '_label -> "Telephone Number - Landline:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("phoneNumbers.landlineNumber"), '_label -> "Telephone Number - Landline:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("mobileNumber"),
-          '_id -> "mobileNumber",
-          '_name -> "mobileNumber",
-          '_label -> "Telephone Number - Mobile:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("phoneNumbers.mobileNumber"), '_label -> "Telephone Number - Mobile:", '_error -> companyDetailsForm.error("phoneNumbers"))
+   
+        @helpers.input(companyDetailsForm("website"), '_label -> "Website Address:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("website"),
-          '_id -> "website",
-          '_name -> "website",
-          '_label -> "Website Address:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("email"), '_label -> "Email Address:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("email"),
-          '_id -> "email",
-          '_name -> "email",
-          '_label -> "Email Address:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("mainAddress"), '_label -> "Main Address:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("mainAddress"),
-          '_id -> "mainAddress",
-          '_name -> "mainAddress",
-          '_label -> "Main Address:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("communicationAddress"),'_label -> "Communication Address:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("communicationAddress"),
-          '_id -> "communicationAddress",
-          '_name -> "communicationAddress",
-          '_label -> "Communication Address:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("businessAddress"), '_label -> "Principal Place of Business Address:")
+   
+        @helpers.input(companyDetailsForm("saUtr"),'_label -> "SA UTR:")
+   
+        @helpers.input(companyDetailsForm("ctUtr"),'_label -> "CT UTR:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("businessAddress"),
-          '_id -> "businessAddress",
-          '_name -> "businessAddress",
-          '_label -> "Principal Place of Business Address:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("vatVrn"),'_label -> "VAT VRN:")
+   
+        @helpers.input(companyDetailsForm("payeEmpRef"), '_label -> "PAYE Emp Ref:")
 
-    <p>
-        @inputText(
-        companyDetailsForm("saUtr"),
-          '_id -> "saUtr",
-          '_name -> "saUtr",
-          '_label -> "SA UTR:",
-          '_showConstraints -> false
-        )
-    </p>
+        @helpers.input(companyDetailsForm("companyHouseNumber"), '_label -> "Company House Number:")
 
-
-    <p>
-        @inputText(
-        companyDetailsForm("ctUtr"),
-          '_id -> "ctUtr",
-          '_name -> "ctUtr",
-          '_label -> "CT UTR:",
-          '_showConstraints -> false
-        )
-    </p>
-
-    <p>
-        @inputText(
-        companyDetailsForm("vatVrn"),
-        '_id -> "vatVrn",
-        '_name -> "vatVrn",
-        '_label -> "VAT VRN:",
-        '_showConstraints -> false
-        )
-    </p>
-
-    <p>
-        @inputText(
-        companyDetailsForm("payeEmpRef"),
-          '_id -> "payeEmpRef",
-          '_name -> "payeEmpRef",
-          '_label -> "PAYE Emp Ref:",
-          '_showConstraints -> false
-        )
-    </p>
-
-    <p>
-        @inputText(
-        companyDetailsForm("companyHouseNumber"),
-          '_id -> "companyHouseNumber",
-          '_name -> "companyHouseNumber",
-          '_label -> "Company House Number:",
-          '_showConstraints -> false
-        )
-    </p>
-
-    <p>
-        @checkbox(
-        companyDetailsForm("registeredOnHMRC"),
-        '_id -> "registeredOnHMRC",
-        '_name -> "registeredOnHMRC",
-        '_label -> "I am currently registered with HMRC for a UK tax.",
-        '_showConstraints -> false
-        )
-    </p>
-
-    <p><input type="submit" value="Next"/></p>
+        @helpers.singleCheckbox(companyDetailsForm("registeredOnHMRC"), '_label -> "I am currently registered with HMRC for a UK tax.")
+   
+   <input type="submit" value="Next"/></p>
 }
-
-
 }

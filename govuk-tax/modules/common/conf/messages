@@ -10,6 +10,8 @@ error.agent.phone=Please enter a valid phone number
 error.agent.saUtr=Please enter a valid SA UTR value
 error.prefs.printsuppression=Please select a Print Suppression Option
 error.prefs.email.missing=Email address must be provided
+error.agent.companyDetails.registered=You must be registered with HMRC to register as an agent
+error.agent.companyDetails.mandatory.phone=You must either specify a landline or mobile phone number
 
 recent.transaction.accepted.removeCarBenefits=On {0}, you removed your company car benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
 

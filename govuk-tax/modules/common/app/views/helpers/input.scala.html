@@ -1,0 +1,15 @@
+@(field: play.api.data.Field, args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+
+@elements = @{ new FieldElements(field.id, field, null, args.toMap, lang) }
+
+<div class="@elements.args.get('_divClass) @if(elements.hasErrors) {error}">
+    <label for="@elements.field.name" class="input-label">@elements.label</label>
+    <input type="@if(elements.args.contains('_type)){@elements.args.get('_type)}else{text}"
+           name="@elements.field.name"
+           id="@elements.field.name"
+           value="@elements.field.value"/>
+    @elements.errors.map { error => <span style="display: block" class="error-notification">@Messages(error)</span>}
+</div>
