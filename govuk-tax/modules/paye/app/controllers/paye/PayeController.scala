@@ -24,58 +24,21 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     AuthorisedForIdaAction(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
-
-          val payeData = user.regimes.paye.get
-          val taxYear = currentTaxYear
-          val benefits = payeData.benefits(taxYear)
-
-          // this is safe, the AuthorisedForAction wrapper will have thrown Unauthorised if the PayeRoot data isn't present
-          val employments = payeData.employments(taxYear)
-          val taxCodes = payeData.taxCodes(taxYear)
-          val employmentViews: Seq[EmploymentView] = toEmploymentView(employments, taxCodes, taxYear, payeData.recentAcceptedTransactions(), payeData.recentCompletedTransactions())
-
-          Ok(paye_home(PayeOverview(payeData.name, user.userAuthority.previouslyLoggedInAt, payeData.nino, employmentViews, !benefits.isEmpty)))
+          homeAction(user, request)
     }
   }
 
-  def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    implicit user =>
-      implicit request =>
-        val taxYear = currentTaxYear
-        val benefits = user.regimes.paye.get.benefits(taxYear)
-        val employments = user.regimes.paye.get.employments(taxYear)
-        val completedTransactions = user.regimes.paye.get.recentCompletedTransactions
+  private[paye] val homeAction: (User, Request[_]) => Result = (user, request) => {
+    val payeData = user.regimes.paye.get
+    val taxYear = currentTaxYear
+    val benefits = payeData.benefits(taxYear)
+    val employments = payeData.employments(taxYear)
+    val taxCodes = payeData.taxCodes(taxYear)
 
-        // TODO: add lowercase hyphenated formatter
-        Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments, completedTransactions)))
-  })
+    val employmentViews: Seq[EmploymentView] = toEmploymentView(employments, taxCodes, taxYear, payeData.recentAcceptedTransactions(), payeData.recentCompletedTransactions())
 
-  def benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    implicit user =>
-      implicit request =>
-        benefitRemovalFormAction(kind, user, request, year, employmentSequenceNumber)
-  })
-
-  def requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => requestBenefitRemovalAction(kind, user, request, year, employmentSequenceNumber)
-  })
-
-  def confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    implicit user =>
-      implicit request =>
-        val db = getBenefit(kind, user, employmentSequenceNumber)
-        val payeRoot = user.regimes.paye.get
-        val withdrawDate = request.session.get("withdraw_date").get
-        val revisedAmount = request.session.get("revised_amount").get
-        val transactionId = payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
-
-        Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber, transactionId.get.oid))
-  })
-
-  def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    implicit user =>
-      implicit request => benefitRemovedAction(user, request, oid)
-  })
+    Ok(paye_home(PayeOverview(payeData.name, user.userAuthority.previouslyLoggedInAt, payeData.nino, employmentViews, !benefits.isEmpty)))
+  }
 
   private def toEmploymentView(employments: Seq[Employment],
     taxCodes: Seq[TaxCode],
@@ -85,6 +48,82 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
     for (e <- employments) yield EmploymentView(e.employerNameOrReference, e.startDate, e.endDate, taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
       (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, "accepted") ++ transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, "completed")).toList)
+
+  def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+    implicit user =>
+      implicit request =>
+        listBenefitsAction(user, request)
+  })
+
+  private[paye] val listBenefitsAction: (User, Request[_]) => Result = (user, request) => {
+    val taxYear = currentTaxYear
+    val benefits = user.regimes.paye.get.benefits(taxYear)
+    val employments = user.regimes.paye.get.employments(taxYear)
+    val completedTransactions = user.regimes.paye.get.recentCompletedTransactions
+
+    Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments, completedTransactions)))
+  }
+
+  def benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+    implicit user =>
+      implicit request =>
+        benefitRemovalFormAction(kind, user, request, year, employmentSequenceNumber)
+  })
+
+  private[paye] val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
+    if (kind == 31)
+      Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+    else
+      Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+  }
+
+  def requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+    user => request => requestBenefitRemovalAction(kind, user, request, year, employmentSequenceNumber)
+  })
+
+  private[paye] val requestBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
+    val db = getBenefit(kind, user, employmentSequenceNumber)
+
+    updateBenefitForm.bindFromRequest()(request).fold(
+      errors => BadRequest(remove_car_benefit_form(db, errors)),
+      removeBenefitData => {
+        val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
+        val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
+
+        Ok(remove_car_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
+          + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
+          + ("revised_amount", revisedAmount.toString()))
+      }
+    )
+  }
+
+  def confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+    implicit user =>
+      implicit request =>
+        confirmBenefitRemovalAction(kind, user, request, year, employmentSequenceNumber)
+  })
+
+  private[paye] val confirmBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
+    val db = getBenefit(kind, user, employmentSequenceNumber)
+    val payeRoot = user.regimes.paye.get
+    val withdrawDate = request.session.get("withdraw_date").get
+    val revisedAmount = request.session.get("revised_amount").get
+    val transactionId = payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
+
+    Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber, transactionId.get.oid))
+  }
+
+  def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+    implicit user =>
+      implicit request => benefitRemovedAction(user, request, oid)
+  })
+
+  private[paye] val benefitRemovedAction: (User, Request[_], String) => play.api.mvc.Result = (user, request, oid) =>
+    if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
+      NotFound
+    } else {
+      Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+    }
 
   private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {
     val taxCodeOption: Option[TaxCode] = taxCodes.find(tc => tc.employmentSequenceNumber == employmentSequenceNumber)
@@ -101,7 +140,9 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     transactions: Seq[TxQueueTransaction],
     messageCodePrefix: String): Seq[RecentChange] =
     transactions.filter(tx =>
-      tx.properties("employmentSequenceNumber").toInt == employmentSequenceNumber && tx.properties("taxYear").toInt == taxYear && tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
+      tx.properties("employmentSequenceNumber").toInt == employmentSequenceNumber &&
+        tx.properties("taxYear").toInt == taxYear &&
+        tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
     ).
       map {
         tx =>
@@ -130,36 +171,6 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
       "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement")
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
-
-  val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    if (kind == 31)
-      Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
-    else
-      Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
-  }
-
-  val requestBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    val db = getBenefit(kind, user, employmentSequenceNumber)
-
-    updateBenefitForm.bindFromRequest()(request).fold(
-      errors => BadRequest(remove_car_benefit_form(db, errors)),
-      removeBenefitData => {
-        val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
-        val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
-
-        Ok(remove_car_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
-          + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
-          + ("revised_amount", revisedAmount.toString()))
-      }
-    )
-  }
-
-  val benefitRemovedAction: (User, Request[_], String) => play.api.mvc.Result = (user, request, oid) =>
-    if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
-      NotFound
-    } else {
-      Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
-    }
 
   private def getBenefit(kind: Int, user: User, employmentSequenceNumber: Int): DisplayBenefit = {
     val taxYear = currentTaxYear
