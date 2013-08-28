@@ -1,0 +1,8 @@
+error.agent.companyDetails.registered=You must be registered with HMRC to register as an agent
+error.agent.companyDetails.mandatory.phone=You must either specify a landline or mobile phone number
+error.agent.professionalBodyMembershipNumber.mandatory=You must specify a membership number for your professional body
+error.agent.professionalBodyMembership.mandatory=You must specify which professional body you belong to
+error.agent.accept.sroAgreement=Please specify that you are the Senior Responsible Officer
+error.agent.accept.tncAgreement=Please accept the terms and conditions
+error.agent.phone=Please enter a valid phone number
+error.agent.saUtr=Please enter a valid SA UTR value
