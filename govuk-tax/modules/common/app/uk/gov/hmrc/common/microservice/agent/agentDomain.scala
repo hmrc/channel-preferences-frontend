@@ -2,23 +2,23 @@ package uk.gov.hmrc.common.microservice.agent
 
 import org.joda.time.DateTime
 
-case class AgentDTO(legalEntity: String,
+case class Agent(legalEntity: String,
   agentType: String,
   daytimeNumber: String,
   mobileNumber: String,
   emailAddress: String,
-  companyDetails: CompanyDetailsDTO,
-  professionalBodyMembership: ProfessionalBodyMembershipDTO,
+  companyDetails: CompanyDetails,
+  professionalBodyMembership: ProfessionalBodyMembership,
   createdAt: Option[DateTime],
   uar: Option[String])
 
-case class CompanyDetailsDTO(companyName: String,
+case class CompanyDetails(companyName: String,
   emailAddress: String,
   saUTR: String,
   registeredWithHMRC: Boolean,
-  mainAddress: AddressDTO,
-  communicationAddress: AddressDTO,
-  principalAddress: AddressDTO,
+  mainAddress: Address,
+  communicationAddress: Address,
+  principalAddress: Address,
   tradingName: Option[String] = None,
   phoneNumbers: Map[String, String] = Map.empty,
   websiteURLs: List[String] = List.empty,
@@ -27,10 +27,11 @@ case class CompanyDetailsDTO(companyName: String,
   payeEmpRef: Option[String] = None,
   companyHouseNumber: Option[String] = None)
 
-case class AddressDTO(addressLine1: String,
+//FIXME: address should be common, if not then rename to Agent specific address
+case class Address(addressLine1: String,
   addressLine2: Option[String] = None,
   addressLine3: Option[String] = None,
   addressLine4: Option[String] = None,
   postcode: Option[String] = None)
 
-case class ProfessionalBodyMembershipDTO(professionalBody: String, membershipNumber: String)
+case class ProfessionalBodyMembership(professionalBody: String, membershipNumber: String)
