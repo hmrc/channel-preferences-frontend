@@ -12,42 +12,16 @@ import controllers.sa.StaticHTMLBanner._
 
 import org.joda.time.DateTime
 import controllers.common.service.FrontEndConfig
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import scala.Some
-import controllers.sa.PrintPrefsForm
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import controllers.sa.ChangeAddressForm
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
-import scala.Some
-import controllers.sa.PrintPrefsForm
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import controllers.sa.ChangeAddressForm
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
 case class ChangeAddressForm(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
   addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
-
-//case class MainAddress(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
-//                       addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
-//object MainAddress {
-//  def apply(changeAddressForm: ChangeAddressForm): MainAddress = MainAddress(
-//    additionalDeliveryInfo = changeAddressForm.additionalDeliveryInfo,
-//    addressLine1 = changeAddressForm.addressLine1,
-//    addressLine2 = changeAddressForm.addressLine2,
-//    addressLine3 = changeAddressForm.addressLine3,
-//    addressLine4 = changeAddressForm.addressLine4,
-//    postcode = changeAddressForm.postcode
-//  )
-//}
-
-//case class TransactionId(oid: String)
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider {
 
@@ -77,18 +51,18 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       "additionalDeliveryInfo" -> optional(text),
       "addressLine1" -> optional(text)
         .verifying("error.sa.address.line1.mandatory", notBlank _)
-        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid(_))
-        .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_)),
+        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
+        .verifying("error.sa.address.invalidcharacter", characterValidator.isValid _),
       "addressLine2" -> optional(text)
         .verifying("error.sa.address.line2.mandatory", notBlank _)
-        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid(_))
-        .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_)),
+        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
+        .verifying("error.sa.address.invalidcharacter", characterValidator.isValid _),
       "optionalAddressLines" -> tuple(
-        "addressLine3" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid(_))
-          .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_)),
-        "addressLine4" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid(_))
-          .verifying("error.sa.address.invalidcharacter", characterValidator.isValid(_))
-      ).verifying("error.sa.address.line3.mandatory", optionalLines => (isBlank(optionalLines._2)) || (notBlank(optionalLines._1) && notBlank(optionalLines._2))),
+        "addressLine3" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+          .verifying("error.sa.address.invalidcharacter", characterValidator.isValid _),
+        "addressLine4" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+          .verifying("error.sa.address.invalidcharacter", characterValidator.isValid _)
+      ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2) || (notBlank(optionalLines._1) && notBlank(optionalLines._2))),
       "postcode" -> optional(text)
     ) {
         (additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines, postcode) => ChangeAddressForm(additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines._1, optionalAddressLines._2, postcode)
@@ -199,7 +173,7 @@ object characterValidator {
 
   def isValid(value: Option[String]): Boolean = {
     value match {
-      case Some(value) => invalidCharacterRegex.findFirstIn(value).isEmpty
+      case Some(string) => invalidCharacterRegex.findFirstIn(string).isEmpty
       case None => true
     }
 
