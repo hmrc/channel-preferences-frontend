@@ -3,7 +3,7 @@ package controllers.sa
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.auth.AuthMicroService
-import play.api.mvc.{ AnyContent, Action }
+import play.api.mvc.{ Result, Request, AnyContent, Action }
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URI
@@ -35,41 +35,42 @@ import uk.gov.hmrc.microservice.sa.domain.TransactionId
 import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import org.scalatest.BeforeAndAfterEach
 
-class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
+class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
   import play.api.test.Helpers._
 
-  private lazy val mockAuthMicroService = mock[AuthMicroService]
-  private lazy val mockSaMicroService = mock[SaMicroService]
-
   private val currentTime = new DateTime(2012, 12, 21, 12, 4, 32, DateTimeZone.UTC)
-  val mockUtr = Utr("someUtr")
 
-  private def controller = new SaController with MockMicroServicesForTests {
-    override lazy val authMicroService = mockAuthMicroService
-    override lazy val saMicroService = mockSaMicroService
+  private lazy val controller = new SaController with MockMicroServicesForTests {
     override def now = () => currentTime
   }
 
-  when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-    Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(mockUtr))))
+  private def setupUser(id: String, utr: String, name: String, nameFromGovernmentGateway: String): User = {
+    val ua = UserAuthority(s"/personal//$utr", Regimes(sa = Some(URI.create(s"/personal/utr/$utr"))), None, Some(Utr("123456789012")))
 
-  when(mockSaMicroService.root("/sa/individual/123456789012")).thenReturn(
-    SaRoot(
+    val saRoot = SaRoot(
       utr = "123456789012",
       links = Map(
         "personalDetails" -> "/sa/individual/123456789012/details")
     )
-  )
+
+    User(id, ua, RegimeRoots(None, Some(saRoot), None), Some(nameFromGovernmentGateway), None)
+  }
 
   val nameFromSa = "Geoff Fisher From SA"
   val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
 
+  val geoffFisher = setupUser("/auth/oid/gfisher", "123456789012", "Geoff Fisher", nameFromGovernmentGateway)
+
   "The details page" should {
     "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      when(mockSaMicroService.person("/sa/individual/123456789012/details")).thenReturn(
+      when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           utr = "123456789012",
@@ -86,7 +87,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
         ))
       )
 
-      val content = request(controller.details)
+      val content = request(geoffFisher, controller.detailsAction)
 
       content should include(nameFromSa)
       content should include(nameFromGovernmentGateway)
@@ -100,8 +101,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
-      when(mockSaMicroService.person("/sa/individual/123456789012/details")).thenReturn(None)
-      val result = controller.details(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(None)
+      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }
@@ -111,21 +114,24 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     val credId = "myCredId"
 
     "return  204 and HTML code when then authority for credId does not exist" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.preferences(credId)).thenReturn(None)
+      controller.resetAll()
+
+      when(controller.authMicroService.preferences(credId)).thenReturn(None)
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.getMillis}}""")
 
-      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(204)
     }
 
     "return 204 and no body when the are no preferences for the given credId" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      when(mockAuthMicroService.preferences(credId)).thenReturn(None)
+      when(controller.authMicroService.preferences(credId)).thenReturn(None)
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.getMillis}}""")
 
-      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(204)
 
       val htmlBody = contentAsString(result)
@@ -133,12 +139,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "return 200 and HTML code when no preferences have yet been stored" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      when(mockAuthMicroService.preferences(credId)).thenReturn(Some(Preferences(Some(SaPreferences(None, None)))))
+      when(controller.authMicroService.preferences(credId)).thenReturn(Some(Preferences(Some(SaPreferences(None, None)))))
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.getMillis}}""")
 
-      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
@@ -146,12 +153,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "return 200 and HTML code when no preferences for sa have yet been stored" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      when(mockAuthMicroService.preferences(credId)).thenReturn(Some(Preferences(sa = None)))
+      when(controller.authMicroService.preferences(credId)).thenReturn(Some(Preferences(sa = None)))
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.getMillis}}""")
 
-      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
@@ -159,11 +167,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "return 204 and no body when sa preferences for printing have already been stored" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.preferences(credId)).thenReturn(Some(Preferences(Some(SaPreferences(Some(false), None)))))
+      controller.resetAll()
+
+      when(controller.authMicroService.preferences(credId)).thenReturn(Some(Preferences(Some(SaPreferences(Some(false), None)))))
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.getMillis}}""")
 
-      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(204)
 
       val htmlBody = contentAsString(result)
@@ -171,9 +181,11 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "return 400 if the json body timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"credId" : "$credId", "time": ${currentTime.minusMinutes(6).getMillis}}""")
 
-      val result = controller.checkPrintPreferences(encryptedJson)(FakeRequest())
+      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(400)
     }
 
@@ -182,9 +194,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   "Print preferences details page " should {
 
     "render a form with print preference fields to be entered" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      val result = controller.prefsForm()(FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.prefsFormAction(geoffFisher, FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com"))
 
       status(result) should be(200)
 
@@ -196,8 +208,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "return a NotFound when the redirect url is missing" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      val result = controller.prefsForm()(FakeRequest().withFormUrlEncodedBody("email" -> "someuser@test.com")
+      val result = controller.prefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("email" -> "someuser@test.com")
         .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
 
       status(result) should be(404)
@@ -207,9 +220,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   "Print preferences detail page for submit " should {
 
     " show the email address error message the email is missing but print suppression is set to yes" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "true")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "true"))
 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
@@ -218,9 +231,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " show the email address error message the email structure is invalid " in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.email" -> "some@user@test.com", "prefs.suppressPrinting" -> "true")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.email" -> "some@user@test.com", "prefs.suppressPrinting" -> "true"))
 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
@@ -229,30 +242,30 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " call the auth service to persist the preference data if the data entered is valid with print suppression and email supplied" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+
       val emailAddress = "someuser@test.com"
       val mockResponse = mock[Response]
       val redirectUrl = "www.some.redirect.url"
-      when(mockAuthMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(SaPreferences(Some(true), Some(emailAddress)))))).thenReturn(Some(mockResponse))
 
-      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.email" -> emailAddress, "prefs.suppressPrinting" -> "true", "redirectUrl" -> redirectUrl)
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"),
-          "name" -> encrypt(nameFromGovernmentGateway),
-          "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(SaPreferences(Some(true), Some(emailAddress)))))).thenReturn(Some(mockResponse))
+
+      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.email" -> emailAddress, "prefs.suppressPrinting" -> "true", "redirectUrl" -> redirectUrl))
 
       status(result) shouldBe 303
       redirectLocation(result).get shouldBe redirectUrl
     }
 
     " call the auth service to persist the preference data if the data entered is valid with print suppression false and no email address supplied" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+
       val emailAddress = "someuser@test.com"
       val mockResponse = mock[Response]
       val redirectUrl = "www.some.redirect.url"
-      when(mockAuthMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(SaPreferences(Some(false), None))))).thenReturn(Some(mockResponse))
 
-      val result = controller.submitPrefsForm()(FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "false", "redirectUrl" -> redirectUrl)
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"),
-          "name" -> encrypt(nameFromGovernmentGateway),
-          "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(SaPreferences(Some(false), None))))).thenReturn(Some(mockResponse))
+
+      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "false", "redirectUrl" -> redirectUrl))
 
       val prefsPageContent = contentAsString(result)
       println(prefsPageContent)
@@ -264,9 +277,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
   "Change Address Page " should {
     "render a form with address fields to be entered when a user is logged in and authorised for SA" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
-      val result = controller.changeMyAddressForm()(FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.changeMyAddressFormAction(geoffFisher, FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com"))
 
       status(result) should be(200)
 
@@ -285,9 +298,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   val expectedInvalidCharacterErrorMessage = """This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 -  , / &amp; space"""
   "Submit Change Address Page " should {
     " show the address line 1 error message if it is missing " in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine2" -> "addressline2data")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("addressLine2" -> "addressline2data"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -296,9 +309,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " show the address line 1 error message if the data is greater than 28 characters " in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "12345678901234567890123456789", "addressLine2" -> "addressline2data")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher,
+        FakeRequest().withFormUrlEncodedBody("addressLine1" -> "12345678901234567890123456789", "addressLine2" -> "addressline2data"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -307,9 +321,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " show the address line 2 error message if the data is greater than 28 characters " in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "12345678901234567890123456789")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "12345678901234567890123456789"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -318,9 +333,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " show the address line 3 error message if the data is greater than 18 characters " in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "1234567890123456789")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "1234567890123456789"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -329,9 +345,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " show the address line 4 error message if the data is greater than 18 characters " in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "addressline3data", "optionalAddressLines.addressLine4" -> "1234567890123456789")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "addressline3data", "optionalAddressLines.addressLine4" -> "1234567890123456789"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -340,9 +357,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " show the address line 2 error message if it is missing " in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressline1data")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -351,9 +369,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     " show the address line 3 error message when address line 4 is present " in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine4" -> "addressline4data")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine4" -> "addressline4data"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -362,9 +381,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the address line 1 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "address_Line1BadData", "addressLine2" -> "addressLine2Data")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "address_Line1BadData", "addressLine2" -> "addressLine2Data"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -373,9 +393,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the address line 2 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2|BadData")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2|BadData"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -384,9 +405,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the address line 3 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data", "optionalAddressLines.addressLine3" -> "addressLine4~Bad")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data", "optionalAddressLines.addressLine3" -> "addressLine4~Bad"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -395,9 +417,11 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the address line 4 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data", "optionalAddressLines.addressLine3" -> "addressLine3Data", "optionalAddressLines.addressLine4" -> "addressLine4!Bad")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data",
+          "optionalAddressLines.addressLine3" -> "addressLine3Data", "optionalAddressLines.addressLine4" -> "addressLine4!Bad"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -406,14 +430,18 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "allow all valid characters in address lines" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123", "optionalAddressLines.addressLine3" -> "4567890 ,/&'-", "optionalAddressLines.addressLine4" -> "all valid")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123",
+          "optionalAddressLines.addressLine3" -> "4567890 ,/&'-", "optionalAddressLines.addressLine4" -> "all valid"))
 
       status(result) shouldBe 200
     }
 
     "take the user to a confirmation page that displays the form values entered" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+
       val additionalDeliveryInfomation = "someAdditionalDeliveryInfo"
       val addressData1 = "ad1"
       val addressData2 = "ad2"
@@ -421,8 +449,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       val addressData4 = "ad4"
       val postcode = "XX1 0YY"
 
-      val result = controller.submitChangeAddressForm()(FakeRequest().withFormUrlEncodedBody("additionalDeliveryInfo" -> additionalDeliveryInfomation, "addressLine1" -> addressData1, "addressLine2" -> addressData2, "optionalAddressLines.addressLine3" -> addressData3, "optionalAddressLines.addressLine4" -> addressData4, "postcode" -> postcode)
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.submitChangeAddressFormAction(geoffFisher,
+        FakeRequest().withFormUrlEncodedBody("additionalDeliveryInfo" -> additionalDeliveryInfomation,
+          "addressLine1" -> addressData1, "addressLine2" -> addressData2, "optionalAddressLines.addressLine3" -> addressData3,
+          "optionalAddressLines.addressLine4" -> addressData4, "postcode" -> postcode))
 
       status(result) should be(200)
 
@@ -451,27 +481,27 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   "Submit Change Address Confirmation Page  " should {
     // TODO: Post payload validation tests
     " use the post payload to submit the changed address to the SA service" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
 
       val add1 = "add1"
       val add2 = "add2"
-      val utr = "someUtr"
+      val utr = "123456789012"
       val updateAddressUri = s"/sa/individual/${utr}/main-address"
 
       //val mainAddress = MainAddress(None, Some(add1), Some(add2), None, None,None)
 
       val transactionId = "sometransactionid"
-      when(mockSaMicroService.updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, None)).thenReturn(Some(TransactionId(transactionId)))
+      when(controller.saMicroService.updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, None)).thenReturn(Some(TransactionId(transactionId)))
 
-      val result = controller.submitConfirmChangeMyAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> add1, "addressLine2" -> add2)
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("addressLine1" -> add1, "addressLine2" -> add2))
 
       status(result) shouldBe 200
       val htmlBody = contentAsString(result)
       htmlBody should include("Thank you for telling us about the change to your details.")
       htmlBody should include("Transaction ID:")
 
-      verify(mockSaMicroService).updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, None)
+      verify(controller.saMicroService).updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, None)
     }
 
   }
@@ -502,8 +532,8 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
   }
 
-  def request(action: Action[AnyContent]): String = {
-    val result = action(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+  def request(user: User, action: (User, Request[_]) => Result): String = {
+    val result = action(user, FakeRequest())
 
     status(result) should be(200)
 

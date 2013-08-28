@@ -109,15 +109,14 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     }
   }
 
-  def prefsForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
-    implicit user =>
-      implicit request =>
+  def prefsForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => prefsFormAction(user, request) })
 
-        request.queryString.get("rd") match {
-          case Some(rd) => Ok(sa_prefs_details(printPrefsForm.fill(PrintPrefsForm(true, None, rd(0)))))
-          case _ => NotFound
-        }
-  })
+  private[sa] def prefsFormAction: (User, Request[_]) => Result = (user, request) => {
+    request.queryString.get("rd") match {
+      case Some(rd) => Ok(sa_prefs_details(printPrefsForm.fill(PrintPrefsForm(true, None, rd(0)))))
+      case _ => NotFound
+    }
+  }
 
   def changeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeMyAddressFormAction(user, request) })
 
