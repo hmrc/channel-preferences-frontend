@@ -11,7 +11,7 @@
 
     @if(payeOverview.lastLogin.isDefined) {
         <div class="overview__last-login">
-            Your last login was at @payeOverview.lastLogin.get.
+            Your last login was on @{formatEasyReadingTimestamp(payeOverview.lastLogin, "")}.
         </div>
     }
     <div class="overview__actions">
