@@ -153,7 +153,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
             qualifiedProfessionalBody -> ""
           )
       )
-    new KeyStore("1",new DateTime(),new DateTime(), data)
+    new KeyStore("1", new DateTime(), new DateTime(), data)
   }
 
 }
