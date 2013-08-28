@@ -10,6 +10,7 @@ import controllers.agent.registration.AgentContactDetailsFormFields._
 import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
 import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
+import controllers.common.validators.Validators._
 
 class AgentMapperSpec extends BaseSpec with MockitoSugar {
 
@@ -31,9 +32,21 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.companyDetails.emailAddress must be("company@company.com")
       agent.companyDetails.saUTR must be("1234567890")
       agent.companyDetails.registeredWithHMRC must be(right = true)
-      agent.companyDetails.mainAddress.addressLine1 must be("Main Address")
-      agent.companyDetails.communicationAddress.addressLine1 must be("Communication Address")
-      agent.companyDetails.principalAddress.addressLine1 must be("Business Address")
+      agent.companyDetails.mainAddress.addressLine1 must be("Main Address l1")
+      agent.companyDetails.mainAddress.addressLine2 must be(Some("Main Address l2"))
+      agent.companyDetails.mainAddress.addressLine3 must be(Some("Main Address l3"))
+      agent.companyDetails.mainAddress.addressLine4 must be(Some("Main Address l4"))
+      agent.companyDetails.mainAddress.postcode must be(Some("Main Postcode"))
+      agent.companyDetails.communicationAddress.addressLine1 must be("Communication Address l1")
+      agent.companyDetails.communicationAddress.addressLine2 must be(Some("Communication Address l2"))
+      agent.companyDetails.communicationAddress.addressLine3 must be(Some("Communication Address l3"))
+      agent.companyDetails.communicationAddress.addressLine4 must be(Some("Communication Address l4"))
+      agent.companyDetails.communicationAddress.postcode must be(Some("Communication Postcode"))
+      agent.companyDetails.principalAddress.addressLine1 must be("Business Address l1")
+      agent.companyDetails.principalAddress.addressLine2 must be(Some("Business Address l2"))
+      agent.companyDetails.principalAddress.addressLine3 must be(Some("Business Address l3"))
+      agent.companyDetails.principalAddress.addressLine4 must be(Some("Business Address l4"))
+      agent.companyDetails.principalAddress.postcode must be(Some("Business Postcode"))
       agent.companyDetails.tradingName.get must be("Trading Name")
       agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.landlineNumber) must be("02073645362")
       agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.mobileNumber) must be("07777777771")
@@ -62,9 +75,9 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.companyDetails.emailAddress must be("company@company.com")
       agent.companyDetails.saUTR must be("1234567890")
       agent.companyDetails.registeredWithHMRC must be(right = true)
-      agent.companyDetails.mainAddress.addressLine1 must be("Main Address")
-      agent.companyDetails.communicationAddress.addressLine1 must be("Communication Address")
-      agent.companyDetails.principalAddress.addressLine1 must be("Business Address")
+      agent.companyDetails.mainAddress.addressLine1 must be("Main Address l1")
+      agent.companyDetails.communicationAddress.addressLine1 must be("Communication Address l1")
+      agent.companyDetails.principalAddress.addressLine1 must be("Business Address l1")
       agent.companyDetails.tradingName must be(None)
       agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.landlineNumber) must be("02073645362")
       agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.mobileNumber) must be("")
@@ -97,14 +110,26 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
           ),
         FormNames.companyDetailsFormName ->
           Map(
-            businessAddress -> "Business Address",
-            communicationAddress -> "Communication Address",
+            businessAddress + "." + addressLine1 -> "Business Address l1",
+            businessAddress + "." + addressLine2 -> "Business Address l2",
+            businessAddress + "." + addressLine3 -> "Business Address l3",
+            businessAddress + "." + addressLine4 -> "Business Address l4",
+            businessAddress + "." + postcode -> "Business Postcode",
+            communicationAddress + "." + addressLine1 -> "Communication Address l1",
+            communicationAddress + "." + addressLine2 -> "Communication Address l2",
+            communicationAddress + "." + addressLine3 -> "Communication Address l3",
+            communicationAddress + "." + addressLine4 -> "Communication Address l4",
+            communicationAddress + "." + postcode -> "Communication Postcode",
             companyHouseNumber -> "23",
             companyName -> "Company Name LTD",
             ctUtr -> "CT UTR",
             email -> "company@company.com",
             qualifiedLandlineNumber -> "02073645362",
-            mainAddress -> "Main Address",
+            mainAddress + "." + addressLine1 -> "Main Address l1",
+            mainAddress + "." + addressLine2 -> "Main Address l2",
+            mainAddress + "." + addressLine3 -> "Main Address l3",
+            mainAddress + "." + addressLine4 -> "Main Address l4",
+            mainAddress + "." + postcode -> "Main Postcode",
             qualifiedMobileNumber -> "07777777771",
             payeEmpRef -> "PAYE Emp Ref",
             registeredOnHMRC -> "true",
@@ -138,12 +163,12 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
           ),
         FormNames.companyDetailsFormName ->
           Map(
-            businessAddress -> "Business Address",
-            communicationAddress -> "Communication Address",
+            businessAddress + "." + addressLine1 -> "Business Address l1",
+            communicationAddress + "." + addressLine1 -> "Communication Address l1",
             companyName -> "Company Name LTD",
             email -> "company@company.com",
             qualifiedLandlineNumber -> "02073645362",
-            mainAddress -> "Main Address",
+            mainAddress + "." + addressLine1 -> "Main Address l1",
             registeredOnHMRC -> "true",
             saUtr -> "1234567890"
           ),

@@ -1,15 +1,14 @@
 package controllers.agent.registration
 
-import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
-import play.api.data.Form
 import scala.Some
 import uk.gov.hmrc.microservice.paye.domain.PayeRegime
-import play.api.mvc.{ Action, Result }
+import play.api.mvc.Result
 import controllers.agent.registration.FormNames._
 import AgentCompanyDetailsFormFields._
 import play.api.data.Forms._
 import play.api.data._
 import controllers.common.validators.Validators
+import uk.gov.hmrc.common.microservice.domain.Address
 
 class AgentCompanyDetailsController extends AgentController with Validators {
 
@@ -23,9 +22,9 @@ class AgentCompanyDetailsController extends AgentController with Validators {
       ).verifying("error.agent.companyDetails.mandatory.phone", data => data._1.isDefined || data._2.isDefined),
       website -> optional(text),
       AgentCompanyDetailsFormFields.email -> Forms.email,
-      mainAddress -> nonEmptyText,
-      communicationAddress -> nonEmptyText,
-      businessAddress -> nonEmptyText,
+      mainAddress -> addressTuple,
+      communicationAddress -> addressTuple,
+      businessAddress -> addressTuple,
       saUtr -> text.verifying("error.agent.saUtr", validateSaUtr),
       ctUtr -> optional(text),
       vatVrn -> optional(text),
@@ -35,12 +34,18 @@ class AgentCompanyDetailsController extends AgentController with Validators {
     ) {
         (companyName, tradingName, phoneNumbers, website, email, mainAddress, communicationAddress, businessAddress, saUtr,
         ctUtr, vatVrn, payeEmpRef, companyHouseNumber, registeredOnHMRC) =>
-          AgentCompanyDetails(companyName, tradingName, phoneNumbers._1, phoneNumbers._2, website, email, mainAddress,
-            communicationAddress, businessAddress, saUtr, ctUtr, vatVrn, payeEmpRef, companyHouseNumber, registeredOnHMRC)
+          AgentCompanyDetails(companyName, tradingName, phoneNumbers._1, phoneNumbers._2, website, email,
+            new Address(mainAddress._1, mainAddress._2, mainAddress._3, mainAddress._4, mainAddress._5),
+            new Address(communicationAddress._1, communicationAddress._2, communicationAddress._3, communicationAddress._4, communicationAddress._5),
+            new Address(businessAddress._1, businessAddress._2, businessAddress._3, businessAddress._4, businessAddress._5),
+            saUtr, ctUtr, vatVrn, payeEmpRef, companyHouseNumber, registeredOnHMRC)
       } {
         form =>
-          Some((form.companyName, form.tradingName, (form.landlineNumber, form.mobileNumber), form.website,
-            form.email, form.mainAddress, form.communicationAddress, form.businessAddress, form.saUtr, form.ctUtr,
+          Some((form.companyName, form.tradingName, (form.landlineNumber, form.mobileNumber), form.website, form.email,
+            (form.mainAddress.addressLine1, form.mainAddress.addressLine2, form.mainAddress.addressLine3, form.mainAddress.addressLine4, form.mainAddress.postcode),
+            (form.communicationAddress.addressLine1, form.communicationAddress.addressLine2, form.communicationAddress.addressLine3, form.communicationAddress.addressLine4, form.communicationAddress.postcode),
+            (form.businessAddress.addressLine1, form.businessAddress.addressLine2, form.businessAddress.addressLine3, form.businessAddress.addressLine4, form.businessAddress.postcode),
+            form.saUtr, form.ctUtr,
             form.vatVrn, form.payeEmpRef, form.companyHouseNumber, form.registeredOnHMRC))
       }
   )
@@ -71,7 +76,6 @@ class AgentCompanyDetailsController extends AgentController with Validators {
                 val agentCompanyDetails = companyDetailsForm.bindFromRequest.data
                 saveFormToKeyStore(companyDetailsFormName, agentCompanyDetails, userId(user))
                 Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership)
-
               }
             )
       }
@@ -79,8 +83,8 @@ class AgentCompanyDetailsController extends AgentController with Validators {
 }
 
 case class AgentCompanyDetails(companyName: String = "", tradingName: Option[String] = None, landlineNumber: Option[String] = None, mobileNumber: Option[String] = None,
-  website: Option[String] = None, email: String = "", mainAddress: String = "", communicationAddress: String = "",
-  businessAddress: String = "", saUtr: String = "", ctUtr: Option[String] = None,
+  website: Option[String] = None, email: String = "", mainAddress: Address = new Address(), communicationAddress: Address = new Address(),
+  businessAddress: Address = new Address(), saUtr: String = "", ctUtr: Option[String] = None,
   vatVrn: Option[String] = None, payeEmpRef: Option[String] = None, companyHouseNumber: Option[String] = None, registeredOnHMRC: Boolean = false)
 
 object AgentCompanyDetailsFormFields {

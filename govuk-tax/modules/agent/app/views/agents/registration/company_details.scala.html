@@ -20,11 +20,11 @@
 
         @helpers.input(companyDetailsForm(email), '_label -> "Email Address:")
 
-        @helpers.input(companyDetailsForm(mainAddress), '_label -> "Main Address:")
+        @helpers.address(companyDetailsForm, mainAddress, "Main Address:")
 
-        @helpers.input(companyDetailsForm(communicationAddress),'_label -> "Communication Address:")
+        @helpers.address(companyDetailsForm, communicationAddress, "Communication Address:")
 
-        @helpers.input(companyDetailsForm(businessAddress), '_label -> "Principal Place of Business Address:")
+        @helpers.address(companyDetailsForm, businessAddress, "Principal Place of Business Address:")
    
         @helpers.input(companyDetailsForm(saUtr),'_label -> "SA UTR:")
    

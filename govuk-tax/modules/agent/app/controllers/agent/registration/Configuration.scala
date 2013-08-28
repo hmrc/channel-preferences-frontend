@@ -22,21 +22,12 @@ object Configuration {
     "charteredInstituteOfManagementAccountants" -> "Chartered Institute of Management Accountants",
     "charteredInstituteOfPublicFinanceandAccountancy" -> "Chartered Institute of Public Finance and Accountancy",
     "charteredInstituteOfTaxation" -> "Chartered Institute of Taxation",
-    "councilForLicensedConveyors" -> "Council for Licensed Conveyors",
-    "facultyOfAdvocates" -> "Faculty of Advocates",
-    "facultyOfficeOfTheArchbishopOfCanterbury" -> "Faculty Office of the Archbishop of Canterbury",
-    "generalCouncilOfTheBar" -> "General Council of the Bar",
-    "generalCouncilOfTheBarOfNorthernIreland" -> "General Council of the Bar of Northern Ireland",
-    "insolvencyPractitionersAssociation" -> "Insolvency Practitioners Association",
     "instituteOfCertifiedBookkeepers" -> "Institute of Certified Bookkeepers",
     "instituteOfCharteredAccountantsInEnglandAndWales" -> "Institute of Chartered Accountants in England and Wales",
     "instituteOfCharteredAccountantsInIreland" -> "Institute of Chartered Accountants in Ireland",
     "instituteOfCharteredAccountantsOfScotland" -> "Institute of Chartered Accountants of Scotland",
     "instituteOfFinancialAccountants" -> "Institute of Financial Accountants",
-    "internationalAssociationOfBookkeepers" -> "International Association of Book-keepers",
-    "lawSociety" -> "Law Society",
-    "lawSocietyOfScotland" -> "Law Society of Scotland",
-    "lawSocietyOfNorthernIreland" -> "Law Society of Northern Ireland"
+    "internationalAssociationOfBookkeepers" -> "International Association of Book-keepers"
   )
 
   val config = new Configuration();

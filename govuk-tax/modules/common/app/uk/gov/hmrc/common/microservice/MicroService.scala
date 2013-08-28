@@ -85,6 +85,7 @@ trait MicroService extends Status with HeaderNames {
 
   protected def extractJSONResponse[A](response: Response)(implicit m: Manifest[A]): A = {
     try {
+      println(response.body)
       fromResponse[A](response.body)
     } catch {
       case e: Throwable => {

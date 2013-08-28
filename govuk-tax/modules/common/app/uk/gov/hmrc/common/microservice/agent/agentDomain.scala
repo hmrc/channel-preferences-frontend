@@ -1,6 +1,7 @@
 package uk.gov.hmrc.common.microservice.agent
 
 import org.joda.time.DateTime
+import uk.gov.hmrc.common.microservice.domain.Address
 
 case class Agent(legalEntity: String,
   agentType: String,
@@ -26,12 +27,5 @@ case class CompanyDetails(companyName: String,
   vatVRN: Option[String] = None,
   payeEmpRef: Option[String] = None,
   companyHouseNumber: Option[String] = None)
-
-//FIXME: address should be common, if not then rename to Agent specific address
-case class Address(addressLine1: String,
-  addressLine2: Option[String] = None,
-  addressLine3: Option[String] = None,
-  addressLine4: Option[String] = None,
-  postcode: Option[String] = None)
 
 case class ProfessionalBodyMembership(professionalBody: String, membershipNumber: String)

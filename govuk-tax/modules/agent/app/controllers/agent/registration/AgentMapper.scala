@@ -7,6 +7,8 @@ import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
 import controllers.agent.registration.AgentContactDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 import controllers.agent.registration.FormNames._
+import uk.gov.hmrc.common.microservice.domain.Address
+import controllers.common.validators.Validators._
 
 trait AgentMapper {
 
@@ -18,8 +20,8 @@ trait AgentMapper {
     val websiteUrls = websiteUrlsData
 
     val companyDetails = new CompanyDetails(companyData(companyName), companyData(email), companyData(saUtr),
-      companyData(registeredOnHMRC).toBoolean, new Address(companyData(mainAddress)),
-      new Address(companyData(communicationAddress)), new Address(companyData(businessAddress)),
+      companyData(registeredOnHMRC).toBoolean, companyAddressData(mainAddress),
+      companyAddressData(communicationAddress), companyAddressData(businessAddress),
       optionalCompanyData(tradingName), phNumbers, websiteUrls, optionalCompanyData(ctUtr), optionalCompanyData(vatVrn),
       optionalCompanyData(payeEmpRef), optionalCompanyData(companyHouseNumber))
 
@@ -37,6 +39,10 @@ trait AgentMapper {
 
   private def companyData(field: String)(implicit keyStore: KeyStore): String = {
     data(companyDetailsFormName, field)
+  }
+
+  private def companyAddressData(field: String)(implicit keyStore: KeyStore): Address = {
+    addressData(companyDetailsFormName, field)
   }
 
   private def agentTypeData(field: String)(implicit keyStore: KeyStore): String = {
@@ -59,6 +65,12 @@ trait AgentMapper {
       case "" => None
       case value => Some(ProfessionalBodyMembership(value, membershipData(qualifiedMembershipNumber)))
     }
+  }
+
+  private def addressData(formName: String, field: String)(implicit keyStore: KeyStore): Address = {
+    new Address(data(formName, field + "." + addressLine1), optionalData(formName, field + "." + addressLine2),
+      optionalData(formName, field + "." + addressLine3), optionalData(formName, field + "." + addressLine4),
+      optionalData(formName, field + "." + postcode))
   }
 
   private def data(formName: String, field: String)(implicit keyStore: KeyStore): String = {
