@@ -16,7 +16,8 @@ trait AgentMapper {
 
     val phNumbers = Map[String, String](landlineNumber -> companyData(phoneNumbers + "." + landlineNumber),
       mobileNumber -> companyData(phoneNumbers + "." + mobileNumber))
-    val websiteUrls = List[String](companyData(website))
+
+    val websiteUrls = websiteUrlsData
 
     val companyDetails = new CompanyDetails(companyData(companyName), companyData(email), companyData(saUtr),
       companyData(registeredOnHMRC).toBoolean, new Address(companyData(mainAddress)),
@@ -46,6 +47,13 @@ trait AgentMapper {
 
   private def contactDetailsData(field: String)(implicit keyStore: KeyStore): String = {
     data(contactFormName, field)
+  }
+
+  private def websiteUrlsData(implicit keyStore: KeyStore) = {
+    companyData(website) match {
+      case "" => List.empty
+      case x => List(x)
+    }
   }
 
   private def data(formName: String, field: String)(implicit keyStore: KeyStore): String = {
