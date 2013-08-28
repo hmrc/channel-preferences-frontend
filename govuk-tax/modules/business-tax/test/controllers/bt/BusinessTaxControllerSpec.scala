@@ -38,11 +38,11 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
   val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
   val encodedGovernmentGatewayToken = "someEncodedToken"
 
-  when(mockSaMicroService.root("/personal/sa/123456789012")).thenReturn(
+  when(mockSaMicroService.root("/sa/individual/123456789012")).thenReturn(
     SaRoot(
       utr = "123456789012",
       links = Map(
-        "personalDetails" -> "/personal/sa/123456789012/details")
+        "personalDetails" -> "/sa/individual/123456789012/details")
     )
   )
 
@@ -53,9 +53,9 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       val utr = Utr("1234567890")
       val vrn = Vrn("666777889")
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
 
-      when(mockSaMicroService.person("/personal/sa/123456789012/home")).thenReturn(
+      when(mockSaMicroService.person("/sa/individual/123456789012/home")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           utr = "123456789012",

@@ -52,13 +52,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   }
 
   when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-    Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/personal/sa/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(mockUtr))))
+    Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(mockUtr))))
 
-  when(mockSaMicroService.root("/personal/sa/123456789012")).thenReturn(
+  when(mockSaMicroService.root("/sa/individual/123456789012")).thenReturn(
     SaRoot(
       utr = "123456789012",
       links = Map(
-        "personalDetails" -> "/personal/sa/123456789012/details")
+        "personalDetails" -> "/sa/individual/123456789012/details")
     )
   )
 
@@ -68,7 +68,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   "The details page" should {
     "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
 
-      when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(
+      when(mockSaMicroService.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           utr = "123456789012",
@@ -99,7 +99,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
-      when(mockSaMicroService.person("/personal/sa/123456789012/details")).thenReturn(None)
+      when(mockSaMicroService.person("/sa/individual/123456789012/details")).thenReturn(None)
       val result = controller.details(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }

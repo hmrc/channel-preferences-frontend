@@ -1,15 +1,11 @@
 package uk.gov.hmrc.microservice.sa
 
 import play.Logger
-import uk.gov.hmrc.microservice.sa.domain.{ TransactionId, SaRoot, SaPerson }
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
-import uk.gov.hmrc.microservice.auth.domain.Utr
-import uk.gov.hmrc.microservice.sa.domain.TransactionId
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.microservice.sa.domain.TransactionId
 
 case class MainAddress(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],

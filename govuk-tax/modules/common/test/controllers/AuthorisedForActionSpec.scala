@@ -119,7 +119,7 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
-        Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/personal/sa/12345678"))), None)))
+        Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
       val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john")))
       status(result) should equal(303)
       redirectLocation(result).get mustBe "/login"
