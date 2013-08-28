@@ -5,6 +5,8 @@
 
 @elements = @{ new FieldElements(field.id, field, null, args.toMap, lang) }
 
+@value = @{ field.value match { case Some(x) => x case None => "" case x => x }}
+
 <div class="@elements.args.get('_groupDivClass) @if(elements.hasErrors) {error}">
     <label for="@elements.field.name"><h4>@elements.label</h4></label>
     @if(elements.args.contains('_additionalTitleText)){<p>@elements.args.get('_additionalTitleText)</p>}
@@ -15,7 +17,7 @@
                     id="@elements.field.name-@option._1"
                     name="@elements.field.name"
                     value="@option._1"
-                    @if(elements.field.value==option._1){checked="checked"}
+                    @if(value==option._1){checked="checked"}
             >
                 <label for="@elements.field.name-@option._1">@option._2</label>
             </input>
