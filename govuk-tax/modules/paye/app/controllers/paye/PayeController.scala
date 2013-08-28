@@ -116,8 +116,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-      //Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
-      Ok.stream()
+      Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
     }
 
   private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {

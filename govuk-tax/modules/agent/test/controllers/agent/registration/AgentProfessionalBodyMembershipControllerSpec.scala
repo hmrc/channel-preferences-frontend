@@ -28,10 +28,10 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   var mockKeyStore = mock[KeyStore]
 
   private def controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests {
-    override val authMicroService = mockAuthMicroService
-    override val payeMicroService = mockPayeMicroService
-    override val keyStoreMicroService = mockKeyStoreMicroService
-    override val agentMicroService = mockAgentMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val payeMicroService = mockPayeMicroService
+    override lazy val keyStoreMicroService = mockKeyStoreMicroService
+    override lazy val agentMicroService = mockAgentMicroService
 
     override def toAgent(implicit keyStore: KeyStore) = {
       mockAgent
