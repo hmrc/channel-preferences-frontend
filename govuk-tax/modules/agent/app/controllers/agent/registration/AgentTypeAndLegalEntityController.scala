@@ -7,7 +7,7 @@ import play.api.data.Forms._
 import scala.Some
 import controllers.agent.registration.FormNames._
 
-class AgentTypeAndLegalEntityController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration with AgentMapper {
+class AgentTypeAndLegalEntityController extends AgentController {
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(

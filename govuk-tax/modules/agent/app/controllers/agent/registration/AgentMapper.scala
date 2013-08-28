@@ -8,7 +8,7 @@ import controllers.agent.registration.AgentContactDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 import controllers.agent.registration.FormNames._
 
-trait AgentMapper extends AgentKeyStoreService {
+trait AgentMapper {
 
   def toAgent(implicit keyStore: KeyStore): Agent = {
     val profBodyMembership = new ProfessionalBodyMembership(membershipData(professionalBodyMembership + "." + professionalBody),

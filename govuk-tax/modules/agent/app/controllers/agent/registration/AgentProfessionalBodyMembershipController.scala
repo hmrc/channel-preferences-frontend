@@ -8,7 +8,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
 
-class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentMapper with MultiformRegistration {
+class AgentProfessionalBodyMembershipController extends AgentController with AgentMapper {
   private val professionalBodyMembershipForm: Form[AgentProfessionalBodyMembership] = Form(
     mapping(
       AgentProfessionalBodyMembershipFormFields.professionalBodyMembership -> tuple(

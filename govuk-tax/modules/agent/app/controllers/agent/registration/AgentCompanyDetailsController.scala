@@ -9,8 +9,9 @@ import controllers.agent.registration.FormNames._
 import AgentCompanyDetailsFormFields._
 import play.api.data.Forms._
 import play.api.data._
+import controllers.common.validators.Validators
 
-class AgentCompanyDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration with AgentMapper {
+class AgentCompanyDetailsController extends AgentController with Validators {
 
   private val companyDetailsForm: Form[AgentCompanyDetails] = Form(
     mapping(

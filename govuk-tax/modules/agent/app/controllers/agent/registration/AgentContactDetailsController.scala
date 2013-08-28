@@ -10,8 +10,9 @@ import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import scala.Some
 import controllers.agent.registration.FormNames._
 import AgentContactDetailsFormFields._
+import controllers.common.validators.Validators
 
-class AgentContactDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration with AgentMapper {
+class AgentContactDetailsController extends AgentController with Validators {
 
   private val contactForm = Form[AgentContactDetails](
     mapping(
