@@ -20,8 +20,8 @@
 
         @for(displayBenefit <- benefits) {
 
-	<tr id="@lowerCaseHyphenated(iabdTypeFor(displayBenefit.benefit.benefitType))"
-        class="@lowerCaseHyphenated(iabdTypeFor(displayBenefit.benefit.benefitType))">
+	<tr id="@hyphenate(iabdTypeFor(displayBenefit.benefit.benefitType))"
+        class="@hyphenate(iabdTypeFor(displayBenefit.benefit.benefitType))">
 		<td class="employment-reference">@displayBenefit.employment.employerNameOrReference</td>
 		<td class="benefit-type">@iabdTypeFor(displayBenefit.benefit.benefitType)</td>
 

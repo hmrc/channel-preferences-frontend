@@ -19,7 +19,7 @@ class StringsSpec extends WordSpec with ShouldMatchers {
     }
 
     "convert mixed case text into lower case hyphenated text" in {
-      Strings.lowerCaseHyphenated("Fred flintstone") should be("fred-flintstone")
+      Strings.hyphenate("Fred flintstone") should be("fred-flintstone")
     }
   }
 }

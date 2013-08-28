@@ -11,5 +11,5 @@ object Strings {
 
   def capitalise(value: String) = WordUtils.capitalizeFully(value)
 
-  def lowerCaseHyphenated(value: String) = value.split(" ").map(sentence(_)).mkString("-")
+  def hyphenate(value: String) = value.split(" ").map(sentence(_)).mkString("-")
 }
