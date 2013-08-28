@@ -29,8 +29,9 @@ import uk.gov.hmrc.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.paye.domain.TransactionId
 import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import org.jsoup.Jsoup
+import org.scalatest.BeforeAndAfterEach
 
-class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
+class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
   import play.api.test.Helpers._
 
@@ -117,6 +118,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   "The home method" should {
 
     "display the name for John Densmore" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -128,6 +130,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "display the tax codes for John Densmore" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -139,6 +142,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "display the employments for John Densmore" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -154,6 +158,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "display employer ref when the employer name is missing" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -165,6 +170,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -180,6 +186,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -201,25 +208,34 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   "The benefits list page" should {
 
     "display John's benefits" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
 
       requestBenefitsAction(johnDensmore) should include("£ 135.33")
     }
 
     "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
 
       requestBenefitsAction(johnDensmore) should not include "£ 22.22"
     }
 
     "display car details" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
 
       requestBenefitsAction(johnDensmore) should include("Medical Insurance")
       requestBenefitsAction(johnDensmore) should include("Car Benefit")
@@ -231,14 +247,18 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
 
       requestBenefitsAction(johnDensmore) should include("""href="/benefits/31/2013/2/remove"""")
     }
 
     "display a Car removed if there is a transaction present for the car benefit" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(userWithRemovedCarEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(userWithRemovedCarBenefits)
       when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/COMPLETED/.*"))).thenReturn(testTransactions)
@@ -255,14 +275,18 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   }
 
   "The remove benefit method" should {
-    when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
-    when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
-    when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
 
     def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean) =
       FakeRequest().withFormUrlEncodedBody("withdrawDate" -> date.map(Dates.shortDate(_)).getOrElse(""), "agreement" -> agreed.toString.toLowerCase)
 
     "in step 1 display car details" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
+      when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
+      when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
+
       val result = controller.benefitRemovalFormAction(31, johnDensmore, FakeRequest(), 2013, 2)
       status(result) shouldBe 200
       val requestBenefits = contentAsString(result)
@@ -272,9 +296,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       val invalidWithdrawDate = new LocalDate().plusDays(36)
       val result = controller.requestBenefitRemovalAction(31, johnDensmore,
@@ -289,9 +316,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 1 display an error message when return date of the car is in the previous tax year" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       val invalidWithdrawDate = new LocalDate(1999, 2, 1)
       val result = controller.requestBenefitRemovalAction(31, johnDensmore,
@@ -306,9 +336,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 1 display an error message when return date of the car is in the next tax year" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       val invalidWithdrawDate = new LocalDate(2030, 2, 1)
       val result = controller.requestBenefitRemovalAction(31, johnDensmore,
@@ -323,9 +356,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 1 display an error message when return date is not set" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       val result = controller.requestBenefitRemovalAction(31, johnDensmore, requestBenefitRemovalFormSubmission(None, true), 2013, 2)
 
@@ -338,9 +374,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 1 display an error message when agreement checkbox is not selected" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       val result = controller.requestBenefitRemovalAction(31, johnDensmore, FakeRequest().withFormUrlEncodedBody("withdrawDate" -> ""), 2013, 2)
 
@@ -353,9 +392,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 2 display the calculated value" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       val calculationResult = CalculationResult(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
       when(controller.payeMicroService.calculateWithdrawBenefit(Matchers.any[Benefit](), Matchers.any[LocalDate]())).thenReturn(calculationResult)
@@ -369,9 +411,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 2 save the withdrawDate to the session" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       val revisedAmount = BigDecimal(123.46)
       val withdrawDate = new LocalDate()
@@ -389,9 +434,12 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 2 call the paye service to remove the benefit and render the success page" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(List.empty))
 
       when(controller.payeMicroService.removeCarBenefit(Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate](), Matchers.any[BigDecimal]())).thenReturn(Some(TransactionId("someId")))
 
@@ -408,6 +456,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 3 show the transaction id only if the transaction exists" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -424,6 +473,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -440,6 +490,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
   "benefitRemoved" should {
     "render a view with correct elements" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
@@ -463,6 +514,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     }
 
     "Contain correct employee names" in new WithApplication(FakeApplication()) {
+      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(johnDensmoresTaxCodes)
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(johnDensmoresEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(johnDensmoresBenefits)
