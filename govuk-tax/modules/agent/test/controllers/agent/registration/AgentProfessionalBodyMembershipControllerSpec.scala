@@ -23,14 +23,12 @@ import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import play.api.test.FakeApplication
 import scala.Some
-import uk.gov.hmrc.common.microservice.agent.{AgentMicroService, Agent}
+import uk.gov.hmrc.common.microservice.agent.{ AgentMicroService, Agent }
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
-import org.scalatest.{BeforeAndAfterEach, BeforeAndAfter}
-
+import org.scalatest.{ BeforeAndAfterEach, BeforeAndAfter }
 
 class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar with BeforeAndAfterEach {
-
 
   val id = "wshakespeare"
   val authority = s"/auth/oid/$id"
@@ -52,8 +50,8 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     override val keyStoreMicroService = mockKeyStoreMicroService
     override val agentMicroService = mockAgentMicroService
 
-    override def toAgent(implicit  keyStore: KeyStore) = {
-       mockAgent
+    override def toAgent(implicit keyStore: KeyStore) = {
+      mockAgent
     }
   }
 
