@@ -588,7 +588,6 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
 
-
       status(result) shouldBe 200
       val htmlBody = contentAsString(result)
       htmlBody should include("Thank you for telling us about the change to your details.")
