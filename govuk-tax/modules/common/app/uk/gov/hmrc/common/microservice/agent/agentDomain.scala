@@ -8,7 +8,7 @@ case class Agent(legalEntity: String,
   mobileNumber: String,
   emailAddress: String,
   companyDetails: CompanyDetails,
-  professionalBodyMembership: ProfessionalBodyMembership,
+  professionalBodyMembership: Option[ProfessionalBodyMembership],
   createdAt: Option[DateTime],
   uar: Option[String])
 

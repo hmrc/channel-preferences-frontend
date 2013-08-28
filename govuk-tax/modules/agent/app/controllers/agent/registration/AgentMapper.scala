@@ -11,8 +11,6 @@ import controllers.agent.registration.FormNames._
 trait AgentMapper {
 
   def toAgent(implicit keyStore: KeyStore): Agent = {
-    val profBodyMembership = new ProfessionalBodyMembership(membershipData(professionalBodyMembership + "." + professionalBody),
-      membershipData(professionalBodyMembership + "." + membershipNumber))
 
     val phNumbers = Map[String, String](landlineNumber -> companyData(phoneNumbers + "." + landlineNumber),
       mobileNumber -> companyData(phoneNumbers + "." + mobileNumber))
@@ -26,7 +24,7 @@ trait AgentMapper {
       optionalCompanyData(payeEmpRef), optionalCompanyData(companyHouseNumber))
 
     new Agent(agentTypeData(legalEntity), agentTypeData(agentType), contactDetailsData(daytimePhoneNumber),
-      contactDetailsData(mobilePhoneNumber), contactDetailsData(emailAddress), companyDetails, profBodyMembership, None, None)
+      contactDetailsData(mobilePhoneNumber), contactDetailsData(emailAddress), companyDetails, professionalBodyData, None, None)
   }
 
   private def membershipData(field: String)(implicit keyStore: KeyStore): String = {
@@ -52,7 +50,14 @@ trait AgentMapper {
   private def websiteUrlsData(implicit keyStore: KeyStore) = {
     companyData(website) match {
       case "" => List.empty
-      case x => List(x)
+      case value => List(value)
+    }
+  }
+
+  private def professionalBodyData(implicit keyStore: KeyStore) = {
+    membershipData(qualifiedProfessionalBody) match {
+      case "" => None
+      case value => Some(ProfessionalBodyMembership(value, membershipData(qualifiedMembershipNumber)))
     }
   }
 

@@ -6,10 +6,10 @@ import org.joda.time.DateTime
 import scala.Predef._
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import play.api.test.{ FakeApplication, WithApplication }
-import AgentContactDetailsFormFields._
-import AgentTypeAndLegalEntityFormFields._
-import AgentCompanyDetailsFormFields._
-import AgentProfessionalBodyMembershipFormFields._
+import controllers.agent.registration.AgentContactDetailsFormFields._
+import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
+import controllers.agent.registration.AgentCompanyDetailsFormFields._
+import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 
 class AgentMapperSpec extends BaseSpec with MockitoSugar {
 
@@ -42,8 +42,8 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.companyDetails.vatVRN.get must be("VAT Vrn")
       agent.companyDetails.payeEmpRef.get must be("PAYE Emp Ref")
       agent.companyDetails.companyHouseNumber.get must be("23")
-      agent.professionalBodyMembership.professionalBody must be("profBody")
-      agent.professionalBodyMembership.membershipNumber must be("888")
+      agent.professionalBodyMembership.get.professionalBody must be("profBody")
+      agent.professionalBodyMembership.get.membershipNumber must be("888")
       agent.createdAt must be(None)
       agent.uar must be(None)
 
@@ -73,8 +73,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.companyDetails.vatVRN must be(None)
       agent.companyDetails.payeEmpRef must be(None)
       agent.companyDetails.companyHouseNumber must be(None)
-      agent.professionalBodyMembership.professionalBody must be("profBody")
-      agent.professionalBodyMembership.membershipNumber must be("888")
+      agent.professionalBodyMembership must be(None)
       agent.createdAt must be(None)
       agent.uar must be(None)
 
@@ -150,11 +149,11 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
           ),
         FormNames.professionalBodyMembershipFormName ->
           Map(
-            qualifiedMembershipNumber -> "888",
-            qualifiedProfessionalBody -> "profBody"
+            qualifiedMembershipNumber -> "",
+            qualifiedProfessionalBody -> ""
           )
       )
-    new KeyStore("1", new DateTime(), new DateTime(), data)
+    new KeyStore("1",new DateTime(),new DateTime(), data)
   }
 
 }
