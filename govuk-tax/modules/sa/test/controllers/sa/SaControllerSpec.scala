@@ -301,9 +301,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     val invalidMessageForPostcode = """Postcode is incorrect"""
 
     "show the postcode error message if the postcode field is missing" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> "", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> "", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -312,9 +313,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the postcode error message if the postcode field is blank" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> "    ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> "    ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -323,9 +325,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the postcode error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> "Â^GYaaa", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> "Â^GYaaa", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -334,9 +337,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the postcode error message if it contains an invalid character that is accepted in address" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> "sw, 45-", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> "sw, 45-", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -345,9 +349,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "show the postcode error message if it contains more than 7 characters (excluding space)" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> "ABC 12345", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> "ABC 12345", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -356,25 +361,28 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     }
 
     "accept a valid postcode with blank spaces" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> " SW95  8UT ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> " SW95  8UT ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 200
     }
 
     "accept a valid postcode of minimum length" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> "SW958", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> "SW958", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 200
     }
 
     "show the postcode error message when length below 5" in new WithApplication(FakeApplication()) {
-      val result = controller.submitChangeAddressForm()(FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> " S  8UT ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      controller.resetAll()
+
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> " S  8UT ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
