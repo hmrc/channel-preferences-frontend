@@ -103,7 +103,7 @@ trait MicroService extends Status with HeaderNames {
         res.status match {
           case OK => Some(handleResponse(res))
           //          case success() => //do nothing
-
+          case CREATED => Some(handleResponse(res))
           //TODO: add some proper error handling
           // 204 or 404 are returned to the micro service as None
           case NO_CONTENT => None

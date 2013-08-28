@@ -5,7 +5,11 @@ import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import org.joda.time.DateTime
 
-case class KeyStore(id: String, dateCreated: DateTime, dateUpdated: DateTime, data: Map[String, Any])
+case class KeyStore(id: String, dateCreated: DateTime, dateUpdated: DateTime, data: Map[String, Map[String, String]]) {
+  def get(form: String) : Option[Map[String, String]] = {
+     data.get(form)
+  }
+}
 
 class KeyStoreMicroService(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends MicroService {
 
@@ -14,8 +18,8 @@ class KeyStoreMicroService(override val serviceUrl: String = MicroServiceConfig.
     httpPutAndForget(uri, Json.parse(toRequestBody(data)))
   }
 
-  def getKeyStore(id: String, source: String): KeyStore = {
-    httpGet[KeyStore](buildUri(id, source)).getOrElse(null)
+  def getKeyStore(id: String, source: String): Option[KeyStore] = {
+    httpGet[KeyStore](buildUri(id, source))
   }
 
   def deleteKeyStore(id: String, source: String) {

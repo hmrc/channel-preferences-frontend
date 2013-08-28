@@ -1,40 +1,42 @@
 @(companyDetailsForm:Form[controllers.agent.registration.AgentCompanyDetails])
 
+@import controllers.agent.registration.AgentCompanyDetailsFormFields._
+
 @main(title = "Your tax home") {
 
 <h2>Company Details</h2>
 
 @helper.form(action = agent.registration.routes.AgentCompanyDetailsController.postCompanyDetails) {
 
-        @helpers.input(companyDetailsForm("companyName"), '_label -> "Company Name:")
+        @helpers.input(companyDetailsForm(companyName), '_label -> "Company Name:")
 
-        @helpers.input(companyDetailsForm("tradingName"), '_label -> "Trading Name (if different):")
+        @helpers.input(companyDetailsForm(tradingName), '_label -> "Trading Name (if different):")
 
-        @helpers.input(companyDetailsForm("phoneNumbers.landlineNumber"), '_label -> "Telephone Number - Landline:")
+        @helpers.input(companyDetailsForm(qualifiedLandlineNumber), '_label -> "Telephone Number - Landline:")
 
-        @helpers.input(companyDetailsForm("phoneNumbers.mobileNumber"), '_label -> "Telephone Number - Mobile:", '_error -> companyDetailsForm.error("phoneNumbers"))
+        @helpers.input(companyDetailsForm(qualifiedMobileNumber), '_label -> "Telephone Number - Mobile:", '_error -> companyDetailsForm.error(phoneNumbers))
    
-        @helpers.input(companyDetailsForm("website"), '_label -> "Website Address:")
+        @helpers.input(companyDetailsForm(website), '_label -> "Website Address:")
 
-        @helpers.input(companyDetailsForm("email"), '_label -> "Email Address:")
+        @helpers.input(companyDetailsForm(email), '_label -> "Email Address:")
 
-        @helpers.input(companyDetailsForm("mainAddress"), '_label -> "Main Address:")
+        @helpers.input(companyDetailsForm(mainAddress), '_label -> "Main Address:")
 
-        @helpers.input(companyDetailsForm("communicationAddress"),'_label -> "Communication Address:")
+        @helpers.input(companyDetailsForm(communicationAddress),'_label -> "Communication Address:")
 
-        @helpers.input(companyDetailsForm("businessAddress"), '_label -> "Principal Place of Business Address:")
+        @helpers.input(companyDetailsForm(businessAddress), '_label -> "Principal Place of Business Address:")
    
-        @helpers.input(companyDetailsForm("saUtr"),'_label -> "SA UTR:")
+        @helpers.input(companyDetailsForm(saUtr),'_label -> "SA UTR:")
    
-        @helpers.input(companyDetailsForm("ctUtr"),'_label -> "CT UTR:")
+        @helpers.input(companyDetailsForm(ctUtr),'_label -> "CT UTR:")
 
-        @helpers.input(companyDetailsForm("vatVrn"),'_label -> "VAT VRN:")
+        @helpers.input(companyDetailsForm(vatVrn),'_label -> "VAT VRN:")
    
-        @helpers.input(companyDetailsForm("payeEmpRef"), '_label -> "PAYE Emp Ref:")
+        @helpers.input(companyDetailsForm(payeEmpRef), '_label -> "PAYE Emp Ref:")
 
-        @helpers.input(companyDetailsForm("companyHouseNumber"), '_label -> "Company House Number:")
+        @helpers.input(companyDetailsForm(companyHouseNumber), '_label -> "Company House Number:")
 
-        @helpers.singleCheckbox(companyDetailsForm("registeredOnHMRC"), '_label -> "I am currently registered with HMRC for a UK tax.")
+        @helpers.singleCheckbox(companyDetailsForm(registeredOnHMRC), '_label -> "I am currently registered with HMRC for a UK tax.")
    
    <input type="submit" value="Next"/></p>
 }

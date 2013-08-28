@@ -5,13 +5,14 @@ import uk.gov.hmrc.microservice.paye.domain.PayeRegime
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
+import controllers.agent.registration.FormNames._
 
-class AgentTypeAndLegalEntityController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration {
+class AgentTypeAndLegalEntityController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration with AgentMapper {
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
-      "agentType" -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.agentTypeOptions.contains(v) }),
-      "legalEntity" -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.legalEntityOptions.contains(v) })
+      AgentTypeAndLegalEntityFormFields.agentType -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.agentTypeOptions.contains(v) }),
+      AgentTypeAndLegalEntityFormFields.legalEntity -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.legalEntityOptions.contains(v) })
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
@@ -33,7 +34,7 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
             },
             _ => {
               val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest.data
-              saveFormToKeyStore("agentTypeAndLegalEntityForm", agentTypeAndLegalEntityDetails, userId(user))
+              saveFormToKeyStore(agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails, userId(user))
               Redirect(routes.AgentCompanyDetailsController.companyDetails())
             }
           )
@@ -42,3 +43,7 @@ class AgentTypeAndLegalEntityController extends BaseController with SessionTimeo
 }
 case class AgentTypeAndLegalEntity(agentType: String, legalEntity: String)
 
+object AgentTypeAndLegalEntityFormFields {
+  val agentType = "agentType"
+  val legalEntity = "legalEntity"
+}

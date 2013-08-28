@@ -1,16 +1,10 @@
 package controllers.agent.registration
 
-import play.api.mvc.{ AnyContent, Request, Session }
-import controllers.common.service.MicroServices
 import uk.gov.hmrc.microservice.domain.User
 
-trait MultiformRegistration extends MicroServices {
+trait MultiformRegistration {
 
   val phoneNumberErrorKey = "error.agent.phone"
-
-  def saveFormToKeyStore(formName: String, formData: Map[String, Any], userId: String) {
-    keyStoreMicroService.addKeyStoreEntry("Registration:" + userId, "agent", formName, formData)
-  }
 
   def validateMandatoryPhoneNumber = { s: String => s.matches("\\d+") }
   def validateOptionalPhoneNumber = { s: String => s.matches("\\d*") }

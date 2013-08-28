@@ -6,13 +6,14 @@ import play.api.data.Forms._
 import scala.Some
 import play.api.mvc.Result
 import uk.gov.hmrc.microservice.paye.domain.PayeRegime
+import controllers.agent.registration.FormNames._
 
-class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration {
+class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentMapper with MultiformRegistration {
   private val professionalBodyMembershipForm: Form[AgentProfessionalBodyMembership] = Form(
     mapping(
-      "professionalBodyMembership" -> tuple(
-        "professionalBody" -> optional(text.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
-        "membershipNumber" -> optional(text)
+      AgentProfessionalBodyMembershipFormFields.professionalBodyMembership -> tuple(
+        AgentProfessionalBodyMembershipFormFields.professionalBody -> optional(text.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
+        AgentProfessionalBodyMembershipFormFields.membershipNumber -> optional(text)
       ).verifying("error.agent.professionalBodyMembershipNumber.mandatory", data => (!data._1.isDefined || data._2.isDefined))
         .verifying("error.agent.professionalBodyMembership.mandatory", data => (data._1.isDefined || !data._2.isDefined))
     ) {
@@ -48,9 +49,16 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
               },
               _ => {
                 val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest.data
-                saveFormToKeyStore("professionalBodyMembershipForm", agentProfessionalBodyMembership, userId(user))
-                //Save agent!!!
-                Ok("Thank you!")
+                saveFormToKeyStore(professionalBodyMembershipFormName, agentProfessionalBodyMembership, userId(user))
+                val keyStore = getKeyStore(userId(user))
+                keyStore match {
+                  case Some(x) => {
+                    val agentId = agentMicroService.create(toAgent(x)).get.uar.getOrElse("")
+                    deleteFromKeyStore(userId(user))
+                    Ok(agentId)
+                  }
+                  case _ => Redirect(routes.AgentContactDetailsController.contactDetails())
+                }
 
               }
             )
@@ -60,3 +68,11 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
 }
 
 case class AgentProfessionalBodyMembership(professionalBody: Option[String] = None, membershipNumber: Option[String] = None)
+
+object AgentProfessionalBodyMembershipFormFields {
+  val professionalBodyMembership = "professionalBodyMembership"
+  val professionalBody = "professionalBody"
+  val membershipNumber = "membershipNumber"
+  val qualifiedProfessionalBody = professionalBodyMembership + "." + professionalBody
+  val qualifiedMembershipNumber = professionalBodyMembership + "." + membershipNumber
+}

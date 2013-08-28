@@ -8,14 +8,16 @@ import play.api.data.Forms._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import scala.Some
+import controllers.agent.registration.FormNames._
+import AgentContactDetailsFormFields._
 
-class AgentContactDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration {
+class AgentContactDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with MultiformRegistration with AgentMapper {
 
   private val contactForm = Form[AgentContactDetails](
     mapping(
-      "daytimePhoneNumber" -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
-      "mobilePhoneNumber" -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
-      "emailAddress" -> email
+      daytimePhoneNumber -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
+      mobilePhoneNumber -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
+      emailAddress -> email
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )
 
@@ -43,7 +45,7 @@ class AgentContactDetailsController extends BaseController with SessionTimeoutWr
             },
             _ => {
               val agentDetails = contactForm.bindFromRequest.data
-              saveFormToKeyStore("contactForm", agentDetails, userId(user))
+              saveFormToKeyStore(contactFormName, agentDetails, userId(user))
               Redirect(routes.AgentTypeAndLegalEntityController.agentType)
             }
           )
@@ -52,3 +54,8 @@ class AgentContactDetailsController extends BaseController with SessionTimeoutWr
 }
 case class AgentContactDetails(daytimePhoneNumber: String = "", mobilePhoneNumber: String = "", emailAddress: String = "")
 
+object AgentContactDetailsFormFields {
+  val daytimePhoneNumber = "daytimePhoneNumber"
+  val mobilePhoneNumber = "mobilePhoneNumber"
+  val emailAddress = "emailAddress"
+}

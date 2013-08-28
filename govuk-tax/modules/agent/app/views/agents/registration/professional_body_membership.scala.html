@@ -1,5 +1,7 @@
 @(agentForm:Form[controllers.agent.registration.AgentProfessionalBodyMembership], professionalBodyOptions: Map[String, String])
 
+@import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
+
 @main(title = "Your tax home") {
 
     <h2>Professional Body Membership</h2>
@@ -7,12 +9,12 @@
     @helper.form(action = agent.registration.routes.AgentProfessionalBodyMembershipController.postProfessionalBodyMembership) {
 
         @helpers.dropdown(
-            agentForm("professionalBodyMembership.professionalBody"),
+            agentForm(qualifiedProfessionalBody),
             professionalBodyOptions,
             '_label -> "Select a Professional Body:"
         )
 
-        @helpers.input(agentForm("professionalBodyMembership.membershipNumber"), '_label -> "Membership Number:", '_error -> agentForm.error("professionalBodyMembership") )
+        @helpers.input(agentForm(qualifiedMembershipNumber), '_label -> "Membership Number:", '_error -> agentForm.error("professionalBodyMembership") )
 
         <p><input type="submit" value="Apply"/></p>
 

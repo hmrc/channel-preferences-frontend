@@ -1,5 +1,7 @@
 @(agentForm:Form[controllers.agent.registration.AgentContactDetails], paye: uk.gov.hmrc.microservice.paye.domain.PayeRoot)
 
+@import controllers.agent.registration.AgentContactDetailsFormFields._
+
 @main(title = "Your tax home") {
 
 <h2>Contact Details</h2>
@@ -17,13 +19,13 @@
 
     <p>Please provide at least one of the following details in case we need to contact you:</p>
     <p>
-        @helpers.input(agentForm("daytimePhoneNumber"), '_label -> "Daytime phone number:")
+        @helpers.input(agentForm(daytimePhoneNumber), '_label -> "Daytime phone number:")
     </p>
     <p>
-        @helpers.input(agentForm("mobilePhoneNumber"), '_label -> "Mobile phone number:")
+        @helpers.input(agentForm(mobilePhoneNumber), '_label -> "Mobile phone number:")
     </p>
     <p>
-        @helpers.input(agentForm("emailAddress"), '_label -> "Email address:")
+        @helpers.input(agentForm(emailAddress), '_label -> "Email address:")
     </p>
 
     <p><input type="submit" value="Next"/></p>
