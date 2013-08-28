@@ -17,6 +17,9 @@ import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import scala.Some
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import uk.gov.hmrc.microservice.domain.User
+import play.api.mvc.{ Result, Request }
+import uk.gov.hmrc.microservice.domain.User
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
@@ -72,39 +75,38 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   )
 
-  def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
-    implicit user =>
-      implicit request =>
+  def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => detailsAction(user, request) })
 
-        val userData: SaRoot = user.regimes.sa.get
+  private[sa] def detailsAction: (User, Request[_]) => Result = (user, request) => {
+    val userData: SaRoot = user.regimes.sa.get
 
-        userData.personalDetails match {
-          case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
-          case _ => NotFound //todo this should really be an error page
-        }
-  })
+    userData.personalDetails match {
+      case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
+      case _ => NotFound //todo this should really be an error page
+    }
+  }
 
-  def checkPrintPreferences(encryptedJson: String) = UnauthorisedAction {
-    implicit request =>
-      val decryptedJson = SsoPayloadEncryptor.decrypt(encryptedJson)
-      val json = Json.parse(decryptedJson)
-      //TODO - this needs to change to use the utr not the cred id
-      val credId = (json \ "credId").as[String]
-      val time = (json \ "time").as[Long]
+  def checkPrintPreferences(encryptedJson: String) = UnauthorisedAction { request => checkPrintPreferencesAction(request, encryptedJson) }
 
-      val currentTime: DateTime = now()
-      if (currentTime.minusMinutes(5).isAfter(time)) BadRequest
-      else {
-        val headers = ("Access-Control-Allow-Origin", "*")
-        authMicroService.preferences(credId) match {
-          case None => NoContent
-          case Some(pref) => pref.sa match {
-            case Some(sa) if sa.digitalNotifications.isDefined => NoContent.withHeaders(headers)
-            case _ => Ok(saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")).withHeaders(headers)
-          }
+  private[sa] def checkPrintPreferencesAction: (Request[_], String) => Result = (request, encryptedJson) => {
+    val decryptedJson = SsoPayloadEncryptor.decrypt(encryptedJson)
+    val json = Json.parse(decryptedJson)
+    //TODO - this needs to change to use the utr not the cred id
+    val credId = (json \ "credId").as[String]
+    val time = (json \ "time").as[Long]
+
+    val currentTime: DateTime = now()
+    if (currentTime.minusMinutes(5).isAfter(time)) BadRequest
+    else {
+      val headers = ("Access-Control-Allow-Origin", "*")
+      authMicroService.preferences(credId) match {
+        case None => NoContent
+        case Some(pref) => pref.sa match {
+          case Some(sa) if sa.digitalNotifications.isDefined => NoContent.withHeaders(headers)
+          case _ => Ok(saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")).withHeaders(headers)
         }
       }
-
+    }
   }
 
   def prefsForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
@@ -117,54 +119,50 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         }
   })
 
-  def changeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
-    implicit user =>
-      implicit request =>
-        Ok(sa_personal_details_update(changeAddressForm))
-  })
+  def changeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeMyAddressFormAction(user, request) })
 
-  def submitChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
-    implicit user =>
-      implicit request =>
+  private[sa] def changeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+    Ok(sa_personal_details_update(changeAddressForm))
+  }
 
-        changeAddressForm.bindFromRequest()(request).fold(
-          errors => BadRequest(sa_personal_details_update(errors)),
-          formData => {
-            Ok(sa_personal_details_confirmation(changeAddressForm, formData))
-          }
-        )
+  def submitChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitChangeAddressFormAction(user, request) })
 
-  })
+  private[sa] def submitChangeAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+    changeAddressForm.bindFromRequest()(request).fold(
+      errors => BadRequest(sa_personal_details_update(errors)),
+      formData => {
+        Ok(sa_personal_details_confirmation(changeAddressForm, formData))
+      }
+    )
+  }
 
-  def submitPrefsForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
-    implicit user =>
-      implicit request =>
+  def submitPrefsForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitPrefsFormAction(user, request) })
 
-        printPrefsForm.bindFromRequest()(request).fold(
-          errors => BadRequest(sa_prefs_details(errors)),
-          printPrefsForm => {
-            val authResponse = authMicroService.savePreferences(user.user, Preferences(sa = Some(SaPreferences(Some(printPrefsForm.suppressPrinting), printPrefsForm.email))))
-            authResponse match {
-              case Some(_) => Redirect(printPrefsForm.redirectUrl)
-              case _ => NotFound //todo this should really be an error page
-            }
-          }
-        )
+  private[sa] def submitPrefsFormAction: (User, Request[_]) => Result = (user, request) => {
+    printPrefsForm.bindFromRequest()(request).fold(
+      errors => BadRequest(sa_prefs_details(errors)),
+      printPrefsForm => {
+        val authResponse = authMicroService.savePreferences(user.user, Preferences(sa = Some(SaPreferences(Some(printPrefsForm.suppressPrinting), printPrefsForm.email))))
+        authResponse match {
+          case Some(_) => Redirect(printPrefsForm.redirectUrl)
+          case _ => NotFound //todo this should really be an error page
+        }
+      }
+    )
+  }
 
-  })
+  def submitConfirmChangeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitConfirmChangeMyAddressFormAction(user, request) })
 
-  def submitConfirmChangeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
-    implicit user =>
-      implicit request =>
-        changeAddressForm.bindFromRequest()(request).fold(
-          errors => BadRequest(sa_personal_details_update(errors)),
-          formData => { //user.userAuthority.utr
-            val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
-            val transactionId = saMicroService.updateMainAddress(uri, formData.additionalDeliveryInfo, formData.addressLine1.get, formData.addressLine2.get, formData.addressLine3, formData.addressLine4, formData.postcode)
-            Ok(sa_personal_details_confirmation_receipt(transactionId.get))
-          }
-        )
-  })
+  private[sa] def submitConfirmChangeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+    changeAddressForm.bindFromRequest()(request).fold(
+      errors => BadRequest(sa_personal_details_update(errors)),
+      formData => { //user.userAuthority.utr
+        val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
+        val transactionId = saMicroService.updateMainAddress(uri, formData.additionalDeliveryInfo, formData.addressLine1.get, formData.addressLine2.get, formData.addressLine3, formData.addressLine4, formData.postcode)
+        Ok(sa_personal_details_confirmation_receipt(transactionId.get))
+      }
+    )
+  }
 }
 
 object characterValidator {
