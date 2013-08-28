@@ -20,6 +20,8 @@ import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import uk.gov.hmrc.microservice.domain.User
 import play.api.mvc.{ Result, Request }
 import uk.gov.hmrc.microservice.domain.User
+import scala.util.matching.Regex
+
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
@@ -45,9 +47,14 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   private def notBlank(value: Option[String]) = value.isDefined && !value.get.trim.isEmpty
   private def isBlank(value: Option[String]) = !notBlank(value)
-  private def isValidLength(maxLength: Int)(value: Option[String]): Boolean = value.getOrElse("").length <= maxLength
-  private def isMainAddressLineLengthValid = isValidLength(28)(_)
-  private def isOptionalAddressLineLengthValid = isValidLength(18)(_)
+  private def isValidMaxLength(maxLength: Int)(value: Option[String]): Boolean = value.getOrElse("").length <= maxLength
+  private def isValidMinLength(minLength: Int)(value: Option[String]): Boolean = value.getOrElse("").length >= minLength
+  private def isMainAddressLineLengthValid = isValidMaxLength(28)(_)
+  private def isOptionalAddressLineLengthValid = isValidMaxLength(18)(_)
+  private def isPostcodeLengthValid(value: Option[String]) = {
+    val trimmedVal = Some(value.getOrElse("").replaceAll(" ", ""))
+    isValidMinLength(5)(trimmedVal) && isValidMaxLength(7)(trimmedVal)
+  }
 
   val changeAddressForm: Form[ChangeAddressForm] = Form(
     mapping(
@@ -67,6 +74,10 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
           .verifying("error.sa.address.invalidcharacter", characterValidator.isValid _)
       ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2) || (notBlank(optionalLines._1) && notBlank(optionalLines._2))),
       "postcode" -> optional(text)
+        .verifying("error.sa.postcode.mandatory", notBlank _)
+        .verifying("error.sa.postcode.lengthviolation", isPostcodeLengthValid(_))
+        .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters(_))
+
     ) {
         (additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines, postcode) => ChangeAddressForm(additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines._1, optionalAddressLines._2, postcode)
       } {
@@ -167,10 +178,15 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 object characterValidator {
   //Valid Characters Alphanumeric (A-Z, a-z, 0-9), hyphen( - ), apostrophe ( ' ), comma ( , ), forward slash ( / ) ampersand ( & ) and space
   private val invalidCharacterRegex = """[^A-Za-z0-9,/'\-& ]""".r
+  private val invalidPostCodeCharacterRegex = """[^A-Za-z0-9 ]""".r
 
-  def isValid(value: Option[String]): Boolean = {
+  def containsValidPostCodeCharacters(value: Option[String]): Boolean = containsValidCharacters(value, invalidPostCodeCharacterRegex)
+
+  def containsValidAddressCharacters(value: Option[String]): Boolean = containsValidCharacters(value, invalidCharacterRegex)
+
+  private def containsValidCharacters(value: Option[String], regex: Regex): Boolean = {
     value match {
-      case Some(string) => invalidCharacterRegex.findFirstIn(string).isEmpty
+      case Some(value) => regex.findFirstIn(value).isEmpty
       case None => true
     }
 
