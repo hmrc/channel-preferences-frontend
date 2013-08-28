@@ -34,18 +34,18 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
 
   import play.api.test.Helpers._
 
-  private val mockSamlMicroService = mock[SamlMicroService]
-  private val mockAuthMicroService = mock[AuthMicroService]
-  private val mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
+  private lazy val mockSamlMicroService = mock[SamlMicroService]
+  private lazy val mockAuthMicroService = mock[AuthMicroService]
+  private lazy val mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
 
   when(mockSamlMicroService.create).thenReturn(
     AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
   )
 
   lazy val loginController = new LoginController with MockMicroServicesForTests {
-    override val samlMicroService = mockSamlMicroService
-    override val authMicroService = mockAuthMicroService
-    override val governmentGatewayMicroService = mockGovernmentGatewayMicroService
+    override lazy val samlMicroService = mockSamlMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val governmentGatewayMicroService = mockGovernmentGatewayMicroService
   }
 
   override def beforeEach() {

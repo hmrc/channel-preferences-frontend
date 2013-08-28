@@ -21,7 +21,7 @@ import play.api.mvc.SimpleResult
 
 class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
-  private val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
+  private lazy val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
   private val mockSsoWhiteListService = mock[SsoWhiteListService]
   private val redirectUrl = "http://www.redirect-url.co.uk"
 
@@ -42,7 +42,7 @@ class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
   }
 
   private def controller = new SsoInController with MockMicroServicesForTests {
-    override val governmentGatewayMicroService = mockGovernmentGatewayService
+    override lazy val governmentGatewayMicroService = mockGovernmentGatewayService
     override private[controllers] val ssoWhiteListService = mockSsoWhiteListService
   }
 

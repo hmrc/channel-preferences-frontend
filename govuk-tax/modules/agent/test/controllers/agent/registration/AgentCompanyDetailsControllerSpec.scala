@@ -10,8 +10,8 @@ import play.api.test.Helpers._
 class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar with MockAuthentication {
 
   private def controller = new AgentCompanyDetailsController with MockMicroServicesForTests {
-    override val authMicroService = mockAuthMicroService
-    override val payeMicroService = mockPayeMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val payeMicroService = mockPayeMicroService
   }
 
   "The company details page" should {

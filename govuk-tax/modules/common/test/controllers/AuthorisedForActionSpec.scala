@@ -20,8 +20,8 @@ import controllers.common._
 
 class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
-  private val mockAuthMicroService = mock[AuthMicroService]
-  private val mockPayeMicroService = mock[PayeMicroService]
+  private lazy val mockAuthMicroService = mock[AuthMicroService]
+  private lazy val mockPayeMicroService = mock[PayeMicroService]
 
   override def beforeEach() {
     reset(mockAuthMicroService)
@@ -46,8 +46,8 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
 
   object TestController extends Controller with ActionWrappers with MockMicroServicesForTests with HeaderNames {
 
-    override val authMicroService = mockAuthMicroService
-    override val payeMicroService = mockPayeMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val payeMicroService = mockPayeMicroService
 
     def test = AuthorisedForIdaAction(Some(PayeRegime)) {
       implicit user =>

@@ -1,22 +1,16 @@
 package controllers.agent.registration
 
 import uk.gov.hmrc.common.BaseSpec
-import org.mockito.Mockito._
-import org.mockito.Matchers
-import java.net.URI
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.microservice.auth.domain.Regimes
-import scala.Some
 import controllers.common.SessionTimeoutWrapper
 import play.api.test.Helpers._
 
 class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockAuthentication {
 
   private def controller = new AgentTypeAndLegalEntityController with MockMicroServicesForTests {
-    override val authMicroService = mockAuthMicroService
-    override val payeMicroService = mockPayeMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val payeMicroService = mockPayeMicroService
   }
 
   "The agent type and legal entity" should {

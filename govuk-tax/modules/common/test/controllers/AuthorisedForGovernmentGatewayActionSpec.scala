@@ -20,8 +20,8 @@ import controllers.common._
 
 class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
-  private val mockAuthMicroService = mock[AuthMicroService]
-  private val mockSaMicroService = mock[SaMicroService]
+  private lazy val mockAuthMicroService = mock[AuthMicroService]
+  private lazy val mockSaMicroService = mock[SaMicroService]
   private val token = "someToken"
 
   override def beforeEach() {
@@ -36,8 +36,8 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with ShouldMatch
 
   object TestController extends Controller with ActionWrappers with MockMicroServicesForTests with HeaderNames {
 
-    override val authMicroService = mockAuthMicroService
-    override val saMicroService = mockSaMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val saMicroService = mockSaMicroService
 
     def test = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
       implicit user =>

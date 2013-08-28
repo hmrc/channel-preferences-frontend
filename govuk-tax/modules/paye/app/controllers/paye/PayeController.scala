@@ -20,13 +20,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
 
   import uk.gov.hmrc.microservice.paye.domain.{ Employment, Benefit, PayeRegime }
 
-  def home = WithSessionTimeoutValidation {
-    AuthorisedForIdaAction(Some(PayeRegime)) {
-      implicit user =>
-        implicit request =>
-          homeAction(user, request)
-    }
-  }
+  def home = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => homeAction(user, request) } }
 
   private[paye] val homeAction: (User, Request[_]) => Result = (user, request) => {
     val payeData = user.regimes.paye.get
@@ -122,7 +116,8 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-      Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+      //Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+      Ok.stream()
     }
 
   private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {

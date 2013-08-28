@@ -12,14 +12,14 @@ import uk.gov.hmrc.common.microservice.agent.AgentMicroService
 
 trait MicroServices {
 
-  implicit val authMicroService = new AuthMicroService()
-  implicit val payeMicroService = new PayeMicroService()
-  implicit val samlMicroService = new SamlMicroService()
-  implicit val saMicroService = new SaMicroService()
-  implicit val governmentGatewayMicroService = new GovernmentGatewayMicroService()
-  implicit val txQueueMicroService = new TxQueueMicroService()
-  implicit val auditMicroService = new AuditMicroService()
-  implicit val keyStoreMicroService = new KeyStoreMicroService()
-  implicit val agentMicroService = new AgentMicroService()
+  implicit lazy val authMicroService = new AuthMicroService()
+  implicit lazy val payeMicroService = new PayeMicroService()
+  implicit lazy val samlMicroService = new SamlMicroService()
+  implicit lazy val saMicroService = new SaMicroService()
+  implicit lazy val governmentGatewayMicroService = new GovernmentGatewayMicroService()
+  implicit lazy val txQueueMicroService = new TxQueueMicroService()
+  implicit lazy val auditMicroService = new AuditMicroService()
+  implicit lazy val keyStoreMicroService = new KeyStoreMicroService()
+  implicit lazy val agentMicroService = new AgentMicroService()
 
 }

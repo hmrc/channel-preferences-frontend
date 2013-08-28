@@ -40,14 +40,15 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
   import play.api.test.Helpers._
 
-  private val mockAuthMicroService = mock[AuthMicroService]
-  private val mockSaMicroService = mock[SaMicroService]
+  private lazy val mockAuthMicroService = mock[AuthMicroService]
+  private lazy val mockSaMicroService = mock[SaMicroService]
+
   private val currentTime = new DateTime(2012, 12, 21, 12, 4, 32, DateTimeZone.UTC)
   val mockUtr = Utr("someUtr")
 
   private def controller = new SaController with MockMicroServicesForTests {
-    override val authMicroService = mockAuthMicroService
-    override val saMicroService = mockSaMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val saMicroService = mockSaMicroService
     override def now = () => currentTime
   }
 

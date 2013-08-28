@@ -26,12 +26,12 @@ import controllers.bt.BusinessTaxController
 
 class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
-  private val mockAuthMicroService = mock[AuthMicroService]
-  private val mockSaMicroService = mock[SaMicroService]
+  private lazy val mockAuthMicroService = mock[AuthMicroService]
+  private lazy val mockSaMicroService = mock[SaMicroService]
 
   private def controller = new BusinessTaxController with MockMicroServicesForTests {
-    override val authMicroService = mockAuthMicroService
-    override val saMicroService = mockSaMicroService
+    override lazy val authMicroService = mockAuthMicroService
+    override lazy val saMicroService = mockSaMicroService
   }
 
   val nameFromSa = "Geoff Fisher From SA"
