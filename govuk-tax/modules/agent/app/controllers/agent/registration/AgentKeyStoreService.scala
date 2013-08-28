@@ -14,7 +14,7 @@ trait AgentKeyStoreService extends MicroServices {
   }
 
   def deleteFromKeyStore(userId: String) = {
-    keyStoreMicroService.deleteKeyStore("Registration:"+userId, "agent")
+    keyStoreMicroService.deleteKeyStore("Registration:" + userId, "agent")
   }
 }
 

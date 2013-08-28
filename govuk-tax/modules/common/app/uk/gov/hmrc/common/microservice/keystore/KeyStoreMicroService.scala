@@ -6,8 +6,8 @@ import controllers.common.domain.Transform._
 import org.joda.time.DateTime
 
 case class KeyStore(id: String, dateCreated: DateTime, dateUpdated: DateTime, data: Map[String, Map[String, String]]) {
-  def get(form: String) : Option[Map[String, String]] = {
-     data.get(form)
+  def get(form: String): Option[Map[String, String]] = {
+    data.get(form)
   }
 }
 
