@@ -148,12 +148,6 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
             tx.statusHistory(0).createdAt.toLocalDate)
       }
 
-  def transactionMatches(benefit: Benefit, tx: TxQueueTransaction): Boolean = {
-    tx.properties("employmentSequenceNumber").toInt == benefit.employmentSequenceNumber &&
-      tx.properties("taxYear").toInt == benefit.taxYear &&
-      tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
-  }
-
   private val localDateMapping = jodaLocalDate
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(currentTaxYear + 1, 4, 6)))
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(new LocalDate()))
@@ -190,6 +184,13 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
           transactions.find(transactionMatches(benefit, _))
         )
     }
+  }
+
+  def transactionMatches(benefit: Benefit, tx: TxQueueTransaction): Boolean = {
+    tx.properties("employmentSequenceNumber").toInt == benefit.employmentSequenceNumber &&
+      tx.properties("taxYear").toInt == benefit.taxYear &&
+      tx.properties("benefitType").toInt == benefit.benefitType &&
+      tx.tags.get.filter(_.startsWith("message.code.")).nonEmpty
   }
 
   private def currentTaxYear = {

@@ -94,22 +94,26 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
     Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3, null, null, null, null, null, null, car = None, actions("RC123456B", 2013, 1), Map.empty),
     removedCarBenefit))
 
-  def transactionWithTags(tags: List[String]) =
+  def transactionWithTags(tags: List[String], properties: Map[String, String] = Map.empty) =
     TxQueueTransaction(URI.create("http://tax.com"),
       "paye",
       URI.create("http://tax.com"),
       None,
       List(Status("created", None, currentTestDate)),
       Some(tags),
-      Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013"),
+      properties ++ Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013"),
       currentTestDate,
       currentTestDate.minusDays(1))
 
-  val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"))
+  val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"), Map("benefitType" -> "31"))
   val testTransaction2 = transactionWithTags(List("paye", "test"))
-  val testTransaction3 = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"))
+  val testTransaction3 = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"), Map("benefitType" -> "29"))
 
   val testTransactions = List(testTransaction1, testTransaction2, testTransaction3)
+
+  val completedTransactions = List(testTransaction2, testTransaction3)
+
+  val acceptedTransactions = List(testTransaction1)
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
     Map("updateCar" -> s"/paye/$nino/benefits/$year/$esn/update/car")
@@ -230,9 +234,11 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(userWithRemovedCarEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(userWithRemovedCarBenefits)
-      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/COMPLETED/.*"))).thenReturn(Some(testTransactions))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/COMPLETED/.*"))).thenReturn(Some(acceptedTransactions))
 
-      requestBenefitsAction(userWithRemovedCar) should include("Benefit removed")
+      val result = requestBenefitsAction(userWithRemovedCar)
+      println(result)
+      result should include("Benefit removed")
     }
 
     def requestBenefitsAction(user: User) = {
