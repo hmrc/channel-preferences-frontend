@@ -95,6 +95,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       content should include("address line 4")
       content should include("address line 5")
       content should include("postcode")
+      content should include("Change address")
     }
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
