@@ -51,12 +51,6 @@ object GovUkTaxBuild extends Build {
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
-  val sa = play.Project(
-    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.commonSettings
-  ).dependsOn(common % allPhases)
-    .configs(TemplateTest)
-    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
   val bt = play.Project(
     appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.commonSettings
@@ -65,6 +59,12 @@ object GovUkTaxBuild extends Build {
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
+  val sa = play.Project(
+    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.commonSettings
+  ).dependsOn(common % allPhases, bt)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
 
   lazy val govukTax = play.Project(
     appName,
