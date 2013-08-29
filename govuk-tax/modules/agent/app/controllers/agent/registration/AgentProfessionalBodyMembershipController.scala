@@ -9,14 +9,15 @@ import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import controllers.common.service.MicroServices
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
+import controllers.common.validators.Validators
 
-class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with AgentMapper with MicroServices {
+class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with AgentMapper with MicroServices with Validators {
 
   private val professionalBodyMembershipForm = Form[AgentProfessionalBodyMembership](
     mapping(
       AgentProfessionalBodyMembershipFormFields.professionalBodyMembership -> tuple(
-        AgentProfessionalBodyMembershipFormFields.professionalBody -> optional(text.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
-        AgentProfessionalBodyMembershipFormFields.membershipNumber -> optional(text)
+        AgentProfessionalBodyMembershipFormFields.professionalBody -> optional(smallText.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
+        AgentProfessionalBodyMembershipFormFields.membershipNumber -> optional(smallText)
       ).verifying("error.agent.professionalBodyMembershipNumber.mandatory", data => (!data._1.isDefined || data._2.isDefined))
         .verifying("error.agent.professionalBodyMembership.mandatory", data => (data._1.isDefined || !data._2.isDefined))
     ) {

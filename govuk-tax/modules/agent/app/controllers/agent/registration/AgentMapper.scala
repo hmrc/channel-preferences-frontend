@@ -8,7 +8,7 @@ import controllers.agent.registration.AgentContactDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.Address
-import controllers.common.validators.Validators._
+import controllers.common.validators.AddressFields._
 
 trait AgentMapper {
 

@@ -17,22 +17,22 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
 
   private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
-      AgentCompanyDetailsFormFields.companyName -> nonEmptyText,
-      tradingName -> optional(text),
+      AgentCompanyDetailsFormFields.companyName -> nonEmptySmallText,
+      tradingName -> optional(smallText),
       phoneNumbers -> tuple(
-        landlineNumber -> optional(text.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber)),
-        mobileNumber -> optional(text.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber))
+        landlineNumber -> optional(smallText.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber)),
+        mobileNumber -> optional(smallText.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber))
       ).verifying("error.agent.companyDetails.mandatory.phone", data => data._1.isDefined || data._2.isDefined),
-      website -> optional(text),
-      AgentCompanyDetailsFormFields.email -> Forms.email,
+      website -> optional(smallText),
+      AgentCompanyDetailsFormFields.email -> smallEmail,
       mainAddress -> addressTuple,
       communicationAddress -> addressTuple,
       businessAddress -> addressTuple,
-      saUtr -> text.verifying("error.agent.saUtr", validateSaUtr),
-      ctUtr -> optional(text),
-      vatVrn -> optional(text),
-      payeEmpRef -> optional(text),
-      companyHouseNumber -> optional(text),
+      saUtr -> smallText.verifying("error.agent.saUtr", validateSaUtr),
+      ctUtr -> optional(smallText),
+      vatVrn -> optional(smallText),
+      payeEmpRef -> optional(smallText),
+      companyHouseNumber -> optional(smallText),
       registeredOnHMRC -> boolean.verifying("error.agent.companyDetails.registered", e => { e })
     ) {
         (companyName, tradingName, phoneNumbers, website, email, mainAddress, communicationAddress, businessAddress, saUtr,

@@ -17,9 +17,9 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
 
   private val contactForm = Form[AgentContactDetails](
     mapping(
-      daytimePhoneNumber -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
-      mobilePhoneNumber -> text.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
-      emailAddress -> email
+      daytimePhoneNumber -> smallText.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
+      mobilePhoneNumber -> smallText.verifying(phoneNumberErrorKey, validateMandatoryPhoneNumber),
+      emailAddress -> smallEmail
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )
 

@@ -9,13 +9,14 @@ import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import play.api.mvc.{ Result, Request }
 import controllers.common.service.MicroServices
+import controllers.common.validators.Validators
 
-class AgentTypeAndLegalEntityController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController {
+class AgentTypeAndLegalEntityController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators {
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
-      AgentTypeAndLegalEntityFormFields.agentType -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.agentTypeOptions.contains(v) }),
-      AgentTypeAndLegalEntityFormFields.legalEntity -> nonEmptyText.verifying("error.illegal.value", v => { Configuration.config.legalEntityOptions.contains(v) })
+      AgentTypeAndLegalEntityFormFields.agentType -> nonEmptySmallText.verifying("error.illegal.value", v => { Configuration.config.agentTypeOptions.contains(v) }),
+      AgentTypeAndLegalEntityFormFields.legalEntity -> nonEmptySmallText.verifying("error.illegal.value", v => { Configuration.config.legalEntityOptions.contains(v) })
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 

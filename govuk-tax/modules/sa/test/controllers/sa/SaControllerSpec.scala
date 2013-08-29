@@ -2,9 +2,7 @@ package controllers.sa
 
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
-import uk.gov.hmrc.microservice.auth.AuthMicroService
-import play.api.mvc.{ Result, Request, AnyContent, Action }
-import uk.gov.hmrc.microservice.sa.SaMicroService
+import play.api.mvc.{ Result, Request }
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URI
 import controllers.common.SessionTimeoutWrapper._
@@ -15,13 +13,6 @@ import org.mockito.Mockito._
 import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
 import controllers.sa.StaticHTMLBanner._
 
-import uk.gov.hmrc.microservice.auth.domain.{ Utr, UserAuthority, Regimes }
-import play.api.libs.ws.Response
-import uk.gov.hmrc.microservice.sa.domain._
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
-import scala.Some
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import controllers.common.service.FrontEndConfig
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
@@ -36,8 +27,8 @@ import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import org.scalatest.BeforeAndAfterEach
+import controllers.common.validators.characterValidator
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
@@ -397,7 +388,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     " show the address line 1 error message if it is missing " in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("addressLine2" -> "addressline2data"))
+      val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("addressLine1" -> "", "addressLine2" -> "addressline2data"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -457,7 +448,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
-        .withFormUrlEncodedBody("addressLine1" -> "addressline1data"))
+        .withFormUrlEncodedBody("addressLine2" -> "", "addressLine1" -> "addressline1data"))
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
@@ -604,32 +595,6 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       verify(controller.saMicroService).updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, postcode = Some(postcodeValid))
     }
 
-  }
-
-  //Valid Characters Alphanumeric (A-Z, a-z, 0-9), hyphen( - ), apostrophe ( ' ), comma ( , ), forward slash ( / ) ampersand ( & ) and space
-  // (48 to 57 0-9) (65 to 90 A-Z) (97 to 122 a-z) (32 space) (38 ampersand ( & )) (39 apostrophe ( ' )) (44 comma ( , ))   (45 hyphen( - )) (47 forward slash ( / ))
-
-  " Valid character checker " should {
-    " return false if an invalid character is present in an input " in {
-      var digits = for (i <- 48 to 57) yield i
-      var lowerCaseLetters = for (i <- 97 to 122) yield i
-      var upperCaseLetters = for (i <- 65 to 90) yield i
-      val specialCharacters = List(32, 38, 39, 44, 45, 47)
-
-      val validCharacters = digits ++ lowerCaseLetters ++ upperCaseLetters ++ specialCharacters
-
-      for (chr <- 0 to 1000) {
-        val c = chr.toChar
-        val str = s"this $chr contains $c"
-        characterValidator.containsValidAddressCharacters(Some(str)) match {
-          case true => validCharacters.contains(chr) must be(true)
-          case false => validCharacters.contains(chr) must be(false)
-        }
-      }
-    }
-    " return true when None is passed as the value" in {
-      characterValidator.containsValidAddressCharacters(None) must be(true)
-    }
   }
 
   def request(user: User, action: (User, Request[_]) => Result): String = {

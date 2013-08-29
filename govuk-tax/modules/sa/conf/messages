@@ -1,0 +1,9 @@
+error.sa.address.line1.mandatory=Address Line 1 is required
+error.sa.address.mainlines.maxlengthviolation=This address line field must not be greater than 28 characters
+error.sa.postcode.lengthviolation=Postcode is incorrect
+error.sa.address.optionallines.maxlengthviolation=This address line field must not be greater than 18 characters
+error.sa.address.invalidcharacter=This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 - ' , / & space
+error.sa.postcode.invalidcharacter=This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 space
+error.sa.address.line3.mandatory=Address Line 3 is required when using Address Line 4
+error.sa.address.line2.mandatory=Address Line 2 is required
+error.sa.postcode.mandatory=Postcode is required

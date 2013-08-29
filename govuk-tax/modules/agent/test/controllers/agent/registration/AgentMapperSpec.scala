@@ -10,7 +10,7 @@ import controllers.agent.registration.AgentContactDetailsFormFields._
 import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
 import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
-import controllers.common.validators.Validators._
+import controllers.common.validators.AddressFields._
 
 class AgentMapperSpec extends BaseSpec with MockitoSugar {
 

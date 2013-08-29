@@ -17,17 +17,16 @@ import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import scala.Some
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
-import uk.gov.hmrc.microservice.domain.User
 import play.api.mvc.{ Result, Request }
 import uk.gov.hmrc.microservice.domain.User
-import scala.util.matching.Regex
+import controllers.common.validators.{ characterValidator, Validators }
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
 case class ChangeAddressForm(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
   addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
 
-class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider {
+class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
 
   val printPrefsForm: Form[PrintPrefsForm] = Form(
     mapping(
@@ -44,43 +43,31 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       }
   )
 
-  private def notBlank(value: Option[String]) = value.isDefined && !value.get.trim.isEmpty
-  private def isBlank(value: Option[String]) = !notBlank(value)
-  private def isValidMaxLength(maxLength: Int)(value: Option[String]): Boolean = value.getOrElse("").length <= maxLength
-  private def isValidMinLength(minLength: Int)(value: Option[String]): Boolean = value.getOrElse("").length >= minLength
-  private def isMainAddressLineLengthValid = isValidMaxLength(28)(_)
-  private def isOptionalAddressLineLengthValid = isValidMaxLength(18)(_)
-  private def isPostcodeLengthValid(value: Option[String]) = {
-    val trimmedVal = Some(value.getOrElse("").replaceAll(" ", ""))
-    isValidMinLength(5)(trimmedVal) && isValidMaxLength(7)(trimmedVal)
-  }
-
   val changeAddressForm: Form[ChangeAddressForm] = Form(
     mapping(
       "additionalDeliveryInfo" -> optional(text),
-      "addressLine1" -> optional(text)
+      "addressLine1" -> text
         .verifying("error.sa.address.line1.mandatory", notBlank _)
         .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
         .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
-      "addressLine2" -> optional(text)
+      "addressLine2" -> text
         .verifying("error.sa.address.line2.mandatory", notBlank _)
         .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
         .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
       "optionalAddressLines" -> tuple(
-        "addressLine3" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
-          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
-        "addressLine4" -> optional(text).verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
-          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _)
-      ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2) || (notBlank(optionalLines._1) && notBlank(optionalLines._2))),
-      "postcode" -> optional(text)
+        "addressLine3" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _)),
+        "addressLine4" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _))
+      ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2.getOrElse("")) || (notBlank(optionalLines._1.getOrElse("")) && notBlank(optionalLines._2.getOrElse("")))),
+      "postcode" -> text
         .verifying("error.sa.postcode.mandatory", notBlank _)
         .verifying("error.sa.postcode.lengthviolation", isPostcodeLengthValid(_))
         .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters(_))
-
     ) {
-        (additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines, postcode) => ChangeAddressForm(additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines._1, optionalAddressLines._2, postcode)
+        (additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines, postcode) => ChangeAddressForm(additionalDeliveryInfo, Some(addressLine1), Some(addressLine2), optionalAddressLines._1, optionalAddressLines._2, Some(postcode))
       } {
-        form => Some((form.additionalDeliveryInfo, form.addressLine1, form.addressLine2, (form.addressLine3, form.addressLine4), form.postcode))
+        form => Some((form.additionalDeliveryInfo, form.addressLine1.getOrElse(""), form.addressLine2.getOrElse(""), (form.addressLine3, form.addressLine4), form.postcode.get))
       }
 
   )
@@ -171,23 +158,5 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         Ok(sa_personal_details_confirmation_receipt(transactionId.get))
       }
     )
-  }
-}
-
-object characterValidator {
-  //Valid Characters Alphanumeric (A-Z, a-z, 0-9), hyphen( - ), apostrophe ( ' ), comma ( , ), forward slash ( / ) ampersand ( & ) and space
-  private val invalidCharacterRegex = """[^A-Za-z0-9,/'\-& ]""".r
-  private val invalidPostCodeCharacterRegex = """[^A-Za-z0-9 ]""".r
-
-  def containsValidPostCodeCharacters(value: Option[String]): Boolean = containsValidCharacters(value, invalidPostCodeCharacterRegex)
-
-  def containsValidAddressCharacters(value: Option[String]): Boolean = containsValidCharacters(value, invalidCharacterRegex)
-
-  private def containsValidCharacters(value: Option[String], regex: Regex): Boolean = {
-    value match {
-      case Some(value) => regex.findFirstIn(value).isEmpty
-      case None => true
-    }
-
   }
 }
