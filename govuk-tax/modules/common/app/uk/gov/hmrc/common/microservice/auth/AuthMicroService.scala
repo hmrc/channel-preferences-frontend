@@ -11,6 +11,7 @@ class AuthMicroService(override val serviceUrl: String = MicroServiceConfig.auth
 
   def authority(path: String) = httpGet[UserAuthority](path)
 
-  def preferences(credId: String) = httpGet[Preferences](s"/auth/cred-id/${credId}/preferences")
+  def preferences(utr: String) = httpGet[Preferences](s"/auth/utr/${utr}/preferences")
+
   def savePreferences(oid: String, preferences: Preferences) = httpPutNoResponse(s"${oid}/preferences", Json.parse(toRequestBody(preferences)), Map.empty)
 }

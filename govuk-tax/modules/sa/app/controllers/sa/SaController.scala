@@ -88,15 +88,14 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
   private[sa] def checkPrintPreferencesAction: (Request[_], String) => Result = (request, encryptedJson) => {
     val decryptedJson = SsoPayloadEncryptor.decrypt(encryptedJson)
     val json = Json.parse(decryptedJson)
-    //TODO - this needs to change to use the utr not the cred id
-    val credId = (json \ "credId").as[String]
+    val utr = (json \ "sautr").as[String]
     val time = (json \ "time").as[Long]
 
     val currentTime: DateTime = now()
     if (currentTime.minusMinutes(5).isAfter(time)) BadRequest
     else {
       val headers = ("Access-Control-Allow-Origin", "*")
-      authMicroService.preferences(credId) match {
+      authMicroService.preferences(utr) match {
         case None => NoContent
         case Some(pref) => pref.sa match {
           case Some(sa) if sa.digitalNotifications.isDefined => NoContent.withHeaders(headers)
