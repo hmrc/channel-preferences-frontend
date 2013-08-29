@@ -19,18 +19,6 @@ class PayeMicroServiceSpec extends BaseSpec {
 
   "Remove a benefit" should {
 
-    "perform a post to the paye service with the correct uri" in new WithApplication(FakeApplication()) {
-
-      val service = new HttpMockedPayeMicroService
-      val uri = "/paye/AB123456C/benefits/2013/1/update/cars"
-
-      when(service.httpWrapper.post[TransactionId](org.mockito.Matchers.eq(uri), any[JsValue], any[Map[String, String]])).thenReturn(Some(TransactionId("someId")))
-      val result = service.removeCarBenefit("AB123456C", 22, carBenefit, new LocalDate(2013, 7, 18), BigDecimal("0"))
-
-      verify(service.httpWrapper, times(1)).post(org.mockito.Matchers.eq(uri), any[JsValue], any[Map[String, String]])
-      result.get.oid mustBe "someId"
-    }
-
     "forward the version as a Version header" in new WithApplication(FakeApplication()) {
 
       val service = new HttpMockedPayeMicroService
@@ -39,7 +27,7 @@ class PayeMicroServiceSpec extends BaseSpec {
       val dateCarWithdrawn = new LocalDate(2013, 7, 18)
       val version = 22
       val grossAmount = BigDecimal(123.45)
-      service.removeCarBenefit("AB123456C", version, carBenefit, dateCarWithdrawn, grossAmount)
+      service.removeBenefit("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", version, carBenefit, dateCarWithdrawn, grossAmount)
 
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
       verify(service.httpWrapper, times(1)).post(any[String], capturedBody.capture, any[Map[String, String]])
@@ -48,7 +36,6 @@ class PayeMicroServiceSpec extends BaseSpec {
       capturedRemovedCarBenefit.revisedAmount mustBe grossAmount
       capturedRemovedCarBenefit.withdrawDate mustBe dateCarWithdrawn
       capturedRemovedCarBenefit.version mustBe version
-
     }
 
   }

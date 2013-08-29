@@ -1,7 +1,11 @@
-@(withdrawDate: String, oid: String)
+@(withdrawDate: String, kind: Int, oid: String)
+
+@import views.formatting.Strings._
+@import config.RefData._
+
 @main(title = "Benefit removed") {
 
-  <h2>Company car and fuel benefit removed</h2>
+  <h2>@sentenceStart(iabdTypeFor(kind)) removed</h2>
   <p>Thank you for telling us about the change to your company benefits.</p>
 
   <p>Your benefits have been removed from your employment from <span id="withdraw-date">@withdrawDate</span>.</p>

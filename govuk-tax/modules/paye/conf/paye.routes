@@ -4,5 +4,5 @@ GET     /benefits                                                       @control
 GET     /benefits/:kind/:year/:employmentSequenceNumber/remove                @controllers.paye.PayeController.benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int)
 POST    /benefits/:kind/:year/:employmentSequenceNumber/remove                @controllers.paye.PayeController.requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int)
 POST    /benefits/:kind/:year/:employmentSequenceNumber/confirm               @controllers.paye.PayeController.confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int)
-GET     /benefits/:year/:employmentSequenceNumber/confirmation/:oid           @controllers.paye.PayeController.benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String)
+GET     /benefits/:kind/confirmation/:oid                                    @controllers.paye.PayeController.benefitRemoved(kind: Int, oid: String)
 

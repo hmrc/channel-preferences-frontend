@@ -19,21 +19,13 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     httpGet[T](uri)
   }
 
-  def removeCarBenefit(nino: String, version: Int, benefit: Benefit, dateWithdrawn: LocalDate, revisedGrossAmount: BigDecimal): Option[TransactionId] = {
-    removeBenefit(benefit.actions("removeCar"), nino, version, benefit, dateWithdrawn, revisedGrossAmount)
-  }
-
-  def removeFuelBenefit(nino: String, version: Int, benefit: Benefit, dateWithdrawn: LocalDate, revisedGrossAmount: BigDecimal): Option[TransactionId] = {
-    removeBenefit(benefit.actions("removeFuel"), nino, version, benefit, dateWithdrawn, revisedGrossAmount)
-  }
-
-  private def removeBenefit(uri: String, nino: String,
+  def removeBenefit(uri: String, nino: String,
     version: Int,
     benefit: Benefit,
     dateCarWithdrawn: LocalDate,
     revisedGrossAmount: BigDecimal): Option[TransactionId] = {
     httpPost[TransactionId](
-      uri = benefit.actions("removeCar"),
+      uri,
       body = Json.parse(
         toRequestBody(
           RemoveBenefit(

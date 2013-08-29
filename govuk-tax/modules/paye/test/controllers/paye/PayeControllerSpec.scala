@@ -116,7 +116,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
   val acceptedTransactions = List(testTransaction1)
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
-    Map("updateCar" -> s"/paye/$nino/benefits/$year/$esn/update/car")
+    Map("removeCar" -> s"/paye/$nino/benefits/$year/$esn/update/cars")
   }
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
@@ -380,13 +380,13 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      when(controller.payeMicroService.removeCarBenefit(Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate](), Matchers.any[BigDecimal]())).thenReturn(Some(TransactionId("someId")))
+      when(controller.payeMicroService.removeBenefit(Matchers.any[String], Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate](), Matchers.any[BigDecimal]())).thenReturn(Some(TransactionId("someId")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
       val result = controller.confirmBenefitRemovalAction(31, johnDensmore,
         FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate), "revised_amount" -> "123.45"), 2013, 2)
 
-      verify(controller.payeMicroService, times(1)).removeCarBenefit("AB123456C", 22, carBenefit, withdrawDate, BigDecimal("123.45"))
+      verify(controller.payeMicroService, times(1)).removeBenefit("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", 22, carBenefit, withdrawDate, BigDecimal("123.45"))
 
       status(result) shouldBe 303
 

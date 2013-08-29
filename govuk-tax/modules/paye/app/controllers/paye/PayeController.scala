@@ -53,9 +53,9 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     val taxYear = currentTaxYear
     val benefits = user.regimes.paye.get.benefits(taxYear)
     val employments = user.regimes.paye.get.employments(taxYear)
-    val completedTransactions = user.regimes.paye.get.recentCompletedTransactions
+    val acceptedTransactions = user.regimes.paye.get.recentAcceptedTransactions
 
-    Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments, completedTransactions)))
+    Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments, acceptedTransactions)))
   }
 
   def benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
@@ -84,9 +84,15 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
         val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
         val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
 
-        Ok(remove_car_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
-          + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
-          + ("revised_amount", revisedAmount.toString()))
+        if (kind == 31) {
+          Ok(remove_car_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
+            + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
+            + ("revised_amount", revisedAmount.toString()))
+        } else {
+          Ok(remove_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
+            + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
+            + ("revised_amount", revisedAmount.toString()))
+        }
       }
     )
   }
@@ -102,21 +108,30 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     val payeRoot = user.regimes.paye.get
     val withdrawDate = request.session.get("withdraw_date").get
     val revisedAmount = request.session.get("revised_amount").get
-    val transactionId = payeMicroService.removeCarBenefit(payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
+    val uri = kind match {
+      case 31 => db.benefit.actions("removeCar")
+      case 29 => db.benefit.actions("removeFuel")
+      case _ => throw new IllegalArgumentException(s"No action uri found for benefit type ${kind}")
+    }
+    val transactionId = payeMicroService.removeBenefit(uri, payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
 
-    Redirect(routes.PayeController.benefitRemoved(year, employmentSequenceNumber, transactionId.get.oid))
+    Redirect(routes.PayeController.benefitRemoved(kind, transactionId.get.oid))
   }
 
-  def benefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+  def benefitRemoved(kind: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user =>
-      implicit request => benefitRemovedAction(user, request, oid)
+      implicit request => benefitRemovedAction(user, request, kind, oid)
   })
 
-  private[paye] val benefitRemovedAction: (User, Request[_], String) => play.api.mvc.Result = (user, request, oid) =>
+  private[paye] val benefitRemovedAction: (User, Request[_], Int, String) => play.api.mvc.Result = (user, request, kind, oid) =>
     if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-      Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+      if (kind == 31) {
+        Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
+      } else {
+        Ok(remove_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), kind, oid))
+      }
     }
 
   private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {
