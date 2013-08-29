@@ -58,6 +58,9 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
       }
     )
   }
+
+  def step: String = agentTypeAndLegalEntityFormName
+
 }
 
 case class AgentProfessionalBodyMembership(professionalBody: Option[String] = None, membershipNumber: Option[String] = None)

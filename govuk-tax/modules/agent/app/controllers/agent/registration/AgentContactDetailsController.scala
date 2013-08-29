@@ -45,6 +45,9 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
       }
     )
   }
+
+  def step: String = contactFormName
+
 }
 case class AgentContactDetails(daytimePhoneNumber: String = "", mobilePhoneNumber: String = "", emailAddress: String = "")
 

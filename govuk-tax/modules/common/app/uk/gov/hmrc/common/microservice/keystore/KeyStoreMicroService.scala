@@ -26,6 +26,10 @@ class KeyStoreMicroService(override val serviceUrl: String = MicroServiceConfig.
     httpDeleteAndForget(buildUri(id, source))
   }
 
-  def buildUri(id: String, source: String) = s"/keystore/${source}/${id}"
+  def getDataKeys(id: String, source: String): Option[Set[String]] = {
+    httpGet[Set[String]](buildUri(id, source) + "/data/keys")
+  }
+
+  private def buildUri(id: String, source: String) = s"/keystore/${source}/${id}"
 
 }

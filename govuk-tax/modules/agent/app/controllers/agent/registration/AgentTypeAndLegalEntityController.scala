@@ -40,6 +40,9 @@ class AgentTypeAndLegalEntityController extends MicroServices with BaseControlle
       }
     )
   }
+
+  def step: String = agentTypeAndLegalEntityFormName
+
 }
 case class AgentTypeAndLegalEntity(agentType: String, legalEntity: String)
 

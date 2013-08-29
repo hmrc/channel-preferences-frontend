@@ -14,10 +14,14 @@ abstract class TaxRegime {
 abstract class RegimeRoot
 
 case class User(user: String,
-  userAuthority: UserAuthority,
-  regimes: RegimeRoots,
-  nameFromGovernmentGateway: Option[String] = None,
-  decryptedToken: Option[String])
+    userAuthority: UserAuthority,
+    regimes: RegimeRoots,
+    nameFromGovernmentGateway: Option[String] = None,
+    decryptedToken: Option[String]) {
+
+  def oid: String = user.substring(user.lastIndexOf("/") + 1)
+
+}
 
 case class RegimeRoots(paye: Option[PayeRoot],
     sa: Option[SaRoot],

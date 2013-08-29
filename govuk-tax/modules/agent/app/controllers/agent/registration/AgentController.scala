@@ -9,6 +9,8 @@ trait AgentController {
   def registrationId(user: User) = "Registration:" + userId(user)
   def uar(user: User) = "UAR:" + userId(user)
 
+  def step: String
+
   val agent = "agent"
   val uar = "uar"
 }
@@ -18,4 +20,8 @@ object FormNames {
   val companyDetailsFormName = "companyDetailsForm"
   val agentTypeAndLegalEntityFormName = "agentTypeAndLegalEntityForm"
   val contactFormName = "contactForm"
+  val thankYouName = "thankYou"
+
+  val stepsOrder: List[String] = List(contactFormName, agentTypeAndLegalEntityFormName, companyDetailsFormName, professionalBodyMembershipFormName)
+
 }

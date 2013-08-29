@@ -3,11 +3,8 @@ package uk.gov.hmrc.common.microservice.keystore
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
 import play.api.test.{ FakeApplication, WithApplication }
-import uk.gov.hmrc.common.microservice.audit.{ AuditMicroService, AuditEvent }
 import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito._
 import play.api.libs.json.JsValue
-import org.joda.time.DateTime
 
 class TestKeyStoreMicroService extends KeyStoreMicroService {
   var body: JsValue = null
@@ -73,5 +70,19 @@ class KeyStoreMicroServiceSpec extends WordSpec with MustMatchers with MockitoSu
 
       keyStoreMicroService.uri must be("/keystore/aSource/anId")
     }
+
+    "call the key store service when getting the data keys" in new WithApplication(FakeApplication()) {
+
+      val keyStoreMicroService = new TestKeyStoreMicroService()
+
+      val id: String = "anId"
+      val source: String = "aSource"
+
+      keyStoreMicroService.getDataKeys(id, source)
+
+      keyStoreMicroService.uri must be("/keystore/aSource/anId/data/keys")
+
+    }
+
   }
 }

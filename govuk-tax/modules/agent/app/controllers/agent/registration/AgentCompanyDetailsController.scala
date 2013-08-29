@@ -74,6 +74,8 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
       }
     )
   }
+
+  def step: String = companyDetailsFormName
 }
 
 case class AgentCompanyDetails(companyName: String = "", tradingName: Option[String] = None, landlineNumber: Option[String] = None, mobileNumber: Option[String] = None,

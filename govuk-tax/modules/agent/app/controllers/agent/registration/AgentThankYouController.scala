@@ -4,6 +4,7 @@ import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseControlle
 import uk.gov.hmrc.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.microservice.domain.User
 import play.api.mvc.{ Result, Request }
+import controllers.agent.registration.FormNames._
 
 class AgentThankYouController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController {
 
@@ -17,4 +18,6 @@ class AgentThankYouController extends BaseController with SessionTimeoutWrapper 
     keyStoreMicroService.deleteKeyStore(uar(user), agent)
     Ok(views.html.agents.registration.thank_you_page(uarFound))
   }
+
+  def step: String = thankYouName
 }
