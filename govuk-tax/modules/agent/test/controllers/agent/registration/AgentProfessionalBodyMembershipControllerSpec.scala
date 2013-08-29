@@ -7,22 +7,9 @@ import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import play.api.test.Helpers._
-import play.api.test.FakeApplication
-import scala.Some
-import uk.gov.hmrc.common.microservice.agent.Agent
-import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import org.mockito.Matchers
 import controllers.agent.registration.FormNames._
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.domain.RegimeRoots
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.keystore.KeyStore
-import uk.gov.hmrc.common.microservice.agent.Agent
-import play.api.test.FakeApplication
-import scala.Some
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot

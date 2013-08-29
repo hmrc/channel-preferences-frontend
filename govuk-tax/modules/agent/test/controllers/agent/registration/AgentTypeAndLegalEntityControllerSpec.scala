@@ -2,11 +2,8 @@ package controllers.agent.registration
 
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
-import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
-import controllers.common.SessionTimeoutWrapper
+import play.api.test.{ FakeRequest, WithApplication }
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots

@@ -1,9 +1,6 @@
 package controllers.agent.registration
 
 import uk.gov.hmrc.microservice.domain.User
-import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.keystore.KeyStore
-import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 
 trait AgentController {
 

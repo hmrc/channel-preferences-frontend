@@ -2,10 +2,7 @@ package controllers.agent.registration
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
-import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import org.mockito.Mockito._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
