@@ -8,7 +8,7 @@ class AgentSroCheckControllerSpec extends BaseSpec with MockitoSugar {
 
   import play.api.test.Helpers._
 
-  private def controller = new AgentSroCheckController()
+  private val controller = new AgentSroCheckController()
 
   "The sro check page" should {
     "include two agreements" in new WithApplication(FakeApplication()) {

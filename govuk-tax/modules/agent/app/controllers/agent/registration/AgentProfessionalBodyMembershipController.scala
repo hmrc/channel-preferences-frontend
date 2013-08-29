@@ -1,15 +1,18 @@
 package controllers.agent.registration
 
-import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
-import play.api.mvc.Result
+import play.api.mvc.{ Request, Result }
 import uk.gov.hmrc.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
+import uk.gov.hmrc.microservice.domain.User
+import controllers.common.service.MicroServices
+import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 
-class AgentProfessionalBodyMembershipController extends AgentController with AgentMapper {
-  private val professionalBodyMembershipForm: Form[AgentProfessionalBodyMembership] = Form(
+class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with AgentMapper with MicroServices {
+
+  private val professionalBodyMembershipForm = Form[AgentProfessionalBodyMembership](
     mapping(
       AgentProfessionalBodyMembershipFormFields.professionalBodyMembership -> tuple(
         AgentProfessionalBodyMembershipFormFields.professionalBody -> optional(text.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
@@ -24,47 +27,36 @@ class AgentProfessionalBodyMembershipController extends AgentController with Age
       }
   )
 
-  def professionalBodyMembership =
-    AuthorisedForIdaAction(Some(PayeRegime)) {
-      user =>
-        request => {
-          professionalBodyMembershipFunction
-        }
-    }
+  def professionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => professionalBodyMembershipAction(user, request) } }
 
-  val professionalBodyMembershipFunction: Result = {
+  private[registration] val professionalBodyMembershipAction: (User, Request[_]) => Result = (user, request) => {
     val form = professionalBodyMembershipForm.fill(AgentProfessionalBodyMembership())
     Ok(views.html.agents.registration.professional_body_membership(form, Configuration.config.professionalBodyOptions))
   }
 
-  def postProfessionalBodyMembership =
-    WithSessionTimeoutValidation {
-      AuthorisedForIdaAction(Some(PayeRegime)) {
-        user =>
-          implicit request =>
-            professionalBodyMembershipForm.bindFromRequest.fold(
-              errors => {
-                println(errors)
-                BadRequest(views.html.agents.registration.professional_body_membership(errors, Configuration.config.professionalBodyOptions))
-              },
-              _ => {
-                val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest.data
-                saveFormToKeyStore(professionalBodyMembershipFormName, agentProfessionalBodyMembership, userId(user))
-                val keyStore = getKeyStore(userId(user))
-                keyStore match {
-                  case Some(x) => {
-                    val agentId = agentMicroService.create(toAgent(x)).get.uar.getOrElse("")
-                    deleteFromKeyStore(userId(user))
-                    Ok(agentId)
-                  }
-                  case _ => Redirect(routes.AgentContactDetailsController.contactDetails())
-                }
+  def postProfessionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => postProfessionalBodyMembershipAction(user, request) } }
 
-              }
-            )
+  private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => Result) = (user, request) => {
+    professionalBodyMembershipForm.bindFromRequest()(request).fold(
+      errors => {
+        BadRequest(views.html.agents.registration.professional_body_membership(errors, Configuration.config.professionalBodyOptions))
+      },
+      _ => {
+        val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest()(request).data
+        keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership)
+        val keyStore = keyStoreMicroService.getKeyStore(registrationId(user), agent)
+        keyStore match {
+          case Some(x) => {
+            val agentId = agentMicroService.create(toAgent(x)).get.uar.getOrElse("")
+            keyStoreMicroService.deleteKeyStore(registrationId(user), agent)
+            keyStoreMicroService.addKeyStoreEntry(uar(user), agent, "uar", Map[String, String]("uar" -> agentId))
+            Redirect(routes.AgentThankYouController.thankYou())
+          }
+          case _ => Redirect(routes.AgentContactDetailsController.contactDetails())
+        }
       }
-    }
-
+    )
+  }
 }
 
 case class AgentProfessionalBodyMembership(professionalBody: Option[String] = None, membershipNumber: Option[String] = None)

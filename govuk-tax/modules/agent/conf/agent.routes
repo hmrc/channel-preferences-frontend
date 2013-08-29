@@ -1,17 +1,19 @@
 # Agents
 
 GET         /home                           @controllers.agent.registration.AgentContactDetailsController.contactDetails
-POST        /contacts                       @controllers.agent.registration.AgentContactDetailsController.postContacts
+POST        /contacts                       @controllers.agent.registration.AgentContactDetailsController.postContactDetails
 
 GET         /reason-for-application         @controllers.agent.AgentSroCheckController.reasonForApplication
 GET         /sro-check                      @controllers.agent.AgentSroCheckController.sroCheck
 POST        /sro-check                      @controllers.agent.AgentSroCheckController.submitAgreement
 
 GET         /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.agentType
-POST        /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.postDetails
+POST        /agent-type                     @controllers.agent.registration.AgentTypeAndLegalEntityController.postAgentType
 
 GET         /company-details                @controllers.agent.registration.AgentCompanyDetailsController.companyDetails
 POST        /company-details                @controllers.agent.registration.AgentCompanyDetailsController.postCompanyDetails
 
 GET         /professional-body-membership   @controllers.agent.registration.AgentProfessionalBodyMembershipController.professionalBodyMembership
 POST        /professional-body-membership   @controllers.agent.registration.AgentProfessionalBodyMembershipController.postProfessionalBodyMembership
+
+GET         /thank-you                      @controllers.agent.registration.AgentThankYouController.thankYou

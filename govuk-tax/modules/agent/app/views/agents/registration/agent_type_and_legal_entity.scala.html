@@ -6,7 +6,7 @@
 
     <h2>Agent type and Legal entity</h2>
 
-    @helper.form(action = agent.registration.routes.AgentTypeAndLegalEntityController.postDetails) {
+    @helper.form(action = agent.registration.routes.AgentTypeAndLegalEntityController.postAgentType) {
 
         @helpers.radioGroup(agentForm(legalEntity),
             conf.legalEntityOptions,

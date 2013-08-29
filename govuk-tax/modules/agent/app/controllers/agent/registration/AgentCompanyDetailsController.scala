@@ -2,17 +2,20 @@ package controllers.agent.registration
 
 import scala.Some
 import uk.gov.hmrc.microservice.paye.domain.PayeRegime
-import play.api.mvc.Result
+import play.api.mvc.{ Request, Result }
 import controllers.agent.registration.FormNames._
 import AgentCompanyDetailsFormFields._
 import play.api.data.Forms._
 import play.api.data._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.Address
+import uk.gov.hmrc.microservice.domain.User
+import controllers.common.service.MicroServices
+import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 
-class AgentCompanyDetailsController extends AgentController with Validators {
+class AgentCompanyDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators with MicroServices {
 
-  private val companyDetailsForm: Form[AgentCompanyDetails] = Form(
+  private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
       AgentCompanyDetailsFormFields.companyName -> nonEmptyText,
       tradingName -> optional(text),
@@ -50,36 +53,27 @@ class AgentCompanyDetailsController extends AgentController with Validators {
       }
   )
 
-  def companyDetails =
-    AuthorisedForIdaAction(Some(PayeRegime)) {
-      user =>
-        request => {
-          companyDetailsFunction
-        }
-    }
+  def companyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => companyDetailsAction(user, request) } }
 
-  val companyDetailsFunction: Result = {
+  private[registration] val companyDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     val form = companyDetailsForm.fill(AgentCompanyDetails())
     Ok(views.html.agents.registration.company_details(form))
   }
 
-  def postCompanyDetails =
-    WithSessionTimeoutValidation {
-      AuthorisedForIdaAction(Some(PayeRegime)) {
-        user =>
-          implicit request =>
-            companyDetailsForm.bindFromRequest.fold(
-              errors => {
-                BadRequest(views.html.agents.registration.company_details(errors))
-              },
-              _ => {
-                val agentCompanyDetails = companyDetailsForm.bindFromRequest.data
-                saveFormToKeyStore(companyDetailsFormName, agentCompanyDetails, userId(user))
-                Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership)
-              }
-            )
+  def postCompanyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => postCompanyDetailsAction(user, request) } }
+
+  private[registration] val postCompanyDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
+    companyDetailsForm.bindFromRequest()(request).fold(
+      errors => {
+        BadRequest(views.html.agents.registration.company_details(errors))
+      },
+      _ => {
+        val agentCompanyDetails = companyDetailsForm.bindFromRequest()(request).data
+        keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, companyDetailsFormName, agentCompanyDetails)
+        Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership)
       }
-    }
+    )
+  }
 }
 
 case class AgentCompanyDetails(companyName: String = "", tradingName: Option[String] = None, landlineNumber: Option[String] = None, mobileNumber: Option[String] = None,

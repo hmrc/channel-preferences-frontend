@@ -7,17 +7,42 @@ import org.jsoup.Jsoup
 import controllers.common.SessionTimeoutWrapper
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.test.Helpers._
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
+import org.mockito.Mockito._
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import play.api.test.FakeApplication
+import scala.Some
+import org.mockito.Matchers
+import controllers.agent.registration.FormNames._
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import play.api.test.FakeApplication
+import scala.Some
+import org.mockito.Matchers._
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import play.api.test.FakeApplication
+import scala.Some
 
-class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar with MockAuthentication {
+class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
-  private def controller = new AgentContactDetailsController with MockMicroServicesForTests {
-    override lazy val authMicroService = mockAuthMicroService
-    override lazy val payeMicroService = mockPayeMicroService
-  }
+  val id = "wshakespeare"
+  val authority = s"/auth/oid/$id"
+  val uri = "/personal/paye/blah"
+
+  val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map())
+  val user = User(id, null, RegimeRoots(Some(payeRoot), None, None), None, None)
+
+  private val controller = new AgentContactDetailsController with MockMicroServicesForTests
 
   "The contact details page" should {
     "display known agent info" in new WithApplication(FakeApplication()) {
-      val result = controller.contactDetailsFunction(user, null)
+      val result = controller.contactDetailsAction(user, null)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#title").first().`val` should be("Mr")
@@ -29,45 +54,61 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar with 
     }
 
     "not go to the next step if phone number is missing" in new WithApplication(FakeApplication()) {
-      val result = controller.postContacts()(newRequestForContactDetails("", "07777777777", "email@company.com"))
+      controller.resetAll
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("", "07777777777", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
+      verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if mobile number is missing" in new WithApplication(FakeApplication()) {
-      val result = controller.postContacts()(newRequestForContactDetails("07777777777", "", "email@company.com"))
+      controller.resetAll
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
+      verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if phone number is not a number" in new WithApplication(FakeApplication()) {
-      val result = controller.postContacts()(newRequestForContactDetails("a", "07777777777", "email@company.com"))
+      controller.resetAll
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("a", "07777777777", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
+      verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if mobile number is not a number" in new WithApplication(FakeApplication()) {
-      val result = controller.postContacts()(newRequestForContactDetails("07777777777", "a", "email@company.com"))
+      controller.resetAll
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "a", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
+      verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if email address is missing" in new WithApplication(FakeApplication()) {
-      val result = controller.postContacts()(newRequestForContactDetails("07777777777", "0777777777", ""))
+      controller.resetAll
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
+      verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if email address is invalid" in new WithApplication(FakeApplication()) {
-      val result = controller.postContacts()(newRequestForContactDetails("07777777777", "0777777777", "a@"))
+      controller.resetAll
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "a@"))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
+      verifyZeroInteractions(controller.keyStoreMicroService)
+    }
+
+    "go to the next step if email address is valid and store result in keystore" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "a@a.a"))
+      status(result) shouldBe 303
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), any[Map[String, Any]]())
     }
   }
 
   def newRequestForContactDetails(daytimePhoneNumber: String, mobilePhoneNumber: String, emailAddress: String) =
     FakeRequest().withFormUrlEncodedBody("daytimePhoneNumber" -> daytimePhoneNumber, "mobilePhoneNumber" -> mobilePhoneNumber, "emailAddress" -> emailAddress)
-      .withSession("userId" -> controller.encrypt(authority), "name" -> controller.encrypt("Will Shakespeare"),
-        SessionTimeoutWrapper.sessionTimestampKey -> controller.now().getMillis.toString)
-
 }

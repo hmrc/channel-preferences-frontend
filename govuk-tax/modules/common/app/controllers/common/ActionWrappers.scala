@@ -17,7 +17,7 @@ trait HeaderNames {
   val forwardedFor = "x-forwarded-for"
 }
 
-trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames with HeaderActionWrapper with AuditActionWrapper {
+trait ActionWrappers extends CookieEncryption with HeaderNames with HeaderActionWrapper with AuditActionWrapper {
   self: Controller =>
 
   private[ActionWrappers] def act(userId: String, token: Option[String], request: Request[AnyContent], taxRegime: Option[TaxRegime], action: (User) => (Request[AnyContent]) => Result): Result = {

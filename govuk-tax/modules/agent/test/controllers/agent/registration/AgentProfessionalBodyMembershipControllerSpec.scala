@@ -3,95 +3,110 @@ package controllers.agent.registration
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.paye.PayeMicroService
-import controllers.common.SessionTimeoutWrapper
-import uk.gov.hmrc.microservice.auth.AuthMicroService
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-import java.net.URI
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.microservice.auth.domain.Regimes
 import play.api.test.FakeApplication
 import scala.Some
-import uk.gov.hmrc.common.microservice.agent.{ AgentMicroService, Agent }
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.agent.Agent
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import org.scalatest.BeforeAndAfterEach
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
+import org.mockito.Matchers
+import controllers.agent.registration.FormNames._
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.keystore.KeyStore
+import uk.gov.hmrc.common.microservice.agent.Agent
+import play.api.test.FakeApplication
+import scala.Some
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.keystore.KeyStore
+import uk.gov.hmrc.common.microservice.agent.Agent
+import play.api.test.FakeApplication
+import scala.Some
 
-class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar with BeforeAndAfterEach with MockAuthentication {
+class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar with BeforeAndAfterEach {
 
-  var mockAgentMicroService = mock[AgentMicroService]
-  var mockAgent = mock[Agent]
-  var mockKeyStoreMicroService = mock[KeyStoreMicroService]
-  var mockKeyStore = mock[KeyStore]
+  val id = "wshakespeare"
+  val authority = s"/auth/oid/$id"
+  val uri = "/personal/paye/blah"
 
-  private def controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests {
-    override lazy val authMicroService = mockAuthMicroService
-    override lazy val payeMicroService = mockPayeMicroService
-    override lazy val keyStoreMicroService = mockKeyStoreMicroService
-    override lazy val agentMicroService = mockAgentMicroService
+  val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map())
+  val user = User(id, null, RegimeRoots(Some(payeRoot), None, None), None, None)
 
+  val mockAgent = mock[Agent]
+  val mockKeyStore = mock[KeyStore]
+
+  private val controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests {
     override def toAgent(implicit keyStore: KeyStore) = {
       mockAgent
     }
   }
 
-  override def beforeEach() = {
-    mockAuthMicroService = mock[AuthMicroService]
-    mockPayeMicroService = mock[PayeMicroService]
-    mockAgentMicroService = mock[AgentMicroService]
-    mockAgent = mock[Agent]
-    mockKeyStoreMicroService = mock[KeyStoreMicroService]
-    mockKeyStore = mock[KeyStore]
-
-    when(mockPayeMicroService.root(uri)).thenReturn(payeRoot)
-    when(mockAuthMicroService.authority(anyString())).thenReturn(Some(UserAuthority(authority, Regimes(paye = Some(URI.create(uri))))))
-    when(mockAgentMicroService.create(any[Agent])).thenReturn(Some(mockAgent))
-    when(mockKeyStoreMicroService.getKeyStore(anyString(), anyString())).thenReturn(Some(mockKeyStore))
-    when(mockAgent.uar).thenReturn(Some("12324"))
-    doNothing().when(mockKeyStoreMicroService).deleteKeyStore(anyString(), anyString())
-    when(mockKeyStore.get(anyString())).thenReturn(Some(Map.empty[String, String]))
-  }
-
   "AgentProfessionalMembershipController" should {
     "not go to the next step if professional body is specified but not the membership number" in new WithApplication(FakeApplication()) {
-      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", ""))
+      controller.resetAll
+      val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify a membership number for your professional body")
+      verifyZeroInteractions(controller.keyStoreMicroService, controller.agentMicroService)
     }
 
     "not go to the next step if professional body is invalid" in new WithApplication(FakeApplication()) {
-      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("sad", ""))
+      controller.resetAll
+      val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("sad", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("Please select a valid option")
+      verifyZeroInteractions(controller.keyStoreMicroService, controller.agentMicroService)
     }
 
     "not go to the next step if membership number is specified but not the professional body" in new WithApplication(FakeApplication()) {
-      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("", "asdsafd"))
+      controller.resetAll
+      val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", "asdsafd"))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify which professional body you belong to")
+      verifyZeroInteractions(controller.keyStoreMicroService, controller.agentMicroService)
     }
 
     "go to the next step if no input data is entered" in new WithApplication(FakeApplication()) {
-      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("", ""))
-      status(result) shouldBe 200
-      verify(mockAgentMicroService).create(mockAgent)
-      verify(mockKeyStoreMicroService).deleteKeyStore("Registration:wshakespeare", "agent")
+      controller.resetAll
+      mockKeyStoreAndAgent
+      val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", ""))
+      status(result) shouldBe 303
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(professionalBodyMembershipFormName), any[Map[String, Any]]())
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(s"UAR:$id", "agent", "uar", Map[String, Any]("uar" -> "12324"))
+      verify(controller.keyStoreMicroService).getKeyStore(s"Registration:$id", "agent")
+      verify(controller.agentMicroService).create(mockAgent)
+      verify(controller.keyStoreMicroService).deleteKeyStore(s"Registration:$id", "agent")
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
-      val result = controller.postProfessionalBodyMembership()(newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
-      status(result) shouldBe 200
-      verify(mockAgentMicroService).create(mockAgent)
-      verify(mockKeyStoreMicroService).deleteKeyStore("Registration:wshakespeare", "agent")
+      controller.resetAll
+      mockKeyStoreAndAgent
+      val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
+      status(result) shouldBe 303
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(professionalBodyMembershipFormName), any[Map[String, Any]]())
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(s"UAR:$id", "agent", "uar", Map[String, Any]("uar" -> "12324"))
+      verify(controller.keyStoreMicroService).getKeyStore(s"Registration:$id", "agent")
+      verify(controller.agentMicroService).create(mockAgent)
+      verify(controller.keyStoreMicroService).deleteKeyStore(s"Registration:$id", "agent")
     }
+  }
+
+  def mockKeyStoreAndAgent = {
+    when(controller.agentMicroService.create(any[Agent])).thenReturn(Some(mockAgent))
+    when(controller.keyStoreMicroService.getKeyStore(anyString(), anyString())).thenReturn(Some(mockKeyStore))
+    when(mockAgent.uar).thenReturn(Some("12324"))
+    doNothing().when(controller.keyStoreMicroService).deleteKeyStore(anyString(), anyString())
+    when(mockKeyStore.get(anyString())).thenReturn(Some(Map.empty[String, String]))
   }
 
   def newRequestForProfessionalBodyMembership(professionalBody: String, membershipNumber: String) =
     FakeRequest().withFormUrlEncodedBody("professionalBodyMembership.professionalBody" -> professionalBody, "professionalBodyMembership.membershipNumber" -> membershipNumber)
-      .withSession("userId" -> controller.encrypt(authority), "name" -> controller.encrypt("Will Shakespeare"),
-        SessionTimeoutWrapper.sessionTimestampKey -> controller.now().getMillis.toString)
-
 }

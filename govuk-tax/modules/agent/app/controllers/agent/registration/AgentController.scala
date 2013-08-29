@@ -5,21 +5,15 @@ import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 
-trait AgentController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers {
+trait AgentController {
 
   def userId(user: User) = { user.user.substring(user.user.lastIndexOf("/") + 1) }
 
-  def saveFormToKeyStore(formName: String, formData: Map[String, Any], userId: String) {
-    keyStoreMicroService.addKeyStoreEntry("Registration:" + userId, "agent", formName, formData)
-  }
+  def registrationId(user: User) = "Registration:" + userId(user)
+  def uar(user: User) = "UAR:" + userId(user)
 
-  def getKeyStore(userId: String): Option[KeyStore] = {
-    keyStoreMicroService.getKeyStore("Registration:" + userId, "agent")
-  }
-
-  def deleteFromKeyStore(userId: String) = {
-    keyStoreMicroService.deleteKeyStore("Registration:" + userId, "agent")
-  }
+  val agent = "agent"
+  val uar = "uar"
 }
 
 object FormNames {
