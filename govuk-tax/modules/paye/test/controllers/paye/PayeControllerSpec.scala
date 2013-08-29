@@ -234,7 +234,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(userWithRemovedCarEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(userWithRemovedCarBenefits)
-      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/COMPLETED/.*"))).thenReturn(Some(acceptedTransactions))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
 
       val result = requestBenefitsAction(userWithRemovedCar)
       println(result)
@@ -390,7 +390,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
 
       status(result) shouldBe 303
 
-      headers(result).get("Location") mustBe Some("/benefits/2013/2/confirmation/someId")
+      headers(result).get("Location") mustBe Some("/benefits/31/confirmation/someId")
 
     }
 
@@ -402,7 +402,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       when(controller.txQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(Some(transaction))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val result = controller.benefitRemovedAction(johnDensmore, FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate)), "123")
+      val result = controller.benefitRemovedAction(johnDensmore, FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate)), 31, "123")
 
       status(result) shouldBe 200
       contentAsString(result) must include("123")
@@ -416,7 +416,7 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       when(controller.txQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(None)
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val result = controller.benefitRemovedAction(johnDensmore, FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate)), "123")
+      val result = controller.benefitRemovedAction(johnDensmore, FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate)), 31, "123")
 
       status(result) shouldBe 404
 
