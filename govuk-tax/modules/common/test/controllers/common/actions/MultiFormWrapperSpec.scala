@@ -1,9 +1,8 @@
 package controllers.common.actions
 
-import play.api.mvc.Controller
+import play.api.mvc.{Call, Controller}
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.domain.User
-import controllers.common.routes
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
@@ -13,17 +12,50 @@ import play.api.test.Helpers._
 
 class MultiFormController extends Controller with MultiFormWrapper with MockMicroServicesForTests {
 
+  val call1: Call = mock[Call]
+  val call2: Call = mock[Call]
+  val call3: Call = mock[Call]
+
   def multiformConfiguration(user: User) = {
     MultiFormConfiguration(
-      "userId", "source", List("step1", "step2", "step3"), "step3", routes.LoginController.login
+      "userId",
+      "source",
+      List(
+        MultiFormStep("step1", call1),
+        MultiFormStep("step2", call2),
+        MultiFormStep("step3", call3)
+      ),
+      "step3",
+      MultiFormStep("step1", call1)
     )
   }
 
-  def test() =
+  def multiformConfigurationHomePage(user: User) = {
+    MultiFormConfiguration(
+      "userId",
+      "source",
+      List(
+        MultiFormStep("step1", call1),
+        MultiFormStep("step2", call2),
+        MultiFormStep("step3", call3)
+      ),
+      "step1",
+      MultiFormStep("step1", call1)
+    )
+  }
+
+  def testJumpAhead() =
     MultiFormAction(user => multiformConfiguration(user)) {
       user =>
         request =>
           Ok("You are in step 3!")
+    }
+
+  def testHomePage() =
+    MultiFormAction(user => multiformConfigurationHomePage(user)) {
+      user =>
+        request =>
+          Ok("You are in home page")
     }
 }
 
@@ -31,48 +63,60 @@ class MultiFormWrapperSpec extends WordSpec with MustMatchers with MockitoSugar 
 
   "MultiformWrapper" should {
 
-    "go to the login controller when keystore does not exist" in new WithApplication(FakeApplication()) {
+    "redirect to step1 when keystore does not exist and user attempts to go to step3" in new WithApplication(FakeApplication()) {
+      val user: User = mock[User]
+      val controller = new MultiFormController
+      when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(None)
+      when(controller.call1.url).thenReturn("/step1")
 
+      val result = controller.testJumpAhead()(user)(FakeRequest())
+      status(result) must be(303)
+      headers(result)("Location") must be("/step1")
+    }
+
+    "allow access to step1 when user tries to access it for the first time and key store does not exist" in new WithApplication(FakeApplication()) {
       val user: User = mock[User]
       val controller = new MultiFormController
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(None)
 
-      val result = controller.test()(user)(FakeRequest())
-      status(result) must be(303)
-      headers(result)("Location") must be("/login")
+      val result = controller.testHomePage()(user)(FakeRequest())
+      status(result) must be(200)
+      contentAsString(result) must be("You are in home page")
     }
 
-    "go to the login controller when keystore exists but the data keys set is empty" in new WithApplication(FakeApplication()) {
+    "redirect to step1 when keystore exists but the data keys set is empty" in new WithApplication(FakeApplication()) {
 
       val user: User = mock[User]
       val controller = new MultiFormController
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set.empty[String]))
+      when(controller.call1.url).thenReturn("/step1")
 
-      val result = controller.test()(user)(FakeRequest())
+      val result = controller.testJumpAhead()(user)(FakeRequest())
       status(result) must be(303)
-      headers(result)("Location") must be("/login")
+      headers(result)("Location") must be("/step1")
     }
 
-    "go to the home controller when keystore exists and the previous steps were completed" in new WithApplication(FakeApplication()) {
+    "go to step3 when keystore exists and the previous steps were completed" in new WithApplication(FakeApplication()) {
 
       val user: User = mock[User]
       val controller = new MultiFormController
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set("step1", "step2")))
 
-      val result = controller.test()(user)(FakeRequest())
+      val result = controller.testJumpAhead()(user)(FakeRequest())
       status(result) must be(200)
       contentAsString(result) must be("You are in step 3!")
     }
 
-    "go to the login controller when keystore exists but the previous steps were not completed" in new WithApplication(FakeApplication()) {
+    "redirect to step2 when trying to go to step3 and in keystore only step1 was completed" in new WithApplication(FakeApplication()) {
 
       val user: User = mock[User]
       val controller = new MultiFormController
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set("step1")))
+      when(controller.call2.url).thenReturn("/step2")
 
-      val result = controller.test()(user)(FakeRequest())
+      val result = controller.testJumpAhead()(user)(FakeRequest())
       status(result) must be(303)
-      headers(result)("Location") must be("/login")
+      headers(result)("Location") must be("/step2")
     }
 
   }

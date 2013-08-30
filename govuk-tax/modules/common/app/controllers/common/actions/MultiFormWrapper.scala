@@ -16,23 +16,25 @@ trait MultiFormWrapper extends MicroServices with CookieEncryption with HeaderNa
         implicit request =>
           val conf = config(user)
           keyStoreMicroService.getDataKeys(conf.id, conf.source) match {
-            case None => Redirect(conf.unauthorisedStep)
+            case None => if (conf.currentStep == conf.stepsList.head.stepName) action(user)(request) else Redirect(conf.unauthorisedStep.stepCall)
             case Some(dataKeys) =>
-              if (dataKeys.isEmpty) Redirect(conf.unauthorisedStep)
-              else {
-                val previousSteps = conf.stepsList.takeWhile(x => x != conf.currentStep).toSet
-                if (dataKeys.intersect(previousSteps) == previousSteps) {
-                  action(user)(request)
-                } else {
-                  Redirect(conf.unauthorisedStep)
-                }
-              }
+              val next = nextStep(conf.stepsList, dataKeys)
+              if (next.stepName == conf.currentStep) action(user)(request)
+              else Redirect(next.stepCall)
           }
+    }
+  }
 
+  private def nextStep(stepsList: List[MultiFormStep], dataKeys: Set[String]): MultiFormStep = {
+    stepsList match {
+      case step :: Nil => step
+      case step :: steps => if (!dataKeys.contains(step.stepName)) step else nextStep(steps, dataKeys)
     }
   }
 
 }
 
-case class MultiFormConfiguration(id: String, source: String, stepsList: List[String], currentStep: String, unauthorisedStep: Call)
+case class MultiFormConfiguration(id: String, source: String, stepsList: List[MultiFormStep], currentStep: String, unauthorisedStep: MultiFormStep)
+
+case class MultiFormStep(stepName: String, stepCall: Call)
 

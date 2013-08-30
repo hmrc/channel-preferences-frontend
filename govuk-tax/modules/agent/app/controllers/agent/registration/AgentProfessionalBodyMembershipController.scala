@@ -12,7 +12,7 @@ import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseControlle
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
 
-class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with AgentMapper with MicroServices with Validators with MultiFormWrapper {
+class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with MicroServices with Validators with MultiFormWrapper {
 
   private val professionalBodyMembershipForm = Form[AgentProfessionalBodyMembership](
     mapping(
@@ -46,21 +46,12 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
       _ => {
         val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest()(request).data
         keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership)
-        val keyStore = keyStoreMicroService.getKeyStore(registrationId(user), agent)
-        keyStore match {
-          case Some(x) => {
-            val agentId = agentMicroService.create(toAgent(x)).get.uar.getOrElse("")
-            keyStoreMicroService.deleteKeyStore(registrationId(user), agent)
-            keyStoreMicroService.addKeyStoreEntry(uar(user), agent, "uar", Map[String, String]("uar" -> agentId))
-            Redirect(routes.AgentThankYouController.thankYou())
-          }
-          case _ => Redirect(routes.AgentContactDetailsController.contactDetails())
-        }
+        Redirect(routes.AgentThankYouController.thankYou())
       }
     )
   }
 
-  def step: String = agentTypeAndLegalEntityFormName
+  def step: String = professionalBodyMembershipFormName
 
 }
 

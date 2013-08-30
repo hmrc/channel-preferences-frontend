@@ -12,8 +12,9 @@ import controllers.agent.registration.FormNames._
 import AgentContactDetailsFormFields._
 import controllers.common.validators.Validators
 import controllers.common.service.MicroServices
+import controllers.common.actions.MultiFormWrapper
 
-class AgentContactDetailsController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators {
+class AgentContactDetailsController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators with MultiFormWrapper {
 
   private val contactForm = Form[AgentContactDetails](
     mapping(
@@ -23,7 +24,7 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )
 
-  def contactDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => contactDetailsAction(user, request) } }
+  def contactDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => contactDetailsAction(user, request) } } }
 
   private[registration] val contactDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     val paye: PayeRoot = user.regimes.paye.get
