@@ -5,11 +5,9 @@ import controllers.common.actions.MultiFormConfiguration
 
 trait AgentController {
 
-  def userId(user: User) = { user.user.substring(user.user.lastIndexOf("/") + 1) }
+  def registrationId(user: User) = "Registration:" + user.oid
 
-  def registrationId(user: User) = "Registration:" + userId(user)
-
-  def uar(user: User) = "UAR:" + userId(user)
+  def uar(user: User) = "UAR:" + user.oid
 
   def multiFormConfig(user: User): MultiFormConfiguration = MultiFormConfiguration(registrationId(user), agent, FormNames.stepsOrder, step, routes.AgentContactDetailsController.contactDetails())
 
