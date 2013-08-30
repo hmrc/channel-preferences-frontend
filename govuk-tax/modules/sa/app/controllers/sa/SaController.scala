@@ -20,11 +20,9 @@ import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import play.api.mvc.{ Result, Request }
 import uk.gov.hmrc.microservice.domain.User
 import controllers.common.validators.{ characterValidator, Validators }
+import scala.util.Left
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
-
-case class ChangeAddressForm(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
-  addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
 
@@ -62,8 +60,8 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2.getOrElse("")) || (notBlank(optionalLines._1.getOrElse("")) && notBlank(optionalLines._2.getOrElse("")))),
       "postcode" -> text
         .verifying("error.sa.postcode.mandatory", notBlank _)
-        .verifying("error.sa.postcode.lengthviolation", isPostcodeLengthValid(_))
-        .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters(_))
+        .verifying("error.sa.postcode.lengthviolation", isPostcodeLengthValid _)
+        .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters _)
     ) {
         (additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines, postcode) => ChangeAddressForm(additionalDeliveryInfo, Some(addressLine1), Some(addressLine2), optionalAddressLines._1, optionalAddressLines._2, Some(postcode))
       } {
@@ -151,10 +149,13 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
   private[sa] def submitConfirmChangeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
     changeAddressForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_personal_details_update(errors)),
-      formData => { //user.userAuthority.utr
+      formData => {
         val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
-        val transactionId = saMicroService.updateMainAddress(uri, formData.additionalDeliveryInfo, formData.addressLine1.get, formData.addressLine2.get, formData.addressLine3, formData.addressLine4, formData.postcode)
-        Ok(sa_personal_details_confirmation_receipt(transactionId.get))
+
+        saMicroService.updateMainAddress(uri, formData.toUpdateAddress) match {
+          case Left(errorMessage: String) => Ok(sa_personal_details_update_failed(errorMessage))
+          case Right(transactionId: TransactionId) => Ok(sa_personal_details_confirmation_receipt(transactionId))
+        }
       }
     )
   }

@@ -1,0 +1,22 @@
+@(errorMessage: String)
+@main(title = "My Details - Update Main Address Error") {
+
+<h2 xmlns="http://www.w3.org/1999/html">My Details</h2>
+<div id="sa-details">
+
+    <p>
+        Sorry, we are unable to update your details at this time.
+    </p>
+
+    <p>
+        @errorMessage
+    </p>
+
+    <p>
+        <a href="@controllers.sa.routes.SaController.details">Back to your details</a>
+    </p>
+
+
+</div>
+
+}

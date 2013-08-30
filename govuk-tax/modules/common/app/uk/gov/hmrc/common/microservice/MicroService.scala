@@ -1,7 +1,6 @@
 package uk.gov.hmrc.microservice
 
 import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
 import play.api.libs.ws.{ Response, WS }
 import play.api.http.Status
 import controllers.common.domain.Transform._
@@ -12,7 +11,6 @@ import scala.concurrent.Future
 import uk.gov.hmrc.microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
 import org.slf4j.MDC
-import play.api.libs.ws.WS.WSRequestHolder
 import controllers.common.HeaderNames
 
 trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
@@ -66,6 +64,11 @@ trait MicroService extends Status with HeaderNames {
   protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
     Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  }
+
+  protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
+    val wsResource = httpResource(uri)
+    Await.result(wsResource.withHeaders(headers.toSeq: _*).post(body), MicroServiceConfig.defaultTimeoutDuration)
   }
 
   protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {

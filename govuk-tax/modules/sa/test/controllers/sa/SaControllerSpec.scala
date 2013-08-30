@@ -18,7 +18,6 @@ import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
-import scala.Some
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
@@ -28,7 +27,7 @@ import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import org.scalatest.BeforeAndAfterEach
-import controllers.common.validators.characterValidator
+import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
@@ -52,8 +51,8 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     User(id, ua, RegimeRoots(None, Some(saRoot), None), Some(nameFromGovernmentGateway), None)
   }
 
-  val nameFromSa = "Geoff Fisher From SA"
-  val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
+  private val nameFromSa = "Geoff Fisher From SA"
+  private val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
 
   val geoffFisher = setupUser("/auth/oid/gfisher", "123456789012", "Geoff Fisher", nameFromGovernmentGateway)
 
@@ -126,7 +125,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(204)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe ("")
+      htmlBody mustBe ""
     }
 
     "return 200 and HTML code when no preferences have yet been stored" in new WithApplication(FakeApplication()) {
@@ -140,7 +139,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe (saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs"))
+      htmlBody mustBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
     }
 
     "return 200 and HTML code when no preferences for sa have yet been stored" in new WithApplication(FakeApplication()) {
@@ -154,7 +153,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe (saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs"))
+      htmlBody mustBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
     }
 
     "return 204 and no body when sa preferences for printing have already been stored" in new WithApplication(FakeApplication()) {
@@ -168,7 +167,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(204)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe ("")
+      htmlBody mustBe ""
     }
 
     "return 400 if the json body timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {
@@ -210,7 +209,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
   "Print preferences detail page for submit " should {
 
-    " show the email address error message the email is missing but print suppression is set to yes" in new WithApplication(FakeApplication()) {
+    "show the email address error message the email is missing but print suppression is set to yes" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "true"))
@@ -221,7 +220,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
     }
 
-    " show the email address error message the email structure is invalid " in new WithApplication(FakeApplication()) {
+    "show the email address error message the email structure is invalid" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.email" -> "some@user@test.com", "prefs.suppressPrinting" -> "true"))
@@ -232,7 +231,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
     }
 
-    " call the auth service to persist the preference data if the data entered is valid with print suppression and email supplied" in new WithApplication(FakeApplication()) {
+    "call the auth service to persist the preference data if the data entered is valid with print suppression and email supplied" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val emailAddress = "someuser@test.com"
@@ -247,7 +246,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       redirectLocation(result).get shouldBe redirectUrl
     }
 
-    " call the auth service to persist the preference data if the data entered is valid with print suppression false and no email address supplied" in new WithApplication(FakeApplication()) {
+    "call the auth service to persist the preference data if the data entered is valid with print suppression false and no email address supplied" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val emailAddress = "someuser@test.com"
@@ -267,6 +266,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   }
 
   "Change Address Page " should {
+
     "render a form with address fields to be entered when a user is logged in and authorised for SA" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
@@ -280,9 +280,9 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       htmlBody should include("addressLine2")
       htmlBody should include("addressLine3")
       htmlBody should include("addressLine4")
-      htmlBody should not include ("addressLine5")
+      htmlBody should not include "addressLine5"
       htmlBody should include("postcode")
-      htmlBody should not include ("country")
+      htmlBody should not include "country"
     }
   }
 
@@ -385,7 +385,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
   val expectedInvalidCharacterErrorMessageForAddress = """This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 -  , / &amp; space"""
 
   "Submit Change Address Page " should {
-    " show the address line 1 error message if it is missing " in new WithApplication(FakeApplication()) {
+    "show the address line 1 error message if it is missing" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("addressLine1" -> "", "addressLine2" -> "addressline2data"))
@@ -396,7 +396,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       changeAddressSource should include("Address Line 1 is required")
     }
 
-    " show the address line 1 error message if the data is greater than 28 characters " in new WithApplication(FakeApplication()) {
+    "show the address line 1 error message if the data is greater than 28 characters" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher,
@@ -408,7 +408,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       changeAddressSource should include("This address line field must not be greater than 28 characters")
     }
 
-    " show the address line 2 error message if the data is greater than 28 characters " in new WithApplication(FakeApplication()) {
+    "show the address line 2 error message if the data is greater than 28 characters" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
@@ -420,7 +420,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       changeAddressSource should include("This address line field must not be greater than 28 characters")
     }
 
-    " show the address line 3 error message if the data is greater than 18 characters " in new WithApplication(FakeApplication()) {
+    "show the address line 3 error message if the data is greater than 18 characters" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
@@ -432,7 +432,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       changeAddressSource should include("This address line field must not be greater than 18 characters")
     }
 
-    " show the address line 4 error message if the data is greater than 18 characters " in new WithApplication(FakeApplication()) {
+    "show the address line 4 error message if the data is greater than 18 characters" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
@@ -444,7 +444,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       changeAddressSource should include("This address line field must not be greater than 18 characters")
     }
 
-    " show the address line 2 error message if it is missing " in new WithApplication(FakeApplication()) {
+    "show the address line 2 error message if it is missing" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
@@ -456,7 +456,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       changeAddressSource should include("Address Line 2 is required")
     }
 
-    " show the address line 3 error message when address line 4 is present " in new WithApplication(FakeApplication()) {
+    "show the address line 3 error message when address line 4 is present" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val result = controller.submitChangeAddressFormAction(geoffFisher, FakeRequest()
@@ -556,33 +556,34 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       // Assert hidden form
       htmlBody should include("""form action="/changeAddressConfirm" method="POST"""")
-      htmlBody should include(s"""input type="hidden" name="additionalDeliveryInfo" id="additionalDeliveryInfo" value="${additionalDeliveryInfomation}" """)
-      htmlBody should include(s"""input type="hidden" name="addressLine1" id="addressLine1" value="${addressData1}" """)
-      htmlBody should include(s"""input type="hidden" name="addressLine2" id="addressLine2" value="${addressData2}" """)
-      htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine3" id="optionalAddressLines_addressLine3" value="${addressData3}" """)
-      htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine4" id="optionalAddressLines_addressLine4" value="${addressData4}" """)
-      htmlBody should include(s"""input type="hidden" name="postcode" id="postcode" value="${postcode}" """)
+      htmlBody should include(s"""input type="hidden" name="additionalDeliveryInfo" id="additionalDeliveryInfo" value="$additionalDeliveryInfomation" """)
+      htmlBody should include(s"""input type="hidden" name="addressLine1" id="addressLine1" value="$addressData1" """)
+      htmlBody should include(s"""input type="hidden" name="addressLine2" id="addressLine2" value="$addressData2" """)
+      htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine3" id="optionalAddressLines_addressLine3" value="$addressData3" """)
+      htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine4" id="optionalAddressLines_addressLine4" value="$addressData4" """)
+      htmlBody should include(s"""input type="hidden" name="postcode" id="postcode" value="$postcode" """)
 
-      htmlBody should not include ("addressLine5")
-      htmlBody should not include ("country")
+      htmlBody should not include "addressLine5"
+      htmlBody should not include "country"
     }
   }
-  "Submit Change Address Confirmation Page  " should {
+
+  "Submit Change Address Confirmation Page" should {
     // TODO: Post payload validation tests
-    " use the post payload to submit the changed address to the SA service" in new WithApplication(FakeApplication()) {
+    "use the post payload to submit the changed address to the SA service" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val add1 = "add1"
       val add2 = "add2"
       val utr = "123456789012"
       val postcodeValid = "ABC 123"
-      val updateAddressUri = s"/sa/individual/${utr}/main-address"
-
-      //val mainAddress = MainAddress(None, Some(add1), Some(add2), None, None,None)
+      val updateAddressUri = s"/sa/individual/$utr/main-address"
 
       val transactionId = "sometransactionid"
 
-      when(controller.saMicroService.updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, postcode = Some(postcodeValid))).thenReturn(Some(TransactionId(transactionId)))
+      val addressForUpdate = SaAddressForUpdate(additionalDeliveryInfo = None, addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid))
+
+      when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
 
       val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
@@ -592,12 +593,41 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       htmlBody should include("Thank you for telling us about the change to your details.")
       htmlBody should include("Transaction ID:")
 
-      verify(controller.saMicroService).updateMainAddress(updateAddressUri, None, addressLine1 = add1, addressLine2 = add2, None, None, postcode = Some(postcodeValid))
+      verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
+    }
+
+    "display business errors to the user if the address cannot be updated" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+
+      val add1 = "add1"
+      val add2 = "add2"
+      val utr = "123456789012"
+      val postcodeValid = "ABC 123"
+      val updateAddressUri = s"/sa/individual/$utr/main-address"
+
+      val transactionId = "sometransactionid"
+
+      val addressForUpdate = SaAddressForUpdate(additionalDeliveryInfo = None, addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid))
+
+      when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Left("some error occurred"))
+
+      val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
+        .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
+
+      status(result) shouldBe 200
+      val htmlBody = contentAsString(result)
+      htmlBody should include("Sorry")
+      htmlBody should include("we are unable to update your details at this time.")
+      htmlBody should include("some error occurred")
+      htmlBody should not include "Transaction ID"
+      htmlBody should not include "Thank you for telling us about the change to your details"
+
+      verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
     }
 
   }
 
-  def request(user: User, action: (User, Request[_]) => Result): String = {
+  private def request(user: User, action: (User, Request[_]) => Result): String = {
     val result = action(user, FakeRequest())
 
     status(result) should be(200)

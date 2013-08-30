@@ -1,15 +1,13 @@
 package uk.gov.hmrc.microservice.sa
 
 import play.Logger
-import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
+import uk.gov.hmrc.microservice.{ MicroServiceException, MicroService, MicroServiceConfig }
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.TransactionId
-
-case class MainAddress(additionalDeliveryInfo: Option[String], addressLine1: Option[String], addressLine2: Option[String],
-  addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String])
+import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 
 class SaMicroService extends MicroService {
 
@@ -23,24 +21,14 @@ class SaMicroService extends MicroService {
     httpGet[T](uri)
   }
 
-  def updateMainAddress(updateAddressUri: String, addtionalDeliveryInfo: Option[String], addressLine1: String, addressLine2: String,
-    addressLine3: Option[String], addressLine4: Option[String], postcode: Option[String]): Option[TransactionId] = {
+  def updateMainAddress(updateAddressUri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
 
-    httpPost[TransactionId](
-      uri = updateAddressUri,
-      body = Json.parse(
-        toRequestBody(
-          MainAddress(
-            additionalDeliveryInfo = addtionalDeliveryInfo,
-            addressLine1 = Some(addressLine1),
-            addressLine2 = Some(addressLine2),
-            addressLine3 = addressLine3,
-            addressLine4 = addressLine4,
-            postcode = postcode
-          )
-        )
-      )
-    )
+    val response = httpPostSynchronous(updateAddressUri, Json.parse(toRequestBody(mainAddress)))
 
+    response.status match {
+      case 202 => Right(extractJSONResponse[TransactionId](response))
+      case 409 => Left("A previous details change is already being processed, this will take up to 48 hours to process.") // TODO [JJS] Get this from properties or propagate from back-end
+      case _ => throw new MicroServiceException("Error updating main address", response)
+    }
   }
 }
