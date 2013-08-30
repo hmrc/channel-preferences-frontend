@@ -36,6 +36,14 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
+    "not go to the next step if companyName is blank" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(companyName = "   "))
+      status(result) shouldBe 400
+      contentAsString(result) should include("This field is required")
+      verifyZeroInteractions(controller.keyStoreMicroService)
+    }
+
     "not go to the next step if both phone numbers are missing" in new WithApplication(FakeApplication()) {
       controller.resetAll
       val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(landlineNumber = None, mobileNumber = None))
@@ -80,7 +88,15 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       controller.resetAll
       val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mainAddress = ""))
       status(result) shouldBe 400
-      contentAsString(result) should include("This field is required")
+      contentAsString(result) should include("This address line field must not be blank")
+      verifyZeroInteractions(controller.keyStoreMicroService)
+    }
+
+    "not go to the next step if main address is blank" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mainAddress = "   "))
+      status(result) shouldBe 400
+      contentAsString(result) should include("This address line field must not be blank")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
@@ -88,7 +104,15 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       controller.resetAll
       val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(communicationAddress = ""))
       status(result) shouldBe 400
-      contentAsString(result) should include("This field is required")
+      contentAsString(result) should include("This address line field must not be blank")
+      verifyZeroInteractions(controller.keyStoreMicroService)
+    }
+
+    "not go to the next step if communication address is blank" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(communicationAddress = "   "))
+      status(result) shouldBe 400
+      contentAsString(result) should include("This address line field must not be blank")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
@@ -96,7 +120,15 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       controller.resetAll
       val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(businessAddress = ""))
       status(result) shouldBe 400
-      contentAsString(result) should include("This field is required")
+      contentAsString(result) should include("This address line field must not be blank")
+      verifyZeroInteractions(controller.keyStoreMicroService)
+    }
+
+    "not go to the next step if business address is blank" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(businessAddress = "   "))
+      status(result) shouldBe 400
+      contentAsString(result) should include("This address line field must not be blank")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 

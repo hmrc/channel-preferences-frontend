@@ -2,8 +2,10 @@ error.date=Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013
 error.illegal.value=Please select a valid option
 error.prefs.printsuppression=Please select a Print Suppression Option
 error.prefs.email.missing=Email address must be provided
+error.blank.value=Please enter a valid value
 
 error.address.main.line.max.length.violation=This address line field must not be greater than 28 characters
+error.address.blank=This address line field must not be blank
 error.postcode.length.violation=Postcode is incorrect
 error.address.optional.line.max.length.violation=This address line field must not be greater than 18 characters
 error.address.invalid.character=This line contains an invalid character.  Valid characters are: A-Z a-z 0-9 - ' , / & space

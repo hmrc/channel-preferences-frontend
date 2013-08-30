@@ -42,6 +42,14 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       verifyZeroInteractions(controller.keyStoreMicroService, controller.agentMicroService)
     }
 
+    "not go to the next step if professional body is specified but membership number is blank" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "   "))
+      status(result) shouldBe 400
+      contentAsString(result) should include("You must specify a membership number for your professional body")
+      verifyZeroInteractions(controller.keyStoreMicroService, controller.agentMicroService)
+    }
+
     "not go to the next step if professional body is invalid" in new WithApplication(FakeApplication()) {
       controller.resetAll
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("sad", ""))

@@ -19,7 +19,7 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
       AgentProfessionalBodyMembershipFormFields.professionalBodyMembership -> tuple(
         AgentProfessionalBodyMembershipFormFields.professionalBody -> optional(smallText.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
         AgentProfessionalBodyMembershipFormFields.membershipNumber -> optional(smallText)
-      ).verifying("error.agent.professionalBodyMembershipNumber.mandatory", data => (!data._1.isDefined || data._2.isDefined))
+      ).verifying("error.agent.professionalBodyMembershipNumber.mandatory", data => (!data._1.isDefined || (data._2.isDefined && notBlank(data._2.getOrElse("")))))
         .verifying("error.agent.professionalBodyMembership.mandatory", data => (data._1.isDefined || !data._2.isDefined))
     ) {
         (professionalBodyMembership) =>

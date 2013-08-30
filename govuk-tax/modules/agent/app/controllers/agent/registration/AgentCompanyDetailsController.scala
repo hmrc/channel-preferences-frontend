@@ -18,7 +18,7 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
 
   private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
-      AgentCompanyDetailsFormFields.companyName -> nonEmptySmallText,
+      AgentCompanyDetailsFormFields.companyName -> nonEmptyNotBlankSmallText,
       tradingName -> optional(smallText),
       phoneNumbers -> tuple(
         landlineNumber -> optional(smallText.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber)),

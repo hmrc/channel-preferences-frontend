@@ -7,7 +7,8 @@ import scala.util.matching.Regex
 trait Validators {
 
   val addressTuple = tuple(
-    addressLine1 -> nonEmptySmallText
+    addressLine1 -> smallText
+      .verifying("error.address.blank", e => notBlank(e))
       .verifying("error.address.main.line.max.length.violation", e => isMainAddressLineLengthValid(e))
       .verifying("error.address.invalid.character", e => characterValidator.containsValidAddressCharacters(e)),
     addressLine2 -> optional(smallText.verifying("error.address.optional.line.max.length.violation", e => isOptionalAddressLineLengthValid(e))
@@ -23,6 +24,7 @@ trait Validators {
   // Small text prevents injecting large data into fields
   def smallText = play.api.data.Forms.text(0, 100)
   def nonEmptySmallText = play.api.data.Forms.nonEmptyText(0, 100)
+  def nonEmptyNotBlankSmallText = smallText.verifying("error.required", e => notBlank(e))
   def smallEmail = play.api.data.Forms.email.verifying("error.maxLength", e => isValidMaxLength(100)(e))
 
   val phoneNumberErrorKey = "error.agent.phone"
