@@ -66,10 +66,27 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
   })
 
   private[paye] val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    if (kind == 31)
-      Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
-    else
-      Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+    val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
+      user.regimes.paye.get.recentCompletedTransactions()
+    if (transactions.find(transactionMatches(_, kind, employmentSequenceNumber, year)).isDefined) {
+      Redirect(routes.PayeController.listBenefits)
+    } else {
+      if (kind == 31)
+        Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+      else
+        Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+    }
+  }
+
+  private def transactionMatches(tx: TxQueueTransaction, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
+    val matches = for {
+      txBenefitType <- tx.properties.get("benefitType")
+      txSequenceNumber <- tx.properties.get("employmentSequenceNumber")
+      txYear <- tx.properties.get("taxYear")
+    } yield (
+      txBenefitType.toInt == kind && txSequenceNumber.toInt == employmentSequenceNumber && txYear.toInt == year
+    )
+    matches.getOrElse(false)
   }
 
   def requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
