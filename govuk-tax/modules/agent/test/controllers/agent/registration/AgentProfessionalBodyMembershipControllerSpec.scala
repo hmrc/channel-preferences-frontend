@@ -31,9 +31,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   val mockKeyStore = mock[KeyStore]
 
   private val controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests {
-    override def toAgent(implicit keyStore: KeyStore) = {
-      mockAgent
-    }
   }
 
   "AgentProfessionalMembershipController" should {
@@ -67,10 +64,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", ""))
       status(result) shouldBe 303
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(professionalBodyMembershipFormName), any[Map[String, Any]]())
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(s"UAR:$id", "agent", "uar", Map[String, Any]("uar" -> "12324"))
-      verify(controller.keyStoreMicroService).getKeyStore(s"Registration:$id", "agent")
-      verify(controller.agentMicroService).create(mockAgent)
-      verify(controller.keyStoreMicroService).deleteKeyStore(s"Registration:$id", "agent")
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
@@ -79,10 +72,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
       status(result) shouldBe 303
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(professionalBodyMembershipFormName), any[Map[String, Any]]())
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(s"UAR:$id", "agent", "uar", Map[String, Any]("uar" -> "12324"))
-      verify(controller.keyStoreMicroService).getKeyStore(s"Registration:$id", "agent")
-      verify(controller.agentMicroService).create(mockAgent)
-      verify(controller.keyStoreMicroService).deleteKeyStore(s"Registration:$id", "agent")
     }
   }
 

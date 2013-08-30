@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import play.api.mvc.{Call, Controller}
+import play.api.mvc.{ Call, Controller }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.domain.User
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
