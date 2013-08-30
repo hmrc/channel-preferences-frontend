@@ -27,7 +27,7 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
 
   "The agent type and legal entity" should {
 
-    "display the agent type and legal entity form" in new WithApplication(FakeApplication()){
+    "display the agent type and legal entity form" in new WithApplication(FakeApplication()) {
       controller.resetAll
       val result = controller.agentTypeAction(user, FakeRequest())
       status(result) shouldBe 200
