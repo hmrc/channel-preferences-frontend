@@ -72,7 +72,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
             addressLine5 = "address line 5",
             postcode = "postcode",
             foreignCountry = "foreign country",
-            additionalDeliveryInformation = "additional delivery info"
+            additionalDeliveryInformation = "additional delivery information"
           )
         ))
       )
@@ -275,7 +275,6 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody should include("additionalDeliveryInfo")
       htmlBody should include("addressLine1")
       htmlBody should include("addressLine2")
       htmlBody should include("addressLine3")
@@ -283,6 +282,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       htmlBody should not include "addressLine5"
       htmlBody should include("postcode")
       htmlBody should not include "country"
+      htmlBody should include("additionalDeliveryInformation")
     }
   }
 
@@ -531,32 +531,33 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "take the user to a confirmation page that displays the form values entered" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      val additionalDeliveryInfomation = "someAdditionalDeliveryInfo"
       val addressData1 = "ad1"
       val addressData2 = "ad2"
       val addressData3 = "ad3"
       val addressData4 = "ad4"
       val postcode = "XX1 0YY"
+      val additionalDeliveryInformation = "someAdditionalDeliveryInformation"
 
       val result = controller.submitChangeAddressFormAction(geoffFisher,
-        FakeRequest().withFormUrlEncodedBody("additionalDeliveryInfo" -> additionalDeliveryInfomation,
+        FakeRequest().withFormUrlEncodedBody(
           "addressLine1" -> addressData1, "addressLine2" -> addressData2, "optionalAddressLines.addressLine3" -> addressData3,
-          "optionalAddressLines.addressLine4" -> addressData4, "postcode" -> postcode))
+          "optionalAddressLines.addressLine4" -> addressData4, "postcode" -> postcode,
+          "additionalDeliveryInformation" -> additionalDeliveryInformation))
 
       status(result) should be(200)
 
       // Assert displaying of values
       val htmlBody = contentAsString(result)
-      htmlBody should include(additionalDeliveryInfomation)
       htmlBody should include(addressData1)
       htmlBody should include(addressData2)
       htmlBody should include(addressData3)
       htmlBody should include(addressData4)
       htmlBody should include(postcode)
+      htmlBody should include(additionalDeliveryInformation)
 
       // Assert hidden form
       htmlBody should include("""form action="/changeAddressConfirm" method="POST"""")
-      htmlBody should include(s"""input type="hidden" name="additionalDeliveryInfo" id="additionalDeliveryInfo" value="$additionalDeliveryInfomation" """)
+      htmlBody should include(s"""input type="hidden" name="additionalDeliveryInformation" id="additionalDeliveryInformation" value="$additionalDeliveryInformation" """)
       htmlBody should include(s"""input type="hidden" name="addressLine1" id="addressLine1" value="$addressData1" """)
       htmlBody should include(s"""input type="hidden" name="addressLine2" id="addressLine2" value="$addressData2" """)
       htmlBody should include(s"""input type="hidden" name="optionalAddressLines.addressLine3" id="optionalAddressLines_addressLine3" value="$addressData3" """)
@@ -581,7 +582,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val transactionId = "sometransactionid"
 
-      val addressForUpdate = SaAddressForUpdate(additionalDeliveryInfo = None, addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid))
+      val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
       when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
 
@@ -607,7 +608,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val transactionId = "sometransactionid"
 
-      val addressForUpdate = SaAddressForUpdate(additionalDeliveryInfo = None, addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid))
+      val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
       when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Left("some error occurred"))
 

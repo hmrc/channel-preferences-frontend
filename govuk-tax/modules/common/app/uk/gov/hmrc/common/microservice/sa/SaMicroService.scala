@@ -27,7 +27,7 @@ class SaMicroService extends MicroService {
 
     response.status match {
       case 202 => Right(extractJSONResponse[TransactionId](response))
-      case 409 => Left("A previous details change is already being processed, this will take up to 48 hours to complete.") // TODO [JJS] Get this from properties or propagate from back-end
+      case 409 => Left("A previous details change is already being processed, this will take up to 48 hours to complete.")
       case _ => throw new MicroServiceException("Error updating main address", response)
     }
   }

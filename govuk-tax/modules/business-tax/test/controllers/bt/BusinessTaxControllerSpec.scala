@@ -67,7 +67,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
             addressLine5 = "address line 5",
             postcode = "postcode",
             foreignCountry = "foreign country",
-            additionalDeliveryInformation = "additional delivery info"
+            additionalDeliveryInformation = "additional delivery information"
           )
         ))
       )

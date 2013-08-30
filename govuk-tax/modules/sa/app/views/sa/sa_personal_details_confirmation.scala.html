@@ -7,7 +7,7 @@
 
 
     <ul class="level-1">
-            <li><p>Additional delivery information:</p><span>@changeAddressFormData.additionalDeliveryInfo</span></li>
+            <li><p>Additional delivery information:</p><span>@changeAddressFormData.additionalDeliveryInformation</span></li>
             <li><p>Address line 1:</p><span>@changeAddressFormData.addressLine1</span></li>
             <li><p>Address line 2:</p><span>@changeAddressFormData.addressLine2</span></li>
             <li><p>Address line 3:</p><span>@changeAddressFormData.addressLine3</span></li>
@@ -28,8 +28,8 @@
     <br/>
     @helper.form(action = controllers.sa.routes.SaController.submitConfirmChangeMyAddressForm) {
 
-        @defining(changeAddressForm("additionalDeliveryInfo")) { additionalDeliveryInfo =>
-        <input type="hidden" name="@additionalDeliveryInfo.name" id="@additionalDeliveryInfo.id" value="@changeAddressFormData.additionalDeliveryInfo" />
+        @defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
+        <input type="hidden" name="@additionalDeliveryInformation.name" id="@additionalDeliveryInformation.id" value="@changeAddressFormData.additionalDeliveryInformation" />
         }
 
         @defining(changeAddressForm("addressLine1")) { addressLine1 =>

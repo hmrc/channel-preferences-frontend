@@ -43,7 +43,6 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   val changeAddressForm: Form[ChangeAddressForm] = Form(
     mapping(
-      "additionalDeliveryInfo" -> optional(text),
       "addressLine1" -> text
         .verifying("error.sa.address.line1.mandatory", notBlank _)
         .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
@@ -61,11 +60,12 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       "postcode" -> text
         .verifying("error.sa.postcode.mandatory", notBlank _)
         .verifying("error.sa.postcode.lengthviolation", isPostcodeLengthValid _)
-        .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters _)
-    ) {
-        (additionalDeliveryInfo, addressLine1, addressLine2, optionalAddressLines, postcode) => ChangeAddressForm(additionalDeliveryInfo, Some(addressLine1), Some(addressLine2), optionalAddressLines._1, optionalAddressLines._2, Some(postcode))
+        .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters _),
+      "additionalDeliveryInformation" -> optional(text)) {
+        (addressLine1, addressLine2, optionalAddressLines, postcode, additionalDeliveryInformation) =>
+          ChangeAddressForm(Some(addressLine1), Some(addressLine2), optionalAddressLines._1, optionalAddressLines._2, Some(postcode), additionalDeliveryInformation)
       } {
-        form => Some((form.additionalDeliveryInfo, form.addressLine1.getOrElse(""), form.addressLine2.getOrElse(""), (form.addressLine3, form.addressLine4), form.postcode.get))
+        form => Some((form.addressLine1.getOrElse(""), form.addressLine2.getOrElse(""), (form.addressLine3, form.addressLine4), form.postcode.get, form.additionalDeliveryInformation))
       }
 
   )
