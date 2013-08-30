@@ -105,15 +105,15 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       currentTestDate,
       currentTestDate.minusDays(1))
 
-  val testTransaction1 = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"), Map("benefitType" -> "31"))
-  val testTransaction2 = transactionWithTags(List("paye", "test"))
-  val testTransaction3 = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"), Map("benefitType" -> "29"))
+  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"), Map("benefitType" -> "31"))
+  val otherTransaction = transactionWithTags(List("paye", "test"))
+  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"), Map("benefitType" -> "29"))
 
-  val testTransactions = List(testTransaction1, testTransaction2, testTransaction3)
+  val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction)
 
-  val completedTransactions = List(testTransaction2, testTransaction3)
+  val completedTransactions = List(otherTransaction, removedFuelTransaction)
 
-  val acceptedTransactions = List(testTransaction1)
+  val acceptedTransactions = List(removedCarTransaction)
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
     Map("removeCar" -> s"/paye/$nino/benefits/$year/$esn/update/cars")
@@ -230,11 +230,24 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       requestBenefitsAction(johnDensmore) should include("""href="/benefits/31/2013/2/remove"""")
     }
 
-    "display a Car removed if there is a transaction present for the car benefit" in new WithApplication(FakeApplication()) {
+    "display a Car removed if there is an accepted transaction present for the car benefit" in new WithApplication(FakeApplication()) {
       controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(userWithRemovedCarEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(userWithRemovedCarBenefits)
       when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/COMPLETED/.*"))).thenReturn(Some(List.empty))
+
+      val result = requestBenefitsAction(userWithRemovedCar)
+      println(result)
+      result should include("Benefit removed")
+    }
+
+    "display a benefit removed if there is a completed transaction present for the car benefit" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(userWithRemovedCarEmployments)
+      when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(userWithRemovedCarBenefits)
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/ACCEPTED/.*"))).thenReturn(Some(List.empty))
+      when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/COMPLETED/.*"))).thenReturn(Some(List(removedCarTransaction)))
 
       val result = requestBenefitsAction(userWithRemovedCar)
       println(result)

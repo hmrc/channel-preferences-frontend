@@ -53,9 +53,10 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     val taxYear = currentTaxYear
     val benefits = user.regimes.paye.get.benefits(taxYear)
     val employments = user.regimes.paye.get.employments(taxYear)
-    val acceptedTransactions = user.regimes.paye.get.recentAcceptedTransactions
+    val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
+      user.regimes.paye.get.recentCompletedTransactions()
 
-    Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments, acceptedTransactions)))
+    Ok(paye_benefit_home(matchBenefitWithCorrespondingEmployment(benefits, employments, transactions)))
   }
 
   def benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
