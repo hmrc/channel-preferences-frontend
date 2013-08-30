@@ -9,7 +9,7 @@ import views.html.login
 import com.google.common.net.HttpHeaders
 import play.api.mvc.Result
 import play.api.Logger
-import controllers.common.actions.{ AuditActionWrapper, HeaderActionWrapper }
+import controllers.common.actions.{ LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper }
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -17,7 +17,7 @@ trait HeaderNames {
   val forwardedFor = "x-forwarded-for"
 }
 
-trait ActionWrappers extends CookieEncryption with HeaderNames with HeaderActionWrapper with AuditActionWrapper {
+trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames with HeaderActionWrapper with AuditActionWrapper with LoggingActionWrapper {
   self: Controller =>
 
   private[ActionWrappers] def act(userId: String, token: Option[String], request: Request[AnyContent], taxRegime: Option[TaxRegime], action: (User) => (Request[AnyContent]) => Result): Result = {
@@ -47,17 +47,19 @@ trait ActionWrappers extends CookieEncryption with HeaderNames with HeaderAction
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
       WithHeaders {
-        WithRequestAuditing {
-          Action {
-            request =>
-              val encryptedUserId: Option[String] = request.session.get("userId")
-              val token: Option[String] = request.session.get("token")
-              if (encryptedUserId.isEmpty || token.isDefined) {
-                Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
-                RedirectUtils.toSamlLogin
-              } else {
-                act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
-              }
+        WithRequestLogging {
+          WithRequestAuditing {
+            Action {
+              request =>
+                val encryptedUserId: Option[String] = request.session.get("userId")
+                val token: Option[String] = request.session.get("token")
+                if (encryptedUserId.isEmpty || token.isDefined) {
+                  Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
+                  RedirectUtils.toSamlLogin
+                } else {
+                  act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
+                }
+            }
           }
         }
       }
@@ -68,18 +70,20 @@ trait ActionWrappers extends CookieEncryption with HeaderNames with HeaderAction
 
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
       WithHeaders {
-        WithRequestAuditing {
-          Action {
-            request =>
-              val encryptedUserId: Option[String] = request.session.get("userId")
-              val token: Option[String] = request.session.get("token")
-              if (encryptedUserId.isEmpty || token.isEmpty) {
-                // the redirect in this condition needs to be reviewed and updated. Important: It will be different from the AuthorisedForIdaAction redirect location
-                Logger.debug("No identity cookie found or no gateway token- redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
-                Redirect(routes.HomeController.landing())
-              } else {
-                act(decrypt(encryptedUserId.get), decrypt(token), request, taxRegime, action)
-              }
+        WithRequestLogging {
+          WithRequestAuditing {
+            Action {
+              request =>
+                val encryptedUserId: Option[String] = request.session.get("userId")
+                val token: Option[String] = request.session.get("token")
+                if (encryptedUserId.isEmpty || token.isEmpty) {
+                  // the redirect in this condition needs to be reviewed and updated. Important: It will be different from the AuthorisedForIdaAction redirect location
+                  Logger.debug("No identity cookie found or no gateway token- redirecting to login. user : $userId tokenDefined : ${token.isDefined}")
+                  Redirect(routes.HomeController.landing())
+                } else {
+                  act(decrypt(encryptedUserId.get), decrypt(token), request, taxRegime, action)
+                }
+            }
           }
         }
       }
@@ -90,10 +94,12 @@ trait ActionWrappers extends CookieEncryption with HeaderNames with HeaderAction
 
     def apply[A <: TaxRegime](action: (Request[AnyContent] => Result)): Action[AnyContent] =
       WithHeaders {
-        WithRequestAuditing {
-          Action {
-            request =>
-              action(request)
+        WithRequestLogging {
+          WithRequestAuditing {
+            Action {
+              request =>
+                action(request)
+            }
           }
         }
       }

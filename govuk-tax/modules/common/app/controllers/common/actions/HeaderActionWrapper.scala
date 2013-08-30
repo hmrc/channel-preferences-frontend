@@ -10,8 +10,8 @@ import views.html.server_error
 import play.Logger
 import uk.gov.hmrc.microservice.HasResponse
 
-trait HeaderActionWrapper extends MicroServices with CookieEncryption with HeaderNames {
-  self: Controller =>
+trait HeaderActionWrapper {
+  self: Controller with MicroServices with CookieEncryption with HeaderNames =>
 
   object WithHeaders {
 

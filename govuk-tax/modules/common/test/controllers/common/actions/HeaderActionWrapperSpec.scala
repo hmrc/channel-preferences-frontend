@@ -9,7 +9,7 @@ import play.api.test.{ FakeApplication, WithApplication, FakeRequest }
 import org.slf4j.MDC
 import play.api.test.Helpers._
 
-object HeaderTestController extends Controller with HeaderActionWrapper with MockMicroServicesForTests {
+object HeaderTestController extends Controller with CookieEncryption with HeaderNames with HeaderActionWrapper with MockMicroServicesForTests {
 
   def test() = WithHeaders {
     Action {
