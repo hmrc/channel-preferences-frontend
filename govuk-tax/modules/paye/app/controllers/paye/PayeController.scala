@@ -71,10 +71,11 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     if (transactions.find(transactionMatches(_, kind, employmentSequenceNumber, year)).isDefined) {
       Redirect(routes.PayeController.listBenefits)
     } else {
-      if (kind == 31)
-        Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
-      else
-        Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+      kind match {
+        case 31 => Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+        case 29 => Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
+        case _ => Redirect(routes.PayeController.listBenefits)
+      }
     }
   }
 

@@ -443,6 +443,15 @@ class PayeControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar 
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some("/benefits")
     }
+
+    "return the benefits list page if the user modifies the url to include a benefit type that they can not remove" in {
+      controller.resetAll
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(removedCarTransaction), List.empty)
+
+      val result = controller.benefitRemovalFormAction(30, johnDensmore, FakeRequest(), 2013, 1)
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some("/benefits")
+    }
   }
 
   "benefitRemoved" should {
