@@ -95,19 +95,25 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     (request, user, benefit) =>
       {
         updateBenefitForm.bindFromRequest()(request).fold(
-          errors => BadRequest(remove_car_benefit_form(benefit, errors)),
+          errors => {
+            benefit.benefit.benefitType match {
+              case 31 => BadRequest(remove_car_benefit_form(benefit, errors))
+              case 29 => BadRequest(remove_benefit_form(benefit, errors))
+              case _ => Redirect(routes.PayeController.listBenefits)
+            }
+          },
           removeBenefitData => {
             val calculationResult = payeMicroService.calculateWithdrawBenefit(benefit.benefit, removeBenefitData.withdrawDate)
             val revisedAmount = calculationResult.result(benefit.benefit.taxYear.toString)
 
-            if (benefit.benefit.benefitType == 31) {
-              Ok(remove_car_benefit_confirm(revisedAmount, benefit.benefit)).withSession(request.session
+            benefit.benefit.benefitType match {
+              case 31 => Ok(remove_car_benefit_confirm(revisedAmount, benefit.benefit)).withSession(request.session
                 + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
                 + ("revised_amount", revisedAmount.toString()))
-            } else {
-              Ok(remove_benefit_confirm(revisedAmount, benefit.benefit)).withSession(request.session
+              case 29 => Ok(remove_benefit_confirm(revisedAmount, benefit.benefit)).withSession(request.session
                 + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
                 + ("revised_amount", revisedAmount.toString()))
+              case _ => Redirect(routes.PayeController.listBenefits)
             }
           }
         )
