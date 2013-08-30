@@ -61,7 +61,7 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
     Ok(views.html.agents.registration.company_details(form))
   }
 
-  def postCompanyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => postCompanyDetailsAction(user, request) } }
+  def postCompanyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => postCompanyDetailsAction(user, request) } } }
 
   private[registration] val postCompanyDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     companyDetailsForm.bindFromRequest()(request).fold(
