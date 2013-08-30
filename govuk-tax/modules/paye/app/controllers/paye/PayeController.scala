@@ -1,6 +1,5 @@
 package controllers.paye
 
-import uk.gov.hmrc.microservice.paye.domain._
 import org.joda.time.{ DateTimeZone, DateTime, LocalDate }
 import play.api.data._
 import play.api.data.Forms._
@@ -8,12 +7,13 @@ import views.html.paye._
 import views.formatting.Dates
 import scala._
 import controllers.common._
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import scala.Some
-import uk.gov.hmrc.microservice.paye.domain.Employment
-import uk.gov.hmrc.microservice.paye.domain.Car
-import uk.gov.hmrc.microservice.paye.domain.Benefit
 import play.api.mvc.{ Request, Result }
+import scala.Some
+import uk.gov.hmrc.microservice.paye.domain.Car
+import uk.gov.hmrc.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import uk.gov.hmrc.microservice.paye.domain.Employment
+import uk.gov.hmrc.microservice.paye.domain.Benefit
 import uk.gov.hmrc.microservice.domain.User
 
 class PayeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
@@ -65,18 +65,15 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
         benefitRemovalFormAction(kind, user, request, year, employmentSequenceNumber)
   })
 
-  private[paye] val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
-      user.regimes.paye.get.recentCompletedTransactions()
-    if (transactions.find(transactionMatches(_, kind, employmentSequenceNumber, year)).isDefined) {
-      Redirect(routes.PayeController.listBenefits)
-    } else {
-      kind match {
-        case 31 => Ok(remove_car_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
-        case 29 => Ok(remove_benefit_form(getBenefit(kind, user, employmentSequenceNumber), updateBenefitForm))
-        case _ => Redirect(routes.PayeController.listBenefits)
+  private[paye] val benefitRemovalFormAction: (Int, User, Request[_], Int, Int) => Result = UpdateBenefitValidation {
+    (request, user, benefit) =>
+      {
+        if (benefit.benefit.benefitType == 31) {
+          Ok(remove_car_benefit_form(benefit, updateBenefitForm))
+        } else {
+          Ok(remove_benefit_form(benefit, updateBenefitForm))
+        }
       }
-    }
   }
 
   private def transactionMatches(tx: TxQueueTransaction, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
@@ -94,26 +91,27 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     user => request => requestBenefitRemovalAction(kind, user, request, year, employmentSequenceNumber)
   })
 
-  private[paye] val requestBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    val db = getBenefit(kind, user, employmentSequenceNumber)
+  private[paye] val requestBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = UpdateBenefitValidation {
+    (request, user, benefit) =>
+      {
+        updateBenefitForm.bindFromRequest()(request).fold(
+          errors => BadRequest(remove_car_benefit_form(benefit, errors)),
+          removeBenefitData => {
+            val calculationResult = payeMicroService.calculateWithdrawBenefit(benefit.benefit, removeBenefitData.withdrawDate)
+            val revisedAmount = calculationResult.result(benefit.benefit.taxYear.toString)
 
-    updateBenefitForm.bindFromRequest()(request).fold(
-      errors => BadRequest(remove_car_benefit_form(db, errors)),
-      removeBenefitData => {
-        val calculationResult = payeMicroService.calculateWithdrawBenefit(db.benefit, removeBenefitData.withdrawDate)
-        val revisedAmount = calculationResult.result(db.benefit.taxYear.toString)
-
-        if (kind == 31) {
-          Ok(remove_car_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
-            + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
-            + ("revised_amount", revisedAmount.toString()))
-        } else {
-          Ok(remove_benefit_confirm(revisedAmount, db.benefit)).withSession(request.session
-            + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
-            + ("revised_amount", revisedAmount.toString()))
-        }
+            if (benefit.benefit.benefitType == 31) {
+              Ok(remove_car_benefit_confirm(revisedAmount, benefit.benefit)).withSession(request.session
+                + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
+                + ("revised_amount", revisedAmount.toString()))
+            } else {
+              Ok(remove_benefit_confirm(revisedAmount, benefit.benefit)).withSession(request.session
+                + ("withdraw_date", Dates.shortDate(removeBenefitData.withdrawDate))
+                + ("revised_amount", revisedAmount.toString()))
+            }
+          }
+        )
       }
-    )
   }
 
   def confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
@@ -122,19 +120,21 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
         confirmBenefitRemovalAction(kind, user, request, year, employmentSequenceNumber)
   })
 
-  private[paye] val confirmBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = (kind, user, request, year, employmentSequenceNumber) => {
-    val db = getBenefit(kind, user, employmentSequenceNumber)
-    val payeRoot = user.regimes.paye.get
-    val withdrawDate = request.session.get("withdraw_date").get
-    val revisedAmount = request.session.get("revised_amount").get
-    val uri = kind match {
-      case 31 => db.benefit.actions("removeCar")
-      case 29 => db.benefit.actions("removeFuel")
-      case _ => throw new IllegalArgumentException(s"No action uri found for benefit type ${kind}")
-    }
-    val transactionId = payeMicroService.removeBenefit(uri, payeRoot.nino, payeRoot.version, db.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
+  private[paye] val confirmBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = UpdateBenefitValidation {
+    (request, user, benefit) =>
+      {
+        val payeRoot = user.regimes.paye.get
+        val withdrawDate = request.session.get("withdraw_date").get
+        val revisedAmount = request.session.get("revised_amount").get
+        val uri = benefit.benefit.benefitType match {
+          case 31 => benefit.benefit.actions("removeCar")
+          case 29 => benefit.benefit.actions("removeFuel")
+          case _ => throw new IllegalArgumentException(s"No action uri found for benefit type ${benefit.benefit.benefitType}")
+        }
+        val transactionId = payeMicroService.removeBenefit(uri, payeRoot.nino, payeRoot.version, benefit.benefit, Dates.parseShortDate(withdrawDate), BigDecimal(revisedAmount))
 
-    Redirect(routes.PayeController.benefitRemoved(kind, transactionId.get.oid))
+        Redirect(routes.PayeController.benefitRemoved(benefit.benefit.benefitType, transactionId.get.oid))
+      }
   }
 
   def benefitRemoved(kind: Int, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
@@ -146,6 +146,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
+      // FIXME
       if (kind == 31) {
         Ok(remove_car_benefit_confirmation(Dates.formatDate(Dates.parseShortDate(request.session.get("withdraw_date").get)), oid))
       } else {
@@ -194,14 +195,14 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  private def getBenefit(kind: Int, user: User, employmentSequenceNumber: Int): DisplayBenefit = {
+  private def getBenefit(kind: Int, user: User, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
     val taxYear = currentTaxYear
     val benefit = user.regimes.paye.get.benefits(taxYear).find(
       b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
     val transactions = user.regimes.paye.get.recentCompletedTransactions
     val matchedBenefits = matchBenefitWithCorrespondingEmployment(benefit.toList, user.regimes.paye.get.employments(taxYear), transactions)
 
-    matchedBenefits(0)
+    if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
   }
 
   private def matchBenefitWithCorrespondingEmployment(benefits: Seq[Benefit], employments: Seq[Employment],
@@ -238,6 +239,33 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
   }
 
   def currentDate = new DateTime(DateTimeZone.UTC)
+
+  // action wrapper to validate each step of the update benefit wizard
+  object UpdateBenefitValidation {
+
+    def apply(f: (Request[_], User, DisplayBenefit) => Result): (Int, User, Request[_], Int, Int) => Result = {
+      (kind, user, request, year, employmentSequenceNumber) =>
+        {
+
+          val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
+            user.regimes.paye.get.recentCompletedTransactions()
+
+          if (transactions.find(transactionMatches(_, kind, employmentSequenceNumber, year)).isEmpty) {
+            getBenefit(kind, user, employmentSequenceNumber) match {
+              case Some(b) => {
+                kind match {
+                  case 29 | 31 => f(request, user, b)
+                  case _ => Redirect(routes.PayeController.listBenefits)
+                }
+              }
+              case _ => Redirect(routes.PayeController.listBenefits)
+            }
+          } else {
+            Redirect(routes.PayeController.listBenefits)
+          }
+        }
+    }
+  }
 }
 
 case class DisplayBenefit(employment: Employment,
