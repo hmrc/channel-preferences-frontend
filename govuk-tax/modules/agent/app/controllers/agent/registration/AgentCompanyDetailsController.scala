@@ -12,8 +12,9 @@ import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.microservice.domain.User
 import controllers.common.service.MicroServices
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
+import controllers.common.actions.MultiFormWrapper
 
-class AgentCompanyDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators with MicroServices {
+class AgentCompanyDetailsController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators with MicroServices with MultiFormWrapper {
 
   private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
@@ -53,7 +54,7 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
       }
   )
 
-  def companyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => companyDetailsAction(user, request) } }
+  def companyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => companyDetailsAction(user, request) } } }
 
   private[registration] val companyDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     val form = companyDetailsForm.fill(AgentCompanyDetails())

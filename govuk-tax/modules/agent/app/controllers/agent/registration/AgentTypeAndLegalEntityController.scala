@@ -10,8 +10,9 @@ import uk.gov.hmrc.microservice.domain.User
 import play.api.mvc.{ Result, Request }
 import controllers.common.service.MicroServices
 import controllers.common.validators.Validators
+import controllers.common.actions.MultiFormWrapper
 
-class AgentTypeAndLegalEntityController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators {
+class AgentTypeAndLegalEntityController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators with MultiFormWrapper {
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
@@ -20,13 +21,13 @@ class AgentTypeAndLegalEntityController extends MicroServices with BaseControlle
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
-  def agentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => agentTypeAction(user, request) } }
+  def agentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => agentTypeAction(user, request) } } }
 
   private[registration] val agentTypeAction: (User, Request[_]) => Result = (user, request) => {
     Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
-  def postAgentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => postAgentTypeAction(user, request) } }
+  def postAgentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => postAgentTypeAction(user, request) } } }
 
   private[registration] val postAgentTypeAction: ((User, Request[_]) => Result) = (user, request) => {
     agentTypeAndLegalEntityForm.bindFromRequest()(request).fold(

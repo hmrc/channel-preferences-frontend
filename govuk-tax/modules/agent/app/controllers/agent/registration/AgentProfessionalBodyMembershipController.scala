@@ -10,8 +10,9 @@ import uk.gov.hmrc.microservice.domain.User
 import controllers.common.service.MicroServices
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 import controllers.common.validators.Validators
+import controllers.common.actions.MultiFormWrapper
 
-class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with AgentMapper with MicroServices with Validators {
+class AgentProfessionalBodyMembershipController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with AgentMapper with MicroServices with Validators with MultiFormWrapper {
 
   private val professionalBodyMembershipForm = Form[AgentProfessionalBodyMembership](
     mapping(
@@ -28,14 +29,14 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
       }
   )
 
-  def professionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => professionalBodyMembershipAction(user, request) } }
+  def professionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => professionalBodyMembershipAction(user, request) } } }
 
   private[registration] val professionalBodyMembershipAction: (User, Request[_]) => Result = (user, request) => {
     val form = professionalBodyMembershipForm.fill(AgentProfessionalBodyMembership())
     Ok(views.html.agents.registration.professional_body_membership(form, Configuration.config.professionalBodyOptions))
   }
 
-  def postProfessionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => postProfessionalBodyMembershipAction(user, request) } }
+  def postProfessionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => postProfessionalBodyMembershipAction(user, request) } } }
 
   private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => Result) = (user, request) => {
     professionalBodyMembershipForm.bindFromRequest()(request).fold(

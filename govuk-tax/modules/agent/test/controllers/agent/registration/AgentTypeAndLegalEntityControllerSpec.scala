@@ -26,6 +26,13 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
   private val controller = new AgentTypeAndLegalEntityController with MockMicroServicesForTests
 
   "The agent type and legal entity" should {
+
+    "display the agent type and legal entity form" in new WithApplication(FakeApplication()){
+      controller.resetAll
+      val result = controller.agentTypeAction(user, FakeRequest())
+      status(result) shouldBe 200
+    }
+
     "not go to the next step if no agent type is chosen" in new WithApplication(FakeApplication()) {
       controller.resetAll
       val result = controller.postAgentTypeAction(user, newRequest("", "ltdCompany"))
