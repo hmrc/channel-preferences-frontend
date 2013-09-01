@@ -1,10 +1,5 @@
 @(newAmount: BigDecimal, benefit: uk.gov.hmrc.microservice.paye.domain.Benefit)
 
-@import views.formatting.Dates._
-@import config.RefData._
-@import org.joda.time.LocalDate
-@import helper._
-
 @main(title = "Confirm") {
 
   <h2>Remove your company car benefit</h2>
@@ -12,7 +7,7 @@
   <p>Removing your company car will increase your Personal Allowance by <span class="amount">£ @{benefit.grossAmount - newAmount}</span>.<br>
   This means we will need to issue you with a new tax code.</p>
 
-  @helper.form(action = controllers.paye.routes.PayeController.confirmBenefitRemoval(benefit.benefitType, benefit.taxYear, benefit.employmentSequenceNumber)) {
+  @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(benefit.benefitType, benefit.taxYear, benefit.employmentSequenceNumber)) {
     <input class="button button--confirm" type="submit" value="Confirm" />
   }
 

@@ -1,4 +1,4 @@
-@(payeOverview: controllers.paye.PayeOverview)
+@(payeOverview: models.paye.PayeOverview)
 
 @import views.formatting.Dates._
 
@@ -50,7 +50,7 @@
         </ul>
         <p>
             @if(payeOverview.hasBenefits) {
-            <a class="cta cta--view-benefits" href="@controllers.paye.routes.PayeController.listBenefits">Click here to see your benefits</a>
+            <a class="cta cta--view-benefits" href="@controllers.paye.routes.BenefitHomeController.listBenefits">Click here to see your benefits</a>
             }
         </p>
     </div>

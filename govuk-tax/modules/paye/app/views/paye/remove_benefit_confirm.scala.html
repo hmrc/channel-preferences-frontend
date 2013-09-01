@@ -10,7 +10,7 @@
       <span class="amount">£ @{benefit.grossAmount - newAmount}</span>.<br>
   This means we will need to issue you with a new tax code.</p>
 
-  @helper.form(action = controllers.paye.routes.PayeController.confirmBenefitRemoval(benefit.benefitType, benefit.taxYear, benefit.employmentSequenceNumber)) {
+  @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(benefit.benefitType, benefit.taxYear, benefit.employmentSequenceNumber)) {
     <input class="button button--confirm" type="submit" value="Confirm" />
   }
 

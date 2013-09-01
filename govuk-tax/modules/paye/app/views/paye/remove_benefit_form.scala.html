@@ -1,22 +1,21 @@
-@(displayBenefit: controllers.paye.DisplayBenefit, updateForm: Form[controllers.paye.RemoveBenefitFormData])
+@(displayBenefit: models.paye.DisplayBenefit, updateForm: Form[models.paye.RemoveBenefitFormData])
 
 @import views.formatting.Dates._
+@import views.formatting.Strings._
 @import config.RefData._
 @import org.joda.time.LocalDate
-
-@import views.helpers.CustomHelpers._
 @import helper._
-@main(title = "Your tax home") {
+@main(title = "Remove your @sentence(iabdTypeFor(displayBenefit.benefit.benefitType))") {
 
-<h2>Remove your @{iabdTypeFor(displayBenefit.benefit.benefitType).toLowerCase}</h2>
+<h2>Remove your @sentence(iabdTypeFor(displayBenefit.benefit.benefitType))</h2>
 
 
 <p>Benefit provided by <span class="employer-name">@displayBenefit.employment.employerName</span><br/>
 Value of benefit: <span class="amount">£ @displayBenefit.benefit.grossAmountToString()</span></p>
 
-<p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with @{iabdTypeFor(displayBenefit.benefit.benefitType).toLowerCase}, you can remove it from your taxable benefits.</p>
+<p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with @sentence(iabdTypeFor(displayBenefit.benefit.benefitType)), you can remove it from your taxable benefits.</p>
 
-    @helper.form(action = controllers.paye.routes.PayeController.requestBenefitRemoval(displayBenefit.benefit.benefitType, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+    @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
         @defining(updateForm("withdrawDate")) { withdrawDateField =>
         <div class="@if(withdrawDateField.error.isDefined){error-notification}">

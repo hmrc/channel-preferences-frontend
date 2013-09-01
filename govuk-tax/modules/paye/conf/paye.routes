@@ -1,8 +1,9 @@
-GET     /home                                                           @controllers.paye.PayeController.home
-GET     /benefits                                                       @controllers.paye.PayeController.listBenefits
+GET         /home                                                         @controllers.paye.PayeHomeController.home
 
-GET     /benefits/:kind/:year/:employmentSequenceNumber/remove                @controllers.paye.PayeController.benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int)
-POST    /benefits/:kind/:year/:employmentSequenceNumber/remove                @controllers.paye.PayeController.requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int)
-POST    /benefits/:kind/:year/:employmentSequenceNumber/confirm               @controllers.paye.PayeController.confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int)
-GET     /benefits/:kind/confirmation/:oid                                    @controllers.paye.PayeController.benefitRemoved(kind: Int, oid: String)
+GET         /benefits                                                     @controllers.paye.BenefitHomeController.listBenefits
+
+GET         /benefits/:kind/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.benefitRemovalForm(kind: Int, year: Int, employmentSequenceNumber: Int)
+POST        /benefits/:kind/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.requestBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int)
+POST        /benefits/:kind/:year/:employmentSequenceNumber/confirm       @controllers.paye.RemoveBenefitController.confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int)
+GET         /benefits/:kind/confirmation/:oid                             @controllers.paye.RemoveBenefitController.benefitRemoved(kind: Int, oid: String)
 
