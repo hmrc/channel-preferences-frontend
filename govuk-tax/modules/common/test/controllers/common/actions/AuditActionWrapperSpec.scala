@@ -47,7 +47,7 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
       val controller = new AuditTestController()
 
       try {
-        controller.test()(FakeRequest())
+        controller.test()(FakeRequest("GET", "/foo"))
 
         verify(controller.auditMicroService).audit(auditEventCaptor.capture())
 
@@ -55,9 +55,10 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
         auditEvent.auditSource must be("frontend")
         auditEvent.auditType must be("Request")
 
-        auditEvent.tags.size must be(2)
+        auditEvent.tags.size must be(3)
         auditEvent.tags must contain(authorisation -> "/auth/oid/123123123")
         auditEvent.tags must contain(forwardedFor -> "192.168.1.1")
+        auditEvent.tags must contain("path" -> "/foo")
       } finally {
         MDC.clear
       }
@@ -84,7 +85,7 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
         auditEvent.tags.size must be(3)
         auditEvent.tags must contain(authorisation -> "/auth/oid/123123123")
         auditEvent.tags must contain(forwardedFor -> "192.168.1.1")
-        auditEvent.tags must contain("status" -> "200")
+        auditEvent.tags must contain("statusCode" -> "200")
       } finally {
         MDC.clear
       }
