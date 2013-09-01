@@ -13,30 +13,28 @@ trait AuditActionWrapper extends MdcHelper {
 
   import ExecutionContext.Implicits.global
 
-  lazy val requestEnabled = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.audit.requestEnabled").getOrElse(false)
-
-  lazy val responseEnabled = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.audit.responseEnabled").getOrElse(false)
+  lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.audit.traceRequests").getOrElse(false)
 
   object WithRequestAuditing {
 
     def apply(action: Action[AnyContent]) = Action {
       request =>
-        val context = fromMDC
+        if (traceRequests) {
+          val context = fromMDC
 
-        if (requestEnabled) {
-          auditEvent("Request", context ++ Map("path" -> request.path))
-        }
-
-        def audit(result: PlainResult): Result = {
-          if (responseEnabled) {
+          def audit(result: PlainResult): Result = {
             auditEvent("Response", context ++ Map("statusCode" -> result.header.status.toString))
+            result
           }
-          result
-        }
 
-        action(request) match {
-          case plain: PlainResult => audit(plain)
-          case async: AsyncResult => async.transform(audit)
+          auditEvent("Request", context ++ Map("path" -> request.path))
+
+          action(request) match {
+            case plain: PlainResult => audit(plain)
+            case async: AsyncResult => async.transform(audit)
+          }
+        } else {
+          action(request)
         }
     }
 
