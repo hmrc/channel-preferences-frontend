@@ -108,7 +108,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       when(controller.authMicroService.preferences(utr)).thenReturn(None)
 
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"sautr" : "$utr", "time": ${currentTime.getMillis}}""")
+      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
 
       val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(204)
@@ -119,7 +119,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       when(controller.authMicroService.preferences(utr)).thenReturn(None)
 
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"sautr" : "$utr", "time": ${currentTime.getMillis}}""")
+      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
 
       val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(204)
@@ -133,7 +133,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(SaPreferences(None, None)))))
 
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"sautr" : "$utr", "time": ${currentTime.getMillis}}""")
+      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
 
       val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(200)
@@ -147,7 +147,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(sa = None)))
 
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"sautr" : "$utr", "time": ${currentTime.getMillis}}""")
+      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
 
       val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(200)
@@ -161,7 +161,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(SaPreferences(Some(false), None)))))
 
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"sautr" : "$utr", "time": ${currentTime.getMillis}}""")
+      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
 
       val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(204)
@@ -173,7 +173,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "return 400 if the json body timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"""{"sautr" : "$utr", "time": ${currentTime.minusMinutes(6).getMillis}}""")
+      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.minusMinutes(6).getMillis}")
 
       val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
       status(result) should be(400)

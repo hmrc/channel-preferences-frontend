@@ -83,11 +83,11 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   def checkPrintPreferences(encryptedJson: String) = UnauthorisedAction { request => checkPrintPreferencesAction(request, encryptedJson) }
 
-  private[sa] def checkPrintPreferencesAction: (Request[_], String) => Result = (request, encryptedJson) => {
-    val decryptedJson = SsoPayloadEncryptor.decrypt(encryptedJson)
-    val json = Json.parse(decryptedJson)
-    val utr = (json \ "sautr").as[String]
-    val time = (json \ "time").as[Long]
+  private[sa] def checkPrintPreferencesAction: (Request[_], String) => Result = (request, encryptedQueryParameters) => {
+    val decryptedQueryParameters = SsoPayloadEncryptor.decrypt(encryptedQueryParameters)
+    val splitQueryParams = decryptedQueryParameters.split(":")
+    val utr = splitQueryParams(0).trim
+    val time = splitQueryParams(1).trim.toLong
 
     val currentTime: DateTime = now()
     if (currentTime.minusMinutes(5).isAfter(time)) BadRequest
