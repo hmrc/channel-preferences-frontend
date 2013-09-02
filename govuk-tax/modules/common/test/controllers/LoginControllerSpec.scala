@@ -57,7 +57,7 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       val result = loginController.login()(FakeRequest())
 
       status(result) should be(200)
-      contentAsString(result) should include("<a href=\"/samllogin\">here</a>")
+      contentAsString(result) should include("href=\"/samllogin\"")
     }
   }
 
