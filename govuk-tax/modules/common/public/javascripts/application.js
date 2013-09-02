@@ -47,21 +47,8 @@ $(document).ready(function() {
     }
   }
 
-  // toggle for reporting a problem (on all content pages)
-  // $('.report-a-problem-toggle a').on('click', function() {
-  //   $('.report-a-problem-container').toggle();
-  //     return false;
-  // });
-
-  // form submission for reporting a problem
-  // var $forms = $('.report-a-problem-container form, .report-a-problem form');
-  // $forms.append('<input type="hidden" name="javascript_enabled" value="true"/>');
-  // $forms.append($('<input type="hidden" name="referrer">').val(document.referrer || "unknown"));
-
-  // $('.report-a-problem-container form').submit(ReportAProblem.submit);
-
   // hover, active and focus states for buttons in IE<8
-  if ($.browser.msie && $.browser.version < 8) {
+  if (!$.support.leadingWhitespace) {
     $('.button').not('a')
       .on('click focus', function (e) {
         $(this).addClass('button-active');
