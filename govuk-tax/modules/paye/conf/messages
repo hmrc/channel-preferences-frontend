@@ -8,8 +8,6 @@ recent.changes.completed.removeCarBenefits=On {0}, you removed your company car 
 recent.changes.accepted.removeFuelBenefits=On {0}, you removed your company car fuel benefit from {1}. This is being processed and you will receive a new Tax Code within 2 days.
 recent.changes.completed.removeFuelBenefits=On {0}, you removed your company car fuel benefit from {1}. This has been processed and your new Tax Code is {2}. {1} have been notified.
 
-benefit.29.lowercase=fuel benefit
-benefit.29.uppercase=Fuel Benefit
-
-
+recent.change.taxcode.accepted=(a new tax code is being calculated and this may change soon)
+recent.change.taxcode.completed=(This changed on {0})
 

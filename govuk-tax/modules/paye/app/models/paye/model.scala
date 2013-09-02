@@ -37,7 +37,8 @@ case class RemoveBenefitFormData(withdrawDate: LocalDate,
 
 case class PayeOverview(name: String, lastLogin: Option[DateTime], nino: String, employmentViews: Seq[EmploymentView], hasBenefits: Boolean)
 
-case class EmploymentView(companyName: String, startDate: LocalDate, endDate: Option[LocalDate], taxCode: String, recentChanges: Seq[RecentChange])
+case class EmploymentView(companyName: String, startDate: LocalDate, endDate: Option[LocalDate], taxCode: String,
+  recentChanges: Seq[RecentChange], taxCodeChange: Option[RecentChange] = None)
 
 object EmploymentViews {
 
@@ -51,7 +52,8 @@ object EmploymentViews {
     for (e <- employments) yield EmploymentView(
       e.employerNameOrReference, e.startDate, e.endDate, taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
       (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, "accepted") ++
-        transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, "completed")).toList)
+        transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, "completed")).toList,
+      taxCodeChange(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions))
   }
 
   private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {
@@ -59,13 +61,32 @@ object EmploymentViews {
   }
 
   private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
-    messageCodePrefix: String): Seq[RecentChange] =
+    messageCodePrefix: String): Seq[RecentChange] = {
     transactions.filter(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).map {
       tx =>
         RecentChange(
           tx.tags.get.find(_.startsWith("message.code.")).get.replace("message.code", messageCodePrefix),
           tx.statusHistory(0).createdAt.toLocalDate)
     }
+  }
+
+  private def taxCodeChange(employmentSequenceNumber: Int, taxYear: Int, acceptedTransactions: Seq[TxQueueTransaction],
+    completedTransactions: Seq[TxQueueTransaction]): Option[RecentChange] = {
+    val accepted = findTaxCodeChange(employmentSequenceNumber, taxYear, acceptedTransactions, "taxcode.accepted")
+    if (accepted.isEmpty) {
+      findTaxCodeChange(employmentSequenceNumber, taxYear, completedTransactions, "taxcode.completed")
+    } else {
+      accepted
+    }
+  }
+
+  private def findTaxCodeChange(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
+    messageCode: String): Option[RecentChange] = {
+    transactions.find(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).map {
+      tx =>
+        RecentChange(messageCode, tx.statusHistory(0).createdAt.toLocalDate)
+    }
+  }
 }
 
 case class RecentChange(messageCode: String, timeOfChange: LocalDate)
