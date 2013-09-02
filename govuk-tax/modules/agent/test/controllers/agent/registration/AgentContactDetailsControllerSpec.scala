@@ -91,7 +91,7 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     "go to the next step if email address is valid and store result in keystore" in new WithApplication(FakeApplication()) {
       controller.resetAll
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "a@a.a"))
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a"))
       status(result) shouldBe 303
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
@@ -100,6 +100,9 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
       keyStoreData(lastName) must be(payeRoot.surname)
       keyStoreData(dateOfBirth) must be(payeRoot.dateOfBirth)
       keyStoreData(nino) must be(payeRoot.nino)
+      keyStoreData(daytimePhoneNumber) must be("07777777777")
+      keyStoreData(mobilePhoneNumber) must be("0777777771")
+      keyStoreData(emailAddress) must be("a@a.a")
     }
   }
 
