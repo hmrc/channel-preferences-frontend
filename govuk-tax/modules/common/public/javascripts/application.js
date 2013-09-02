@@ -1,3 +1,8 @@
+$(document).on('click', '[data-regime]', function() {
+  var regime = $(this).data('regime');
+  _gaq.push(['_trackPageview', '/' + regime]);
+});
+
 $(document).ready(function() {
   $('.print-link a').attr('target', '_blank');
 
