@@ -40,6 +40,7 @@ class EmploymentViewsSpec extends BaseSpec {
       views must have size 2
       views(0).taxCodeChange must not be (None)
       views(0).taxCodeChange.get.messageCode must be("taxcode.accepted")
+      views(1).taxCodeChange must be(None)
     }
 
     "add a tax code recent change object if a benefit transaction is in a completed state" in {
@@ -59,6 +60,20 @@ class EmploymentViewsSpec extends BaseSpec {
       views must have size 2
       views(0).taxCodeChange must not be (None)
       views(0).taxCodeChange.get.messageCode must be("taxcode.completed")
+      views(1).taxCodeChange must be(None)
+    }
+
+    "not add any recent change objects if no related benefit transactions exist" in {
+      val views = EmploymentViews(
+        employments,
+        taxCodes,
+        taxYear,
+        List.empty,
+        Seq.empty
+      )
+      views must have size 2
+      views(0).taxCodeChange must be(None)
+      views(1).taxCodeChange must be(None)
     }
   }
 }
