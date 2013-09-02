@@ -7,9 +7,8 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.test.Helpers._
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.agent.registration.FormNames._
-import org.mockito.Matchers._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
@@ -90,9 +89,16 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "go to the next step if email address is valid and store result in keystore" in new WithApplication(FakeApplication()) {
       controller.resetAll
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "a@a.a"))
       status(result) shouldBe 303
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), any[Map[String, Any]]())
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())
+      val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
+      keyStoreData("title")must be(payeRoot.title)
+      keyStoreData("firstName") must be(payeRoot.firstName)
+      keyStoreData("lastName") must be(payeRoot.surname)
+      keyStoreData("dateOfBirth") must be(payeRoot.dateOfBirth)
+      keyStoreData("nino") must be(payeRoot.nino)
     }
   }
 

@@ -40,7 +40,9 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
         BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get))
       },
       _ => {
-        val agentDetails = contactForm.bindFromRequest()(request).data
+        val paye: PayeRoot = user.regimes.paye.get
+        var agentDetails = contactForm.bindFromRequest()(request).data
+        agentDetails += (("title", paye.title), ("firstName", paye.firstName), ("lastName", paye.surname), ("dateOfBirth", paye.dateOfBirth), ("nino", paye.nino))
         keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, contactFormName, agentDetails)
         Redirect(routes.AgentTypeAndLegalEntityController.agentType)
       }
