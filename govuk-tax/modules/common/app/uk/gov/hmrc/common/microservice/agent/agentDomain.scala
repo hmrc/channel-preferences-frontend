@@ -8,6 +8,7 @@ case class Agent(legalEntity: String,
   daytimeNumber: String,
   mobileNumber: String,
   emailAddress: String,
+  contactDetails: ContactDetails,
   companyDetails: CompanyDetails,
   professionalBodyMembership: Option[ProfessionalBodyMembership],
   createdAt: Option[DateTime],
@@ -29,3 +30,10 @@ case class CompanyDetails(companyName: String,
   companyHouseNumber: Option[String] = None)
 
 case class ProfessionalBodyMembership(professionalBody: String, membershipNumber: String)
+
+case class ContactDetails(title: String,
+  firstName: String,
+  lastName: String,
+  dob: String,
+  nino: String,
+  middleName: Option[String] = None)

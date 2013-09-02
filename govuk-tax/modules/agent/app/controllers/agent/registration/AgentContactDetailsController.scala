@@ -42,7 +42,7 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
       _ => {
         val paye: PayeRoot = user.regimes.paye.get
         var agentDetails = contactForm.bindFromRequest()(request).data
-        agentDetails += (("title", paye.title), ("firstName", paye.firstName), ("lastName", paye.surname), ("dateOfBirth", paye.dateOfBirth), ("nino", paye.nino))
+        agentDetails += ((title, paye.title), (firstName, paye.firstName), (lastName, paye.surname), (dateOfBirth, paye.dateOfBirth), (nino, paye.nino))
         keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, contactFormName, agentDetails)
         Redirect(routes.AgentTypeAndLegalEntityController.agentType)
       }
@@ -58,4 +58,9 @@ object AgentContactDetailsFormFields {
   val daytimePhoneNumber = "daytimePhoneNumber"
   val mobilePhoneNumber = "mobilePhoneNumber"
   val emailAddress = "emailAddress"
+  val title = "title"
+  val firstName = "firstName"
+  val lastName = "lastName"
+  var dateOfBirth = "dateOfBirth"
+  var nino = "nino"
 }

@@ -25,8 +25,11 @@ trait AgentMapper {
       optionalCompanyData(tradingName), phNumbers, websiteUrls, optionalCompanyData(ctUtr), optionalCompanyData(vatVrn),
       optionalCompanyData(payeEmpRef), optionalCompanyData(companyHouseNumber))
 
+    val contactDetails = ContactDetails(contactDetailsData(title), contactDetailsData(firstName), contactDetailsData(lastName),
+      contactDetailsData(dateOfBirth), contactDetailsData(nino))
+
     new Agent(agentTypeData(legalEntity), agentTypeData(agentType), contactDetailsData(daytimePhoneNumber),
-      contactDetailsData(mobilePhoneNumber), contactDetailsData(emailAddress), companyDetails, professionalBodyData, None, None)
+      contactDetailsData(mobilePhoneNumber), contactDetailsData(emailAddress), contactDetails, companyDetails, professionalBodyData, None, None)
   }
 
   private def membershipData(field: String)(implicit keyStore: KeyStore[String]): String = {

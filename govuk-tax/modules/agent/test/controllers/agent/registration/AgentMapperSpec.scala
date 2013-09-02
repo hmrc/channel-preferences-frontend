@@ -23,6 +23,11 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
 
       val agent = agentMapper.toAgent(getKeyStoreWithAllInformation)
 
+      agent.contactDetails.title must be("Miss")
+      agent.contactDetails.firstName must be("Nat")
+      agent.contactDetails.lastName must be("Butterfly")
+      agent.contactDetails.dob must be("1985-09-02")
+      agent.contactDetails.nino must be("AB763527J")
       agent.legalEntity must be("legalEntityValue")
       agent.agentType must be("agentTypeValue")
       agent.daytimeNumber must be("02000000000")
@@ -66,6 +71,11 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
 
       val agent = agentMapper.toAgent(getKeyStoreWithOnlyMandatoryInformation)
 
+      agent.contactDetails.title must be("Miss")
+      agent.contactDetails.firstName must be("Nat")
+      agent.contactDetails.lastName must be("Butterfly")
+      agent.contactDetails.dob must be("1985-09-02")
+      agent.contactDetails.nino must be("AB763527J")
       agent.legalEntity must be("legalEntityValue")
       agent.agentType must be("agentTypeValue")
       agent.daytimeNumber must be("02000000000")
@@ -99,6 +109,11 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       Map(
         FormNames.contactFormName ->
           Map(
+            title -> "Miss",
+            firstName -> "Nat",
+            lastName -> "Butterfly",
+            dateOfBirth -> "1985-09-02",
+            nino -> "AB763527J",
             daytimePhoneNumber -> "02000000000",
             mobilePhoneNumber -> "07777777777",
             emailAddress -> "agent@agent.com"
@@ -152,6 +167,11 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       Map(
         FormNames.contactFormName ->
           Map(
+            title -> "Miss",
+            firstName -> "Nat",
+            lastName -> "Butterfly",
+            dateOfBirth -> "1985-09-02",
+            nino -> "AB763527J",
             daytimePhoneNumber -> "02000000000",
             mobilePhoneNumber -> "07777777777",
             emailAddress -> "agent@agent.com"

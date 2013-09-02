@@ -14,6 +14,7 @@ import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import play.api.test.FakeApplication
 import scala.Some
+import controllers.agent.registration.AgentContactDetailsFormFields._
 
 class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -94,14 +95,14 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 303
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
-      keyStoreData("title")must be(payeRoot.title)
-      keyStoreData("firstName") must be(payeRoot.firstName)
-      keyStoreData("lastName") must be(payeRoot.surname)
-      keyStoreData("dateOfBirth") must be(payeRoot.dateOfBirth)
-      keyStoreData("nino") must be(payeRoot.nino)
+      keyStoreData(title)must be(payeRoot.title)
+      keyStoreData(firstName) must be(payeRoot.firstName)
+      keyStoreData(lastName) must be(payeRoot.surname)
+      keyStoreData(dateOfBirth) must be(payeRoot.dateOfBirth)
+      keyStoreData(nino) must be(payeRoot.nino)
     }
   }
 
-  def newRequestForContactDetails(daytimePhoneNumber: String, mobilePhoneNumber: String, emailAddress: String) =
-    FakeRequest().withFormUrlEncodedBody("daytimePhoneNumber" -> daytimePhoneNumber, "mobilePhoneNumber" -> mobilePhoneNumber, "emailAddress" -> emailAddress)
+  def newRequestForContactDetails(daytimePhoneNumberVal: String, mobilePhoneNumberVal: String, emailAddressVal: String) =
+    FakeRequest().withFormUrlEncodedBody(daytimePhoneNumber -> daytimePhoneNumberVal, mobilePhoneNumber -> mobilePhoneNumberVal, emailAddress -> emailAddressVal)
 }
