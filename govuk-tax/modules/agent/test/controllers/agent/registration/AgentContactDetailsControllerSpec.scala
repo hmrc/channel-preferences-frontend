@@ -88,11 +88,12 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
-    "go to the next step if email address is valid and store result in keystore" in new WithApplication(FakeApplication()) {
+    "go to the agent type page if valid email address and phone numbers are entered and store result in keystore, including the contact details" in new WithApplication(FakeApplication()) {
       controller.resetAll
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a"))
       status(result) shouldBe 303
+      headers(result)("Location") must be("/agent-type")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(title)must be(payeRoot.title)
