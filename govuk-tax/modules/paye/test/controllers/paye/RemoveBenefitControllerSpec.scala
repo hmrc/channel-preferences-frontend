@@ -3,8 +3,8 @@ package controllers.paye
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
-import org.scalatest.BeforeAndAfterEach
-import org.joda.time.LocalDate
+import org.scalatest.{ TestData, BeforeAndAfterEach }
+import org.joda.time.{ DateTimeUtils, LocalDate }
 import play.api.test.{ WithApplication, FakeRequest }
 import views.formatting.Dates
 import play.api.test.Helpers._
@@ -23,10 +23,17 @@ import uk.gov.hmrc.microservice.paye.domain.Benefit
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import org.jsoup.Jsoup
+import uk.gov.hmrc.common.microservice.keystore.KeyStore
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
   private lazy val controller = new RemoveBenefitController with MockMicroServicesForTests
+
+  override protected def beforeEach(testData: TestData) {
+    super.beforeEach(testData)
+
+    controller.resetAll()
+  }
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
     acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
@@ -43,7 +50,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
       FakeRequest().withFormUrlEncodedBody("withdrawDate" -> date.map(Dates.shortDate(_)).getOrElse(""), "agreement" -> agreed.toString.toLowerCase)
 
     "in step 1 display car details" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val result = controller.benefitRemovalFormAction(31, johnDensmore, FakeRequest(), 2013, 2)
@@ -55,7 +61,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val invalidWithdrawDate = new LocalDate().plusDays(36)
@@ -71,7 +76,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 1 display an error message when return date of the car is in the previous tax year" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val invalidWithdrawDate = new LocalDate(1999, 2, 1)
@@ -87,7 +91,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 1 display an error message when return date of the car is in the next tax year" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val invalidWithdrawDate = new LocalDate(2030, 2, 1)
@@ -103,7 +106,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 1 display an error message when return date is not set" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val result = controller.requestBenefitRemovalAction(31, johnDensmore, requestBenefitRemovalFormSubmission(None, true), 2013, 2)
@@ -117,7 +119,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 1 display an error message when agreement checkbox is not selected" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val result = controller.requestBenefitRemovalAction(31, johnDensmore, FakeRequest().withFormUrlEncodedBody("withdrawDate" -> ""), 2013, 2)
@@ -131,7 +132,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 2 display the calculated value" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val calculationResult = CalculationResult(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
@@ -145,8 +145,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
       requestBenefits should include regex "Personal Allowance by.*£ 197.96.".r
     }
 
-    "in step 2 save the withdrawDate to the session" in new WithApplication(FakeApplication()) {
-      controller.resetAll
+    "in step 2 save the withdrawDate to the keystore" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val revisedAmount = BigDecimal(123.46)
@@ -157,22 +156,18 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
 
       val result = controller.requestBenefitRemovalAction(31, johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true), 2013, 2)
 
-      session(result).data must contain key "withdraw_date"
-      session(result).data must contain key "revised_amount"
-      Dates.parseShortDate(session(result)("withdraw_date")) mustBe withdrawDate
-      BigDecimal(session(result)("revised_amount")) mustBe revisedAmount
-
+      verify(controller.keyStoreMicroService, times(1)).addKeyStoreEntry(johnDensmore.oid, "paye_ui", "remove_benefit", Map("form" -> RemoveBenefitData(withdrawDate, "123.46")))
     }
 
     "in step 2 call the paye service to remove the benefit and render the success page" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       when(controller.payeMicroService.removeBenefit(Matchers.any[String], Matchers.any[String](), Matchers.any[Int](), Matchers.any[Benefit](), Matchers.any[LocalDate](), Matchers.any[BigDecimal]())).thenReturn(Some(TransactionId("someId")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val result = controller.confirmBenefitRemovalAction(31, johnDensmore,
-        FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate), "revised_amount" -> "123.45"), 2013, 2)
+      when(controller.keyStoreMicroService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit", "form")).thenReturn(Some(RemoveBenefitData(withdrawDate, "123.45")))
+
+      val result = controller.confirmBenefitRemovalAction(31, johnDensmore, FakeRequest(), 2013, 2)
 
       verify(controller.payeMicroService, times(1)).removeBenefit("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", 22, carBenefit, withdrawDate, BigDecimal("123.45"))
 
@@ -183,14 +178,15 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 3 show the transaction id only if the transaction exists" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val transaction: TxQueueTransaction = mock[TxQueueTransaction]
       when(controller.txQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(Some(transaction))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val result = controller.benefitRemovedAction(johnDensmore, FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate)), 31, "123")
+      when(controller.keyStoreMicroService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit", "form")).thenReturn(Some(RemoveBenefitData(withdrawDate, "123.45")))
+
+      val result = controller.benefitRemovedAction(johnDensmore, FakeRequest(), 31, "123")
 
       status(result) shouldBe 200
       contentAsString(result) must include("123")
@@ -198,10 +194,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       when(controller.txQueueMicroService.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])).thenReturn(None)
+      when(controller.keyStoreMicroService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit", "form")).thenReturn(Some(RemoveBenefitData(withdrawDate, "555")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
       val result = controller.benefitRemovedAction(johnDensmore, FakeRequest().withSession("withdraw_date" -> Dates.shortDate(withdrawDate)), 31, "123")
@@ -211,7 +207,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "return the updated benefits list page if the user has gone back in the browser and resubmitted and the benefit has already been removed" in {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(removedCarTransaction), List.empty)
 
       val result = controller.benefitRemovalFormAction(31, johnDensmore, FakeRequest(), 2013, 1)
@@ -220,7 +215,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "return the benefits list page if the user modifies the url to include a benefit type that they can not remove" in {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(removedCarTransaction), List.empty)
 
       val result = controller.benefitRemovalFormAction(30, johnDensmore, FakeRequest(), 2013, 1)
@@ -229,7 +223,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "return to the benefits list page if the user modifies the url to include an incorrect sequence number" in {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(removedCarTransaction), List.empty)
 
       val result = controller.benefitRemovalFormAction(31, johnDensmore, FakeRequest(), 2013, 3)
@@ -240,7 +233,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
 
   "benefitRemoved" should {
     "render a view with correct elements" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val car = Car(None, None, None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
@@ -262,7 +254,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     }
 
     "Contain correct employee names" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val car = Car(None, None, Some(new LocalDate()), BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
@@ -280,7 +271,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
 
       val result = controller.benefitRemovalFormAction(31, user, request, 2013, 1)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".checkbox").text should not include ("Some(")
+      doc.select(".checkbox").text should not include "Some("
     }
 
   }

@@ -15,7 +15,7 @@ import uk.gov.hmrc.common.microservice.agent.Agent
 
 class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
-  val mockKeyStore = mock[KeyStore]
+  val mockKeyStore = mock[KeyStore[String]]
   val mockAgent = mock[Agent]
 
   val id = "wshakespeare"
@@ -28,7 +28,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
   private val controller = new AgentThankYouController with MockMicroServicesForTests {
 
-    override def toAgent(implicit keyStore: KeyStore) = {
+    override def toAgent(implicit keyStore: KeyStore[String]) = {
       mockAgent
     }
 
@@ -37,14 +37,14 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
   "AgentThankYouController" should {
     "get the keystore, save the agent and go to the thank you page" in {
 
-      when(controller.keyStoreMicroService.getKeyStore(s"Registration:$id", "agent")).thenReturn(Some(mockKeyStore))
+      when(controller.keyStoreMicroService.getKeyStore[String](s"Registration:$id", "agent")).thenReturn(Some(mockKeyStore))
       when(controller.agentMicroService.create(mockAgent)).thenReturn(Some(mockAgent))
       when(mockAgent.uar).thenReturn(Some("12345"))
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 200
 
-      verify(controller.keyStoreMicroService).getKeyStore(s"Registration:$id", "agent")
+      verify(controller.keyStoreMicroService).getKeyStore[String](s"Registration:$id", "agent")
       verify(controller.agentMicroService).create(mockAgent)
       verify(controller.keyStoreMicroService).deleteKeyStore(s"Registration:$id", "agent")
 

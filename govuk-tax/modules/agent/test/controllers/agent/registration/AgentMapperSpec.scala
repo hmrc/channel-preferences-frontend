@@ -94,7 +94,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
 
   }
 
-  private def getKeyStoreWithAllInformation: KeyStore = {
+  private def getKeyStoreWithAllInformation: KeyStore[String] = {
     val data =
       Map(
         FormNames.contactFormName ->
@@ -147,7 +147,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
     new KeyStore("1", new DateTime(), new DateTime(), data)
   }
 
-  private def getKeyStoreWithOnlyMandatoryInformation: KeyStore = {
+  private def getKeyStoreWithOnlyMandatoryInformation: KeyStore[String] = {
     val data =
       Map(
         FormNames.contactFormName ->

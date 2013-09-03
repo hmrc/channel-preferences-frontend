@@ -28,14 +28,19 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   val user = User(id, null, RegimeRoots(Some(payeRoot), None, None), None, None)
 
   val mockAgent = mock[Agent]
-  val mockKeyStore = mock[KeyStore]
+  val mockKeyStore = mock[KeyStore[String]]
 
   private val controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests {
   }
 
+  override protected def beforeEach() {
+    super.beforeEach()
+    controller.resetAll()
+  }
+
   "AgentProfessionalMembershipController" should {
     "not go to the next step if professional body is specified but not the membership number" in new WithApplication(FakeApplication()) {
-      controller.resetAll
+
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify a membership number for your professional body")
@@ -43,7 +48,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "not go to the next step if professional body is specified but membership number is blank" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "   "))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify a membership number for your professional body")
@@ -51,7 +55,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "not go to the next step if professional body is invalid" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("sad", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("Please select a valid option")
@@ -59,7 +62,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "not go to the next step if membership number is specified but not the professional body" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", "asdsafd"))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify which professional body you belong to")
@@ -67,7 +69,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "go to the next step if no input data is entered" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       mockKeyStoreAndAgent
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", ""))
       status(result) shouldBe 303
@@ -75,7 +76,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       mockKeyStoreAndAgent
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
       status(result) shouldBe 303
@@ -85,7 +85,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
 
   def mockKeyStoreAndAgent = {
     when(controller.agentMicroService.create(any[Agent])).thenReturn(Some(mockAgent))
-    when(controller.keyStoreMicroService.getKeyStore(anyString(), anyString())).thenReturn(Some(mockKeyStore))
+    when(controller.keyStoreMicroService.getKeyStore[String](anyString(), anyString())(any[Manifest[String]])).thenReturn(Some(mockKeyStore))
     when(mockAgent.uar).thenReturn(Some("12324"))
     doNothing().when(controller.keyStoreMicroService).deleteKeyStore(anyString(), anyString())
     when(mockKeyStore.get(anyString())).thenReturn(Some(Map.empty[String, String]))
