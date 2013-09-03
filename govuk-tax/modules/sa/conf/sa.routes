@@ -6,3 +6,4 @@ GET     /prefs/:encodedJson       @controllers.sa.SaController.checkPrintPrefere
 GET     /changeAddress            @controllers.sa.SaController.changeMyAddressForm
 POST    /changeAddress            @controllers.sa.SaController.submitChangeAddressForm
 POST    /changeAddressConfirm     @controllers.sa.SaController.submitConfirmChangeMyAddressForm
+POST    /redisplayChangeAddress   @controllers.sa.SaController.redisplayChangeAddressForm

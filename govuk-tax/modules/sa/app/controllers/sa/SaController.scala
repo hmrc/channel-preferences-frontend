@@ -41,35 +41,6 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       }
   )
 
-  val changeAddressForm: Form[ChangeAddressForm] = Form(
-    mapping(
-      "addressLine1" -> text
-        .verifying("error.sa.address.line1.mandatory", notBlank _)
-        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
-        .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
-      "addressLine2" -> text
-        .verifying("error.sa.address.line2.mandatory", notBlank _)
-        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
-        .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
-      "optionalAddressLines" -> tuple(
-        "addressLine3" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
-          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _)),
-        "addressLine4" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
-          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _))
-      ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2.getOrElse("")) || (notBlank(optionalLines._1.getOrElse("")) && notBlank(optionalLines._2.getOrElse("")))),
-      "postcode" -> text
-        .verifying("error.sa.postcode.mandatory", notBlank _)
-        .verifying("error.sa.postcode.lengthviolation", isPostcodeLengthValid _)
-        .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters _),
-      "additionalDeliveryInformation" -> optional(text)) {
-        (addressLine1, addressLine2, optionalAddressLines, postcode, additionalDeliveryInformation) =>
-          ChangeAddressForm(Some(addressLine1), Some(addressLine2), optionalAddressLines._1, optionalAddressLines._2, Some(postcode), additionalDeliveryInformation)
-      } {
-        form => Some((form.addressLine1.getOrElse(""), form.addressLine2.getOrElse(""), (form.addressLine3, form.addressLine4), form.postcode.get, form.additionalDeliveryInformation))
-      }
-
-  )
-
   def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => detailsAction(user, request) })
 
   private[sa] def detailsAction: (User, Request[_]) => Result = (user, request) => {
@@ -112,23 +83,6 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     }
   }
 
-  def changeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeMyAddressFormAction(user, request) })
-
-  private[sa] def changeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
-    Ok(sa_personal_details_update(changeAddressForm))
-  }
-
-  def submitChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitChangeAddressFormAction(user, request) })
-
-  private[sa] def submitChangeAddressFormAction: (User, Request[_]) => Result = (user, request) => {
-    changeAddressForm.bindFromRequest()(request).fold(
-      errors => BadRequest(sa_personal_details_update(errors)),
-      formData => {
-        Ok(sa_personal_details_confirmation(changeAddressForm, formData))
-      }
-    )
-  }
-
   def submitPrefsForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitPrefsFormAction(user, request) })
 
   private[sa] def submitPrefsFormAction: (User, Request[_]) => Result = (user, request) => {
@@ -144,6 +98,59 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     )
   }
 
+  val changeAddressForm: Form[ChangeAddressForm] = Form(
+    mapping(
+      "addressLine1" -> text
+        .verifying("error.sa.address.line1.mandatory", notBlank _)
+        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
+        .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
+      "addressLine2" -> text
+        .verifying("error.sa.address.line2.mandatory", notBlank _)
+        .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
+        .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
+      "optionalAddressLines" -> tuple(
+        "addressLine3" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _)),
+        "addressLine4" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+          .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _))
+      ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2.getOrElse("")) || (notBlank(optionalLines._1.getOrElse("")) && notBlank(optionalLines._2.getOrElse("")))),
+      "postcode" -> text
+        .verifying("error.sa.postcode.mandatory", notBlank _)
+        .verifying("error.sa.postcode.lengthviolation", isPostcodeLengthValid _)
+        .verifying("error.sa.postcode.invalidcharacter", characterValidator.containsValidPostCodeCharacters _),
+      "additionalDeliveryInformation" -> optional(text)) {
+        (addressLine1, addressLine2, optionalAddressLines, postcode, additionalDeliveryInformation) =>
+          ChangeAddressForm(Some(addressLine1), Some(addressLine2), optionalAddressLines._1, optionalAddressLines._2, Some(postcode), additionalDeliveryInformation)
+      } {
+        form => Some((form.addressLine1.getOrElse(""), form.addressLine2.getOrElse(""), (form.addressLine3, form.addressLine4), form.postcode.get, form.additionalDeliveryInformation))
+      }
+
+  )
+
+  def changeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeMyAddressFormAction(user, request) })
+
+  private[sa] def changeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+    Ok(sa_personal_details_update(changeAddressForm))
+  }
+
+  def redisplayChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => redisplayChangeAddressFormAction(user, request) })
+
+  private[sa] def redisplayChangeAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+    val form = changeAddressForm.bindFromRequest()(request)
+    Ok(sa_personal_details_update(form))
+  }
+
+  def submitChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitChangeAddressFormAction(user, request) })
+
+  private[sa] def submitChangeAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+    changeAddressForm.bindFromRequest()(request).fold(
+      errors => BadRequest(sa_personal_details_update(errors)),
+      formData => {
+        Ok(sa_personal_details_confirmation(changeAddressForm, formData))
+      }
+    )
+  }
+
   def submitConfirmChangeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitConfirmChangeMyAddressFormAction(user, request) })
 
   private[sa] def submitConfirmChangeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
@@ -151,6 +158,8 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       errors => BadRequest(sa_personal_details_update(errors)),
       formData => {
         val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
+
+        // TODO [JJS] This should do a redirect to the confirmation (POST-REDIRECT-GET) - perhaps to a generic "transaction confirmation page" reading from the transaction service?
 
         saMicroService.updateMainAddress(uri, formData.toUpdateAddress) match {
           case Left(errorMessage: String) => Ok(sa_personal_details_update_failed(errorMessage))

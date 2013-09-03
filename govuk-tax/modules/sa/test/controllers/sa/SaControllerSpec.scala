@@ -628,6 +628,48 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
   }
 
+  "The redisplayChangeAddressFormAction" should {
+
+    "Display the Change Address page with the form fields populated" in {
+      controller.resetAll()
+
+
+      val addressLine1 = "xxx address line 1 xxx"
+      val addressLine2 = "xxx address line 2 xxx"
+      val addressLine3 = "xxx address line 3 xxx"
+      val addressLine4 = "xxx address line 4 xxx"
+      val postcode = "xxx postcode xxx"
+      val additionalInfo = "xxx additional delivery information xxx"
+      val result = controller.redisplayChangeAddressFormAction(geoffFisher, FakeRequest("POST", "/not-used").withFormUrlEncodedBody(
+        "addressLine1" -> addressLine1,
+        "addressLine2" -> addressLine2,
+        "addressLine3" -> addressLine3,
+        "addressLine4" -> addressLine4,
+        "postcode" -> postcode,
+        "additionalDeliveryInformation" -> additionalInfo
+      ))
+
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody should include("addressLine1")
+      htmlBody should include("addressLine2")
+      htmlBody should include("addressLine3")
+      htmlBody should include("addressLine4")
+      htmlBody should not include "addressLine5"
+      htmlBody should include("postcode")
+      htmlBody should not include "country"
+      htmlBody should include("additionalDeliveryInformation")
+
+      htmlBody should include(addressLine1)
+      htmlBody should include(addressLine2)
+      htmlBody should include(addressLine3)
+      htmlBody should include(addressLine4)
+      htmlBody should include(postcode)
+      htmlBody should include(additionalInfo)
+    }
+  }
+
   private def request(user: User, action: (User, Request[_]) => Result): String = {
     val result = action(user, FakeRequest())
 
