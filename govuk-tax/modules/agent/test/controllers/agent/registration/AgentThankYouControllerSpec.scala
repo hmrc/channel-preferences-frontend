@@ -53,7 +53,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect user to contact details page when keystore is not found" in {
 
-      when(controller.keyStoreMicroService.getKeyStore(controller.registrationId(user), controller.agent)).thenReturn(None)
+      when(controller.keyStoreMicroService.getKeyStore[String](controller.registrationId(user), controller.agent)).thenReturn(None)
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 303

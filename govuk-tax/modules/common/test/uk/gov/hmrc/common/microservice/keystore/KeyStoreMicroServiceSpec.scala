@@ -22,10 +22,15 @@ class TestKeyStoreMicroService extends KeyStoreMicroService with MockitoSugar {
     httpWrapper.httpDeleteAndForget(uri)
   }
 
+  override protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
+    httpWrapper.httpPut[A](uri, body)
+  }
+
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
     def post[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
     def httpDeleteAndForget(uri: String) {}
+    def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Option[A] = None
   }
 }
 
@@ -45,7 +50,7 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
 
       private val captor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
 
-      verify(keyStoreMicroService.httpWrapper, times(1)).post[String](Matchers.eq("/keystore/aSource/anId/data/aKey"), captor.capture(), Matchers.any[Map[String, String]])
+      verify(keyStoreMicroService.httpWrapper, times(1)).httpPut[String](Matchers.eq("/keystore/aSource/anId/data/aKey"), captor.capture(), Matchers.any[Map[String, String]])
 
       val body = captor.getValue
       (body \ "key1").as[String] must be("value1")

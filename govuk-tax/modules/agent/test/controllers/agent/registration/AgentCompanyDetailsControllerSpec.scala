@@ -6,7 +6,7 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.test.Helpers._
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ ArgumentCaptor, Matchers }
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
@@ -95,7 +95,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "not go to the next step if main address postcode is incorrect" in new WithApplication(FakeApplication()) {
       controller.resetAll()
-      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mainAddressPostcodeVal="1234"))
+      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mainAddressPostcodeVal = "1234"))
       status(result) shouldBe 400
       contentAsString(result) should include("Postcode is incorrect")
       verifyZeroInteractions(controller.keyStoreMicroService)
@@ -127,7 +127,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "not go to the next step if communication address postcode is incorrect" in new WithApplication(FakeApplication()) {
       controller.resetAll()
-      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(communicationAddressPostcodeVal="1234"))
+      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(communicationAddressPostcodeVal = "1234"))
       status(result) shouldBe 400
       contentAsString(result) should include("Postcode is incorrect")
       verifyZeroInteractions(controller.keyStoreMicroService)
@@ -151,7 +151,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "not go to the next step if business address postcode is incorrect" in new WithApplication(FakeApplication()) {
       controller.resetAll()
-      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(businessAddressPostcodeVal="1234"))
+      val result = controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(businessAddressPostcodeVal = "1234"))
       status(result) shouldBe 400
       contentAsString(result) should include("Postcode is incorrect")
       verifyZeroInteractions(controller.keyStoreMicroService)
@@ -231,7 +231,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
     websiteVal: Option[String] = Some("alvarito.com"),
     emailVal: String = "alvaro@alvaro.com",
     mainAddressLine1Val: String = "Main line 1",
-    mainAddressLine2Val: String ="Main line 2",
+    mainAddressLine2Val: String = "Main line 2",
     mainAddressLine3Val: String = "Main line 3",
     mainAddressLine4Val: String = "Main line 4",
     mainAddressPostcodeVal: String = "E33BA",
@@ -250,35 +250,34 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
     vatVrnVal: Option[String] = Some("vatvrnValue"),
     payeEmpRefVal: Option[String] = Some("payempValue"),
     companyHouseNumberVal: Option[String] = Some("764536"),
-    registeredOnHMRCVal: Boolean = true
-  ) =
-      FakeRequest().withFormUrlEncodedBody(
-        companyName -> companyNameVal,
-        tradingName -> tradingNameVal.get,
-        qualifiedLandlineNumber -> landlineNumberVal.getOrElse(""),
-        qualifiedMobileNumber -> mobileNumberVal.getOrElse(""),
-        website -> websiteVal.get,
-        email -> emailVal,
-        mainAddress + '.' + addressLine1 -> mainAddressLine1Val,
-        mainAddress + '.' + addressLine2 -> mainAddressLine2Val,
-        mainAddress + '.' + addressLine3 -> mainAddressLine3Val,
-        mainAddress + '.' + addressLine4 -> mainAddressLine4Val,
-        mainAddress + '.' + postcode -> mainAddressPostcodeVal,
-        communicationAddress + '.' +  addressLine1 -> communicationAddressLine1Val,
-        communicationAddress + '.' +  addressLine2 -> communicationAddressLine2Val,
-        communicationAddress + '.' +  addressLine3 -> communicationAddressLine3Val,
-        communicationAddress + '.' +  addressLine4 -> communicationAddressLine4Val,
-        communicationAddress + '.' + postcode -> communicationAddressPostcodeVal,
-        businessAddress + '.' + addressLine1 -> businessAddressLine1Val,
-        businessAddress + '.' + addressLine2 -> businessAddressLine2Val,
-        businessAddress + '.' + addressLine3 -> businessAddressLine3Val,
-        businessAddress + '.' + addressLine4 -> businessAddressLine4Val,
-        businessAddress + '.' + postcode -> businessAddressPostcodeVal,
-        saUtr -> saUtrVal,
-        ctUtr -> ctUtrVal.get,
-        vatVrn -> vatVrnVal.get,
-        payeEmpRef -> payeEmpRefVal.get,
-        companyHouseNumber -> companyHouseNumberVal.get,
-        registeredOnHMRC -> registeredOnHMRCVal.toString
-      )
+    registeredOnHMRCVal: Boolean = true) =
+    FakeRequest().withFormUrlEncodedBody(
+      companyName -> companyNameVal,
+      tradingName -> tradingNameVal.get,
+      qualifiedLandlineNumber -> landlineNumberVal.getOrElse(""),
+      qualifiedMobileNumber -> mobileNumberVal.getOrElse(""),
+      website -> websiteVal.get,
+      email -> emailVal,
+      mainAddress + '.' + addressLine1 -> mainAddressLine1Val,
+      mainAddress + '.' + addressLine2 -> mainAddressLine2Val,
+      mainAddress + '.' + addressLine3 -> mainAddressLine3Val,
+      mainAddress + '.' + addressLine4 -> mainAddressLine4Val,
+      mainAddress + '.' + postcode -> mainAddressPostcodeVal,
+      communicationAddress + '.' + addressLine1 -> communicationAddressLine1Val,
+      communicationAddress + '.' + addressLine2 -> communicationAddressLine2Val,
+      communicationAddress + '.' + addressLine3 -> communicationAddressLine3Val,
+      communicationAddress + '.' + addressLine4 -> communicationAddressLine4Val,
+      communicationAddress + '.' + postcode -> communicationAddressPostcodeVal,
+      businessAddress + '.' + addressLine1 -> businessAddressLine1Val,
+      businessAddress + '.' + addressLine2 -> businessAddressLine2Val,
+      businessAddress + '.' + addressLine3 -> businessAddressLine3Val,
+      businessAddress + '.' + addressLine4 -> businessAddressLine4Val,
+      businessAddress + '.' + postcode -> businessAddressPostcodeVal,
+      saUtr -> saUtrVal,
+      ctUtr -> ctUtrVal.get,
+      vatVrn -> vatVrnVal.get,
+      payeEmpRef -> payeEmpRefVal.get,
+      companyHouseNumber -> companyHouseNumberVal.get,
+      registeredOnHMRC -> registeredOnHMRCVal.toString
+    )
 }
