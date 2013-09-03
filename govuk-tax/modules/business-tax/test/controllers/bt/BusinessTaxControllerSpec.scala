@@ -104,5 +104,22 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
       content should not include "Value Added Tax (VAT)</a>"
 
     }
+
+    "display the CT UTR of Geoff Fisher if he is enrolled for the CT service" in new WithApplication(FakeApplication()) {
+
+      val ctUtr = Utr("ct utr 1234567890")
+      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(), Some(new DateTime(1000L)), ctUtr = Some(ctUtr))))
+
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) should be(200)
+
+      val content = contentAsString(result)
+
+      content should include(nameFromGovernmentGateway)
+      content should include("CT UTR: " + ctUtr)
+    }
+
   }
 }

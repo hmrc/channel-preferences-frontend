@@ -15,7 +15,8 @@ case class UserAuthority(id: String,
   regimes: Regimes,
   previouslyLoggedInAt: Option[DateTime] = None,
   utr: Option[Utr] = None,
-  vrn: Option[Vrn] = None)
+  vrn: Option[Vrn] = None,
+  ctUtr: Option[Utr] = None)
 
 case class Regimes(paye: Option[URI] = None,
   sa: Option[URI] = None,

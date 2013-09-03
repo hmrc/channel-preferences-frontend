@@ -23,6 +23,10 @@
 <p class="vrn">VRN: @businessUser.vrn.get</p>
 }
 
+@if(businessUser.ctUtr.isDefined) {
+<p class="vrn">CT UTR: @businessUser.ctUtr.get</p>
+}
+
 @if(businessUser.regimeRoots.hasBusinessTaxRegime) {
 <p>Services you have enrolled for and activated via the Government Gateway:</p>
 <ul style="list-style-type:none;">
