@@ -7,7 +7,7 @@ import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import org.scalatest.BeforeAndAfterEach
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ ArgumentCaptor, Matchers }
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
@@ -73,10 +73,10 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       status(result) shouldBe 303
       headers(result)("Location") must be("/thank-you")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(
-      Matchers.eq(controller.registrationId(user)),
-      Matchers.eq(controller.agent),
-      Matchers.eq(professionalBodyMembershipFormName),
-      keyStoreDataCaptor.capture()
+        Matchers.eq(controller.registrationId(user)),
+        Matchers.eq(controller.agent),
+        Matchers.eq(professionalBodyMembershipFormName),
+        keyStoreDataCaptor.capture()
       )
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) must be("")
@@ -87,11 +87,12 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
       status(result) shouldBe 303
+      headers(result)("Location") must be("/thank-you")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(
-          Matchers.eq(controller.registrationId(user)),
-          Matchers.eq(controller.agent),
-          Matchers.eq(professionalBodyMembershipFormName),
-          keyStoreDataCaptor.capture()
+        Matchers.eq(controller.registrationId(user)),
+        Matchers.eq(controller.agent),
+        Matchers.eq(professionalBodyMembershipFormName),
+        keyStoreDataCaptor.capture()
       )
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) must be("charteredInstituteOfManagementAccountants")

@@ -9,7 +9,7 @@ import controllers.common.actions.MultiFormWrapper
 
 class AgentThankYouController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with MultiFormWrapper with AgentMapper {
 
-  def thankYou = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => thankYouAction(user, request) } } }
+  def thankYou = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => thankYouAction(user, request) } } }
 
   private[registration] val thankYouAction: ((User, Request[_]) => Result) = (user, request) => {
 
