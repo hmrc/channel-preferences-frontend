@@ -109,9 +109,11 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         .verifying("error.sa.address.mainlines.maxlengthviolation", isMainAddressLineLengthValid)
         .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _),
       "optionalAddressLines" -> tuple(
-        "addressLine3" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+        "addressLine3" -> optional(text
+          .verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
           .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _)),
-        "addressLine4" -> optional(text.verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
+        "addressLine4" -> optional(text
+          .verifying("error.sa.address.optionallines.maxlengthviolation", isOptionalAddressLineLengthValid)
           .verifying("error.sa.address.invalidcharacter", characterValidator.containsValidAddressCharacters _))
       ).verifying("error.sa.address.line3.mandatory", optionalLines => isBlank(optionalLines._2.getOrElse("")) || (notBlank(optionalLines._1.getOrElse("")) && notBlank(optionalLines._2.getOrElse("")))),
       "postcode" -> text

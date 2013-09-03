@@ -633,18 +633,18 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "Display the Change Address page with the form fields populated" in {
       controller.resetAll()
 
-
       val addressLine1 = "xxx address line 1 xxx"
       val addressLine2 = "xxx address line 2 xxx"
-      val addressLine3 = "xxx address line 3 xxx"
-      val addressLine4 = "xxx address line 4 xxx"
-      val postcode = "xxx postcode xxx"
+      val addressLine3 = "xxx adr line 3 xxx"
+      val addressLine4 = "xxx adr line 4 xxx"
+      val postcode = "SE22 1BB"
       val additionalInfo = "xxx additional delivery information xxx"
+
       val result = controller.redisplayChangeAddressFormAction(geoffFisher, FakeRequest("POST", "/not-used").withFormUrlEncodedBody(
         "addressLine1" -> addressLine1,
         "addressLine2" -> addressLine2,
-        "addressLine3" -> addressLine3,
-        "addressLine4" -> addressLine4,
+        "optionalAddressLines.addressLine3" -> addressLine3,
+        "optionalAddressLines.addressLine4" -> addressLine4,
         "postcode" -> postcode,
         "additionalDeliveryInformation" -> additionalInfo
       ))
