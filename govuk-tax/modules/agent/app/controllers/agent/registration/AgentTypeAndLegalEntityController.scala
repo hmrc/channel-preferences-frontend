@@ -21,13 +21,13 @@ class AgentTypeAndLegalEntityController extends MicroServices with BaseControlle
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
-  def agentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => agentTypeAction(user, request) } } }
+  def agentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => agentTypeAction(user, request) } } }
 
   private[registration] val agentTypeAction: (User, Request[_]) => Result = (user, request) => {
     Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
-  def postAgentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => postAgentTypeAction(user, request) } } }
+  def postAgentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => postAgentTypeAction(user, request) } } }
 
   private[registration] val postAgentTypeAction: ((User, Request[_]) => Result) = (user, request) => {
     agentTypeAndLegalEntityForm.bindFromRequest()(request).fold(
