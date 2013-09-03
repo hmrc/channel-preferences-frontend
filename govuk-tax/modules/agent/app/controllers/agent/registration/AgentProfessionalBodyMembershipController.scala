@@ -19,8 +19,8 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
       AgentProfessionalBodyMembershipFormFields.professionalBodyMembership -> tuple(
         AgentProfessionalBodyMembershipFormFields.professionalBody -> optional(smallText.verifying("error.illegal.value", v => { Configuration.config.professionalBodyOptions.contains(v) })),
         AgentProfessionalBodyMembershipFormFields.membershipNumber -> optional(smallText)
-      ).verifying("error.agent.professionalBodyMembershipNumber.mandatory", data => (!data._1.isDefined || (data._2.isDefined && notBlank(data._2.getOrElse("")))))
-        .verifying("error.agent.professionalBodyMembership.mandatory", data => (data._1.isDefined || !data._2.isDefined))
+      ).verifying("error.agent.professionalBodyMembershipNumber.mandatory", data => !data._1.isDefined || (data._2.isDefined && notBlank(data._2.getOrElse(""))))
+        .verifying("error.agent.professionalBodyMembership.mandatory", data => data._1.isDefined || !data._2.isDefined)
     ) {
         (professionalBodyMembership) =>
           AgentProfessionalBodyMembership(professionalBodyMembership._1, professionalBodyMembership._2)
@@ -29,14 +29,14 @@ class AgentProfessionalBodyMembershipController extends BaseController with Sess
       }
   )
 
-  def professionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => professionalBodyMembershipAction(user, request) } } }
+  def professionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => professionalBodyMembershipAction(user, request) } } }
 
   private[registration] val professionalBodyMembershipAction: (User, Request[_]) => Result = (user, request) => {
     val form = professionalBodyMembershipForm.fill(AgentProfessionalBodyMembership())
     Ok(views.html.agents.registration.professional_body_membership(form, Configuration.config.professionalBodyOptions))
   }
 
-  def postProfessionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => postProfessionalBodyMembershipAction(user, request) } } }
+  def postProfessionalBodyMembership = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => postProfessionalBodyMembershipAction(user, request) } } }
 
   private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => Result) = (user, request) => {
     professionalBodyMembershipForm.bindFromRequest()(request).fold(

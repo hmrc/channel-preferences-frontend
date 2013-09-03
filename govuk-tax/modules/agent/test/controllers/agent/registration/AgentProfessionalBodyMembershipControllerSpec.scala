@@ -5,10 +5,9 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
-import org.mockito.Matchers._
 import play.api.test.Helpers._
 import org.scalatest.BeforeAndAfterEach
-import org.mockito.Matchers
+import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
@@ -17,6 +16,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import uk.gov.hmrc.common.microservice.agent.Agent
 import play.api.test.FakeApplication
 import scala.Some
+import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 
 class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar with BeforeAndAfterEach {
 
@@ -30,8 +30,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   val mockAgent = mock[Agent]
   val mockKeyStore = mock[KeyStore[String]]
 
-  private val controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests {
-  }
+  private val controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests
 
   override protected def beforeEach() {
     super.beforeEach()
@@ -39,8 +38,8 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   }
 
   "AgentProfessionalMembershipController" should {
-    "not go to the next step if professional body is specified but not the membership number" in new WithApplication(FakeApplication()) {
 
+    "not go to the next step if professional body is specified but not the membership number" in new WithApplication(FakeApplication()) {
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify a membership number for your professional body")
@@ -69,28 +68,37 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "go to the next step if no input data is entered" in new WithApplication(FakeApplication()) {
-      mockKeyStoreAndAgent
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", ""))
       status(result) shouldBe 303
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(professionalBodyMembershipFormName), any[Map[String, Any]]())
+      headers(result)("Location") must be("/thank-you")
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(
+      Matchers.eq(controller.registrationId(user)),
+      Matchers.eq(controller.agent),
+      Matchers.eq(professionalBodyMembershipFormName),
+      keyStoreDataCaptor.capture()
+      )
+      val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
+      keyStoreData(qualifiedProfessionalBody) must be("")
+      keyStoreData(qualifiedMembershipNumber) must be("")
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
-      mockKeyStoreAndAgent
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
       status(result) shouldBe 303
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(professionalBodyMembershipFormName), any[Map[String, Any]]())
+      verify(controller.keyStoreMicroService).addKeyStoreEntry(
+          Matchers.eq(controller.registrationId(user)),
+          Matchers.eq(controller.agent),
+          Matchers.eq(professionalBodyMembershipFormName),
+          keyStoreDataCaptor.capture()
+      )
+      val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
+      keyStoreData(qualifiedProfessionalBody) must be("charteredInstituteOfManagementAccountants")
+      keyStoreData(qualifiedMembershipNumber) must be("data")
     }
   }
 
-  def mockKeyStoreAndAgent = {
-    when(controller.agentMicroService.create(any[Agent])).thenReturn(Some(mockAgent))
-    when(controller.keyStoreMicroService.getKeyStore[String](anyString(), anyString())(any[Manifest[String]])).thenReturn(Some(mockKeyStore))
-    when(mockAgent.uar).thenReturn(Some("12324"))
-    doNothing().when(controller.keyStoreMicroService).deleteKeyStore(anyString(), anyString())
-    when(mockKeyStore.get(anyString())).thenReturn(Some(Map.empty[String, String]))
-  }
-
   def newRequestForProfessionalBodyMembership(professionalBody: String, membershipNumber: String) =
-    FakeRequest().withFormUrlEncodedBody("professionalBodyMembership.professionalBody" -> professionalBody, "professionalBodyMembership.membershipNumber" -> membershipNumber)
+    FakeRequest().withFormUrlEncodedBody(qualifiedProfessionalBody -> professionalBody, qualifiedMembershipNumber -> membershipNumber)
 }
