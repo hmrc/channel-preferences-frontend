@@ -54,14 +54,14 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
       }
   )
 
-  def companyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => companyDetailsAction(user, request) } } }
+  def companyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => companyDetailsAction(user, request) } } }
 
   private[registration] val companyDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     val form = companyDetailsForm.fill(AgentCompanyDetails())
     Ok(views.html.agents.registration.company_details(form))
   }
 
-  def postCompanyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig(_)) { user => request => postCompanyDetailsAction(user, request) } } }
+  def postCompanyDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => postCompanyDetailsAction(user, request) } } }
 
   private[registration] val postCompanyDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     companyDetailsForm.bindFromRequest()(request).fold(
@@ -71,7 +71,7 @@ class AgentCompanyDetailsController extends BaseController with SessionTimeoutWr
       _ => {
         val agentCompanyDetails = companyDetailsForm.bindFromRequest()(request).data
         keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, companyDetailsFormName, agentCompanyDetails)
-        Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership)
+        Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership())
       }
     )
   }
