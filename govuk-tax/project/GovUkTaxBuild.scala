@@ -85,6 +85,7 @@ object Common {
         "-unchecked",
         "-deprecation",
         "-Xlint",
+	"-Xmax-classfile-name", "100",
         "-language:_",
         "-target:jvm-1.7",
         "-encoding", "UTF-8"
