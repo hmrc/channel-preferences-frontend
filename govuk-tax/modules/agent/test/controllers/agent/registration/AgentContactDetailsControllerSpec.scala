@@ -7,7 +7,7 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.test.Helpers._
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ ArgumentCaptor, Matchers }
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
@@ -96,7 +96,7 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
       headers(result)("Location") must be("/agent-type")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
-      keyStoreData(title)must be(payeRoot.title)
+      keyStoreData(title) must be(payeRoot.title)
       keyStoreData(firstName) must be(payeRoot.firstName)
       keyStoreData(lastName) must be(payeRoot.surname)
       keyStoreData(dateOfBirth) must be(payeRoot.dateOfBirth)

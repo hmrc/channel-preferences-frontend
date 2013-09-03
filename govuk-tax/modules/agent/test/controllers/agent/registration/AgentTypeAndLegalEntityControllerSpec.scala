@@ -11,7 +11,7 @@ import uk.gov.hmrc.microservice.paye.domain.PayeRoot
 import play.api.test.FakeApplication
 import scala.Some
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ ArgumentCaptor, Matchers }
 import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
 
 class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
