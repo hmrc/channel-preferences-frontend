@@ -5,26 +5,27 @@ import play.api.data.Forms._
 
 import uk.gov.hmrc.microservice.sa.domain._
 import views.html.sa._
-import controllers.common.{ SsoPayloadEncryptor, SessionTimeoutWrapper, ActionWrappers, BaseController }
-import play.api.libs.json.Json
+import controllers.common._
 import config.DateTimeProvider
 import controllers.sa.StaticHTMLBanner._
 
 import org.joda.time.DateTime
 import controllers.common.service.FrontEndConfig
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
-import scala.Some
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import play.api.mvc.{ Result, Request }
-import uk.gov.hmrc.microservice.domain.User
 import controllers.common.validators.{ characterValidator, Validators }
 import scala.util.Left
+import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import org.apache.commons.codec.binary.Base64
+import controllers.sa.{ routes => saRoutes }
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
-class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
+class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators with CookieEncryption {
 
   val printPrefsForm: Form[PrintPrefsForm] = Form(
     mapping(
@@ -161,13 +162,45 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       formData => {
         val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
 
-        // TODO [JJS] This should do a redirect to the confirmation (POST-REDIRECT-GET) - perhaps to a generic "transaction confirmation page" reading from the transaction service?
-
         saMicroService.updateMainAddress(uri, formData.toUpdateAddress) match {
-          case Left(errorMessage: String) => Ok(sa_personal_details_update_failed(errorMessage))
-          case Right(transactionId: TransactionId) => Ok(sa_personal_details_confirmation_receipt(transactionId))
+          case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptForUrl(errorMessage)))
+          case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(Base64.encodeBase64URLSafeString(encrypt(transactionId.oid).getBytes("UTF-8"))))
         }
       }
     )
+  }
+
+  private def encryptForUrl(value: String): String = Base64.encodeBase64URLSafeString(encrypt(value).getBytes("UTF-8"))
+
+  private def decryptFromUrl(value: String): Option[String] = {
+    try {
+      Some(decrypt(new String(Base64.decodeBase64(value), "UTF-8")))
+    } catch {
+      case e: Throwable => None
+    }
+  }
+
+  def changeAddressComplete(id: String) = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeAddressCompleteAction(id) })
+
+  private[sa] def changeAddressCompleteAction(id: String) = {
+
+    val payload = decryptFromUrl(id)
+
+    payload match {
+      case Some(transactionId) => Ok(sa_personal_details_confirmation_receipt(TransactionId(transactionId)))
+      case _ => NotFound
+    }
+  }
+
+  def changeAddressFailed(id: String) = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeAddressFailedAction(id) })
+
+  private[sa] def changeAddressFailedAction(id: String) = {
+
+    val payload = decryptFromUrl(id)
+
+    payload match {
+      case Some(errorMessage) => Ok(sa_personal_details_update_failed(errorMessage))
+      case _ => NotFound
+    }
   }
 }

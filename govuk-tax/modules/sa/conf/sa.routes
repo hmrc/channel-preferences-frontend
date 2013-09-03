@@ -1,9 +1,11 @@
 
-GET     /home                     @controllers.sa.SaController.details
-GET     /prefs                    @controllers.sa.SaController.prefsForm
-POST    /prefs                    @controllers.sa.SaController.submitPrefsForm
-GET     /prefs/:encodedJson       @controllers.sa.SaController.checkPrintPreferences(encodedJson)
-GET     /changeAddress            @controllers.sa.SaController.changeMyAddressForm
-POST    /changeAddress            @controllers.sa.SaController.submitChangeAddressForm
-POST    /changeAddressConfirm     @controllers.sa.SaController.submitConfirmChangeMyAddressForm
-POST    /redisplayChangeAddress   @controllers.sa.SaController.redisplayChangeAddressForm
+GET     /home                                           @controllers.sa.SaController.details
+GET     /prefs                                          @controllers.sa.SaController.prefsForm
+POST    /prefs                                          @controllers.sa.SaController.submitPrefsForm
+GET     /prefs/:encodedJson                             @controllers.sa.SaController.checkPrintPreferences(encodedJson)
+GET     /changeAddress                                  @controllers.sa.SaController.changeMyAddressForm
+POST    /changeAddress                                  @controllers.sa.SaController.submitChangeAddressForm
+POST    /changeAddressConfirm                           @controllers.sa.SaController.submitConfirmChangeMyAddressForm
+POST    /redisplayChangeAddress                         @controllers.sa.SaController.redisplayChangeAddressForm
+GET     /changeAddressComplete                          @controllers.sa.SaController.changeAddressComplete(id)
+GET     /changeAddressFailed                            @controllers.sa.SaController.changeAddressFailed(id)

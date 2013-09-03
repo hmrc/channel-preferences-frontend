@@ -1,6 +1,6 @@
 package controllers.sa
 
-import play.api.test.{ FakeRequest, WithApplication }
+import play.api.test._
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.mvc.{ Result, Request }
 import org.joda.time.{ DateTimeZone, DateTime }
@@ -14,20 +14,22 @@ import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
 import controllers.sa.StaticHTMLBanner._
 
 import controllers.common.service.FrontEndConfig
+import org.scalatest.BeforeAndAfterEach
+import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.sa.domain.TransactionId
-import play.api.libs.ws.Response
-import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
-import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import org.apache.commons.codec.binary.Base64
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
@@ -588,16 +590,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
-
-      status(result) shouldBe 200
-      val htmlBody = contentAsString(result)
-      htmlBody should include("Thank you for telling us about the change to your details.")
-      htmlBody should include("Transaction ID:")
-
+      val encodedTransactionId = Base64.encodeBase64URLSafeString(encrypt(transactionId).getBytes("UTF-8"))
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(s"/changeAddressComplete?id=$encodedTransactionId")
       verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
     }
 
-    "display business errors to the user if the address cannot be updated" in new WithApplication(FakeApplication()) {
+    "redirect to the change address failed page if the address cannot be updated" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val add1 = "add1"
@@ -610,22 +609,55 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
-      when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Left("some error occurred"))
+      val errorMessage = "some error occurred"
+      when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Left(errorMessage))
 
       val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
+
+      val encodedErrorMessage = Base64.encodeBase64URLSafeString(encrypt(errorMessage).getBytes("UTF-8"))
+
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(s"/changeAddressFailed?id=$encodedErrorMessage")
+      verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
+    }
+
+  }
+
+  "The changeAddressCompleteAction method" should {
+
+    "display a success message with the transaction id" in {
+
+      val transactionId = "sometransactionid"
+
+      val encodedTransactionId = Base64.encodeBase64URLSafeString(encrypt(transactionId).getBytes("UTF-8"))
+
+      val result = controller.changeAddressCompleteAction(encodedTransactionId)
+
+      val htmlBody = contentAsString(result)
+      htmlBody should include("Thank you for telling us about the change to your details.")
+      htmlBody should include("Transaction ID:")
+      htmlBody should include(transactionId)
+    }
+  }
+
+  "The changeAddressFailedAction method" should {
+
+    "display a failure message with the correct error" in {
+
+      val errorMessage = "some error occurred"
+      val encodedErrorMessage = Base64.encodeBase64URLSafeString(encrypt(errorMessage).getBytes("UTF-8"))
+
+      val result = controller.changeAddressFailedAction(encodedErrorMessage)
 
       status(result) shouldBe 200
       val htmlBody = contentAsString(result)
       htmlBody should include("Sorry")
       htmlBody should include("we are unable to update your details at this time.")
-      htmlBody should include("some error occurred")
+      htmlBody should include(errorMessage)
       htmlBody should not include "Transaction ID"
       htmlBody should not include "Thank you for telling us about the change to your details"
-
-      verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
     }
-
   }
 
   "The redisplayChangeAddressFormAction" should {
