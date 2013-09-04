@@ -10,8 +10,6 @@ GET     /loggedout                      @controllers.common.LoginController.logg
 
 # routes for testing IDA integration
 GET     /samllogin                      @controllers.common.LoginController.samlLogin
-GET     /test/jdensmore                 @controllers.common.LoginController.enterAsJohnDensmore
-GET     /test/gfisher                   @controllers.common.LoginController.enterAsGeoffFisher
 POST    /ida/login                      @controllers.common.LoginController.idaLogin
 GET     /business-tax/login             @controllers.common.LoginController.businessTaxLogin
 POST    /government-gateway/login       @controllers.common.LoginController.governmentGatewayLogin
