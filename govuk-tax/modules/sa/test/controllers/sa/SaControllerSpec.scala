@@ -4,7 +4,7 @@ import play.api.test._
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.mvc.{ Result, Request }
 import org.joda.time.{ DateTimeZone, DateTime }
-import java.net.URI
+import java.net.{ URLDecoder, URI }
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
@@ -590,9 +590,12 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
-      val encodedTransactionId = Base64.encodeBase64URLSafeString(encrypt(transactionId).getBytes("UTF-8"))
+
+      val encodedTransactionId = SecureParameter(transactionId, currentTime).encrypt
+
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"/changeAddressComplete?id=$encodedTransactionId")
+      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressComplete?id=$encodedTransactionId")
+
       verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
     }
 
@@ -615,10 +618,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       val result = controller.submitConfirmChangeMyAddressFormAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
 
-      val encodedErrorMessage = Base64.encodeBase64URLSafeString(encrypt(errorMessage).getBytes("UTF-8"))
+      val encodedErrorMessage = SecureParameter(errorMessage, currentTime).encrypt
 
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"/changeAddressFailed?id=$encodedErrorMessage")
+      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressFailed?id=$encodedErrorMessage")
       verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
     }
 
@@ -630,7 +633,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val transactionId = "sometransactionid"
 
-      val encodedTransactionId = Base64.encodeBase64URLSafeString(encrypt(transactionId).getBytes("UTF-8"))
+      val encodedTransactionId = SecureParameter(transactionId, currentTime).encrypt
 
       val result = controller.changeAddressCompleteAction(encodedTransactionId)
 
@@ -646,7 +649,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "display a failure message with the correct error" in {
 
       val errorMessage = "some error occurred"
-      val encodedErrorMessage = Base64.encodeBase64URLSafeString(encrypt(errorMessage).getBytes("UTF-8"))
+      val encodedErrorMessage = SecureParameter(errorMessage, currentTime).encrypt
 
       val result = controller.changeAddressFailedAction(encodedErrorMessage)
 

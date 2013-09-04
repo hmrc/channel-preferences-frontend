@@ -120,7 +120,6 @@ trait MicroService extends Status with HeaderNames {
         }
     }
   }
-
 }
 
 trait HasResponse {

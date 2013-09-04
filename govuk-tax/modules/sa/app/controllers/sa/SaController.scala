@@ -13,7 +13,7 @@ import org.joda.time.DateTime
 import controllers.common.service.FrontEndConfig
 import play.api.mvc.{ Result, Request }
 import controllers.common.validators.{ characterValidator, Validators }
-import scala.util.Left
+import scala.util.{ Success, Try, Left }
 import uk.gov.hmrc.microservice.sa.domain.TransactionId
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
@@ -163,31 +163,23 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
 
         saMicroService.updateMainAddress(uri, formData.toUpdateAddress) match {
-          case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptForUrl(errorMessage)))
-          case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(Base64.encodeBase64URLSafeString(encrypt(transactionId.oid).getBytes("UTF-8"))))
+          case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptParameter(errorMessage)))
+          case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(encryptParameter(transactionId.oid)))
         }
       }
     )
   }
 
-  private def encryptForUrl(value: String): String = Base64.encodeBase64URLSafeString(encrypt(value).getBytes("UTF-8"))
+  private def encryptParameter(value: String): String = SecureParameter(value, now()).encrypt
 
-  private def decryptFromUrl(value: String): Option[String] = {
-    try {
-      Some(decrypt(new String(Base64.decodeBase64(value), "UTF-8")))
-    } catch {
-      case e: Throwable => None
-    }
-  }
+  private def decryptParameter(value: String): Try[SecureParameter] = SecureParameter.decrypt(value)
 
   def changeAddressComplete(id: String) = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeAddressCompleteAction(id) })
 
   private[sa] def changeAddressCompleteAction(id: String) = {
 
-    val payload = decryptFromUrl(id)
-
-    payload match {
-      case Some(transactionId) => Ok(sa_personal_details_confirmation_receipt(TransactionId(transactionId)))
+    decryptParameter(id) match {
+      case Success(SecureParameter(transactionId, _)) => Ok(sa_personal_details_confirmation_receipt(TransactionId(transactionId)))
       case _ => NotFound
     }
   }
@@ -196,11 +188,10 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   private[sa] def changeAddressFailedAction(id: String) = {
 
-    val payload = decryptFromUrl(id)
-
-    payload match {
-      case Some(errorMessage) => Ok(sa_personal_details_update_failed(errorMessage))
+    decryptParameter(id) match {
+      case Success(SecureParameter(errorMessage, _)) => Ok(sa_personal_details_update_failed(errorMessage))
       case _ => NotFound
     }
   }
 }
+
