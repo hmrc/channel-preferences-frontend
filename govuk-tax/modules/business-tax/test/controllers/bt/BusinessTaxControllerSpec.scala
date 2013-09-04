@@ -8,6 +8,18 @@ import uk.gov.hmrc.microservice.sa.SaMicroService
 import play.api.test.Helpers._
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import controllers.common.SessionTimeoutWrapper._
+import uk.gov.hmrc.microservice.auth.domain._
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
+import scala.Some
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.BaseSpec
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.mock.MockitoSugar
+import org.mockito.Mockito._
+import controllers.common.CookieEncryption
+import controllers.bt.BusinessTaxController
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
@@ -17,12 +29,6 @@ import uk.gov.hmrc.microservice.auth.domain.Vrn
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.BaseSpec
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito._
-import controllers.common.CookieEncryption
-import controllers.bt.BusinessTaxController
 
 class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
 
@@ -119,6 +125,22 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
 
       content should include(nameFromGovernmentGateway)
       content should include("CT UTR: " + ctUtr)
+    }
+
+    "display the Employer Reference of Geoff Fisher if he is enrolled for the PAYE service" in new WithApplication(FakeApplication()) {
+
+      val empRef = EmpRef("taxRef", "taxNum")
+      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(), Some(new DateTime(1000L)), empRef = Some(empRef))))
+
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+
+      status(result) should be(200)
+
+      val content = contentAsString(result)
+
+      content should include(nameFromGovernmentGateway)
+      content should include("Employer Reference: " + empRef)
     }
 
   }

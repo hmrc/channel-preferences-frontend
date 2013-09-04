@@ -27,6 +27,10 @@
 <p class="vrn">CT UTR: @businessUser.ctUtr.get</p>
 }
 
+@if(businessUser.empRef.isDefined) {
+<p class="vrn">Employer Reference: @businessUser.empRef.get</p>
+}
+
 @if(businessUser.regimeRoots.hasBusinessTaxRegime) {
 <p>Services you have enrolled for and activated via the Government Gateway:</p>
 <ul style="list-style-type:none;">

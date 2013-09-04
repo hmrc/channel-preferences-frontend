@@ -11,12 +11,17 @@ case class Vrn(vrn: String) {
   override lazy val toString = vrn
 }
 
+case class EmpRef(taxOfficeNumber: String, taxOfficeReference: String) {
+  override lazy val toString = taxOfficeNumber + "/" + taxOfficeReference
+}
+
 case class UserAuthority(id: String,
   regimes: Regimes,
   previouslyLoggedInAt: Option[DateTime] = None,
   utr: Option[Utr] = None,
   vrn: Option[Vrn] = None,
-  ctUtr: Option[Utr] = None)
+  ctUtr: Option[Utr] = None,
+  empRef: Option[EmpRef] = None)
 
 case class Regimes(paye: Option[URI] = None,
   sa: Option[URI] = None,
