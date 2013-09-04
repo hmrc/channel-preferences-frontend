@@ -28,7 +28,7 @@
     <br/>
 
         <p>
-            @helper.form(action = controllers.sa.routes.SaController.redisplayChangeAddressForm) {
+            @helper.form(action = controllers.sa.routes.SaController.redisplayChangeAddress) {
 
                 @defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
                     <input type="hidden" name="@additionalDeliveryInformation.name" value="@changeAddressFormData.additionalDeliveryInformation" />
@@ -62,7 +62,7 @@
         <p>
 
 
-            @helper.form(action = controllers.sa.routes.SaController.submitConfirmChangeMyAddressForm) {
+            @helper.form(action = controllers.sa.routes.SaController.confirmChangeAddress) {
 
                 @defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
                     <input type="hidden" name="@additionalDeliveryInformation.name" id="@additionalDeliveryInformation.id" value="@changeAddressFormData.additionalDeliveryInformation" />

@@ -130,22 +130,22 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   )
 
-  def changeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeMyAddressFormAction(user, request) })
+  def changeAddress = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeAddressAction(user, request) })
 
-  private[sa] def changeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def changeAddressAction: (User, Request[_]) => Result = (user, request) => {
     Ok(sa_personal_details_update(changeAddressForm))
   }
 
-  def redisplayChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => redisplayChangeAddressFormAction(user, request) })
+  def redisplayChangeAddress() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => redisplayChangeAddressAction(user, request) })
 
-  private[sa] def redisplayChangeAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def redisplayChangeAddressAction: (User, Request[_]) => Result = (user, request) => {
     val form = changeAddressForm.bindFromRequest()(request)
     Ok(sa_personal_details_update(form))
   }
 
-  def submitChangeAddressForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitChangeAddressFormAction(user, request) })
+  def submitChangeAddress() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitChangeAddressAction(user, request) })
 
-  private[sa] def submitChangeAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def submitChangeAddressAction: (User, Request[_]) => Result = (user, request) => {
     changeAddressForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_personal_details_update(errors)),
       formData => {
@@ -154,9 +154,9 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     )
   }
 
-  def submitConfirmChangeMyAddressForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitConfirmChangeMyAddressFormAction(user, request) })
+  def confirmChangeAddress = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => confirmChangeAddressAction(user, request) })
 
-  private[sa] def submitConfirmChangeMyAddressFormAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def confirmChangeAddressAction: (User, Request[_]) => Result = (user, request) => {
     changeAddressForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_personal_details_update(errors)),
       formData => {
