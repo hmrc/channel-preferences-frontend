@@ -1,4 +1,4 @@
-@(displayBenefit: models.paye.DisplayBenefit, updateForm: Form[models.paye.RemoveBenefitFormData])
+@(displayBenefit: models.paye.DisplayBenefit, hasFuelBenefit:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData])
 
 @import views.formatting.Dates._
 @import org.joda.time.LocalDate
@@ -32,6 +32,14 @@ Value of car benefit: <span class="amount">£ @displayBenefit.benefit.grossAmoun
             '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with a company car",
             '_showConstraints -> false
             )
+
+        @if(hasFuelBenefit){
+            @checkbox(
+            updateForm("removeFuel"),
+            '_id -> "removeFuel",
+            '_label -> "I would also like to remove my fuel benefit.",
+            '_showConstraints -> false
+        )}
 	</div>
 	<input class="button button--next" type="submit" value="Next" />
     }

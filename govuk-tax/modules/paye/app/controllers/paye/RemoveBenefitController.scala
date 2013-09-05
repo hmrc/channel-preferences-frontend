@@ -21,7 +21,7 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
     (request, user, benefit) =>
       {
         if (benefit.benefit.benefitType == 31) {
-          Ok(remove_car_benefit_form(benefit, updateBenefitForm))
+          Ok(remove_car_benefit_form(benefit, hasFuelBenefit(user), updateBenefitForm))
         } else {
           Ok(remove_benefit_form(benefit, updateBenefitForm))
         }
@@ -38,7 +38,7 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
         updateBenefitForm.bindFromRequest()(request).fold(
           errors => {
             benefit.benefit.benefitType match {
-              case 31 => BadRequest(remove_car_benefit_form(benefit, errors))
+              case 31 => BadRequest(remove_car_benefit_form(benefit, hasFuelBenefit(user), errors))
               case 29 => BadRequest(remove_benefit_form(benefit, errors))
               case _ => Redirect(routes.BenefitHomeController.listBenefits())
             }
@@ -57,6 +57,11 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
           }
         )
       }
+  }
+
+  private def hasFuelBenefit(user: User): Boolean = {
+    val benefits = user.regimes.paye.get.benefits(currentTaxYear)
+    benefits.find(b => b.benefitType == 29).isDefined
   }
 
   private lazy val updateBenefitForm = Form[RemoveBenefitFormData](

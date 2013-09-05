@@ -44,6 +44,31 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
 
+  "The car benefit removal form" should{
+    "give the option to remove the fuel benefit if the user has one" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val result = controller.benefitRemovalFormAction(31, johnDensmore, FakeRequest(), 2013, 2)
+      status(result) shouldBe 200
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Remove your company benefit")
+      requestBenefits should include("remove my fuel benefit")
+
+    }
+
+    "not give the option to remove a fuel benefit if the user does not have one" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefit), List.empty, List.empty)
+
+      val result = controller.benefitRemovalFormAction(31, johnDensmore, FakeRequest(), 2013, 2)
+      status(result) shouldBe 200
+      val requestBenefits = contentAsString(result)
+      requestBenefits should include("Remove your company benefit")
+      requestBenefits should not include("remove my fuel benefit")
+
+    }
+  }
+
+
   "The remove benefit method" should {
 
     def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean) =
