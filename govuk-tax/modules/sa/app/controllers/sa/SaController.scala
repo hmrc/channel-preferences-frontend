@@ -19,12 +19,15 @@ import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
+import uk.gov.hmrc.common.microservice.auth.domain.Notification
+import org.apache.commons.codec.binary.Base64
 import controllers.sa.{ routes => saRoutes }
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators with CookieEncryption {
+
+  import uk.gov.hmrc.common.microservice.auth.domain.Email.optionStringToOptionEmail
 
   def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => detailsAction(user, request) })
 
@@ -68,7 +71,7 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       authMicroService.preferences(utr) match {
         case None => NoContent
         case Some(pref) => pref.sa match {
-          case Some(sa) if sa.digitalNotifications.isDefined => NoContent.withHeaders(headers)
+          case Some(sa) if sa.digital.isDefined => NoContent.withHeaders(headers)
           case _ => Ok(saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")).withHeaders(headers)
         }
       }

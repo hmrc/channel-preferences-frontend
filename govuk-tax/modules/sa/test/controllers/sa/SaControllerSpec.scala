@@ -20,14 +20,13 @@ import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import uk.gov.hmrc.common.microservice.auth.domain.{ Email, Preferences, Notification }
 import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 import uk.gov.hmrc.microservice.sa.domain.TransactionId
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
@@ -133,7 +132,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "return 200 and HTML code when no preferences have yet been stored" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(SaPreferences(None, None)))))
+      when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(Notification(None, None)))))
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
 
@@ -161,7 +160,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "return 204 and no body when sa preferences for printing have already been stored" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(SaPreferences(Some(false), None)))))
+      when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(Notification(Some(false), None)))))
 
       val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
 
@@ -236,13 +235,13 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "call the auth service to persist the preference data if the data entered is valid with print suppression and email supplied" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      val emailAddress = "someuser@test.com"
+      val emailAddress = Email("someuser@test.com")
       val mockResponse = mock[Response]
       val redirectUrl = "www.some.redirect.url"
 
-      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(SaPreferences(Some(true), Some(emailAddress)))))).thenReturn(Some(mockResponse))
+      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(Notification(Some(true), Some(emailAddress)))))).thenReturn(Some(mockResponse))
 
-      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.email" -> emailAddress, "prefs.suppressPrinting" -> "true", "redirectUrl" -> redirectUrl))
+      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.email" -> emailAddress.value, "prefs.suppressPrinting" -> "true", "redirectUrl" -> redirectUrl))
 
       status(result) shouldBe 303
       redirectLocation(result).get shouldBe redirectUrl
@@ -251,11 +250,10 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     "call the auth service to persist the preference data if the data entered is valid with print suppression false and no email address supplied" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      val emailAddress = "someuser@test.com"
       val mockResponse = mock[Response]
       val redirectUrl = "www.some.redirect.url"
 
-      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(SaPreferences(Some(false), None))))).thenReturn(Some(mockResponse))
+      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(Notification(Some(false), None))))).thenReturn(Some(mockResponse))
 
       val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "false", "redirectUrl" -> redirectUrl))
 
