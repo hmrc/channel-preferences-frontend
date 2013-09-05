@@ -1,34 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/govuk-tax/govuk-tax-frontend.log</file>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%date{ISO8601} level=[%level] logger=[%logger] thread=[%thread] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
-        </encoder>
-    </appender>
-
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%date{ISO8601} level=[%level] logger=[%logger] thread=[%thread] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
-        </encoder>
+        <encoder class="uk.gov.hmrc.common.logging.JsonEncoder"/>
     </appender>
 
-    <appender name="ACCESS_LOG_FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/govuk-tax/govuk-tax-frontend-access.log</file>
-        <encoder>
-            <pattern>%message%n</pattern>
-        </encoder>
-    </appender>
+    <logger name="uk.gov" level="DEBUG"/>
 
-    <logger name="accesslog" level="INFO" additivity="false">
-        <appender-ref ref="ACCESS_LOG_FILE" />
-    </logger>
-
-    <logger name="uk.gov" level="INFO"/>
-
-    <root level="DEBUG">
-        <appender-ref ref="FILE"/>
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

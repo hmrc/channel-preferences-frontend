@@ -14,6 +14,8 @@ object GovUkTaxBuild extends Build {
     Dependencies.Compile.json4sExt,
     Dependencies.Compile.json4sJackson,
     Dependencies.Compile.guava,
+    Dependencies.Compile.commonsLang,
+    Dependencies.Compile.commonsIo,
     Dependencies.Compile.playMetrics,
     Dependencies.Compile.metricsGraphite,
     Dependencies.Compile.secureUtils,
