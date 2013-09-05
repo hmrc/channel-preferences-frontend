@@ -138,6 +138,12 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     Ok(sa_personal_details_update(changeAddressForm))
   }
 
+  def makeAPaymentLanding = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => makeAPaymentLandingAction() })
+
+  private[sa] def makeAPaymentLandingAction() = {
+    Ok(sa_make_a_payment_landing())
+  }
+
   def redisplayChangeAddress() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => redisplayChangeAddressAction(user, request) })
 
   private[sa] def redisplayChangeAddressAction: (User, Request[_]) => Result = (user, request) => {

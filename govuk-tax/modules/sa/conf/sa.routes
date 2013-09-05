@@ -9,3 +9,4 @@ POST    /confirmChangeAddress                           @controllers.sa.SaContro
 POST    /redisplayChangeAddress                         @controllers.sa.SaController.redisplayChangeAddress
 GET     /changeAddressComplete                          @controllers.sa.SaController.changeAddressComplete(id)
 GET     /changeAddressFailed                            @controllers.sa.SaController.changeAddressFailed(id)
+GET     /makeAPaymentLanding                            @controllers.sa.SaController.makeAPaymentLanding

@@ -28,6 +28,22 @@ import uk.gov.hmrc.microservice.domain.RegimeRoots
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import play.api.test.Helpers._
+import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.auth.domain.Preferences
+import scala.Some
+import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import play.api.libs.ws.Response
+import uk.gov.hmrc.microservice.auth.domain.Utr
+import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
@@ -701,6 +717,19 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       htmlBody should include(addressLine4)
       htmlBody should include(postcode)
       htmlBody should include(additionalInfo)
+    }
+  }
+
+  "Make a payment landing page " should {
+    "Render some make a payment text when a user is logged in and authorised for SA" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+
+      val result = controller.makeAPaymentLandingAction
+
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody should include("Make a payment landing page")
     }
   }
 
