@@ -15,20 +15,7 @@ import controllers.sa.StaticHTMLBanner._
 
 import controllers.common.service.FrontEndConfig
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
-import play.api.libs.ws.Response
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
-import uk.gov.hmrc.common.microservice.auth.domain.{ Email, Preferences, Notification }
-import uk.gov.hmrc.microservice.auth.domain.Utr
-import uk.gov.hmrc.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.domain.RegimeRoots
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.sa.domain.TransactionId
-import play.api.test.Helpers._
+import uk.gov.hmrc.common.microservice.auth.domain.{ Email, Notification }
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
@@ -43,7 +30,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
 
 class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
 
