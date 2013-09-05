@@ -24,7 +24,7 @@ object Dependencies {
   sealed abstract class Test(scope: String) {
 
     val junit = "junit" % "junit" % "4.11" % "test"
-    val scalaTest = "org.scalatest" %% "scalatest" % "2.0.M5b" % "test"
+    val scalaTest = "org.scalatest" %% "scalatest" % "2.0.M6" % "test"
     val mockito = "org.mockito" % "mockito-all" % "1.9.5" % "test"
     val jsoup = "org.jsoup" % "jsoup" % "1.7.2"% "test"
   }
