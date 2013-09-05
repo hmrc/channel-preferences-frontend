@@ -20,7 +20,6 @@ import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.common.microservice.auth.domain.Notification
-import org.apache.commons.codec.binary.Base64
 import controllers.sa.{ routes => saRoutes }
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
@@ -93,7 +92,7 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     printPrefsForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_prefs_details(errors)),
       printPrefsForm => {
-        val authResponse = authMicroService.savePreferences(user.user, Preferences(sa = Some(SaPreferences(Some(printPrefsForm.suppressPrinting), printPrefsForm.email))))
+        val authResponse = authMicroService.savePreferences(user.user, Preferences(Some(Notification(Some(printPrefsForm.suppressPrinting), printPrefsForm.email))))
         authResponse match {
           case Some(_) => Redirect(printPrefsForm.redirectUrl)
           case _ => NotFound //todo this should really be an error page
