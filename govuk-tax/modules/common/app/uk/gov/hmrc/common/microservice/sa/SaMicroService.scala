@@ -14,6 +14,7 @@ class SaMicroService extends MicroService {
   override val serviceUrl = MicroServiceConfig.saServiceUrl
 
   def root(uri: String): SaRoot = httpGet[SaRoot](uri).getOrElse(throw new IllegalStateException(s"Expected SA root not found at URI '$uri'"))
+
   def person(uri: String): Option[SaPerson] = httpGet[SaPerson](uri)
 
   def linkedResource[T](uri: String)(implicit m: Manifest[T]) = {
@@ -21,9 +22,9 @@ class SaMicroService extends MicroService {
     httpGet[T](uri)
   }
 
-  def updateMainAddress(updateAddressUri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
+  def updateMainAddress(uri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
 
-    val response = httpPostSynchronous(updateAddressUri, Json.parse(toRequestBody(mainAddress)))
+    val response = httpPostSynchronous(uri, Json.parse(toRequestBody(mainAddress)))
 
     response.status match {
       case 202 => Right(extractJSONResponse[TransactionId](response))

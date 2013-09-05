@@ -46,7 +46,8 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
     val saRoot = SaRoot(
       utr = "123456789012",
       links = Map(
-        "personalDetails" -> "/sa/individual/123456789012/details")
+        "individual/details" -> "/sa/individual/123456789012/details",
+        "individual/details/main-address" -> "/sa/individual/123456789012/details/main-address")
     )
 
     User(id, ua, RegimeRoots(None, Some(saRoot), None), Some(nameFromGovernmentGateway), None)
@@ -577,15 +578,16 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val add1 = "add1"
       val add2 = "add2"
-      val utr = "123456789012"
+      val utr = Utr("123456789012")
+      val uri = s"/sa/individual/$utr/details/main-address"
+
       val postcodeValid = "ABC 123"
-      val updateAddressUri = s"/sa/individual/$utr/main-address"
 
       val transactionId = "sometransactionid"
 
       val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
-      when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
+      when(controller.saMicroService.updateMainAddress(uri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
 
       val result = controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
@@ -595,7 +597,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) shouldBe 303
       redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressComplete?id=$encodedTransactionId")
 
-      verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
+      verify(controller.saMicroService).updateMainAddress(uri, addressForUpdate)
     }
 
     "redirect to the change address failed page if the address cannot be updated" in new WithApplication(FakeApplication()) {
@@ -603,16 +605,16 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       val add1 = "add1"
       val add2 = "add2"
-      val utr = "123456789012"
+      val utr = Utr("123456789012")
+      val uri = s"/sa/individual/$utr/details/main-address"
       val postcodeValid = "ABC 123"
-      val updateAddressUri = s"/sa/individual/$utr/main-address"
 
       val transactionId = "sometransactionid"
 
       val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
       val errorMessage = "some error occurred"
-      when(controller.saMicroService.updateMainAddress(updateAddressUri, addressForUpdate)).thenReturn(Left(errorMessage))
+      when(controller.saMicroService.updateMainAddress(uri, addressForUpdate)).thenReturn(Left(errorMessage))
 
       val result = controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
@@ -621,7 +623,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
 
       status(result) shouldBe 303
       redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressFailed?id=$encodedErrorMessage")
-      verify(controller.saMicroService).updateMainAddress(updateAddressUri, addressForUpdate)
+      verify(controller.saMicroService).updateMainAddress(uri, addressForUpdate)
     }
 
   }

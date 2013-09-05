@@ -23,7 +23,8 @@ case class UserAuthority(id: String,
   ctUtr: Option[Utr] = None,
   empRef: Option[EmpRef] = None)
 
-case class Regimes(paye: Option[URI] = None,
+case class Regimes(
+  paye: Option[URI] = None,
   sa: Option[URI] = None,
   vat: Set[URI] = Set(),
   ct: Set[URI] = Set())

@@ -48,7 +48,7 @@ class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with Mockit
     SaRoot(
       utr = "123456789012",
       links = Map(
-        "personalDetails" -> "/sa/individual/123456789012/details")
+        "individual/details" -> "/sa/individual/123456789012/details")
     )
   )
 

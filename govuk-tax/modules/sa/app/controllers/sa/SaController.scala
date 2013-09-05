@@ -20,12 +20,23 @@ import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import uk.gov.hmrc.common.microservice.auth.domain.SaPreferences
-import org.apache.commons.codec.binary.Base64
 import controllers.sa.{ routes => saRoutes }
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators with CookieEncryption {
+
+  def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => detailsAction(user, request) })
+
+  private[sa] def detailsAction: (User, Request[_]) => Result = (user, request) => {
+
+    val userData: SaRoot = user.regimes.sa.get
+
+    userData.personalDetails match {
+      case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
+      case _ => NotFound //todo this should really be an error page
+    }
+  }
 
   val printPrefsForm: Form[PrintPrefsForm] = Form(
     mapping(
@@ -41,17 +52,6 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
         form => Some((form.suppressPrinting, form.email), form.redirectUrl)
       }
   )
-
-  def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => detailsAction(user, request) })
-
-  private[sa] def detailsAction: (User, Request[_]) => Result = (user, request) => {
-    val userData: SaRoot = user.regimes.sa.get
-
-    userData.personalDetails match {
-      case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
-      case _ => NotFound //todo this should really be an error page
-    }
-  }
 
   def checkPrintPreferences(encryptedJson: String) = UnauthorisedAction { request => checkPrintPreferencesAction(request, encryptedJson) }
 
@@ -160,9 +160,7 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     changeAddressForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_personal_details_update(errors)),
       formData => {
-        val uri = s"/sa/individual/${user.userAuthority.utr.get}/main-address"
-
-        saMicroService.updateMainAddress(uri, formData.toUpdateAddress) match {
+        user.regimes.sa.get.updateIndividualMainAddress(formData.toUpdateAddress) match {
           case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptParameter(errorMessage)))
           case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(encryptParameter(transactionId.oid)))
         }
