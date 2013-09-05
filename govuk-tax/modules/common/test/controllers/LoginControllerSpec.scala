@@ -40,6 +40,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     override lazy val governmentGatewayMicroService = mockGovernmentGatewayMicroService
   }
 
+  val originalRequestId = "frontend-325-235235-23523"
+
   override protected def beforeEach(testData: TestData) {
     //todo instead of resetting mocks it would be better to set a new one up before each test
     reset(mockGovernmentGatewayMicroService)
@@ -82,7 +84,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "redirect to the home page if the response is valid and not registering an agent" in new WithApplication(FakeApplication()) {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
+      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid), Some(originalRequestId)))
 
       when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
@@ -97,7 +99,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "redirect to the agent contact details if it s registering an agent" in new WithApplication(FakeApplication()) {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
+      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid), Some(originalRequestId)))
 
       when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
@@ -126,7 +128,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "return Unauthorised if the saml response fails validation" in new WithApplication(FakeApplication()) {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(false, None))
+      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(false, None, Some(originalRequestId)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
@@ -136,7 +138,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "return Unauthorised if there is no Authority record matching the hash pid" in new WithApplication(FakeApplication()) {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid)))
+      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(true, Some(hashPid), Some(originalRequestId)))
 
       when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(None)
 
