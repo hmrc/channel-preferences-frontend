@@ -9,17 +9,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.microservice.auth.domain._
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
-import scala.Some
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import play.api.test.FakeApplication
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
-import controllers.bt.BusinessTaxController
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
