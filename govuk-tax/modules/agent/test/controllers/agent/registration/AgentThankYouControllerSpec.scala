@@ -57,7 +57,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 303
-      headers(result)("Location") must be("/home")
+      headers(result)("Location") should be("/home")
       verifyZeroInteractions(controller.agentMicroService)
 
     }

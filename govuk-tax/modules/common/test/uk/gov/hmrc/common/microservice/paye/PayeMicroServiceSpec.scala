@@ -33,9 +33,9 @@ class PayeMicroServiceSpec extends BaseSpec {
       verify(service.httpWrapper, times(1)).post(any[String], capturedBody.capture, any[Map[String, String]])
 
       val capturedRemovedCarBenefit = Transform.fromResponse[RemoveBenefit](capturedBody.getValue.toString())
-      capturedRemovedCarBenefit.revisedAmount mustBe grossAmount
-      capturedRemovedCarBenefit.withdrawDate mustBe dateCarWithdrawn
-      capturedRemovedCarBenefit.version mustBe version
+      capturedRemovedCarBenefit.revisedAmount shouldBe grossAmount
+      capturedRemovedCarBenefit.withdrawDate shouldBe dateCarWithdrawn
+      capturedRemovedCarBenefit.version shouldBe version
     }
 
   }
@@ -49,8 +49,8 @@ class PayeMicroServiceSpec extends BaseSpec {
       when(service.httpWrapper.get[CalculationResult]("someUrl/2013-07-18")).thenReturn(stubbedCalculationResult)
 
       val calculationResult = service.calculateWithdrawBenefit(carBenefit, new LocalDate(2013, 7, 18))
-      calculationResult.result.get("2013") mustBe Some(BigDecimal(1234.56))
-      calculationResult.result.get("2014") mustBe Some(BigDecimal(0))
+      calculationResult.result.get("2013") shouldBe Some(BigDecimal(1234.56))
+      calculationResult.result.get("2014") shouldBe Some(BigDecimal(0))
     }
   }
 

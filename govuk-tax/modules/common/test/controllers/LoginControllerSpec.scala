@@ -1,23 +1,14 @@
 package controllers
 
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.saml.SamlMicroService
 import org.mockito.Mockito._
 import play.api.test.{ WithApplication, FakeRequest }
 import uk.gov.hmrc.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, GovernmentGatewayMicroService, Credentials }
+import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import play.api.http._
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
-import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
-import uk.gov.hmrc.microservice.{ MockMicroServicesForTests, UnauthorizedException }
-import scala.Some
-import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
-import play.api.test.FakeApplication
-import play.api.libs.ws.Response
+import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import controllers.common._
-import play.api.mvc.Cookie
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
@@ -29,8 +20,9 @@ import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.governmentgateway.Credentials
 import play.api.test.FakeApplication
+import org.scalatest.TestData
 
-class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
+class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   import play.api.test.Helpers._
 
@@ -48,8 +40,9 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
     override lazy val governmentGatewayMicroService = mockGovernmentGatewayMicroService
   }
 
-  override def beforeEach() {
-    reset(mockGovernmentGatewayMicroService) //todo instead of resetting mocks it would be better to set a new one up before each test
+  override protected def beforeEach(testData: TestData) {
+    //todo instead of resetting mocks it would be better to set a new one up before each test
+    reset(mockGovernmentGatewayMicroService)
   }
 
   "Login controller GET /login" should {
@@ -272,7 +265,8 @@ class LoginControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar
       contentAsString(result) should include("logged out")
 
       val sess = session(result)
-      sess.get("someKey") mustBe None
+      sess.get("someKey") shouldBe None
     }
   }
+
 }

@@ -6,7 +6,7 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import play.api.test.Helpers._
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{ TestData, BeforeAndAfterEach }
 import org.mockito.{ ArgumentCaptor, Matchers }
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
@@ -18,7 +18,7 @@ import play.api.test.FakeApplication
 import scala.Some
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 
-class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar with BeforeAndAfterEach {
+class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar {
 
   val id = "wshakespeare"
   val authority = s"/auth/oid/$id"
@@ -32,8 +32,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
 
   private val controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests
 
-  override protected def beforeEach() {
-    super.beforeEach()
+  override protected def beforeEach(testData: TestData) {
     controller.resetAll()
   }
 
@@ -71,7 +70,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", ""))
       status(result) shouldBe 303
-      headers(result)("Location") must be("/thank-you")
+      headers(result)("Location") should be("/thank-you")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
@@ -79,15 +78,15 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
         keyStoreDataCaptor.capture()
       )
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
-      keyStoreData(qualifiedProfessionalBody) must be("")
-      keyStoreData(qualifiedMembershipNumber) must be("")
+      keyStoreData(qualifiedProfessionalBody) should be("")
+      keyStoreData(qualifiedMembershipNumber) should be("")
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
       status(result) shouldBe 303
-      headers(result)("Location") must be("/thank-you")
+      headers(result)("Location") should be("/thank-you")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
@@ -95,8 +94,8 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
         keyStoreDataCaptor.capture()
       )
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
-      keyStoreData(qualifiedProfessionalBody) must be("charteredInstituteOfManagementAccountants")
-      keyStoreData(qualifiedMembershipNumber) must be("data")
+      keyStoreData(qualifiedProfessionalBody) should be("charteredInstituteOfManagementAccountants")
+      keyStoreData(qualifiedMembershipNumber) should be("data")
     }
   }
 

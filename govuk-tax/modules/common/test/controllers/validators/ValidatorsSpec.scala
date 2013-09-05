@@ -21,13 +21,13 @@ class ValidatorsSpec extends BaseSpec {
         val c = chr.toChar
         val str = s"this $chr contains $c"
         characterValidator.containsValidAddressCharacters(str) match {
-          case true => validCharacters.contains(chr) must be(true)
-          case false => validCharacters.contains(chr) must be(false)
+          case true => validCharacters.contains(chr) should be(true)
+          case false => validCharacters.contains(chr) should be(false)
         }
       }
     }
     " return true when None is passed as the value" in {
-      characterValidator.containsValidAddressCharacters("") must be(true)
+      characterValidator.containsValidAddressCharacters("") should be(true)
     }
   }
 }

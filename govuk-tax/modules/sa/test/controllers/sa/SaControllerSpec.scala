@@ -7,14 +7,11 @@ import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URI }
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
 import controllers.sa.StaticHTMLBanner._
-
 import controllers.common.service.FrontEndConfig
-import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.common.microservice.auth.domain.{ Email, Notification }
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
@@ -31,7 +28,7 @@ import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.microservice.domain.RegimeRoots
 
-class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
+class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   import play.api.test.Helpers._
 
@@ -128,7 +125,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(204)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe ""
+      htmlBody shouldBe ""
     }
 
     "return 200 and HTML code when no preferences have yet been stored" in new WithApplication(FakeApplication()) {
@@ -142,7 +139,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
+      htmlBody shouldBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
     }
 
     "return 200 and HTML code when no preferences for sa have yet been stored" in new WithApplication(FakeApplication()) {
@@ -156,7 +153,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(200)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
+      htmlBody shouldBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
     }
 
     "return 204 and no body when sa preferences for printing have already been stored" in new WithApplication(FakeApplication()) {
@@ -170,7 +167,7 @@ class SaControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar wi
       status(result) should be(204)
 
       val htmlBody = contentAsString(result)
-      htmlBody mustBe ""
+      htmlBody shouldBe ""
     }
 
     "return 400 if the json body timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {

@@ -24,7 +24,7 @@ import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 
-class BusinessTaxControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
+class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockSaMicroService = mock[SaMicroService]

@@ -53,8 +53,8 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
       verify(keyStoreMicroService.httpWrapper, times(1)).httpPut[String](Matchers.eq("/keystore/aSource/anId/data/aKey"), captor.capture(), Matchers.any[Map[String, String]])
 
       val body = captor.getValue
-      (body \ "key1").as[String] must be("value1")
-      (body \ "key2").as[String] must be("value2")
+      (body \ "key1").as[String] should be("value1")
+      (body \ "key2").as[String] should be("value2")
     }
 
     "call the key store service when getting a key store " in new WithApplication(FakeApplication()) {
@@ -80,9 +80,9 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
       val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "key", "entryKey")
 
       verify(keyStoreMicroService.httpWrapper, times(1)).get[String]("/keystore/aSource/anId")
-      entry must not be 'empty
-      entry.get.firstName mustBe "John"
-      entry.get.lastName mustBe "Densmore"
+      entry should not be 'empty
+      entry.get.firstName shouldBe "John"
+      entry.get.lastName shouldBe "Densmore"
 
     }
 
@@ -94,7 +94,7 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
 
       val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "key", "entryKey")
 
-      entry mustBe None
+      entry shouldBe None
 
     }
 

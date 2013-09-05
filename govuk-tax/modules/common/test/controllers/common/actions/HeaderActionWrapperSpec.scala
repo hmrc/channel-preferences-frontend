@@ -8,6 +8,7 @@ import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeApplication, WithApplication, FakeRequest }
 import org.slf4j.MDC
 import play.api.test.Helpers._
+import uk.gov.hmrc.common.BaseSpec
 
 object HeaderTestController extends Controller with CookieEncryption with HeaderNames with HeaderActionWrapper with MockMicroServicesForTests {
 
@@ -26,7 +27,7 @@ object HeaderTestController extends Controller with CookieEncryption with Header
   }
 }
 
-class HeaderActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames with CookieEncryption {
+class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncryption {
 
   "HeaderActionWrapper" should {
     "add parameters from the session and the headers to the MDC " in new WithApplication(FakeApplication()) {
@@ -37,11 +38,11 @@ class HeaderActionWrapperSpec extends WordSpec with MustMatchers with HeaderName
       val result = HeaderTestController.test()(request)
       val fields = contentAsString(result) split (":")
 
-      fields(0) must be("john")
-      fields(1) must be("12345")
-      fields(2) must be("192.168.1.1")
-      fields(3) must startWith("frontend-")
-      MDC.getCopyOfContextMap must be(null)
+      fields(0) should be("john")
+      fields(1) should be("12345")
+      fields(2) should be("192.168.1.1")
+      fields(3) should startWith("frontend-")
+      MDC.getCopyOfContextMap should be(null)
 
     }
 
@@ -52,8 +53,8 @@ class HeaderActionWrapperSpec extends WordSpec with MustMatchers with HeaderName
 
       val result = HeaderTestController.fail()(request)
 
-      status(result) must be(INTERNAL_SERVER_ERROR)
-      MDC.getCopyOfContextMap must be(null)
+      status(result) should be(INTERNAL_SERVER_ERROR)
+      MDC.getCopyOfContextMap should be(null)
 
     }
 

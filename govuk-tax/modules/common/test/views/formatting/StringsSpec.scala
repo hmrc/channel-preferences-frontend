@@ -1,9 +1,8 @@
 package views.formatting
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{ Matchers, WordSpec }
 
-class StringsSpec extends WordSpec with ShouldMatchers {
+class StringsSpec extends WordSpec with Matchers {
 
   "Strings" should {
     "convert mixed case text into sentence case" in {

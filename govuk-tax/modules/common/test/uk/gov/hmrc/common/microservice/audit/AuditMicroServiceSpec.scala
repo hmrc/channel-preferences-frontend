@@ -1,7 +1,6 @@
 package uk.gov.hmrc.common.microservice.audit
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.MustMatchers
+import org.scalatest.{ Matchers, WordSpec }
 import play.api.libs.json.JsValue
 import play.api.test.{ FakeApplication, WithApplication }
 
@@ -15,7 +14,7 @@ class TestAuditMicroService extends AuditMicroService {
   }
 }
 
-class AuditMicroServiceSpec extends WordSpec with MustMatchers {
+class AuditMicroServiceSpec extends WordSpec with Matchers {
 
   "AuditMicroService enabled" should {
     "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.enabled" -> true))) {
@@ -24,13 +23,13 @@ class AuditMicroServiceSpec extends WordSpec with MustMatchers {
       val auditEvent = AuditEvent("frontend", "request", Map("userId" -> "/auth/oid/099990"), Map("name" -> "Fred"))
       auditMicroService.audit(auditEvent)
 
-      auditMicroService.headers must be(Map.empty)
+      auditMicroService.headers should be(Map.empty)
 
       val body = auditMicroService.body
-      (body \ "auditSource").as[String] must be("frontend")
-      (body \ "auditType").as[String] must be("request")
-      (body \ "tags" \ "userId").as[String] must be("/auth/oid/099990")
-      (body \ "detail" \ "name").as[String] must be("Fred")
+      (body \ "auditSource").as[String] should be("frontend")
+      (body \ "auditType").as[String] should be("request")
+      (body \ "tags" \ "userId").as[String] should be("/auth/oid/099990")
+      (body \ "detail" \ "name").as[String] should be("Fred")
     }
   }
 
@@ -41,8 +40,8 @@ class AuditMicroServiceSpec extends WordSpec with MustMatchers {
       val auditEvent = AuditEvent("frontend", "request", Map("userId" -> "/auth/oid/099990"), Map("name" -> "Fred"))
       auditMicroService.audit(auditEvent)
 
-      auditMicroService.body must be(null)
-      auditMicroService.headers must be(null)
+      auditMicroService.body should be(null)
+      auditMicroService.headers should be(null)
 
     }
   }

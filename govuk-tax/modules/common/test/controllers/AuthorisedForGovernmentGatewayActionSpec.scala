@@ -1,7 +1,6 @@
 package controllers
 
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.matchers.ShouldMatchers
 import play.api.mvc.Controller
 import uk.gov.hmrc.microservice.auth.AuthMicroService
 import org.mockito.Mockito.when
@@ -11,20 +10,20 @@ import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
 import java.net.URI
 import org.slf4j.MDC
-import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.microservice.sa.domain.{ SaRoot, SaRegime }
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import controllers.common._
+import org.scalatest.TestData
 
-class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
+class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockSaMicroService = mock[SaMicroService]
   private val token = "someToken"
 
-  override def beforeEach() {
+  override protected def beforeEach(testData: TestData) {
     reset(mockAuthMicroService)
     reset(mockSaMicroService)
     when(mockSaMicroService.root("/sa/detail/AB123456C")).thenReturn(
@@ -115,7 +114,7 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with ShouldMatch
     "redirect to the login page when the userId is not found in the session " in new WithApplication(FakeApplication()) {
       val result = TestController.testAuthorisation(FakeRequest())
       status(result) should equal(303)
-      redirectLocation(result).get mustBe "/"
+      redirectLocation(result).get shouldBe "/"
     }
   }
 }

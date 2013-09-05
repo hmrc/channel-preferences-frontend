@@ -19,7 +19,7 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.governmentgateway.SsoLoginRequest
 import play.api.mvc.SimpleResult
 
-class SsoInControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
+class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
   private val mockSsoWhiteListService = mock[SsoWhiteListService]

@@ -18,7 +18,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
-      payeHome("h2.welcome").text() must include("John Densmore")
+      payeHome("h2.welcome").text() should include("John Densmore")
 
     }
 
@@ -28,7 +28,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
-      payeHome(".overview__actions__done").html() must include("<li>")
+      payeHome(".overview__actions__done").html() should include("<li>")
 
     }
 
@@ -38,7 +38,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
-      payeHome(".overview__contacts__nino").text() must include("CS700100A")
+      payeHome(".overview__contacts__nino").text() should include("CS700100A")
 
     }
 
@@ -48,8 +48,8 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
-      payeHome(".overview__contacts__heading").first().text() must include("Sainsbury's")
-      payeHome(".overview__contacts__companies li").first().child(4).text() must include("277T")
+      payeHome(".overview__contacts__heading").first().text() should include("Sainsbury's")
+      payeHome(".overview__contacts__companies li").first().child(4).text() should include("277T")
 
     }
 
@@ -61,7 +61,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       println(payeHome(".overview__contacts p").last().html())
 
-      payeHome(".overview__contacts p").last().html() must include("href")
+      payeHome(".overview__contacts p").last().html() should include("href")
 
     }
 
@@ -79,7 +79,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       val page = paye_benefit_home(Seq(displayBenefit))
       println(page)
-      page("tr#car-fuel-benefit").size must be(1)
+      page("tr#car-fuel-benefit").size should be(1)
     }
   }
 }

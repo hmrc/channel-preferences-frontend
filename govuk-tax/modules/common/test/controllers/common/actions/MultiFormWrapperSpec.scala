@@ -9,6 +9,7 @@ import org.scalatest.matchers.MustMatchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._
+import uk.gov.hmrc.common.BaseSpec
 
 class MultiFormController extends Controller with MultiFormWrapper with MockMicroServicesForTests {
 
@@ -59,7 +60,7 @@ class MultiFormController extends Controller with MultiFormWrapper with MockMicr
     }
 }
 
-class MultiFormWrapperSpec extends WordSpec with MustMatchers with MockitoSugar {
+class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
 
   "MultiformWrapper" should {
 
@@ -70,8 +71,8 @@ class MultiFormWrapperSpec extends WordSpec with MustMatchers with MockitoSugar 
       when(controller.call1.url).thenReturn("/step1")
 
       val result = controller.testJumpAhead()(user)(FakeRequest())
-      status(result) must be(303)
-      headers(result)("Location") must be("/step1")
+      status(result) should be(303)
+      headers(result)("Location") should be("/step1")
     }
 
     "allow access to step1 when user tries to access it for the first time and key store does not exist" in new WithApplication(FakeApplication()) {
@@ -80,8 +81,8 @@ class MultiFormWrapperSpec extends WordSpec with MustMatchers with MockitoSugar 
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(None)
 
       val result = controller.testHomePage()(user)(FakeRequest())
-      status(result) must be(200)
-      contentAsString(result) must be("You are in home page")
+      status(result) should be(200)
+      contentAsString(result) should be("You are in home page")
     }
 
     "redirect to step1 when keystore exists but the data keys set is empty" in new WithApplication(FakeApplication()) {
@@ -92,8 +93,8 @@ class MultiFormWrapperSpec extends WordSpec with MustMatchers with MockitoSugar 
       when(controller.call1.url).thenReturn("/step1")
 
       val result = controller.testJumpAhead()(user)(FakeRequest())
-      status(result) must be(303)
-      headers(result)("Location") must be("/step1")
+      status(result) should be(303)
+      headers(result)("Location") should be("/step1")
     }
 
     "go to step3 when keystore exists and the previous steps were completed" in new WithApplication(FakeApplication()) {
@@ -103,8 +104,8 @@ class MultiFormWrapperSpec extends WordSpec with MustMatchers with MockitoSugar 
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set("step1", "step2")))
 
       val result = controller.testJumpAhead()(user)(FakeRequest())
-      status(result) must be(200)
-      contentAsString(result) must be("You are in step 3!")
+      status(result) should be(200)
+      contentAsString(result) should be("You are in step 3!")
     }
 
     "redirect to step2 when trying to go to step3 and in keystore only step1 was completed" in new WithApplication(FakeApplication()) {
@@ -115,8 +116,8 @@ class MultiFormWrapperSpec extends WordSpec with MustMatchers with MockitoSugar 
       when(controller.call2.url).thenReturn("/step2")
 
       val result = controller.testJumpAhead()(user)(FakeRequest())
-      status(result) must be(303)
-      headers(result)("Location") must be("/step2")
+      status(result) should be(303)
+      headers(result)("Location") should be("/step2")
     }
 
   }

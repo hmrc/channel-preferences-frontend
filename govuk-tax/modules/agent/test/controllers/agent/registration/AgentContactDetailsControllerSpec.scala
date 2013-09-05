@@ -93,17 +93,17 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a"))
       status(result) shouldBe 303
-      headers(result)("Location") must be("/agent-type")
+      headers(result)("Location") should be("/agent-type")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
-      keyStoreData(title) must be(payeRoot.title)
-      keyStoreData(firstName) must be(payeRoot.firstName)
-      keyStoreData(lastName) must be(payeRoot.surname)
-      keyStoreData(dateOfBirth) must be(payeRoot.dateOfBirth)
-      keyStoreData(nino) must be(payeRoot.nino)
-      keyStoreData(daytimePhoneNumber) must be("07777777777")
-      keyStoreData(mobilePhoneNumber) must be("0777777771")
-      keyStoreData(emailAddress) must be("a@a.a")
+      keyStoreData(title) should be(payeRoot.title)
+      keyStoreData(firstName) should be(payeRoot.firstName)
+      keyStoreData(lastName) should be(payeRoot.surname)
+      keyStoreData(dateOfBirth) should be(payeRoot.dateOfBirth)
+      keyStoreData(nino) should be(payeRoot.nino)
+      keyStoreData(daytimePhoneNumber) should be("07777777777")
+      keyStoreData(mobilePhoneNumber) should be("0777777771")
+      keyStoreData(emailAddress) should be("a@a.a")
     }
   }
 

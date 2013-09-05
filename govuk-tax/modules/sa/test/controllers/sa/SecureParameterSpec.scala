@@ -12,7 +12,7 @@ class SecureParameterSpec extends BaseSpec {
     "be unchanged if encrypted and encoded for Urls, url decoded and then decrypted" in new WithApplication(FakeApplication()) {
       val timestamp = DateTime.now(DateTimeZone.UTC)
       val secureParameter = SecureParameter("aValue", timestamp)
-      SecureParameter.decrypt(secureParameter.encrypt) mustBe Success(secureParameter)
+      SecureParameter.decrypt(secureParameter.encrypt) shouldBe Success(secureParameter)
     }
   }
 
@@ -22,14 +22,14 @@ class SecureParameterSpec extends BaseSpec {
 
     val expected = SecureParameter("aValue", new DateTime(1378218917890L, DateTimeZone.UTC))
 
-    SecureParameter.decrypt(value) mustBe Success(expected)
+    SecureParameter.decrypt(value) shouldBe Success(expected)
   }
 
   "return a Failure if the value cannot be decoded/decrypted" in new WithApplication(FakeApplication()) {
 
     val value = "NOT A VALID ENCRYPTED STRING"
 
-    SecureParameter.decrypt(value).isFailure must be(true)
+    SecureParameter.decrypt(value).isFailure should be(true)
   }
 
   "be able to encrypt and encode to base 64 format" in new WithApplication(FakeApplication()) {
@@ -38,6 +38,6 @@ class SecureParameterSpec extends BaseSpec {
 
     val value = SecureParameter("aValue", new DateTime(1378218917890L, DateTimeZone.UTC))
 
-    value.encrypt mustBe expected
+    value.encrypt shouldBe expected
   }
 }

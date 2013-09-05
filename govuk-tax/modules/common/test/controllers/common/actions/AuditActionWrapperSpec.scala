@@ -1,7 +1,5 @@
 package controllers.common.actions
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.MustMatchers
 import play.api.mvc.{ AsyncResult, Action, Controller }
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.ArgumentCaptor
@@ -15,6 +13,7 @@ import org.slf4j.MDC
 import controllers.common.HeaderNames
 import scala.concurrent.{ Await, Future, ExecutionContext }
 import scala.concurrent.duration.Duration
+import uk.gov.hmrc.common.BaseSpec
 
 class AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {
 
@@ -36,7 +35,7 @@ class AuditTestController extends Controller with AuditActionWrapper with MockMi
   }
 }
 
-class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames {
+class AuditActionWrapperSpec extends BaseSpec with HeaderNames {
 
   "AuditActionWrapper with traceRequestsEnabled " should {
     "audit the request and the response with values from the MDC" in new WithApplication(
@@ -54,27 +53,27 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
         verify(controller.auditMicroService, times(2)).audit(auditEventCaptor.capture())
 
         val auditEvents = auditEventCaptor.getAllValues
-        auditEvents.size must be(2)
+        auditEvents.size should be(2)
 
         val requestAudit = auditEvents.get(0)
 
-        requestAudit.auditSource must be("frontend")
-        requestAudit.auditType must be("Request")
+        requestAudit.auditSource should be("frontend")
+        requestAudit.auditType should be("Request")
 
-        requestAudit.tags.size must be(3)
-        requestAudit.tags must contain(authorisation -> "/auth/oid/123123123")
-        requestAudit.tags must contain(forwardedFor -> "192.168.1.1")
-        requestAudit.tags must contain("path" -> "/foo")
+        requestAudit.tags.size should be(3)
+        requestAudit.tags should contain(authorisation -> "/auth/oid/123123123")
+        requestAudit.tags should contain(forwardedFor -> "192.168.1.1")
+        requestAudit.tags should contain("path" -> "/foo")
 
         val responseAudit = auditEvents.get(1)
 
-        responseAudit.auditSource must be("frontend")
-        responseAudit.auditType must be("Response")
+        responseAudit.auditSource should be("frontend")
+        responseAudit.auditType should be("Response")
 
-        responseAudit.tags.size must be(3)
-        responseAudit.tags must contain(authorisation -> "/auth/oid/123123123")
-        responseAudit.tags must contain(forwardedFor -> "192.168.1.1")
-        responseAudit.tags must contain("statusCode" -> "200")
+        responseAudit.tags.size should be(3)
+        responseAudit.tags should contain(authorisation -> "/auth/oid/123123123")
+        responseAudit.tags should contain(forwardedFor -> "192.168.1.1")
+        responseAudit.tags should contain("statusCode" -> "200")
       } finally {
         MDC.clear
       }
@@ -91,24 +90,24 @@ class AuditActionWrapperSpec extends WordSpec with MustMatchers with HeaderNames
 
       try {
         val result = controller.asyncTest()(FakeRequest())
-        result.isInstanceOf[AsyncResult] must be(true)
+        result.isInstanceOf[AsyncResult] should be(true)
 
         Await.result(result.asInstanceOf[AsyncResult].result, Duration("3 seconds"))
 
         verify(controller.auditMicroService, times(2)).audit(auditEventCaptor.capture())
 
         val auditEvents = auditEventCaptor.getAllValues
-        auditEvents.size must be(2)
+        auditEvents.size should be(2)
 
         val responseAudit = auditEvents.get(1)
 
-        responseAudit.auditSource must be("frontend")
-        responseAudit.auditType must be("Response")
+        responseAudit.auditSource should be("frontend")
+        responseAudit.auditType should be("Response")
 
-        responseAudit.tags.size must be(3)
-        responseAudit.tags must contain(authorisation -> "/auth/oid/34343434")
-        responseAudit.tags must contain(forwardedFor -> "192.168.1.2")
-        responseAudit.tags must contain("statusCode" -> "200")
+        responseAudit.tags.size should be(3)
+        responseAudit.tags should contain(authorisation -> "/auth/oid/34343434")
+        responseAudit.tags should contain(forwardedFor -> "192.168.1.2")
+        responseAudit.tags should contain("statusCode" -> "200")
       } finally {
         MDC.clear
       }

@@ -17,7 +17,7 @@ import scala.Some
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
 import org.mockito.Matchers
 
-class PayeHomeControllerSpec extends PayeBaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
+class PayeHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val controller = new PayeHomeController with MockMicroServicesForTests
 

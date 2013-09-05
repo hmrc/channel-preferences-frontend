@@ -17,7 +17,7 @@ import uk.gov.hmrc.microservice.paye.domain.Benefit
 import scala.Some
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 
-class BenefitHomeControllerSpec extends PayeBaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
+class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val controller = new BenefitHomeController with MockMicroServicesForTests
 

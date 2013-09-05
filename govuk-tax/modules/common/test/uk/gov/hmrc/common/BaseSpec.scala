@@ -1,9 +1,8 @@
 package uk.gov.hmrc.common
 
-import org.scalatest.matchers.{ ShouldMatchers, MustMatchers }
-import org.scalatest.{ BeforeAndAfter, BeforeAndAfterEach, WordSpec }
+import org.scalatest._
 
-trait BaseSpec extends WordSpec with MustMatchers with ShouldMatchers with BeforeAndAfterEach with BeforeAndAfter {
+trait BaseSpec extends WordSpec with Matchers with BeforeAndAfterEachTestData with BeforeAndAfter {
 
   import scala.concurrent.{ Await, Future }
   import scala.concurrent.duration._

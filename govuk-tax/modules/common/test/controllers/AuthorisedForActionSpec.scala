@@ -1,7 +1,6 @@
 package controllers
 
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.matchers.ShouldMatchers
 import play.api.mvc.Controller
 import uk.gov.hmrc.microservice.auth.AuthMicroService
 import uk.gov.hmrc.microservice.paye.PayeMicroService
@@ -13,17 +12,17 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.microservice.paye.domain.{ PayeRegime, PayeRoot }
 import java.net.URI
 import org.slf4j.MDC
-import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import controllers.common._
+import org.scalatest.TestData
 
-class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
+class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockPayeMicroService = mock[PayeMicroService]
 
-  override def beforeEach() {
+  override protected def beforeEach(testData: TestData) {
     reset(mockAuthMicroService)
     reset(mockPayeMicroService)
     when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
@@ -122,19 +121,19 @@ class AuthorisedForActionSpec extends BaseSpec with ShouldMatchers with MockitoS
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
       val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john")))
       status(result) should equal(303)
-      redirectLocation(result).get mustBe "/login"
+      redirectLocation(result).get shouldBe "/login"
     }
 
     "redirect to the login page when the userId is not found in the session " in new WithApplication(FakeApplication()) {
       val result = TestController.testAuthorisation(FakeRequest())
       status(result) should equal(303)
-      redirectLocation(result).get mustBe "/samllogin"
+      redirectLocation(result).get shouldBe "/samllogin"
     }
 
     "redirect to the login page when the userId is found but a gateway token is present" in new WithApplication(FakeApplication()) {
       val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john"), "token" -> encrypt("a-government-gateway-token")))
       status(result) should equal(303)
-      redirectLocation(result).get mustBe "/samllogin"
+      redirectLocation(result).get shouldBe "/samllogin"
     }
 
   }

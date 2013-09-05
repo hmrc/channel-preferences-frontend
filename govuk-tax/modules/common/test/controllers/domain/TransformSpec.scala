@@ -14,11 +14,11 @@ class TransformSpec extends BaseSpec {
 
   "Json" should {
     "be transformed into associated object" in {
-      fromResponse[VariousFields]("""{"id":"123456789","number": 87,"strings" : ["one", "two","three"]}""") must be(VariousFields("123456789", 87, List("one", "two", "three")))
+      fromResponse[VariousFields]("""{"id":"123456789","number": 87,"strings" : ["one", "two","three"]}""") should be(VariousFields("123456789", 87, List("one", "two", "three")))
     }
 
     "be transformed into the object type even if the json has more fields than the object" in {
-      fromResponse[HasURIField]("""{"id":"123456789","number": 87,"strings" : ["one", "two","three"]}""") must be(HasURIField("123456789"))
+      fromResponse[HasURIField]("""{"id":"123456789","number": 87,"strings" : ["one", "two","three"]}""") should be(HasURIField("123456789"))
     }
 
     "fail transformation when the json has less fields than the object type" in {
@@ -28,7 +28,7 @@ class TransformSpec extends BaseSpec {
     }
 
     "with URI are deserializer" in {
-      fromResponse[HasURIField]("""{"id":"/has/uri/123456789"}""") must be(HasURIField("/has/uri/123456789"))
+      fromResponse[HasURIField]("""{"id":"/has/uri/123456789"}""") should be(HasURIField("/has/uri/123456789"))
     }
 
     "fail transformation when null json value is provided" in {
@@ -50,13 +50,13 @@ class TransformSpec extends BaseSpec {
     "transform a LocalDate to string like yyyy-MM-dd" in {
 
       val dateCont = LocalDateContainer(new LocalDate(2013, 3, 12))
-      toRequestBody(dateCont) mustBe """{"date":"2013-03-12"}"""
+      toRequestBody(dateCont) shouldBe """{"date":"2013-03-12"}"""
 
     }
 
     "transform a benefit to json" in {
       val benefit = Benefit(31, 2013, 3333, 1, null, null, null, null, null, null, Some(Car(None, None, Some(new LocalDate(2013, 3, 12)), 0, 4, 2, 2, "B", 9999)), Map.empty, Map.empty)
-      toRequestBody(benefit) mustBe """{"benefitType":31,"taxYear":2013,"grossAmount":3333,"employmentSequenceNumber":1,"costAmount":null,"amountMadeGood":null,"cashEquivalent":null,"expensesIncurred":null,"amountOfRelief":null,"paymentOrBenefitDescription":null,"car":{"dateCarRegistered":"2013-03-12","employeeCapitalContribution":0,"fuelType":4,"co2Emissions":2,"engineSize":2,"mileageBand":"B","carValue":9999},"actions":{},"calculations":{}}"""
+      toRequestBody(benefit) shouldBe """{"benefitType":31,"taxYear":2013,"grossAmount":3333,"employmentSequenceNumber":1,"costAmount":null,"amountMadeGood":null,"cashEquivalent":null,"expensesIncurred":null,"amountOfRelief":null,"paymentOrBenefitDescription":null,"car":{"dateCarRegistered":"2013-03-12","employeeCapitalContribution":0,"fuelType":4,"co2Emissions":2,"engineSize":2,"mileageBand":"B","carValue":9999},"actions":{},"calculations":{}}"""
     }
 
   }

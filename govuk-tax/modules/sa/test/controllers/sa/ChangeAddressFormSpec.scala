@@ -5,7 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 
-class ChangeAddressFormSpec extends BaseSpec with ShouldMatchers with MockitoSugar {
+class ChangeAddressFormSpec extends BaseSpec with MockitoSugar {
 
   private val fullForm = ChangeAddressForm(
     addressLine1 = Some("addr 1"),

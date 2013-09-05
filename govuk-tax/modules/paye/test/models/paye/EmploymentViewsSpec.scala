@@ -37,10 +37,10 @@ class EmploymentViewsSpec extends BaseSpec {
         ),
         List.empty
       )
-      views must have size 2
-      views(0).taxCodeChange must not be (None)
-      views(0).taxCodeChange.get.messageCode must be("taxcode.accepted")
-      views(1).taxCodeChange must be(None)
+      views should have size 2
+      views(0).taxCodeChange should not be (None)
+      views(0).taxCodeChange.get.messageCode should be("taxcode.accepted")
+      views(1).taxCodeChange should be(None)
     }
 
     "add a tax code recent change object if a benefit transaction is in a completed state" in {
@@ -57,10 +57,10 @@ class EmploymentViewsSpec extends BaseSpec {
           DateTime.now)
         )
       )
-      views must have size 2
-      views(0).taxCodeChange must not be (None)
-      views(0).taxCodeChange.get.messageCode must be("taxcode.completed")
-      views(1).taxCodeChange must be(None)
+      views should have size 2
+      views(0).taxCodeChange should not be (None)
+      views(0).taxCodeChange.get.messageCode should be("taxcode.completed")
+      views(1).taxCodeChange should be(None)
     }
 
     "not add any recent change objects if no related benefit transactions exist" in {
@@ -71,9 +71,9 @@ class EmploymentViewsSpec extends BaseSpec {
         List.empty,
         Seq.empty
       )
-      views must have size 2
-      views(0).taxCodeChange must be(None)
-      views(1).taxCodeChange must be(None)
+      views should have size 2
+      views(0).taxCodeChange should be(None)
+      views(1).taxCodeChange should be(None)
     }
   }
 }

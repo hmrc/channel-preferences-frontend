@@ -3,7 +3,7 @@ package controllers.paye
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
-import org.scalatest.{ TestData, BeforeAndAfterEach }
+import org.scalatest.{ BeforeAndAfterEachTestData, TestData, BeforeAndAfterEach }
 import org.joda.time.{ DateTimeUtils, LocalDate }
 import play.api.test.{ WithApplication, FakeRequest }
 import views.formatting.Dates
@@ -25,7 +25,7 @@ import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 
-class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption with BeforeAndAfterEach {
+class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val controller = new RemoveBenefitController with MockMicroServicesForTests
 
@@ -44,7 +44,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
 
-  "The car benefit removal form" should{
+  "The car benefit removal form" should {
     "give the option to remove the fuel benefit if the user has one" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
@@ -63,11 +63,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
       status(result) shouldBe 200
       val requestBenefits = contentAsString(result)
       requestBenefits should include("Remove your company benefit")
-      requestBenefits should not include("remove my fuel benefit")
+      requestBenefits should not include ("remove my fuel benefit")
 
     }
   }
-
 
   "The remove benefit method" should {
 
@@ -198,7 +197,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
 
       status(result) shouldBe 303
 
-      headers(result).get("Location") mustBe Some("/benefits/31/confirmation/someId")
+      headers(result).get("Location") shouldBe Some("/benefits/31/confirmation/someId")
 
     }
 
@@ -214,7 +213,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with ShouldMatchers with 
       val result = controller.benefitRemovedAction(johnDensmore, FakeRequest(), 31, "123")
 
       status(result) shouldBe 200
-      contentAsString(result) must include("123")
+      contentAsString(result) should include("123")
 
     }
 

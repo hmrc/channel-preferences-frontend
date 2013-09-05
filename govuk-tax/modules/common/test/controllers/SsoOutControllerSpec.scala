@@ -12,7 +12,7 @@ import play.api.test.FakeApplication
 import config.PortalConfig
 import uk.gov.hmrc.common.BaseSpec
 
-class SsoOutControllerSpec extends BaseSpec with ShouldMatchers with MockitoSugar with CookieEncryption {
+class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private def controller = new SsoOutController
 
@@ -29,9 +29,9 @@ class SsoOutControllerSpec extends BaseSpec with ShouldMatchers with MockitoSuga
       val decryptedResult = SsoPayloadEncryptor.decrypt(content)
       val decryptedJson = Json.parse(decryptedResult)
 
-      (decryptedJson \ "gw").as[String] must be(encodedGovernmentGatewayToken)
-      (decryptedJson \ "dest").as[String] must be(PortalConfig.destinationRoot + "/home")
-      (decryptedJson \ "time").asOpt[Long].isDefined must be(true)
+      (decryptedJson \ "gw").as[String] should be(encodedGovernmentGatewayToken)
+      (decryptedJson \ "dest").as[String] should be(PortalConfig.destinationRoot + "/home")
+      (decryptedJson \ "time").asOpt[Long].isDefined should be(true)
 
     }
   }

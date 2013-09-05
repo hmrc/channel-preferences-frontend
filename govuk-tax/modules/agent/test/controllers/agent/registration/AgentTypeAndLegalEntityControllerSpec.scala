@@ -67,15 +67,15 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
       val result = controller.postAgentTypeAction(user, newRequest("inBusiness", "ltdCompany"))
       status(result) shouldBe 303
-      headers(result)("Location") must be("/company-details")
+      headers(result)("Location") should be("/company-details")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(agentTypeAndLegalEntityFormName),
         keyStoreDataCaptor.capture())
       val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
-      keyStoreData(agentType) must be("inBusiness")
-      keyStoreData(legalEntity) must be("ltdCompany")
+      keyStoreData(agentType) should be("inBusiness")
+      keyStoreData(legalEntity) should be("ltdCompany")
     }
   }
 
