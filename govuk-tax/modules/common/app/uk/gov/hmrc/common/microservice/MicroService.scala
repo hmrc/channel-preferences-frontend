@@ -92,7 +92,7 @@ trait MicroService extends Status with HeaderNames {
       fromResponse[A](response.body)
     } catch {
       case e: Throwable => {
-        throw new Exception("Malformed result")
+        throw new Exception("Malformed result", e)
       }
     }
   }

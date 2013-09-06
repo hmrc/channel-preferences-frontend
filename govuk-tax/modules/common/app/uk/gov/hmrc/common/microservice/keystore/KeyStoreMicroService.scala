@@ -15,7 +15,7 @@ class KeyStoreMicroService(override val serviceUrl: String = MicroServiceConfig.
 
   def addKeyStoreEntry(id: String, source: String, key: String, data: Map[String, Any]) {
     val uri = buildUri(id, source) + s"/data/${key}"
-    httpPut[KeyStore[String]](uri, Json.parse(toRequestBody(data)))
+    httpPut[KeyStore[Map[String, String]]](uri, Json.parse(toRequestBody(data)))
   }
 
   def getEntry[T](id: String, source: String, key: String, entryKey: String)(implicit manifest: Manifest[T]): Option[T] = {
