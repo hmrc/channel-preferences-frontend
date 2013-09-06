@@ -1,6 +1,6 @@
 package controllers.paye
 
-import uk.gov.hmrc.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.microservice.paye.domain.{ Benefit, PayeRegime }
 import play.api.mvc.{ Result, Request }
 import views.html.paye._
 import views.formatting.Dates
@@ -44,14 +44,25 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
             }
           },
           removeBenefitData => {
-            val calculationResult = payeMicroService.calculateWithdrawBenefit(benefit.benefit, removeBenefitData.withdrawDate)
-            val revisedAmount = calculationResult.result(benefit.benefit.taxYear.toString)
+            val selectedBenefit = benefit.benefit
+
+            var revisedAmount = calculateRevisedAmount(selectedBenefit, removeBenefitData.withdrawDate)
+            var benefitTitle = "company car"
+            var grossAmount = selectedBenefit.grossAmount
+
+            if (removeBenefitData.removeFuel) {
+              val fuelBenefit = getFuelBenefit(user).get
+
+              revisedAmount = calculateRevisedAmount(fuelBenefit, removeBenefitData.withdrawDate)
+              benefitTitle += " and fuel"
+              grossAmount = grossAmount + fuelBenefit.grossAmount
+            }
 
             keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", Map("form" -> RemoveBenefitData(removeBenefitData.withdrawDate, revisedAmount.toString())))
 
             benefit.benefit.benefitType match {
-              case 31 => Ok(remove_car_benefit_confirm(revisedAmount, benefit.benefit))
-              case 29 => Ok(remove_benefit_confirm(revisedAmount, benefit.benefit))
+              case 31 => Ok(remove_car_benefit_confirm(grossAmount - revisedAmount, selectedBenefit, benefitTitle))
+              case 29 => Ok(remove_benefit_confirm(revisedAmount, selectedBenefit))
               case _ => Redirect(routes.BenefitHomeController.listBenefits())
             }
           }
@@ -59,15 +70,24 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
       }
   }
 
-  private def hasFuelBenefit(user: User): Boolean = {
+  private def calculateRevisedAmount(benefit:Benefit, withdrawDate:LocalDate):BigDecimal = {
+    val calculationResult = payeMicroService.calculateWithdrawBenefit(benefit, withdrawDate)
+    calculationResult.result(benefit.taxYear.toString)
+  }
+
+  private def getFuelBenefit(user: User): Option[Benefit] = {
     val benefits = user.regimes.paye.get.benefits(currentTaxYear)
-    benefits.find(b => b.benefitType == 29).isDefined
+    benefits.find(b => b.benefitType == 29)
+  }
+  private def hasFuelBenefit(user: User): Boolean = {
+    getFuelBenefit(user).isDefined
   }
 
   private lazy val updateBenefitForm = Form[RemoveBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping,
-      "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement")
+      "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement"),
+      "removeFuel" -> boolean
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 

@@ -33,7 +33,7 @@ object DisplayBenefits {
 }
 
 case class RemoveBenefitFormData(withdrawDate: LocalDate,
-  agreement: Boolean)
+  agreement: Boolean, removeFuel: Boolean)
 
 case class PayeOverview(name: String, lastLogin: Option[DateTime], nino: String, employmentViews: Seq[EmploymentView], hasBenefits: Boolean)
 
