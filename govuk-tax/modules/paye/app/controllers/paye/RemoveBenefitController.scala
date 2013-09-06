@@ -53,9 +53,9 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
             if (removeBenefitData.removeFuel) {
               val fuelBenefit = getFuelBenefit(user).get
 
-              revisedAmount = calculateRevisedAmount(fuelBenefit, removeBenefitData.withdrawDate)
+              revisedAmount += calculateRevisedAmount(fuelBenefit, removeBenefitData.withdrawDate)
               benefitTitle += " and fuel"
-              grossAmount = grossAmount + fuelBenefit.grossAmount
+              grossAmount += fuelBenefit.grossAmount
             }
 
             keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", Map("form" -> RemoveBenefitData(removeBenefitData.withdrawDate, revisedAmount.toString())))
@@ -70,7 +70,7 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
       }
   }
 
-  private def calculateRevisedAmount(benefit:Benefit, withdrawDate:LocalDate):BigDecimal = {
+  private def calculateRevisedAmount(benefit: Benefit, withdrawDate: LocalDate): BigDecimal = {
     val calculationResult = payeMicroService.calculateWithdrawBenefit(benefit, withdrawDate)
     calculationResult.result(benefit.taxYear.toString)
   }
