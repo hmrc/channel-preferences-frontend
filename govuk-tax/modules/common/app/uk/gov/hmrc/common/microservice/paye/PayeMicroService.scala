@@ -21,7 +21,7 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
   def removeBenefit(uri: String, nino: String,
     version: Int,
-    benefit: Benefit,
+    benefits: Seq[Benefit],
     dateCarWithdrawn: LocalDate,
     revisedGrossAmount: BigDecimal): Option[TransactionId] = {
     httpPost[TransactionId](
@@ -30,7 +30,7 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
         toRequestBody(
           RemoveBenefit(
             version = version,
-            benefit = benefit,
+            benefits = benefits,
             revisedAmount = revisedGrossAmount,
             withdrawDate = dateCarWithdrawn)
         )

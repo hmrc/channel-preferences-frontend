@@ -61,7 +61,7 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
             keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", Map("form" -> RemoveBenefitData(removeBenefitData.withdrawDate, revisedAmount.toString())))
 
             benefit.benefit.benefitType match {
-              case 31 => Ok(remove_car_benefit_confirm(grossAmount - revisedAmount, selectedBenefit, benefitTitle))
+              case 31 => Ok(remove_car_benefit_confirm(grossAmount - revisedAmount, Seq(selectedBenefit), benefitTitle))
               case 29 => Ok(remove_benefit_confirm(revisedAmount, selectedBenefit))
               case _ => Redirect(routes.BenefitHomeController.listBenefits())
             }
@@ -96,8 +96,12 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(new LocalDate()))
     .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(currentTaxYear, 4, 5)))
 
-  def confirmBenefitRemoval(kind: Int, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => confirmBenefitRemovalAction(kind, user, request, year, employmentSequenceNumber)
+  def confirmBenefitRemoval(kind: String, year: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+    user =>
+      request => {
+
+        confirmBenefitRemovalAction(kind.split("'")(0).toInt, user, request, year, employmentSequenceNumber)
+      }
   })
 
   private[paye] val confirmBenefitRemovalAction: (Int, User, Request[_], Int, Int) => Result = WithValidatedRequest {
@@ -109,7 +113,7 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
 
         if (formData.isDefined) {
           val uri = benefit.benefit.actions.getOrElse("remove", throw new IllegalArgumentException(s"No remove action uri found for benefit type ${benefit.benefit.benefitType}"))
-          val transactionId = payeMicroService.removeBenefit(uri, payeRoot.nino, payeRoot.version, benefit.benefit, formData.get.withdrawDate, BigDecimal(formData.get.revisedAmount))
+          val transactionId = payeMicroService.removeBenefit(uri, payeRoot.nino, payeRoot.version, Seq(benefit.benefit), formData.get.withdrawDate, BigDecimal(formData.get.revisedAmount))
           Redirect(routes.RemoveBenefitController.benefitRemoved(benefit.benefit.benefitType, transactionId.get.oid))
         } else {
           Redirect(routes.BenefitHomeController.listBenefits())
