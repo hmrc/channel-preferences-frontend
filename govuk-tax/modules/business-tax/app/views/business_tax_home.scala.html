@@ -48,7 +48,7 @@
 }
 
 <ul style="list-style-type:none;">
-    <li><a id="portalLink" href='@{PortalDestinationUrlBuilder.buildUrl("home", businessUser.utr)}'>Take me to the portal....</a></li>
+    <li><a id="portalLink" href='@{PortalDestinationUrlBuilder.buildUrl("home", None)}'>Take me to the portal....</a></li>
 </ul>
 
 
@@ -64,7 +64,7 @@
     {
 
         $.ajax({
-            url: '/ssoout/href=link.href',
+            url: '/ssoout',
             type: 'GET',
             success: function(data) {
 
