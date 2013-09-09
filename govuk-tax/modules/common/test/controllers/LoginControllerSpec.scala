@@ -156,6 +156,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val password = "passw0rd"
       val nameFromGovernmentGateway = "Geoff G.G.W. Nott-Fisher"
       val userId = "/auth/oid/notGeoff"
+      val affinityGroup = "Organisation"
       val encodedGovernmentGatewayToken = "someencodedtoken"
     }
 
@@ -216,7 +217,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name" in new WithApplication(FakeApplication()) {
 
-      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, geoff.encodedGovernmentGatewayToken))
+      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, geoff.affinityGroup, geoff.encodedGovernmentGatewayToken))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
@@ -227,6 +228,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       decrypt(sess("name")) shouldBe geoff.nameFromGovernmentGateway
       decrypt(sess("userId")) shouldBe geoff.userId
       decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken
+      decrypt(sess("affinityGroup")) shouldBe geoff.affinityGroup
 
     }
   }

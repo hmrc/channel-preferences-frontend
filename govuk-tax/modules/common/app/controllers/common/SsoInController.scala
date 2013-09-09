@@ -30,7 +30,11 @@ class SsoInController extends BaseController with ActionWrappers with MicroServi
           try {
             val response = governmentGatewayMicroService.ssoLogin(tokenRequest)
             Logger.debug(s"successfully authenticated: $response.name")
-            Redirect(dest.get).withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken))
+            Redirect(dest.get).withSession(
+              "userId" -> encrypt(response.authId),
+              "name" -> encrypt(response.name),
+              "affinityGroup" -> encrypt(response.affinityGroup),
+              "token" -> encrypt(response.encodedGovernmentGatewayToken))
           } catch {
             case e: Exception => {
               Logger.info("Failed to validate a token.", e)
