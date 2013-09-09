@@ -18,14 +18,14 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
 
       checkThatTheRequestIsValid
 
-      val encryptedGovernmentGatewayToken = request.session.get("token").get
-      val decryptedGovernmentGatewayToken = decrypt(encryptedGovernmentGatewayToken)
-      val destinationUrl = retrieveDestinationUrl(request)
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(generateJsonPayload(decryptedGovernmentGatewayToken, destinationUrl))
+      val destinationUrl = retriveDestinationUrl
+      val decryptedEncodedGovernmentGatewayToken = decrypt(request.session.get("token").get)
+      val encryptedPayload = SsoPayloadEncryptor.encrypt(generateJsonPayload(decryptedEncodedGovernmentGatewayToken, destinationUrl))
       Ok(encryptedPayload)
+
   })
 
-  private def retrieveDestinationUrl(implicit request: Request[AnyContent]): String = {
+  private def retriveDestinationUrl(implicit request: Request[AnyContent]): String = {
     request.queryString.get("destinationUrl") match {
       case Some(Seq(destination)) => destination
       case None => PortalConfig.getDestinationUrl("home")
