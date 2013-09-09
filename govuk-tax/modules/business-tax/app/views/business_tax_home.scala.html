@@ -64,7 +64,7 @@
     {
 
         $.ajax({
-            url: '/ssoout',
+            url: '/ssoout?destinationUrl=' + link.href,
             type: 'GET',
             success: function(data) {
 
