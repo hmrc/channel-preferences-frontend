@@ -15,7 +15,7 @@ class VatMicroServiceTest extends BaseSpec {
 
     "call the micro service with the correct uri and get the contents" in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedPayeMicroService
+      val service = new HttpMockedVatMicroService
       val vatRoot = VatRoot(Vrn("123456"), Map.empty)
       when(service.httpWrapper.get[VatRoot]("/vat/vrn/123456")).thenReturn(Some(vatRoot))
 
@@ -28,7 +28,7 @@ class VatMicroServiceTest extends BaseSpec {
 
     "call the micro service with the correct uri but VAT root is not found" in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedPayeMicroService
+      val service = new HttpMockedVatMicroService
       when(service.httpWrapper.get[VatRoot]("/vat/vrn/123456")).thenReturn(None)
 
       evaluating(service.root("/vat/vrn/123456")) should produce[IllegalStateException]
@@ -42,7 +42,7 @@ class VatMicroServiceTest extends BaseSpec {
 
     "call the micro service with the correct uri and return the contents" in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedPayeMicroService
+      val service = new HttpMockedVatMicroService
       val accountSummary = Some(VatAccountSummary(Some(VatAccountBalance(Some(4.0), None)), None))
       when(service.httpWrapper.get[VatAccountSummary]("/vat/vrn/123456/accountSummary")).thenReturn(accountSummary)
 
@@ -55,7 +55,7 @@ class VatMicroServiceTest extends BaseSpec {
   }
 }
 
-class HttpMockedPayeMicroService extends VatMicroService with MockitoSugar {
+class HttpMockedVatMicroService extends VatMicroService with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 

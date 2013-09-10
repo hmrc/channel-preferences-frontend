@@ -4,8 +4,8 @@ import controllers.common.RedirectUtils
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.microservice.domain.{ TaxRegime, RegimeRoot }
 import uk.gov.hmrc.microservice.auth.domain.Regimes
-import java.net.URI
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import org.joda.time.LocalDate
 
 object SaRegime extends TaxRegime {
   override def isAuthorised(regimes: Regimes) = {
@@ -21,10 +21,18 @@ case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
 
   private val individualDetailsKey = "individual/details"
   private val individualMainAddressKey = "individual/details/main-address"
+  private val individualAccountSummaryKey = "individual/account-summary"
 
   def personalDetails(implicit saMicroService: SaMicroService): Option[SaPerson] = {
     links.get(individualDetailsKey) match {
       case Some(uri) => saMicroService.person(uri)
+      case _ => None
+    }
+  }
+
+  def accountSummary(implicit saMicroService: SaMicroService): Option[SaAccountSummary] = {
+    links.get(individualAccountSummaryKey) match {
+      case Some(uri) => saMicroService.accountSummary(uri)
       case _ => None
     }
   }
@@ -51,4 +59,8 @@ case class SaIndividualAddress(
   additionalDeliveryInformation: String)
 
 case class TransactionId(oid: String)
+
+case class Liability(dueDate: LocalDate, amount: BigDecimal)
+
+case class SaAccountSummary(totalAmountDueToHmrc: BigDecimal, nextPayment: Option[Liability], amountHmrcOwe: BigDecimal)
 

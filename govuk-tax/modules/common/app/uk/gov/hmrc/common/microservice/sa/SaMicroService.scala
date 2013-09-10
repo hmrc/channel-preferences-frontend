@@ -4,9 +4,7 @@ import play.Logger
 import uk.gov.hmrc.microservice.{ MicroServiceException, MicroService, MicroServiceConfig }
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import uk.gov.hmrc.microservice.sa.domain.{ SaAccountSummary, SaPerson, SaRoot, TransactionId }
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 
 class SaMicroService extends MicroService {
@@ -17,10 +15,7 @@ class SaMicroService extends MicroService {
 
   def person(uri: String): Option[SaPerson] = httpGet[SaPerson](uri)
 
-  def linkedResource[T](uri: String)(implicit m: Manifest[T]) = {
-    Logger.debug(s"Loading linked sa resource, uri: $uri")
-    httpGet[T](uri)
-  }
+  def accountSummary(uri: String): Option[SaAccountSummary] = httpGet[SaAccountSummary](uri)
 
   def updateMainAddress(uri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
 
