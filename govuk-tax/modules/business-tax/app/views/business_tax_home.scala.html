@@ -1,4 +1,4 @@
-@(businessUser: controllers.bt.BusinessUser, portalHref: String)
+@(businessUser: controllers.bt.BusinessUser, portalHref: String, accountSummaries: controllers.bt.AccountSummaries)
 
 @import views.formatting.Dates._
 @import config.PortalConfig
@@ -51,6 +51,15 @@
     <li><a id="portalLink" href='@{portalHref}'>Take me to the portal....</a></li>
 </ul>
 
+@for(ac <- accountSummaries.regimes) {
+    <h2>@ac.regimeName</h2>
+    @for(message <- ac.messages) {
+        <p>@message</p>
+    }
+    @for(link <- ac.links) {
+        <li><a @if(link.ssoUrl) {data-ssoUrl="@link.ssoUrl"} href="@link.href">@link.text</a></li>
+    }
+}
 
 
 }
