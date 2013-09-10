@@ -66,6 +66,11 @@ class PayeBaseSpec extends BaseSpec {
 
   val fuelBenefit = Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 2, null, null, null, null, null, null,
     car = None, actions("AB123456C", 2013, 1), Map.empty)
+
+  val carAndFuelBenefitWithDifferentEmploymentNumbers =  Seq(
+    Benefit(benefitType = 29, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, null, null, null, null, null, null, car = None, Map.empty, Map.empty),
+    carBenefit)
+
   val johnDensmoresBenefits = Seq(
     Benefit(benefitType = 30, taxYear = 2013, grossAmount = 135.33, employmentSequenceNumber = 1, null, null, null, null, null, null, car = None, Map.empty, Map.empty),
     fuelBenefit,

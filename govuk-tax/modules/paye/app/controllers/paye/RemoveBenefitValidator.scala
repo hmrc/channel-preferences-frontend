@@ -1,8 +1,8 @@
 package controllers.paye
 
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{ Result, Request }
 import uk.gov.hmrc.microservice.domain.User
-import models.paye.{BenefitTypes, DisplayBenefit}
+import models.paye.{ BenefitTypes, DisplayBenefit }
 import BenefitTypes._
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 
@@ -13,20 +13,21 @@ trait RemoveBenefitValidator {
 
   object WithValidatedRequest {
     def apply(action: (Request[_], User, DisplayBenefit) => Result): (User, Request[_], String, Int, Int) => Result = {
-      (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
-        val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
-        val validBenefit = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
-          kind => getBenefit(user, kind, taxYear, employmentSequenceNumber)
-        }
-          .filter(_.isDefined).map(_.get)
-          .foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
+      (user, request, benefitTypes, taxYear, employmentSequenceNumber) =>
+        {
+          val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
+          val validBenefit = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
+            kind => getBenefit(user, kind, taxYear, employmentSequenceNumber)
+          }
+            .filter(_.isDefined).map(_.get)
+            .foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
 
-        if (!validBenefit.benefits.isEmpty) {
-          action(request, user, validBenefit)
-        } else {
-          redirectToBenefitHome(request, user)
+          if (!validBenefit.benefits.isEmpty) {
+            action(request, user, validBenefit)
+          } else {
+            redirectToBenefitHome(request, user)
+          }
         }
-      }
     }
 
     private def getBenefit(user: User, kind: Int, taxYear: Int, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
