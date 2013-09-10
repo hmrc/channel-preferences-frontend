@@ -5,18 +5,18 @@
 @main(title = "Confirm") {
 
 
-  @defining(joinList(displayBenefit.allBenefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+@defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
 
-      <h2>Remove your company @{benefitsTitle} benefit</h2>
+<h2>Remove your company @{benefitsTitle} benefit</h2>
 
-      <p>Removing your @{benefitsTitle} will increase your Personal Allowance by <span class="amount">£ @{amount}</span>.<br>
-      This means we will need to issue you with a new tax code.</p>
+<p>Removing your @{benefitsTitle} will increase your Personal Allowance by <span class="amount">£ @{amount}</span>.<br>
+    This means we will need to issue you with a new tax code.</p>
 
-  }
+}
 
-  @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
-    <input class="button button--confirm" type="submit" value="Confirm" />
-  }
+@helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+<input class="button button--confirm" type="submit" value="Confirm"/>
+}
 
 }
 

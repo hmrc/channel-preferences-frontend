@@ -1,8 +1,8 @@
 package controllers.paye
 
-import play.api.mvc.{ Result, Request }
+import play.api.mvc.{Result, Request}
 import uk.gov.hmrc.microservice.domain.User
-import models.paye.{ BenefitTypes, DisplayBenefit }
+import models.paye.{BenefitTypes, DisplayBenefit}
 import BenefitTypes._
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 
@@ -13,19 +13,20 @@ trait RemoveBenefitValidator {
 
   object WithValidatedRequest {
     def apply(action: (Request[_], User, DisplayBenefit) => Result): (User, Request[_], String, Int, Int) => Result = {
-      (user, request, benefitTypes, taxYear, employmentSequenceNumber) =>
-        {
-          val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map { kind =>
-            getBenefit(user, kind, taxYear, employmentSequenceNumber)
-          }.filter(_.isDefined).map(_.get)
-
-          if (validBenefits.size > 0) {
-            val mainBenefit = validBenefits(0)
-            action(request, user, mainBenefit.copy(dependentBenefits = validBenefits.drop(1).map(_.benefit)))
-          } else {
-            redirectToBenefitHome(request, user)
-          }
+      (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
+        val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
+        val validBenefit = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
+          kind => getBenefit(user, kind, taxYear, employmentSequenceNumber)
         }
+          .filter(_.isDefined).map(_.get)
+          .foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
+
+        if (!validBenefit.benefits.isEmpty) {
+          action(request, user, validBenefit)
+        } else {
+          redirectToBenefitHome(request, user)
+        }
+      }
     }
 
     private def getBenefit(user: User, kind: Int, taxYear: Int, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
@@ -44,24 +45,23 @@ trait RemoveBenefitValidator {
         case _ => None
       }
     }
-    //    def one(action: (Request[_], User, DisplayBenefit) => Result): (Int, User, Request[_], Int, Int) => Result = {
-    //      (kind, user, request, year, employmentSequenceNumber) =>
-    //
-    //        val func: (Request[_], User) => Result = kind match {
-    //          case CAR | FUEL => {
-    //            if (thereAreNoExistingTransactionsMatching(user, kind, employmentSequenceNumber, year)) {
-    //              getBenefitMatching(kind, user, employmentSequenceNumber) match {
-    //                case Some(benefit) => action(_, _, benefit)
-    //                case _ => redirectToBenefitHome
-    //              }
-    //            } else {
-    //              redirectToBenefitHome
-    //            }
-    //          }
-    //          case _ => redirectToBenefitHome
-    //        }
-    //        func(request, user)
-    //    }
+
+    private def mergeDisplayBenefits(db1: DisplayBenefit, db2: DisplayBenefit): DisplayBenefit = {
+
+      def validOption[A](option1: Option[A], option2: Option[A]): Option[A] = {
+        option1 match {
+          case Some(value) => option1
+          case None => option2
+        }
+      }
+
+      db1.copy(
+        benefits = db1.benefits ++ db2.benefits,
+        car = validOption(db1.car, db2.car),
+        transaction = validOption(db1.transaction, db2.transaction),
+        employment = if (db1.employment != null) db1.employment else db2.employment
+      )
+    }
 
     private def thereAreNoExistingTransactionsMatching(user: User, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
       val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
@@ -71,5 +71,6 @@ trait RemoveBenefitValidator {
 
     private val redirectToBenefitHome: (Request[_], User) => Result = (r, u) => Redirect(routes.BenefitHomeController.listBenefits)
   }
+
 }
 

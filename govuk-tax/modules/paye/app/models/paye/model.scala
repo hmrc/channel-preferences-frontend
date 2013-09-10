@@ -1,6 +1,6 @@
 package models.paye
 
-import org.joda.time.{ DateTime, LocalDate }
+import org.joda.time.{DateTime, LocalDate}
 import uk.gov.hmrc.microservice.paye.domain.Employment
 import uk.gov.hmrc.microservice.paye.domain.Car
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
@@ -15,20 +15,20 @@ object BenefitTypes {
 }
 
 case class DisplayBenefit(employment: Employment,
-    benefit: Benefit,
-    car: Option[Car],
-    transaction: Option[TxQueueTransaction],
-    dependentBenefits: Seq[Benefit] = Seq.empty) {
+                          benefits: Seq[Benefit],
+                          car: Option[Car],
+                          transaction: Option[TxQueueTransaction]) {
 
-  val allBenefits = Seq(benefit) ++ dependentBenefits
+  lazy val benefit = benefits(0)
 
-  val allBenefitsToString = DisplayBenefit.allBenefitsAsString(allBenefits.map(_.benefitType))
+  lazy val allBenefitsToString = DisplayBenefit.allBenefitsAsString(benefits.map(_.benefitType))
 }
 
 object DisplayBenefit {
   private val sep: Char = ','
 
   private def allBenefitsAsString(values: Seq[Int]) = values.mkString(sep.toString)
+
   def fromStringAllBenefit(input: String): Seq[Int] = input.split(sep).map(_.toInt)
 }
 
@@ -44,7 +44,7 @@ object DisplayBenefits {
     matchedBenefits.map {
       benefit =>
         DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get,
-          benefit,
+          Seq(benefit),
           benefit.car,
           transactions.find(matchesBenefitWithMessageCode(_, benefit))
         )
@@ -53,22 +53,22 @@ object DisplayBenefits {
 }
 
 case class RemoveBenefitFormData(withdrawDate: LocalDate,
-  agreement: Boolean, removeFuel: Boolean)
+                                 agreement: Boolean, removeFuel: Boolean)
 
 case class PayeOverview(name: String, lastLogin: Option[DateTime], nino: String, employmentViews: Seq[EmploymentView], hasBenefits: Boolean)
 
 case class EmploymentView(companyName: String, startDate: LocalDate, endDate: Option[LocalDate], taxCode: String,
-  recentChanges: Seq[RecentChange], taxCodeChange: Option[RecentChange] = None)
+                          recentChanges: Seq[RecentChange], taxCodeChange: Option[RecentChange] = None)
 
 object EmploymentViews {
 
   import matchers.transactions.matchesBenefitWithMessageCode
 
   def apply(employments: Seq[Employment],
-    taxCodes: Seq[TaxCode],
-    taxYear: Int,
-    acceptedTransactions: Seq[TxQueueTransaction],
-    completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentView] = {
+            taxCodes: Seq[TaxCode],
+            taxYear: Int,
+            acceptedTransactions: Seq[TxQueueTransaction],
+            completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentView] = {
     for (e <- employments) yield EmploymentView(
       e.employerNameOrReference, e.startDate, e.endDate, taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
       (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, "accepted") ++
@@ -81,7 +81,7 @@ object EmploymentViews {
   }
 
   private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
-    messageCodePrefix: String): Seq[RecentChange] = {
+                                               messageCodePrefix: String): Seq[RecentChange] = {
     transactions.filter(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).map {
       tx =>
         RecentChange(
@@ -91,7 +91,7 @@ object EmploymentViews {
   }
 
   private def taxCodeChange(employmentSequenceNumber: Int, taxYear: Int, acceptedTransactions: Seq[TxQueueTransaction],
-    completedTransactions: Seq[TxQueueTransaction]): Option[RecentChange] = {
+                            completedTransactions: Seq[TxQueueTransaction]): Option[RecentChange] = {
     val accepted = findTaxCodeChange(employmentSequenceNumber, taxYear, acceptedTransactions, "taxcode.accepted")
     if (accepted.isEmpty) {
       findTaxCodeChange(employmentSequenceNumber, taxYear, completedTransactions, "taxcode.completed")
@@ -101,7 +101,7 @@ object EmploymentViews {
   }
 
   private def findTaxCodeChange(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
-    messageCode: String): Option[RecentChange] = {
+                                messageCode: String): Option[RecentChange] = {
     transactions.find(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).map {
       tx =>
         RecentChange(messageCode, tx.statusHistory(0).createdAt.toLocalDate)
