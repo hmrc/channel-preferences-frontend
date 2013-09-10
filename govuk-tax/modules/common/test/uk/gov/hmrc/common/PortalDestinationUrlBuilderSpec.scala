@@ -6,12 +6,15 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }
 import play.api.mvc.{ Session, Request }
+import controllers.common.CookieEncryption
 
-class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar {
+class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   val mockConfigValues = Map("govuk-tax.Test.portal.destinationPath.someDestinationPathKey" -> "/utr/<utr>/year/<year>",
     "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "/utr/<utr>/affinitygroup/<affinitygroup>/year/<year>",
-    "govuk-tax.Test.portal.destinationRoot" -> "http://someserver:8080")
+    "govuk-tax.Test.portal.destinationRoot" -> "http://someserver:8080",
+    "cookie.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ=="
+  )
 
   "PortalDestinationUrlBuilder " should {
 
@@ -23,7 +26,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar {
       val utr = "someUtr"
 
       when(mockRequest.session).thenReturn(mockSession)
-      when(mockSession.get("affinityGroup")).thenReturn(Some("someaffinitygroup"))
+      when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
       when(mockUser.userAuthority).thenReturn(mockUserAuthority)
       when(mockUserAuthority.utr).thenReturn(Some(Utr(utr)))
 
@@ -57,7 +60,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar {
       val mockUserAuthority = mock[UserAuthority]
 
       when(mockRequest.session).thenReturn(mockSession)
-      when(mockSession.get("affinityGroup")).thenReturn(Some("someaffinitygroup"))
+      when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
       when(mockUser.userAuthority).thenReturn(mockUserAuthority)
       when(mockUserAuthority.utr).thenReturn(None)
 
