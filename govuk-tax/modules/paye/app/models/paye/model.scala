@@ -7,10 +7,30 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
 
+object BenefitTypes {
+
+  val FUEL = 29
+  val CAR = 31
+
+}
+
 case class DisplayBenefit(employment: Employment,
-  benefit: Benefit,
-  car: Option[Car],
-  transaction: Option[TxQueueTransaction])
+    benefit: Benefit,
+    car: Option[Car],
+    transaction: Option[TxQueueTransaction],
+    dependentBenefits: Seq[Benefit] = Seq.empty) {
+
+  val allBenefits = Seq(benefit) ++ dependentBenefits
+
+  val allBenefitsToString = DisplayBenefit.allBenefitsAsString(allBenefits.map(_.benefitType))
+}
+
+object DisplayBenefit {
+  private val sep: Char = ','
+
+  private def allBenefitsAsString(values: Seq[Int]) = values.mkString(sep.toString)
+  def fromStringAllBenefit(input: String): Seq[Int] = input.split(sep).map(_.toInt)
+}
 
 object DisplayBenefits {
 

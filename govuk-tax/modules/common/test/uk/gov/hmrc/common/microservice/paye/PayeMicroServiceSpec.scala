@@ -27,7 +27,7 @@ class PayeMicroServiceSpec extends BaseSpec {
       val dateCarWithdrawn = new LocalDate(2013, 7, 18)
       val version = 22
       val grossAmount = BigDecimal(123.45)
-      service.removeBenefit("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", version, carBenefit, dateCarWithdrawn, grossAmount)
+      service.removeBenefits("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", version, Seq(carBenefit), dateCarWithdrawn, grossAmount)
 
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
       verify(service.httpWrapper, times(1)).post(any[String], capturedBody.capture, any[Map[String, String]])

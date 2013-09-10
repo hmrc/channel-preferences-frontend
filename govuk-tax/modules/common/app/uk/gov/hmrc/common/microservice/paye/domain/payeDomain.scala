@@ -99,7 +99,7 @@ case class Car(dateCarMadeAvailable: Option[LocalDate],
   carValue: BigDecimal)
 
 case class RemoveBenefit(version: Int,
-  benefit: Benefit,
+  benefits: Seq[Benefit],
   revisedAmount: BigDecimal,
   withdrawDate: LocalDate)
 
