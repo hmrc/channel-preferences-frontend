@@ -9,6 +9,7 @@ import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.vat.VatMicroService
 
 trait MicroServices {
 
@@ -21,5 +22,6 @@ trait MicroServices {
   implicit lazy val auditMicroService = new AuditMicroService()
   implicit lazy val keyStoreMicroService = new KeyStoreMicroService()
   implicit lazy val agentMicroService = new AgentMicroService()
+  implicit lazy val vatMicroService = new VatMicroService()
 
 }

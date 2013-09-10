@@ -114,11 +114,10 @@ trait ActionWrappers extends MicroServices with CookieEncryption with HeaderName
       case Some(x: URI) => Some(saMicroService.root(x.toString))
       case _ => None
     },
-    vat = if (regimes.vat.isEmpty) {
-      None
-    } else {
-      Some("#")
-    } //todo change it once we have VAT service / its stub ready
+    vat = regimes.vat match {
+      case Some(x: URI) => Some(vatMicroService.root(x.toString))
+      case _ => None
+    }
   )
 
 }

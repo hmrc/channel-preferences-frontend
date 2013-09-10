@@ -26,6 +26,6 @@ case class UserAuthority(id: String,
 case class Regimes(
   paye: Option[URI] = None,
   sa: Option[URI] = None,
-  vat: Set[URI] = Set(),
+  vat: Option[URI] = None,
   ct: Set[URI] = Set())
 
