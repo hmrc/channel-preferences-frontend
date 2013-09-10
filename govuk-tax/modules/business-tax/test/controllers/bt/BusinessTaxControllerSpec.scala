@@ -10,7 +10,6 @@ import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.microservice.auth.domain._
 import uk.gov.hmrc.common.BaseSpec
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
@@ -23,15 +22,19 @@ import uk.gov.hmrc.microservice.auth.domain.Vrn
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockSaMicroService = mock[SaMicroService]
+  private lazy val mockVatMicroService = mock[VatMicroService]
 
   private def controller = new BusinessTaxController with MockMicroServicesForTests {
     override lazy val authMicroService = mockAuthMicroService
     override lazy val saMicroService = mockSaMicroService
+    override lazy val vatMicroService = mockVatMicroService
   }
 
   val nameFromSa = "Geoff Fisher From SA"
@@ -53,7 +56,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       val utr = Utr("1234567890")
       val vrn = Vrn("666777889")
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Set(URI.create("/some-undecided-url"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Some(URI.create("/vat/vrn/754645112"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
 
       when(mockSaMicroService.person("/sa/individual/123456789012/home")).thenReturn(
         Some(SaPerson(
@@ -71,6 +74,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
           )
         ))
       )
+
+      when(mockVatMicroService.root("/vat/vrn/754645112")).thenReturn(VatRoot(Vrn("754645112"), Map.empty))
 
       val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> controller.now().getMillis.toString, "affinityGroup" -> encrypt("someaffinitygroup")))
@@ -92,7 +97,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
     "display the Government Gateway name for Geoff Fisher and a respective notice if he is not actively enrolled for any online services" in new WithApplication(FakeApplication()) {
 
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = None), Some(new DateTime(1000L)))))
 
       val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> controller.now().getMillis.toString, "affinityGroup" -> encrypt("someaffinitygroup")))

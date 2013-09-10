@@ -12,6 +12,7 @@ import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.mockito.Mockito
 import uk.gov.hmrc.common.microservice.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.vat.VatMicroService
 
 trait MockMicroServicesForTests extends MicroServices with MockitoSugar {
 
@@ -24,6 +25,7 @@ trait MockMicroServicesForTests extends MicroServices with MockitoSugar {
   override lazy val auditMicroService = mock[AuditMicroService]
   override lazy val keyStoreMicroService = mock[KeyStoreMicroService]
   override lazy val agentMicroService = mock[AgentMicroService]
+  override lazy val vatMicroService = mock[VatMicroService]
 
   private val mocks = List(authMicroService, payeMicroService, samlMicroService, saMicroService, governmentGatewayMicroService, txQueueMicroService, auditMicroService, keyStoreMicroService, agentMicroService)
 
