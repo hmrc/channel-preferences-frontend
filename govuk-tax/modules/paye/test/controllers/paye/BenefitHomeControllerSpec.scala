@@ -41,7 +41,7 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
 
     "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
       controller.resetAll
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresOneEmployment, johnDensmoresBenefits, List.empty, List.empty)
 
       requestBenefitsAction(johnDensmore) should not include "£ 22.22"
     }

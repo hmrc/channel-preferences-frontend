@@ -54,6 +54,9 @@ class PayeBaseSpec extends BaseSpec {
 
   val johnDensmoresTaxCodes = Seq(TaxCode(1, 2013, "430L"))
 
+  val johnDensmoresOneEmployment = Seq(
+    Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp")))
+
   val johnDensmoresEmployments = Seq(
     Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp")),
     Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None))
