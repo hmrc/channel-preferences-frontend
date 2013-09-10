@@ -72,7 +72,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
         ))
       )
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
+        sessionTimestampKey -> controller.now().getMillis.toString, "affinityGroup" -> encrypt("someaffinitygroup")))
 
       status(result) should be(200)
 
@@ -93,7 +94,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = Set()), Some(new DateTime(1000L)))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
+        sessionTimestampKey -> controller.now().getMillis.toString, "affinityGroup" -> encrypt("someaffinitygroup")))
 
       status(result) should be(200)
 
@@ -111,7 +113,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(), Some(new DateTime(1000L)), ctUtr = Some(ctUtr))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
+        sessionTimestampKey -> controller.now().getMillis.toString, "affinityGroup" -> encrypt("someaffinitygroup")))
 
       status(result) should be(200)
 
@@ -127,7 +130,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(), Some(new DateTime(1000L)), empRef = Some(empRef))))
 
-      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
+        sessionTimestampKey -> controller.now().getMillis.toString, "affinityGroup" -> encrypt("someaffinitygroup")))
 
       status(result) should be(200)
 

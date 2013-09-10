@@ -17,7 +17,7 @@ class BusinessTaxController extends BaseController with ActionWrappers with Cook
         val encodedGovernmentGatewayToken = user.decryptedToken.get
         val businessUser = BusinessUser(user.regimes, userAuthority.utr, userAuthority.vrn, userAuthority.ctUtr, userAuthority.empRef, user.nameFromGovernmentGateway.getOrElse(""), userAuthority.previouslyLoggedInAt, encodedGovernmentGatewayToken)
 
-        val portalHref = PortalDestinationUrlBuilder.build(request, user)("saFileAReturn")
+        val portalHref = PortalDestinationUrlBuilder.build(request, user)("home")
         Ok(views.html.business_tax_home(businessUser, portalHref))
 
   })
