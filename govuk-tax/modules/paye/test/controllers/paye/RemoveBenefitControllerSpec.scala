@@ -125,13 +125,13 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = controller.confirmBenefitRemovalAction(31, johnDensmore, FakeRequest(), 2013, 2)
 
-      verify(controller.payeMicroService, times(1)).removeBenefit("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", 22, Seq(carBenefit), withdrawDate, BigDecimal("123.45"))       //Not expected
+      verify(controller.payeMicroService, times(1)).removeBenefit("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", 22, Seq(carBenefit), withdrawDate, BigDecimal("123.45")) //Not expected
 
       status(result) shouldBe 303
 
       val confirmBenefits = contentAsString(result)
       confirmBenefits should include("car and fuel benefit")
-      headers(result).get("Location") shouldBe Some("/benefits/confirmation/someIdForCarAndFuelRemoval")    //TODO adapt
+      headers(result).get("Location") shouldBe Some("/benefits/confirmation/someIdForCarAndFuelRemoval") //TODO adapt
 
     }
   }

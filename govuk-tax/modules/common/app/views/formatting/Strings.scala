@@ -12,4 +12,6 @@ object Strings {
   def capitalise(value: String) = WordUtils.capitalizeFully(value)
 
   def hyphenate(value: String) = value.split(" ").map(sentence(_)).mkString("-")
+
+  def joinList(values: Seq[String], separator: String) = values.mkString(separator)
 }

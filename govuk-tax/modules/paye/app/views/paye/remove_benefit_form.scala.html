@@ -16,7 +16,7 @@ Value of benefit: <span class="amount">£ @displayBenefit.benefit.grossAmountToS
 
 <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with @sentence(iabdTypeFor(displayBenefit.benefit.benefitType)), you can remove it from your taxable benefits.</p>
 
-    @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+    @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
         @defining(updateForm("withdrawDate")) { withdrawDateField =>
         <div class="@if(withdrawDateField.error.isDefined){error-notification}">

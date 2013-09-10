@@ -11,3 +11,7 @@ recent.changes.completed.removeFuelBenefits=On {0}, you removed your company car
 recent.change.taxcode.accepted=(a new tax code is being calculated and this may change soon)
 recent.change.taxcode.completed=(This changed on {0})
 
+list.separator.and=and
+benefitType.29.title=fuel
+benefitType.31.title=car
+
