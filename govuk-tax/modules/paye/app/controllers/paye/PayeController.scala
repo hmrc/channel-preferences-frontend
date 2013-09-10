@@ -20,6 +20,7 @@ class PayeController extends BaseController with ActionWrappers with SessionTime
     if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
   }
 
+  //TODO: Use TaxYearResolver instead
   def currentTaxYear = {
     val now = new LocalDate
     val year = now.year.get

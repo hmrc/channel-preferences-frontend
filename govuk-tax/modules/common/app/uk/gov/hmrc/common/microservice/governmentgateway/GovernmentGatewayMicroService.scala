@@ -43,5 +43,6 @@ case class SsoLoginRequest(token: String,
 
 case class GovernmentGatewayResponse(authId: String,
   name: String,
+  affinityGroup: String,
   encodedGovernmentGatewayToken: String)
 

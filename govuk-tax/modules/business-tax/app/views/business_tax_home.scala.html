@@ -2,6 +2,7 @@
 
 @import views.formatting.Dates._
 @import config.PortalConfig
+@import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 @main(title = "Your tax home") {
 
 
@@ -47,8 +48,11 @@
 }
 
 <ul style="list-style-type:none;">
-    <li><a id="portalLink" href="@PortalConfig.destinationRoot/home">Take me to the portal....</a></li>
+    <li><a id="portalLink" href='@{PortalDestinationUrlBuilder.buildUrl("home", None)}'>Take me to the portal....</a></li>
 </ul>
+
+
+
 }
 
 <script language="javascript">
@@ -60,7 +64,7 @@
     {
 
         $.ajax({
-            url: '/ssoout',
+            url: '/ssoout?destinationUrl=' + link.href,
             type: 'GET',
             success: function(data) {
 

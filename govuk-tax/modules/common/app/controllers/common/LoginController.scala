@@ -38,7 +38,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
       try {
         val response: GovernmentGatewayResponse = governmentGatewayMicroService.login(boundForm.value.get)
         RedirectUtils.toBusinessTax
-          .withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken))
+          .withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
         case e: UnauthorizedException => {
           Ok(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))

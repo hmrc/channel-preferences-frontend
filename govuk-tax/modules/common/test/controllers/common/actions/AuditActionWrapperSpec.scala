@@ -14,6 +14,7 @@ import controllers.common.HeaderNames
 import scala.concurrent.{ Await, Future, ExecutionContext }
 import scala.concurrent.duration.Duration
 import uk.gov.hmrc.common.BaseSpec
+import play.api.Play
 
 class AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {
 
@@ -40,6 +41,9 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames {
   "AuditActionWrapper with traceRequestsEnabled " should {
     "audit the request and the response with values from the MDC" in new WithApplication(
       FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.audit.traceRequests" -> true))) {
+
+      println("MODE:" + Play.current.mode)
+
       val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
 
       MDC.put(authorisation, "/auth/oid/123123123")

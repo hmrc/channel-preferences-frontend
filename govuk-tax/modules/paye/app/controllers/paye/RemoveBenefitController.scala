@@ -82,6 +82,7 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
     val benefits = user.regimes.paye.get.benefits(currentTaxYear)
     benefits.find(b => b.benefitType == FUEL)
   }
+
   private def hasFuelBenefit(user: User): Boolean = {
     getFuelBenefit(user).isDefined
   }
@@ -104,14 +105,13 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
       {
         val payeRoot = user.regimes.paye.get
 
-        val formData: Option[RemoveBenefitData] = loadFormDataFor(user)
-
-        if (formData.isDefined) { //TODO fix getting the main benefice
-          val uri = displayBenefit.benefit.actions.getOrElse("remove", throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.benefit.benefitType}"))
-          val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, Seq(displayBenefit.benefit) ++ displayBenefit.dependentBenefits, formData.get.withdrawDate, BigDecimal(formData.get.revisedAmount))
-          Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
-        } else {
-          Redirect(routes.BenefitHomeController.listBenefits())
+        loadFormDataFor(user) match {
+          case Some(formData) => {
+            val uri = displayBenefit.benefit.actions.getOrElse("remove", throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.benefit.benefitType}"))
+            val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, Seq(displayBenefit.benefit) ++ displayBenefit.dependentBenefits, formData.withdrawDate, BigDecimal(formData.revisedAmount))
+            Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
+          }
+          case _ => Redirect(routes.BenefitHomeController.listBenefits())
         }
       }
   }
@@ -120,19 +120,17 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
     if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-      val formData: Option[RemoveBenefitData] = loadFormDataFor(user)
-
-      if (formData.isDefined) {
-
-        keyStoreMicroService.deleteKeyStore(user.oid, "paye_ui")
-        val kind = DisplayBenefit.fromStringAllBenefit(kinds)(0)
-        kind match {
-          case CAR => Ok(remove_car_benefit_confirmation(Dates.formatDate(formData.get.withdrawDate), oid))
-          case FUEL => Ok(remove_benefit_confirmation(Dates.formatDate(formData.get.withdrawDate), kind, oid))
-          case _ => Redirect(routes.BenefitHomeController.listBenefits())
+      loadFormDataFor(user) match {
+        case Some(formData) => {
+          keyStoreMicroService.deleteKeyStore(user.oid, "paye_ui")
+          val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
+          if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
+            Ok(remove_benefit_confirmation(Dates.formatDate(formData.withdrawDate), removedKinds, oid))
+          } else {
+            Redirect(routes.BenefitHomeController.listBenefits())
+          }
         }
-      } else {
-        Redirect(routes.BenefitHomeController.listBenefits())
+        case None => Redirect(routes.BenefitHomeController.listBenefits())
       }
     }
 

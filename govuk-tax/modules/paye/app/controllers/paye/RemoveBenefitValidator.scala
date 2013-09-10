@@ -15,27 +15,17 @@ trait RemoveBenefitValidator {
     def apply(action: (Request[_], User, DisplayBenefit) => Result): (User, Request[_], String, Int, Int) => Result = {
       (user, request, benefitTypes, taxYear, employmentSequenceNumber) =>
         {
-
-          //val validBenefits = displayBenefit.allBenefits.map( getBenefit(_, user) ).filter(_.isDefined)
-
           val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map { kind =>
             getBenefit(user, kind, taxYear, employmentSequenceNumber)
-          }.filter(_.isDefined)
+          }.filter(_.isDefined).map(_.get)
 
-          val hackValidBenefit = validBenefits(0)
-          if (hackValidBenefit.isDefined) {
-            action(request, user, hackValidBenefit.get)
+          if (validBenefits.size > 0) {
+            val mainBenefit = validBenefits(0)
+            action(request, user, mainBenefit.copy(dependentBenefits = validBenefits.drop(1).map(_.benefit)))
           } else {
             redirectToBenefitHome(request, user)
           }
-          //TODO add dependentbenefits to displaybenefit
         }
-
-      //        case action(list)
-      //        case - : redirect
-      //      }
-      //      case _ => redirectToBenefitHome
-
     }
 
     private def getBenefit(user: User, kind: Int, taxYear: Int, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
