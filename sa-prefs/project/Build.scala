@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 import play.Project._
+import net.litola.SassPlugin
+import com.typesafe.sbt.SbtScalariform._
 
 object ApplicationBuild extends Build {
 
@@ -8,14 +10,53 @@ object ApplicationBuild extends Build {
   val appVersion      = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
-    // Add your project dependencies here,
-    jdbc,
-    anorm
+    anorm,
+    Dependencies.Compile.nscalaTime,
+    Dependencies.Compile.json4sExt,
+    Dependencies.Compile.json4sJackson,
+    Dependencies.Compile.guava,
+    Dependencies.Compile.commonsLang,
+    Dependencies.Compile.commonsIo,
+    Dependencies.Compile.playMetrics,
+    Dependencies.Compile.metricsGraphite,
+    Dependencies.Compile.secureUtils,
+
+    Dependencies.Test.junit,
+    Dependencies.Test.scalaTest,
+    Dependencies.Test.mockito,
+    Dependencies.Test.jsoup
   )
 
 
-  val main = play.Project(appName, appVersion, appDependencies).settings(
-    // Add your own project settings here      
-  )
+  val main = play.Project(appName,
+    Version.thisApp, appDependencies,
+    settings = Common.commonSettings ++ SassPlugin.sassSettings
+  ).settings(publishArtifact := true)
+
+}
+
+object Common {
+  val commonSettings = Defaults.defaultSettings ++
+    scalariformSettings ++
+    Seq(
+      organization := "uk.gov.hmrc",
+      version := Version.thisApp,
+      scalaVersion := Version.scala,
+      scalacOptions ++= Seq(
+        "-unchecked",
+        "-deprecation",
+        "-Xlint",
+        "-Xmax-classfile-name", "100",
+        "-language:_",
+        "-target:jvm-1.7",
+        "-encoding", "UTF-8"
+      ),
+      resolvers ++= Repositories.resolvers,
+      retrieveManaged := true,
+      testOptions in Test <+= (target in Test) map {
+        t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
+      }
+    ) ++
+    Repositories.publishingSettings
 
 }
