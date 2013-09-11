@@ -13,7 +13,6 @@ class BusinessTaxController extends BaseController with ActionWrappers with Cook
     implicit user =>
       implicit request =>
 
-        request.session
         val userAuthority = user.userAuthority
         val encodedGovernmentGatewayToken = user.decryptedToken.get
         val businessUser = BusinessUser(user.regimes, userAuthority.utr, userAuthority.vrn, userAuthority.ctUtr, userAuthority.empRef, user.nameFromGovernmentGateway.getOrElse(""), userAuthority.previouslyLoggedInAt, encodedGovernmentGatewayToken)
