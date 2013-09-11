@@ -14,7 +14,6 @@ import org.mockito.Matchers
 
 class SaRootSpec extends BaseSpec with MockitoSugar {
 
-
   "VatRoot personalDetails" should {
 
     "call the SA microservice when the uri is found in the SaRoot and return its value" in {

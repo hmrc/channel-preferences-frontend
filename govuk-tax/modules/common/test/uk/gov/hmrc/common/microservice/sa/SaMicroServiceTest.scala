@@ -2,8 +2,8 @@ package uk.gov.hmrc.common.microservice.sa
 
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.sa.SaMicroService
-import play.api.test.{FakeApplication, WithApplication}
-import uk.gov.hmrc.microservice.sa.domain.{SaAccountSummary, SaIndividualAddress, SaPerson, SaRoot}
+import play.api.test.{ FakeApplication, WithApplication }
+import uk.gov.hmrc.microservice.sa.domain.{ SaAccountSummary, SaIndividualAddress, SaPerson, SaRoot }
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.BaseSpec

@@ -12,22 +12,45 @@ import controllers.common.service.MicroServices
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
 
-class AgentTypeAndLegalEntityController extends MicroServices with BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with Validators with MultiFormWrapper {
+class AgentTypeAndLegalEntityController
+    extends MicroServices
+    with BaseController
+    with SessionTimeoutWrapper
+    with ActionWrappers
+    with AgentController
+    with Validators
+    with MultiFormWrapper {
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
-      AgentTypeAndLegalEntityFormFields.agentType -> nonEmptySmallText.verifying("error.illegal.value", v => { Configuration.config.agentTypeOptions.contains(v) }),
-      AgentTypeAndLegalEntityFormFields.legalEntity -> nonEmptySmallText.verifying("error.illegal.value", v => { Configuration.config.legalEntityOptions.contains(v) })
+      AgentTypeAndLegalEntityFormFields.agentType -> nonEmptySmallText.verifying("error.illegal.value", v => {
+        Configuration.config.agentTypeOptions.contains(v)
+      }),
+      AgentTypeAndLegalEntityFormFields.legalEntity -> nonEmptySmallText.verifying("error.illegal.value", v => {
+        Configuration.config.legalEntityOptions.contains(v)
+      })
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
-  def agentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => agentTypeAction(user, request) } } }
+  def agentType = WithSessionTimeoutValidation {
+    AuthorisedForIdaAction(Some(PayeRegime)) {
+      MultiFormAction(multiFormConfig) {
+        user => request => agentTypeAction(user, request)
+      }
+    }
+  }
 
   private[registration] val agentTypeAction: (User, Request[_]) => Result = (user, request) => {
     Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
-  def postAgentType = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => postAgentTypeAction(user, request) } } }
+  def postAgentType = WithSessionTimeoutValidation {
+    AuthorisedForIdaAction(Some(PayeRegime)) {
+      MultiFormAction(multiFormConfig) {
+        user => request => postAgentTypeAction(user, request)
+      }
+    }
+  }
 
   private[registration] val postAgentTypeAction: ((User, Request[_]) => Result) = (user, request) => {
     agentTypeAndLegalEntityForm.bindFromRequest()(request).fold(
@@ -45,6 +68,7 @@ class AgentTypeAndLegalEntityController extends MicroServices with BaseControlle
   def step: String = agentTypeAndLegalEntityFormName
 
 }
+
 case class AgentTypeAndLegalEntity(agentType: String, legalEntity: String)
 
 object AgentTypeAndLegalEntityFormFields {
