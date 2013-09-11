@@ -1,0 +1,6 @@
+vat.message.0={0}
+vat.message.1=Your account currently shows a balance of £{0}
+vat.message.2=You {0} owe us {1}
+
+vat.error.message.1= We are unable to display your account information. This may be because:\n the VAT Registration Number that you have entered is no longer active and there is no information to view. \n you have only just activated this service and there is a short delay before the information is available to view.\n If you do not think either of the above reasons apply, please contact the Online Services Helpdesk.
+

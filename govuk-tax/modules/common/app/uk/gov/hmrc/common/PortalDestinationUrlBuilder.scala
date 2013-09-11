@@ -14,10 +14,10 @@ object PortalDestinationUrlBuilder extends CookieEncryption {
   def build(request: Request[AnyRef], user: User)(destinationPathKey: String): String = {
     val currentTaxYear = TaxYearResolver.currentTaxYear(new LocalDate)
     val utr = user.userAuthority.utr
+    val vrn = user.userAuthority.vrn
     val affinityGroup = parseOrExceptionFromSession(request, "affinityGroup")
     val destinationUrl = PortalConfig.getDestinationUrl(destinationPathKey)
-
-    val userData = Seq(("<year>", Some(currentTaxYear)), ("<utr>", utr), ("<affinitygroup>", Some(affinityGroup)))
+    val userData: Seq[(String, Option[Any])] = Seq(("<year>", Some(currentTaxYear)), ("<utr>", utr), ("<affinitygroup>", Some(affinityGroup)), ("<vrn>", vrn))
     resolvePlaceHolder(destinationUrl, userData)
   }
 
