@@ -5,10 +5,14 @@ import play.api.data.Forms._
 import controllers.common._
 import play.api.Logger
 
-class AgentSroCheckController extends BaseController with SessionTimeoutWrapper with ActionWrappers {
+class AgentSroCheckController
+    extends BaseController
+    with SessionTimeoutWrapper
+    with ActionWrappers {
 
-  def reasonForApplication() = UnauthorisedAction { implicit request =>
-    Ok(views.html.agents.reason_for_application())
+  def reasonForApplication() = UnauthorisedAction {
+    implicit request =>
+      Ok(views.html.agents.reason_for_application())
   }
 
   val userForm = Form[SroCheck](
@@ -18,8 +22,9 @@ class AgentSroCheckController extends BaseController with SessionTimeoutWrapper 
     )(SroCheck.apply)(SroCheck.unapply)
   )
 
-  def sroCheck() = UnauthorisedAction { implicit request =>
-    Ok(views.html.agents.sro_check(userForm))
+  def sroCheck() = UnauthorisedAction {
+    implicit request =>
+      Ok(views.html.agents.sro_check(userForm))
   }
 
   def submitAgreement = UnauthorisedAction {
@@ -37,5 +42,6 @@ class AgentSroCheckController extends BaseController with SessionTimeoutWrapper 
   }
 
 }
+
 case class SroCheck(sroAgreement: Boolean = false, tncAgreement: Boolean = false)
 

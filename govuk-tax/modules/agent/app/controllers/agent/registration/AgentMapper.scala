@@ -12,55 +12,69 @@ import controllers.common.validators.AddressFields._
 
 trait AgentMapper {
 
-  def toAgent(implicit keyStore: KeyStore[String]): Agent = {
+  def toAgent(implicit keyStore: KeyStore[String]) = {
 
-    val phNumbers = Map[String, String](landlineNumber -> companyData(phoneNumbers + "." + landlineNumber),
-      mobileNumber -> companyData(phoneNumbers + "." + mobileNumber))
+    val phNumbers = Map[String, String](
+      landlineNumber -> companyData(phoneNumbers + "." + landlineNumber),
+      mobileNumber -> companyData(phoneNumbers + "." + mobileNumber)
+    )
 
     val websiteUrls = websiteUrlsData
 
-    val companyDetails = new CompanyDetails(companyData(companyName), companyData(email), companyData(saUtr),
-      companyData(registeredOnHMRC).toBoolean, companyAddressData(mainAddress),
-      companyAddressData(communicationAddress), companyAddressData(businessAddress),
-      optionalCompanyData(tradingName), phNumbers, websiteUrls, optionalCompanyData(ctUtr), optionalCompanyData(vatVrn),
-      optionalCompanyData(payeEmpRef), optionalCompanyData(companyHouseNumber))
+    val companyDetails = CompanyDetails(
+      companyName = companyData(companyName),
+      emailAddress = companyData(email),
+      saUTR = companyData(saUtr),
+      registeredWithHMRC = companyData(registeredOnHMRC).toBoolean,
+      mainAddress = companyAddressData(mainAddress),
+      communicationAddress = companyAddressData(communicationAddress),
+      principalAddress = companyAddressData(businessAddress),
+      tradingName = optionalCompanyData(tradingName),
+      phoneNumbers = phNumbers,
+      websiteURLs = websiteUrls,
+      ctUTR = optionalCompanyData(ctUtr),
+      vatVRN = optionalCompanyData(vatVrn),
+      payeEmpRef = optionalCompanyData(payeEmpRef),
+      companyHouseNumber = optionalCompanyData(companyHouseNumber)
+    )
 
-    val contactDetails = ContactDetails(contactDetailsData(title), contactDetailsData(firstName), contactDetailsData(lastName),
-      contactDetailsData(dateOfBirth), contactDetailsData(nino))
+    val contactDetails = ContactDetails(
+      title = contactDetailsData(title),
+      firstName = contactDetailsData(firstName),
+      lastName = contactDetailsData(lastName),
+      dob = contactDetailsData(dateOfBirth),
+      nino = contactDetailsData(nino)
+    )
 
-    new Agent(agentTypeData(legalEntity), agentTypeData(agentType), contactDetailsData(daytimePhoneNumber),
-      contactDetailsData(mobilePhoneNumber), contactDetailsData(emailAddress), contactDetails, companyDetails, professionalBodyData, None, None)
+    Agent(
+      legalEntity = agentTypeData(legalEntity),
+      agentType = agentTypeData(agentType),
+      daytimeNumber = contactDetailsData(daytimePhoneNumber),
+      mobileNumber = contactDetailsData(mobilePhoneNumber),
+      emailAddress = contactDetailsData(emailAddress),
+      contactDetails = contactDetails,
+      companyDetails = companyDetails,
+      professionalBodyMembership = professionalBodyData,
+      createdAt = None,
+      uar = None
+    )
   }
 
-  private def membershipData(field: String)(implicit keyStore: KeyStore[String]): String = {
-    data(professionalBodyMembershipFormName, field)
-  }
+  private def membershipData(field: String)(implicit keyStore: KeyStore[String]) = data(professionalBodyMembershipFormName, field)
 
-  private def optionalCompanyData(field: String)(implicit keyStore: KeyStore[String]): Option[String] = {
-    optionalData(companyDetailsFormName, field)
-  }
+  private def optionalCompanyData(field: String)(implicit keyStore: KeyStore[String]) = optionalData(companyDetailsFormName, field)
 
-  private def companyData(field: String)(implicit keyStore: KeyStore[String]): String = {
-    data(companyDetailsFormName, field)
-  }
+  private def companyData(field: String)(implicit keyStore: KeyStore[String]) = data(companyDetailsFormName, field)
 
-  private def companyAddressData(field: String)(implicit keyStore: KeyStore[String]): Address = {
-    addressData(companyDetailsFormName, field)
-  }
+  private def companyAddressData(field: String)(implicit keyStore: KeyStore[String]) = addressData(companyDetailsFormName, field)
 
-  private def agentTypeData(field: String)(implicit keyStore: KeyStore[String]): String = {
-    data(agentTypeAndLegalEntityFormName, field)
-  }
+  private def agentTypeData(field: String)(implicit keyStore: KeyStore[String]) = data(agentTypeAndLegalEntityFormName, field)
 
-  private def contactDetailsData(field: String)(implicit keyStore: KeyStore[String]): String = {
-    data(contactFormName, field)
-  }
+  private def contactDetailsData(field: String)(implicit keyStore: KeyStore[String]) = data(contactFormName, field)
 
-  private def websiteUrlsData(implicit keyStore: KeyStore[String]) = {
-    companyData(website) match {
-      case "" => List.empty
-      case value => List(value)
-    }
+  private def websiteUrlsData(implicit keyStore: KeyStore[String]) = companyData(website) match {
+    case "" => List.empty
+    case value => List(value)
   }
 
   private def professionalBodyData(implicit keyStore: KeyStore[String]) = {
@@ -70,20 +84,18 @@ trait AgentMapper {
     }
   }
 
-  private def addressData(formName: String, field: String)(implicit keyStore: KeyStore[String]): Address = {
-    new Address(data(formName, field + "." + addressLine1), optionalData(formName, field + "." + addressLine2),
-      optionalData(formName, field + "." + addressLine3), optionalData(formName, field + "." + addressLine4),
-      optionalData(formName, field + "." + postcode))
+  private def addressData(formName: String, field: String)(implicit keyStore: KeyStore[String]) = Address(
+    addressLine1 = data(formName, field + "." + addressLine1),
+    addressLine2 = optionalData(formName, field + "." + addressLine2),
+    addressLine3 = optionalData(formName, field + "." + addressLine3),
+    addressLine4 = optionalData(formName, field + "." + addressLine4),
+    postcode = optionalData(formName, field + "." + postcode)
+  )
+
+  private def data(formName: String, field: String)(implicit keyStore: KeyStore[String]) = keyStore.get(formName) match {
+    case Some(x) => x.getOrElse(field, "")
+    case _ => ""
   }
 
-  private def data(formName: String, field: String)(implicit keyStore: KeyStore[String]): String = {
-    keyStore.get(formName) match {
-      case Some(x) => x.getOrElse(field, "")
-      case _ => ""
-    }
-  }
-
-  private def optionalData(formName: String, field: String)(implicit keyStore: KeyStore[String]): Option[String] = {
-    keyStore.data(formName).get(field)
-  }
+  private def optionalData(formName: String, field: String)(implicit keyStore: KeyStore[String]) = keyStore.data(formName).get(field)
 }

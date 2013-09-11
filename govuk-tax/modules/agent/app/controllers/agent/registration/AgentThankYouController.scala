@@ -9,14 +9,19 @@ import controllers.common.actions.MultiFormWrapper
 
 class AgentThankYouController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with MultiFormWrapper with AgentMapper {
 
-  def thankYou = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => thankYouAction(user, request) } } }
+  def thankYou = WithSessionTimeoutValidation {
+    AuthorisedForIdaAction(Some(PayeRegime)) {
+      MultiFormAction(multiFormConfig) {
+        user => request => thankYouAction(user, request)
+      }
+    }
+  }
 
   private[registration] val thankYouAction: ((User, Request[_]) => Result) = (user, request) => {
-
-    val keyStore = keyStoreMicroService.getKeyStore[String](registrationId(user), agent)
-    keyStore match {
+    keyStoreMicroService.getKeyStore[String](registrationId(user), agent) match {
       case Some(x) => {
         val agentId = agentMicroService.create(toAgent(x)).get.uar.getOrElse("")
+
         keyStoreMicroService.deleteKeyStore(registrationId(user), agent)
         Ok(views.html.agents.registration.thank_you_page(agentId))
       }

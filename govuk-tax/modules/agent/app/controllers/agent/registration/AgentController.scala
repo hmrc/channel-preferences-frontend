@@ -9,7 +9,12 @@ trait AgentController {
 
   def uar(user: User) = "UAR:" + user.oid
 
-  def multiFormConfig(user: User): MultiFormConfiguration = MultiFormConfiguration(registrationId(user), agent, FormNames.stepsOrder, step, FormNames.stepsOrder.head)
+  def multiFormConfig(user: User) = MultiFormConfiguration(
+    id = registrationId(user),
+    source = agent,
+    stepsList = FormNames.stepsOrder,
+    currentStep = step,
+    unauthorisedStep = FormNames.stepsOrder.head)
 
   def step: String
 
