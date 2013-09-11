@@ -9,10 +9,14 @@ import play.api.data.Forms._
 import org.joda.time.LocalDate
 import scala.Some
 import uk.gov.hmrc.microservice.domain.User
-import models.paye.{ DisplayBenefit, RemoveBenefitFormData }
+import models.paye.{ DisplayBenefits, DisplayBenefit, RemoveBenefitFormData }
 import models.paye.BenefitTypes._
+import uk.gov.hmrc.common.TaxYearResolver
+import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
 
-class RemoveBenefitController extends PayeController with RemoveBenefitValidator {
+class RemoveBenefitController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+
+  import models.paye.matchers.transactions.matchesBenefit
 
   def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
@@ -79,7 +83,7 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
   }
 
   private def getFuelBenefit(user: User, employmentNumber: Int): Option[Benefit] = {
-    val benefits = user.regimes.paye.get.benefits(currentTaxYear)
+    val benefits = user.regimes.paye.get.benefits(TaxYearResolver())
     benefits.find(b => b.benefitType == FUEL && b.employmentSequenceNumber == employmentNumber)
   }
 
@@ -95,9 +99,9 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
   )
 
   private lazy val localDateMapping = jodaLocalDate
-    .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(currentTaxYear + 1, 4, 6)))
+    .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(TaxYearResolver() + 1, 4, 6)))
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(new LocalDate()))
-    .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(currentTaxYear, 4, 5)))
+    .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(TaxYearResolver(), 4, 5)))
 
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, displayBenefit) =>
@@ -136,6 +140,81 @@ class RemoveBenefitController extends PayeController with RemoveBenefitValidator
   private def loadFormDataFor(user: User) = {
     keyStoreMicroService.getEntry[RemoveBenefitData](user.oid, "paye_ui", "remove_benefit", "form")
   }
+
+  object WithValidatedRequest {
+    def apply(action: (Request[_], User, DisplayBenefit) => Result): (User, Request[_], String, Int, Int) => Result = {
+      (user, request, benefitTypes, taxYear, employmentSequenceNumber) =>
+        {
+          val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
+          val validBenefit = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
+            kind => getBenefit(user, kind, taxYear, employmentSequenceNumber)
+          }
+            .filter(_.isDefined).map(_.get)
+            .foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
+
+          if (!validBenefit.benefits.isEmpty) {
+            action(request, user, validBenefit)
+          } else {
+            redirectToBenefitHome(request, user)
+          }
+        }
+    }
+
+    private def getBenefit(user: User, kind: Int, taxYear: Int, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
+
+      kind match {
+        case CAR | FUEL => {
+          if (thereAreNoExistingTransactionsMatching(user, kind, employmentSequenceNumber, taxYear)) {
+            getBenefitMatching(kind, user, employmentSequenceNumber) match {
+              case Some(benefit) => Some(benefit)
+              case _ => None
+            }
+          } else {
+            None
+          }
+        }
+        case _ => None
+      }
+    }
+
+    private def getBenefitMatching(kind: Int, user: User, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
+      val taxYear = TaxYearResolver()
+      val benefit = user.regimes.paye.get.benefits(taxYear).find(
+        b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
+
+      val transactions = user.regimes.paye.get.recentCompletedTransactions
+
+      val matchedBenefits = DisplayBenefits(benefit.toList, user.regimes.paye.get.employments(taxYear), transactions)
+
+      if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
+    }
+
+    private def mergeDisplayBenefits(db1: DisplayBenefit, db2: DisplayBenefit): DisplayBenefit = {
+
+      def validOption[A](option1: Option[A], option2: Option[A]): Option[A] = {
+        option1 match {
+          case Some(value) => option1
+          case None => option2
+        }
+      }
+
+      db1.copy(
+        benefits = db1.benefits ++ db2.benefits,
+        car = validOption(db1.car, db2.car),
+        transaction = validOption(db1.transaction, db2.transaction),
+        employment = if (db1.employment != null) db1.employment else db2.employment
+      )
+    }
+
+    private def thereAreNoExistingTransactionsMatching(user: User, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
+      val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
+        user.regimes.paye.get.recentCompletedTransactions
+      transactions.find(matchesBenefit(_, kind, employmentSequenceNumber, year)).isEmpty
+    }
+
+    private val redirectToBenefitHome: (Request[_], User) => Result = (r, u) => Redirect(routes.BenefitHomeController.listBenefits())
+  }
+
 }
 
 case class RemoveBenefitData(withdrawDate: LocalDate, revisedAmount: String)

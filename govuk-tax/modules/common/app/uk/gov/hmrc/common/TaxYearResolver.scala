@@ -4,6 +4,8 @@ import org.joda.time.LocalDate
 
 object TaxYearResolver {
 
+  def apply() = currentTaxYear(new LocalDate)
+
   def currentTaxYear(dateToResolve: LocalDate): Int = {
     val year = dateToResolve.year.get
 
