@@ -2,7 +2,6 @@ import sbt._
 import Keys._
 import play.Project._
 import net.litola.SassPlugin
-import com.typesafe.sbt.SbtScalariform._
 
 object GovUkTaxBuild extends Build {
 
@@ -78,7 +77,6 @@ object GovUkTaxBuild extends Build {
 
 object Common {
   val commonSettings = Defaults.defaultSettings ++
-    scalariformSettings ++
     Seq(
       organization := "uk.gov.hmrc",
       version := Version.thisApp,
