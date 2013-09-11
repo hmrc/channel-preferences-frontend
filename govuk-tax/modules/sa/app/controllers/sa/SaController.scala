@@ -24,7 +24,7 @@ import controllers.sa.{ routes => saRoutes }
 
 case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
 
-class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators with CookieEncryption {
+class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
 
   import uk.gov.hmrc.common.microservice.auth.domain.Email.optionStringToOptionEmail
 
@@ -36,7 +36,7 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
     userData.personalDetails match {
       case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
-      case _ => NotFound //todo this should really be an error page
+      case _ => NotFound //FIXME: this should really be an error page
     }
   }
 
