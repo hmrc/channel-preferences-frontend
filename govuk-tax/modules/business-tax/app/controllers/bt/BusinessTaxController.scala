@@ -7,7 +7,7 @@ import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import config.PortalConfig
 
-class BusinessTaxController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
+class BusinessTaxController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
     implicit user =>
