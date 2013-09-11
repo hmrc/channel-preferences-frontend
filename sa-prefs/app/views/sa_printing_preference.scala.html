@@ -1,0 +1,29 @@
+@(printPrefForm: Form[controllers.PrintingPreferenceForm], token: String, redirectUrl: String)
+
+@import helper._
+
+@main(title = "My Preferences") {
+
+<h2>Preferences</h2>
+<div id="print-prefs">
+    <h3>Print preferences</h3>
+
+    @helper.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
+         <p>
+            @inputText(
+            printPrefForm("email"),
+            '_label -> "Email",
+            '_error -> printPrefForm.error("prefs"),
+            '_showConstraints -> false)
+        </p>
+
+        <p>
+            <input type="submit" value="Submit"/>
+        </p>
+
+    }
+
+
+</div>
+
+}
