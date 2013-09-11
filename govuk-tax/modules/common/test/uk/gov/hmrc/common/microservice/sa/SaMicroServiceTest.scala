@@ -2,11 +2,17 @@ package uk.gov.hmrc.common.microservice.sa
 
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.sa.SaMicroService
-import play.api.test.{ FakeApplication, WithApplication }
-import uk.gov.hmrc.microservice.sa.domain.{ SaAccountSummary, SaIndividualAddress, SaPerson, SaRoot }
+import play.api.test.WithApplication
+import uk.gov.hmrc.microservice.sa.domain._
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
+import scala.Some
 
 class SaMicroServiceTest extends BaseSpec {
 
@@ -58,7 +64,7 @@ class SaMicroServiceTest extends BaseSpec {
     "call the microservice with the correct uri and get the contents" in new WithApplication(FakeApplication()) {
 
       val service = new HttpMockedSaMicroService
-      val saAccountSummary = Some(SaAccountSummary(BigDecimal(1367.29), None, BigDecimal(34.03)))
+      val saAccountSummary = Some(SaAccountSummary(AmountDue(BigDecimal(1367.29),true), None, BigDecimal(34.03)))
       when(service.httpWrapper.get[SaAccountSummary]("/sa/individual/12345/accountSummary")).thenReturn(saAccountSummary)
 
       val result = service.accountSummary("/sa/individual/12345/accountSummary")
