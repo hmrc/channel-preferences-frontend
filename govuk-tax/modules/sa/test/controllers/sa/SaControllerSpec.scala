@@ -9,14 +9,10 @@ import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import controllers.common.{ SsoPayloadEncryptor, CookieEncryption }
-import controllers.sa.StaticHTMLBanner._
-import controllers.common.service.FrontEndConfig
-import uk.gov.hmrc.common.microservice.auth.domain.{ Email, Notification }
+import controllers.common.CookieEncryption
 import uk.gov.hmrc.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import scala.Some
 import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.domain.User
@@ -24,7 +20,6 @@ import uk.gov.hmrc.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.sa.domain.TransactionId
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.auth.domain.Utr
 import uk.gov.hmrc.microservice.domain.RegimeRoots
 
@@ -96,171 +91,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(None)
       val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
-    }
-  }
-
-  "Print preferences check" should {
-
-    val utr = "myUtr"
-
-    "return  204 and HTML code when then authority for utr does not exist" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      when(controller.authMicroService.preferences(utr)).thenReturn(None)
-
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
-
-      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
-      status(result) should be(204)
-    }
-
-    "return 204 and no body when the are no preferences for the given credId" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      when(controller.authMicroService.preferences(utr)).thenReturn(None)
-
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
-
-      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
-      status(result) should be(204)
-
-      val htmlBody = contentAsString(result)
-      htmlBody shouldBe ""
-    }
-
-    "return 200 and HTML code when no preferences have yet been stored" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(Notification(None, None)))))
-
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
-
-      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
-      status(result) should be(200)
-
-      val htmlBody = contentAsString(result)
-      htmlBody shouldBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
-    }
-
-    "return 200 and HTML code when no preferences for sa have yet been stored" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(sa = None)))
-
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
-
-      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
-      status(result) should be(200)
-
-      val htmlBody = contentAsString(result)
-      htmlBody shouldBe saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")
-    }
-
-    "return 204 and no body when sa preferences for printing have already been stored" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      when(controller.authMicroService.preferences(utr)).thenReturn(Some(Preferences(Some(Notification(Some(false), None)))))
-
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.getMillis}")
-
-      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
-      status(result) should be(204)
-
-      val htmlBody = contentAsString(result)
-      htmlBody shouldBe ""
-    }
-
-    "return 400 if the json body timestamp is more than 5 minutes old" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val encryptedJson = SsoPayloadEncryptor.encrypt(s"$utr:${currentTime.minusMinutes(6).getMillis}")
-
-      val result = controller.checkPrintPreferencesAction(FakeRequest(), encryptedJson)
-      status(result) should be(400)
-    }
-
-  }
-
-  "Print preferences details page " should {
-
-    "render a form with print preference fields to be entered" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val result = controller.prefsFormAction(geoffFisher, FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com"))
-
-      status(result) should be(200)
-
-      val htmlBody = contentAsString(result)
-      htmlBody should include("Print preferences")
-      htmlBody should include("prefs_suppressPrinting")
-      htmlBody should include("email")
-      htmlBody should include("redirectUrl")
-    }
-
-    "return a NotFound when the redirect url is missing" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val result = controller.prefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("email" -> "someuser@test.com")
-        .withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
-
-      status(result) should be(404)
-    }
-  }
-
-  "Print preferences detail page for submit " should {
-
-    "show the email address error message the email is missing but print suppression is set to yes" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "true"))
-
-      status(result) shouldBe 400
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Email address must be provided")
-
-    }
-
-    "show the email address error message the email structure is invalid" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.email" -> "some@user@test.com", "prefs.suppressPrinting" -> "true"))
-
-      status(result) shouldBe 400
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Valid email required")
-
-    }
-
-    "call the auth service to persist the preference data if the data entered is valid with print suppression and email supplied" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val emailAddress = Email("someuser@test.com")
-      val mockResponse = mock[Response]
-      val redirectUrl = "www.some.redirect.url"
-
-      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(Notification(Some(true), Some(emailAddress)))))).thenReturn(Some(mockResponse))
-
-      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.email" -> emailAddress.value, "prefs.suppressPrinting" -> "true", "redirectUrl" -> redirectUrl))
-
-      status(result) shouldBe 303
-      redirectLocation(result).get shouldBe redirectUrl
-    }
-
-    "call the auth service to persist the preference data if the data entered is valid with print suppression false and no email address supplied" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val mockResponse = mock[Response]
-      val redirectUrl = "www.some.redirect.url"
-
-      when(controller.authMicroService.savePreferences("/auth/oid/gfisher", Preferences(sa = Some(Notification(Some(false), None))))).thenReturn(Some(mockResponse))
-
-      val result = controller.submitPrefsFormAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("prefs.suppressPrinting" -> "false", "redirectUrl" -> redirectUrl))
-
-      val prefsPageContent = contentAsString(result)
-      println(prefsPageContent)
-
-      status(result) shouldBe 303
-      redirectLocation(result).get shouldBe redirectUrl
     }
   }
 

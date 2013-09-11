@@ -21,10 +21,6 @@ class SaMicroService extends MicroService {
 
   def accountSummary(uri: String): Option[SaAccountSummary] = httpGet[SaAccountSummary](uri)
 
-  def preferences(utr: String) = httpGet[SaPreference](s"/sa/utr/${utr}/preferences")
-
-  def savePreferences(utr: String, preference: SaPreference) = httpPutNoResponse(s"sa/utr/${utr}/preferences", Json.parse(toRequestBody(preference)), Map.empty)
-
   def updateMainAddress(uri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
 
     val response = httpPostSynchronous(uri, Json.parse(toRequestBody(mainAddress)))

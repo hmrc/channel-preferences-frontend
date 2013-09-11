@@ -7,26 +7,17 @@ import uk.gov.hmrc.microservice.sa.domain._
 import views.html.sa._
 import controllers.common._
 import config.DateTimeProvider
-import controllers.sa.StaticHTMLBanner._
 
-import org.joda.time.DateTime
-import controllers.common.service.FrontEndConfig
 import play.api.mvc.{ Result, Request }
 import controllers.common.validators.{ characterValidator, Validators }
 import scala.util.{ Success, Try, Left }
 import uk.gov.hmrc.microservice.sa.domain.TransactionId
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.auth.domain.Preferences
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import uk.gov.hmrc.common.microservice.auth.domain.Notification
 import controllers.sa.{ routes => saRoutes }
 
-case class PrintPrefsForm(suppressPrinting: Boolean, email: Option[String], redirectUrl: String)
-
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
-
-  import uk.gov.hmrc.common.microservice.auth.domain.Email.optionStringToOptionEmail
 
   def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => detailsAction(user, request) })
 
@@ -38,67 +29,6 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
       case _ => NotFound //FIXME: this should really be an error page
     }
-  }
-
-  val printPrefsForm: Form[PrintPrefsForm] = Form(
-    mapping(
-
-      "prefs" -> tuple(
-        "suppressPrinting" -> boolean,
-        "email" -> optional(email)).verifying("error.prefs.email.missing", printPrefs =>
-          !printPrefs._1 || (printPrefs._1 && printPrefs._2.isDefined)
-        ),
-      "redirectUrl" -> text) {
-        (prefs, redirectUrl) => PrintPrefsForm(prefs._1, prefs._2, redirectUrl)
-      } {
-        form => Some((form.suppressPrinting, form.email), form.redirectUrl)
-      }
-  )
-
-  def checkPrintPreferences(encryptedJson: String) = UnauthorisedAction { request => checkPrintPreferencesAction(request, encryptedJson) }
-
-  private[sa] def checkPrintPreferencesAction: (Request[_], String) => Result = (request, encryptedQueryParameters) => {
-    val decryptedQueryParameters = SsoPayloadEncryptor.decrypt(encryptedQueryParameters)
-    val splitQueryParams = decryptedQueryParameters.split(":")
-    val utr = splitQueryParams(0).trim
-    val time = splitQueryParams(1).trim.toLong
-
-    val currentTime: DateTime = now()
-    if (currentTime.minusMinutes(5).isAfter(time)) BadRequest
-    else {
-      val headers = ("Access-Control-Allow-Origin", "*")
-      authMicroService.preferences(utr) match {
-        case None => NoContent
-        case Some(pref) => pref.sa match {
-          case Some(sa) if sa.digital.isDefined => NoContent.withHeaders(headers)
-          case _ => Ok(saPreferences(s"${FrontEndConfig.frontendUrl}/sa/prefs")).withHeaders(headers)
-        }
-      }
-    }
-  }
-
-  def prefsForm = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => prefsFormAction(user, request) })
-
-  private[sa] def prefsFormAction: (User, Request[_]) => Result = (user, request) => {
-    request.queryString.get("rd") match {
-      case Some(rd) => Ok(sa_prefs_details(printPrefsForm.fill(PrintPrefsForm(true, None, rd(0)))))
-      case _ => NotFound
-    }
-  }
-
-  def submitPrefsForm() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitPrefsFormAction(user, request) })
-
-  private[sa] def submitPrefsFormAction: (User, Request[_]) => Result = (user, request) => {
-    printPrefsForm.bindFromRequest()(request).fold(
-      errors => BadRequest(sa_prefs_details(errors)),
-      printPrefsForm => {
-        val authResponse = authMicroService.savePreferences(user.user, Preferences(Some(Notification(Some(printPrefsForm.suppressPrinting), printPrefsForm.email))))
-        authResponse match {
-          case Some(_) => Redirect(printPrefsForm.redirectUrl)
-          case _ => NotFound //todo this should really be an error page
-        }
-      }
-    )
   }
 
   val changeAddressForm: Form[ChangeAddressForm] = Form(
