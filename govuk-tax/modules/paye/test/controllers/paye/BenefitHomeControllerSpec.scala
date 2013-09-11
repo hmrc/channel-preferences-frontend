@@ -16,6 +16,22 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.paye.domain.Benefit
 import scala.Some
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.mock.MockitoSugar
+import controllers.common.CookieEncryption
+import org.scalatest.BeforeAndAfterEach
+import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import play.api.test.{ FakeRequest, WithApplication }
+import org.mockito.Mockito._
+import uk.gov.hmrc.microservice.paye.domain._
+import org.mockito.Matchers
+import uk.gov.hmrc.microservice.domain.User
+import play.api.test.Helpers._
+import uk.gov.hmrc.microservice.paye.domain.Employment
+import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.paye.domain.Benefit
+import scala.Some
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 
 class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
@@ -36,14 +52,14 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
       controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      requestBenefitsAction(johnDensmore) should include("£ 135.33")
+      requestBenefitsAction(johnDensmore) should include("£135.33")
     }
 
     "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
       controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresOneEmployment, johnDensmoresBenefits, List.empty, List.empty)
 
-      requestBenefitsAction(johnDensmore) should not include "£ 22.22"
+      requestBenefitsAction(johnDensmore) should not include "22.22"
     }
 
     "display car details" in new WithApplication(FakeApplication()) {
@@ -56,7 +72,7 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
       requestBenefitsAction(johnDensmore) should include("Engine size: 0-1400 cc")
       requestBenefitsAction(johnDensmore) should include("Fuel type: Bi-Fuel")
       requestBenefitsAction(johnDensmore) should include("Date car registered: December 12, 2012")
-      requestBenefitsAction(johnDensmore) should include("£ 321.42")
+      requestBenefitsAction(johnDensmore) should include("£321.42")
     }
 
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
