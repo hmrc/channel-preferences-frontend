@@ -11,6 +11,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.agent.AgentMicroService
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 
+@deprecated("this will eventually be removed. All new controllers should wire in the services that they require")
 trait MicroServices {
 
   implicit lazy val authMicroService = new AuthMicroService()
