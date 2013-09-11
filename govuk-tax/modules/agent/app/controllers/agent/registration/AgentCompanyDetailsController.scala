@@ -10,7 +10,6 @@ import play.api.data._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.microservice.domain.User
-import controllers.common.service.MicroServices
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 import controllers.common.actions.MultiFormWrapper
 
@@ -20,7 +19,6 @@ class AgentCompanyDetailsController
     with ActionWrappers
     with AgentController
     with Validators
-    with MicroServices
     with MultiFormWrapper {
 
   private val companyDetailsForm = Form[AgentCompanyDetails](
