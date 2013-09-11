@@ -119,7 +119,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2)
 
-      verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", 22, Seq(carBenefit, fuelBenefit), withdrawDate, BigDecimal("210.17")) //Not url expected
+      verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/remove/31", "AB123456C", 22, Seq(carBenefit, fuelBenefit), withdrawDate, BigDecimal("210.17")) //Not url expected
 
       status(result) shouldBe 303
 
@@ -271,7 +271,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31", 2013, 2)
 
-      verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update/cars", "AB123456C", 22, Seq(carBenefit), withdrawDate, BigDecimal("123.45"))
+      verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/remove/31", "AB123456C", 22, Seq(carBenefit), withdrawDate, BigDecimal("123.45"))
 
       status(result) shouldBe 303
 
