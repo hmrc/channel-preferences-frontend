@@ -7,6 +7,8 @@ import uk.gov.hmrc.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import org.joda.time.LocalDate
 
+case class SaPreference(utr: String, digital: Boolean, email: Option[String] = None)
+
 object SaRegime extends TaxRegime {
   override def isAuthorised(regimes: Regimes) = {
     regimes.sa.isDefined

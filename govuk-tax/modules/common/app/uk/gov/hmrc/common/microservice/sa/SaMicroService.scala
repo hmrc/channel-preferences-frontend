@@ -1,11 +1,15 @@
 package uk.gov.hmrc.microservice.sa
 
-import play.Logger
-import uk.gov.hmrc.microservice.{ MicroServiceException, MicroService, MicroServiceConfig }
+import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
-import uk.gov.hmrc.microservice.sa.domain.{ SaAccountSummary, SaPerson, SaRoot, TransactionId }
+import uk.gov.hmrc.microservice.sa.domain._
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.microservice.MicroServiceException
+import uk.gov.hmrc.microservice.sa.domain.TransactionId
 
 class SaMicroService extends MicroService {
 
@@ -16,6 +20,10 @@ class SaMicroService extends MicroService {
   def person(uri: String): Option[SaPerson] = httpGet[SaPerson](uri)
 
   def accountSummary(uri: String): Option[SaAccountSummary] = httpGet[SaAccountSummary](uri)
+
+  def preferences(utr: String) = httpGet[SaPreference](s"/sa/utr/${utr}/preferences")
+
+  def savePreferences(utr: String, preference: SaPreference) = httpPutNoResponse(s"sa/utr/${utr}/preferences", Json.parse(toRequestBody(preference)), Map.empty)
 
   def updateMainAddress(uri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
 
