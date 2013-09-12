@@ -18,7 +18,7 @@ class AgentThankYouController extends BaseController with SessionTimeoutWrapper 
   }
 
   private[registration] val thankYouAction: ((User, Request[_]) => Result) = (user, request) => {
-    keyStoreMicroService.getKeyStore[String](registrationId(user), agent) match {
+    keyStoreMicroService.getKeyStore[Map[String, String]](registrationId(user), agent) match {
       case Some(x) => {
         val agentId = agentMicroService.create(toAgent(x)).get.uar.getOrElse("")
 

@@ -18,6 +18,7 @@ object GovUkTaxBuild extends Build {
     Dependencies.Compile.playMetrics,
     Dependencies.Compile.metricsGraphite,
     Dependencies.Compile.secureUtils,
+    Dependencies.Compile.taxCore,
 
     Dependencies.Test.junit,
     Dependencies.Test.scalaTest,

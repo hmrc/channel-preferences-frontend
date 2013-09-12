@@ -11,8 +11,11 @@ import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
 import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 import controllers.common.validators.AddressFields._
+import views.formatting.DatesSpec
+import uk.gov.hmrc.utils.DateUTCConverter
+import uk.gov.hmrc.domain.{Vrn, Utr, Nino}
 
-class AgentMapperSpec extends BaseSpec with MockitoSugar {
+class AgentMapperSpec extends BaseSpec with MockitoSugar with DateUTCConverter {
 
   class AgentMapperImpl extends AgentMapper {}
   def agentMapper = new AgentMapperImpl()
@@ -26,8 +29,8 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.contactDetails.title should be("Miss")
       agent.contactDetails.firstName should be("Nat")
       agent.contactDetails.lastName should be("Butterfly")
-      agent.contactDetails.dob should be("1985-09-02")
-      agent.contactDetails.nino should be("AB763527J")
+      agent.contactDetails.dob should be(parseToLong("1985-09-02"))
+      agent.contactDetails.nino should be(Nino("AB763527J"))
       agent.legalEntity should be("legalEntityValue")
       agent.agentType should be("agentTypeValue")
       agent.daytimeNumber should be("02000000000")
@@ -35,7 +38,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.emailAddress should be("agent@agent.com")
       agent.companyDetails.companyName should be("Company Name LTD")
       agent.companyDetails.emailAddress should be("company@company.com")
-      agent.companyDetails.saUTR should be("1234567890")
+      agent.companyDetails.saUtr should be(Utr("1234567890"))
       agent.companyDetails.registeredWithHMRC should be(right = true)
       agent.companyDetails.mainAddress.addressLine1 should be("Main Address l1")
       agent.companyDetails.mainAddress.addressLine2 should be(Some("Main Address l2"))
@@ -53,11 +56,11 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.companyDetails.principalAddress.addressLine4 should be(Some("Business Address l4"))
       agent.companyDetails.principalAddress.postcode should be(Some("Business Postcode"))
       agent.companyDetails.tradingName.get should be("Trading Name")
-      agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.landlineNumber) should be("02073645362")
-      agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.mobileNumber) should be("07777777771")
+      agent.companyDetails.numbers(AgentCompanyDetailsFormFields.landlineNumber) should be("02073645362")
+      agent.companyDetails.numbers(AgentCompanyDetailsFormFields.mobileNumber) should be("07777777771")
       agent.companyDetails.websiteURLs.head should be("www.agent.com")
-      agent.companyDetails.ctUTR.get should be("CT UTR")
-      agent.companyDetails.vatVRN.get should be("VAT Vrn")
+      agent.companyDetails.ctUTR.get should be(Utr("CT UTR"))
+      agent.companyDetails.vatVRN.get should be(Vrn("VAT Vrn"))
       agent.companyDetails.payeEmpRef.get should be("PAYE Emp Ref")
       agent.companyDetails.companyHouseNumber.get should be("23")
       agent.professionalBodyMembership.get.professionalBody should be("profBody")
@@ -74,8 +77,8 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.contactDetails.title should be("Miss")
       agent.contactDetails.firstName should be("Nat")
       agent.contactDetails.lastName should be("Butterfly")
-      agent.contactDetails.dob should be("1985-09-02")
-      agent.contactDetails.nino should be("AB763527J")
+      agent.contactDetails.dob should be(parseToLong("1985-09-02"))
+      agent.contactDetails.nino should be(Nino("AB763527J"))
       agent.legalEntity should be("legalEntityValue")
       agent.agentType should be("agentTypeValue")
       agent.daytimeNumber should be("02000000000")
@@ -83,14 +86,14 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
       agent.emailAddress should be("agent@agent.com")
       agent.companyDetails.companyName should be("Company Name LTD")
       agent.companyDetails.emailAddress should be("company@company.com")
-      agent.companyDetails.saUTR should be("1234567890")
+      agent.companyDetails.saUtr should be(Utr("1234567890"))
       agent.companyDetails.registeredWithHMRC should be(right = true)
       agent.companyDetails.mainAddress.addressLine1 should be("Main Address l1")
       agent.companyDetails.communicationAddress.addressLine1 should be("Communication Address l1")
       agent.companyDetails.principalAddress.addressLine1 should be("Business Address l1")
       agent.companyDetails.tradingName should be(None)
-      agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.landlineNumber) should be("02073645362")
-      agent.companyDetails.phoneNumbers(AgentCompanyDetailsFormFields.mobileNumber) should be("")
+      agent.companyDetails.numbers(AgentCompanyDetailsFormFields.landlineNumber) should be("02073645362")
+      agent.companyDetails.numbers(AgentCompanyDetailsFormFields.mobileNumber) should be("")
       agent.companyDetails.websiteURLs.isEmpty should be(right = true)
       agent.companyDetails.ctUTR should be(None)
       agent.companyDetails.vatVRN should be(None)
@@ -104,7 +107,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
 
   }
 
-  private def getKeyStoreWithAllInformation: KeyStore[String] = {
+  private def getKeyStoreWithAllInformation: KeyStore[Map[String, String]] = {
     val data =
       Map(
         FormNames.contactFormName ->
@@ -162,7 +165,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar {
     new KeyStore("1", new DateTime(), new DateTime(), data)
   }
 
-  private def getKeyStoreWithOnlyMandatoryInformation: KeyStore[String] = {
+  private def getKeyStoreWithOnlyMandatoryInformation: KeyStore[Map[String, String]] = {
     val data =
       Map(
         FormNames.contactFormName ->

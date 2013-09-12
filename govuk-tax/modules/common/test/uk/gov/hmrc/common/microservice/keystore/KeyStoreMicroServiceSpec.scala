@@ -75,9 +75,9 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
 
       val keyStoreMicroService = new TestKeyStoreMicroService()
 
-      Mockito.when(keyStoreMicroService.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("key" -> Map("entryKey" -> SomeData("John", "Densmore"))))))
+      Mockito.when(keyStoreMicroService.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("entryKey" -> SomeData("John", "Densmore")))))
 
-      val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "key", "entryKey")
+      val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "entryKey")
 
       verify(keyStoreMicroService.httpWrapper, times(1)).get[String]("/keystore/aSource/anId")
       entry should not be 'empty
@@ -90,9 +90,9 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
 
       val keyStoreMicroService = new TestKeyStoreMicroService()
 
-      Mockito.when(keyStoreMicroService.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("key" -> Map("anotherEntry" -> SomeData("John", "Densmore"))))))
+      Mockito.when(keyStoreMicroService.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("anotherEntry" -> SomeData("John", "Densmore")))))
 
-      val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "key", "entryKey")
+      val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "entryKey")
 
       entry shouldBe None
 

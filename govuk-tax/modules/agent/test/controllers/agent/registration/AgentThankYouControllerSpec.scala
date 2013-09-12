@@ -15,7 +15,7 @@ import uk.gov.hmrc.common.microservice.agent.Agent
 
 class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
-  val mockKeyStore = mock[KeyStore[String]]
+  val mockKeyStore = mock[KeyStore[Map[String,String]]]
   val mockAgent = mock[Agent]
 
   val id = "wshakespeare"
@@ -29,7 +29,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
   private val controller = new AgentThankYouController with MockMicroServicesForTests {
 
-    override def toAgent(implicit keyStore: KeyStore[String]) = {
+    override def toAgent(implicit keyStore: KeyStore[Map[String,String]]) = {
       mockAgent
     }
 
@@ -38,14 +38,14 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
     "get the keystore, save the agent, delete the keystore and go to the thank you page" in {
 
-      when(controller.keyStoreMicroService.getKeyStore[String](controller.registrationId(user), controller.agent)).thenReturn(Some(mockKeyStore))
+      when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(Some(mockKeyStore))
       when(controller.agentMicroService.create(mockAgent)).thenReturn(Some(mockAgent))
       when(mockAgent.uar).thenReturn(Some("12345"))
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 200
 
-      verify(controller.keyStoreMicroService).getKeyStore[String](controller.registrationId(user), controller.agent)
+      verify(controller.keyStoreMicroService).getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)
       verify(controller.agentMicroService).create(mockAgent)
       verify(controller.keyStoreMicroService).deleteKeyStore(controller.registrationId(user), controller.agent)
 
@@ -53,7 +53,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect user to contact details page when keystore is not found" in {
 
-      when(controller.keyStoreMicroService.getKeyStore[String](controller.registrationId(user), controller.agent)).thenReturn(None)
+      when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(None)
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 303

@@ -66,7 +66,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
               (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2 + revisedAmount)
             })
 
-            keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", Map("form" -> RemoveBenefitData(removeBenefitData.withdrawDate, finalAndRevisedAmounts._2.toString())))
+            keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, finalAndRevisedAmounts._2.toString()))
 
             benefit.benefit.benefitType match {
               case CAR | FUEL => Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit))
@@ -138,7 +138,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     }
 
   private def loadFormDataFor(user: User) = {
-    keyStoreMicroService.getEntry[RemoveBenefitData](user.oid, "paye_ui", "remove_benefit", "form")
+    keyStoreMicroService.getEntry[RemoveBenefitData](user.oid, "paye_ui", "remove_benefit")
   }
 
   object WithValidatedRequest {

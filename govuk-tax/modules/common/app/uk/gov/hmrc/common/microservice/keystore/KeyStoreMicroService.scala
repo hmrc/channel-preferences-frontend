@@ -5,25 +5,24 @@ import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import org.joda.time.DateTime
 
-case class KeyStore[T](id: String, dateCreated: DateTime, dateUpdated: DateTime, data: Map[String, Map[String, T]]) {
-  def get(key: String): Option[Map[String, T]] = {
+case class KeyStore[T](id: String, dateCreated: DateTime, dateUpdated: DateTime, data: Map[String, T]) {
+  def get(key: String): Option[T] = {
     data.get(key)
   }
 }
 
 class KeyStoreMicroService(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends MicroService {
 
-  def addKeyStoreEntry(id: String, source: String, key: String, data: Map[String, Any]) {
+  def addKeyStoreEntry[T](id: String, source: String, key: String, data: T)(implicit manifest: Manifest[T]) {
     val uri = buildUri(id, source) + s"/data/${key}"
-    httpPut[KeyStore[Map[String, String]]](uri, Json.parse(toRequestBody(data)))
+    httpPut[KeyStore[T]](uri, Json.parse(toRequestBody(data)))
   }
 
-  def getEntry[T](id: String, source: String, key: String, entryKey: String)(implicit manifest: Manifest[T]): Option[T] = {
+  def getEntry[T](id: String, source: String, key: String)(implicit manifest: Manifest[T]): Option[T] = {
     for {
       keyStore <- httpGet[KeyStore[T]](buildUri(id, source))
-      map <- keyStore.get(key)
-      entry <- map.get(entryKey)
-    } yield entry
+      value <- keyStore.get(key)
+    } yield value
   }
 
   def getKeyStore[T](id: String, source: String)(implicit manifest: Manifest[T]): Option[KeyStore[T]] = {

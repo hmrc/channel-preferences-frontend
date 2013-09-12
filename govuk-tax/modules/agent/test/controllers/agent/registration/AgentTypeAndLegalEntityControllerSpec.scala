@@ -64,7 +64,7 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
     }
     "go to the company details page and save data in keystore if all items are chosen" in new WithApplication(FakeApplication()) {
       controller.resetAll()
-      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = controller.postAgentTypeAction(user, newRequest("inBusiness", "ltdCompany"))
       status(result) shouldBe 303
       headers(result)("Location") should be("/company-details")
@@ -72,8 +72,8 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(agentTypeAndLegalEntityFormName),
-        keyStoreDataCaptor.capture())
-      val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
+        keyStoreDataCaptor.capture())(Matchers.any())
+      val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(agentType) should be("inBusiness")
       keyStoreData(legalEntity) should be("ltdCompany")
     }

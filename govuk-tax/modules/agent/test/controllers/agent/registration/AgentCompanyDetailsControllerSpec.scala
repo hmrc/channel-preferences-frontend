@@ -183,7 +183,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "go to next step if required details are provided" in new WithApplication(FakeApplication()) {
       controller.resetAll()
-      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val request = newRequestForCompanyDetails()
       val result = controller.postCompanyDetailsAction(user, request)
       status(result) shouldBe 303
@@ -191,8 +191,8 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(companyDetailsFormName),
-        keyStoreDataCaptor.capture())
-      val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
+        keyStoreDataCaptor.capture())(Matchers.any())
+      val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(companyName) should be("Alvaro Ltd")
       keyStoreData(tradingName) should be("Alvarito")
       keyStoreData(qualifiedLandlineNumber) should be("1234")

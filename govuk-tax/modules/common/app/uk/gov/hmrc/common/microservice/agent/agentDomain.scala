@@ -2,6 +2,7 @@ package uk.gov.hmrc.common.microservice.agent
 
 import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.domain.Address
+import uk.gov.hmrc.domain.{Vrn, Utr, Nino}
 
 case class Agent(legalEntity: String,
   agentType: String,
@@ -16,16 +17,16 @@ case class Agent(legalEntity: String,
 
 case class CompanyDetails(companyName: String,
   emailAddress: String,
-  saUTR: String,
+  saUtr: Utr,
   registeredWithHMRC: Boolean,
   mainAddress: Address,
   communicationAddress: Address,
   principalAddress: Address,
   tradingName: Option[String] = None,
-  phoneNumbers: Map[String, String] = Map.empty,
+  numbers: Map[String, String] = Map.empty,
   websiteURLs: List[String] = List.empty,
-  ctUTR: Option[String] = None,
-  vatVRN: Option[String] = None,
+  ctUTR: Option[Utr] = None,
+  vatVRN: Option[Vrn] = None,
   payeEmpRef: Option[String] = None,
   companyHouseNumber: Option[String] = None)
 
@@ -34,6 +35,6 @@ case class ProfessionalBodyMembership(professionalBody: String, membershipNumber
 case class ContactDetails(title: String,
   firstName: String,
   lastName: String,
-  dob: String,
-  nino: String,
+  dob: Long,
+  nino: Nino,
   middleName: Option[String] = None)

@@ -67,7 +67,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "go to the next step if no input data is entered" in new WithApplication(FakeApplication()) {
-      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", ""))
       status(result) shouldBe 303
       headers(result)("Location") should be("/thank-you")
@@ -76,14 +76,14 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),
         keyStoreDataCaptor.capture()
-      )
-      val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
+      )(Matchers.any())
+      val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) should be("")
       keyStoreData(qualifiedMembershipNumber) should be("")
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
-      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, Any]])
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data"))
       status(result) shouldBe 303
       headers(result)("Location") should be("/thank-you")
@@ -92,8 +92,8 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),
         keyStoreDataCaptor.capture()
-      )
-      val keyStoreData: Map[String, Any] = keyStoreDataCaptor.getAllValues.get(0)
+      )(Matchers.any())
+      val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) should be("charteredInstituteOfManagementAccountants")
       keyStoreData(qualifiedMembershipNumber) should be("data")
     }
