@@ -24,6 +24,8 @@ import org.jsoup.Jsoup
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
+  import models.paye.BenefitTypes._
+
   private lazy val controller = new RemoveBenefitController with MockMicroServicesForTests
 
   override protected def beforeEach(testData: TestData) {
@@ -44,6 +46,19 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
+
+  "Removing FUEL benefit only" should {
+
+    "notify the user the fuel benefit will be removed" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+      val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), FUEL.toString, 2013, 2)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".amount").text shouldBe "£22.22"
+      doc.select("label.checkbox").text should include("no longer provide me with this benefit")
+    }
+  }
+
 
   "The car benefit removal method" should {
     "in step 1, notify the user that the fuel benefit is going to be removed with the car benefit when removing car benefit" in new WithApplication(FakeApplication()) {
