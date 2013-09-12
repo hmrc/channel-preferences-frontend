@@ -1,5 +1,6 @@
-@(printPrefForm: Form[controllers.PrintingPreferenceForm], token: String, redirectUrl: String)
+@(emailForm: Form[String], token: String, redirectUrl: String)
 
+@import views.helpers.CustomHelpers._
 @import helper._
 
 @main(title = "My Preferences") {
@@ -11,9 +12,8 @@
     @helper.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
          <p>
             @inputText(
-            printPrefForm("email"),
+             emailForm("email"),
             '_label -> "Email",
-            '_error -> printPrefForm.error("prefs"),
             '_showConstraints -> false)
         </p>
 
