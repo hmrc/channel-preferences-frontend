@@ -1,2 +1,3 @@
 
-GET     /home              @controllers.bt.BusinessTaxController.home
+GET     /home                                           @controllers.bt.BusinessTaxController.home
+GET     /makeAPaymentLanding                            @controllers.bt.BusinessTaxController.makeAPaymentLanding

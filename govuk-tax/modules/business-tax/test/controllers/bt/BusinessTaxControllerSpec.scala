@@ -25,6 +25,7 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountBalance, VatAccountSummary, VatRoot }
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain
+import play.api.i18n.Messages
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -161,6 +162,21 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       val content = contentAsString(result)
       content should include("6.1")
       content should include(vrn)
+    }
+
+    "display error text if the account balance is unavailable" in new WithApplication(FakeApplication()) {
+      val vrn = "12345678"
+      val date = "2012-06-06"
+      val accountSummary = VatAccountSummary(None, Some(date))
+      when(mockAuthMicroService.authority("/auth/oid/johnboy")).thenReturn(
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/vrn/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
+      when(mockVatMicroService.root(s"/vat/vrn/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/vrn/$vrn/accountSummary")))
+      when(mockVatMicroService.accountSummary(s"/vat/vrn/$vrn/accountSummary")).thenReturn(Some(accountSummary))
+      val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/johnboy"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
+        sessionTimestampKey -> controller.now().getMillis.toString, "affinityGroup" -> encrypt("someaffinitygroup")))
+      status(result) should be(200)
+      val content = contentAsString(result)
+      content should include(Messages("vat.error.message.summaryUnavailable.1"))
     }
 
   }

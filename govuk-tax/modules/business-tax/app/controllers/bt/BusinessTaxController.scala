@@ -5,9 +5,9 @@ import uk.gov.hmrc.microservice.auth.domain._
 import uk.gov.hmrc.microservice.domain._
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountSummary, VatRoot }
-import views.helpers.{ StringMessage, LinkMessage, StringOrLinkMessage }
+import views.helpers.{ LinkMessage, StringOrLinkMessage }
 import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
+import views.html.make_a_payment_landing
 
 class BusinessTaxController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -23,12 +23,20 @@ class BusinessTaxController extends BaseController with ActionWrappers with Sess
         val portalHref = buildPortalUrl("home")
 
         val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, "some data from the SA -> CESA Hod", saMicroService).build
-        val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user.regimes.vat, userAuthority.vrn, vatMicroService).build
+        val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build
         val accountSummaries = AccountSummaries(Seq(saRegime, vatRegime).flatten)
 
         Ok(views.html.business_tax_home(businessUser, portalHref, accountSummaries))
 
   })
+
+  def makeAPaymentLanding = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() { user => request => makeAPaymentLandingAction() })
+
+  private[bt] def makeAPaymentLandingAction() = {
+    Ok(make_a_payment_landing())
+  }
+
+
 }
 
 case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[Vrn], ctUtr: Option[Utr], empRef: Option[EmpRef], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)
