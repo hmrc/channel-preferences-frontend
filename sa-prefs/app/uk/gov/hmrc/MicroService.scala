@@ -8,7 +8,7 @@ import scala.concurrent.{ Await, ExecutionContext }
 import ExecutionContext.Implicits.global
 import play.api.{ Logger, Play }
 import scala.concurrent.Future
-import play.api.libs.json.JsValue
+import play.api.libs.json.{ Json, JsValue }
 import org.slf4j.MDC
 import com.google.common.net.HttpHeaders
 
@@ -122,5 +122,16 @@ object MicroServiceConfig {
 
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 
+}
+
+class SaMicroService extends MicroService {
+
+  override val serviceUrl = MicroServiceConfig.saServiceUrl
+
+  def savePreferences(utr: String, digital: Boolean, email: Option[String] = None) {
+    httpPutNoResponse(s"/sa/utr/$utr/preferences", Json.parse(toRequestBody(SaPreference(digital, email))))
+  }
+
+  case class SaPreference(digital: Boolean, email: Option[String] = None)
 }
 
