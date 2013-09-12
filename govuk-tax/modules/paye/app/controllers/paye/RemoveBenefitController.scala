@@ -110,7 +110,8 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
 
         loadFormDataFor(user) match {
           case Some(formData) => {
-            val uri = displayBenefit.benefit.actions.getOrElse("remove", throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.benefit.benefitType}")) //TODO change to include multiple benefits
+            val uri = displayBenefit.benefit.actions.getOrElse("remove",
+                throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
             val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, displayBenefit.benefits, formData.withdrawDate, BigDecimal(formData.revisedAmount))
             Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
           }

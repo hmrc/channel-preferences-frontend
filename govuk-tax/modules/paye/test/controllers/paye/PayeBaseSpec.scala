@@ -109,7 +109,7 @@ class PayeBaseSpec extends BaseSpec {
   val acceptedTransactions = List(removedCarTransaction)
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
-    Map("remove" -> s"/paye/$nino/benefits/$year/$esn/remove/31")
+    Map("remove" -> s"/paye/$nino/benefits/$year/$esn/remove/")
   }
 
 }

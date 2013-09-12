@@ -55,7 +55,7 @@ class PayeMicroServiceSpec extends BaseSpec {
   }
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
-    Map("removeCar" -> s"/paye/$nino/benefits/$year/$esn/update/cars")
+    Map("removeCar" -> s"/paye/$nino/benefits/$year/$esn/remove/")
   }
 
 }
