@@ -19,7 +19,7 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, vatRoo
           amount <- accountBalance.amount
         } yield amount
 
-        val links = Seq(LinkMessage(buildPortalUrl("vatAccountDetails"), "View your account on HMRC Portal"))
+        val links = Seq(LinkMessage(buildPortalUrl("vatAccountDetails"), "View account details"))
 
         accountValueOption match {
           case Some(accountValue) => {

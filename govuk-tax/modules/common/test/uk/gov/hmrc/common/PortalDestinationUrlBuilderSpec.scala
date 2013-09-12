@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common
 
 import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.auth.domain.{ Utr, UserAuthority }
+import uk.gov.hmrc.microservice.auth.domain.{Vrn, Utr, UserAuthority}
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }
@@ -12,6 +12,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
 
   val mockConfigValues = Map("govuk-tax.Test.portal.destinationPath.someDestinationPathKey" -> "/utr/<utr>/year/<year>",
     "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "/utr/<utr>/affinitygroup/<affinitygroup>/year/<year>",
+    "govuk-tax.Test.portal.destinationPath.testVatAccountDetails" -> "/vat/trader/<vrn>/account",
     "govuk-tax.Test.portal.destinationRoot" -> "http://someserver:8080",
     "cookie.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ=="
   )
@@ -70,5 +71,43 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       actualDestinationUrl should startWith("""http://someserver:8080/utr/<utr>/affinitygroup/someaffinitygroup/year""")
       actualDestinationUrl should not endWith ("""<year>""")
     }
+
+    "return a URL which is resolved using a vrn parameter" ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+      val mockRequest = mock[Request[AnyRef]]
+      val mockSession = mock[Session]
+      val mockUser = mock[User]
+      val mockUserAuthority = mock[UserAuthority]
+      val vrn = "someVrn"
+
+      when(mockRequest.session).thenReturn(mockSession)
+      when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
+      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
+      when(mockUserAuthority.vrn).thenReturn(Some(Vrn(vrn)))
+
+      val portalUrlBuilder = PortalDestinationUrlBuilder.build(mockRequest, mockUser) _
+      val actualDestinationUrl = portalUrlBuilder("testVatAccountDetails")
+
+      actualDestinationUrl should startWith("""http://someserver:8080/vat/trader/someVrn/account""")
+    }
+
+    "return an invalid URL when we request a link requiring a vrn parameter but the vrn is missing" ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+      val mockRequest = mock[Request[AnyRef]]
+      val mockSession = mock[Session]
+      val mockUser = mock[User]
+      val mockUserAuthority = mock[UserAuthority]
+      val vrn = "someVrn"
+
+      when(mockRequest.session).thenReturn(mockSession)
+      when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
+      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
+      when(mockUserAuthority.vrn).thenReturn(None)
+
+      val portalUrlBuilder = PortalDestinationUrlBuilder.build(mockRequest, mockUser) _
+      val actualDestinationUrl = portalUrlBuilder("testVatAccountDetails")
+
+      actualDestinationUrl should startWith("""http://someserver:8080/vat/trader/<vrn>/account""")
+    }
+
+
   }
 }

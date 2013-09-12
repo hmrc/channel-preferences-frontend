@@ -8,6 +8,7 @@ import uk.gov.hmrc.microservice.domain.User
 import scala.AnyRef
 import scala.Some
 import controllers.common.CookieEncryption
+import play.api.Logger
 
 object PortalDestinationUrlBuilder extends CookieEncryption {
 
@@ -17,8 +18,8 @@ object PortalDestinationUrlBuilder extends CookieEncryption {
     val vrn = user.userAuthority.vrn
     val affinityGroup = parseOrExceptionFromSession(request, "affinityGroup")
     val destinationUrl = PortalConfig.getDestinationUrl(destinationPathKey)
-    val userData: Seq[(String, Option[Any])] = Seq(("<year>", Some(currentTaxYear)), ("<utr>", utr), ("<affinitygroup>", Some(affinityGroup)), ("<vrn>", vrn))
-    resolvePlaceHolder(destinationUrl, userData)
+    val tagsToBeReplacedWithData: Seq[(String, Option[Any])] = Seq(("<year>", Some(currentTaxYear)), ("<utr>", utr), ("<affinitygroup>", Some(affinityGroup)), ("<vrn>", vrn))
+    resolvePlaceHolder(destinationUrl, tagsToBeReplacedWithData)
   }
 
   private def parseOrExceptionFromSession(request: Request[AnyRef], key: String): String = {
@@ -28,14 +29,21 @@ object PortalDestinationUrlBuilder extends CookieEncryption {
     }
   }
 
-  private def resolvePlaceHolder(url: String, values: Seq[(String, Option[Any])]): String = {
-    if (values.isEmpty) url else resolvePlaceHolder(replace(url, values.head), values.tail)
+  private def resolvePlaceHolder(url: String, tagsToBeReplacedWithData: Seq[(String, Option[Any])]): String = {
+    if (tagsToBeReplacedWithData.isEmpty) url else resolvePlaceHolder(replace(url, tagsToBeReplacedWithData.head), tagsToBeReplacedWithData.tail)
   }
 
-  private def replace(url: String, values: (String, Option[Any])): String = {
-    values._2 match {
-      case Some(value) => url.replace(values._1, value.toString)
-      case _ => url
+  private def replace(url: String, tagToBeReplacedWithData: (String, Option[Any])): String = {
+    val (tagName, tagValueOption) = tagToBeReplacedWithData
+    tagValueOption match {
+      case Some(valueOfTag) => url.replace(tagName, valueOfTag.toString)
+      case _ => {
+        if (url.contains(tagName)) {
+          Logger.error(s"Failed to populate parameter $tagName in URL $url")
+        }
+        url
+      }
     }
   }
 }
+
