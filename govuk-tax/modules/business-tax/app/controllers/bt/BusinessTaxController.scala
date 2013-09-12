@@ -43,4 +43,4 @@ case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[
 
 case class AccountSummaries(regimes: Seq[AccountSummary])
 
-case class AccountSummary(regimeName: String, messages: Seq[(String, List[StringOrLinkMessage])], links: Seq[LinkMessage])
+case class AccountSummary(regimeName: String, messages: Seq[(String, Seq[StringOrLinkMessage])], links: Seq[LinkMessage])
