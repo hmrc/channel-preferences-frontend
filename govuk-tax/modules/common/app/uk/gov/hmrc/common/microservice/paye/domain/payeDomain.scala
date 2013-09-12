@@ -1,12 +1,12 @@
 package uk.gov.hmrc.microservice.paye.domain
 
-import org.joda.time.{ DateTimeZone, DateTime, LocalDate }
+import org.joda.time.{DateTimeZone, DateTime, LocalDate}
 import org.joda.time.format.DateTimeFormat
 import controllers.common.routes
 import uk.gov.hmrc.microservice.paye.PayeMicroService
-import uk.gov.hmrc.microservice.domain.{ TaxRegime, RegimeRoot }
+import uk.gov.hmrc.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.txqueue.{ TxQueueTransaction, TxQueueMicroService }
+import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
 
 object PayeRegime extends TaxRegime {
 
@@ -16,15 +16,15 @@ object PayeRegime extends TaxRegime {
 }
 
 case class PayeRoot(nino: String,
-    version: Int,
-    title: String,
-    firstName: String,
-    secondName: Option[String],
-    surname: String,
-    name: String,
-    dateOfBirth: String,
-    links: Map[String, String],
-    transactionLinks: Map[String, String]) extends RegimeRoot {
+                    version: Int,
+                    title: String,
+                    firstName: String,
+                    secondName: Option[String],
+                    surname: String,
+                    name: String,
+                    dateOfBirth: String,
+                    links: Map[String, String],
+                    transactionLinks: Map[String, String]) extends RegimeRoot {
 
   private val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 
@@ -68,47 +68,48 @@ case class PayeRoot(nino: String,
 }
 
 case class TaxCode(employmentSequenceNumber: Int,
-  taxYear: Int,
-  taxCode: String)
+                   taxYear: Int,
+                   taxCode: String)
 
 case class Benefit(benefitType: Int,
-    taxYear: Int,
-    grossAmount: BigDecimal,
-    employmentSequenceNumber: Int,
-    costAmount: BigDecimal,
-    amountMadeGood: BigDecimal,
-    cashEquivalent: BigDecimal,
-    expensesIncurred: BigDecimal,
-    amountOfRelief: BigDecimal,
-    paymentOrBenefitDescription: String,
-    car: Option[Car],
-    actions: Map[String, String],
-    calculations: Map[String, String]) {
+                   taxYear: Int,
+                   grossAmount: BigDecimal,
+                   employmentSequenceNumber: Int,
+                   costAmount: BigDecimal,
+                   amountMadeGood: BigDecimal,
+                   cashEquivalent: BigDecimal,
+                   expensesIncurred: BigDecimal,
+                   amountOfRelief: BigDecimal,
+                   paymentOrBenefitDescription: String,
+                   car: Option[Car],
+                   actions: Map[String, String],
+                   calculations: Map[String, String]) {
 
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
 
 case class Car(dateCarMadeAvailable: Option[LocalDate],
-  dateCarWithdrawn: Option[LocalDate],
-  dateCarRegistered: Option[LocalDate],
-  employeeCapitalContribution: BigDecimal,
-  fuelType: Int,
-  co2Emissions: Int,
-  engineSize: Int,
-  mileageBand: String,
-  carValue: BigDecimal)
+               dateCarWithdrawn: Option[LocalDate],
+               dateCarRegistered: Option[LocalDate],
+               employeeCapitalContribution: BigDecimal,
+               fuelType: Int,
+               co2Emissions: Int,
+               engineSize: Int,
+               mileageBand: String,
+               carValue: BigDecimal)
+
+case class RevisedBenefit(benefit: Benefit, revisedAmount: BigDecimal)
 
 case class RemoveBenefit(version: Int,
-  benefits: Seq[Benefit],
-  revisedAmount: BigDecimal,
-  withdrawDate: LocalDate)
+                         benefits: Seq[RevisedBenefit],
+                         withdrawDate: LocalDate)
 
 case class Employment(sequenceNumber: Int,
-    startDate: LocalDate,
-    endDate: Option[LocalDate],
-    taxDistrictNumber: String,
-    payeNumber: String,
-    employerName: Option[String]) {
+                      startDate: LocalDate,
+                      endDate: Option[LocalDate],
+                      taxDistrictNumber: String,
+                      payeNumber: String,
+                      employerName: Option[String]) {
 
   lazy val employerNameOrReference =
     if (employerName.isDefined)
@@ -120,5 +121,5 @@ case class Employment(sequenceNumber: Int,
 case class TransactionId(oid: String)
 
 case class RecentTransaction(messageCode: String,
-  txTime: LocalDate)
+                             txTime: LocalDate)
 

@@ -3,10 +3,15 @@ package uk.gov.hmrc.microservice.paye
 import play.Logger
 import org.joda.time.LocalDate
 import views.formatting.Dates
-import uk.gov.hmrc.microservice.paye.domain.{ PayeRoot, TransactionId, RemoveBenefit, Benefit }
+import uk.gov.hmrc.microservice.paye.domain._
 import uk.gov.hmrc.microservice.{ TaxRegimeMicroService, MicroServiceConfig }
 import controllers.common.domain.Transform._
 import play.api.libs.json.Json
+import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.microservice.paye.CalculationResult
+import uk.gov.hmrc.microservice.paye.domain.Benefit
+import uk.gov.hmrc.microservice.paye.domain.TransactionId
+import uk.gov.hmrc.microservice.paye.domain.RemoveBenefit
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
@@ -21,9 +26,8 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
   def removeBenefits(uri: String, nino: String,
     version: Int,
-    benefits: Seq[Benefit],
-    dateCarWithdrawn: LocalDate,
-    revisedGrossAmount: BigDecimal): Option[TransactionId] = {
+    benefits: Seq[RevisedBenefit],
+    dateCarWithdrawn: LocalDate): Option[TransactionId] = {
     httpPost[TransactionId](
       uri,
       body = Json.parse(
@@ -31,7 +35,6 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
           RemoveBenefit(
             version = version,
             benefits = benefits,
-            revisedAmount = revisedGrossAmount,
             withdrawDate = dateCarWithdrawn)
         )
       )

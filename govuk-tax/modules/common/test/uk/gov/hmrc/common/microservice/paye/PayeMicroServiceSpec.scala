@@ -4,12 +4,18 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.microservice.paye.domain.{ TransactionId, RemoveBenefit, Car, Benefit }
+import uk.gov.hmrc.microservice.paye.domain._
 import org.joda.time.LocalDate
 import play.api.test.{ FakeApplication, WithApplication }
 import org.mockito.ArgumentCaptor
 import controllers.common.domain.Transform
 import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.microservice.paye.CalculationResult
+import scala.Some
+import uk.gov.hmrc.microservice.paye.domain.RemoveBenefit
+import uk.gov.hmrc.microservice.paye.domain.Car
+import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.paye.domain.Benefit
 
 class PayeMicroServiceSpec extends BaseSpec {
 
@@ -27,13 +33,13 @@ class PayeMicroServiceSpec extends BaseSpec {
       val dateCarWithdrawn = new LocalDate(2013, 7, 18)
       val version = 22
       val grossAmount = BigDecimal(123.45)
-      service.removeBenefits("/paye/AB123456C/benefits/2013/1/remove/31", "AB123456C", version, Seq(carBenefit), dateCarWithdrawn, grossAmount)
+      service.removeBenefits("/paye/AB123456C/benefits/2013/1/remove/31", "AB123456C", version, Seq(RevisedBenefit(carBenefit,grossAmount)), dateCarWithdrawn)
 
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
       verify(service.httpWrapper, times(1)).post(any[String], capturedBody.capture, any[Map[String, String]])
 
       val capturedRemovedCarBenefit = Transform.fromResponse[RemoveBenefit](capturedBody.getValue.toString())
-      capturedRemovedCarBenefit.revisedAmount shouldBe grossAmount
+      capturedRemovedCarBenefit.benefits(0).revisedAmount shouldBe grossAmount
       capturedRemovedCarBenefit.withdrawDate shouldBe dateCarWithdrawn
       capturedRemovedCarBenefit.version shouldBe version
     }

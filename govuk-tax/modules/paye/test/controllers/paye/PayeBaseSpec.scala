@@ -23,7 +23,17 @@ class PayeBaseSpec extends BaseSpec {
   val currentTestDate = new DateTime()
   val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 
+  def defaultTxLinks(nino: String) = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
+    "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
+    "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}",
+    "findByOid" -> "/txqueue/oid/{oid}")
+
   protected def setupUser(id: String, nino: String, name: String): User = {
+    setupUser(id, nino, name, defaultTxLinks(nino))
+  }
+
+  protected def setupUser(id: String, nino: String, name: String, transactionLinks: Map[String, String]): User = {
+
     val ua = UserAuthority(s"/personal/paye/$nino", Regimes(paye = Some(URI.create(s"/personal/paye/$nino"))), None)
 
     val payeRoot = PayeRoot(
@@ -39,10 +49,7 @@ class PayeBaseSpec extends BaseSpec {
         "taxCode" -> s"/paye/$nino/tax-codes/2013",
         "employments" -> s"/paye/$nino/employments/2013",
         "benefits" -> s"/paye/$nino/benefits/2013"),
-      transactionLinks = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
-        "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
-        "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}",
-        "findByOid" -> "/txqueue/oid/{oid}")
+      transactionLinks = transactionLinks
     )
 
     User(id, ua, RegimeRoots(Some(payeRoot), None, None), None, None)
@@ -98,9 +105,9 @@ class PayeBaseSpec extends BaseSpec {
       currentTestDate,
       currentTestDate.minusDays(1))
 
-  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"), Map("benefitType" -> "31"))
+  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"), Map("benefitTypes" -> "31"))
   val otherTransaction = transactionWithTags(List("paye", "test"))
-  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"), Map("benefitType" -> "29"))
+  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"), Map("benefitTypes" -> "29"))
 
   val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction)
 
@@ -109,7 +116,7 @@ class PayeBaseSpec extends BaseSpec {
   val acceptedTransactions = List(removedCarTransaction)
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
-    Map("remove" -> s"/paye/$nino/benefits/$year/$esn/remove/")
+    Map("remove" -> s"/paye/$nino/benefits/$year/$esn/update")
   }
 
 }

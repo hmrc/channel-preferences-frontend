@@ -1,7 +1,7 @@
 package controllers.paye
 
-import uk.gov.hmrc.microservice.paye.domain.{ Benefit, PayeRegime }
-import play.api.mvc.{ Result, Request }
+import uk.gov.hmrc.microservice.paye.domain.{RevisedBenefit, Benefit, PayeRegime}
+import play.api.mvc.{Result, Request}
 import views.html.paye._
 import views.formatting.Dates
 import play.api.data.Form
@@ -9,10 +9,11 @@ import play.api.data.Forms._
 import org.joda.time.LocalDate
 import scala.Some
 import uk.gov.hmrc.microservice.domain.User
-import models.paye.{ DisplayBenefits, DisplayBenefit, RemoveBenefitFormData }
+import models.paye.{DisplayBenefits, DisplayBenefit, RemoveBenefitFormData}
 import models.paye.BenefitTypes._
 import uk.gov.hmrc.common.TaxYearResolver
-import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
+import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
+import scala.collection.mutable
 
 class RemoveBenefitController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -35,46 +36,46 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
   })
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
-    (request, user, benefit) =>
-      {
-        if (benefit.benefit.benefitType == CAR) {
-          Ok(remove_car_benefit_form(benefit, hasFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm))
-        } else {
-          Ok(remove_benefit_form(benefit, updateBenefitForm))
-        }
+    (request, user, benefit) => {
+      if (benefit.benefit.benefitType == CAR) {
+        Ok(remove_car_benefit_form(benefit, hasFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm))
+      } else {
+        Ok(remove_benefit_form(benefit, updateBenefitForm))
       }
+    }
   }
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
-    (request, user, benefit) =>
-      {
-        updateBenefitForm.bindFromRequest()(request).fold(
-          errors => {
-            benefit.benefit.benefitType match {
-              case CAR => BadRequest(remove_car_benefit_form(benefit, hasFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
-              case FUEL => BadRequest(remove_benefit_form(benefit, errors))
-              case _ => Redirect(routes.BenefitHomeController.listBenefits())
-            }
-          },
-          removeBenefitData => {
-
-            val fuelBenefit = if (benefit.benefit.benefitType == CAR) getFuelBenefit(user, benefit.benefit.employmentSequenceNumber) else None
-            val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit).filter(_.isDefined).map(_.get))
-
-            val finalAndRevisedAmounts = updatedBenefit.benefits.foldLeft((BigDecimal(0), BigDecimal(0)))((runningAmounts, benefit) => {
-              val revisedAmount = calculateRevisedAmount(benefit, removeBenefitData.withdrawDate)
-              (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2 + revisedAmount)
-            })
-
-            keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, finalAndRevisedAmounts._2.toString()))
-
-            benefit.benefit.benefitType match {
-              case CAR | FUEL => Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit))
-              case _ => Redirect(routes.BenefitHomeController.listBenefits())
-            }
+    (request, user, benefit) => {
+      updateBenefitForm.bindFromRequest()(request).fold(
+        errors => {
+          benefit.benefit.benefitType match {
+            case CAR => BadRequest(remove_car_benefit_form(benefit, hasFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
+            case FUEL => BadRequest(remove_benefit_form(benefit, errors))
+            case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
-        )
-      }
+        },
+        removeBenefitData => {
+
+          val fuelBenefit = if (benefit.benefit.benefitType == CAR) getFuelBenefit(user, benefit.benefit.employmentSequenceNumber) else None
+          val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit).filter(_.isDefined).map(_.get))
+
+          val finalAndRevisedAmounts = updatedBenefit.benefits.foldLeft(BigDecimal(0), mutable.Map[String, BigDecimal]())((runningAmounts, benefit) => {
+            val revisedAmount = calculateRevisedAmount(benefit, removeBenefitData.withdrawDate)
+            runningAmounts._2.put(benefit.benefitType.toString, revisedAmount)
+
+            (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2)
+          })
+
+          keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, finalAndRevisedAmounts._2.toMap))
+
+          benefit.benefit.benefitType match {
+            case CAR | FUEL => Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit))
+            case _ => Redirect(routes.BenefitHomeController.listBenefits())
+          }
+        }
+      )
+    }
   }
 
   private def calculateRevisedAmount(benefit: Benefit, withdrawDate: LocalDate): BigDecimal = {
@@ -104,20 +105,23 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(TaxYearResolver(), 4, 5)))
 
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
-    (request, user, displayBenefit) =>
-      {
-        val payeRoot = user.regimes.paye.get
+    (request, user, displayBenefit) => {
+      val payeRoot = user.regimes.paye.get
 
-        loadFormDataFor(user) match {
-          case Some(formData) => {
-            val uri = displayBenefit.benefit.actions.getOrElse("remove",
-                throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
-            val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, displayBenefit.benefits, formData.withdrawDate, BigDecimal(formData.revisedAmount))
-            Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
-          }
-          case _ => Redirect(routes.BenefitHomeController.listBenefits())
+      loadFormDataFor(user) match {
+        case Some(formData) => {
+          val uri = displayBenefit.benefit.actions.getOrElse("remove",
+            throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
+
+          val revisedBenefits = displayBenefit.benefits.map(b => RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
+            throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
+
+          val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, revisedBenefits, formData.withdrawDate)
+          Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
         }
+        case _ => Redirect(routes.BenefitHomeController.listBenefits())
       }
+    }
   }
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, String) => play.api.mvc.Result = (user, request, kinds, oid) =>
@@ -144,21 +148,19 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
 
   object WithValidatedRequest {
     def apply(action: (Request[_], User, DisplayBenefit) => Result): (User, Request[_], String, Int, Int) => Result = {
-      (user, request, benefitTypes, taxYear, employmentSequenceNumber) =>
-        {
-          val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
-          val validBenefit = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
-            kind => getBenefit(user, kind, taxYear, employmentSequenceNumber)
-          }
-            .filter(_.isDefined).map(_.get)
-            .foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
-
-          if (!validBenefit.benefits.isEmpty) {
-            action(request, user, validBenefit)
-          } else {
-            redirectToBenefitHome(request, user)
-          }
+      (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
+        val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
+        val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
+          kind => getBenefit(user, kind, taxYear, employmentSequenceNumber)
         }
+
+        if (!validBenefits.contains(None) ) {
+          val validMergedBenefit = validBenefits.map(_.get).foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
+          action(request, user, validMergedBenefit)
+        } else {
+          redirectToBenefitHome(request, user)
+        }
+      }
     }
 
     private def getBenefit(user: User, kind: Int, taxYear: Int, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
@@ -218,4 +220,4 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
 
 }
 
-case class RemoveBenefitData(withdrawDate: LocalDate, revisedAmount: String)
+case class RemoveBenefitData(withdrawDate: LocalDate, revisedAmounts: Map[String, BigDecimal])
