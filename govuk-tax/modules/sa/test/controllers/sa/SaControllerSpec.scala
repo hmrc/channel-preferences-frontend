@@ -533,19 +533,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
   }
 
-  "Make a payment landing page " should {
-    "Render some make a payment text when a user is logged in and authorised for SA" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
-      val result = controller.makeAPaymentLandingAction
-
-      status(result) should be(200)
-
-      val htmlBody = contentAsString(result)
-      htmlBody should include("Make a payment landing page")
-    }
-  }
-
   private def request(user: User, action: (User, Request[_]) => Result): String = {
     val result = action(user, FakeRequest())
 

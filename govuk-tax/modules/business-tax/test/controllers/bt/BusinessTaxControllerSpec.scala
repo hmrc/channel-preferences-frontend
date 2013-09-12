@@ -180,4 +180,18 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
     }
 
   }
+
+  "Make a payment landing page " should {
+    "Render some make a payment text when a user is logged in" in new WithApplication(FakeApplication()) {
+      controller.resetAll()
+
+      val result = controller.makeAPaymentLandingAction
+
+      status(result) should be(200)
+
+      val htmlBody = contentAsString(result)
+      htmlBody should include("Make a payment landing page")
+    }
+  }
+
 }
