@@ -114,6 +114,21 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
     }
 
+    "in step 1, not notify the user about fuel benefit if the user has fuel benefit but already removed it" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val transaction: TxQueueTransaction = mock[TxQueueTransaction]
+      when(controller.txQueueMicroService.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
+      when(transaction.properties).thenReturn(Map("benefitTypes"-> "29" , "employmentSequenceNumber" -> "2", "taxYear"-> "2013"))
+
+      val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 2)
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".fuel-benefit-info") shouldBe empty
+
+    }
+
     "in step 2, display the calculated value for removing both fuel and car benefit if the user chose to remove the car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
