@@ -8,6 +8,8 @@ import uk.gov.hmrc.microservice.domain.{RegimeRoots, User}
 import org.mockito.Mockito._
 import views.helpers.{RenderableLinkMessage, RenderableStringMessage, RenderableMessage, LinkMessage}
 import org.joda.time.LocalDate
+import controllers.bt.routes
+import controllers.bt.regimeViews.SaAccountSummaryMessageKeys
 
 class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -17,6 +19,8 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
   val viewAccountDetailsUrl = "http://viewAccountDetails"
   val fileAReturnUrl = "http://fileAReturn"
+  val homeUrl = "http://homeUrl"
+  val makeAPaymentUrl = routes.BusinessTaxController.makeAPaymentLanding().url
 
   "Sa Account SummaryView Builder builds correct Account Summary model " should {
     " when no amounts are due now or later " in {
@@ -151,7 +155,7 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
         )
 
       val actualAccountSummary = SaAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockSaMicroService).build().get
-      actualAccountSummary.regimeName shouldBe "SA"
+      actualAccountSummary.regimeName shouldBe "Self Assessment (SA)"
       actualAccountSummary.messages shouldBe expectedMessages
 
     }
@@ -170,19 +174,22 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockRegimeRoots.sa).thenReturn(Some(mockSaRoot))
     when(mockSaRoot.accountSummary(mockSaMicroService)).thenReturn(Some(accountSummary))
 
-    when(mockPortalUrlBuilder.build("saViewAccountDetails")).thenReturn(viewAccountDetailsUrl)
-    when(mockPortalUrlBuilder.build("saFileAReturn")).thenReturn(fileAReturnUrl)
+    when(mockPortalUrlBuilder.build("home")).thenReturn(homeUrl)
+    when(mockPortalUrlBuilder.build(SaAccountSummaryMessageKeys.makeAPaymentLink)).thenReturn(makeAPaymentUrl)
 
     val actualAccountSummary = SaAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockSaMicroService).build().get
 
-    actualAccountSummary.regimeName shouldBe "SA"
+    actualAccountSummary.regimeName shouldBe "Self Assessment (SA)"
 
     actualAccountSummary.messages shouldBe expectedMessages
 
-    val expectedLinks = Seq(RenderableLinkMessage(LinkMessage(viewAccountDetailsUrl, "sa.message.links.viewAccountDetails")), RenderableLinkMessage(LinkMessage(fileAReturnUrl, "sa.message.links.fileAReturn")))
+    val expectedLinks = Seq(
+      RenderableLinkMessage(LinkMessage(homeUrl, "sa.message.links.viewAccountDetails")),
+      RenderableLinkMessage(LinkMessage(makeAPaymentUrl, SaAccountSummaryMessageKeys.makeAPaymentLink)),
+      RenderableLinkMessage(LinkMessage(homeUrl, "sa.message.links.fileAReturn"))
+
+    )
     actualAccountSummary.addenda shouldBe expectedLinks
   }
 
 }
-
-

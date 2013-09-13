@@ -1,10 +1,18 @@
 package controllers.bt.regimeViews
 
 import views.helpers.{RenderableStringMessage, RenderableMessage, LinkMessage}
-import controllers.bt.AccountSummary
+import controllers.bt.{routes, AccountSummary}
 import uk.gov.hmrc.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.microservice.domain.User
+import SaAccountSummaryMessageKeys._
+
+object SaAccountSummaryMessageKeys {
+
+  val viewAccountDetailsLink = "sa.message.links.viewAccountDetails"
+  val makeAPaymentLink = "vat.accountSummary.linkText.makeAPayment"
+
+}
 
 case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, saMicroService: SaMicroService) {
 
@@ -14,12 +22,15 @@ case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
       saRoot => getAccountSummaryData(saRoot, saMicroService) match {
         case Some(saAccountSummary) => {
           AccountSummary(
-            "SA",
+            "Self Assessment (SA)",
             SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
-            Seq(LinkMessage(buildPortalUrl("saViewAccountDetails"), "sa.message.links.viewAccountDetails"), LinkMessage(buildPortalUrl("saFileAReturn"), "sa.message.links.fileAReturn"))
+            Seq(
+              LinkMessage(buildPortalUrl("home"), viewAccountDetailsLink),
+              LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLink),
+              LinkMessage(buildPortalUrl("home"), "sa.message.links.fileAReturn"))
           )
         }
-        case _ => AccountSummary("SA", Seq(("sa.message.unableToDisplayAccount.1", List.empty),("sa.message.unableToDisplayAccount.2", List.empty),("sa.message.unableToDisplayAccount.3", List.empty),("sa.message.unableToDisplayAccount.4", List.empty)), Seq.empty)
+        case _ => AccountSummary("Self Assessment (SA)", Seq(("sa.message.unableToDisplayAccount.1", List.empty),("sa.message.unableToDisplayAccount.2", List.empty),("sa.message.unableToDisplayAccount.3", List.empty),("sa.message.unableToDisplayAccount.4", List.empty)), Seq.empty)
       }
     }
   }
