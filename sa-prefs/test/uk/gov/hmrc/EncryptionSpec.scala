@@ -4,7 +4,7 @@ import org.scalatest.{ ShouldMatchers, WordSpec }
 import org.joda.time.{ DateTimeZone, DateTime }
 import uk.gov.hmrc.secure.SymmetricEncrypter
 import org.apache.commons.codec.binary.Base64
-import java.net.{URLDecoder, URLEncoder}
+import java.net.{ URLDecoder, URLEncoder }
 
 class EncryptionSpec extends WordSpec with ShouldMatchers with TokenEncryption {
 
