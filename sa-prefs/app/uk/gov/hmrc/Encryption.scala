@@ -31,7 +31,7 @@ case class TokenExpiredException(token: String) extends Exception(s"Token expire
 
 trait TokenEncryption extends Encryption {
   def decryptToken(token: String): String = {
-    val decryptedQueryParameters = decrypt(token)
+    val decryptedQueryParameters = decrypt(URLDecoder.decode(token, "UTF-8"))
     val splitQueryParams = decryptedQueryParameters.split(":")
     val utr = splitQueryParams(0).trim
     val time = splitQueryParams(1).trim.toLong

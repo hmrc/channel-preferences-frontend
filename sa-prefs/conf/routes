@@ -4,7 +4,7 @@
 
 # Home page
 GET     /sa/print-preferences/:token                            @controllers.SaPrefsController.index(token: String, return_url: String)
-GET     /sa/print-preferences/:token/confirm                    @controllers.SaPrefsController.confirm(token: String, return_url: String)
+GET     /sa/print-preferences-saved                             @controllers.SaPrefsController.confirm(return_url: String)
 POST    /sa/print-preferences/:token                            @controllers.SaPrefsController.submitPrefsForm(token: String, return_url: String)
 
 

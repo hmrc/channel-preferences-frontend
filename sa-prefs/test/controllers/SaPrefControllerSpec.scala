@@ -16,7 +16,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   import play.api.test.Helpers._
 
   val validUtr = "1234567"
-  lazy val validToken = SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}")
+  lazy val validToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
   val validReturnUrl = URLEncoder.encode("http://localhost:8080/portal", "UTF-8")
 
   def createController = new SaPrefsController {
@@ -49,7 +49,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(s"/sa/print-preferences/$validToken/confirm?return_url=$validReturnUrl")
+      header("Location", page).get should include(s"/sa/print-preferences-saved?return_url=$validReturnUrl")
     }
 
     "show an error if the email is invalid" in new WithApplication(FakeApplication()) {

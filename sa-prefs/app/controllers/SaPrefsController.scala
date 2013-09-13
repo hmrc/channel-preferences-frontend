@@ -7,7 +7,7 @@ import play.api.data.Forms._
 import play.api.mvc.Action
 import uk.gov.hmrc.{ SaMicroService, TokenEncryption }
 import play.api.Play
-import java.net.URLDecoder
+import java.net.{ URLEncoder, URLDecoder }
 
 class SaPrefsController extends Controller {
 
@@ -18,9 +18,8 @@ class SaPrefsController extends Controller {
     Ok(views.html.sa_printing_preference(emailForm, token, return_url))
   }
 
-  def confirm(token: String, return_url: String) = Action {
-    val utr = SsoPayloadEncryptor.decryptToken(token)
-    Ok(views.html.sa_printing_preference_confirm(token, return_url))
+  def confirm(return_url: String) = Action {
+    Ok(views.html.sa_printing_preference_confirm(return_url))
   }
 
   val emailForm: Form[String] = Form[String](single("email" -> email))
@@ -33,7 +32,7 @@ class SaPrefsController extends Controller {
         saMicroService.savePreferences(SsoPayloadEncryptor.decryptToken(token), true, Some(email))
 
         //Play redirect is encoding query params, we need to decode the url to avoid double encoding
-        Redirect(routes.SaPrefsController.confirm(token, URLDecoder.decode(return_url, "UTF-8")))
+        Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
       }
     )
   }

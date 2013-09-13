@@ -13,14 +13,14 @@ class EncryptionSpec extends WordSpec with ShouldMatchers with TokenEncryption {
   "Token decryption " should {
     "decrypt a valid token" in {
       val validToken = s"utr:${DateTime.now(DateTimeZone.UTC).getMillis}"
-      val encryptedToken = encrypt(validToken)
+      val encryptedToken = URLEncoder.encode(encrypt(validToken), "UTF-8")
 
       decryptToken(encryptedToken) shouldBe "utr"
     }
 
     "fail with expired token" in {
       val expiredToken = s"utr:${DateTime.now(DateTimeZone.UTC).minusMinutes(6).getMillis}"
-      val encryptedToken = encrypt(expiredToken)
+      val encryptedToken = URLEncoder.encode(encrypt(expiredToken), "UTF-8")
 
       intercept[TokenExpiredException] {
         decryptToken(encryptedToken)
@@ -35,3 +35,4 @@ class EncryptionSpec extends WordSpec with ShouldMatchers with TokenEncryption {
   }
 
 }
+
