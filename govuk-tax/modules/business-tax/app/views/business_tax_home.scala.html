@@ -56,8 +56,8 @@
     @for(message <- ac.messages) {
         <p>@Html(Messages(message._1, message._2.map(_.render):_*))</p>
     }
-    @for(link <- ac.links) {
-        <li>@link.render</li>
+    @for(addendum <- ac.addenda) {
+        <li>@addendum.render</li>
     }
 }
 

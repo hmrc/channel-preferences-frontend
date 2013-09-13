@@ -1,14 +1,12 @@
 package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountSummary, VatRoot}
-import views.helpers.{RenderableLinkMessage, RenderableStringMessage, LinkMessage}
+import views.helpers.{RenderableMessage,  LinkMessage}
 import controllers.bt.{routes, AccountSummary}
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.microservice.domain.User
 
 case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, vatMicroService: VatMicroService) {
-  implicit def translateStrings(value: String): RenderableStringMessage = RenderableStringMessage(value)
-  implicit def translateLinks(link: LinkMessage): RenderableLinkMessage = RenderableLinkMessage(link)
 
   def build: Option[AccountSummary] = {
     val vatRootOption: Option[VatRoot] = user.regimes.vat
@@ -21,7 +19,7 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: 
           amount <- accountBalance.amount
         } yield amount
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
-        val links = Seq[RenderableLinkMessage](LinkMessage(buildPortalUrl("vatAccountDetails"), "vat.accountSummary.linkText.accountDetails"),
+        val links = Seq[RenderableMessage](LinkMessage(buildPortalUrl("vatAccountDetails"), "vat.accountSummary.linkText.accountDetails"),
           LinkMessage(makeAPaymentUri, "vat.accountSummary.linkText.makeAPayment"), LinkMessage(buildPortalUrl("vatFileAReturn"), "vat.accountSummary.linkText.fileAReturn"))
         accountValueOption match {
           case Some(accountValue) => {

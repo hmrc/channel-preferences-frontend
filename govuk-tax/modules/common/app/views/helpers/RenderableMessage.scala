@@ -11,6 +11,11 @@ trait RenderableMessage {
   def render: Html
 }
 
+object RenderableMessage {
+  implicit def translateStrings(value: String): RenderableStringMessage = RenderableStringMessage(value)
+  implicit def translateLinks(link: LinkMessage): RenderableLinkMessage = RenderableLinkMessage(link)
+}
+
 case class RenderableStringMessage(value: String) extends RenderableMessage {
   override def render: Html = Html(value)
 }
