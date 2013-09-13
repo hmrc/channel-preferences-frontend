@@ -16,10 +16,10 @@ case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
           AccountSummary(
             "SA",
             SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
-            Seq(LinkMessage(buildPortalUrl("saViewAccountDetails"), "sa.message.links.view-account-details"), LinkMessage(buildPortalUrl("saFileAReturn"), "sa.message.links.file-a-return"))
+            Seq(LinkMessage(buildPortalUrl("saViewAccountDetails"), "sa.message.links.viewAccountDetails"), LinkMessage(buildPortalUrl("saFileAReturn"), "sa.message.links.fileAReturn"))
           )
         }
-        case _ => AccountSummary("SA", Seq(("sa.message.unable-to-display-account", List.empty)), Seq.empty)
+        case _ => AccountSummary("SA", Seq(("sa.message.unableToDisplayAccount.1", List.empty),("sa.message.unableToDisplayAccount.2", List.empty),("sa.message.unableToDisplayAccount.3", List.empty),("sa.message.unableToDisplayAccount.4", List.empty)), Seq.empty)
       }
     }
   }
@@ -41,10 +41,10 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
         val msgs = Seq(
-          ("sa.message.you-have-overpaid", List.empty),
-          ("sa.message.amount-due-for-repayment", List(RenderableStringMessage(amountHmrcOwe.toString())))
+          ("sa.message.youHaveOverpaid", List.empty),
+          ("sa.message.amountDueForRepayment", List(RenderableStringMessage(amountHmrcOwe.toString())))
         )
-        addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.view-history", List.empty)))
+        addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.viewHistory", List.empty)))
       }
       case _ => {
         accountSummary.totalAmountDueToHmrc match {
@@ -52,19 +52,19 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
                 Seq(
-                  ("sa.message.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
-                  ("sa.message.interest-applicable", List.empty)
+                  ("sa.message.amountDueForPayment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  ("sa.message.interestApplicable", List.empty)
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
                 Seq(
-                  ("sa.message.nothing-to-pay", List.empty),
-                  ("sa.message.view-history", List.empty)
+                  ("sa.message.nothingToPay", List.empty),
+                  ("sa.message.viewHistory", List.empty)
                 )
               }
               case false => {
                 Seq(
-                  ("sa.message.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
-                  ("sa.message.small-amount-to-pay", List.empty)
+                  ("sa.message.amountDueForPayment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  ("sa.message.smallAmountToPay", List.empty)
                 )
               }
             }
@@ -72,9 +72,9 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
           }
           case _ => {
             val msgs = Seq(
-              ("sa.message.nothing-to-pay", List.empty)
+              ("sa.message.nothingToPay", List.empty)
             )
-            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.view-history", List.empty)))
+            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.viewHistory", List.empty)))
           }
         }
       }
@@ -85,7 +85,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
   private def getLiabilityMessage(liability: Option[Liability]): Option[(String, List[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some("sa.message.will-become-due", List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
+      case Some(l) => Some("sa.message.willBecomeDue", List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
       case None => None
     }
   }

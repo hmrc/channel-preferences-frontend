@@ -12,5 +12,23 @@ vat.error.message.summaryUnavailable.2= the VAT Registration Number that you hav
 vat.error.message.summaryUnavailable.3= you have only just activated this service and there is a short delay before the information is available to view.
 vat.error.message.summaryUnavailable.4= If you do not think either of the above reasons apply you can get more help {0}
 
+sa.message.nothingToPay=You have nothing to pay
+sa.message.viewHistory=You can view a history of your acount
+sa.message.amountDueForPayment=&pound;{0} is now due for payment
+sa.message.interestApplicable=Interest may be charged on late payments of amounts due now
+sa.message.willBecomeDue=&pound;{0} will become due for payment on {1}
+sa.message.youHaveOverpaid=You have overpaid
+sa.message.amountDueForReayment=&pound;{0} is available for repayment
+sa.message.smallAmountToPay=If you do not wish to pay this small amount now it will remain unpaid on your account.  Interest may be charged if you pay late
+sa.message.unableToDisplayAccount.1=We are currently unable to display your account information.  This may be because:
+sa.message.unableToDisplayAccount.2=there is no information to view at this time
+sa.message.unableToDisplayAccount.3=you have only just activated this service and there is a short delay before the information is available to view.
+sa.message.unableToDisplayAccount.4=If you do not this either of the above reasons apply, please contact the Online Services Helpdesk.
+sa.message.links.viewAccountDetails=View account details
+sa.message.links.fileAReturn=File a return
+
+
+
+
 
 
