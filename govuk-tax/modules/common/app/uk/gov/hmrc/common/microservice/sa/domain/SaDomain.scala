@@ -64,5 +64,5 @@ case class Liability(dueDate: LocalDate, amount: BigDecimal)
 
 case class AmountDue(amount: BigDecimal, requiresPayment: Boolean)
 
-case class SaAccountSummary(totalAmountDueToHmrc: AmountDue, nextPayment: Option[Liability], amountHmrcOwe: BigDecimal)
+case class SaAccountSummary(totalAmountDueToHmrc: Option[AmountDue], nextPayment: Option[Liability], amountHmrcOwe: Option[BigDecimal])
 

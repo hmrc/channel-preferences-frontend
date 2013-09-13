@@ -64,7 +64,7 @@ class SaMicroServiceTest extends BaseSpec {
     "call the microservice with the correct uri and get the contents" in new WithApplication(FakeApplication()) {
 
       val service = new HttpMockedSaMicroService
-      val saAccountSummary = Some(SaAccountSummary(AmountDue(BigDecimal(1367.29), true), None, BigDecimal(34.03)))
+      val saAccountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(1367.29), true)), None, Some(BigDecimal(34.03))))
       when(service.httpWrapper.get[SaAccountSummary]("/sa/individual/12345/accountSummary")).thenReturn(saAccountSummary)
 
       val result = service.accountSummary("/sa/individual/12345/accountSummary")
