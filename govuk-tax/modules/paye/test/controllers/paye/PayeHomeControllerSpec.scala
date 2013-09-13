@@ -80,14 +80,26 @@ class PayeHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieE
 
       recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
       recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+
+      doc.select(".no_actions") shouldBe empty
     }
 
     "display recent transactions for multiple benefit removal for John Densmore" in new WithApplication(FakeApplication()) {
       controller.resetAll
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, multiBenefitTransactions, testTransactions)
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, multiBenefitTransactions, multiBenefitTransactions)
 
       val doc = Jsoup.parse(requestHomeAction)
       doc.select(".overview__actions__done").text should include(s"${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
+      doc.select(".overview__actions__done").text should include(s"${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+    }
+
+    "display a message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val doc = Jsoup.parse(requestHomeAction)
+      doc.select(".no_actions") should not be empty
+      doc.select(".no_actions").text should include("no changes")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {
