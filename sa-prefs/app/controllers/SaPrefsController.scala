@@ -37,6 +37,12 @@ class SaPrefsController extends Controller {
     )
   }
 
+  def submitKeepPaperForm(token: String, return_url: String) = Action { request =>
+
+    saMicroService.savePreferences(SsoPayloadEncryptor.decryptToken(token), false)
+    Redirect(return_url)
+  }
+
 }
 
 object SsoPayloadEncryptor extends TokenEncryption {

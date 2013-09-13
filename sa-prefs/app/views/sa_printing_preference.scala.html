@@ -34,6 +34,12 @@
 
     }
 
+    @helper.form(action = controllers.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl)) {
+    <p>
+       <input type="submit" style="border:none; background-color:transparent; text-decoration:underline; color:#0000FF;" value="No thanks. Keep sending me reminders by letter"></button>
+    </p>
+    }
+
 
 </div>
 

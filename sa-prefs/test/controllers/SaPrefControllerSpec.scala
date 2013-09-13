@@ -37,7 +37,8 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
 
       val page = controller.index(validToken, validReturnUrl)(FakeRequest())
-      (pending)
+
+      contentAsString(page) should include("No thanks. Keep sending me reminders by letter")
     }
 
   }
@@ -77,6 +78,25 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
       verify(controller.saMicroService, times(1)).savePreferences(validUtr, true, Some("foo@bar.com"))
+    }
+
+    "A post to keep paper notification" should {
+
+      "redirect to the portal" in new WithApplication(FakeApplication()) {
+        val controller = createController
+
+        val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+
+        status(page) shouldBe 303
+        header("Location", page).get should include(validReturnUrl)
+      }
+    }
+
+    "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
+      val controller = createController
+
+      controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+      verify(controller.saMicroService, times(1)).savePreferences(validUtr, false)
     }
 
   }
