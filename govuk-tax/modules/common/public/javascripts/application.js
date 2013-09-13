@@ -16,6 +16,7 @@ $(document).on('click', 'a', function(e) {
 	url: '/ssoout',
 	data: { destinationUrl : $target[0].href },
 	type: 'GET',
+    async: false,
 	success: function(data) {
 
 	    var form = document.createElement('form');

@@ -52,35 +52,35 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypt
 
     }
 
-    "when multiple destination urls are provided throw a RuntimeException" in new WithApplication(FakeApplication()) {
+    "when multiple destination urls are provided return a BadRequest" in new WithApplication(FakeApplication()) {
 
       val validDestinationUrl = PortalConfig.destinationRoot + "/somepath"
 
       val anotherValidDestinationUrl = PortalConfig.destinationRoot + "/someotherpath"
-      evaluating(controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl&destinationUrl=$anotherValidDestinationUrl")
-        .withSession("token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))) should produce[RuntimeException]
-
+      val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl&destinationUrl=$anotherValidDestinationUrl")
+        .withSession("token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      status(response) shouldBe 400
     }
 
-    "when a destination is provided with a domain not on the approved whitelist throw a RuntimeException" in new WithApplication(FakeApplication()) {
+    "when a destination is provided with a domain not on the approved whitelist return a BadRequest" in new WithApplication(FakeApplication()) {
 
       val invalidDestinationUrl = "www.bad.com/someotherpath"
-      evaluating(controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$invalidDestinationUrl")
-        .withSession("token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))) should produce[RuntimeException]
-
+      val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$invalidDestinationUrl")
+        .withSession("token" -> encrypt(encodedGovernmentGatewayToken), sessionTimestampKey -> controller.now().getMillis.toString))
+      status(response) shouldBe 400
     }
 
-    "when the GGW token is not present throw a RuntimeException" in new WithApplication(FakeApplication()) {
+    "when the GGW token is not present return a BadRequest" in new WithApplication(FakeApplication()) {
 
       val validDestinationUrl = PortalConfig.destinationRoot + "/somepath"
 
-      evaluating(controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl")
-        .withSession(sessionTimestampKey -> controller.now().getMillis.toString))) should produce[RuntimeException]
-
+      val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl")
+        .withSession(sessionTimestampKey -> controller.now().getMillis.toString))
+      status(response) shouldBe 400
     }
 
     //TODO BEWT: Implement logging test case
-    "when a RuntimeException is thrown, log the error and the reason" in new WithApplication(FakeApplication()) {
+    "when a BadRequest is returned, log the error and the reason" in new WithApplication(FakeApplication()) {
       pending
     }
   }

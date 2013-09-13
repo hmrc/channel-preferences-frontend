@@ -2,7 +2,7 @@ package controllers.common
 
 import service.Encryption
 import play.api.libs.json._
-import play.api.mvc.{ AnyContent, Request, Action }
+import play.api.mvc.{AnyContent, Request, Action}
 import org.joda.time.DateTimeUtils
 import config.PortalConfig
 import play.api.Play
@@ -16,13 +16,14 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
   def encryptPayload = WithSessionTimeoutValidation(Action {
     implicit request =>
 
-      checkThatTheRequestIsValid
-
-      val destinationUrl = retriveDestinationUrl
-      val decryptedEncodedGovernmentGatewayToken = decrypt(request.session.get("token").get)
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(generateJsonPayload(decryptedEncodedGovernmentGatewayToken, destinationUrl))
-      Ok(encryptedPayload)
-
+      if (requestValid(request)) {
+        val destinationUrl = retriveDestinationUrl
+        val decryptedEncodedGovernmentGatewayToken = decrypt(request.session.get("token").get)
+        val encryptedPayload = SsoPayloadEncryptor.encrypt(generateJsonPayload(decryptedEncodedGovernmentGatewayToken, destinationUrl))
+        Ok(encryptedPayload)
+      } else {
+        BadRequest("Error")
+      }
   })
 
   private def retriveDestinationUrl(implicit request: Request[AnyContent]): String = {
@@ -36,9 +37,7 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
     Json.stringify(Json.obj(("gw", token), ("dest", dest), ("time", DateTimeUtils.currentTimeMillis())))
   }
 
-  private def checkThatTheRequestIsValid(implicit request: Request[AnyContent]) {
-
-    if (theTokenIsMissing || theDestinationIsInvalid) throw new RuntimeException
+  private def requestValid(request: Request[AnyContent]): Boolean = {
 
     def theDestinationIsInvalid = {
       request.queryString.get("destinationUrl") match {
@@ -56,5 +55,6 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
         case _ => true // TODO BEWT: Some logging - should have a token
       }
     }
+    !theTokenIsMissing && !theDestinationIsInvalid
   }
 }
