@@ -8,7 +8,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import uk.gov.hmrc.{ SaPreference, SaMicroService }
 import org.joda.time.{ DateTimeZone, DateTime }
-import com.sun.deploy.net.URLEncoder
+import java.net.URLEncoder
 import controllers.service.RedirectWhiteListService
 import java.net.URL
 
