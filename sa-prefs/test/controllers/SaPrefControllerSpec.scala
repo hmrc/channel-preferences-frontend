@@ -8,7 +8,10 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import uk.gov.hmrc.{ SaPreference, SaMicroService }
 import org.joda.time.{ DateTimeZone, DateTime }
-import java.net.URLEncoder
+import com.sun.deploy.net.URLEncoder
+import controllers.service.RedirectWhiteListService
+import java.net.URL
+
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar {
 
@@ -17,13 +20,16 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   val validUtr = "1234567"
   lazy val validToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
   val validReturnUrl = URLEncoder.encode("http://localhost:8080/portal", "UTF-8")
+  private val mockRedirectWhiteListService = mock[RedirectWhiteListService]
 
   def createController = new SaPrefsController {
+    override val redirectWhiteListService = mockRedirectWhiteListService
     override lazy val saMicroService = mock[SaMicroService]
   }
 
   "Preferences pages" should {
     "redirect to the portal when preferences already exist for a specific utr" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
       val preferencesAlreadyCreated = SaPreference(true, Some("test@test.com"))
@@ -37,7 +43,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "render an email input field" in new WithApplication(FakeApplication()) {
-
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
       when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
@@ -48,6 +54,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "include a link to keep mail preference" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
       when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
@@ -56,11 +63,20 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       verify(controller.saMicroService, times(1)).getPreferences(validUtr)
     }
 
+    "return bad request if redirect_url is not in the whitelist" in {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(false)
+      val controller = createController
+
+      val page = controller.index(validToken, validReturnUrl)(FakeRequest())
+
+      status(page) shouldBe 400
+    }
   }
 
   "A post to set preferences" should {
 
     "redirect to a confirmation page" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
 
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
@@ -70,6 +86,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "show an error if the email is invalid" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
 
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "invalid-email")))
@@ -80,6 +97,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "show an error if the email is not set" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
 
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "")))
@@ -90,15 +108,27 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "save the user preferences" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+
       val controller = createController
 
       controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
       verify(controller.saMicroService, times(1)).savePreferences(validUtr, true, Some("foo@bar.com"))
     }
 
+    "return bad request if redirect_url is not in the whitelist" in {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(false)
+      val controller = createController
+
+      val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest())
+
+      status(page) shouldBe 400
+    }
+
     "A post to keep paper notification" should {
 
       "redirect to the portal" in new WithApplication(FakeApplication()) {
+        when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
         val controller = createController
 
         val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
@@ -106,14 +136,23 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
         status(page) shouldBe 303
         header("Location", page).get should include(validReturnUrl)
       }
+
+      "return bad request if redirect_url is not in the whitelist" in {
+        when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(false)
+        val controller = createController
+
+        val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+
+        status(page) shouldBe 400
+      }
     }
 
     "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
 
       controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
       verify(controller.saMicroService, times(1)).savePreferences(validUtr, false)
     }
-
   }
 }
