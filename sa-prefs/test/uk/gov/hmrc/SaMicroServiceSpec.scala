@@ -1,14 +1,13 @@
 package uk.gov.hmrc
 
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ShouldMatchers, WordSpec}
+import org.scalatest.{ ShouldMatchers, WordSpec }
 import play.api.libs.json.JsValue
-import play.api.test.{FakeApplication, WithApplication}
+import play.api.test.{ FakeApplication, WithApplication }
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, Captor, Matchers}
+import org.mockito.{ ArgumentCaptor, Captor, Matchers }
 import play.api.libs.ws.WS.WSRequestHolder
 import play.api.libs.ws.Response
-
 
 class TestSaMicroservice extends SaMicroService with MockitoSugar {
 
@@ -34,27 +33,25 @@ class TestSaMicroservice extends SaMicroService with MockitoSugar {
 
 }
 
-
 class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers {
-//
+  //
   lazy val saMicroService = new TestSaMicroservice
   val utr = "2134567"
   val email = "someEmail@email.com"
 
   "SaMicroService" should {
     "save preferences for a user that wants email notifications" in new WithApplication(FakeApplication()) {
-//
-//      saMicroService.savePreferences(utr, true, Some(email))
-//
-//      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-//      verify(saMicroService.httpWrapper).httpPut(Matchers.eq(utr), bodyCaptor.capture())
-//
-//      val body = bodyCaptor.getValue
+      //
+      //      saMicroService.savePreferences(utr, true, Some(email))
+      //
+      //      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
+      //      verify(saMicroService.httpWrapper).httpPut(Matchers.eq(utr), bodyCaptor.capture())
+      //
+      //      val body = bodyCaptor.getValue
       pending
     }
 
   }
 
 }
-
 
