@@ -17,7 +17,7 @@
     <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
     @if(hasFuelBenefit){
-        <p>We will also remove your fuel benefit.</p>
+        <p class="fuel-benefit-info" >We will also remove your fuel benefit.</p>
     }
 
     @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {

@@ -38,7 +38,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
       if (benefit.benefit.benefitType == CAR) {
-        Ok(remove_car_benefit_form(benefit, hasFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm))
+        Ok(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm))
       } else {
         Ok(remove_benefit_form(benefit, updateBenefitForm))
       }
@@ -50,14 +50,15 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
       updateBenefitForm.bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
-            case CAR => BadRequest(remove_car_benefit_form(benefit, hasFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
+            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
             case FUEL => BadRequest(remove_benefit_form(benefit, errors))
             case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
         },
         removeBenefitData => {
 
-          val fuelBenefit = if (benefit.benefit.benefitType == CAR) getFuelBenefit(user, benefit.benefit.employmentSequenceNumber) else None
+          val fuelBenefit = if (benefit.benefit.benefitType == CAR ) unremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber) else None
+
           val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit).filter(_.isDefined).map(_.get))
 
           val finalAndRevisedAmounts = updatedBenefit.benefits.foldLeft(BigDecimal(0), mutable.Map[String, BigDecimal]())((runningAmounts, benefit) => {
@@ -83,13 +84,18 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     calculationResult.result(benefit.taxYear.toString)
   }
 
-  private def getFuelBenefit(user: User, employmentNumber: Int): Option[Benefit] = {
-    val benefits = user.regimes.paye.get.benefits(TaxYearResolver())
-    benefits.find(b => b.benefitType == FUEL && b.employmentSequenceNumber == employmentNumber)
+  private def unremovedFuelBenefit(user: User, employmentNumber: Int): Option[Benefit] = {
+    val taxYear = TaxYearResolver()
+    val benefits = user.regimes.paye.get.benefits(taxYear)
+
+    benefits.find(b => b.benefitType == FUEL && b.employmentSequenceNumber == employmentNumber) match {
+      case Some(benef) if(WithValidatedRequest.thereAreNoExistingTransactionsMatching(user, FUEL,employmentNumber,taxYear)) => Some(benef)
+      case _ => None
+    }
   }
 
-  private def hasFuelBenefit(user: User, employmentNumber: Int): Boolean = {
-    getFuelBenefit(user, employmentNumber).isDefined
+  private def hasUnremovedFuelBenefit(user: User, employmentNumber: Int): Boolean = {
+    unremovedFuelBenefit(user, employmentNumber).isDefined
   }
 
   private lazy val updateBenefitForm = Form[RemoveBenefitFormData](
@@ -209,7 +215,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
       )
     }
 
-    private def thereAreNoExistingTransactionsMatching(user: User, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
+    private[paye] def thereAreNoExistingTransactionsMatching(user: User, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
       val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
         user.regimes.paye.get.recentCompletedTransactions
       transactions.find(matchesBenefit(_, kind, employmentSequenceNumber, year)).isEmpty

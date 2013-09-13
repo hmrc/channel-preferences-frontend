@@ -97,9 +97,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 2)
       status(result) shouldBe 200
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should include("remove your fuel benefit")
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".fuel-benefit-info") should not be empty
 
     }
 
@@ -108,9 +108,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 2)
       status(result) shouldBe 200
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should not include ("remove your fuel benefit")
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".fuel-benefit-info") shouldBe empty
 
     }
 
@@ -130,9 +130,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, true), "31", 2013, 2)
 
       status(result) shouldBe 200
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company car and fuel")
-      requestBenefits should include regex "Personal Allowance by.*£210.17.".r
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("car and fuel")
+      doc.select(".amount").text shouldBe "£210.17"
     }
 
     "in step 2, display the calculated value for removing car benefit only if the user do not have fuel benefit for the same employment" in new WithApplication(FakeApplication()) {
@@ -148,10 +148,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, false), "31", 2013, 2)
 
       status(result) shouldBe 200
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company car")
-      requestBenefits should not include ("and fuel")
-      requestBenefits should include regex "Personal Allowance by.*£197.96.".r
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("car")
+      doc.select(".benefit-type").text should not include("fuel")
+      doc.select(".amount").text shouldBe "£197.96"
     }
 
     "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
@@ -243,10 +243,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.benefitRemovedAction(johnDensmore, FakeRequest(), "31,29", "210")
 
       status(result) shouldBe 200
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("210")
-      requestBenefits should include("car and fuel benefit removed")
-
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("car and fuel")
+      doc.select(".transaction-id").text should include("210")
     }
 
   }

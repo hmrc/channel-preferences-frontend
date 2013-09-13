@@ -6,7 +6,7 @@
 @main(title = "Benefit removed") {
 
     @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-      <h2>Company @{benefitsTitle} benefit removed</h2>
+      <h2 class="benefit-type">Company @{benefitsTitle} benefit removed</h2>
     }
       <p>Thank you for telling us about the change to your company benefits.</p>
 
