@@ -22,11 +22,7 @@ class BusinessTaxController extends BaseController with ActionWrappers with Sess
         val buildPortalUrl = PortalDestinationUrlBuilder.build(request, user) _
         val portalHref = buildPortalUrl("home")
 
-<<<<<<< HEAD
         val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build
-=======
-        val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
->>>>>>> HMTB-33 -> Applied changes from the view model into the SA Account Summary View Builder
         val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build
         val accountSummaries = AccountSummaries(Seq(saRegime, vatRegime).flatten)
 
