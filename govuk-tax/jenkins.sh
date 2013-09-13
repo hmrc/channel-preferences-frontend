@@ -10,4 +10,4 @@ cd govuk-tax
 
 ./sbt clean test dist
 
-sed -ibak "s/CONF_FILE/$conf_file/g" ../start-docker.sh
+sed -ibak "s/CONF_FILE/$conf_file/g" ./start-docker.sh
