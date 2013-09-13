@@ -54,10 +54,10 @@
 @for(ac <- accountSummaries.regimes) {
     <h2>@ac.regimeName</h2>
     @for(message <- ac.messages) {
-        <p>@Html(Messages(message._1, message._2.map(helpers.stringOrLinkRenderer(_)):_*))</p>
+        <p>@Html(Messages(message._1, message._2.map(_.render):_*))</p>
     }
     @for(link <- ac.links) {
-        <li>@helpers.stringOrLinkRenderer(link)</li>
+        <li>@link.render</li>
     }
 }
 

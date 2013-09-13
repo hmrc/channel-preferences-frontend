@@ -5,7 +5,7 @@ import uk.gov.hmrc.microservice.auth.domain._
 import uk.gov.hmrc.microservice.domain._
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
-import views.helpers.{ LinkMessage, StringOrLinkMessage }
+import views.helpers.{RenderableLinkMessage, RenderableMessage, LinkMessage}
 import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 import views.html.make_a_payment_landing
 
@@ -43,4 +43,4 @@ case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[
 
 case class AccountSummaries(regimes: Seq[AccountSummary])
 
-case class AccountSummary(regimeName: String, messages: Seq[(String, Seq[StringOrLinkMessage])], links: Seq[LinkMessage])
+case class AccountSummary(regimeName: String, messages: Seq[(String, Seq[RenderableMessage])], links: Seq[RenderableLinkMessage])

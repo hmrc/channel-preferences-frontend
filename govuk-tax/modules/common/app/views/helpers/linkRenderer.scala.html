@@ -1,0 +1,6 @@
+@(link : views.helpers.LinkMessage)(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+@import views.helpers._
+<A href="@link.href">@Messages(link.text)</A>

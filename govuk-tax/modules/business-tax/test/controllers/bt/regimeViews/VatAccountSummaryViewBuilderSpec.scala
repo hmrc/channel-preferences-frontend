@@ -7,9 +7,12 @@ import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.microservice.auth.domain.{Vrn, Regimes, UserAuthority}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountBalance, VatAccountSummary, VatRoot}
 import org.mockito.Mockito._
-import views.helpers.{LinkMessage, StringMessage}
+import views.helpers.{RenderableLinkMessage, RenderableStringMessage, LinkMessage}
 
 class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
+
+  implicit def translateStrings(value: String): RenderableStringMessage = RenderableStringMessage(value)
+  implicit def translateLinks(link: LinkMessage): RenderableLinkMessage = RenderableLinkMessage(link)
   val buildPortalUrl: (String) => String = (value: String) => value
   val vrn = Vrn("12345")
   val userAuthorityWithVrn = UserAuthority("123", Regimes(), vrn = Some(vrn))
@@ -28,8 +31,8 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe "VAT"
-      accountSummaryView.messages shouldBe Seq("vat.message.0" -> Seq(StringMessage("12345")), "vat.message.1" -> Seq(StringMessage("6.1")))
-      accountSummaryView.links shouldBe Seq(LinkMessage("vatAccountDetails", "vat.accountSummary.linkText.accountDetails"),
+      accountSummaryView.messages shouldBe Seq("vat.message.0" -> Seq(RenderableStringMessage("12345")), "vat.message.1" -> Seq(RenderableStringMessage("6.1")))
+      accountSummaryView.links shouldBe Seq[RenderableLinkMessage](LinkMessage("vatAccountDetails", "vat.accountSummary.linkText.accountDetails"),
         LinkMessage("/makeAPaymentLanding", "vat.accountSummary.linkText.makeAPayment"),
         LinkMessage("vatFileAReturn", "vat.accountSummary.linkText.fileAReturn"))
     }
@@ -44,7 +47,7 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe "VAT"
-      accountSummaryView.messages shouldBe Seq(("vat.error.message.summaryUnavailable.1", Seq.empty), ("vat.error.message.summaryUnavailable.2", Seq.empty), ("vat.error.message.summaryUnavailable.3", Seq.empty), ("vat.error.message.summaryUnavailable.4", Seq(LinkMessage("/TODO/HelpDeskLink", "vat.accountSummary.linkText.helpDesk"))))
+      accountSummaryView.messages shouldBe Seq(("vat.error.message.summaryUnavailable.1", Seq.empty), ("vat.error.message.summaryUnavailable.2", Seq.empty), ("vat.error.message.summaryUnavailable.3", Seq.empty), ("vat.error.message.summaryUnavailable.4", Seq(RenderableLinkMessage(LinkMessage("/TODO/HelpDeskLink", "vat.accountSummary.linkText.helpDesk")))))
       accountSummaryView.links shouldBe Seq.empty
     }
 

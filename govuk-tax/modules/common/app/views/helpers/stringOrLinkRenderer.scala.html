@@ -1,7 +1,0 @@
-@(messageForm : views.helpers.StringOrLinkMessage)(implicit lang: play.api.i18n.Lang)
-
-@import play.api.i18n._
-@import views.html.helper._
-@import views.helpers._
-@if(messageForm.isInstanceOf[StringMessage]){@messageForm.toString}else{<A href="@messageForm.asInstanceOf[LinkMessage].href">@Messages(messageForm.asInstanceOf[LinkMessage].text)</A>}
-
