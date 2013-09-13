@@ -39,18 +39,21 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "render an email input field" in new WithApplication(FakeApplication()) {
 
       val controller = createController
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
       val page = controller.index(validToken, validReturnUrl)(FakeRequest())
       contentAsString(page) should include("email")
+      verify(controller.saMicroService, times(1)).getPreferences(validUtr)
 
     }
 
     "include a link to keep mail preference" in new WithApplication(FakeApplication()) {
       val controller = createController
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
       val page = controller.index(validToken, validReturnUrl)(FakeRequest())
-
       contentAsString(page) should include("No thanks. Keep sending me reminders by letter")
+      verify(controller.saMicroService, times(1)).getPreferences(validUtr)
     }
 
   }
