@@ -57,9 +57,10 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
         },
         removeBenefitData => {
 
-          val fuelBenefit = if (benefit.benefit.benefitType == CAR ) unremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber) else None
+          val fuelBenefit = if (benefit.benefit.benefitType == CAR ) unremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber, FUEL) else None
+          val carBenefit = if (benefit.benefit.benefitType == FUEL && removeBenefitData.removeCar) unremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber, CAR) else None
 
-          val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit).filter(_.isDefined).map(_.get))
+          val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit,carBenefit).filter(_.isDefined).map(_.get))
 
           val finalAndRevisedAmounts = updatedBenefit.benefits.foldLeft(BigDecimal(0), mutable.Map[String, BigDecimal]())((runningAmounts, benefit) => {
             val revisedAmount = calculateRevisedAmount(benefit, removeBenefitData.withdrawDate)
@@ -84,24 +85,25 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     calculationResult.result(benefit.taxYear.toString)
   }
 
-  private def unremovedFuelBenefit(user: User, employmentNumber: Int): Option[Benefit] = {
+  private def unremovedFuelBenefit(user: User, employmentNumber: Int, benefitType: Int): Option[Benefit] = {
     val taxYear = TaxYearResolver()
     val benefits = user.regimes.paye.get.benefits(taxYear)
 
-    benefits.find(b => b.benefitType == FUEL && b.employmentSequenceNumber == employmentNumber) match {
-      case Some(benef) if(WithValidatedRequest.thereAreNoExistingTransactionsMatching(user, FUEL,employmentNumber,taxYear)) => Some(benef)
+    benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {
+      case Some(benef) if(WithValidatedRequest.thereAreNoExistingTransactionsMatching(user, benefitType, employmentNumber,taxYear)) => Some(benef)
       case _ => None
     }
   }
 
   private def hasUnremovedFuelBenefit(user: User, employmentNumber: Int): Boolean = {
-    unremovedFuelBenefit(user, employmentNumber).isDefined
+    unremovedFuelBenefit(user, employmentNumber, FUEL).isDefined
   }
 
   private lazy val updateBenefitForm = Form[RemoveBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping,
-      "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement")
+      "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement"),
+      "removeCar" -> boolean
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 

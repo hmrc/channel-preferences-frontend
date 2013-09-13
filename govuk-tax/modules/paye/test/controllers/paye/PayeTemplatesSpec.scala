@@ -7,12 +7,13 @@ import views.html.paye.{ paye_benefit_home, paye_home }
 import play.api.templates.Html
 import uk.gov.hmrc.microservice.paye.domain.{ Benefit, Employment }
 import models.paye.{ DisplayBenefit, RecentChange, EmploymentView, PayeOverview }
+import play.api.test.{FakeApplication, WithApplication}
 
 class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
   "Tax overview page" should {
 
-    "display a user name" in {
+    "display a user name" in new WithApplication(FakeApplication()) {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
@@ -22,7 +23,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
     }
 
-    "recent changes must contain a list element" in {
+    "recent changes must contain a list element" in new WithApplication(FakeApplication()) {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
@@ -32,7 +33,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
     }
 
-    "display a nino" in {
+    "display a nino" in new WithApplication(FakeApplication()) {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
@@ -42,7 +43,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
     }
 
-    "render employments together with taxcodes" in {
+    "render employments together with taxcodes" in new WithApplication(FakeApplication()) {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
@@ -53,7 +54,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
     }
 
-    "display a link to benefits page" in {
+    "display a link to benefits page" in new WithApplication(FakeApplication()) {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
@@ -69,7 +70,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
   "Paye benefits home page" should {
 
-    "include the hyphenated benefit type as the table row id" in {
+    "include the hyphenated benefit type as the table row id" in new WithApplication(FakeApplication()) {
       val displayBenefit = DisplayBenefit(
         Employment(1, LocalDate.now(), None, "123", "934503945834", None),
         Seq(Benefit(29, 2013, BigDecimal("100.00"), 1, null, null, null, null, null, "Description", None, Map.empty, Map.empty)),

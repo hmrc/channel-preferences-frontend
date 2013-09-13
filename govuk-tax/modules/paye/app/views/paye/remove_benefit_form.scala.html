@@ -33,11 +33,13 @@ Value of benefit: <span class="amount">£@displayBenefit.benefit.grossAmountToSt
             '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with this benefit",
             '_showConstraints -> false)
 
-        @singleCheckbox(
-            updateForm("carAgreement"),
-            '_id -> "carAgreement",
-            '_label -> "I would also like to remove my car benefit.",
-            '_showConstraints -> false)
+        @if(displayBenefit.benefit.benefitType == models.paye.BenefitTypes.FUEL) {
+            @singleCheckbox(
+                updateForm("removeCar"),
+                '_id -> "removeCar",
+                '_label -> "I would also like to remove my car benefit.",
+                '_showConstraints -> false)
+        }
 	</div>
 	<input class="button button--next" type="submit" value="Next" />
     }
