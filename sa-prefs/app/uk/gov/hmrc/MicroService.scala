@@ -144,8 +144,6 @@ class SaMicroService extends MicroService {
       case e: Exception => throw e
     }
   }
-
-  case class SaPreference(digital: Boolean, email: Option[String] = None)
-
 }
+case class SaPreference(digital: Boolean, email: Option[String] = None)
 

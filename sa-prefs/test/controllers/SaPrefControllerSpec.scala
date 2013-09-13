@@ -6,9 +6,8 @@ import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import uk.gov.hmrc.{ SaMicroService, MicroServiceException }
+import uk.gov.hmrc.{ SaPreference, SaMicroService }
 import org.joda.time.{ DateTimeZone, DateTime }
-import org.apache.commons.codec.binary.Base64
 import java.net.URLEncoder
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar {
@@ -24,6 +23,19 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   }
 
   "Preferences pages" should {
+    "redirect to the portal when preferences already exist for a specific utr" in new WithApplication(FakeApplication()) {
+
+      val controller = createController
+      val preferencesAlreadyCreated = SaPreference(true, Some("test@test.com"))
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(Some(preferencesAlreadyCreated))
+
+      val page = controller.index(validToken, validReturnUrl)(FakeRequest())
+      status(page) shouldBe 303
+      header("Location", page).get should include(validReturnUrl)
+      verify(controller.saMicroService, times(1)).getPreferences(validUtr)
+
+    }
+
     "render an email input field" in new WithApplication(FakeApplication()) {
 
       val controller = createController
@@ -44,6 +56,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   }
 
   "A post to set preferences" should {
+
     "redirect to a confirmation page" in new WithApplication(FakeApplication()) {
       val controller = createController
 
