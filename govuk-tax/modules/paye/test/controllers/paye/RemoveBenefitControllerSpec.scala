@@ -86,6 +86,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
 
       doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with this benefit")
+    }
   }
 
 
@@ -421,4 +422,5 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     }
 
   }
+
 }
