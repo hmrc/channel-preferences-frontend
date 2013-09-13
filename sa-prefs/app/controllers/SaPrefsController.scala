@@ -15,7 +15,10 @@ class SaPrefsController extends Controller {
 
   def index(token: String, return_url: String) = Action { implicit request =>
     val utr = SsoPayloadEncryptor.decryptToken(token)
-    Ok(views.html.sa_printing_preference(emailForm, token, return_url))
+    saMicroService.getPreferences(utr) match {
+      case Some(saPreference) => Redirect(return_url)
+      case _ => Ok(views.html.sa_printing_preference(emailForm, token, return_url))
+    }
   }
 
   def confirm(return_url: String) = Action {

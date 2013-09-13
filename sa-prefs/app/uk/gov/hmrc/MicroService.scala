@@ -132,6 +132,20 @@ class SaMicroService extends MicroService {
     httpPutNoResponse(s"/sa/utr/$utr/preferences", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 
+  def getPreferences(utr: String): Option[SaPreference] = {
+
+    try {
+      httpGet[SaPreference](s"/sa/utr/$utr/preferences") match {
+        case preference: Option[SaPreference] => preference
+        case _ => throw new RuntimeException(s"Access to resource: '/sa/utr/$utr/preferences' gave an inconsistent response")
+      }
+    } catch {
+      case MicroServiceException("Not found", res) => None
+      case e: Exception => throw e
+    }
+  }
+
   case class SaPreference(digital: Boolean, email: Option[String] = None)
+
 }
 
