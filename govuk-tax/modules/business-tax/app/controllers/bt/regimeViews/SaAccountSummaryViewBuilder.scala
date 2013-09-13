@@ -1,13 +1,12 @@
 package controllers.bt.regimeViews
 
-import views.helpers.{StringOrLinkMessage, StringMessage, LinkMessage}
+import views.helpers.{RenderableStringMessage, RenderableMessage, LinkMessage}
 import controllers.bt.AccountSummary
 import uk.gov.hmrc.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.microservice.domain.User
 
 case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, saMicroService: SaMicroService) {
-  implicit def translate(value: String): StringMessage = StringMessage(value)
 
   def build(): Option[AccountSummary] = {
 
@@ -36,14 +35,14 @@ case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
 
 case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
-  def build(): Seq[(String, List[StringOrLinkMessage])] = {
+  def build(): Seq[(String, List[RenderableMessage])] = {
 
     val messages = accountSummary.amountHmrcOwe match {
 
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
         val msgs = Seq(
           ("sa.message.text1.you-have-overpaid", List.empty),
-          ("sa.message.text2.amount-due-for-repayment", List(StringMessage(amountHmrcOwe.toString())))
+          ("sa.message.text2.amount-due-for-repayment", List(RenderableStringMessage(amountHmrcOwe.toString())))
         )
         addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.text3.view-history", List.empty)))
       }
@@ -53,7 +52,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
                 Seq(
-                  ("sa.message.text1.amount-due-for-payment", List(StringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  ("sa.message.text1.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
                   ("sa.message.text2.interest-applicable", List.empty)
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
@@ -64,7 +63,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
               }
               case false => {
                 Seq(
-                  ("sa.message.text1.amount-due-for-payment", List(StringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  ("sa.message.text1.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
                   ("sa.message.text2.small-amount-to-pay", List.empty)
                 )
               }
@@ -84,14 +83,14 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
     messages
   }
 
-  private def getLiabilityMessage(liability: Option[Liability]): Option[(String, List[StringOrLinkMessage])] = {
+  private def getLiabilityMessage(liability: Option[Liability]): Option[(String, List[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some("sa.message.text3.will-become-due", List(StringMessage(liability.get.amount toString()), StringMessage(liability.get.dueDate.toString())))
+      case Some(l) => Some("sa.message.text3.will-become-due", List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
       case None => None
     }
   }
 
-  private def addLiabilityMessageIfApplicable(liability: Option[Liability], msgs: Seq[(String, List[StringOrLinkMessage])], alternativeMsg: Option[(String, List[StringOrLinkMessage])]): Seq[(String, List[StringOrLinkMessage])] = {
+  private def addLiabilityMessageIfApplicable(liability: Option[Liability], msgs: Seq[(String, List[RenderableMessage])], alternativeMsg: Option[(String, List[RenderableMessage])]): Seq[(String, List[RenderableMessage])] = {
     val liabilityMessage = getLiabilityMessage(accountSummary.nextPayment)
     liabilityMessage match {
       case Some(message) => msgs ++ liabilityMessage

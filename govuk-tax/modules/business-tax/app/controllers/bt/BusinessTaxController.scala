@@ -6,10 +6,8 @@ import uk.gov.hmrc.microservice.domain._
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import views.helpers.RenderableMessage
-import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 import views.html.make_a_payment_landing
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountSummary, VatRoot }
-import controllers.bt.regimeViews.{ SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder }
+import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 
 class BusinessTaxController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -24,7 +22,11 @@ class BusinessTaxController extends BaseController with ActionWrappers with Sess
         val buildPortalUrl = PortalDestinationUrlBuilder.build(request, user) _
         val portalHref = buildPortalUrl("home")
 
+<<<<<<< HEAD
         val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build
+=======
+        val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
+>>>>>>> HMTB-33 -> Applied changes from the view model into the SA Account Summary View Builder
         val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build
         val accountSummaries = AccountSummaries(Seq(saRegime, vatRegime).flatten)
 
@@ -32,7 +34,9 @@ class BusinessTaxController extends BaseController with ActionWrappers with Sess
 
   })
 
-  def makeAPaymentLanding = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() { user => request => makeAPaymentLandingAction() })
+  def makeAPaymentLanding = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
+    user => request => makeAPaymentLandingAction()
+  })
 
   private[bt] def makeAPaymentLandingAction() = {
     Ok(make_a_payment_landing())
