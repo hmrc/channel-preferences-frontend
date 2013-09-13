@@ -30,8 +30,11 @@ trait Encryption {
 case class TokenExpiredException(token: String) extends Exception(s"Token expired: $token")
 
 trait TokenEncryption extends Encryption {
+
+  val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+
   def decryptToken(token: String): String = {
-    val decryptedQueryParameters = decrypt(URLDecoder.decode(token, "UTF-8"))
+    val decryptedQueryParameters = if (token.matches(base64)) decrypt(token) else decrypt(URLDecoder.decode(token, "UTF-8"))
     val splitQueryParams = decryptedQueryParameters.split(":")
     val utr = splitQueryParams(0).trim
     val time = splitQueryParams(1).trim.toLong
