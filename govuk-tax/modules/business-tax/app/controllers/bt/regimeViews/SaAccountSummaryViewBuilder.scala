@@ -11,6 +11,22 @@ object SaAccountSummaryMessageKeys {
 
   val viewAccountDetailsLink = "sa.message.links.viewAccountDetails"
   val makeAPaymentLink = "vat.accountSummary.linkText.makeAPayment"
+  val fileAReturnLink = "sa.message.links.fileAReturn"
+
+  val nothingToPay = "sa.message.nothingToPay"
+  val viewHistory = "sa.message.viewHistory"
+  val amountDueForPayment = "sa.message.amountDueForPayment"
+  val interestApplicable = "sa.message.interestApplicable"
+  val willBecomeDue = "sa.message.willBecomeDue"
+  val youHaveOverpaid = "sa.message.youHaveOverpaid"
+  val amountDueForRepayment = "sa.message.amountDueForRepayment"
+  val smallAmountToPay = "sa.message.smallAmountToPay"
+  val unableToDisplayAccount1 = "sa.message.unableToDisplayAccount.1"
+  val unableToDisplayAccount2 = "sa.message.unableToDisplayAccount.2"
+  val unableToDisplayAccount3 = "sa.message.unableToDisplayAccount.3"
+  val unableToDisplayAccount4 = "sa.message.unableToDisplayAccount.4"
+
+  val saRegimeName = "Self Assessment (SA)"
 
 }
 
@@ -22,15 +38,25 @@ case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
       saRoot => getAccountSummaryData(saRoot, saMicroService) match {
         case Some(saAccountSummary) => {
           AccountSummary(
-            "Self Assessment (SA)",
+            saRegimeName,
             SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
             Seq(
               LinkMessage(buildPortalUrl("home"), viewAccountDetailsLink),
               LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLink),
-              LinkMessage(buildPortalUrl("home"), "sa.message.links.fileAReturn"))
+              LinkMessage(buildPortalUrl("home"), fileAReturnLink))
           )
         }
-        case _ => AccountSummary("Self Assessment (SA)", Seq(("sa.message.unableToDisplayAccount.1", List.empty),("sa.message.unableToDisplayAccount.2", List.empty),("sa.message.unableToDisplayAccount.3", List.empty),("sa.message.unableToDisplayAccount.4", List.empty)), Seq.empty)
+        case _ =>
+          AccountSummary(
+            saRegimeName,
+            Seq(
+              (unableToDisplayAccount1, List.empty),
+              (unableToDisplayAccount2, List.empty),
+              (unableToDisplayAccount3, List.empty),
+              (unableToDisplayAccount4, List.empty)
+            ),
+            Seq.empty
+          )
       }
     }
   }
@@ -52,10 +78,10 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
         val msgs = Seq(
-          ("sa.message.youHaveOverpaid", List.empty),
-          ("sa.message.amountDueForRepayment", List(RenderableStringMessage(amountHmrcOwe.toString())))
+          (youHaveOverpaid, List.empty),
+          (amountDueForRepayment, List(RenderableStringMessage(amountHmrcOwe.toString())))
         )
-        addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.viewHistory", List.empty)))
+        addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some((viewHistory, List.empty)))
       }
       case _ => {
         accountSummary.totalAmountDueToHmrc match {
@@ -63,19 +89,19 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
                 Seq(
-                  ("sa.message.amountDueForPayment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
-                  ("sa.message.interestApplicable", List.empty)
+                  (amountDueForPayment, List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  (interestApplicable, List.empty)
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
                 Seq(
-                  ("sa.message.nothingToPay", List.empty),
-                  ("sa.message.viewHistory", List.empty)
+                  (nothingToPay, List.empty),
+                  (viewHistory, List.empty)
                 )
               }
               case false => {
                 Seq(
-                  ("sa.message.amountDueForPayment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
-                  ("sa.message.smallAmountToPay", List.empty)
+                  (amountDueForPayment, List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  (smallAmountToPay, List.empty)
                 )
               }
             }
@@ -83,9 +109,9 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
           }
           case _ => {
             val msgs = Seq(
-              ("sa.message.nothingToPay", List.empty)
+              (nothingToPay, List.empty)
             )
-            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.viewHistory", List.empty)))
+            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some((viewHistory, List.empty)))
           }
         }
       }
@@ -96,7 +122,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
   private def getLiabilityMessage(liability: Option[Liability]): Option[(String, List[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some("sa.message.willBecomeDue", List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
+      case Some(l) => Some(willBecomeDue, List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
       case None => None
     }
   }
