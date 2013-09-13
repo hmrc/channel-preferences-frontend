@@ -19,7 +19,7 @@ case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
             Seq(LinkMessage(buildPortalUrl("saViewAccountDetails"), "sa.message.links.view-account-details"), LinkMessage(buildPortalUrl("saFileAReturn"), "sa.message.links.file-a-return"))
           )
         }
-        case _ => AccountSummary("SA", Seq(("sa.message.text1.unable-to-display-account", List.empty)), Seq.empty)
+        case _ => AccountSummary("SA", Seq(("sa.message.unable-to-display-account", List.empty)), Seq.empty)
       }
     }
   }
@@ -41,10 +41,10 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
         val msgs = Seq(
-          ("sa.message.text1.you-have-overpaid", List.empty),
-          ("sa.message.text2.amount-due-for-repayment", List(RenderableStringMessage(amountHmrcOwe.toString())))
+          ("sa.message.you-have-overpaid", List.empty),
+          ("sa.message.amount-due-for-repayment", List(RenderableStringMessage(amountHmrcOwe.toString())))
         )
-        addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.text3.view-history", List.empty)))
+        addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.view-history", List.empty)))
       }
       case _ => {
         accountSummary.totalAmountDueToHmrc match {
@@ -52,19 +52,19 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
                 Seq(
-                  ("sa.message.text1.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
-                  ("sa.message.text2.interest-applicable", List.empty)
+                  ("sa.message.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  ("sa.message.interest-applicable", List.empty)
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
                 Seq(
-                  ("sa.message.text1.nothing-to-pay", List.empty),
-                  ("sa.message.text2.view-history", List.empty)
+                  ("sa.message.nothing-to-pay", List.empty),
+                  ("sa.message.view-history", List.empty)
                 )
               }
               case false => {
                 Seq(
-                  ("sa.message.text1.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
-                  ("sa.message.text2.small-amount-to-pay", List.empty)
+                  ("sa.message.amount-due-for-payment", List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  ("sa.message.small-amount-to-pay", List.empty)
                 )
               }
             }
@@ -72,9 +72,9 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
           }
           case _ => {
             val msgs = Seq(
-              ("sa.message.text1.nothing-to-pay", List.empty)
+              ("sa.message.nothing-to-pay", List.empty)
             )
-            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.text2.view-history", List.empty)))
+            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some(("sa.message.view-history", List.empty)))
           }
         }
       }
@@ -85,7 +85,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
   private def getLiabilityMessage(liability: Option[Liability]): Option[(String, List[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some("sa.message.text3.will-become-due", List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
+      case Some(l) => Some("sa.message.will-become-due", List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
       case None => None
     }
   }
