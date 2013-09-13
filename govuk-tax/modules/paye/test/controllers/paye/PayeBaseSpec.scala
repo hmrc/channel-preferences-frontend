@@ -105,11 +105,14 @@ class PayeBaseSpec extends BaseSpec {
       currentTestDate,
       currentTestDate.minusDays(1))
 
-  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeCarBenefits"), Map("benefitTypes" -> "31"))
+  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31"))
   val otherTransaction = transactionWithTags(List("paye", "test"))
-  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeFuelBenefits"), Map("benefitTypes" -> "29"))
+  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29"))
+  val multiBenefitTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
 
   val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction)
+
+  val multiBenefitTransactions = List(multiBenefitTransaction)
 
   val completedTransactions = List(otherTransaction, removedFuelTransaction)
 

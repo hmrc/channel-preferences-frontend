@@ -16,6 +16,7 @@ import uk.gov.hmrc.microservice.paye.domain.Benefit
 import scala.Some
 import uk.gov.hmrc.microservice.paye.domain.TaxCode
 import org.mockito.Matchers
+import org.jsoup.Jsoup
 
 class PayeHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
@@ -72,12 +73,21 @@ class PayeHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieE
       controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, testTransactions, testTransactions)
 
-      val content = requestHomeAction
-      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      val doc = Jsoup.parse(requestHomeAction)
+      val recentChanges = doc.select(".overview__actions__done").text
+      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
 
-      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      content should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+    }
+
+    "display recent transactions for multiple benefit removal for John Densmore" in new WithApplication(FakeApplication()) {
+      controller.resetAll
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, multiBenefitTransactions, testTransactions)
+
+      val doc = Jsoup.parse(requestHomeAction)
+      doc.select(".overview__actions__done").text should include(s"${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
     }
 
     "return the link to the list of benefits for John Densmore" in new WithApplication(FakeApplication()) {

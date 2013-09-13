@@ -30,8 +30,8 @@ class EmploymentViewsSpec extends BaseSpec {
         taxYear,
         Seq(TxQueueTransaction(URI.create("/foo"), "paye", URI.create("/user"), None,
           List(Status("ACCEPTED", None, DateTime.now())),
-          Some(List("benefits", "remove", "fuel", "message.code.removeFuelBenefits")),
-          Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitType" -> "29"),
+          Some(List("benefits", "remove", "fuel", "message.code.removeBenefits")),
+          Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitTypes" -> "29"),
           DateTime.now,
           DateTime.now)
         ),
@@ -51,8 +51,8 @@ class EmploymentViewsSpec extends BaseSpec {
         List.empty,
         Seq(TxQueueTransaction(URI.create("/foo"), "paye", URI.create("/user"), None,
           List(Status("ACCEPTED", None, DateTime.now())),
-          Some(List("benefits", "remove", "fuel", "message.code.removeFuelBenefits")),
-          Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitType" -> "29"),
+          Some(List("benefits", "remove", "fuel", "message.code.removeBenefits")),
+          Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitTypes" -> "29"),
           DateTime.now,
           DateTime.now)
         )

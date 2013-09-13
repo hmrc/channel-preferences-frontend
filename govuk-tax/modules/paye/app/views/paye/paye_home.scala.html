@@ -1,6 +1,7 @@
 @(payeOverview: models.paye.PayeOverview)
 
 @import views.formatting.Dates._
+@import views.formatting.Strings._
 
 @main(title = "Your tax home") {
 
@@ -20,7 +21,9 @@
             @if(payeOverview.employmentViews.flatMap(e => e.recentChanges).size > 0) {
                 @for(employmentView <- payeOverview.employmentViews) {
                     @for(recentChange <- employmentView.recentChanges) {
-                        <li>@Messages(s"recent.changes.${recentChange.messageCode}", formatDate(recentChange.timeOfChange), employmentView.companyName, employmentView.taxCode)</li>
+                        @defining(joinList(recentChange.types.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+                            <li>@Messages(s"recent.change.${recentChange.messageCode}", formatDate(recentChange.timeOfChange), benefitsTitle, employmentView.companyName, employmentView.taxCode)</li>
+                        }
                     }
                 }
             } else {

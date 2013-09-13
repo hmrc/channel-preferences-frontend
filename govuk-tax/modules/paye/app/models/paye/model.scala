@@ -72,8 +72,8 @@ object EmploymentViews {
     completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentView] = {
     for (e <- employments) yield EmploymentView(
       e.employerNameOrReference, e.startDate, e.endDate, taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
-      (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, "accepted") ++
-        transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, "completed")).toList,
+      (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, ".accepted") ++
+        transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, ".completed")).toList,
       taxCodeChange(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions))
   }
 
@@ -82,12 +82,12 @@ object EmploymentViews {
   }
 
   private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
-    messageCodePrefix: String): Seq[RecentChange] = {
+    messageCodePostfix: String): Seq[RecentChange] = {
     transactions.filter(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).map {
       tx =>
         RecentChange(
-          tx.tags.get.find(_.startsWith("message.code.")).get.replace("message.code", messageCodePrefix),
-          tx.statusHistory(0).createdAt.toLocalDate)
+          tx.tags.get.find(_.startsWith("message.code.")).get.replace("message.code.", "") + messageCodePostfix,
+          tx.statusHistory(0).createdAt.toLocalDate, tx.properties("benefitTypes").split(',').toSeq)
     }
   }
 
@@ -105,10 +105,10 @@ object EmploymentViews {
     messageCode: String): Option[RecentChange] = {
     transactions.find(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).map {
       tx =>
-        RecentChange(messageCode, tx.statusHistory(0).createdAt.toLocalDate)
+        RecentChange(messageCode, tx.statusHistory(0).createdAt.toLocalDate, tx.properties("benefitTypes").split(',').toSeq)
     }
   }
 }
 
-case class RecentChange(messageCode: String, timeOfChange: LocalDate)
+case class RecentChange(messageCode: String, timeOfChange: LocalDate, types:Seq[String] = Seq.empty)
 
