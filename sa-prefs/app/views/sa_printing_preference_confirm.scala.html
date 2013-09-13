@@ -2,11 +2,27 @@
 
 @main(title = "My Preferences") {
 
-<h2>Preferences</h2>
+<h2>Turn off paper</h2>
 <div id="print-prefs">
-    <h3>Thanks</h3>
-    <a href="@redirectUrl">back to Self Assessment</a>
+    <p>
+        <b>Thanks</b>
+    </p>
+    <p>
+        HMRC has sent you an email to check that the email address works.
+    </p>
+    <p>
+        Follow the instructions in the email to verify your email address works
+    </p>
+    <p>
+        HMRC will never put personal information in an email.
+    </p>
+    <p>
+        Always go to GOV.UK to log in to your tax account
+    </p>
 
+    <form action="@redirectUrl" method="GET">
+        <button class="button" type="submit">Back to Self Assessment</button>
+    </form>
 
 
 </div>

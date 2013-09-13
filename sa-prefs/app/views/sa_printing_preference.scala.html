@@ -5,20 +5,31 @@
 
 @main(title = "My Preferences") {
 
-<h2>Preferences</h2>
+<h2>Turn off paper</h2>
 <div id="print-prefs">
-    <h3>Print preferences</h3>
+
+    <p>
+        Soon you can receive email alerts when new reminders and statements are available online, rather than letters.
+    </p>
+
+    <p>
+        HMRC will be making this available over the next year and will let you know when this happens.
+    </p>
+
+    <p>
+        If you would like to receive your reminders by email when this is available, enter your email address.
+    </p>
 
     @helper.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
          <p>
             @inputText(
              emailForm("email"),
-            '_label -> "Email",
+            '_label -> "",
             '_showConstraints -> false)
         </p>
 
         <p>
-            <input type="submit" value="Submit"/>
+            <button class="button" type="submit">Submit</button>
         </p>
 
     }
