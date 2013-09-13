@@ -49,14 +49,43 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   "Removing FUEL benefit only" should {
 
-    "notify the user the fuel benefit will be removed" in new WithApplication(FakeApplication()) {
+    "notify the user the fuel benefit will be removed for benefit with no company name" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), FUEL.toString, 2013, 2)
 
       val doc = Jsoup.parse(contentAsString(result))
+
+      doc.select(".benefit-type").text shouldBe "Remove your car fuel benefit"
       doc.select(".amount").text shouldBe "£22.22"
-      doc.select("label.checkbox").text should include("no longer provide me with this benefit")
+      doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with this benefit")
+      doc.select("label[for=carAgreement]").text should include("I would also like to remove my car benefit.")
     }
+  }
+
+  "Removing non-FUEL benefit " should {
+
+    "not display car removal checkbox" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+      val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), CAR.toString, 2013, 2)
+
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with a company car")
+      doc.select("label[for=carAgreement]").text shouldBe ""
+    }
+  }
+
+  "Removing fuel benefit when there's no car" should {
+
+    "not display car removal checkbox" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(fuelBenefit), List.empty, List.empty)
+      val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), FUEL.toString, 2013, 2)
+
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with this benefit")
   }
 
 

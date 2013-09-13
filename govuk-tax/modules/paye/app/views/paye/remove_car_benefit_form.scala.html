@@ -2,6 +2,7 @@
 
 @import views.formatting.Dates._
 @import org.joda.time.LocalDate
+@import views.html.helpers.singleCheckbox
 
 @import views.helpers.CustomHelpers._
 @import helper._
@@ -30,12 +31,11 @@
         }
         <div>
 
-        @checkbox(
-        updateForm("agreement"),
-        '_id -> "agreement",
-        '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with a company car",
-        '_showConstraints -> false
-        )
+            @singleCheckbox(
+                updateForm("agreement"),
+                '_id -> "agreement",
+                '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with a company car",
+                '_showConstraints -> false)
 
         </div>
         <input class="button button--next" type="submit" value="Next" />

@@ -8,6 +8,9 @@ import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import views.helpers.{RenderableLinkMessage, RenderableMessage, LinkMessage}
 import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 import views.html.make_a_payment_landing
+import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountSummary, VatRoot }
+import views.helpers.{ StringMessage, LinkMessage, StringOrLinkMessage }
+import controllers.bt.regimeViews.{ SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder }
 
 class BusinessTaxController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 

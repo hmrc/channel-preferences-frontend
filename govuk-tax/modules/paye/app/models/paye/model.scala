@@ -11,6 +11,7 @@ object BenefitTypes {
 
   val FUEL = 29
   val CAR = 31
+  val TELEPHONE = 32
 
 }
 
