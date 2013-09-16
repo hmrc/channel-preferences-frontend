@@ -1,34 +1,13 @@
 @(current: String)
 <!--start header-->
-<a href="#content" class="visuallyhidden">Skip to main content</a>
-
-<header role="banner" id="global-header-3" class="global-header beta with-proposition">
-  <div class="header-wrapper">
-    <div class="header-global">
-      <div class="header-logo">
-        <div class="content">
-          <a href="/" title="Go to the gov.uk homepage" id="logo-crown">
-            <img src="@common.routes.Assets.at("images/gov.uk_logotype-2x.png")" alt="GOV.UK">
-          </a>
-        </div>
-      </div>
+<header role="banner" class="header">
+    <div class="l-constrained--header">
+	<h1 class="header__logo">
+	    <a href="https://www.gov.uk/" title="Go to the gov.uk homepage" id="logo" class="content">
+		<img alt="GOV.UK" src="@common.routes.Assets.at("images/gov.uk_logotype-2x.png")" />
+	    </a>
+	</h1>
+	<a href="/service-manual" class="phase-tag">Beta</a>
     </div>
-
-    <div class="header-proposition">
-      <div class="content">
-        <a href="#proposition-links" class="js-header-toggle menu">Menu</a>
-        <nav class="proposition-menu">
-	  <a href="#" class="proposition-name" id="username">Tax Platform</a>
-          <a href="/service-manual" class="phase-tag">Beta</a>
-          <ul class="proposition-links">
-            <li><a href="@common.routes.HomeController.home">Home</a></li>
-            <li><a href="#">Messages</a></li>
-            <li><a href="#">My details</a></li>
-            <li><a href="@common.routes.LoginController.logout">Log out</a></li>
-          </ul>
-        </nav>
-      </div>
-    </div>
-  </div>
 </header>
 <!--end header-->
