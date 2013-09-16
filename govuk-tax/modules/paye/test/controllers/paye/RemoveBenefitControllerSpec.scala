@@ -89,6 +89,27 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     }
   }
 
+  "Removing your car prior to its start date" should {
+      "Not validate the view and redirect with correct error" in new WithApplication(FakeApplication()) {
+
+        val carBenefitStartedThisYear = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
+          car = Some(Car(Some(new LocalDate()), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
+
+        setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitStartedThisYear), List.empty, List.empty)
+
+        val withdrawDate = carBenefitStartedThisYear.car.get.dateCarMadeAvailable.get.minusDays(2)
+        def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =
+          FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> agreed.toString.toLowerCase)
+        val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, true), "31", 2013, 2)
+
+        verify(controller.payeMicroService, never).calculateWithdrawBenefit(_,_)
+
+        status(result) shouldBe BAD_REQUEST
+
+        val doc = Jsoup.parse(contentAsString(result))
+        doc.select(".error").text should include("Invalid date: Return date cannot be before benefit was made available")
+      }
+  }
 
   "The car benefit removal method" should {
     "in step 1, notify the user that the fuel benefit is going to be removed with the car benefit when removing car benefit" in new WithApplication(FakeApplication()) {
@@ -287,10 +308,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 400
       val requestBenefits = contentAsString(result)
+      val doc = Jsoup.parse(contentAsString(result))
       requestBenefits should include("Remove your company benefit")
       requestBenefits should include regex "Registered on.*December 12, 2012.".r
       requestBenefits should include regex "Value of car benefit:.*£321.42".r
-      requestBenefits should include("Invalid date: Return date cannot be greater than 7 days from today")
+      doc.select(".error").text should include("Invalid date: Return date cannot be greater than 7 days from today")
     }
 
     "in step 1 display an error message when return date of the car is in the previous tax year" in new WithApplication(FakeApplication()) {
@@ -489,9 +511,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   "benefitRemoved" should {
     "render a view with correct elements" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+      //setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val car = Car(None, None, None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
+      val car = Car(None, Some(new LocalDate(2012, 12, 12)), None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
         override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None)) }

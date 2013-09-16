@@ -88,6 +88,12 @@ case class Benefit(benefitType: Int,
   def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
 
+object Benefit {
+  def findByTypeAndEmploymentNumber(benefits: Seq[Benefit], employmentSequenceNumber: Int, benefitType: Int) : Option[Benefit] = {
+    benefits.find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == benefitType)
+  }
+}
+
 case class Car(dateCarMadeAvailable: Option[LocalDate],
                dateCarWithdrawn: Option[LocalDate],
                dateCarRegistered: Option[LocalDate],

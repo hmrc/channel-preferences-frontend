@@ -37,17 +37,20 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(benefit.benefit.taxYear))
+
       if (benefit.benefit.benefitType == CAR) {
-        Ok(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm))
+        Ok(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate)))
       } else {
-        Ok(remove_benefit_form(benefit, updateBenefitForm))
+        Ok(remove_benefit_form(benefit, updateBenefitForm(benefitStartDate)))
       }
     }
   }
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      updateBenefitForm.bindFromRequest()(request).fold(
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(benefit.benefit.taxYear))
+      updateBenefitForm(benefitStartDate).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
@@ -80,6 +83,15 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     }
   }
 
+  private def findStartDate(thisBenefit: Benefit, allBenefits: Seq[Benefit]): Option[LocalDate] = {
+    thisBenefit.benefitType match {
+      case CAR => thisBenefit.car.get.dateCarMadeAvailable
+      case FUEL =>  { val carBenefit = Benefit.findByTypeAndEmploymentNumber(allBenefits, thisBenefit.employmentSequenceNumber, CAR)
+                      carBenefit.flatMap(_.car.get.dateCarMadeAvailable) }
+      case _ => None
+    }
+  }
+
   private def calculateRevisedAmount(benefit: Benefit, withdrawDate: LocalDate): BigDecimal = {
     val calculationResult = payeMicroService.calculateWithdrawBenefit(benefit, withdrawDate)
     calculationResult.result(benefit.taxYear.toString)
@@ -99,19 +111,26 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     unremovedFuelBenefit(user, employmentNumber, FUEL).isDefined
   }
 
-  private lazy val updateBenefitForm = Form[RemoveBenefitFormData](
+  private def updateBenefitForm(benefitStartDate:Option[LocalDate]) = Form[RemoveBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping,
+      "withdrawDate" -> localDateMapping(benefitStartDate),
       "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement"),
       "removeCar" -> boolean
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  private lazy val localDateMapping = jodaLocalDate
+  private def localDateMapping(benefitStartDate:Option[LocalDate]) = jodaLocalDate
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(TaxYearResolver() + 1, 4, 6)))
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(new LocalDate()))
     .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(TaxYearResolver(), 4, 5)))
+    .verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
 
+  private def isAfter(withdrawDate:LocalDate, startDate:Option[LocalDate]) : Boolean = {
+   startDate match {
+      case Some(startDate) => withdrawDate.isAfter(startDate)
+      case None => true
+    }
+  }
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, displayBenefit) => {
       val payeRoot = user.regimes.paye.get
