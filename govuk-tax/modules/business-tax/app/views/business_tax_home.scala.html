@@ -3,62 +3,92 @@
 @import views.formatting.Dates._
 @import config.PortalConfig
 @import uk.gov.hmrc.common.PortalDestinationUrlBuilder
-@main(title = "Your tax home") {
 
+@main(title = "Your tax home", sidebar) {
 
+    <h1><span class="pre-heading">service</span> Your tax account</h1>
 
-@if(businessUser.name != ""){
-<h2>Welcome @businessUser.name</h2>
-}
-<p>@if(!businessUser.previouslyLoggedInAt.isEmpty) {
-    Last logged in on @formatEasyReadingTimestamp(businessUser.previouslyLoggedInAt, "")
+@***********************************************************************************************
+    @if(businessUser.utr.isDefined) {
+	<p class="utr">UTR: @businessUser.utr.get</p>
+    }
+
+    @if(businessUser.saUtr.isDefined) {
+    <p class="utr">SA UTR: @businessUser.saUtr.get</p>
+    }
+
+    @if(businessUser.vrn.isDefined) {
+	<p class="vrn">VRN: @businessUser.vrn.get</p>
+    }
+
+    @if(businessUser.ctUtr.isDefined) {
+	<p class="vrn">CT UTR: @businessUser.ctUtr.get</p>
+    }
+
+    @if(businessUser.empRef.isDefined) {
+	<p class="vrn">Employer Reference: @businessUser.empRef.get</p>
+    }
+
+    @if(businessUser.regimeRoots.hasBusinessTaxRegime) {
+	<p>Services you have enrolled for and activated via the Government Gateway:</p>
+
+	<ul style="list-style-type:none;">
+	    @if(businessUser.regimeRoots.sa.isDefined){
+		<li>
+		    <a class="cta cta--view-sa-details" href="/sa/home">Self-assessment (SA)</a>
+		</li>
+	    }
+	    @if(businessUser.regimeRoots.vat.isDefined){
+		<li>
+		    <a class="cta cta--view-vat-details" href="#">Value Added Tax (VAT)</a>
+		</li>
+	    }
+	</ul>
     } else {
-    First ever login
-    }</p>
-
-@if(businessUser.saUtr.isDefined) {
-<p class="utr">SA UTR: @businessUser.saUtr.get</p>
-} <q></q>
-
-@if(businessUser.vrn.isDefined) {
-<p class="vrn">VRN: @businessUser.vrn.get</p>
-}
-
-@if(businessUser.ctUtr.isDefined) {
-<p class="vrn">CT UTR: @businessUser.ctUtr.get</p>
-}
-
-@if(businessUser.empRef.isDefined) {
-<p class="vrn">Employer Reference: @businessUser.empRef.get</p>
-}
-
-@if(businessUser.regimeRoots.hasBusinessTaxRegime) {
-<p>Services you have enrolled for and activated via the Government Gateway:</p>
-<ul style="list-style-type:none;">
-    @if(businessUser.regimeRoots.sa.isDefined){
-    <li><a class="cta cta--view-sa-details" href="/sa/home">Self-assessment (SA)</a></li>
-    }
-    @if(businessUser.regimeRoots.vat.isDefined){
-    <li><a class="cta cta--view-vat-details" href="#">Value Added Tax (VAT)</a></li>
+	<p>You are not currently actively enrolled for any online services</p>
     }
 
-</ul>
-} else {
-<p>You are not currently actively enrolled for any online services</p>
+    <ul style="list-style-type:none;">
+	<li>
+	    <a id="portalLink" href='@{portalHref}'>Take me to the portal....</a>
+	</li>
+    </ul>
+***********************************************************************************************@
+
+    @for(ac <- accountSummaries.regimes) {
+	<h2>@ac.regimeName</h2>
+
+	@for(message <- ac.messages) {
+	    <p>@Html(Messages(message._1, message._2.map(_.render):_*))</p>
+	}
+
+	<p>
+	    @for(addendum <- ac.addenda) {
+		@addendum.render
+	    }
+	</p>
+    }
+
 }
 
-<ul style="list-style-type:none;">
-    <li><a id="portalLink" href='@{portalHref}'>Take me to the portal....</a></li>
-</ul>
+@sidebar = {
 
-@for(ac <- accountSummaries.regimes) {
-    <h2>@ac.regimeName</h2>
-    @for(message <- ac.messages) {
-        <p>@Html(Messages(message._1, message._2.map(_.render):_*))</p>
-    }
-    @for(addendum <- ac.addenda) {
-        <li>@addendum.render</li>
-    }
-}
+    <div class="service-info">
+	<p class="service-info__organisation-logo">HM Revenue<br />&amp; Customs</p>
+
+	@if(businessUser.name != ""){
+	    <h2>Welcome @businessUser.name</h2>
+	}
+
+	<p>
+	    @if(!businessUser.previouslyLoggedInAt.isEmpty) {
+	    Last logged in on @formatEasyReadingTimestamp(businessUser.previouslyLoggedInAt, "")
+	    } else {
+	    First ever login
+	    }
+	</p>
+
+	<p><a href="@common.routes.LoginController.logout">Log out of your GOV.UK account.<a/></p>
+    </div>
 
 }
