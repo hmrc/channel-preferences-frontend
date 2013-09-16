@@ -3,15 +3,15 @@ package controllers.common
 import service.Encryption
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Request, Action}
-import org.joda.time.DateTimeUtils
-import config.PortalConfig
+import org.joda.time.{DateTime, DateTimeUtils}
+import config.{DateTimeProvider, PortalConfig}
 import play.api.Play
 
 object SsoPayloadEncryptor extends Encryption {
   val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
 }
 
-class SsoOutController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
+class SsoOutController(dateTime : () => DateTime = DateTimeProvider.now) extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
 
   def encryptPayload = WithSessionTimeoutValidation(Action(BadRequest("Error")), Action {
     implicit request =>
@@ -34,7 +34,7 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
   }
 
   private def generateJsonPayload(token: String, dest: String) = {
-    Json.stringify(Json.obj(("gw", token), ("dest", dest), ("time", DateTimeUtils.currentTimeMillis())))
+    Json.stringify(Json.obj(("gw", token), ("dest", dest), ("time", dateTime().getMillis)))
   }
 
   private def requestValid(request: Request[AnyContent]): Boolean = {

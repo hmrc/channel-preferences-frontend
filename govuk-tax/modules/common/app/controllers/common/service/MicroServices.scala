@@ -2,7 +2,7 @@ package controllers.common.service
 
 import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.paye.PayeMicroService
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.saml.SamlMicroService
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService

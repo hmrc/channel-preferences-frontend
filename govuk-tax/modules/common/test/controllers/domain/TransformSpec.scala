@@ -3,7 +3,7 @@ package controllers.domain
 import java.net.URI
 import org.json4s.MappingException
 import org.joda.time.LocalDate
-import uk.gov.hmrc.microservice.paye.domain.{ Car, Benefit }
+import uk.gov.hmrc.common.microservice.paye.domain.{ Car, Benefit }
 import uk.gov.hmrc.common.BaseSpec
 
 class TransformSpec extends BaseSpec {

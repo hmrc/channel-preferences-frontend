@@ -1,7 +1,7 @@
 package uk.gov.hmrc.microservice.domain
 
 import uk.gov.hmrc.microservice.auth.domain.{ UserAuthority, Regimes }
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
 
