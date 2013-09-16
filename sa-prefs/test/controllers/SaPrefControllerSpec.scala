@@ -12,7 +12,6 @@ import java.net.URLEncoder
 import controllers.service.RedirectWhiteListService
 import java.net.URL
 
-
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar {
 
   import play.api.test.Helpers._
@@ -69,7 +68,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = controller.index(validToken, validReturnUrl)(FakeRequest())
 
-      status(page) shouldBe 400
+      status(page) shouldBe 500
     }
   }
 
@@ -122,7 +121,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest())
 
-      status(page) shouldBe 400
+      status(page) shouldBe 500
     }
 
     "A post to keep paper notification" should {
@@ -143,7 +142,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
         val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
 
-        status(page) shouldBe 400
+        status(page) shouldBe 500
       }
     }
 

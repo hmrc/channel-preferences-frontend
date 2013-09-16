@@ -22,7 +22,7 @@ class SaPrefsController extends Controller {
         request: Request[AnyContent] =>
           redirectWhiteListService.check(return_url) match {
             case true => action(request)
-            case false => BadRequest
+            case false => InternalServerError
           }
       }
   }
