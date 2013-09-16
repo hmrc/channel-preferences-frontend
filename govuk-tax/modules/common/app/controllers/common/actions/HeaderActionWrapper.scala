@@ -1,8 +1,7 @@
 package controllers.common.actions
 
-import controllers.common.service.MicroServices
 import play.api.mvc._
-import controllers.common.{ HeaderNames, CookieEncryption }
+import controllers.common.CookieEncryption
 import org.slf4j.MDC
 import java.util.UUID
 import play.api.{ Mode, Play }
@@ -11,9 +10,10 @@ import play.Logger
 import uk.gov.hmrc.microservice.HasResponse
 
 trait HeaderActionWrapper {
-  self: Controller with MicroServices with CookieEncryption with HeaderNames =>
 
-  object WithHeaders {
+  object WithHeaders extends Results with CookieEncryption {
+
+    import controllers.common.HeaderNames._
 
     def apply(action: Action[AnyContent]): Action[AnyContent] = Action {
       request =>
@@ -29,22 +29,26 @@ trait HeaderActionWrapper {
           MDC.clear
         }
     }
-  }
 
-  private def internalServerError(request: Request[AnyContent], t: Throwable): Result = {
-    logThrowable(t)
-    import play.api.Play.current
-    Play.application.mode match {
-      // different pages for prod and dev/test
-      case Mode.Dev | Mode.Test => InternalServerError(server_error(t, request, MDC.get(requestId)))
-      case Mode.Prod => InternalServerError(server_error(t, request, MDC.get(requestId)))
+    private def internalServerError(request: Request[AnyContent], t: Throwable): Result = {
+      logThrowable(t)
+
+      import play.api.Play.current
+
+      Play.application.mode match {
+        // different pages for prod and dev/test
+        case Mode.Dev | Mode.Test => InternalServerError(server_error(t, request, MDC.get(requestId)))
+        case Mode.Prod => InternalServerError(server_error(t, request, MDC.get(requestId)))
+      }
+    }
+
+    private def logThrowable(t: Throwable) {
+      Logger.error("Action failed", t)
+      if (t.isInstanceOf[HasResponse]) {
+        Logger.error(s"MicroService Response '${t.asInstanceOf[HasResponse].response.body}'")
+      }
     }
   }
 
-  private def logThrowable(t: Throwable) {
-    Logger.error("Action failed", t)
-    if (t.isInstanceOf[HasResponse]) {
-      Logger.error(s"MicroService Response '${t.asInstanceOf[HasResponse].response.body}'")
-    }
-  }
 }
+

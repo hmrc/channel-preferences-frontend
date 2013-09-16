@@ -17,6 +17,9 @@ trait HeaderNames {
   val forwardedFor = "x-forwarded-for"
 }
 
+object HeaderNames extends HeaderNames
+
+
 trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames with HeaderActionWrapper with AuditActionWrapper with LoggingActionWrapper {
   self: Controller =>
 
