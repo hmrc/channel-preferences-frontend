@@ -6,42 +6,43 @@
 @import org.joda.time.LocalDate
 @import views.html.helpers.singleCheckbox
 
-@main(title = "Remove your company @sentence(iabdTypeFor(displayBenefit.benefit.benefitType))") {
+@main(title = "Remove your company benefit") {
 
-<h2 class="benefit-type">Remove your company @sentence(iabdTypeFor(displayBenefit.benefit.benefitType))</h2>
+    @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+    <h2 class="benefit-type">Remove your company @benefitsTitle benefit</h2>
+    }
 
+    <p>Benefit provided by <span class="employer-name">@displayBenefit.employment.employerName</span><br/>
+    Value of benefit: <span class="amount">£@displayBenefit.benefit.grossAmountToString()</span></p>
 
-<p>Benefit provided by <span class="employer-name">@displayBenefit.employment.employerName</span><br/>
-Value of benefit: <span class="amount">£@displayBenefit.benefit.grossAmountToString()</span></p>
+    <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with @sentence(iabdTypeFor(displayBenefit.benefit.benefitType)), you can remove it from your taxable benefits.</p>
 
-<p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with @sentence(iabdTypeFor(displayBenefit.benefit.benefitType)), you can remove it from your taxable benefits.</p>
+        @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
-    @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+            @defining(updateForm("withdrawDate")) { withdrawDateField =>
+            <div class="@if(withdrawDateField.error.isDefined){error-notification}">
+            @if(withdrawDateField.error.isDefined){<p class="error">@Messages(withdrawDateField.errors(0).message)</p>}
+            <label>Date you stopped receiving the benefit: </label>
+            <input class="return-date" type="date" name="withdrawDate" placeholder="@shortDate(LocalDate.now)" />
+            </div>
+            }
+        <div>
 
-        @defining(updateForm("withdrawDate")) { withdrawDateField =>
-        <div class="@if(withdrawDateField.error.isDefined){error-notification}">
-	    @if(withdrawDateField.error.isDefined){<p class="error">@Messages(withdrawDateField.errors(0).message)</p>}
-	    <label>Date you stopped receiving the benefit: </label>
-	    <input class="return-date" type="date" name="withdrawDate" placeholder="@shortDate(LocalDate.now)" />
-        </div>
-        }
-	<div>
-
-        @singleCheckbox(
-            updateForm("agreement"),
-            '_id -> "agreement",
-            '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with this benefit",
-            '_showConstraints -> false)
-
-        @if(displayBenefit.benefit.benefitType == models.paye.BenefitTypes.FUEL) {
             @singleCheckbox(
-                updateForm("removeCar"),
-                '_id -> "removeCar",
-                '_label -> "I would also like to remove my car benefit.",
+                updateForm("agreement"),
+                '_id -> "agreement",
+                '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with this benefit",
                 '_showConstraints -> false)
-        }
-	</div>
-	<input class="button button--next" type="submit" value="Next" />
+
+            @if(displayBenefit.benefit.benefitType == models.paye.BenefitTypes.FUEL) {
+                @singleCheckbox(
+                    updateForm("removeCar"),
+                    '_id -> "removeCar",
+                    '_label -> "I would also like to remove my car benefit.",
+                    '_showConstraints -> false)
+            }
+        </div>
+        <input class="button button--next" type="submit" value="Next" />
     }
 }
 

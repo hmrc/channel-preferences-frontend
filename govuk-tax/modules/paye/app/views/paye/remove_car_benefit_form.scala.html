@@ -6,9 +6,13 @@
 
 @import views.helpers.CustomHelpers._
 @import helper._
-@main(title = "Remove your company car benefit") {
+@import views.formatting.Strings._
 
-    <h2 class="benefit-type">Remove your company car benefit</h2>
+@main(title = "Remove your company benefit") {
+
+    @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+    <h2 class="benefit-type">Remove your company @benefitsTitle benefit</h2>
+    }
 
     <p>Car provided by <span class="employer-name">@displayBenefit.employment.employerName</span><br/>
     Registered on <span class="date-registered">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.<br/>

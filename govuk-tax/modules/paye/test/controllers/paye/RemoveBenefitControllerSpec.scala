@@ -55,7 +55,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
 
-      doc.select(".benefit-type").text shouldBe "Remove your company car fuel benefit"
+      doc.select(".benefit-type").text shouldBe "Remove your company fuel benefit"
       doc.select(".amount").text shouldBe "£22.22"
       doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with this benefit")
       doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
