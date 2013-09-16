@@ -10,30 +10,39 @@
 
 @main(title = "Log in to Self Assessment (SA) via Government Gateway") {
 
+    <h1>Sign in with your Government Gateway account</h1>
+
+    <p>Sign in with your Government Gateway account.</p>
+    <p>If you do not have a Government Gateway account, you can <a href="#">register for one</a>.</p>
+
     <form action="@common.routes.LoginController.governmentGatewayLogin" method="POST">
-        <p>
-            <label for="userId">Government Gateway User ID</label> <input type="text" id="userId" name="userId" required />
-        </p>
+	<fieldset>
+	    <div class="form-field">
+		<label for="userId">Username</label>
+		<input type="text" id="userId" name="userId" required />
+	    </div>
 
-        @formWithErrors.errors("userId").map{ error =>
-            <p class="error userId">Invalid User ID: @Messages(error.message)</p>
-        }
+	    @formWithErrors.errors("userId").map{ error =>
+		<p class="error userId">Invalid User ID: @Messages(error.message)</p>
+	    }
 
-        <p>
-            <label for="password">Government Gateway Password</label> <input type="password" id="password" name="password" required />
-        </p>
+	    <div class="form-field">
+		<label for="password">Password</label>
+		<input type="password" id="password" name="password" required />
+	    </div>
 
-        @formWithErrors.errors("password").map{ error =>
-            <p class="error password">Invalid Password: @Messages(error.message)</p>
-        }
+	    @formWithErrors.errors("password").map{ error =>
+		<p class="error password">Invalid Password: @Messages(error.message)</p>
+	    }
 
-        <p>
-            <input type="submit" value="Log in"/>
-        </p>
+	    <div class="form-field">
+		<button class="button" type="submit">Sign in</button>
+	    </div>
 
-        @formWithErrors.globalErrors.map{ error =>
-            <p class="error password">@Messages(error.message)</p>
-        }
+	    @formWithErrors.globalErrors.map{ error =>
+		<p class="error password">@Messages(error.message)</p>
+	    }
+	</fieldset>
     </form>
 
 }
