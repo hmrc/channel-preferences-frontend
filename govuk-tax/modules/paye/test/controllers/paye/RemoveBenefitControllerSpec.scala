@@ -293,10 +293,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 2)
       status(result) shouldBe 200
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should include regex "Registered on.*December 12, 2012.".r
-      requestBenefits should include regex "Value of car benefit:.*£321.42".r
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".amount").text should include("£321.42")
     }
 
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
@@ -307,11 +308,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true, false), "31", 2013, 2)
 
       status(result) shouldBe 400
-      val requestBenefits = contentAsString(result)
+
       val doc = Jsoup.parse(contentAsString(result))
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should include regex "Registered on.*December 12, 2012.".r
-      requestBenefits should include regex "Value of car benefit:.*£321.42".r
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".amount").text should include("£321.42")
       doc.select(".error").text should include("Invalid date: Return date cannot be greater than 7 days from today")
     }
 
@@ -323,11 +324,12 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true, false), "31", 2013, 2)
 
       status(result) shouldBe 400
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should include regex "Registered on.*December 12, 2012.".r
-      requestBenefits should include regex "Value of car benefit:.*£321.42".r
-      requestBenefits should include("Invalid date: Return date cannot be in previous tax years")
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".amount").text should include("£321.42")
+      doc.select(".error").text should include("Invalid date: Return date cannot be in previous tax years")
     }
 
     "in step 1 display an error message when return date of the car is in the next tax year" in new WithApplication(FakeApplication()) {
@@ -338,11 +340,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true, false), "31", 2013, 2)
 
       status(result) shouldBe 400
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should include regex "Registered on.*December 12, 2012.".r
-      requestBenefits should include regex "Value of car benefit:.*£321.42".r
-      requestBenefits should include("Invalid date: Return date cannot be in next tax years")
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".amount").text should include("£321.42")
+      doc.select(".error").text should include("Invalid date: Return date cannot be in next tax years")
     }
 
     "in step 1 display an error message when return date is not set" in new WithApplication(FakeApplication()) {
@@ -351,11 +353,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(None, true, false), "31", 2013, 2)
 
       status(result) shouldBe 400
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should include regex "Registered on.*December 12, 2012.".r
-      requestBenefits should include regex "Value of car benefit:.*£321.42".r
-      requestBenefits should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".amount").text should include("£321.42")
+      doc.select(".error").text should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
     }
 
     "in step 1 display an error message when agreement checkbox is not selected" in new WithApplication(FakeApplication()) {
@@ -364,11 +366,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody("withdrawDate" -> ""), "31", 2013, 2)
 
       status(result) shouldBe 400
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include("Remove your company benefit")
-      requestBenefits should include regex "Registered on.*December 12, 2012.".r
-      requestBenefits should include regex "Value of car benefit:.*£321.42".r
-      requestBenefits should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".amount").text should include("£321.42")
+      doc.select(".error").text should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
     }
 
     "in step 2 display the calculated value" in new WithApplication(FakeApplication()) {
@@ -381,8 +383,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, false), "31", 2013, 2)
 
       status(result) shouldBe 200
-      val requestBenefits = contentAsString(result)
-      requestBenefits should include regex "Personal Allowance by.*£197.96.".r
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".amount").text should include("£197.96")
     }
 
     "in step 2 save the withdrawDate to the keystore" in new WithApplication(FakeApplication()) {
@@ -466,7 +468,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.benefitRemovedAction(johnDensmore, FakeRequest(), "31", "123")
 
       status(result) shouldBe 200
-      contentAsString(result) should include("123")
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".transaction-id").text should include("123")
 
     }
 
@@ -511,7 +514,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   "benefitRemoved" should {
     "render a view with correct elements" in new WithApplication(FakeApplication()) {
-      //setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val car = Car(None, Some(new LocalDate(2012, 12, 12)), None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
@@ -532,7 +534,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     }
 
     "Contain correct employee names" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val car = Car(None, None, Some(new LocalDate()), BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
