@@ -14,11 +14,11 @@ vat.error.message.summaryUnavailable.4= If you do not think either of the above 
 
 sa.message.nothingToPay=You have nothing to pay
 sa.message.viewHistory=You can view a history of your acount
-sa.message.amountDueForPayment=&pound;{0} is now due for payment
+sa.message.amountDueForPayment={0} is now due for payment
 sa.message.interestApplicable=Interest may be charged on late payments of amounts due now
-sa.message.willBecomeDue=&pound;{0} will become due for payment on {1}
+sa.message.willBecomeDue={0} will become due for payment on {1}
 sa.message.youHaveOverpaid=You have overpaid
-sa.message.amountDueForRepayment=&pound;{0} is available for repayment
+sa.message.amountDueForRepayment={0} is available for repayment
 sa.message.smallAmountToPay=If you do not wish to pay this small amount now it will remain unpaid on your account.  Interest may be charged if you pay late
 sa.message.unableToDisplayAccount.1=We are currently unable to display your account information.  This may be because:
 sa.message.unableToDisplayAccount.2=- there is no information to view at this time

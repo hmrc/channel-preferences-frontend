@@ -1,6 +1,6 @@
 package views.helpers
 
-import views.html.helpers.linkRenderer
+import views.html.helpers.{moneyRenderer, linkRenderer}
 import play.api.templates.Html
 import org.joda.time.LocalDate
 import controllers.common.domain.accountSummaryDateFormatter
@@ -31,4 +31,10 @@ case class RenderableLinkMessage(linkMessage: LinkMessage) extends RenderableMes
 case class RenderableDateMessage(date: LocalDate) extends RenderableMessage {
   val formattedDate = accountSummaryDateFormatter.format(date)
   override def render: Html = Html(formattedDate)
+}
+
+case class RenderableMoneyMessage(value: BigDecimal) extends RenderableMessage {
+  override def render: Html = {
+    moneyRenderer(value)
+  }
 }

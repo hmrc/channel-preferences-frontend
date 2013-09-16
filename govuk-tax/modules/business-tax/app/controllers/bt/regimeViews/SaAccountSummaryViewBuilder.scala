@@ -1,11 +1,21 @@
 package controllers.bt.regimeViews
 
-import views.helpers.{RenderableDateMessage, RenderableStringMessage, RenderableMessage, LinkMessage}
+import views.helpers._
 import controllers.bt.{routes, AccountSummary}
 import uk.gov.hmrc.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import uk.gov.hmrc.microservice.domain.User
 import SaAccountSummaryMessageKeys._
+import views.helpers.LinkMessage
+import views.helpers.RenderableDateMessage
+import uk.gov.hmrc.microservice.sa.domain.Liability
+import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import scala.Some
+import views.helpers.RenderableStringMessage
+import controllers.bt.regimeViews.SaAccountSummaryMessagesBuilder
+import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.microservice.domain.User
+import controllers.bt.AccountSummary
 
 object SaAccountSummaryMessageKeys {
 
@@ -79,7 +89,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
         val msgs = Seq(
           (youHaveOverpaid, List.empty),
-          (amountDueForRepayment, List(RenderableStringMessage(amountHmrcOwe.toString())))
+          (amountDueForRepayment, List(RenderableMoneyMessage(amountHmrcOwe)))
         )
         addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some((viewHistory, List.empty)))
       }
@@ -89,7 +99,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
                 Seq(
-                  (amountDueForPayment, List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  (amountDueForPayment, List(RenderableMoneyMessage(totalAmountDueToHmrc.amount))),
                   (interestApplicable, List.empty)
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
@@ -100,7 +110,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
               }
               case false => {
                 Seq(
-                  (amountDueForPayment, List(RenderableStringMessage(totalAmountDueToHmrc.amount.toString()))),
+                  (amountDueForPayment, List(RenderableMoneyMessage(totalAmountDueToHmrc.amount))),
                   (smallAmountToPay, List.empty)
                 )
               }
@@ -122,7 +132,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
   private def getLiabilityMessage(liability: Option[Liability]): Option[(String, List[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some(willBecomeDue, List(RenderableStringMessage(liability.get.amount toString()), RenderableDateMessage(liability.get.dueDate)))
+      case Some(l) => Some(willBecomeDue, List(RenderableMoneyMessage(liability.get.amount), RenderableDateMessage(liability.get.dueDate)))
       case None => None
     }
   }
