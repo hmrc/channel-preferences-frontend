@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, sidebar: Html = Html(""))(content: Html)
 <!DOCTYPE html>
 <!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
@@ -6,28 +6,25 @@
 	@includes.head(title)
     </head>
 
-    <a href="#content" class="visuallyhidden">Skip to main content</a>
+    <body>
+	<a href="#content" class="visuallyhidden">Skip to main content</a>
 
-    @includes.header(title)
+	@includes.header(title)
 
-    <div id="wrapper" class="service">
+	<div class="phase-warning beta">
+	    <p><b>BETA:</b> This is a prototype, designed to be simpler, clearer and faster. <a href="#">Find out more</a></p>
+	</div>
 
-        <div class="phase-warning beta">
-            <p><b>BETA:</b> This is a prototype, designed to be simpler, clearer and faster. <a href="#">Find out more</a></p>
-        </div>
+	<section class="l-constrained--topBordered">
+	    <div class="l-bodyLeftColumn">
+		@content
+	    </div>
 
-        <section id="content" role="main" class="group beta">
-            <div class="article-container group">
-                <article role="article" class="group">
-                    <div class="inner">
-                        @content
-                    </div>
-                </article>
-            </div>
-        </section>
-    </div>
+	    <aside class="l-bodyRightColumn">
+		@sidebar
+	    </aside>
+	</section>
 
-    @includes.footer()
-
-</body>
+	@includes.footer()
+    </body>
 </html>
