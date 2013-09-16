@@ -2887,8 +2887,12 @@ table td {
     line-height: 1.2;
   }
 }
+/* line 62, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
+.header__menu__proposition-name:hover {
+  color: white;
+}
 
-/* line 63, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
+/* line 67, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__menu__proposition-links {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -2924,11 +2928,15 @@ table td {
   text-decoration: none;
 }
 @media (max-width: 640px) {
-  /* line 72, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
+  /* line 76, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
   .header__menu__proposition-links a {
     font-size: 14px;
     line-height: 1.14286;
   }
+}
+/* line 81, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
+.header__menu__proposition-links a:hover {
+  text-decoration: underline;
 }
 
 /*------------------------------------*\
