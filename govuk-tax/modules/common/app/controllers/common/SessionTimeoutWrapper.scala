@@ -1,10 +1,12 @@
 package controllers.common
 
 import play.api.mvc._
-import org.joda.time.{ Duration, DateTimeZone, DateTime }
+import org.joda.time.{Duration, DateTimeZone, DateTime}
 import config.DateTimeProvider
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
+import play.api.mvc.AsyncResult
+import scala.Some
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
   self: Controller =>
@@ -12,31 +14,31 @@ trait SessionTimeoutWrapper extends DateTimeProvider {
   import SessionTimeoutWrapper._
 
   object WithSessionTimeoutValidation {
+    val defaultErrorAction :  Action[AnyContent] = Action(Results.Redirect(routes.HomeController.landing()))
 
-    def apply(action: Action[AnyContent]) = Action {
-      request: Request[AnyContent] =>
-        {
+    def apply(errorResult: Action[AnyContent], action: Action[AnyContent]): Action[AnyContent] = Action {
+      request: Request[AnyContent] => {
 
-          val result = if (hasValidTimestamp(request.session)) {
-            action(request)
-          } else {
-            Results.Redirect(routes.HomeController.landing()).withNewSession
-          }
-
-          addTimestamp(request, result)
+        val result = if (hasValidTimestamp(request.session)) {
+          action(request)
+        } else {
+          errorResult(request).withNewSession
         }
+        addTimestamp(request, result)
+      }
     }
+
+    def apply(action: Action[AnyContent]): Action[AnyContent] = apply(defaultErrorAction, action)
   }
 
   object WithNewSessionTimeout {
 
     def apply(action: Action[AnyContent]) = Action {
-      request: Request[AnyContent] =>
-        {
+      request: Request[AnyContent] => {
 
-          val result = action(request)
-          addTimestamp(request, result)
-        }
+        val result = action(request)
+        addTimestamp(request, result)
+      }
     }
   }
 

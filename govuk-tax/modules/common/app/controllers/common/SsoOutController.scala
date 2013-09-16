@@ -13,7 +13,7 @@ object SsoPayloadEncryptor extends Encryption {
 
 class SsoOutController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
 
-  def encryptPayload = WithSessionTimeoutValidation(Action {
+  def encryptPayload = WithSessionTimeoutValidation(Action(BadRequest("Error")), Action {
     implicit request =>
 
       if (requestValid(request)) {
