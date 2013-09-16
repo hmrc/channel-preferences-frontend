@@ -135,7 +135,9 @@ class SaMicroService extends MicroService {
   def getPreferences(utr: String): Option[SaPreference] = {
 
     try {
-      httpGet[SaPreference](s"/sa/utr/$utr/preferences").map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/sa/utr/$utr/preferences' gave an inconsistent response"))
+      val v = httpGet[SaPreference](s"/sa/utr/$utr/preferences")
+      v.map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/sa/utr/$utr/preferences' gave an inconsistent response"))
+
     } catch {
       case MicroServiceException(errorMessage, response) if response.status == 404 => None
       case otherException: Exception => throw otherException
