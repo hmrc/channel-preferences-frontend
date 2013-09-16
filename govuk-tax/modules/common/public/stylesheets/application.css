@@ -52,7 +52,7 @@
    }
 
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_shims\.scss}line{font-family:\0000349}}
+/* line 49, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/../_shims.scss */
 .l-constrained:after, .l-constrained--header:after, .l-constrained--topBordered:after, .header:after, .header__logo:after {
   content: "";
   display: block;
@@ -97,7 +97,7 @@ Example usage:
 /*
  * Corrects `block` display not defined in IE 8/9.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000322}}
+/* line 22, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 article,
 aside,
 details,
@@ -115,7 +115,7 @@ summary {
 /*
  * Corrects `inline-block` display not defined in IE 8/9.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000332}}
+/* line 32, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 audio,
 canvas,
 video {
@@ -126,7 +126,7 @@ video {
  * Prevents modern browsers from displaying `audio` without controls.
  * Remove excess height in iOS 5 devices.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000341}}
+/* line 41, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 audio:not([controls]) {
   display: none;
   height: 0;
@@ -135,7 +135,7 @@ audio:not([controls]) {
 /*
  * Addresses styling for `hidden` attribute not present in IE 8/9.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000350}}
+/* line 50, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 [hidden] {
   display: none;
 }
@@ -148,7 +148,7 @@ audio:not([controls]) {
  * 2. Prevents iOS text size adjust after orientation change, without disabling
  *    user zoom.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000364}}
+/* line 64, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 html {
   font-family: sans-serif;
   /* 1 */
@@ -161,7 +161,7 @@ html {
 /*
  * Removes default margin.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000374}}
+/* line 74, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 body {
   margin: 0;
 }
@@ -172,7 +172,7 @@ body {
 /*
  * Addresses `outline` inconsistency between Chrome and other browsers.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000386}}
+/* line 86, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 a:focus {
   outline: thin dotted;
 }
@@ -180,7 +180,7 @@ a:focus {
 /*
  * Improves readability when focused and also mouse hovered in all browsers.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\0000395}}
+/* line 95, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 a:active,
 a:hover {
   outline: 0;
@@ -193,7 +193,7 @@ a:hover {
  * Addresses `h1` font sizes within `section` and `article` in Firefox 4+,
  * Safari 5, and Chrome.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003108}}
+/* line 108, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 h1 {
   font-size: 2em;
 }
@@ -201,7 +201,7 @@ h1 {
 /*
  * Addresses styling not present in IE 8/9, Safari 5, and Chrome.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003116}}
+/* line 116, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 abbr[title] {
   border-bottom: 1px dotted;
 }
@@ -209,7 +209,7 @@ abbr[title] {
 /*
  * Addresses style set to `bolder` in Firefox 4+, Safari 5, and Chrome.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003125}}
+/* line 125, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 b,
 strong {
   font-weight: bold;
@@ -218,7 +218,7 @@ strong {
 /*
  * Addresses styling not present in Safari 5 and Chrome.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003133}}
+/* line 133, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 dfn {
   font-style: italic;
 }
@@ -226,7 +226,7 @@ dfn {
 /*
  * Addresses styling not present in IE 8/9.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003141}}
+/* line 141, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 mark {
   background: #ff0;
   color: #000;
@@ -235,7 +235,7 @@ mark {
 /*
  * Corrects font family set oddly in Safari 5 and Chrome.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003154}}
+/* line 154, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 code,
 kbd,
 pre,
@@ -247,7 +247,7 @@ samp {
 /*
  * Improves readability of pre-formatted text in all browsers.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003163}}
+/* line 163, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 pre {
   white-space: pre;
   white-space: pre-wrap;
@@ -257,7 +257,7 @@ pre {
 /*
  * Sets consistent quote types.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003173}}
+/* line 173, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 q {
   quotes: "\201C" "\201D" "\2018" "\2019";
 }
@@ -265,7 +265,7 @@ q {
 /*
  * Addresses inconsistent and variable font size in all browsers.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003181}}
+/* line 181, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 small {
   font-size: 80%;
 }
@@ -273,7 +273,7 @@ small {
 /*
  * Prevents `sub` and `sup` affecting `line-height` in all browsers.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003190}}
+/* line 190, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 sub,
 sup {
   font-size: 75%;
@@ -282,12 +282,12 @@ sup {
   vertical-align: baseline;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003197}}
+/* line 197, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 sup {
   top: -0.5em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003201}}
+/* line 201, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 sub {
   bottom: -0.25em;
 }
@@ -298,7 +298,7 @@ sub {
 /*
  * Removes border when inside `a` element in IE 8/9.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003213}}
+/* line 213, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 img {
   border: 0;
 }
@@ -306,7 +306,7 @@ img {
 /*
  * Corrects overflow displayed oddly in IE 9.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003221}}
+/* line 221, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 svg:not(:root) {
   overflow: hidden;
 }
@@ -317,7 +317,7 @@ svg:not(:root) {
 /*
  * Addresses margin not present in IE 8/9 and Safari 5.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003233}}
+/* line 233, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 figure {
   margin: 0;
 }
@@ -328,7 +328,7 @@ figure {
 /*
  * Define consistent border, margin, and padding.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003245}}
+/* line 245, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 fieldset {
   border: 1px solid #c0c0c0;
   margin: 0 2px;
@@ -339,7 +339,7 @@ fieldset {
  * 1. Corrects color not being inherited in IE 8/9.
  * 2. Remove padding so people aren't caught out if they zero out fieldsets.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003256}}
+/* line 256, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 legend {
   border: 0;
   /* 1 */
@@ -352,7 +352,7 @@ legend {
  * 2. Corrects font size not being inherited in all browsers.
  * 3. Addresses margins set differently in Firefox 4+, Safari 5, and Chrome
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003270}}
+/* line 270, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 button,
 input,
 select,
@@ -369,7 +369,7 @@ textarea {
  * Addresses Firefox 4+ setting `line-height` on `input` using `!important` in
  * the UA stylesheet.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003282}}
+/* line 282, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 button,
 input {
   line-height: normal;
@@ -382,7 +382,7 @@ input {
  * 3. Improves usability and consistency of cursor style between image-type
  *    `input` and others.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003297}}
+/* line 297, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 button,
 html input[type="button"],
 input[type="reset"],
@@ -396,7 +396,7 @@ input[type="submit"] {
 /*
  * Re-set default cursor for disabled elements.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003307}}
+/* line 307, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 button[disabled],
 input[disabled] {
   cursor: default;
@@ -406,7 +406,7 @@ input[disabled] {
  * 1. Addresses box sizing set to `content-box` in IE 8/9.
  * 2. Removes excess padding in IE 8/9.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003317}}
+/* line 317, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 input[type="checkbox"],
 input[type="radio"] {
   box-sizing: border-box;
@@ -420,7 +420,7 @@ input[type="radio"] {
  * 2. Addresses `box-sizing` set to `border-box` in Safari 5 and Chrome
  *    (include `-moz` to future-proof).
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003328}}
+/* line 328, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 input[type="search"] {
   -webkit-appearance: textfield;
   /* 1 */
@@ -434,7 +434,7 @@ input[type="search"] {
  * Removes inner padding and search cancel button in Safari 5 and Chrome
  * on OS X.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003341}}
+/* line 341, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-decoration {
   -webkit-appearance: none;
@@ -443,7 +443,7 @@ input[type="search"]::-webkit-search-decoration {
 /*
  * Removes inner padding and border in Firefox 4+.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003350}}
+/* line 350, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 button::-moz-focus-inner,
 input::-moz-focus-inner {
   border: 0;
@@ -454,7 +454,7 @@ input::-moz-focus-inner {
  * 1. Removes default vertical scrollbar in IE 8/9.
  * 2. Improves readability and alignment in all browsers.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003360}}
+/* line 360, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 textarea {
   overflow: auto;
   /* 1 */
@@ -468,26 +468,26 @@ textarea {
 /*
  * Remove most spacing between table cells.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_normalize\.scss}line{font-family:\00003373}}
+/* line 373, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_normalize.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
 /* New Greys */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\000031}}
+/* line 1, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 html, body, button, input, table, td, th {
   font-family: "nta", Arial, sans-serif;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\000034}}
+/* line 4, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 html, body, div, h1, h2, h3, h4, h5, h6, article, aside, footer, header, hgroup, nav, section {
   margin: 0;
   padding: 0;
   vertical-align: baseline;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000312}}
+/* line 12, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 .group:before,
 .group:after {
   content: "\0020";
@@ -496,33 +496,33 @@ html, body, div, h1, h2, h3, h4, h5, h6, article, aside, footer, header, hgroup,
   overflow: hidden;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000319}}
+/* line 19, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 .group:after {
   clear: both;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000322}}
+/* line 22, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 .group {
   zoom: 1;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000327}}
+/* line 27, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 .content-fixed {
   top: 0;
   position: fixed;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000331}}
+/* line 31, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 .shim {
   display: block;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000335}}
+/* line 35, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 html {
   background: white;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000339}}
+/* line 39, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 body {
   color: #0b0c0c;
   line-height: 1.5;
@@ -530,77 +530,77 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000346}}
+/* line 46, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 fieldset {
   border: none;
   padding: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000352}}
+/* line 52, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 a,
 a:visited {
   color: #2e3191;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000356}}
+/* line 56, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 a:hover {
   color: #2e8aca;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000360}}
+/* line 60, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 a:active {
   color: #2e8aca;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003379}}
+/* line 379, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 a[rel="external"]:after {
   background-image: url("../images/external-link.png");
   background-repeat: no-repeat;
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003379}}
+  /* line 379, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
   a[rel="external"]:after {
     background-image: url("../images/external-link-24x24.png");
     background-size: 12px 400px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003320}}
+/* line 320, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 a[rel="external"]:after {
   content: "\A0\A0\A0\A0";
   background-position: right 6px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003329}}
+/* line 329, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 a[rel="external"]:hover:after {
   background-position: right -382px;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003320}}
+  /* line 320, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
   a[rel="external"]:after {
     content: "\A0\A0\A0\A0\A0";
     background-position: right 3px;
   }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003329}}
+  /* line 329, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
   a[rel="external"]:hover:after {
     background-position: right -385px;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003320}}
+/* line 320, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 .external-link:after {
   content: "\A0\A0\A0\A0\A0\A0\A0\A0";
   background-position: right 0px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003329}}
+/* line 329, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 .external-link:hover:after {
   background-position: right 0px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003391}}
+/* line 391, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 .external-link:after {
   background-image: url("../images/external-link-black-12x12.png");
   background-repeat: no-repeat;
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003391}}
+  /* line 391, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
   .external-link:after {
     background-image: url("../images/external-link-black-24x24.png");
     background-size: 12px 400px;
@@ -616,7 +616,7 @@ a[rel="external"]:hover:after {
  * 3. Removes Android and iOS tap highlight color to prevent entire container being highlighted
  *    www.yuiblog.com/blog/2010/10/01/quick-tip-customizing-the-mobile-safari-tap-highlight-color/
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\0000389}}
+/* line 89, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 html {
   font-size: 62.5%;
   /* 1 */
@@ -632,7 +632,7 @@ html {
  *    (62.5% * 160% = 100%)
  * 2. Addresses margins handled incorrectly in IE6/7
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\00003102}}
+/* line 102, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 body {
   font-size: 160%;
   /* 1 */
@@ -640,34 +640,34 @@ body {
   /* 2 */
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\00003108}}
+/* line 108, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 b,
 strong {
   font-weight: 600;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\00003112}}
+/* line 112, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 button {
   *overflow: visible;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\00003116}}
+/* line 116, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 abbr[title] {
   cursor: help;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\00003120}}
+/* line 120, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: searchfield-cancel-button;
   margin-right: 2px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\00003125}}
+/* line 125, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 input[type="search"]::-webkit-search-decoration {
   -webkit-appearance: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_basic\.scss}line{font-family:\00003130}}
+/* line 130, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_basic.scss */
 table {
   width: 100%;
 }
@@ -676,7 +676,7 @@ table {
  * Text styles for articles.
  * It's kind of like typography innit.
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\000036}}
+/* line 6, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h1 {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -688,14 +688,14 @@ article h1 {
   margin-bottom: 0.75em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\000036}}
+  /* line 6, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article h1 {
     font-size: 20px;
     line-height: 1.2;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000312}}
+/* line 12, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article header h1 {
   font-family: "nta", Arial, sans-serif;
   font-size: 27px;
@@ -710,20 +710,20 @@ article header h1 {
   margin-bottom: 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000312}}
+  /* line 12, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article header h1 {
     font-size: 18px;
     line-height: 1.11111;
   }
 }
 @media (min-width: 641px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000312}}
+  /* line 12, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article header h1 {
     padding-top: 4px;
     padding-bottom: 6px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000323}}
+/* line 23, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article header h1 span {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -734,24 +734,24 @@ article header h1 span {
   margin-bottom: 0.4em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000323}}
+  /* line 23, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article header h1 span {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000331}}
+/* line 31, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .wf-nta-n4-active article header h1 span {
   font-family: "NTA", "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000335}}
+/* line 35, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h1 + h2 {
   margin-top: 0.75em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000339}}
+/* line 39, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h2 {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -762,19 +762,19 @@ article h2 {
   margin: 1.2em 0 0.4em 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000339}}
+  /* line 39, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article h2 {
     font-size: 20px;
     line-height: 1.2;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000344}}
+/* line 44, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h2 + h3 {
   margin-top: 0.75em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000348}}
+/* line 48, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h3 {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -786,42 +786,42 @@ article h3 {
   margin-bottom: 0.75em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000348}}
+  /* line 48, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article h3 {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000354}}
+/* line 54, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h3 + h4 {
   margin-top: 0.75em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000358}}
+/* line 58, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h4 {
   margin-top: 1.5em;
   margin-bottom: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000363}}
+/* line 63, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h3 + table {
   margin-top: 0.652em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000367}}
+/* line 67, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h4 + table {
   margin-top: 0.75em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000373}}
+/* line 73, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h2 + p, article h3 + p, article h4 + p,
 article h2 + ol, article h3 + ol, article h4 + ol,
 article h2 + ul, article h3 + ul, article h4 + ul {
   margin-top: 0.2em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000380}}
+/* line 80, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article h1,
 article h2,
 article h3,
@@ -829,12 +829,12 @@ article h4 {
   color: #0b0c0c;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000384}}
+/* line 84, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article p, article ul, article ol {
   margin: 0.75em 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000388}}
+/* line 88, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article p {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -843,19 +843,19 @@ article p {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000388}}
+  /* line 88, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article p {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000392}}
+/* line 92, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article p + .help-notice {
   margin-top: 2em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000396}}
+/* line 96, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article li {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -866,26 +866,26 @@ article li {
   padding-left: 0.3em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000396}}
+  /* line 96, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article li {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\0000396}}
+  /* line 96, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article li {
     margin-left: 16px;
     padding-left: 0;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003107}}
+/* line 107, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article li ul,
 article li ol {
   margin: 0;
   list-style-position: inside;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003112}}
+/* line 112, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article li li {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -895,13 +895,13 @@ article li li {
   list-style-type: circle;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003112}}
+  /* line 112, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article li li {
     font-size: 16px;
     line-height: 1.25;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003117}}
+/* line 117, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article li p {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -911,21 +911,21 @@ article li p {
   margin: 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003117}}
+  /* line 117, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article li p {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003123}}
+/* line 123, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ul, article ol {
   padding-left: 1em;
   margin-top: 0.75em;
   margin-bottom: 0.75em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003123}}
+  /* line 123, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ul, article ol {
     padding-left: 0;
     margin-left: 0;
@@ -936,41 +936,41 @@ article ul, article ol {
  * Example has a green background, so we need an additional indent to
  * avoid the bullets hanging on the edge of the colour.
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003139}}
+/* line 139, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .example ul,
 article .example ol {
   margin-left: 0.5em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003143}}
+/* line 143, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ul {
   list-style-type: circle;
   list-style-image: url("../images/bullet-disc-5px.gif");
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003148}}
+/* line 148, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol {
   list-style-type: decimal;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003152}}
+/* line 152, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article table ul {
   padding-left: 0.75em;
   margin: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003157}}
+/* line 157, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article table ul li:last-child {
   margin-bottom: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003161}}
+/* line 161, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article dl {
   margin-top: 1.5em;
   margin-bottom: 1.88em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003166}}
+/* line 166, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article dt {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -980,26 +980,26 @@ article dt {
   margin-bottom: 0.25em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003166}}
+  /* line 166, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article dt {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003171}}
+/* line 171, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article dd {
   margin-bottom: 0.75em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003175}}
+/* line 175, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article table {
   border-collapse: collapse;
   border-spacing: 0;
   margin: 1em -1em 2em -1em;
   width: 105.95%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003181}}
+/* line 181, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article table caption {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -1011,25 +1011,25 @@ article table caption {
   text-align: left;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003181}}
+  /* line 181, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article table caption {
     font-size: 20px;
     line-height: 1.2;
   }
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003175}}
+  /* line 175, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article table {
     margin: 1em 0 2em 0;
     width: 100%;
   }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003191}}
+  /* line 191, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article table caption {
     padding-left: 0;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003197}}
+/* line 197, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article th, article td {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -1040,44 +1040,44 @@ article th, article td {
   padding: 0.7em 0.5em 0.7em 1em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003197}}
+  /* line 197, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article th, article td {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003320}}
+/* line 320, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 article th a[rel="external"]:after, article td a[rel="external"]:after {
   content: "\A0\A0\A0\A0\A0";
   background-position: right 3px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003329}}
+/* line 329, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
 article th a[rel="external"]:hover:after, article td a[rel="external"]:hover:after {
   background-position: right -385px;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003320}}
+  /* line 320, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
   article th a[rel="external"]:after, article td a[rel="external"]:after {
     content: "\A0\A0\A0\A0\A0";
     background-position: right 1px;
   }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/_typography\.scss}line{font-family:\00003329}}
+  /* line 329, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/_typography.scss */
   article th a[rel="external"]:hover:after, article td a[rel="external"]:hover:after {
     background-position: right -387px;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003210}}
+/* line 210, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article tr:nth-child(even) td {
   background-color: #fff;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003214}}
+/* line 214, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article td {
   background: #eaedef;
   border: dotted 1px #b8c6cc;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003218}}
+/* line 218, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article td small {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -1086,7 +1086,7 @@ article td small {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003218}}
+  /* line 218, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article td small {
     font-size: 14px;
     line-height: 1.14286;
@@ -1095,12 +1095,12 @@ article td small {
 
 /* reduce table font size on very small screens */
 @media screen and (max-width: 320px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003225}}
+  /* line 225, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article th, article td, article td small {
     font-size: 10px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003230}}
+/* line 230, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article th {
   line-height: 1.25em;
   text-align: left;
@@ -1113,13 +1113,13 @@ article th {
 /*
  * More article formatting including markdown styles.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003243}}
+/* line 243, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .mainstream article .summary {
   margin: 0 0 2em 0;
   padding: 0;
   color: #0b0c0c;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003252}}
+/* line 252, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .mainstream article .summary p {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -1128,26 +1128,26 @@ article th {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003252}}
+  /* line 252, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   .mainstream article .summary p {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003243}}
+  /* line 243, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   .mainstream article .summary {
     margin: 0 0 2em 0;
     padding: 0;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003262}}
+/* line 262, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .mainstream .ancillary .summary {
   margin-bottom: 2em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003269}}
+/* line 269, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .summary p,
 article .summary h2,
 .mainstream .ancillary .summary p,
@@ -1156,18 +1156,18 @@ article .summary h2,
   margin: 0 0.75em 0 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003275}}
+/* line 275, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .summary h2,
 .mainstream .ancillary .summary h2 {
   line-height: 1.35em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003282}}
+/* line 282, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .licence-finder article.outcome ul {
   padding: 1em 1em;
   margin: 0 -1em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003286}}
+/* line 286, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .licence-finder article.outcome ul li {
   list-style-type: none;
   list-style-image: none;
@@ -1175,7 +1175,7 @@ article .summary h2,
   padding: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003294}}
+/* line 294, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .advisory {
   background: url("../images/icon-information.png") no-repeat scroll 98% 1em #d5e8f3;
   line-height: 1.3em;
@@ -1184,75 +1184,75 @@ article .advisory {
   text-align: left;
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003294}}
+  /* line 294, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .advisory {
     background-image: url("../images/icon-information-2x.png");
     background-size: 27px 27px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003306}}
+/* line 306, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .advisory p {
   margin: 0 0.75em 0 0;
   min-height: 1.75em;
   padding-right: 3em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003316}}
+/* line 316, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .advisory strong {
   font-weight: 400;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003320}}
+/* line 320, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .advisory.high-alert {
   background-color: #eaedef;
   border-color: #C00;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003294}}
+  /* line 294, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .advisory {
     margin: 0 0 1em 0;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003330}}
+/* line 330, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .intro {
   background-color: transparent;
   margin: 0 -1em 1.5em -1em;
   padding: 1em 1em 1em 1em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003335}}
+/* line 335, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .intro p:first-child {
   margin-top: 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003330}}
+  /* line 330, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .intro {
     margin: 0 0 1.5em 0;
     padding: 0;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003345}}
+/* line 345, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 #wrapper.place article .intro {
   margin-bottom: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003349}}
+/* line 349, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .example {
   border-left: 10px solid #eaedef;
   padding-left: 1.5em;
   margin: 2.5em 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003354}}
+/* line 354, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .example strong {
   display: block;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003349}}
+  /* line 349, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .example {
     margin: 0.75 0;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003366}}
+/* line 366, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .application-notice,
 article .advisory.minor,
 article .form-download,
@@ -1260,7 +1260,7 @@ article .subscribe {
   padding: 0.25em 0 0.25em 3.5em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003366}}
+  /* line 366, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .application-notice,
   article .advisory.minor,
   article .form-download,
@@ -1269,99 +1269,99 @@ article .subscribe {
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003374}}
+/* line 374, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .application-notice {
   padding: 0.1em 0 0.1em 1em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003378}}
+/* line 378, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .advisory.minor {
   background-image: none;
   padding: 0.75em 1em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003383}}
+/* line 383, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .help-notice {
   background: none;
-  background: url("../images/icon-important-8e733459.png") no-repeat scroll 0 0.5em;
+  background: url("../images/icon-important.png") no-repeat scroll 0 0.5em;
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003383}}
+  /* line 383, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .help-notice {
     background-image: url("../images/icon-important-2x.png");
     background-size: 29px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003392}}
+/* line 392, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .help-notice p {
   font-weight: 600;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003395}}
+/* line 395, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .help-notice p a {
   font-weight: 600;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003401}}
+/* line 401, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article a.important {
-  background: url("../images/icon-important-8e733459.png") no-repeat scroll 100% 0 white;
+  background: url("../images/icon-important.png") no-repeat scroll 100% 0 white;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003405}}
+/* line 405, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .subscribe {
   background: url("../images/icon-calendar.png") no-repeat scroll 98% 1em #d5e8f3;
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003405}}
+  /* line 405, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .subscribe {
     background-image: url("../images/icon-calendar-2x.png");
     background-size: 27px 27px;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003415}}
+/* line 415, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .info-notice {
   background: none;
   border-left: 10px #dee0e2 solid;
   margin-bottom: 1em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003423}}
+/* line 423, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .help-notice p,
 article .info-notice p,
 article .subscribe p {
   padding-right: 4em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003427}}
+/* line 427, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .info-notice p {
   padding: 0 1em 0 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003431}}
+/* line 431, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .help-notice p {
   padding: 0 1em 0 2em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003437}}
+/* line 437, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article p + .help-notice,
 article p + .info-notice {
   margin-top: 2em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003441}}
+/* line 441, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .info-notice a[rel="external"] {
   display: inline;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003445}}
+/* line 445, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .form-download {
   padding: 0.25em 0 0.25em 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003448}}
+/* line 448, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .form-download p {
   padding-right: 3em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003452}}
+/* line 452, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .form-download a {
   display: block;
   font-weight: 600;
@@ -1370,57 +1370,57 @@ article .form-download a {
   padding: 0 0 0 2.5em;
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003452}}
+  /* line 452, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .form-download a {
     background-image: url("../images/icon-file-download-2x.png");
     background-size: 25px 25px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003465}}
+/* line 465, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .form-download a[rel="external"]:after {
   content: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003471}}
+/* line 471, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .contact {
   margin: 0.75em 0;
   min-width: 60%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003476}}
+/* line 476, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .contact dl dt {
   font-weight: bold;
   margin: 0 0 0.25em 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003481}}
+/* line 481, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .contact dl dd {
   margin: 0 0 0.5em 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003471}}
+  /* line 471, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   .contact {
     margin: 0.75em 0;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003491}}
+/* line 491, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .meta-data .contact {
   width: auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003496}}
+/* line 496, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .contact dl dt,
 .meta-data .contact dt {
   float: left;
   clear: left;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003502}}
+/* line 502, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .contact dl dd,
 .meta-data .contact dd {
   margin-left: 8.5em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003506}}
+/* line 506, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .address {
   background: #eaedef;
   margin: 0.75em 0 1.5em 0;
@@ -1428,34 +1428,34 @@ article .address {
   min-width: 35%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003513}}
+/* line 513, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.places {
   list-style-type: none;
   padding-left: 0;
   margin-left: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003518}}
+/* line 518, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.places.answer_locations .information {
   min-height: 3em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003522}}
+/* line 522, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.places li {
   margin: 0;
   padding-left: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003528}}
+/* line 528, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 section.places h3 {
   margin-top: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003532}}
+/* line 532, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .place {
   margin: 1.5em 0;
   border-bottom: solid 1px #a1acb2;
   padding-bottom: 1.5em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003537}}
+/* line 537, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .place .address {
   background: none;
   border: none;
@@ -1464,12 +1464,12 @@ article .place .address {
   width: auto;
   display: block;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003546}}
+/* line 546, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .place .url {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003551}}
+/* line 551, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .place .additional-information {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -1478,30 +1478,30 @@ article .place .additional-information {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003551}}
+  /* line 551, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .place .additional-information {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003554}}
+/* line 554, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article .place .additional-information a {
   display: block;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003532}}
+  /* line 532, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article .place {
     margin: 0.75em 0;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003564}}
+/* line 564, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ul.view-maps {
   list-style: none;
   padding: 0;
   margin: 1em 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003569}}
+/* line 569, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ul.view-maps li {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -1512,20 +1512,20 @@ article ul.view-maps li {
   margin-right: 1em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003569}}
+  /* line 569, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ul.view-maps li {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003582}}
+/* line 582, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps {
   padding-left: 0;
   margin-left: 0;
   overflow: hidden;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003587}}
+/* line 587, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li {
   background-position: 0 0.87em;
   background-repeat: no-repeat;
@@ -1533,162 +1533,162 @@ article ol.steps > li {
   margin-left: 0;
   padding: 0.75em 0 0.75em 2.2em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(1) {
   background-image: url("../images/icon-step-1.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(1) {
     background-image: url("../images/icon-step-1-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(2) {
   background-image: url("../images/icon-step-2.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(2) {
     background-image: url("../images/icon-step-2-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(3) {
   background-image: url("../images/icon-step-3.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(3) {
     background-image: url("../images/icon-step-3-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(4) {
   background-image: url("../images/icon-step-4.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(4) {
     background-image: url("../images/icon-step-4-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(5) {
   background-image: url("../images/icon-step-5.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(5) {
     background-image: url("../images/icon-step-5-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(6) {
   background-image: url("../images/icon-step-6.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(6) {
     background-image: url("../images/icon-step-6-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(7) {
   background-image: url("../images/icon-step-7.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(7) {
     background-image: url("../images/icon-step-7-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(8) {
   background-image: url("../images/icon-step-8.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(8) {
     background-image: url("../images/icon-step-8-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(9) {
   background-image: url("../images/icon-step-9.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(9) {
     background-image: url("../images/icon-step-9-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(10) {
   background-image: url("../images/icon-step-10.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(10) {
     background-image: url("../images/icon-step-10-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(11) {
   background-image: url("../images/icon-step-11.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(11) {
     background-image: url("../images/icon-step-11-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(12) {
   background-image: url("../images/icon-step-12.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(12) {
     background-image: url("../images/icon-step-12-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(13) {
   background-image: url("../images/icon-step-13.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(13) {
     background-image: url("../images/icon-step-13-2x.png");
     background-size: 24px 24px;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+/* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 article ol.steps > li:nth-child(14) {
   background-image: url("../images/icon-step-14.png");
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003595}}
+  /* line 595, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   article ol.steps > li:nth-child(14) {
     background-image: url("../images/icon-step-14-2x.png");
     background-size: 24px 24px;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003613}}
+/* line 613, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .highlight-answer,
 .highlighted-event {
   background-color: #28a197;
@@ -1697,13 +1697,13 @@ article ol.steps > li:nth-child(14) {
   padding: 0.1em 2em 0.2em 2em;
   margin: 0 -1em 1em -1em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003620}}
+/* line 620, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .highlight-answer p,
 .highlighted-event p {
   line-height: 2.3em;
   color: #fff;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003624}}
+/* line 624, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .highlight-answer p em,
 .highlighted-event p em {
   font-size: 2.45em;
@@ -1714,7 +1714,7 @@ article ol.steps > li:nth-child(14) {
   color: #fff;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003613}}
+  /* line 613, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   .highlight-answer,
   .highlighted-event {
     margin: 0 0 1em 0;
@@ -1724,13 +1724,13 @@ article ol.steps > li:nth-child(14) {
     font-weight: 400;
     text-transform: none;
   }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003639}}
+  /* line 639, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   .highlight-answer p,
   .highlighted-event p {
     font-size: 1em;
     line-height: inherit;
   }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003643}}
+  /* line 643, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   .highlight-answer p em,
   .highlighted-event p em {
     font-size: 1em;
@@ -1738,7 +1738,7 @@ article ol.steps > li:nth-child(14) {
   }
 }
 @media (max-width: 640px) and (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003613}}
+  /* line 613, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
   .highlight-answer,
   .highlighted-event {
     font-size: 32px;
@@ -1746,7 +1746,7 @@ article ol.steps > li:nth-child(14) {
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/static\/_text\.scss}line{font-family:\00003651}}
+/* line 651, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../static/_text.scss */
 .clocks-calendar .equal-width {
   width: 50%;
 }
@@ -1772,7 +1772,7 @@ article ol.steps > li:nth-child(14) {
   font-style: normal;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\000031}}
+/* line 1, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 a {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -1781,14 +1781,14 @@ a {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\000031}}
+  /* line 1, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   a {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\000034}}
+/* line 4, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 p {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -1797,30 +1797,30 @@ p {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\000034}}
+  /* line 4, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   p {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\000037}}
+/* line 7, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 ul {
   padding: 0;
   margin: 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000311}}
+/* line 11, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 li {
   list-style-position: inside;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000315}}
+/* line 15, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 h2, h3, h4 {
   font-weight: 400;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000319}}
+/* line 19, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 h1 {
   font-family: "nta", Arial, sans-serif;
   font-size: 48px;
@@ -1832,14 +1832,14 @@ h1 {
   margin-bottom: 0.75em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000319}}
+  /* line 19, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   h1 {
     font-size: 32px;
     line-height: 1.09375;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000325}}
+/* line 25, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 h2 {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -1851,14 +1851,14 @@ h2 {
   margin-bottom: 0.25em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000325}}
+  /* line 25, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   h2 {
     font-size: 20px;
     line-height: 1.2;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000331}}
+/* line 31, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 h3 {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -1870,14 +1870,14 @@ h3 {
   margin-bottom: 0.25em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000331}}
+  /* line 31, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   h3 {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000337}}
+/* line 37, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 h4 {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -1888,14 +1888,14 @@ h4 {
   margin-bottom: 0.25em;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000337}}
+  /* line 37, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   h4 {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000343}}
+/* line 43, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 .heading-36 {
   font-family: "nta", Arial, sans-serif;
   font-size: 36px;
@@ -1905,14 +1905,14 @@ h4 {
   font-weight: 700;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000343}}
+  /* line 43, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   .heading-36 {
     font-size: 24px;
     line-height: 1.04167;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000346}}
+/* line 46, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 .heading-24 {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -1922,14 +1922,14 @@ h4 {
   font-weight: 700;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000346}}
+  /* line 46, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   .heading-24 {
     font-size: 20px;
     line-height: 1.2;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000350}}
+/* line 50, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
 .pre-heading {
   font-family: "nta", Arial, sans-serif;
   font-size: 27px;
@@ -1942,7 +1942,7 @@ h4 {
   text-transform: capitalize;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_typography\.scss}line{font-family:\0000350}}
+  /* line 50, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_typography.scss */
   .pre-heading {
     font-size: 18px;
     line-height: 1.11111;
@@ -1956,49 +1956,49 @@ h4 {
 * @tested       N/A
 * @requires     [ toolkit/_colours.scss ]
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\000039}}
+/* line 9, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 body {
   text-align: center;
   counter-reset: section;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\0000313}}
+/* line 13, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 .l-bodyLeftColumn, .l-bodyLeftColumn--topBordered, .l-bodyRightColumn {
   float: left;
   padding-top: 20px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\0000317}}
+/* line 17, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 .l-constrained, .l-constrained--header, .l-constrained--topBordered {
   text-align: left;
   max-width: 960px;
   margin: 0 auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\0000323}}
+/* line 23, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 .l-constrained--header {
   padding: 0.5em 0px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\0000327}}
+/* line 27, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 .l-constrained--topBordered {
   border-top: 10px solid #2b8cc4;
   margin-bottom: 60px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\0000332}}
+/* line 32, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 .l-bodyLeftColumn {
   width: 62.916%;
   margin-right: 3.125%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\0000337}}
+/* line 37, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 .l-bodyLeftColumn--topBordered {
   width: 65.625%;
   margin-right: 3.125%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_layouts\.scss}line{font-family:\0000342}}
+/* line 42, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_layouts.scss */
 .l-bodyRightColumn {
   width: 31.25%;
 }
@@ -2014,7 +2014,7 @@ body {
 					toolkit/design-patterns/_buttons.scss
 				]
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_buttons\.scss}line{font-family:\0000313}}
+/* line 13, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_buttons.scss */
 button, .button, .button--get-started {
   text-transform: capitalize;
   background-color: #00823b;
@@ -2038,44 +2038,44 @@ button, .button, .button--get-started {
   font-weight: 400;
   text-transform: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000349}}
+/* line 49, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button:visited, .button:visited, .button--get-started:visited {
   background-color: #00823b;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000353}}
+/* line 53, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button:hover, button:focus, .button:hover, .button--get-started:hover, .button:focus, .button--get-started:focus {
   background: #00692f;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000356}}
+/* line 56, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button:active, .button:active, .button--get-started:active {
   top: 2px;
   -webkit-box-shadow: 0 0 0 #00823b;
   -moz-box-shadow: 0 0 0 #00823b;
   box-shadow: 0 0 0 #00823b;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000364}}
+/* line 64, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button.disabled, button[disabled="disabled"], button[disabled], .button.disabled, .disabled.button--get-started, .button[disabled="disabled"], [disabled="disabled"].button--get-started, .button[disabled], [disabled].button--get-started {
   zoom: 1;
   filter: alpha(opacity=50);
   opacity: 0.5;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000366}}
+/* line 66, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button.disabled:hover, button[disabled="disabled"]:hover, button[disabled]:hover, .button.disabled:hover, .disabled.button--get-started:hover, .button[disabled="disabled"]:hover, [disabled="disabled"].button--get-started:hover, .button[disabled]:hover, [disabled].button--get-started:hover {
   cursor: default;
   background-color: #00823b;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000370}}
+/* line 70, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button.disabled:active, button[disabled="disabled"]:active, button[disabled]:active, .button.disabled:active, .disabled.button--get-started:active, .button[disabled="disabled"]:active, [disabled="disabled"].button--get-started:active, .button[disabled]:active, [disabled].button--get-started:active {
   top: 0;
   -webkit-box-shadow: 0 2px 0 #003518;
   -moz-box-shadow: 0 2px 0 #003518;
   box-shadow: 0 2px 0 #003518;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000384}}
+/* line 84, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button:hover, button:focus, button:visited, .button:hover, .button--get-started:hover, .button:focus, .button--get-started:focus, .button:visited, .button--get-started:visited {
   color: white;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000398}}
+/* line 98, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button:before, .button:before, .button--get-started:before {
   content: "";
   height: 110%;
@@ -2086,12 +2086,12 @@ button:before, .button:before, .button--get-started:before {
   top: 0;
   left: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\00003108}}
+/* line 108, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button:active:before, .button:active:before, .button--get-started:active:before {
   top: -10%;
   height: 120%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\00003121}}
+/* line 121, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].button--get-started:after {
   display: none;
   content: none;
@@ -2099,14 +2099,14 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
   margin-right: 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_buttons\.scss}line{font-family:\0000313}}
+  /* line 13, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_buttons.scss */
   button, .button, .button--get-started {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_buttons\.scss}line{font-family:\0000319}}
+/* line 19, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_buttons.scss */
 .button--alert {
   background-color: #b10e1e;
   position: relative;
@@ -2129,44 +2129,44 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
   font-weight: 400;
   text-transform: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000349}}
+/* line 49, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert:visited {
   background-color: #b10e1e;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000353}}
+/* line 53, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert:hover, .button--alert:focus {
   background: #990c1a;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000356}}
+/* line 56, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert:active {
   top: 2px;
   -webkit-box-shadow: 0 0 0 #b10e1e;
   -moz-box-shadow: 0 0 0 #b10e1e;
   box-shadow: 0 0 0 #b10e1e;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000364}}
+/* line 64, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert.disabled, .button--alert[disabled="disabled"], .button--alert[disabled] {
   zoom: 1;
   filter: alpha(opacity=50);
   opacity: 0.5;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000366}}
+/* line 66, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert.disabled:hover, .button--alert[disabled="disabled"]:hover, .button--alert[disabled]:hover {
   cursor: default;
   background-color: #b10e1e;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000370}}
+/* line 70, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert.disabled:active, .button--alert[disabled="disabled"]:active, .button--alert[disabled]:active {
   top: 0;
   -webkit-box-shadow: 0 2px 0 #6a0812;
   -moz-box-shadow: 0 2px 0 #6a0812;
   box-shadow: 0 2px 0 #6a0812;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000384}}
+/* line 84, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert:hover, .button--alert:focus, .button--alert:visited {
   color: white;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\0000398}}
+/* line 98, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert:before {
   content: "";
   height: 110%;
@@ -2177,12 +2177,12 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
   top: 0;
   left: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\00003108}}
+/* line 108, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert:active:before {
   top: -10%;
   height: 120%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/toolkit\/stylesheets\/design-patterns\/_buttons\.scss}line{font-family:\00003121}}
+/* line 121, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/../toolkit/stylesheets/design-patterns/_buttons.scss */
 .button--alert[rel="external"]:after {
   display: none;
   content: none;
@@ -2190,14 +2190,14 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
   margin-right: 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_buttons\.scss}line{font-family:\0000319}}
+  /* line 19, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_buttons.scss */
   .button--alert {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_buttons\.scss}line{font-family:\0000323}}
+/* line 23, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_buttons.scss */
 .button--get-started {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -2206,20 +2206,20 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
   text-transform: none;
   font-weight: 700;
   padding-right: 40px;
-  background-image: url(https://assets.digital.cabinet-office.gov.uk/static/icon-pointer-063838cde108768e30b077e5303783fc.png);
+  background-image: url(https://assets.digital.cabinet-office.gov.uk/static/icon-pointer.png);
   background-position: 100% 50%;
   background-repeat: no-repeat;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_buttons\.scss}line{font-family:\0000323}}
+  /* line 23, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_buttons.scss */
   .button--get-started {
     font-size: 20px;
     line-height: 1.2;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_buttons\.scss}line{font-family:\0000330}}
+/* line 30, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_buttons.scss */
 .button--get-started:hover {
-  background-image: url(https://assets.digital.cabinet-office.gov.uk/static/icon-pointer-063838cde108768e30b077e5303783fc.png);
+  background-image: url(https://assets.digital.cabinet-office.gov.uk/static/icon-pointer.png);
   background-position: 100% 50%;
   background-repeat: no-repeat;
 }
@@ -2231,7 +2231,7 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
 * @tested       N/A
 * @requires     toolkit/_colours.scss
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000310}}
+/* line 10, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .form-field, .form-field--inline {
   margin-bottom: 10px;
   line-height: 1.6em;
@@ -2242,7 +2242,7 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
 /**
  *	Allows you to stack input blocks side by side
 *3*/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000319}}
+/* line 19, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .form-field--inline {
   clear: none;
   float: left;
@@ -2250,7 +2250,7 @@ button[rel="external"]:after, .button[rel="external"]:after, [rel="external"].bu
   width: auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000327}}
+/* line 27, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 input {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -2263,34 +2263,34 @@ input {
   xwidth: 100%;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000327}}
+  /* line 27, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
   input {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000334}}
+/* line 34, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 input[type="radio"], input[type="checkbox"] {
   width: auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000337}}
+/* line 37, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .input--xxsmall {
   max-width: 2em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000340}}
+/* line 40, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .input--xsmall {
   max-width: 4em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000343}}
+/* line 43, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .input--small {
   max-width: 6em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000346}}
+/* line 46, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .input--fullwidth {
   width: 100%;
 }
@@ -2298,7 +2298,7 @@ input[type="radio"], input[type="checkbox"] {
 /**
  * By default form labels will be above inputs
 **/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000353}}
+/* line 53, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 label {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -2309,7 +2309,7 @@ label {
   margin-right: 10px;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000353}}
+  /* line 53, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
   label {
     font-size: 16px;
     line-height: 1.25;
@@ -2319,30 +2319,30 @@ label {
 /**
  * align labels with inputs
 **/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000362}}
+/* line 62, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .label--inline, .label--inline-right, .label--inlineRadio, .label--inlineRadio-left, .label--inlineRadio-right, .label--inlineDropdown, .label--inlineClose {
   display: inline;
   width: 150px;
   margin-right: 10px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000367}}
+/* line 67, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .label--inline-right {
   float: right;
   margin-left: 10px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000373}}
+/* line 73, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .label--inlineRadio, .label--inlineRadio-left, .label--inlineRadio-right, .label--inlineDropdown, .label--inlineClose {
   width: auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000377}}
+/* line 77, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .label--inlineRadio-left {
   margin-right: 10px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_form\.scss}line{font-family:\0000381}}
+/* line 81, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_form.scss */
 .label--inlineRadio-right {
   margin-right: 0;
   margin-left: 10px;
@@ -2355,11 +2355,11 @@ label {
 * @tested       N/A
 * @requires     N/A
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000311}}
+/* line 11, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 ul {
   list-style-type: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000313}}
+/* line 13, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 ul li {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -2368,31 +2368,31 @@ ul li {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000313}}
+  /* line 13, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
   ul li {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000318}}
+/* line 18, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .list--numbered {
   list-style-type: none;
   padding-left: 0;
   margin-bottom: 50px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000322}}
+/* line 22, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .list--numbered li {
   display: inline-block;
   margin-bottom: 20px;
   padding-left: 30px;
   position: relative;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000327}}
+/* line 27, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .list--numbered li p {
   margin-top: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000330}}
+/* line 30, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .list--numbered li:before {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -2408,60 +2408,60 @@ ul li {
   padding-right: 10px;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000330}}
+  /* line 30, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
   .list--numbered li:before {
     font-size: 16px;
     line-height: 1.25;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000341}}
+/* line 41, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .activity-list {
   padding-left: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000343}}
+/* line 43, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .activity-list li {
   display: inline-block;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000347}}
+/* line 47, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .activity-list__date, .activity-list__date--highlight {
   float: left;
   text-align: left;
   min-width: 160px;
   margin-right: 10px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000352}}
+/* line 52, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .activity-list__date > *, .activity-list__date--highlight > * {
   font-weight: bold;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000356}}
+/* line 56, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .activity-list__date--highlight {
   font-weight: bold;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000360}}
+/* line 60, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .activity-list__description {
   float: left;
   width: 400px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_lists\.scss}line{font-family:\0000366}}
+/* line 66, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_lists.scss */
 .coms-alerts img {
   margin-right: 10px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_table\.scss}line{font-family:\000032}}
+/* line 2, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_table.scss */
 table th, table td {
   padding: 5px 10px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_table\.scss}line{font-family:\000035}}
+/* line 5, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_table.scss */
 table th {
   border: 1px solid #a1acb2;
   background-color: #dee0e2;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_table\.scss}line{font-family:\000039}}
+/* line 9, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_table.scss */
 table td {
   border: 1px solid #a1acb2;
   background-color: #eaedef;
@@ -2482,17 +2482,17 @@ table td {
 /**
  * Add/remove floats
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000319}}
+/* line 19, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .float--right {
   float: right !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000320}}
+/* line 20, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .float--left {
   float: left !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000321}}
+/* line 21, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .float--none {
   float: none !important;
 }
@@ -2500,17 +2500,17 @@ table td {
 /**
  * Text alignment
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000327}}
+/* line 27, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .text--left {
   text-align: left  !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000328}}
+/* line 28, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .text--center {
   text-align: center !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000329}}
+/* line 29, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .text--right {
   text-align: right !important;
 }
@@ -2518,112 +2518,112 @@ table td {
 /**
  * Add/remove margins
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000336}}
+/* line 36, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push {
   margin: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000337}}
+/* line 37, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push--top {
   margin-top: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000338}}
+/* line 38, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push--right {
   margin-right: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000339}}
+/* line 39, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push--bottom {
   margin-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000340}}
+/* line 40, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push--left {
   margin-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000341}}
+/* line 41, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push--ends {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000342}}
+/* line 42, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push--sides {
   margin-right: 0 !important;
   margin-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000344}}
+/* line 44, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push-half {
   margin: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000345}}
+/* line 45, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push-half--top {
   margin-top: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000346}}
+/* line 46, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push-half--right {
   margin-right: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000347}}
+/* line 47, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push-half--bottom {
   margin-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000348}}
+/* line 48, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push-half--left {
   margin-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000349}}
+/* line 49, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push-half--ends {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000350}}
+/* line 50, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .push-half--sides {
   margin-right: 0 !important;
   margin-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000352}}
+/* line 52, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .flush {
   margin: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000353}}
+/* line 53, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .flush--top {
   margin-top: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000354}}
+/* line 54, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .flush--right {
   margin-right: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000355}}
+/* line 55, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .flush--bottom {
   margin-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000356}}
+/* line 56, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .flush--left {
   margin-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000357}}
+/* line 57, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .flush--ends {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000358}}
+/* line 58, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .flush--sides {
   margin-right: 0 !important;
   margin-left: 0 !important;
@@ -2632,112 +2632,112 @@ table td {
 /**
  * Add/remove paddings
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000364}}
+/* line 64, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft {
   padding: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000365}}
+/* line 65, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft--top {
   padding-top: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000366}}
+/* line 66, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft--right {
   padding-right: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000367}}
+/* line 67, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft--bottom {
   padding-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000368}}
+/* line 68, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft--left {
   padding-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000369}}
+/* line 69, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft--ends {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000370}}
+/* line 70, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft--sides {
   padding-right: 0 !important;
   padding-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000372}}
+/* line 72, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft-half {
   padding: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000373}}
+/* line 73, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft-half--top {
   padding-top: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000374}}
+/* line 74, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft-half--right {
   padding-right: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000375}}
+/* line 75, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft-half--bottom {
   padding-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000376}}
+/* line 76, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft-half--left {
   padding-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000377}}
+/* line 77, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft-half--ends {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000378}}
+/* line 78, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .soft-half--sides {
   padding-right: 0 !important;
   padding-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000380}}
+/* line 80, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .hard {
   padding: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000381}}
+/* line 81, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .hard--top {
   padding-top: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000382}}
+/* line 82, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .hard--right {
   padding-right: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000383}}
+/* line 83, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .hard--bottom {
   padding-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000384}}
+/* line 84, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .hard--left {
   padding-left: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000385}}
+/* line 85, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .hard--ends {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000386}}
+/* line 86, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .hard--sides {
   padding-right: 0 !important;
   padding-left: 0 !important;
@@ -2747,7 +2747,7 @@ table td {
  * Add a help cursor to any element that gives the user extra information on
  * `:hover`.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\0000394}}
+/* line 94, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .informative {
   cursor: help !important;
 }
@@ -2755,7 +2755,7 @@ table td {
 /**
  * Mute an object by reducing its opacity.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\00003102}}
+/* line 102, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .muted {
   opacity: 0.5 !important;
   filter: alpha(opacity=50) !important;
@@ -2767,7 +2767,7 @@ table td {
    <p class=proceed><a href=#>Read more...</a></p>
  *
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\00003114}}
+/* line 114, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .proceed {
   text-align: right !important;
 }
@@ -2778,7 +2778,7 @@ table td {
    <a href=# class=go>Read more</a>
  *
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\00003125}}
+/* line 125, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .go:after {
   content: "\00A0" "\00BB" !important;
 }
@@ -2786,7 +2786,7 @@ table td {
 /**
  * Apply capital case to an element (usually a `strong`).
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\00003133}}
+/* line 133, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .caps {
   text-transform: uppercase !important;
 }
@@ -2795,7 +2795,7 @@ table td {
  * Hide content off-screen without resorting to `display:none;`, also provide
  * breakpoint specific hidden elements.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\00003153}}
+/* line 153, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .accessibility,
 .visuallyhidden {
   border: 0 !important;
@@ -2808,7 +2808,7 @@ table td {
   width: 1px !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/base\/_helpers\.scss}line{font-family:\00003158}}
+/* line 158, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/base/_helpers.scss */
 .no-bullets {
   list-style: none;
 }
@@ -2825,25 +2825,25 @@ table td {
 					toolkit/_conditionals.scss
 				]
 */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000314}}
+/* line 14, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header {
   background-color: #0b0c0c;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000321}}
+/* line 21, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__logo {
   padding-top: 0;
   float: left;
   margin: 5px 20px 2px 0;
 }
 @media screen and (max-width: 379px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000321}}
+  /* line 21, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
   .header__logo {
     width: auto;
     float: none;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000334}}
+/* line 34, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__logo a {
   float: left;
   position: relative;
@@ -2851,7 +2851,7 @@ table td {
   height: 30px;
   overflow: hidden;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000340}}
+/* line 40, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__logo a img {
   position: absolute;
   left: -166px;
@@ -2862,14 +2862,14 @@ table td {
 }
 
 @media (min-width: 769px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000350}}
+  /* line 50, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
   .header__menu {
     width: 66.66%;
     float: left;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000357}}
+/* line 57, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__menu__proposition-name {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -2881,14 +2881,14 @@ table td {
   color: white;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000357}}
+  /* line 57, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
   .header__menu__proposition-name {
     font-size: 20px;
     line-height: 1.2;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000363}}
+/* line 63, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__menu__proposition-links {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -2901,18 +2901,18 @@ table td {
   margin: 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000363}}
+  /* line 63, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
   .header__menu__proposition-links {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000368}}
+/* line 68, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__menu__proposition-links li {
   display: inline;
   padding-right: 15px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000372}}
+/* line 72, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
 .header__menu__proposition-links a {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -2924,7 +2924,7 @@ table td {
   text-decoration: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_header\.scss}line{font-family:\0000372}}
+  /* line 72, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
   .header__menu__proposition-links a {
     font-size: 14px;
     line-height: 1.14286;
@@ -2934,34 +2934,34 @@ table td {
 /*------------------------------------*\
     footer
 \*------------------------------------*/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\000035}}
+/* line 5, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .footer {
   background-color: #dee0e2;
   border-top: 10px solid #2b8cc4;
   padding-top: 60px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000311}}
+/* line 11, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore, .explore--inside-government, .explore--inline {
   float: left;
   margin-right: 7%;
   width: 62%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000315}}
+/* line 15, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore a, .explore--inside-government a, .explore--inline a {
   color: #454a4c;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000317}}
+/* line 17, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore a:hover, .explore--inside-government a:hover, .explore--inline a:hover {
   color: #171819;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000321}}
+/* line 21, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore ul, .explore--inside-government ul, .explore--inline ul {
   border-top: 1px solid #a1acb2;
   padding-top: 20px;
   margin-top: 20px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000326}}
+/* line 26, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore li, .explore--inside-government li, .explore--inline li {
   display: block;
   float: left;
@@ -2970,61 +2970,61 @@ table td {
   margin: 0 0 1.5rem 0;
   width: 45.5%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000333}}
+/* line 33, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore li:nth-child(even), .explore--inside-government li:nth-child(even), .explore--inline li:nth-child(even) {
   float: right;
   clear: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000340}}
+/* line 40, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inside-government {
   width: 31%;
   margin-right: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000344}}
+/* line 44, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inside-government li {
   width: 100%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000346}}
+/* line 46, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inside-government li:nth-child(even) {
   float: left;
   clear: both;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000352}}
+/* line 52, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inline {
   border-top: 1px solid #a1acb2;
   padding-bottom: 60px;
   margin: 60px 30px 0 0;
   width: 100%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000358}}
+/* line 58, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inline ul {
   border: 0;
   margin: 0;
   padding: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000363}}
+/* line 63, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inline li {
   display: inline;
   float: none;
   margin: 0 1.5rem 0 0;
   width: auto;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000368}}
+/* line 68, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inline li:nth-child(even) {
   float: none;
   clear: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000374}}
+/* line 74, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inline__links {
   color: #454a4c;
   padding-top: 106px;
   width: 75%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000379}}
+/* line 79, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inline__copyright {
   padding-top: 30px;
   width: 25%;
@@ -3033,16 +3033,16 @@ table td {
   text-align: center;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000387}}
+/* line 87, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore--inline__copyright__logo {
-  background: url("/assets/images/govuk-crest-2x-1da912cf347870372d1245bc44ecb4a7-719b8051.png") no-repeat 50% 0;
+  background: url("/assets/images/govuk-crest-2x.png") no-repeat 50% 0;
   background-size: 125px 102px;
   display: block;
   padding-top: 115px;
   padding-top: 11.5rem;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000396}}
+/* line 96, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .explore__heading {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
@@ -3052,23 +3052,23 @@ table td {
   font-weight: 700;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000396}}
+  /* line 96, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
   .explore__heading {
     font-size: 20px;
     line-height: 1.2;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_footer\.scss}line{font-family:\0000399}}
+/* line 99, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_footer.scss */
 .open-government-licence-logo {
   padding-right: 10px;
   width: 43px;
   height: 17px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\000032}}
+/* line 2, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 .service-info__organisation-logo {
-  background-image: url(https://assets.digital.cabinet-office.gov.uk/government/assets/crests/hmrc_crest_27px-cd5cfbd7c6dc06dd1ab1ca2c5c060514.png);
+  background-image: url(https://assets.digital.cabinet-office.gov.uk/government/assets/crests/hmrc_crest_27px.png);
   background-repeat: no-repeat;
   border-left: 2px solid #bbb;
   border-color: #009390;
@@ -3078,13 +3078,13 @@ table td {
   background-size: auto 40px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000313}}
+/* line 13, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 .service-info__related-subsection {
   border-top: 10px solid #2b8cc4;
   margin-top: 3em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000317}}
+/* line 17, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 .service-info__help {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -3094,14 +3094,14 @@ table td {
   color: #6f777b;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000317}}
+  /* line 17, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
   .service-info__help {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000322}}
+/* line 22, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 .service-info__navigation a {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -3110,41 +3110,41 @@ table td {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000322}}
+  /* line 22, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
   .service-info__navigation a {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000326}}
+/* line 26, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 .service-info__navigation__more {
   padding: 0 0.5em;
   background-color: #d5e8f3;
   text-decoration: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000332}}
+/* line 32, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 .organisation-logo span {
   margin-left: 0;
   padding-top: 5px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000337}}
+/* line 37, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 #legacy-sources {
   position: relative;
   left: 43.3em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_service-info\.scss}line{font-family:\0000343}}
+/* line 43, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_service-info.scss */
 .organisation-logo-stacked-hmrc-large {
   padding: 40px 0 0 10px;
-  background-image: url(https://assets.digital.cabinet-office.gov.uk/government/assets/crests/hmrc_crest_27px-cd5cfbd7c6dc06dd1ab1ca2c5c060514.png);
+  background-image: url(https://assets.digital.cabinet-office.gov.uk/government/assets/crests/hmrc_crest_27px.png);
   background-position: 9px top;
   background-size: auto 40px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\000031}}
+/* line 1, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
 .phase-tag {
   background-color: #f47738;
   display: block;
@@ -3164,20 +3164,20 @@ table td {
   margin: 8px 10px 0 0;
   padding: 2px 5px 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\0000320}}
+/* line 20, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
 .phase-tag:hover {
   color: white;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\0000325}}
+/* line 25, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
 .phase-warning {
   padding: .5em 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\0000328}}
+/* line 28, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
 .phase-warning.beta {
   background-color: #f47738;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\0000332}}
+/* line 32, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
 .phase-warning p {
   text-align: left;
   max-width: 960px;
@@ -3192,13 +3192,13 @@ table td {
   text-transform: none;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\0000347}}
+  /* line 47, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
   .phase-warning p {
     font-size: 1.4rem;
     line-height: 1.14286;
   }
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\0000356}}
+/* line 56, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
 .phase-warning a,
 .phase-warning a:link,
 .phase-warning a:active,
@@ -3207,7 +3207,7 @@ table td {
   font-size: 16px;
   font-size: 1.6rem;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/modules\/_beta-banner\.scss}line{font-family:\0000362}}
+/* line 62, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
 .phase-warning a:hover {
   color: #0b0c0c;
 }
@@ -3215,7 +3215,7 @@ table td {
 /*------------------------------------*\
     allows for overrides
 \*------------------------------------*/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/_shame\.scss}line{font-family:\000036}}
+/* line 6, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/_shame.scss */
 article h1 {
   font-family: "nta", Arial, sans-serif;
   font-size: 48px;
@@ -3226,7 +3226,7 @@ article h1 {
   margin-top: 0;
 }
 @media (max-width: 640px) {
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/rorypowis\/Projects\/tax-frontend-prototype\/source\/assets\/stylesheets\/_shame\.scss}line{font-family:\000036}}
+  /* line 6, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/_shame.scss */
   article h1 {
     font-size: 32px;
     line-height: 1.09375;
