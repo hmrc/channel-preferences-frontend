@@ -79,10 +79,6 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypt
       status(response) shouldBe 400
     }
 
-    //TODO BEWT: Implement logging test case
-    "when a BadRequest is returned, log the error and the reason" in new WithApplication(FakeApplication()) {
-      pending
-    }
   }
 
 }

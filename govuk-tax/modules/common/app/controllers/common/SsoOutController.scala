@@ -5,7 +5,7 @@ import play.api.libs.json._
 import play.api.mvc.{AnyContent, Request, Action}
 import org.joda.time.DateTimeUtils
 import config.PortalConfig
-import play.api.Play
+import play.api.{Logger, Play}
 
 object SsoPayloadEncryptor extends Encryption {
   val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
@@ -43,16 +43,25 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
       request.queryString.get("destinationUrl") match {
         case Some(Seq(destination: String)) => destination match {
           case d if d.startsWith(PortalConfig.destinationRoot) => false
-          case _ => true // TODO BEWT: Some logging - destination should be in the whitelist
+          case _ => {
+            Logger.error(s"Host of Single Sign On destination URL $destination is not in the white list")
+            true
+          }
         }
         case None => false
-        case _ => true // TODO BEWT: Some logging - should have zero or one desination URL
+        case Some(destinations: Seq[String]) => {
+          Logger.error(s"Single Sign On was attempted with multilple destination URLs : ${destinations.mkString(", ")}")
+          true
+        }
       }
     }
     def theTokenIsMissing = {
       request.session.get("token") match {
         case Some(_) => false
-        case _ => true // TODO BEWT: Some logging - should have a token
+        case _ => {
+          Logger.error("Single Sign On was attempted without a valid government gateway token")
+          true
+        }
       }
     }
     !theTokenIsMissing && !theDestinationIsInvalid
