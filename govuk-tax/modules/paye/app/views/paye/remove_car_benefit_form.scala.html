@@ -15,7 +15,7 @@
     }
 
     <p>Car provided by <span class="employer-name">@displayBenefit.employment.employerName</span><br/>
-    Registered on <span class="date-registered">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.<br/>
+    @if(displayBenefit.car.get.dateCarRegistered.isDefined){Registered on <span class="date-registered">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.<br/>}
     Value of car benefit: <span class="amount">£@displayBenefit.benefit.grossAmountToString()</span></p>
 
     <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>

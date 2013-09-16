@@ -37,7 +37,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(benefit.benefit.taxYear))
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver()))
 
       if (benefit.benefit.benefitType == CAR) {
         Ok(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate)))
@@ -49,7 +49,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(benefit.benefit.taxYear))
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver()))
       updateBenefitForm(benefitStartDate).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {

@@ -60,6 +60,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with this benefit")
       doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
     }
+
   }
 
   "Removing non-FUEL benefit " should {
@@ -112,6 +113,16 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   }
 
   "The car benefit removal method" should {
+    "In step 1, display page correctly for well formed request" in new WithApplication(FakeApplication()) {
+      val specialCarBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 666, employmentSequenceNumber = 3, null, null, null, null, null, null,
+        car = Some(Car(Some(new LocalDate(1994,10,7)), None, None, 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq( Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)), Seq(specialCarBenefit), List.empty, List.empty)
+      val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), CAR.toString, 2013, 3)
+
+      status(result) shouldBe 200
+    }
+
     "in step 1, notify the user that the fuel benefit is going to be removed with the car benefit when removing car benefit" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
