@@ -48,3 +48,11 @@ object localDateFormatter extends Formatter[LocalDate] {
 
   override val formatString = "yyyy-MM-dd"
 }
+
+object accountSummaryDateFormatter extends Formatter[LocalDate] {
+  def parse(str: String): Either[String, LocalDate] = localDateFormatter.parse(str)
+
+  def format(value: LocalDate): String = "%02d %s %04d".format(value.getDayOfMonth, value.monthOfYear().getAsShortText, value.getYear)
+
+  val formatString: String = "" // Is this actually used?
+}

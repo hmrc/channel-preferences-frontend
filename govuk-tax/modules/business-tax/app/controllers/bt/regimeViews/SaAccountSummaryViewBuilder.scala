@@ -1,6 +1,6 @@
 package controllers.bt.regimeViews
 
-import views.helpers.{RenderableStringMessage, RenderableMessage, LinkMessage}
+import views.helpers.{RenderableDateMessage, RenderableStringMessage, RenderableMessage, LinkMessage}
 import controllers.bt.{routes, AccountSummary}
 import uk.gov.hmrc.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.microservice.sa.SaMicroService
@@ -122,7 +122,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
   private def getLiabilityMessage(liability: Option[Liability]): Option[(String, List[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some(willBecomeDue, List(RenderableStringMessage(liability.get.amount toString()), RenderableStringMessage(liability.get.dueDate.toString())))
+      case Some(l) => Some(willBecomeDue, List(RenderableStringMessage(liability.get.amount toString()), RenderableDateMessage(liability.get.dueDate)))
       case None => None
     }
   }
