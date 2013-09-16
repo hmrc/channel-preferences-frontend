@@ -5,7 +5,7 @@ import views.PageSugar
 import org.joda.time.{ LocalDate, DateTime }
 import views.html.paye.{ paye_benefit_home, paye_home }
 import play.api.templates.Html
-import uk.gov.hmrc.microservice.paye.domain.{ Benefit, Employment }
+import uk.gov.hmrc.common.microservice.paye.domain.{ Benefit, Employment }
 import models.paye.{ DisplayBenefit, RecentChange, EmploymentView, PayeOverview }
 import play.api.test.{FakeApplication, WithApplication}
 

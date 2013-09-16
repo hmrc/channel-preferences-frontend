@@ -9,12 +9,12 @@ import play.api.test.{ FakeRequest, WithApplication }
 import views.formatting.Dates
 import play.api.test.Helpers._
 import org.mockito.Mockito._
-import uk.gov.hmrc.microservice.paye.domain.Employment
+import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import scala.Some
-import uk.gov.hmrc.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import org.mockito.Matchers
 import org.jsoup.Jsoup
 

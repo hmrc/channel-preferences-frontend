@@ -7,18 +7,18 @@ import org.joda.time.LocalDate
 import play.api.test.{ WithApplication, FakeRequest }
 import views.formatting.Dates
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.paye.PayeMicroService
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import org.mockito.{ ArgumentMatcher, Matchers }
-import uk.gov.hmrc.microservice.paye.domain._
+import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.microservice.paye.CalculationResult
-import uk.gov.hmrc.microservice.paye.domain.Employment
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.paye.CalculationResult
+import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.paye.domain.Benefit
-import uk.gov.hmrc.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
 import org.jsoup.Jsoup
 
