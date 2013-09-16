@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
-import play.api.test.FakeRequest
+import play.api.test.{WithApplication, FakeApplication, FakeRequest}
 import play.api.test.Helpers._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
@@ -36,7 +36,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
   }
   "AgentThankYouController" should {
 
-    "get the keystore, save the agent, delete the keystore and go to the thank you page" in {
+    "get the keystore, save the agent, delete the keystore and go to the thank you page" in new WithApplication(FakeApplication()) {
 
       when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(Some(mockKeyStore))
       when(controller.agentMicroService.create(mockAgent)).thenReturn(Some(mockAgent))
@@ -51,7 +51,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
     }
 
-    "redirect user to contact details page when keystore is not found" in {
+    "redirect user to contact details page when keystore is not found" in new WithApplication(FakeApplication()) {
 
       when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(None)
 
