@@ -9,10 +9,10 @@ import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields.
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.Address
 import controllers.common.validators.AddressFields._
-import uk.gov.hmrc.utils.DateUTCConverter
+import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.domain.{Vrn, Utr, Nino}
 
-trait AgentMapper extends DateUTCConverter {
+trait AgentMapper extends DateConverter {
 
   def toAgent(implicit keyStore: KeyStore[Map[String, String]]) = {
 

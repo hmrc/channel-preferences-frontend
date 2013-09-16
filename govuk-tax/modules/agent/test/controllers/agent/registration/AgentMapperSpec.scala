@@ -12,10 +12,10 @@ import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 import controllers.common.validators.AddressFields._
 import views.formatting.DatesSpec
-import uk.gov.hmrc.utils.DateUTCConverter
+import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.domain.{Vrn, Utr, Nino}
 
-class AgentMapperSpec extends BaseSpec with MockitoSugar with DateUTCConverter {
+class AgentMapperSpec extends BaseSpec with MockitoSugar with DateConverter {
 
   class AgentMapperImpl extends AgentMapper {}
   def agentMapper = new AgentMapperImpl()
