@@ -36,7 +36,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
   private def dateTime = () => DateTimeProvider.now()
   private def sessionTimeout : String = dateTime().getMillis.toString
 
-  private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaMicroService, mockVatMicroService)) with MockMicroServicesForTests {
+  private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaMicroService, mockVatMicroService)) {
     override lazy val authMicroService = mockAuthMicroService
     override def now: () => DateTime = dateTime
   }
