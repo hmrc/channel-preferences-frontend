@@ -6,7 +6,6 @@ import java.net.URI
 import org.joda.time.DateTime
 import uk.gov.hmrc.microservice.sa.SaMicroService
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.microservice.auth.domain._
 import uk.gov.hmrc.common.BaseSpec
@@ -26,6 +25,8 @@ import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountBalance, VatAccountSummary, VatRoot }
 import play.api.i18n.Messages
 import config.DateTimeProvider
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -34,11 +35,16 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockSaMicroService = mock[SaMicroService]
   private lazy val mockVatMicroService = mock[VatMicroService]
+  private lazy val mockPayeMicroService = mock[PayeMicroService]
 
   private def dateTime = () => DateTimeProvider.now()
   private def sessionTimeout : String = dateTime().getMillis.toString
 
   private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaMicroService, mockVatMicroService)) {
+    override lazy val payeMicroService = mockPayeMicroService
+    override lazy val saMicroService = mockSaMicroService
+    override lazy val vatMicroService = mockVatMicroService
+
     override lazy val authMicroService = mockAuthMicroService
   }
 
@@ -65,6 +71,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       val utr = Utr("1234567890")
       val vrn = Vrn("666777889")
 
+      when(mockPayeMicroService.root("/personal/paye/DF334476B")).thenReturn(PayeRoot("1112234",1,"title","firstName",None,"surname","name","1976-13-04",Map.empty,Map.empty))
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Some(URI.create("/vat/vrn/754645112"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
 
