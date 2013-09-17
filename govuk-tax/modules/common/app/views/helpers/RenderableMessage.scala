@@ -1,6 +1,6 @@
 package views.helpers
 
-import views.html.helpers.{moneyPoundsRenderer, moneyRenderer, linkRenderer}
+import views.html.helpers.{moneyPoundsRenderer, linkRenderer}
 import play.api.templates.Html
 import org.joda.time.LocalDate
 import controllers.common.domain.accountSummaryDateFormatter
