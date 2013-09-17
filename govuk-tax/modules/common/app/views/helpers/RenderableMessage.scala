@@ -1,6 +1,6 @@
 package views.helpers
 
-import views.html.helpers.{moneyRenderer, linkRenderer}
+import views.html.helpers.{moneyPoundsRenderer, moneyRenderer, linkRenderer}
 import play.api.templates.Html
 import org.joda.time.LocalDate
 import controllers.common.domain.accountSummaryDateFormatter
@@ -38,6 +38,6 @@ case class RenderableDateMessage(date: LocalDate) extends RenderableMessage {
 
 case class RenderableMoneyMessage(moneyPounds: MoneyPounds) extends RenderableMessage {
   override def render: Html = {
-    moneyRenderer(moneyPounds)
+    moneyPoundsRenderer(moneyPounds)
   }
 }
