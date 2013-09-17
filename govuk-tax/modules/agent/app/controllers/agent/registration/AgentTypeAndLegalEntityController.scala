@@ -1,7 +1,7 @@
 package controllers.agent.registration
 
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
-import uk.gov.hmrc.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some

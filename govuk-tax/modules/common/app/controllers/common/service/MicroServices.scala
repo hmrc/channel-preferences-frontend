@@ -24,5 +24,6 @@ trait MicroServices {
   implicit lazy val keyStoreMicroService = new KeyStoreMicroService()
   implicit lazy val agentMicroService = new AgentMicroService()
   implicit lazy val vatMicroService = new VatMicroService()
-
 }
+
+object MicroServices extends MicroServices

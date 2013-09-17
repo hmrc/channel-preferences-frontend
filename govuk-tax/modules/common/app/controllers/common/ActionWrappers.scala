@@ -19,9 +19,7 @@ trait HeaderNames {
 
 object HeaderNames extends HeaderNames
 
-
-trait ActionWrappers extends MicroServices with CookieEncryption with HeaderNames with HeaderActionWrapper with AuditActionWrapper with LoggingActionWrapper {
-  self: Controller =>
+trait ActionWrappers extends MicroServices with Results with CookieEncryption with HeaderActionWrapper with AuditActionWrapper with LoggingActionWrapper {
 
   private[ActionWrappers] def act(userId: String, token: Option[String], request: Request[AnyContent], taxRegime: Option[TaxRegime], action: (User) => (Request[AnyContent]) => Result): Result = {
 

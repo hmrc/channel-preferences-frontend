@@ -1,18 +1,14 @@
 package controllers.bt.regimeViews
 
 import views.helpers._
-import controllers.bt.{routes, AccountSummary}
-import uk.gov.hmrc.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
+import controllers.bt.routes
 import uk.gov.hmrc.microservice.sa.SaMicroService
-import uk.gov.hmrc.microservice.domain.User
 import SaAccountSummaryMessageKeys._
 import views.helpers.LinkMessage
 import views.helpers.RenderableDateMessage
 import uk.gov.hmrc.microservice.sa.domain.Liability
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import scala.Some
-import views.helpers.RenderableStringMessage
-import controllers.bt.regimeViews.SaAccountSummaryMessagesBuilder
 import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
 import uk.gov.hmrc.microservice.domain.User
 import controllers.bt.AccountSummary
@@ -143,7 +139,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
       case Some(message) => msgs ++ liabilityMessage
       case _ => {
         alternativeMsg match {
-          case Some(alternativeMsg) => msgs ++ Seq(alternativeMsg)
+          case Some(altMsg) => msgs ++ Seq(altMsg)
           case None => msgs
         }
       }

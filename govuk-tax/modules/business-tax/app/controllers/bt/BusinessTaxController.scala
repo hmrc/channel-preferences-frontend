@@ -8,25 +8,22 @@ import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import views.helpers.RenderableMessage
 import views.html.make_a_payment_landing
 import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
+import uk.gov.hmrc.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import controllers.common.service.MicroServices
 
-class BusinessTaxController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory = new AccountSummariesFactory()) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
     implicit user =>
-      implicit request =>
-
-        val userAuthority = user.userAuthority
-        val encodedGovernmentGatewayToken = user.decryptedToken.get
-        val businessUser = BusinessUser(user.regimes, userAuthority.utr, userAuthority.vrn, userAuthority.ctUtr, userAuthority.empRef, user.nameFromGovernmentGateway.getOrElse(""), userAuthority.previouslyLoggedInAt, encodedGovernmentGatewayToken)
+      request =>
 
         val buildPortalUrl = PortalDestinationUrlBuilder.build(request, user) _
         val portalHref = buildPortalUrl("home")
 
-        val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build
-        val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build
-        val accountSummaries = AccountSummaries(Seq(saRegime, vatRegime).flatten)
+        val accountSummaries = accountSummaryFactory.create(buildPortalUrl)
 
-        Ok(views.html.business_tax_home(businessUser, portalHref, accountSummaries))
+        Ok(views.html.business_tax_home(BusinessUser(user), portalHref, accountSummaries))
 
   })
 
@@ -43,6 +40,23 @@ class BusinessTaxController extends BaseController with ActionWrappers with Sess
 
 case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[Vrn], ctUtr: Option[Utr], empRef: Option[EmpRef], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)
 
+private object BusinessUser {
+  def apply(user : User) : BusinessUser = {
+    val userAuthority = user.userAuthority
+    new BusinessUser(user.regimes, userAuthority.utr, userAuthority.vrn, userAuthority.ctUtr, userAuthority.empRef,
+      user.nameFromGovernmentGateway.getOrElse(""), userAuthority.previouslyLoggedInAt, user.decryptedToken.get)
+  }
+}
+
 case class AccountSummaries(regimes: Seq[AccountSummary])
+
+class AccountSummariesFactory(saMicroService : SaMicroService = MicroServices.saMicroService, vatMicroService : VatMicroService = MicroServices.vatMicroService){
+
+  def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
+    val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
+    val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build
+    new AccountSummaries(Seq(saRegime, vatRegime).flatten)
+  }
+}
 
 case class AccountSummary(regimeName: String, messages: Seq[(String, Seq[RenderableMessage])], addenda: Seq[RenderableMessage])

@@ -22,6 +22,9 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
 
 
   object TestController extends Controller with SessionTimeoutWrapper {
+    override def now: () => DateTime = () => {
+      hypotheticalCurrentTime
+    }
 
     def testWithNewSessionTimeout = WithNewSessionTimeout(Action {
       request =>

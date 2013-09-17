@@ -11,7 +11,7 @@ object SsoPayloadEncryptor extends Encryption {
   val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
 }
 
-class SsoOutController(dateTime : () => DateTime = DateTimeProvider.now) extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
+class SsoOutController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
 
   def encryptPayload = WithSessionTimeoutValidation(Action(BadRequest("Error")), Action {
     implicit request =>
@@ -34,7 +34,7 @@ class SsoOutController(dateTime : () => DateTime = DateTimeProvider.now) extends
   }
 
   private def generateJsonPayload(token: String, dest: String) = {
-    Json.stringify(Json.obj(("gw", token), ("dest", dest), ("time", dateTime().getMillis)))
+    Json.stringify(Json.obj(("gw", token), ("dest", dest), ("time", now().getMillis)))
   }
 
   private def requestValid(request: Request[AnyContent]): Boolean = {

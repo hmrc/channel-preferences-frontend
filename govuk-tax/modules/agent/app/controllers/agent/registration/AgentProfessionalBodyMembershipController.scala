@@ -4,7 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
 import play.api.mvc.{ Request, Result }
-import uk.gov.hmrc.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import controllers.common.service.MicroServices

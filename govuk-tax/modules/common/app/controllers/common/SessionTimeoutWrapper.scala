@@ -4,9 +4,9 @@ import config.DateTimeProvider
 import scala.Some
 import org.joda.time.DateTime
 
-trait SessionTimeoutWrapper {
-  object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(DateTimeProvider.now)
-  object WithNewSessionTimeout extends WithNewSessionTimeout(DateTimeProvider.now)
+trait SessionTimeoutWrapper extends DateTimeProvider{
+  object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(now)
+  object WithNewSessionTimeout extends WithNewSessionTimeout(now)
 }
 
 object SessionTimeoutWrapper {
@@ -42,9 +42,8 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
       lastRequestTimestamp: DateTime <- extractTimestamp(session)
       sessionExpiryTimestamp: DateTime <- Some(lastRequestTimestamp.withDurationAdded(Duration.standardSeconds(timeoutSeconds), 1))
       if now().isBefore(sessionExpiryTimestamp)
-    } yield {
-      true
-    }
+    } yield true
+
     valid.isDefined
   }
 
