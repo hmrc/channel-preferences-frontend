@@ -1,5 +1,5 @@
 vat.message.0={0}
-vat.message.1=Your account currently shows a balance of &pound;{0}
+vat.message.1=Your account currently shows a balance of {0}
 vat.message.2=You {0} owe us {1}
 
 vat.accountSummary.linkText.accountDetails=View account details

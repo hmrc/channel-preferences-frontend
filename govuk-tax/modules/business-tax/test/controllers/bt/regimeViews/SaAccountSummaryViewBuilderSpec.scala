@@ -12,8 +12,6 @@ import views.helpers.LinkMessage
 import uk.gov.hmrc.microservice.sa.domain.Liability
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
 import views.helpers.RenderableLinkMessage
-import scala.Some
-import views.helpers.RenderableStringMessage
 import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
@@ -38,10 +36,10 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = None
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages: Seq[(String, List[RenderableMessage])] =
+      val expectedMessages: Seq[(String, Seq[RenderableMessage])] =
         Seq(
-          (nothingToPay, List.empty),
-          (viewHistory, List.empty)
+          (nothingToPay, Seq.empty),
+          (viewHistory, Seq.empty)
         )
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
@@ -54,9 +52,9 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(0))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq(
-        (amountDueForPayment, List(RenderableMoneyMessage(amountDue))),
-        (interestApplicable, List.empty)
+      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
+        (amountDueForPayment, Seq(MoneyPounds(amountDue))),
+        (interestApplicable, Seq.empty)
       )
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
@@ -72,10 +70,10 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(0))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq(
-        (amountDueForPayment, List(RenderableMoneyMessage(amountDue))),
-        (interestApplicable, List.empty),
-        (willBecomeDue, List(RenderableMoneyMessage(liabilityAmount), RenderableDateMessage(liabilityDate)))
+      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
+        (amountDueForPayment, Seq(MoneyPounds(amountDue))),
+        (interestApplicable, Seq.empty),
+        (willBecomeDue, Seq(MoneyPounds(liabilityAmount), liabilityDate))
       )
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
@@ -88,10 +86,10 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(100))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq(
-        (youHaveOverpaid, List.empty),
-        (amountDueForRepayment, List(RenderableMoneyMessage(amountHmrcOwe.get))),
-        (viewHistory, List.empty)
+      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
+        (youHaveOverpaid, Seq.empty),
+        (amountDueForRepayment, Seq(MoneyPounds(amountHmrcOwe.get))),
+        (viewHistory, Seq.empty)
       )
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
@@ -105,10 +103,10 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(100))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq(
-        (youHaveOverpaid, List.empty),
-        (amountDueForRepayment, List(RenderableMoneyMessage(amountHmrcOwe.get))),
-        (willBecomeDue, List(RenderableMoneyMessage(liabilityAmount), RenderableDateMessage(liabilityDate)))
+      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
+        (youHaveOverpaid, Seq.empty),
+        (amountDueForRepayment, Seq(MoneyPounds(amountHmrcOwe.get))),
+        (willBecomeDue, Seq(MoneyPounds(liabilityAmount), liabilityDate))
       )
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
     }
@@ -120,9 +118,9 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = None
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq(
-        (nothingToPay, List.empty),
-        (willBecomeDue, List(RenderableMoneyMessage(liabilityAmount), RenderableDateMessage(liabilityDate)))
+      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
+        (nothingToPay, Seq.empty),
+        (willBecomeDue, Seq(MoneyPounds(liabilityAmount), liabilityDate))
       )
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
     }
@@ -135,10 +133,10 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = None
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq(
-        (amountDueForPayment, List(RenderableMoneyMessage(amountDue))),
-        (smallAmountToPay, List.empty),
-        (willBecomeDue, List(RenderableMoneyMessage(liabilityAmount), RenderableDateMessage(liabilityDate)))
+      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
+        (amountDueForPayment, Seq(MoneyPounds(amountDue))),
+        (smallAmountToPay, Seq.empty),
+        (willBecomeDue, Seq(MoneyPounds(liabilityAmount), liabilityDate))
       )
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
     }
@@ -157,10 +155,10 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages =
         Seq(
-          (unableToDisplayAccount1, List.empty),
-          (unableToDisplayAccount2, List.empty),
-          (unableToDisplayAccount3, List.empty),
-          (unableToDisplayAccount4, List.empty)
+          (unableToDisplayAccount1, Seq.empty),
+          (unableToDisplayAccount2, Seq.empty),
+          (unableToDisplayAccount3, Seq.empty),
+          (unableToDisplayAccount4, Seq.empty)
         )
 
       val actualAccountSummary = SaAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockSaMicroService).build().get
@@ -171,7 +169,7 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
   }
 
-  private def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[(String, List[RenderableMessage])]) {
+  private def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[(String, Seq[RenderableMessage])]) {
     val mockUser = mock[User]
     val mockSaMicroService = mock[SaMicroService]
     val mockRegimeRoots = mock[RegimeRoots]

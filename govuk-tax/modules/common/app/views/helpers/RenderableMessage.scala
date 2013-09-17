@@ -7,6 +7,7 @@ import controllers.common.domain.accountSummaryDateFormatter
 
 
 case class LinkMessage(href: String, text: String)
+case class MoneyPounds(value: BigDecimal)
 
 
 trait RenderableMessage {
@@ -16,6 +17,8 @@ trait RenderableMessage {
 object RenderableMessage {
   implicit def translateStrings(value: String): RenderableStringMessage = RenderableStringMessage(value)
   implicit def translateLinks(link: LinkMessage): RenderableLinkMessage = RenderableLinkMessage(link)
+  implicit def translateMoneyPounds(money: MoneyPounds): RenderableMoneyMessage = RenderableMoneyMessage(money)
+  implicit def translateDate(date: LocalDate): RenderableDateMessage = RenderableDateMessage(date)
 }
 
 case class RenderableStringMessage(value: String) extends RenderableMessage {
@@ -33,8 +36,8 @@ case class RenderableDateMessage(date: LocalDate) extends RenderableMessage {
   override def render: Html = Html(formattedDate)
 }
 
-case class RenderableMoneyMessage(value: BigDecimal) extends RenderableMessage {
+case class RenderableMoneyMessage(moneyPounds: MoneyPounds) extends RenderableMessage {
   override def render: Html = {
-    moneyRenderer(value)
+    moneyRenderer(moneyPounds)
   }
 }

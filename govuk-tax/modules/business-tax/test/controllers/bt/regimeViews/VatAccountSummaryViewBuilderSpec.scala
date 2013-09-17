@@ -7,7 +7,7 @@ import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.microservice.auth.domain.{Vrn, Regimes, UserAuthority}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountBalance, VatAccountSummary, VatRoot}
 import org.mockito.Mockito._
-import views.helpers.{RenderableMessage, LinkMessage}
+import views.helpers.{MoneyPounds, RenderableMoneyMessage, RenderableMessage, LinkMessage}
 
 class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -29,7 +29,7 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe "VAT"
-      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])]("vat.message.0" -> Seq("12345"), "vat.message.1" -> Seq("6.1"))
+      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])]("vat.message.0" -> Seq("12345"), "vat.message.1" -> Seq(MoneyPounds(BigDecimal(6.1))))
       accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage("vatAccountDetails", "vat.accountSummary.linkText.accountDetails"),
         LinkMessage("/makeAPaymentLanding", "vat.accountSummary.linkText.makeAPayment"),
         LinkMessage("vatFileAReturn", "vat.accountSummary.linkText.fileAReturn"))

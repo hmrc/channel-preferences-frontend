@@ -1,0 +1,6 @@
+@(money : views.helpers.MoneyPounds)(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+@import views.helpers._
+&pound;@money.value.toString()
