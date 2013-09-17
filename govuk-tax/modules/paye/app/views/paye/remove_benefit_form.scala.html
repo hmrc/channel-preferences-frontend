@@ -1,4 +1,4 @@
-@(displayBenefit: models.paye.DisplayBenefit, updateForm: Form[models.paye.RemoveBenefitFormData])
+@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData])
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
@@ -34,7 +34,7 @@
                 '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with this benefit",
                 '_showConstraints -> false)
 
-            @if(displayBenefit.benefit.benefitType == models.paye.BenefitTypes.FUEL) {
+            @if(displayBenefit.benefit.benefitType == models.paye.BenefitTypes.FUEL && hasUnremovedCar) {
                 @singleCheckbox(
                     updateForm("removeCar"),
                     '_id -> "removeCar",

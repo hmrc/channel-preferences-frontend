@@ -42,7 +42,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
       if (benefit.benefit.benefitType == CAR) {
         Ok(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate)))
       } else {
-        Ok(remove_benefit_form(benefit, updateBenefitForm(benefitStartDate)))
+        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate)))
       }
     }
   }
@@ -54,14 +54,14 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
         errors => {
           benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
-            case FUEL => BadRequest(remove_benefit_form(benefit, errors))
+            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors))
             case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
         },
         removeBenefitData => {
 
-          val fuelBenefit = if (benefit.benefit.benefitType == CAR ) unremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber, FUEL) else None
-          val carBenefit = if (benefit.benefit.benefitType == FUEL && removeBenefitData.removeCar) unremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber, CAR) else None
+          val fuelBenefit = if (benefit.benefit.benefitType == CAR ) unremovedBenefit(user, benefit.benefit.employmentSequenceNumber, FUEL) else None
+          val carBenefit = if (benefit.benefit.benefitType == FUEL && removeBenefitData.removeCar) unremovedBenefit(user, benefit.benefit.employmentSequenceNumber, CAR) else None
 
           val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit,carBenefit).filter(_.isDefined).map(_.get))
 
@@ -97,7 +97,7 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     calculationResult.result(benefit.taxYear.toString)
   }
 
-  private def unremovedFuelBenefit(user: User, employmentNumber: Int, benefitType: Int): Option[Benefit] = {
+  private def unremovedBenefit(user: User, employmentNumber: Int, benefitType: Int): Option[Benefit] = {
     val taxYear = TaxYearResolver()
     val benefits = user.regimes.paye.get.benefits(taxYear)
 
@@ -108,7 +108,11 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
   }
 
   private def hasUnremovedFuelBenefit(user: User, employmentNumber: Int): Boolean = {
-    unremovedFuelBenefit(user, employmentNumber, FUEL).isDefined
+    unremovedBenefit(user, employmentNumber, FUEL).isDefined
+  }
+
+  private def hasUnremovedCarBenefit(user: User, employmentNumber: Int): Boolean = {
+    unremovedBenefit(user, employmentNumber, CAR).isDefined
   }
 
   private def updateBenefitForm(benefitStartDate:Option[LocalDate]) = Form[RemoveBenefitFormData](

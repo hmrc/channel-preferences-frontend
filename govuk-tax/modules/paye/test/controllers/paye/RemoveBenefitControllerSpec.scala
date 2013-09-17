@@ -61,6 +61,18 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
     }
 
+    "not show the car checkbox when the user has no car benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(fuelBenefit), List.empty, List.empty)
+      val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), FUEL.toString, 2013, 2)
+
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.select(".benefit-type").text shouldBe "Remove your company fuel benefit"
+      doc.select(".amount").text shouldBe "£22.22"
+      doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with this benefit")
+      doc.select("label[for=removeCar]") shouldBe empty
+    }
+
   }
 
   "Removing non-FUEL benefit " should {
