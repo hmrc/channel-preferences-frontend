@@ -60,7 +60,7 @@ class AccountSummariesFactory(saMicroService : SaMicroService = MicroServices.sa
 
   def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
     val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
-    val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build
+    val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build()
     new AccountSummaries(Seq(saRegime, vatRegime).flatten)
   }
 }

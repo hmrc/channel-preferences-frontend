@@ -44,7 +44,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
     override lazy val payeMicroService = mockPayeMicroService
     override lazy val saMicroService = mockSaMicroService
     override lazy val vatMicroService = mockVatMicroService
-
     override lazy val authMicroService = mockAuthMicroService
   }
 

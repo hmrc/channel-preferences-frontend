@@ -8,7 +8,7 @@ import uk.gov.hmrc.microservice.domain.User
 
 case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, vatMicroService: VatMicroService) {
 
-  def build: Option[AccountSummary] = {
+  def build(): Option[AccountSummary] = {
     val vatRootOption: Option[VatRoot] = user.regimes.vat
     vatRootOption.map {
       vatRoot: VatRoot =>
