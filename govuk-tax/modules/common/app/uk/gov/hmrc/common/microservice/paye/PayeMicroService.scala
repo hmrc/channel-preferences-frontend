@@ -1,17 +1,16 @@
-package uk.gov.hmrc.microservice.paye
+package uk.gov.hmrc.common.microservice.paye
 
 import play.Logger
 import org.joda.time.LocalDate
 import views.formatting.Dates
-import uk.gov.hmrc.microservice.paye.domain._
+import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.microservice.{ TaxRegimeMicroService, MicroServiceConfig }
 import controllers.common.domain.Transform._
 import play.api.libs.json.Json
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.microservice.paye.CalculationResult
-import uk.gov.hmrc.microservice.paye.domain.Benefit
-import uk.gov.hmrc.microservice.paye.domain.TransactionId
-import uk.gov.hmrc.microservice.paye.domain.RemoveBenefit
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
+import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
 
 class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 

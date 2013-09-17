@@ -1,7 +1,7 @@
 package controllers.agent.registration
 
 import scala.Some
-import uk.gov.hmrc.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{ Request, Result }
 import controllers.agent.registration.FormNames._
 import AgentCompanyDetailsFormFields._

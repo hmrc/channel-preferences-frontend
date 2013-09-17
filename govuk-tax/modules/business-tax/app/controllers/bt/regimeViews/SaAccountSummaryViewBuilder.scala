@@ -5,6 +5,7 @@ import uk.gov.hmrc.microservice.sa.SaMicroService
 import SaAccountSummaryMessageKeys._
 import uk.gov.hmrc.microservice.sa.domain.Liability
 import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import scala.Some
 import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
 import uk.gov.hmrc.microservice.domain.User
 import controllers.bt.AccountSummary
@@ -137,7 +138,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
       case Some(message) => msgs ++ liabilityMessage
       case _ => {
         alternativeMsg match {
-          case Some(message) => msgs ++ Seq(message)
+          case Some(altMsg) => msgs ++ Seq(altMsg)
           case None => msgs
         }
       }

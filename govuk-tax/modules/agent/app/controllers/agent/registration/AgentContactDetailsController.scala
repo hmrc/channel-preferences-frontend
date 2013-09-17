@@ -2,11 +2,11 @@ package controllers.agent.registration
 
 import play.api.data._
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
-import uk.gov.hmrc.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{ Result, Request }
 import play.api.data.Forms._
 import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
 import controllers.agent.registration.FormNames._
 import AgentContactDetailsFormFields._

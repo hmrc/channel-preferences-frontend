@@ -1,21 +1,20 @@
-package uk.gov.hmrc.microservice.paye
+package uk.gov.hmrc.common.microservice.paye
 
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.microservice.paye.domain._
+import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.LocalDate
-import play.api.test.{ FakeApplication, WithApplication }
+import play.api.test.WithApplication
 import org.mockito.ArgumentCaptor
 import controllers.common.domain.Transform
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.microservice.paye.CalculationResult
 import scala.Some
-import uk.gov.hmrc.microservice.paye.domain.RemoveBenefit
-import uk.gov.hmrc.microservice.paye.domain.Car
+import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
+import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 
 class PayeMicroServiceSpec extends BaseSpec {
 

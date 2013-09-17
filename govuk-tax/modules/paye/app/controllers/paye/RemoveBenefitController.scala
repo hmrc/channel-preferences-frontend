@@ -1,6 +1,6 @@
 package controllers.paye
 
-import uk.gov.hmrc.microservice.paye.domain.{RevisedBenefit, Benefit, PayeRegime}
+import uk.gov.hmrc.common.microservice.paye.domain.{RevisedBenefit, Benefit, PayeRegime}
 import play.api.mvc.{Result, Request}
 import views.html.paye._
 import views.formatting.Dates

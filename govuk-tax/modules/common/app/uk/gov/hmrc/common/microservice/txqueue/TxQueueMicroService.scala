@@ -1,7 +1,7 @@
 package uk.gov.hmrc.microservice.txqueue
 
 import uk.gov.hmrc.microservice.{ MicroServiceConfig, MicroService }
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 
 class TxQueueMicroService extends MicroService {
 

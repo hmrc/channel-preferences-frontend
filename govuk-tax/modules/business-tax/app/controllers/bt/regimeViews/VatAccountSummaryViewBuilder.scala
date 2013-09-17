@@ -8,12 +8,13 @@ import uk.gov.hmrc.microservice.domain.User
 
 case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, vatMicroService: VatMicroService) {
 
-  def build: Option[AccountSummary] = {
+  def build(): Option[AccountSummary] = {
     val vatRootOption: Option[VatRoot] = user.regimes.vat
 
     vatRootOption.map {
       vatRoot: VatRoot =>
-        val accountSummary: Option[VatAccountSummary] = vatRoot.accountSummary(vatMicroService)
+        val accountSummary: Option[VatAccountSummary] = vatRootOption.get.accountSummary(vatMicroService)
+
         val accountValueOption: Option[BigDecimal] = for {
           accountSummaryValue <- accountSummary
           accountBalance <- accountSummaryValue.accountBalance
@@ -21,8 +22,12 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: 
         } yield amount
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
-        val links = Seq[RenderableMessage](LinkMessage(buildPortalUrl("vatAccountDetails"), "vat.accountSummary.linkText.accountDetails"),
-          LinkMessage(makeAPaymentUri, "vat.accountSummary.linkText.makeAPayment"), LinkMessage(buildPortalUrl("vatFileAReturn"), "vat.accountSummary.linkText.fileAReturn"))
+        val links = Seq[RenderableMessage](
+          LinkMessage(buildPortalUrl("vatAccountDetails"), "vat.accountSummary.linkText.accountDetails"),
+          LinkMessage(makeAPaymentUri, "vat.accountSummary.linkText.makeAPayment"),
+          LinkMessage(buildPortalUrl("vatFileAReturn"), "vat.accountSummary.linkText.fileAReturn")
+        )
+
         accountValueOption match {
           case Some(accountValue) => {
             AccountSummary("VAT", Seq("vat.message.0" -> Seq(user.userAuthority.vrn.get.vrn),

@@ -1,7 +1,7 @@
 package controllers.agent.registration
 
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
-import uk.gov.hmrc.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.microservice.domain.User
 import play.api.mvc.{ Result, Request }
 import controllers.agent.registration.FormNames._

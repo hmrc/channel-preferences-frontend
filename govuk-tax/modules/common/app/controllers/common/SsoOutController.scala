@@ -3,7 +3,6 @@ package controllers.common
 import service.Encryption
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Request, Action}
-import org.joda.time.DateTimeUtils
 import config.PortalConfig
 import play.api.{Logger, Play}
 
@@ -34,7 +33,7 @@ class SsoOutController extends BaseController with ActionWrappers with CookieEnc
   }
 
   private def generateJsonPayload(token: String, dest: String) = {
-    Json.stringify(Json.obj(("gw", token), ("dest", dest), ("time", DateTimeUtils.currentTimeMillis())))
+    Json.stringify(Json.obj(("gw", token), ("dest", dest), ("time", now().getMillis)))
   }
 
   private def requestValid(request: Request[AnyContent]): Boolean = {

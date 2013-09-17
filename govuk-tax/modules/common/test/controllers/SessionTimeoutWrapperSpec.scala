@@ -18,6 +18,9 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
   val justValidTime = hypotheticalCurrentTime.minusSeconds(timeoutSeconds - 1).getMillis.toString
   val validTime = hypotheticalCurrentTime.minusSeconds(1).getMillis.toString
 
+  val now: () => DateTime = () => hypotheticalCurrentTime
+
+
   object TestController extends Controller with SessionTimeoutWrapper {
     override def now: () => DateTime = () => {
       hypotheticalCurrentTime
@@ -44,8 +47,6 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
     })
 
   }
-
-  import TestController.now
 
   "WithNewSessionTimeout" should {
     "add a timestamp to the session if the session is empty" in new WithApplication(FakeApplication()) {

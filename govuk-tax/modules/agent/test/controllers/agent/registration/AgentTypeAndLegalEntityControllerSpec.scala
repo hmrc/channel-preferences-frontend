@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import play.api.test.FakeApplication
 import scala.Some
 import org.mockito.Mockito._

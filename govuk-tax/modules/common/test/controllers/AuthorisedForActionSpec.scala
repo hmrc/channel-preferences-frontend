@@ -3,13 +3,13 @@ package controllers
 import org.scalatest.mock.MockitoSugar
 import play.api.mvc.Controller
 import uk.gov.hmrc.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.paye.PayeMicroService
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.mockito.Mockito.when
 import org.mockito.Mockito.reset
 import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.paye.domain.{ PayeRegime, PayeRoot }
+import uk.gov.hmrc.common.microservice.paye.domain.{ PayeRegime, PayeRoot }
 import java.net.URI
 import org.slf4j.MDC
 import uk.gov.hmrc.common.BaseSpec

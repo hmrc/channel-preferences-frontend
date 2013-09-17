@@ -8,7 +8,7 @@ import play.api.test.{WithApplication, FakeApplication, FakeRequest}
 import play.api.test.Helpers._
 import uk.gov.hmrc.microservice.domain.User
 import uk.gov.hmrc.microservice.domain.RegimeRoots
-import uk.gov.hmrc.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import scala.Some
 import uk.gov.hmrc.common.microservice.agent.Agent
