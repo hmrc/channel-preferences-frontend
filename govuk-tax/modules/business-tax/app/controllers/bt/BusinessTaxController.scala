@@ -43,8 +43,14 @@ case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[
 private object BusinessUser {
   def apply(user : User) : BusinessUser = {
     val userAuthority = user.userAuthority
-    new BusinessUser(user.regimes, userAuthority.utr, userAuthority.vrn, userAuthority.ctUtr, userAuthority.empRef,
-      user.nameFromGovernmentGateway.getOrElse(""), userAuthority.previouslyLoggedInAt, user.decryptedToken.get)
+    new BusinessUser(user.regimes,
+                      userAuthority.utr,
+                      userAuthority.vrn,
+                      userAuthority.ctUtr,
+                      userAuthority.empRef,
+                      user.nameFromGovernmentGateway.getOrElse(""),
+                      userAuthority.previouslyLoggedInAt,
+                      user.decryptedToken.get)
   }
 }
 

@@ -29,6 +29,8 @@ import config.DateTimeProvider
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
+  import uk.gov.hmrc.common.MockUtils._
+
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockSaMicroService = mock[SaMicroService]
   private lazy val mockVatMicroService = mock[VatMicroService]
@@ -38,7 +40,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
   private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaMicroService, mockVatMicroService)) {
     override lazy val authMicroService = mockAuthMicroService
-    override def now: () => DateTime = dateTime
   }
 
   val nameFromSa = "Geoff Fisher From SA"
@@ -53,12 +54,17 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
     )
   )
 
+  before {
+    resetAll(mockAuthMicroService, mockSaMicroService, mockVatMicroService)
+  }
+
   "The home method" should {
 
     "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to details page of the regimes he has actively enrolled online services for (SA and VAT here)" in new WithApplication(FakeApplication()) {
 
       val utr = Utr("1234567890")
       val vrn = Vrn("666777889")
+
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Some(URI.create("/vat/vrn/754645112"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
 
@@ -157,7 +163,9 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
       when(mockAuthMicroService.authority("/auth/oid/johnboy")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/vrn/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
+
       when(mockVatMicroService.root(s"/vat/vrn/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/vrn/$vrn/accountSummary")))
+
       when(mockVatMicroService.accountSummary(s"/vat/vrn/$vrn/accountSummary")).thenReturn(Some(accountSummary))
 
       val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/johnboy"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
@@ -177,7 +185,9 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
       when(mockAuthMicroService.authority("/auth/oid/johnboy")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/vrn/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
+
       when(mockVatMicroService.root(s"/vat/vrn/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/vrn/$vrn/accountSummary")))
+
       when(mockVatMicroService.accountSummary(s"/vat/vrn/$vrn/accountSummary")).thenReturn(Some(accountSummary))
 
       val result = controller.home(FakeRequest().withSession("userId" -> encrypt("/auth/oid/johnboy"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
@@ -192,8 +202,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
   "Make a payment landing page " should {
     "Render some make a payment text when a user is logged in" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
-
       val result = controller.makeAPaymentLandingAction()
 
       status(result) should be(200)
