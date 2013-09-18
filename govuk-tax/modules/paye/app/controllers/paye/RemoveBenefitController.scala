@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import org.joda.time.LocalDate
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
-import models.paye.{DisplayBenefits, DisplayBenefit, RemoveBenefitFormData}
+import models.paye.{BenefitTypes, DisplayBenefits, DisplayBenefit, RemoveBenefitFormData}
 import models.paye.BenefitTypes._
 import uk.gov.hmrc.common.TaxYearResolver
 import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
@@ -138,21 +138,28 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, displayBenefit) => {
       val payeRoot = user.regimes.paye.get
+      if (carRemovalMissesFuelRemoval(user, displayBenefit)) {
+        BadRequest
+      } else {
+        loadFormDataFor(user) match {
+          case Some(formData) => {
+            val uri = displayBenefit.benefit.actions.getOrElse("remove",
+              throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
 
-      loadFormDataFor(user) match {
-        case Some(formData) => {
-          val uri = displayBenefit.benefit.actions.getOrElse("remove",
-            throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
+            val revisedBenefits = displayBenefit.benefits.map(b => RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
+              throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
 
-          val revisedBenefits = displayBenefit.benefits.map(b => RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
-            throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
-
-          val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, revisedBenefits, formData.withdrawDate)
-          Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
+            val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, revisedBenefits, formData.withdrawDate)
+            Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
+          }
+          case _ => Redirect(routes.BenefitHomeController.listBenefits())
         }
-        case _ => Redirect(routes.BenefitHomeController.listBenefits())
       }
     }
+  }
+
+  private def carRemovalMissesFuelRemoval(user: User, displayBenefit: DisplayBenefit) = {
+    displayBenefit.benefits.exists(_.benefitType == CAR) && !displayBenefit.benefits.exists(_.benefitType == FUEL) && hasUnremovedFuelBenefit(user, displayBenefit.benefit.employmentSequenceNumber)
   }
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, String) => play.api.mvc.Result = (user, request, kinds, oid) =>

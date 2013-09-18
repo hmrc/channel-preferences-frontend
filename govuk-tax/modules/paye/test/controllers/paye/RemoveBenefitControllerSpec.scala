@@ -4,12 +4,12 @@ import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
 import org.scalatest.TestData
 import org.joda.time.LocalDate
-import play.api.test.{ WithApplication, FakeRequest }
+import play.api.test.{WithApplication, FakeRequest}
 import views.formatting.Dates
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.mockito.Mockito._
-import org.mockito.{ ArgumentMatcher, Matchers }
+import org.mockito.{ArgumentMatcher, Matchers}
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
@@ -19,7 +19,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.common.microservice.domain.{ RegimeRoots, User }
+import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import org.jsoup.Jsoup
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
@@ -39,7 +39,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   }
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
-    acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
+                                        acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
     when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
     when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
@@ -103,33 +103,35 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   }
 
   "Removing your car prior to its start date" should {
-      "Not validate the view and redirect with correct error" in new WithApplication(FakeApplication()) {
+    "Not validate the view and redirect with correct error" in new WithApplication(FakeApplication()) {
 
-        val carBenefitStartedThisYear = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
-          car = Some(Car(Some(new LocalDate()), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
+      val carBenefitStartedThisYear = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
+        car = Some(Car(Some(new LocalDate()), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
 
-        setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitStartedThisYear), List.empty, List.empty)
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitStartedThisYear), List.empty, List.empty)
 
-        val withdrawDate = carBenefitStartedThisYear.car.get.dateCarMadeAvailable.get.minusDays(2)
-        def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =
-          FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> agreed.toString.toLowerCase)
-        val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, true), "31", 2013, 2)
+      val withdrawDate = carBenefitStartedThisYear.car.get.dateCarMadeAvailable.get.minusDays(2)
 
-        verify(controller.payeMicroService, never).calculateWithdrawBenefit(_,_)
+      def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =
+        FakeRequest().withFormUrlEncodedBody("withdrawDate" -> Dates.shortDate(withdrawDate), "agreement" -> agreed.toString.toLowerCase)
 
-        status(result) shouldBe BAD_REQUEST
+      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, true), "31", 2013, 2)
 
-        val doc = Jsoup.parse(contentAsString(result))
-        doc.select(".error").text should include("Invalid date: Return date cannot be before benefit was made available")
-      }
+      verify(controller.payeMicroService, never).calculateWithdrawBenefit(_, _)
+
+      status(result) shouldBe BAD_REQUEST
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error").text should include("Invalid date: Return date cannot be before benefit was made available")
+    }
   }
 
   "The car benefit removal method" should {
     "In step 1, display page correctly for well formed request" in new WithApplication(FakeApplication()) {
       val specialCarBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 666, employmentSequenceNumber = 3, null, null, null, null, null, null,
-        car = Some(Car(Some(new LocalDate(1994,10,7)), None, None, 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
+        car = Some(Car(Some(new LocalDate(1994, 10, 7)), None, None, 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq( Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)), Seq(specialCarBenefit), List.empty, List.empty)
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq(Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)), Seq(specialCarBenefit), List.empty, List.empty)
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), CAR.toString, 2013, 3)
 
       status(result) shouldBe 200
@@ -163,7 +165,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val transaction: TxQueueTransaction = mock[TxQueueTransaction]
       when(controller.txQueueMicroService.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
-      when(transaction.properties).thenReturn(Map("benefitTypes"-> "29" , "employmentSequenceNumber" -> "2", "taxYear"-> "2013"))
+      when(transaction.properties).thenReturn(Map("benefitTypes" -> "29", "employmentSequenceNumber" -> "2", "taxYear" -> "2013"))
 
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 2)
       status(result) shouldBe 200
@@ -209,7 +211,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".title").text should include("car")
-      doc.select(".title").text should not include("fuel")
+      doc.select(".title").text should not include ("fuel")
       doc.select(".amount").text shouldBe "£197.96"
     }
 
@@ -219,12 +221,12 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       when(controller.payeMicroService.removeBenefits(Matchers.any[String], Matchers.any[String](), Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())).thenReturn(Some(TransactionId("someIdForCarAndFuelRemoval")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1) )
+      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
       when(controller.keyStoreMicroService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
       val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2)
 
-      val revisedBenefits = Seq(RevisedBenefit(carBenefit,BigDecimal(210.17)),RevisedBenefit(fuelBenefit,BigDecimal(14.1)))
+      val revisedBenefits = Seq(RevisedBenefit(carBenefit, BigDecimal(210.17)), RevisedBenefit(fuelBenefit, BigDecimal(14.1)))
       verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", "AB123456C", 22, revisedBenefits, withdrawDate)
 
       status(result) shouldBe 303
@@ -237,7 +239,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val transaction: TxQueueTransaction = mock[TxQueueTransaction]
       when(controller.txQueueMicroService.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
-      when(transaction.properties).thenReturn(Map("benefitTypes"-> "31" , "employmentSequenceNumber" -> "2", "taxYear"-> "2013"))
+      when(transaction.properties).thenReturn(Map("benefitTypes" -> "31", "employmentSequenceNumber" -> "2", "taxYear" -> "2013"))
 
       val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2)
 
@@ -253,7 +255,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val transaction: TxQueueTransaction = mock[TxQueueTransaction]
       when(controller.txQueueMicroService.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
-      when(transaction.properties).thenReturn(Map("benefitTypes"-> "29,31" , "employmentSequenceNumber" -> "2", "taxYear"-> "2013"))
+      when(transaction.properties).thenReturn(Map("benefitTypes" -> "29,31", "employmentSequenceNumber" -> "2", "taxYear" -> "2013"))
 
       val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2)
 
@@ -269,17 +271,17 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val transaction: TxQueueTransaction = mock[TxQueueTransaction]
       when(controller.txQueueMicroService.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
-      when(transaction.properties).thenReturn(Map("benefitTypes"-> "5,6,7" , "employmentSequenceNumber" -> "2", "taxYear"-> "2013"))
+      when(transaction.properties).thenReturn(Map("benefitTypes" -> "5,6,7", "employmentSequenceNumber" -> "2", "taxYear" -> "2013"))
 
       when(controller.payeMicroService.removeBenefits(Matchers.any[String], Matchers.any[String](), Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())).thenReturn(Some(TransactionId("someIdForCarAndFuelRemoval")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1) )
+      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
       when(controller.keyStoreMicroService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
       val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2)
 
-      val revisedBenefits = Seq(RevisedBenefit(carBenefit,BigDecimal(210.17)),RevisedBenefit(fuelBenefit,BigDecimal(14.1)))
+      val revisedBenefits = Seq(RevisedBenefit(carBenefit, BigDecimal(210.17)), RevisedBenefit(fuelBenefit, BigDecimal(14.1)))
       verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", "AB123456C", 22, revisedBenefits, withdrawDate)
 
       status(result) shouldBe 303
@@ -295,7 +297,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       when(controller.txQueueMicroService.transaction(Matchers.eq("210"), Matchers.any[PayeRoot])).thenReturn(Some(transaction))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1) )
+      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
 
       when(controller.keyStoreMicroService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
@@ -305,6 +307,20 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("car and fuel")
       doc.select(".transaction-id").text should include("210")
+    }
+
+    "when confirming removal of benefits, it should return 400 for a request to remove a car benefit only (if they also have a fuel benefit)" in {
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      when(controller.txQueueMicroService.transaction(Matchers.any[String])).thenReturn(Some(List.empty))
+
+      val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31", 2013, 2)
+
+      status(result) shouldBe BAD_REQUEST
+
+      verifyZeroInteractions(controller.keyStoreMicroService)
+      verify(controller.payeMicroService, never).removeBenefits(Matchers.any[String],Matchers.any[String],Matchers.any[Int],Matchers.any[Seq[RevisedBenefit]],Matchers.any[LocalDate])
     }
 
   }
@@ -431,18 +447,17 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       when(controller.payeMicroService.removeBenefits(Matchers.any[String], Matchers.any[String](), Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())).thenReturn(Some(TransactionId("someId")))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map("31" -> BigDecimal(123.45))
+      val revisedAmounts = Map("29" -> BigDecimal(123.45))
       when(controller.keyStoreMicroService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
-      val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31", 2013, 2)
-
-      val revisedBenefits = Seq(RevisedBenefit(carBenefit,BigDecimal(123.45)))
-      verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", "AB123456C", 22, revisedBenefits, withdrawDate)
+      val result = controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "29", 2013, 2)
 
       status(result) shouldBe 303
 
-      headers(result).get("Location") shouldBe Some("/benefits/31/confirmation/someId")
+      headers(result).get("Location") shouldBe Some("/benefits/29/confirmation/someId")
 
+      val revisedBenefits = Seq(RevisedBenefit(fuelBenefit, BigDecimal(123.45)))
+      verify(controller.payeMicroService, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", "AB123456C", 22, revisedBenefits, withdrawDate)
     }
 
     "When posting the benefit removal form, remove car benefit too if requested" in new WithApplication(FakeApplication()) {
@@ -459,7 +474,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val response = Jsoup.parse(contentAsString(result))
-      response.select(".title").text shouldBe  "Remove your company fuel and car benefit"
+      response.select(".title").text shouldBe "Remove your company fuel and car benefit"
       response.select(".amount").text shouldBe "£210.17"
     }
 
@@ -474,7 +489,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val response = Jsoup.parse(contentAsString(result))
-      response.select(".title").text shouldBe  "Remove your company fuel benefit"
+      response.select(".title").text shouldBe "Remove your company fuel benefit"
       response.select(".amount").text shouldBe "£12.21"
     }
 
@@ -541,8 +556,13 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val car = Car(None, Some(new LocalDate(2012, 12, 12)), None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
-        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None)) }
-        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(31, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]())) }
+        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
+          Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None))
+        }
+
+        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
+          Seq(Benefit(31, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]()))
+        }
       }
 
       val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
@@ -561,8 +581,13 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val car = Car(None, None, Some(new LocalDate()), BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
-        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = { Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys"))) }
-        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = { Seq(Benefit(31, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]())) }
+        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
+          Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys")))
+        }
+
+        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
+          Seq(Benefit(31, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]()))
+        }
       }
 
       val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
