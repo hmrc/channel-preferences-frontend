@@ -18,7 +18,6 @@ object SaAccountSummaryMessageKeys {
   val fileAReturnLink = "sa.message.links.fileAReturn"
 
   val nothingToPay = "sa.message.nothingToPay"
-  val viewHistory = "sa.message.viewHistory"
   val amountDueForPayment = "sa.message.amountDueForPayment"
   val interestApplicable = "sa.message.interestApplicable"
   val willBecomeDue = "sa.message.willBecomeDue"
@@ -83,10 +82,8 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
 
         addLiabilityMessageIfApplicable(accountSummary.nextPayment,
-                                    Seq(
-                                        (youHaveOverpaid, Seq.empty),
-                                        (amountDueForRepayment, Seq(MoneyPounds(amountHmrcOwe)))
-                                    ), Some((viewHistory, Seq.empty)))
+                                    Seq((youHaveOverpaid, Seq.empty),(amountDueForRepayment, Seq(MoneyPounds(amountHmrcOwe)))
+                                    ), None)
       }
       case _ => {
         accountSummary.totalAmountDueToHmrc match {
@@ -99,8 +96,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
                 Seq(
-                  (nothingToPay, Seq.empty),
-                  (viewHistory, Seq.empty)
+                  (nothingToPay, Seq.empty)
                 )
               }
               case false => {
@@ -116,7 +112,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = Seq(
               (nothingToPay, Seq.empty)
             )
-            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, Some((viewHistory, Seq.empty)))
+            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, None)
           }
         }
       }

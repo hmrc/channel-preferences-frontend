@@ -38,8 +38,7 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
       val expectedMessages: Seq[(String, Seq[RenderableMessage])] =
         Seq(
-          (nothingToPay, Seq.empty),
-          (viewHistory, Seq.empty)
+          (nothingToPay, Seq.empty)
         )
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
@@ -88,8 +87,7 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](
         (youHaveOverpaid, Seq.empty),
-        (amountDueForRepayment, Seq(MoneyPounds(amountHmrcOwe.get))),
-        (viewHistory, Seq.empty)
+        (amountDueForRepayment, Seq(MoneyPounds(amountHmrcOwe.get)))
       )
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
@@ -112,10 +110,10 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     "when no amounts due currently but amounts becoming due for payment " in {
-      val totalAmountDueToHmrc = None
+      val totalAmountDueToHmrc = Some(AmountDue(BigDecimal(0), false))
       val liabilityAmount = BigDecimal(20)
       val nextPayment = Some(Liability(new LocalDate(2014, 1, 15), liabilityAmount))
-      val amountHmrcOwe = None
+      val amountHmrcOwe = Some(BigDecimal(0))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](
