@@ -1,12 +1,12 @@
 package controllers.agent.registration
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeRequest, WithApplication }
 import play.api.test.Helpers._
 import controllers.agent.registration.FormNames._
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import play.api.test.FakeApplication
 import scala.Some

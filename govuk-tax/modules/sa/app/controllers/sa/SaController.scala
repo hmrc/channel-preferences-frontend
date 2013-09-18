@@ -3,7 +3,7 @@ package controllers.sa
 import play.api.data._
 import play.api.data.Forms._
 
-import uk.gov.hmrc.microservice.sa.domain._
+import uk.gov.hmrc.common.microservice.sa.domain._
 import views.html.sa._
 import controllers.common._
 import config.DateTimeProvider
@@ -11,10 +11,10 @@ import config.DateTimeProvider
 import play.api.mvc.{ Result, Request }
 import controllers.common.validators.{ characterValidator, Validators }
 import scala.util.{ Success, Try, Left }
-import uk.gov.hmrc.microservice.sa.domain.TransactionId
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import controllers.sa.{ routes => saRoutes }
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {

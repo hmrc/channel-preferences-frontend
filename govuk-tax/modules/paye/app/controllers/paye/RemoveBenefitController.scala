@@ -8,7 +8,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import org.joda.time.LocalDate
 import scala.Some
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.{DisplayBenefits, DisplayBenefit, RemoveBenefitFormData}
 import models.paye.BenefitTypes._
 import uk.gov.hmrc.common.TaxYearResolver

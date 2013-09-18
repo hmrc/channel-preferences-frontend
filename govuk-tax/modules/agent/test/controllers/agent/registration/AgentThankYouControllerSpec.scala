@@ -2,12 +2,12 @@ package controllers.agent.registration
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import play.api.test.{WithApplication, FakeApplication, FakeRequest}
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import scala.Some

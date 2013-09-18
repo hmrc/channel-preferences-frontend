@@ -8,7 +8,7 @@ import scala.concurrent.{ Await, ExecutionContext }
 import ExecutionContext.Implicits.global
 import play.api.{ Logger, Play }
 import scala.concurrent.Future
-import uk.gov.hmrc.microservice.domain.RegimeRoot
+import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
 import org.slf4j.MDC
 import controllers.common.HeaderNames

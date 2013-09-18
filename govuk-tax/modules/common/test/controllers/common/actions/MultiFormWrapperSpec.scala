@@ -1,11 +1,9 @@
 package controllers.common.actions
 
 import play.api.mvc.{ Call, Controller }
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
-import org.scalatest.WordSpec
-import org.scalatest.matchers.MustMatchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._

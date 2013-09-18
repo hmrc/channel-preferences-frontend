@@ -1,18 +1,18 @@
 package controllers.paye
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
-import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
+import uk.gov.hmrc.common.microservice.domain.{ RegimeRoots, User }
+import uk.gov.hmrc.common.microservice.auth.domain.{ Regimes, UserAuthority }
 import java.net.URI
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.{ DateTime, LocalDate }
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import uk.gov.hmrc.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.txqueue.{ Status, TxQueueTransaction }

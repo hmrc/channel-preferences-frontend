@@ -1,4 +1,4 @@
-package uk.gov.hmrc.microservice.auth.domain
+package uk.gov.hmrc.common.microservice.auth.domain
 
 import org.joda.time.DateTime
 import java.net.URI

@@ -1,17 +1,16 @@
 package uk.gov.hmrc.common.microservice.sa
 
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.sa.SaMicroService
 import play.api.test.WithApplication
-import uk.gov.hmrc.microservice.sa.domain._
+import uk.gov.hmrc.common.microservice.sa.domain._
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
 
 class SaMicroServiceTest extends BaseSpec {

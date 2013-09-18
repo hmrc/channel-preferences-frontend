@@ -3,7 +3,7 @@ package controllers
 import common.service.SsoWhiteListService
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import org.mockito.Mockito._
 import play.api.mvc.Result

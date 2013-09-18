@@ -1,14 +1,14 @@
 package controllers.bt
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.microservice.auth.domain._
-import uk.gov.hmrc.microservice.domain._
+import uk.gov.hmrc.common.microservice.auth.domain._
+import uk.gov.hmrc.common.microservice.domain._
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import views.helpers.RenderableMessage
 import views.html.make_a_payment_landing
 import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
-import uk.gov.hmrc.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import controllers.common.service.MicroServices
 

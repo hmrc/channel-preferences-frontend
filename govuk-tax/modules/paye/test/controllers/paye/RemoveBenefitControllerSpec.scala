@@ -11,7 +11,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import org.mockito.{ ArgumentMatcher, Matchers }
 import uk.gov.hmrc.common.microservice.paye.domain._
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.CalculationResult
@@ -19,7 +19,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.microservice.domain.{ RegimeRoots, User }
+import uk.gov.hmrc.common.microservice.domain.{ RegimeRoots, User }
 import org.jsoup.Jsoup
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {

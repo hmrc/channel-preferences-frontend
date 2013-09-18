@@ -15,7 +15,7 @@ case class MultiFormStep(stepName: String, stepCall: Call)
 
 class MultiFormAction(keyStore: KeyStoreMicroService = MicroServices.keyStoreMicroService) extends Results {
 
-  import uk.gov.hmrc.microservice.domain.User
+  import uk.gov.hmrc.common.microservice.domain.User
 
   def apply(config: User => MultiFormConfiguration)(action: (User => Request[AnyContent] => Result)): (User => Request[AnyContent] => Result) = {
     implicit user =>

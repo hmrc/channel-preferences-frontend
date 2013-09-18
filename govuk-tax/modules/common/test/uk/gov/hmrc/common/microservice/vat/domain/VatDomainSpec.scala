@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.vat.domain
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.microservice.auth.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountSummary, VatRoot }
 import org.scalatest.mock.MockitoSugar

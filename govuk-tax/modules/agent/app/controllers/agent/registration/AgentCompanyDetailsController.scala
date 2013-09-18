@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import play.api.data._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.Address
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 import controllers.common.actions.MultiFormWrapper
 

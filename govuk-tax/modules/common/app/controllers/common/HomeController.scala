@@ -1,7 +1,7 @@
 package controllers.common
 
 import play.Logger
-import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import views.html._
 import controllers._
 

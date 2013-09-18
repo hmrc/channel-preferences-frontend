@@ -1,10 +1,8 @@
 package controllers.paye
 
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeRequest, WithApplication }
 import views.formatting.Dates
 import play.api.test.Helpers._

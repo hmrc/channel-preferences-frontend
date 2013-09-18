@@ -2,8 +2,8 @@ package controllers.common
 
 import play.api.mvc._
 import controllers.common.service._
-import uk.gov.hmrc.microservice.domain.{ RegimeRoots, TaxRegime, User }
-import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.domain.{ RegimeRoots, TaxRegime, User }
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import java.net.URI
 import views.html.login
 import com.google.common.net.HttpHeaders
@@ -120,5 +120,4 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
       case _ => None
     }
   )
-
 }

@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common
 
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.auth.domain.{Vrn, Utr, UserAuthority}
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.auth.domain.{Vrn, Utr, UserAuthority}
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }

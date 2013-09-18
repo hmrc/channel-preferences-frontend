@@ -1,4 +1,4 @@
-package uk.gov.hmrc.microservice.saml
+package uk.gov.hmrc.common.microservice.saml
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.microservice.{ MicroServiceConfig, MicroService }

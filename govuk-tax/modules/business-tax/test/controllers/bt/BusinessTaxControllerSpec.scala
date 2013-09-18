@@ -1,25 +1,25 @@
 package controllers.bt
 
 import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import java.net.URI
 import org.joda.time.DateTime
-import uk.gov.hmrc.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import play.api.test.Helpers._
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.microservice.auth.domain._
+import uk.gov.hmrc.common.microservice.auth.domain._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
-import uk.gov.hmrc.microservice.auth.domain.Utr
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.auth.domain.Utr
 import scala.Some
-import uk.gov.hmrc.microservice.auth.domain.Vrn
-import uk.gov.hmrc.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.auth.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountBalance, VatAccountSummary, VatRoot }

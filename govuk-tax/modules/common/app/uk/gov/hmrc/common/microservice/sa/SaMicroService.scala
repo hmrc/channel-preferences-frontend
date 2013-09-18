@@ -1,15 +1,14 @@
-package uk.gov.hmrc.microservice.sa
+package uk.gov.hmrc.common.microservice.sa
 
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
-import uk.gov.hmrc.microservice.sa.domain._
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.MicroServiceException
-import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
 
 class SaMicroService extends MicroService {
 

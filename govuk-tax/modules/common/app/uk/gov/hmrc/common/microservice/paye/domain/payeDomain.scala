@@ -4,8 +4,8 @@ import org.joda.time.{DateTimeZone, DateTime, LocalDate}
 import org.joda.time.format.DateTimeFormat
 import controllers.common.routes
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import uk.gov.hmrc.microservice.domain.{TaxRegime, RegimeRoot}
-import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
 
 object PayeRegime extends TaxRegime {

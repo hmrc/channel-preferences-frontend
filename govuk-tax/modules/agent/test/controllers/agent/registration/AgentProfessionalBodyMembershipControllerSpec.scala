@@ -3,14 +3,14 @@ package controllers.agent.registration
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import play.api.test.Helpers._
-import org.scalatest.{ TestData, BeforeAndAfterEach }
+import org.scalatest.TestData
 import org.mockito.{ ArgumentCaptor, Matchers }
 import controllers.agent.registration.FormNames._
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import uk.gov.hmrc.common.microservice.agent.Agent

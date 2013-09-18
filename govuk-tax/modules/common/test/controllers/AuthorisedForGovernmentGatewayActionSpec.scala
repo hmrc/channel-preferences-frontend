@@ -2,18 +2,18 @@ package controllers
 
 import org.scalatest.mock.MockitoSugar
 import play.api.mvc.Controller
-import uk.gov.hmrc.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import org.mockito.Mockito.when
 import org.mockito.Mockito.reset
-import uk.gov.hmrc.microservice.auth.domain.{ Regimes, UserAuthority }
+import uk.gov.hmrc.common.microservice.auth.domain.{ Regimes, UserAuthority }
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import play.api.test.Helpers._
 import java.net.URI
 import org.slf4j.MDC
-import uk.gov.hmrc.microservice.sa.domain.{ SaRoot, SaRegime }
-import uk.gov.hmrc.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.domain.{ SaRoot, SaRegime }
+import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import org.scalatest.TestData
 

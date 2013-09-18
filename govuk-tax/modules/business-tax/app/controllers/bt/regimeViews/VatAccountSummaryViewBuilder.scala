@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountSummary, 
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import controllers.bt.{routes, AccountSummary}
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 
 case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, vatMicroService: VatMicroService) {
 

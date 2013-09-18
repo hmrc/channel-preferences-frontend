@@ -1,9 +1,9 @@
-package uk.gov.hmrc.microservice.sa.domain
+package uk.gov.hmrc.common.microservice.sa.domain
 
 import controllers.common.RedirectUtils
-import uk.gov.hmrc.microservice.sa.SaMicroService
-import uk.gov.hmrc.microservice.domain.{ TaxRegime, RegimeRoot }
-import uk.gov.hmrc.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.domain.{ TaxRegime, RegimeRoot }
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import org.joda.time.LocalDate
 

@@ -6,7 +6,7 @@ import scala.Some
 import play.api.mvc.{ Request, Result }
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
 import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
 import controllers.common.validators.Validators

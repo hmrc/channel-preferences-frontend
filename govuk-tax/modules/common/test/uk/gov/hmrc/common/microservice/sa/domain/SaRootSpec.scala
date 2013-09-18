@@ -2,14 +2,9 @@ package uk.gov.hmrc.common.microservice.sa.domain
 
 import uk.gov.hmrc.common.BaseSpec
 import org.mockito.Mockito._
-import uk.gov.hmrc.microservice.sa.domain._
-import uk.gov.hmrc.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
 import org.mockito.Matchers
 
 class SaRootSpec extends BaseSpec with MockitoSugar {

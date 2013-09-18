@@ -1,7 +1,7 @@
 package controllers.sa
 
 import play.api.test._
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.mvc.{ Result, Request }
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URI }
@@ -10,18 +10,18 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
-import uk.gov.hmrc.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.sa.domain.TransactionId
+import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import uk.gov.hmrc.microservice.auth.domain.Utr
-import uk.gov.hmrc.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.auth.domain.Utr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 

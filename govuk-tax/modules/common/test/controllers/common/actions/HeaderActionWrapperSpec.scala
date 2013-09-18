@@ -1,10 +1,8 @@
 package controllers.common.actions
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.MustMatchers
 import controllers.common.{ CookieEncryption, HeaderNames }
 import play.api.mvc.{ Action, Controller }
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeApplication, WithApplication, FakeRequest }
 import org.slf4j.MDC
 import play.api.test.Helpers._

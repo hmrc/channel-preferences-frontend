@@ -1,7 +1,7 @@
 package controllers.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{ Result, Request }
 import models.paye.{ EmploymentViews, PayeOverview, EmploymentView }
 import views.html.paye.paye_home

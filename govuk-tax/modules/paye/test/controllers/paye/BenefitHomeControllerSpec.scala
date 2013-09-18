@@ -1,31 +1,13 @@
 package controllers.paye
 
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeRequest, WithApplication }
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Matchers
-import uk.gov.hmrc.microservice.domain.User
-import play.api.test.Helpers._
-import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import scala.Some
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.mock.MockitoSugar
-import controllers.common.CookieEncryption
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
-import play.api.test.{ FakeRequest, WithApplication }
-import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.paye.domain._
-import org.mockito.Matchers
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import play.api.test.FakeApplication

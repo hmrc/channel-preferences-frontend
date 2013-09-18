@@ -2,9 +2,9 @@ package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.domain.{RegimeRoots, User}
+import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
-import uk.gov.hmrc.microservice.auth.domain.{Vrn, Regimes, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.{Vrn, Regimes, UserAuthority}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountBalance, VatAccountSummary, VatRoot}
 import org.mockito.Mockito._
 import views.helpers.{MoneyPounds, RenderableMoneyMessage, RenderableMessage, LinkMessage}

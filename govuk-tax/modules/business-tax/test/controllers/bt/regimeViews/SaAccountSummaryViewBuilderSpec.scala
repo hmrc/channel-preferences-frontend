@@ -2,20 +2,20 @@ package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import org.mockito.Mockito._
 import views.helpers._
 import org.joda.time.LocalDate
 import controllers.bt.routes
 import controllers.bt.regimeViews.SaAccountSummaryMessageKeys._
 import views.helpers.LinkMessage
-import uk.gov.hmrc.microservice.sa.domain.Liability
-import uk.gov.hmrc.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.Liability
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import views.helpers.RenderableLinkMessage
-import uk.gov.hmrc.microservice.sa.domain.SaAccountSummary
-import uk.gov.hmrc.microservice.domain.User
-import uk.gov.hmrc.microservice.domain.RegimeRoots
-import uk.gov.hmrc.microservice.sa.domain.AmountDue
+import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.sa.domain.AmountDue
 
 class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 

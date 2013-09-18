@@ -4,7 +4,7 @@ import config.PortalConfig
 import org.joda.time.LocalDate
 import play.api.mvc.Request
 import scala._
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import scala.AnyRef
 import scala.Some
 import controllers.common.CookieEncryption

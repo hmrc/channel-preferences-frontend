@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{ Result, Request }
 import views.html.paye._
 import scala.Some
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.DisplayBenefits
 import uk.gov.hmrc.common.TaxYearResolver
 import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }

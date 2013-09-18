@@ -1,7 +1,7 @@
 package controllers.common.actions
 
 import play.api.mvc.{ AsyncResult, Action, Controller }
-import uk.gov.hmrc.microservice.MockMicroServicesForTests
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.never

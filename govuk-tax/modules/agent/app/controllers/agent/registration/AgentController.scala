@@ -1,6 +1,6 @@
 package controllers.agent.registration
 
-import uk.gov.hmrc.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.actions.{ MultiFormStep, MultiFormConfiguration }
 
 trait AgentController {

@@ -1,7 +1,7 @@
-package uk.gov.hmrc.microservice.auth
+package uk.gov.hmrc.common.microservice.auth
 
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
-import uk.gov.hmrc.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 
 class AuthMicroService(override val serviceUrl: String = MicroServiceConfig.authServiceUrl) extends MicroService {
 
