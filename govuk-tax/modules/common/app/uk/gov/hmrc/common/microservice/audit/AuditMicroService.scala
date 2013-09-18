@@ -13,7 +13,7 @@ case class AuditEvent(auditSource: String,
 
 class AuditMicroService(override val serviceUrl: String = MicroServiceConfig.auditServiceUrl) extends MicroService {
 
-  lazy val enabled = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.audit.enabled").getOrElse(false)
+  lazy val enabled = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.enabled").getOrElse(false)
 
   def audit(auditEvent: AuditEvent) {
     if (enabled) httpPostAndForget("/write/audit", Json.parse(toRequestBody(auditEvent)))
