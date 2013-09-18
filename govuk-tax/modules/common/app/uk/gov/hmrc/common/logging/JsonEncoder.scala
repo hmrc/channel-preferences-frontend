@@ -6,6 +6,7 @@ import org.apache.commons.lang.time.FastDateFormat
 import ch.qos.logback.core.encoder.EncoderBase
 import ch.qos.logback.classic.spi.{ ThrowableProxyUtil, ILoggingEvent }
 import org.apache.commons.io.IOUtils._
+import java.net.InetAddress
 
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
@@ -19,6 +20,7 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
     val eventNode = mapper.createObjectNode
 
     eventNode.put("app", "govuk-tax")
+    eventNode.put("hostname", InetAddress.getLocalHost.getHostName)
     eventNode.put("timestamp", dateFormat.format(event.getTimeStamp))
     eventNode.put("message", event.getFormattedMessage)
 
