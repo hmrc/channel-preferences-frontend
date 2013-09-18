@@ -90,14 +90,15 @@ trait SessionTimeout {
   }
 
   private def insertTimestampNow(request: Request[AnyContent], result: PlainResult): Result = {
-    val newSessionData = sessionFromResultOrRequest(request, result) :+ (sessionTimestampKey -> now().getMillis.toString)
+    val sessionData = sessionFromResultOrRequest(request, result).data.toSeq
+    val newSessionData = sessionData :+ (sessionTimestampKey -> now().getMillis.toString)
     result.withSession(newSessionData: _*)
   }
 
-  private def sessionFromResultOrRequest(request: Request[AnyContent], result: PlainResult): Seq[(String, String)] = {
+  private def sessionFromResultOrRequest(request: Request[AnyContent], result: PlainResult): Session = {
     result.header.headers.get(SET_COOKIE) match {
-      case sessionOrNot @ Some(s) => Session.decodeFromCookie(Cookies(sessionOrNot).get(Session.COOKIE_NAME)).data.toSeq
-      case _ => request.session.data.toSeq
+      case None => request.session
+      case cookieHeader => Session.decodeFromCookie(Cookies(cookieHeader).get(Session.COOKIE_NAME))
     }
   }
 }

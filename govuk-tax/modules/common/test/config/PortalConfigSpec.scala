@@ -11,17 +11,17 @@ class PortalConfigSpec extends BaseSpec {
     "govuk-tax.Test.portal.destinationRoot" -> "http://someserver:8080")
 
   "Portal Config " should {
-    "return a fully qualified URL including the portal destination server and the path for saViewAccountDetails " ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return a fully qualified URL including the portal destination server and the path for saViewAccountDetails " in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val actualDestinationUrl = PortalConfig.getDestinationUrl("saViewAccountDetails")
       actualDestinationUrl shouldBe "http://someserver:8080/self-assessment/view"
     }
 
-    "return a fully qualified URL including the portal destination server and the path for saFileAReturn " ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return a fully qualified URL including the portal destination server and the path for saFileAReturn " in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val actualDestinationUrl = PortalConfig.getDestinationUrl("saFileAReturn")
       actualDestinationUrl shouldBe "http://someserver:8080/self-assessment/file-a-return"
     }
 
-    "return a URL containing just the destination root when the path key is not found " ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return a URL containing just the destination root when the path key is not found " in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val actualDestinationUrl = PortalConfig.getDestinationUrl("keyNotFound")
       actualDestinationUrl shouldBe "http://someserver:8080"
     }

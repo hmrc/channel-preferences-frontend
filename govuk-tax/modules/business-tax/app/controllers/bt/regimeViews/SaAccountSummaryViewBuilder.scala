@@ -5,7 +5,6 @@ import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import SaAccountSummaryMessageKeys._
 import uk.gov.hmrc.common.microservice.sa.domain.Liability
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import scala.Some
 import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.bt.AccountSummary
@@ -123,7 +122,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
   private def getLiabilityMessage(liability: Option[Liability]): Option[(String, Seq[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some(willBecomeDue, Seq(MoneyPounds(liability.get.amount), liability.get.dueDate))
+      case Some(l) => Some((willBecomeDue, Seq(MoneyPounds(liability.get.amount), liability.get.dueDate)))
       case None => None
     }
   }

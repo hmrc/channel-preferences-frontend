@@ -19,7 +19,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
 
   "PortalDestinationUrlBuilder " should {
 
-    "return a resolved dynamic full URL with parameters year, utr and affinity group resolved using a request and user object" ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return a resolved dynamic full URL with parameters year, utr and affinity group resolved using a request and user object" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val mockRequest = mock[Request[AnyRef]]
       val mockSession = mock[Session]
       val mockUser = mock[User]
@@ -38,7 +38,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       actualDestinationUrl should not endWith ("""<year>""")
     }
 
-    "throw an exception when the affinity group is missing" ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "throw an exception when the affinity group is missing" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val mockRequest = mock[Request[AnyRef]]
       val mockSession = mock[Session]
       val mockUser = mock[User]
@@ -54,7 +54,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       evaluating(portalUrlBuilder("anotherDestinationPathKey")) should produce[RuntimeException]
     }
 
-    "return a URL without the UTR resolved when the utr is missing" ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return a URL without the UTR resolved when the utr is missing" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val mockRequest = mock[Request[AnyRef]]
       val mockSession = mock[Session]
       val mockUser = mock[User]
@@ -72,7 +72,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       actualDestinationUrl should not endWith ("""<year>""")
     }
 
-    "return a URL which is resolved using a vrn parameter" ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return a URL which is resolved using a vrn parameter" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val mockRequest = mock[Request[AnyRef]]
       val mockSession = mock[Session]
       val mockUser = mock[User]
@@ -90,7 +90,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       actualDestinationUrl should startWith("""http://someserver:8080/vat/trader/someVrn/account""")
     }
 
-    "return an invalid URL when we request a link requiring a vrn parameter but the vrn is missing" ignore new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return an invalid URL when we request a link requiring a vrn parameter but the vrn is missing" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val mockRequest = mock[Request[AnyRef]]
       val mockSession = mock[Session]
       val mockUser = mock[User]

@@ -13,7 +13,6 @@ import controllers.common.CookieEncryption
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
-import scala.Some
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
@@ -457,7 +456,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
   "The changeAddressCompleteAction method" should {
 
-    "display a success message with the transaction id" in {
+    "display a success message with the transaction id" in new WithApplication(FakeApplication()) {
 
       val transactionId = "sometransactionid"
 
@@ -474,7 +473,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
   "The changeAddressFailedAction method" should {
 
-    "display a failure message with the correct error" in {
+    "display a failure message with the correct error" in new WithApplication(FakeApplication()) {
 
       val errorMessage = "some error occurred"
       val encodedErrorMessage = SecureParameter(errorMessage, currentTime).encrypt
@@ -493,7 +492,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
   "The redisplayChangeAddressAction" should {
 
-    "Display the Change Address page with the form fields populated" in {
+    "Display the Change Address page with the form fields populated" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
       val addressLine1 = "xxx address line 1 xxx"
