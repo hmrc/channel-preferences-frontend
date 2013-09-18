@@ -10,7 +10,6 @@ import views.html.make_a_payment_landing
 import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
-import controllers.common.service.MicroServices
 
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -60,7 +59,7 @@ private object BusinessUser {
 
 case class AccountSummaries(regimes: Seq[AccountSummary])
 
-class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService = new VatMicroService()){
+class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService){
 
   def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
     val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
