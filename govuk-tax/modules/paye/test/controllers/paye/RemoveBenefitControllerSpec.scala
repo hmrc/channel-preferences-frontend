@@ -102,6 +102,46 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     }
   }
 
+  "Removing your benefit without checking the agreement checkbox in the form" should {
+
+    "display an error message" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val result = controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody(), "31", 2013, 2)
+
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".error").text should include("Please confirm that you are no longer provided with a company car")
+    }
+
+    "keep the previously entered date when redirected to the form for a car benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val withdrawDate = "2013-09-01"
+      val result = controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody("withdrawDate" -> withdrawDate), CAR.toString, 2013, 2)
+
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
+
+      doc.select(".return-date").attr("value") shouldBe withdrawDate
+    }
+
+    "keep the previously entered date when redirected to the form for any benefit except car" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val withdrawDate = "2013-09-01"
+      val result = controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody("withdrawDate" -> withdrawDate), FUEL.toString, 2013, 2)
+
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".benefit-type").text should include("Remove your company fuel benefit")
+
+      doc.select(".return-date").attr("value") shouldBe withdrawDate
+    }
+  }
+
   "Removing your car prior to its start date" should {
     "Not validate the view and redirect with correct error" in new WithApplication(FakeApplication()) {
 
@@ -128,8 +168,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   "The car benefit removal method" should {
     "In step 1, display page correctly for well formed request" in new WithApplication(FakeApplication()) {
+
+      val car = Car(Some(new LocalDate(1994,10,7)), None, None, 0, 2, 124, 1, "B", BigDecimal("12343.21"))
       val specialCarBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 666, employmentSequenceNumber = 3, null, null, null, null, null, null,
-        car = Some(Car(Some(new LocalDate(1994, 10, 7)), None, None, 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
+        Some(car) , Map.empty, Map.empty)
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq(Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)), Seq(specialCarBenefit), List.empty, List.empty)
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), CAR.toString, 2013, 3)
@@ -390,19 +432,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(None, true, false), "31", 2013, 2)
-
-      status(result) shouldBe 400
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("December 12, 2012")
-      doc.select(".amount").text should include("£321.42")
-      doc.select(".error").text should include("Invalid date: Use format DD/MM/YYYY, e.g. 01/12/2013")
-    }
-
-    "in step 1 display an error message when agreement checkbox is not selected" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
-
-      val result = controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody("withdrawDate" -> ""), "31", 2013, 2)
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))

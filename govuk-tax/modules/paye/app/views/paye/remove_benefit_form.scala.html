@@ -23,7 +23,7 @@
             <div class="@if(withdrawDateField.error.isDefined){error-notification}">
             @if(withdrawDateField.error.isDefined){<p class="error">@Messages(withdrawDateField.errors(0).message)</p>}
             <label>Date you stopped receiving the benefit: </label>
-            <input class="return-date" type="date" name="withdrawDate" placeholder="@shortDate(LocalDate.now)" />
+                <input class="return-date" type="date" name="withdrawDate" value="@{withdrawDateField.value}" />
             </div>
             }
         <div>
