@@ -38,7 +38,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
     } else {
       try {
         val response: GovernmentGatewayResponse = governmentGatewayMicroService.login(boundForm.value.get)
-        RedirectUtils.toBusinessTax
+        FrontEndRedirect.toBusinessTax
           .withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
         case e: UnauthorizedException => {
@@ -67,13 +67,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         if (validationResult.valid) {
           authMicroService.authority(s"/auth/pid/${validationResult.hashPid.get}") match {
             case Some(authority) => {
-              val target = session.data.get("login_redirect") match {
-                case Some(RegisterUserRedirect()) => RedirectUtils.toAgent
-                case Some(CarBenefitHomeRedirect()) => RedirectUtils.toCarBenefit
-                case None => RedirectUtils.toPaye //todo is this right?
-              }
-
-         //     val target = if (session.data.contains("register agent")) RedirectUtils.toAgent else RedirectUtils.toPaye
+              val target = FrontEndRedirect.forSession(session)
               target.withSession(("userId", encrypt(authority.id)))
             }
             case _ => {

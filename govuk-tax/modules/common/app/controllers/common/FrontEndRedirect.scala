@@ -1,9 +1,10 @@
 package controllers.common
 
 import play.Logger
+import play.api.mvc.Session
 
 
-trait Redirect  {
+trait RedirectCommand  {
   protected val name : String
 
   def unapply(target: String) : Boolean = target match {
@@ -14,22 +15,31 @@ trait Redirect  {
   def apply() = name
 }
 
-object RegisterUserRedirect extends Redirect {
+object RegisterUserRedirect extends RedirectCommand {
   override protected val name = "register agent"
 }
 
-object CarBenefitHomeRedirect extends Redirect {
+object CarBenefitHomeRedirect extends RedirectCommand {
   override protected val name = "car benefit"
 }
 
-object RedirectUtils extends BaseController {
+object FrontEndRedirect extends BaseController {
 
   val payeHome = "/paye/home"
   val saHome = "/sa/home"
   val businessTaxHome = "/business-tax/home"
   val agentHome = "/agent/home"
-  val carBenefit = "/paye/benefit-overview"
+  val carBenefit = "/paye/car-benefit-home"
   val agentRegistration = "/agent/reason-for-application"
+
+
+  def forSession(session: Session) = {
+    session.data.get("login_redirect") match {
+      case Some(RegisterUserRedirect()) => toAgent
+      case Some(CarBenefitHomeRedirect()) => toCarBenefit
+      case None => toPaye //todo wwhat is the default destination?
+    }
+  }
 
   def toPaye = {
     Logger.debug("Redirecting to paye...")
@@ -56,7 +66,7 @@ object RedirectUtils extends BaseController {
   }
 
   def toCarBenefit = {
-    Logger.debug("Redirecting to benefit-overview")
+    Logger.debug("Redirecting to car-benefit-home")
     Redirect(carBenefit)
   }
 }

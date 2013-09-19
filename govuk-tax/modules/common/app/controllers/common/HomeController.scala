@@ -18,9 +18,9 @@ class HomeController extends BaseController with ActionWrappers with SessionTime
         Logger.debug("Choosing home for $user")
 
         user.regimes match {
-          case RegimeRoots(Some(paye), None, None) => if (session.data.contains("register agent")) RedirectUtils.toAgent else RedirectUtils.toPaye
-          case RegimeRoots(None, Some(sa), _) => RedirectUtils.toBusinessTax
-          case RegimeRoots(None, _, Some(vat)) => RedirectUtils.toBusinessTax
+          case RegimeRoots(Some(paye), None, None) => FrontEndRedirect.forSession(session)
+          case RegimeRoots(None, Some(sa), _) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(None, _, Some(vat)) => FrontEndRedirect.toBusinessTax
           case _ => Unauthorized(login.render())
         }
 
