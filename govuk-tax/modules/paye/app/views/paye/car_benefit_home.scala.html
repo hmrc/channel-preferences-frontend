@@ -14,9 +14,9 @@
 	    @if(fuelBenefit.isDefined) { You also receive a car fuel benefit worth <span id="fuel-benefit-amount">£@{fuelBenefit.get.grossAmount}</span>. }</p>
 	<p>Would you like to tell HMRC that:</p>
 	<ul>
-	    <li><a href="companycar/remove">you no longer have this company car</a></li>
+	    <li><a href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)">you no longer have this company car</a></li>
 	    @if( fuelBenefit.isDefined ) {
-		<li><a href="companycar/remove-fuel-benefit">you need to change or remove the car fuel benefit</a></li>
+		<li><a href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)">you need to change or remove the car fuel benefit</a></li>
 	    }
 	</ul>
     } else {
@@ -29,6 +29,6 @@
         </div>
     }
 
-    <p>If your company car information is still correct, you can <a href="#">log out from your account</a>.</p>
+    <p>If your company car information is still correct, you can <a href="@common.routes.LoginController.logout">log out from your account</a>.</p>
 
 }
