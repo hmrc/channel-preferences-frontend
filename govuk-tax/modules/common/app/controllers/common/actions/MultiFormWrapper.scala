@@ -2,7 +2,6 @@ package controllers.common.actions
 
 import controllers.common.service.MicroServices
 import play.api.mvc._
-import scala.Some
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 
 trait MultiFormWrapper extends MicroServices{

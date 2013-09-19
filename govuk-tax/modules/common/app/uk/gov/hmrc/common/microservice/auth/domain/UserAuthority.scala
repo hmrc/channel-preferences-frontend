@@ -2,26 +2,17 @@ package uk.gov.hmrc.common.microservice.auth.domain
 
 import org.joda.time.DateTime
 import java.net.URI
-
-case class Utr(utr: String) {
-  override lazy val toString = utr
-}
-
-case class Vrn(vrn: String) {
-  override lazy val toString = vrn
-}
-
-case class EmpRef(taxOfficeNumber: String, taxOfficeReference: String) {
-  override lazy val toString = taxOfficeNumber + "/" + taxOfficeReference
-}
+import uk.gov.hmrc.domain.{CtUtr, EmpRef, Vrn, SaUtr}
 
 case class UserAuthority(id: String,
   regimes: Regimes,
   previouslyLoggedInAt: Option[DateTime] = None,
-  utr: Option[Utr] = None,
+  @deprecated("Use the saUtr field - 'utr' will be removed", "18/9/2013") utr: Option[SaUtr] = None, // TODO [JJS] This needs to be renamed to saUtr (but may require changes to JSON from tax-services)
   vrn: Option[Vrn] = None,
-  ctUtr: Option[Utr] = None,
-  empRef: Option[EmpRef] = None)
+  ctUtr: Option[CtUtr] = None,
+  empRef: Option[EmpRef] = None) {
+  val saUtr = utr
+}
 
 case class Regimes(
   paye: Option[URI] = None,

@@ -7,7 +7,6 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import play.api.test.Helpers._
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.common.microservice.auth.domain._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
@@ -15,9 +14,6 @@ import controllers.common.CookieEncryption
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
-import uk.gov.hmrc.common.microservice.auth.domain.Utr
-import scala.Some
-import uk.gov.hmrc.common.microservice.auth.domain.Vrn
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
@@ -27,6 +23,7 @@ import play.api.i18n.Messages
 import config.DateTimeProvider
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.domain.{SaUtr, EmpRef, Vrn, CtUtr}
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -67,7 +64,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
     "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to details page of the regimes he has actively enrolled online services for (SA and VAT here)" in new WithApplication(FakeApplication()) {
 
-      val utr = Utr("1234567890")
+      val utr = SaUtr("1234567890")
       val vrn = Vrn("666777889")
 
       when(mockPayeMicroService.root("/personal/paye/DF334476B")).thenReturn(PayeRoot("1112234",1,"title","firstName",None,"surname","name","1976-13-04",Map.empty,Map.empty))
@@ -130,7 +127,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
     "display the CT UTR of Geoff Fisher if he is enrolled for the CT service" in new WithApplication(FakeApplication()) {
 
-      val ctUtr = Utr("ct utr 1234567890")
+      val ctUtr = CtUtr("ct utr 1234567890")
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(), Some(new DateTime(1000L)), ctUtr = Some(ctUtr))))
 

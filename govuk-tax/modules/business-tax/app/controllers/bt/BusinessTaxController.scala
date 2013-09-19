@@ -1,7 +1,6 @@
 package controllers.bt
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.common.microservice.auth.domain._
 import uk.gov.hmrc.common.microservice.domain._
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
@@ -10,6 +9,7 @@ import views.html.make_a_payment_landing
 import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.domain.{SaUtr, EmpRef, Vrn, CtUtr}
 
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -41,13 +41,13 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
 
 }
 
-case class BusinessUser(regimeRoots: RegimeRoots, utr: Option[Utr], vrn: Option[Vrn], ctUtr: Option[Utr], empRef: Option[EmpRef], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)
+case class BusinessUser(regimeRoots: RegimeRoots, saUtr: Option[SaUtr], vrn: Option[Vrn], ctUtr: Option[CtUtr], empRef: Option[EmpRef], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)
 
 private object BusinessUser {
   def apply(user : User) : BusinessUser = {
     val userAuthority = user.userAuthority
     new BusinessUser(user.regimes,
-                      userAuthority.utr,
+                      userAuthority.saUtr,
                       userAuthority.vrn,
                       userAuthority.ctUtr,
                       userAuthority.empRef,

@@ -7,7 +7,7 @@ import org.mockito.Mockito._
 import play.api.test.FakeApplication
 import org.mockito.Matchers
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountBalance, VatAccountSummary, VatRoot }
-import uk.gov.hmrc.common.microservice.auth.domain.Vrn
+import uk.gov.hmrc.domain.Vrn
 
 class VatMicroServiceTest extends BaseSpec {
 
