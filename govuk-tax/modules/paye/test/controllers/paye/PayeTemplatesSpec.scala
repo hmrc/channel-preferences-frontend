@@ -25,7 +25,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)
 
-      payeHome("h2.welcome").text() should include("John Densmore")
+      payeHome(".welcome").text() should include("John Densmore")
 
     }
 
