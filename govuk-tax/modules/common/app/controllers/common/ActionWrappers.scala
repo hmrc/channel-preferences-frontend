@@ -10,6 +10,7 @@ import com.google.common.net.HttpHeaders
 import play.api.mvc.Result
 import play.api.Logger
 import controllers.common.actions.{ LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper }
+import controllers.common.FrontEndRedirect._
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -34,6 +35,7 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
             Redirect(regime.unauthorisedLandingPage)
           case _ =>
             val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), token)
+            //
             action(user)(request)
         }
       }
@@ -46,7 +48,7 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
 
   object AuthorisedForIdaAction {
 
-    def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
+    def apply(taxRegime: Option[TaxRegime] = None, redirectCommand: Option[RedirectCommand] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
           WithRequestAuditing {
@@ -56,7 +58,7 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
                 val token: Option[String] = request.session.get("token")
                 if (encryptedUserId.isEmpty || token.isDefined) {
                   Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
-                  RedirectUtils.toSamlLogin
+                  toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectCommand))
                 } else {
                   act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
                 }

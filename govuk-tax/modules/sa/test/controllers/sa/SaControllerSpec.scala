@@ -19,8 +19,8 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import uk.gov.hmrc.common.microservice.auth.domain.Utr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.domain.SaUtr
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -32,8 +32,8 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     override def now = () => currentTime
   }
 
-  private def setupUser(id: String, utr: String, name: String, nameFromGovernmentGateway: String): User = {
-    val ua = UserAuthority(s"/personal//$utr", Regimes(sa = Some(URI.create(s"/personal/utr/$utr"))), None, Some(Utr("123456789012")))
+  private def setupUser(id: String, saUtr: String, name: String, nameFromGovernmentGateway: String): User = {
+    val ua = UserAuthority(s"/personal/$saUtr", Regimes(sa = Some(URI.create(s"/personal/utr/$saUtr"))), None, Some(SaUtr("123456789012")))
 
     val saRoot = SaRoot(
       utr = "123456789012",
@@ -404,7 +404,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       val add1 = "add1"
       val add2 = "add2"
-      val utr = Utr("123456789012")
+      val utr = SaUtr("123456789012")
       val uri = s"/sa/individual/$utr/details/main-address"
 
       val postcodeValid = "ABC 123"
@@ -431,7 +431,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       val add1 = "add1"
       val add2 = "add2"
-      val utr = Utr("123456789012")
+      val utr = SaUtr("123456789012")
       val uri = s"/sa/individual/$utr/details/main-address"
       val postcodeValid = "ABC 123"
 

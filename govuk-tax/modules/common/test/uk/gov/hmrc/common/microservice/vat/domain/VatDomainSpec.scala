@@ -1,12 +1,12 @@
 package uk.gov.hmrc.common.microservice.vat.domain
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.auth.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountSummary, VatRoot }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers
+import uk.gov.hmrc.domain.Vrn
 
 class VatDomainSpec extends BaseSpec with MockitoSugar {
 

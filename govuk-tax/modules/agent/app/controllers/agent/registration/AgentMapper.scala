@@ -1,16 +1,22 @@
 package controllers.agent.registration
 
-import uk.gov.hmrc.common.microservice.agent._
-import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
 import controllers.agent.registration.AgentContactDetailsFormFields._
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 import controllers.agent.registration.FormNames._
-import uk.gov.hmrc.common.microservice.domain.Address
 import controllers.common.validators.AddressFields._
 import uk.gov.hmrc.utils.DateConverter
-import uk.gov.hmrc.domain.{Vrn, Utr, Nino}
+import uk.gov.hmrc.domain._
+import uk.gov.hmrc.common.microservice.agent.ProfessionalBodyMembership
+import uk.gov.hmrc.common.microservice.keystore.KeyStore
+import uk.gov.hmrc.common.microservice.agent.ContactDetails
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.agent.CompanyDetails
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.agent.Agent
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.common.microservice.domain.Address
 
 trait AgentMapper extends DateConverter {
 
@@ -26,7 +32,7 @@ trait AgentMapper extends DateConverter {
     val companyDetails = CompanyDetails(
       companyName = companyData(companyName),
       emailAddress = companyData(email),
-      saUtr = Utr(companyData(saUtr)),
+      saUtr = SaUtr(companyData(saUtr)),
       registeredWithHMRC = companyData(registeredOnHMRC).toBoolean,
       mainAddress = companyAddressData(mainAddress),
       communicationAddress = companyAddressData(communicationAddress),
@@ -34,7 +40,7 @@ trait AgentMapper extends DateConverter {
       tradingName = optionalCompanyData(tradingName),
       numbers = phNumbers,
       websiteURLs = websiteUrls,
-      ctUTR = optionalCompanyData(ctUtr) map(utr => Utr(utr)),
+      ctUTR = optionalCompanyData(ctUtr) map(utr => CtUtr(utr)),
       vatVRN = optionalCompanyData(vatVrn) map(vrn => Vrn(vrn)),
       payeEmpRef = optionalCompanyData(payeEmpRef),
       companyHouseNumber = optionalCompanyData(companyHouseNumber)

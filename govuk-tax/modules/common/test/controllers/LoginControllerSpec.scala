@@ -103,9 +103,11 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
-      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("register agent" -> "true"))
+      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("login_redirect" -> "register agent"))
 
       status(result) should be(303)
+
+      session(result).get("login_redirect") shouldBe None
       redirectLocation(result).get should be("/agent/home")
 
     }
@@ -222,7 +224,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
       status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result).get shouldBe RedirectUtils.businessTaxHome.toString()
+      redirectLocation(result).get shouldBe FrontEndRedirect.businessTaxHome.toString()
 
       val sess = session(result)
       decrypt(sess("name")) shouldBe geoff.nameFromGovernmentGateway

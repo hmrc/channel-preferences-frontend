@@ -16,7 +16,7 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
 
   import ExecutionContext.Implicits.global
 
-  lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.audit.traceRequests").getOrElse(false)
+  lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
 
   def apply(action: Action[AnyContent]) = Action {
     request =>

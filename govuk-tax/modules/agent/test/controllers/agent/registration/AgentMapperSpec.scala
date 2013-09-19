@@ -13,7 +13,7 @@ import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields.
 import controllers.common.validators.AddressFields._
 import views.formatting.DatesSpec
 import uk.gov.hmrc.utils.DateConverter
-import uk.gov.hmrc.domain.{Vrn, Utr, Nino}
+import uk.gov.hmrc.domain.{CtUtr, Vrn, SaUtr, Nino}
 
 class AgentMapperSpec extends BaseSpec with MockitoSugar with DateConverter {
 
@@ -38,7 +38,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar with DateConverter {
       agent.emailAddress should be("agent@agent.com")
       agent.companyDetails.companyName should be("Company Name LTD")
       agent.companyDetails.emailAddress should be("company@company.com")
-      agent.companyDetails.saUtr should be(Utr("1234567890"))
+      agent.companyDetails.saUtr should be(SaUtr("1234567890"))
       agent.companyDetails.registeredWithHMRC should be(right = true)
       agent.companyDetails.mainAddress.addressLine1 should be("Main Address l1")
       agent.companyDetails.mainAddress.addressLine2 should be(Some("Main Address l2"))
@@ -59,7 +59,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar with DateConverter {
       agent.companyDetails.numbers(AgentCompanyDetailsFormFields.landlineNumber) should be("02073645362")
       agent.companyDetails.numbers(AgentCompanyDetailsFormFields.mobileNumber) should be("07777777771")
       agent.companyDetails.websiteURLs.head should be("www.agent.com")
-      agent.companyDetails.ctUTR.get should be(Utr("CT UTR"))
+      agent.companyDetails.ctUTR.get should be(CtUtr("CT UTR"))
       agent.companyDetails.vatVRN.get should be(Vrn("VAT Vrn"))
       agent.companyDetails.payeEmpRef.get should be("PAYE Emp Ref")
       agent.companyDetails.companyHouseNumber.get should be("23")
@@ -86,7 +86,7 @@ class AgentMapperSpec extends BaseSpec with MockitoSugar with DateConverter {
       agent.emailAddress should be("agent@agent.com")
       agent.companyDetails.companyName should be("Company Name LTD")
       agent.companyDetails.emailAddress should be("company@company.com")
-      agent.companyDetails.saUtr should be(Utr("1234567890"))
+      agent.companyDetails.saUtr should be(SaUtr("1234567890"))
       agent.companyDetails.registeredWithHMRC should be(right = true)
       agent.companyDetails.mainAddress.addressLine1 should be("Main Address l1")
       agent.companyDetails.communicationAddress.addressLine1 should be("Communication Address l1")

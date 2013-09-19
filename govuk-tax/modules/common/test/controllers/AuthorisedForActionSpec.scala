@@ -64,6 +64,15 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
           Ok(userName)
     }
 
+
+    def testAuthorisationWithRedirectCommand = AuthorisedForIdaAction(redirectCommand = Some(CarBenefitHomeRedirect)) {
+      implicit user =>
+        implicit request =>
+          val userPayeRegimeRoot = user.regimes.paye.get
+          val userName = userPayeRegimeRoot.name
+          Ok(userName)
+    }
+
     def testThrowsException = AuthorisedForIdaAction(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
@@ -134,6 +143,12 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john"), "token" -> encrypt("a-government-gateway-token")))
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/samllogin"
+    }
+
+    "add redirect information to the session when required" in new WithApplication(FakeApplication()) {
+      val result = TestController.testAuthorisationWithRedirectCommand(FakeRequest().withSession("userId" -> encrypt("/auth/oid/john"), "token" -> encrypt("a-government-gateway-token")))
+      status(result) should equal(303)
+      session(result).get(FrontEndRedirect.redirectSessionKey) shouldBe Some(CarBenefitHomeRedirect())
     }
 
   }

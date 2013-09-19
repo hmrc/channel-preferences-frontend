@@ -2,26 +2,26 @@ package uk.gov.hmrc.common.microservice.auth.domain
 
 import org.joda.time.DateTime
 import java.net.URI
-
-case class Utr(utr: String) {
-  override lazy val toString = utr
-}
-
-case class Vrn(vrn: String) {
-  override lazy val toString = vrn
-}
-
-case class EmpRef(taxOfficeNumber: String, taxOfficeReference: String) {
-  override lazy val toString = taxOfficeNumber + "/" + taxOfficeReference
-}
+import uk.gov.hmrc.domain._
+import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
+import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.Pid
 
 case class UserAuthority(id: String,
   regimes: Regimes,
   previouslyLoggedInAt: Option[DateTime] = None,
-  utr: Option[Utr] = None,
+  saUtr: Option[SaUtr] = None,
   vrn: Option[Vrn] = None,
-  ctUtr: Option[Utr] = None,
-  empRef: Option[EmpRef] = None)
+  ctUtr: Option[CtUtr] = None,
+  empRef: Option[EmpRef] = None,
+  nino: Option[Nino] = None,
+  governmentGatewayCredential: Option[GovernmentGatewayCredentialResponse] = None,
+  idaCredential: Option[IdaCredentialResponse] = None)
 
 case class Regimes(
   paye: Option[URI] = None,
@@ -29,3 +29,10 @@ case class Regimes(
   vat: Option[URI] = None,
   ct: Set[URI] = Set())
 
+case class GovernmentGatewayCredentialResponse(credentialId: String)
+
+case class IdaCredentialResponse(pids: List[Pid])
+
+case class Pid(pid: String) {
+  override lazy val toString = pid
+}

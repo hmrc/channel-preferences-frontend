@@ -1,0 +1,32 @@
+@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName : Option[String] )
+
+@import views.formatting.Dates._
+@import views.formatting.Strings._
+@import config.RefData._
+
+@main(title = "Your tax home") {
+
+    <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+
+    @if( carBenefit.isDefined ) {
+
+	<p>@employerName.getOrElse("Your employer") told us that they have provided you with a @carBenefit.get.car.get.engineSize @carBenefit.get.car.get.fuelType company car since @formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get). It has a benefit value of £@{carBenefit.get.grossAmount}.
+	    @if(fuelBenefit.isDefined) { You also receive a car fuel benefit worth £@{fuelBenefit.get.grossAmount}. }</p>
+	<p>Would you like to tell HMRC that:</p>
+	<ul>
+	    <li><a href="companycar/remove">you no longer have this company car</a></li>
+	    @if( fuelBenefit.isDefined ) {
+		<li><a href="companycar/remove-fuel-benefit">you need to change or remove the car fuel benefit</a></li>
+	    }
+	</ul>
+    } else {
+	<p>You do not have a company car.</p>
+	<p>Would you like to tell HMRC that:</p>
+	<ul>
+	    <li><a href="#">you would like to add a company car</a></li>
+	</ul>
+    }
+
+    <p>If your company car information is still correct, you can <a href="#">log out from your account</a>.</p>
+
+}

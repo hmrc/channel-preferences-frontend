@@ -1,12 +1,13 @@
 package uk.gov.hmrc.common
 
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.auth.domain.{Vrn, Utr, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }
 import play.api.mvc.{ Session, Request }
 import controllers.common.CookieEncryption
+import uk.gov.hmrc.domain.{Vrn, SaUtr}
 
 class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -19,17 +20,17 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
 
   "PortalDestinationUrlBuilder " should {
 
-    "return a resolved dynamic full URL with parameters year, utr and affinity group resolved using a request and user object" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "return a resolved dynamic full URL with parameters year, saUtr and affinity group resolved using a request and user object" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       val mockRequest = mock[Request[AnyRef]]
       val mockSession = mock[Session]
       val mockUser = mock[User]
       val mockUserAuthority = mock[UserAuthority]
-      val utr = "someUtr"
+      val saUtr = "someUtr"
 
       when(mockRequest.session).thenReturn(mockSession)
       when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
       when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.utr).thenReturn(Some(Utr(utr)))
+      when(mockUserAuthority.saUtr).thenReturn(Some(SaUtr(saUtr)))
 
       val portalUrlBuilder = PortalDestinationUrlBuilder.build(mockRequest, mockUser) _
       val actualDestinationUrl = portalUrlBuilder("anotherDestinationPathKey")
@@ -43,12 +44,12 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       val mockSession = mock[Session]
       val mockUser = mock[User]
       val mockUserAuthority = mock[UserAuthority]
-      val utr = "someUtr"
+      val saUtr = "someUtr"
 
       when(mockRequest.session).thenReturn(mockSession)
       when(mockSession.get("affinityGroup")).thenReturn(None)
       when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.utr).thenReturn(Some(Utr(utr)))
+      when(mockUserAuthority.saUtr).thenReturn(Some(SaUtr(saUtr)))
 
       val portalUrlBuilder = PortalDestinationUrlBuilder.build(mockRequest, mockUser) _
       evaluating(portalUrlBuilder("anotherDestinationPathKey")) should produce[RuntimeException]
@@ -63,7 +64,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       when(mockRequest.session).thenReturn(mockSession)
       when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
       when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.utr).thenReturn(None)
+      when(mockUserAuthority.saUtr).thenReturn(None)
 
       val portalUrlBuilder = PortalDestinationUrlBuilder.build(mockRequest, mockUser) _
       val actualDestinationUrl = portalUrlBuilder("anotherDestinationPathKey")

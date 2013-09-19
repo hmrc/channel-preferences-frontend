@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.sa.domain
 
-import controllers.common.RedirectUtils
+import controllers.common.FrontEndRedirect
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.domain.{ TaxRegime, RegimeRoot }
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
@@ -13,7 +13,7 @@ object SaRegime extends TaxRegime {
   }
 
   override def unauthorisedLandingPage: String = {
-    RedirectUtils.businessTaxHome
+    FrontEndRedirect.businessTaxHome
   }
 }
 
