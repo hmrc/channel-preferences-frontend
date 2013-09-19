@@ -15,9 +15,7 @@ import uk.gov.hmrc.common.TaxYearResolver
 import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
 import scala.collection.mutable
 
-class RemoveBenefitController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
-
-  import models.paye.matchers.transactions.matchesBenefit
+class RemoveBenefitController extends BaseController with SessionTimeoutWrapper with Benefits {
 
   def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
@@ -60,8 +58,8 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
         },
         removeBenefitData => {
 
-          val fuelBenefit = if (benefit.benefit.benefitType == CAR ) unremovedBenefit(user, benefit.benefit.employmentSequenceNumber, FUEL) else None
-          val carBenefit = if (benefit.benefit.benefitType == FUEL && removeBenefitData.removeCar) unremovedBenefit(user, benefit.benefit.employmentSequenceNumber, CAR) else None
+          val fuelBenefit = if (benefit.benefit.benefitType == CAR ) findExistingBenefit(user, benefit.benefit.employmentSequenceNumber, FUEL) else None
+          val carBenefit = if (benefit.benefit.benefitType == FUEL && removeBenefitData.removeCar) findExistingBenefit(user, benefit.benefit.employmentSequenceNumber, CAR) else None
 
           val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit,carBenefit).filter(_.isDefined).map(_.get))
 
@@ -97,22 +95,14 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
     calculationResult.result(benefit.taxYear.toString)
   }
 
-  private def unremovedBenefit(user: User, employmentNumber: Int, benefitType: Int): Option[Benefit] = {
-    val taxYear = TaxYearResolver()
-    val benefits = user.regimes.paye.get.benefits(taxYear)
 
-    benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {
-      case Some(benef) if(WithValidatedRequest.thereAreNoExistingTransactionsMatching(user, benefitType, employmentNumber,taxYear)) => Some(benef)
-      case _ => None
-    }
-  }
 
   private def hasUnremovedFuelBenefit(user: User, employmentNumber: Int): Boolean = {
-    unremovedBenefit(user, employmentNumber, FUEL).isDefined
+    findExistingBenefit(user, employmentNumber, FUEL).isDefined
   }
 
   private def hasUnremovedCarBenefit(user: User, employmentNumber: Int): Boolean = {
-    unremovedBenefit(user, employmentNumber, CAR).isDefined
+    findExistingBenefit(user, employmentNumber, CAR).isDefined
   }
 
   private def updateBenefitForm(benefitStartDate:Option[LocalDate]) = Form[RemoveBenefitFormData](
@@ -247,11 +237,6 @@ class RemoveBenefitController extends BaseController with ActionWrappers with Se
       )
     }
 
-    private[paye] def thereAreNoExistingTransactionsMatching(user: User, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
-      val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
-        user.regimes.paye.get.recentCompletedTransactions
-      transactions.find(matchesBenefit(_, kind, employmentSequenceNumber, year)).isEmpty
-    }
 
     private val redirectToBenefitHome: (Request[_], User) => Result = (r, u) => Redirect(routes.BenefitHomeController.listBenefits())
   }
