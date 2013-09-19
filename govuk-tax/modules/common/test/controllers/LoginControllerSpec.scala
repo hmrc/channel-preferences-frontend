@@ -106,6 +106,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("login_redirect" -> "register agent"))
 
       status(result) should be(303)
+
+      session(result).get("login_redirect") shouldBe None
       redirectLocation(result).get should be("/agent/home")
 
     }

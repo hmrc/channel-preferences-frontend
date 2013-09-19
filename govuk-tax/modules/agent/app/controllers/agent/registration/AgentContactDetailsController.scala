@@ -1,7 +1,7 @@
 package controllers.agent.registration
 
 import play.api.data._
-import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
+import controllers.common.{RegisterUserRedirect, ActionWrappers, SessionTimeoutWrapper, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{ Result, Request }
 import play.api.data.Forms._
@@ -24,7 +24,7 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )
 
-  def contactDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { MultiFormAction(multiFormConfig) { user => request => contactDetailsAction(user, request) } } }
+  def contactDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime), Some(RegisterUserRedirect)) { MultiFormAction(multiFormConfig) { user => request => contactDetailsAction(user, request) } } }
 
   private[registration] val contactDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     val paye: PayeRoot = user.regimes.paye.get

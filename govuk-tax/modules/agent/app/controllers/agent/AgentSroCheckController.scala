@@ -36,7 +36,7 @@ class AgentSroCheckController
         _ => {
           Logger.debug(s"Redirecting to contact details. Session is $session")
           import controllers.agent.registration.routes
-          Redirect(routes.AgentContactDetailsController.contactDetails).withSession(session + ("login_redirect" -> RegisterUserRedirect()))
+          Redirect(routes.AgentContactDetailsController.contactDetails)
         }
       )
   }

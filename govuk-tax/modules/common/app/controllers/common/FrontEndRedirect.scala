@@ -5,7 +5,7 @@ import play.api.mvc.Session
 
 
 trait RedirectCommand  {
-  protected val name : String
+  val name : String
 
   def unapply(target: String) : Boolean = target match {
     case `name`  => true
@@ -16,11 +16,11 @@ trait RedirectCommand  {
 }
 
 object RegisterUserRedirect extends RedirectCommand {
-  override protected val name = "register agent"
+  override val name = "register agent"
 }
 
 object CarBenefitHomeRedirect extends RedirectCommand {
-  override protected val name = "car benefit"
+  override val name = "car benefit"
 }
 
 object FrontEndRedirect extends BaseController {
@@ -32,12 +32,20 @@ object FrontEndRedirect extends BaseController {
   val carBenefit = "/paye/car-benefit-home"
   val agentRegistration = "/agent/reason-for-application"
 
+  val redirectSessionKey = "login_redirect"
 
   def forSession(session: Session) = {
-    session.data.get("login_redirect") match {
+     (session.data.get(redirectSessionKey) match {
       case Some(RegisterUserRedirect()) => toAgent
       case Some(CarBenefitHomeRedirect()) => toCarBenefit
       case None => toPaye //todo wwhat is the default destination?
+    }).withSession(session - redirectSessionKey)
+  }
+
+  def buildSessionForRedirect(session: Session, redirectCommand : Option[RedirectCommand]) = {
+    redirectCommand match {
+      case Some(command) => session + (redirectSessionKey -> command())
+      case None => session
     }
   }
 
