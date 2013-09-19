@@ -4,22 +4,24 @@ import org.joda.time.DateTime
 import java.net.URI
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
+import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.Pid
 
 case class UserAuthority(id: String,
   regimes: Regimes,
   previouslyLoggedInAt: Option[DateTime] = None,
-  @deprecated("Use the saUtr field - 'utr' will be removed", "18/9/2013") utr: Option[SaUtr] = None, // TODO [JJS] This needs to be renamed to saUtr (but may require changes to JSON from tax-services)
+  saUtr: Option[SaUtr] = None,
   vrn: Option[Vrn] = None,
   ctUtr: Option[CtUtr] = None,
   empRef: Option[EmpRef] = None,
-  nino: Option[Nino],
-  governmentGatewayCredential: Option[GovernmentGatewayCredentialResponse],
-  idaCredential: Option[IdaCredentialResponse]) {
-  val saUtr = utr
-}
+  nino: Option[Nino] = None,
+  governmentGatewayCredential: Option[GovernmentGatewayCredentialResponse] = None,
+  idaCredential: Option[IdaCredentialResponse] = None)
 
 case class Regimes(
   paye: Option[URI] = None,
