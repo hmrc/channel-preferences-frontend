@@ -69,7 +69,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
       when(mockPayeMicroService.root("/personal/paye/DF334476B")).thenReturn(PayeRoot("1112234",1,"title","firstName",None,"surname","name","1976-13-04",Map.empty,Map.empty))
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Some(URI.create("/vat/vrn/754645112"))), Some(new DateTime(1000L)), utr = Some(utr), vrn = Some(vrn))))
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = Some(URI.create("/personal/paye/DF334476B")), sa = Some(URI.create("/sa/individual/123456789012")), vat = Some(URI.create("/vat/vrn/754645112"))), Some(new DateTime(1000L)), saUtr = Some(utr), vrn = Some(vrn))))
 
       when(mockSaMicroService.person("/sa/individual/123456789012/home")).thenReturn(
         Some(SaPerson(
