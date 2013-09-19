@@ -8,6 +8,7 @@ import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, C
 import uk.gov.hmrc.microservice.UnauthorizedException
 import controllers.common.service.FrontEndConfig
 
+
 class LoginController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
 
   def login = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
@@ -66,7 +67,13 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         if (validationResult.valid) {
           authMicroService.authority(s"/auth/pid/${validationResult.hashPid.get}") match {
             case Some(authority) => {
-              val target = if (session.data.contains("register agent")) RedirectUtils.toAgent else RedirectUtils.toPaye
+              val target = session.data.get("login_redirect") match {
+                case Some(RegisterUserRedirect()) => RedirectUtils.toAgent
+                case Some(CarBenefitHomeRedirect()) => RedirectUtils.toCarBenefit
+                case None => RedirectUtils.toPaye //todo is this right?
+              }
+
+         //     val target = if (session.data.contains("register agent")) RedirectUtils.toAgent else RedirectUtils.toPaye
               target.withSession(("userId", encrypt(authority.id)))
             }
             case _ => {

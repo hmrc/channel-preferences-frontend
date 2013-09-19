@@ -40,7 +40,7 @@ class AgentSroCheckControllerSpec extends BaseSpec with MockitoSugar {
     "add a register agent entry in the session" in new WithApplication(FakeApplication()) {
       val result = controller.submitAgreement()(newRequest("true", "true"))
 
-      session(result).data("register agent") should equal("true")
+      session(result).data("login_redirect") should equal("register agent")
     }
   }
   def newRequest(sro: String, tnc: String) =
