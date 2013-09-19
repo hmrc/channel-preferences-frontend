@@ -3,7 +3,7 @@ package controllers.common.service
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 
 
-@deprecated("this will eventually be removed. All new controllers should wire in the services that they require")
+@deprecated("this will eventually be removed. All new controllers should wire in the services that they require", "")
 trait MicroServices {
 
   import uk.gov.hmrc.common.microservice.auth.AuthMicroService
