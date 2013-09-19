@@ -73,17 +73,23 @@ trait MicroService extends Status with HeaderNames {
 
   protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
     val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).post(body)
+    wsResource.withHeaders(headers.toSeq: _*).post(body) onFailure { case throwable =>
+      Logger.error(s"Async post to $uri failed", throwable)
+    }
   }
 
   protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
     val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).put(body)
+    wsResource.withHeaders(headers.toSeq: _*).put(body) onFailure { case throwable =>
+      Logger.error(s"Async put to $uri failed", throwable)
+    }
   }
 
   protected def httpDeleteAndForget(uri: String) {
     val wsResource = httpResource(uri)
-    wsResource.delete()
+    wsResource.delete() onFailure { case throwable =>
+      Logger.error(s"Async delete to $uri failed", throwable)
+    }
   }
 
   protected def extractJSONResponse[A](response: Response)(implicit m: Manifest[A]): A = {

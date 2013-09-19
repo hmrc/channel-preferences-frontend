@@ -35,7 +35,7 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
             Redirect(regime.unauthorisedLandingPage)
           case _ =>
             val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), token)
-            //
+            auditRequest(user, request)
             action(user)(request)
         }
       }
@@ -109,17 +109,8 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
   }
 
   private def getRegimeRootsObject(regimes: Regimes): RegimeRoots = RegimeRoots(
-    paye = regimes.paye match {
-      case Some(x: URI) => Some(payeMicroService.root(x.toString))
-      case _ => None
-    },
-    sa = regimes.sa match {
-      case Some(x: URI) => Some(saMicroService.root(x.toString))
-      case _ => None
-    },
-    vat = regimes.vat match {
-      case Some(x: URI) => Some(vatMicroService.root(x.toString))
-      case _ => None
-    }
+    paye = regimes.paye map { uri => payeMicroService.root(uri.toString) },
+    sa = regimes.sa map { uri => saMicroService.root(uri.toString) },
+    vat = regimes.vat map { uri => vatMicroService.root(uri.toString) }
   )
 }
