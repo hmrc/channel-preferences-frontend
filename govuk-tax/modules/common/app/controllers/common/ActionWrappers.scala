@@ -35,6 +35,7 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
             Redirect(regime.unauthorisedLandingPage)
           case _ =>
             val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), token)
+            //
             action(user)(request)
         }
       }
