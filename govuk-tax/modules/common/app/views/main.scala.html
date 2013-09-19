@@ -1,4 +1,4 @@
-@(title: String, sidebar: Html = Html(""))(content: Html)
+@(title: String, nav: Boolean = false, sidebar: Html = Html(""))(content: Html)
 <!DOCTYPE html>
 <!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
@@ -9,7 +9,7 @@
     <body>
 	<a href="#content" class="visuallyhidden">Skip to main content</a>
 
-	@includes.header(title)
+	@includes.header(nav)
 
 	<div class="phase-warning beta">
 	    <p><b>BETA:</b> This is a prototype, designed to be simpler, clearer and faster. <a href="#">Find out more</a></p>
@@ -17,12 +17,14 @@
 
 	<section class="l-constrained--topBordered">
 	    <div class="l-bodyLeftColumn">
-		@content
+	    @content
 	    </div>
 
-	    <aside class="l-bodyRightColumn">
-		@sidebar
-	    </aside>
+	    @if( sidebar != "" ) {
+		<aside class="l-bodyRightColumn">
+		    @sidebar
+		</aside>
+	    }
 	</section>
 
 	@includes.footer()

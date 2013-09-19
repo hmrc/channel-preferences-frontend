@@ -2834,7 +2834,7 @@ table td {
 .header__logo {
   padding-top: 0;
   float: left;
-  margin: 5px 20px 2px 0;
+  margin: 5px 20px 0 0;
 }
 @media screen and (max-width: 379px) {
   /* line 21, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
@@ -2866,7 +2866,9 @@ table td {
   .header__menu {
     width: 66.66%;
     float: left;
-  }
+
+    margin-left: 8em;
+}
 }
 
 /* line 57, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
@@ -2876,9 +2878,12 @@ table td {
   line-height: 1.25;
   font-weight: 400;
   text-transform: none;
+  float: left;
   font-weight: 700;
   text-decoration: none;
+  display: block;
   color: white;
+  margin-right: 5px;
 }
 @media (max-width: 640px) {
   /* line 57, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
@@ -2900,9 +2905,10 @@ table td {
   font-weight: 300;
   text-transform: none;
   font-weight: 700;
+  display: block;
+  clear: both;
   list-style-type: none;
   padding: 0;
-  margin: 0;
 }
 @media (max-width: 640px) {
   /* line 63, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_header.scss */
@@ -3162,14 +3168,12 @@ table td {
   font-size: 16px;
   font-size: 1.6rem;
   line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
   font-weight: 700;
   line-height: 20px;
   text-transform: uppercase;
   letter-spacing: 1px;
   text-decoration: none;
-  margin: 8px 10px 0 0;
+  margin: 3px 10px 0 5px;
   padding: 2px 5px 0;
 }
 /* line 20, /Users/rorypowis/Projects/tax-frontend-prototype/source/assets/stylesheets/modules/_beta-banner.scss */
