@@ -1,0 +1,33 @@
+@(carBenefit: Option[Seq] = CarBenefit(employer: String = "Initech Ltd.", engineSize: String = "2000cc", fuelType: String = "petrol", dateProvided: String = "3 August 2008", carBenefitValue: Int = 4066), fuelBenefit: Option[Seq] FuelBenefit(fuelBenefitValue: Int = 3384))
+
+@import views.formatting.Dates._
+@import views.formatting.Strings._
+@import config.RefData._
+
+@main(title = "Your tax home") {
+
+    <h1><span class="pre-heading">service</span>Tell HMRC about a change to your company car</h1>
+
+    @if( carBenefit ) {
+
+	<p>@carBenefit.employer told us that they have provided you with a @carBenefit.engineSize @carBenefit.fuelType company car since @formatDateTime(carBenefit.dateProvided). It has a benefit value of £@carBenefit.carBenefitValue.
+	    @if(fuelBenefit) { You also receive a car fuel benefit worth £@fuelBenefit.benefitValue. }</p>
+	<p>Would you like to tell HMRC that:</p>
+	<ul>
+	    <li><a href="companycar/remove">you no longer have this company car</a></li>
+	    @if( fuelBenefit ) {
+		<li><a href="companycar/remove-fuel-benefit">you need to change or remove the car fuel benefit</a></li>
+	    }
+	</ul>
+    }
+    else {
+	<p>You do not have a company car.</p>
+	<p>Would you like to tell HMRC that:</p>
+	<ul>
+	    <li><a href="#">you would like to add a company car</a></li>
+	</ul>
+    }
+
+    <p>If your company car information is still correct, you can <a href="#">log out from your account</a>.</p>
+
+}
