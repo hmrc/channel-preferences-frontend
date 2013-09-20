@@ -27,7 +27,8 @@ case class Regimes(
   paye: Option[URI] = None,
   sa: Option[URI] = None,
   vat: Option[URI] = None,
-  ct: Set[URI] = Set())
+  ct: Option[URI] = None,
+  epaye: Option[URI] = None                  )
 
 case class GovernmentGatewayCredentialResponse(credentialId: String)
 
