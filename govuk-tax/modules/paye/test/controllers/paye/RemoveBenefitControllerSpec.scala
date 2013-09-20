@@ -716,7 +716,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
+      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None, None), None, None)
 
       val request = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 
@@ -741,7 +741,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None), None, None)
+      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None, None), None, None)
 
       val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 

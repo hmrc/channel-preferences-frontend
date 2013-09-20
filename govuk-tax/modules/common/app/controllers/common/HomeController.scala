@@ -3,7 +3,6 @@ package controllers.common
 import play.Logger
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import views.html._
-import controllers._
 
 class HomeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -18,9 +17,10 @@ class HomeController extends BaseController with ActionWrappers with SessionTime
         Logger.debug("Choosing home for $user")
 
         user.regimes match {
-          case RegimeRoots(Some(paye), None, None) => FrontEndRedirect.forSession(session)
-          case RegimeRoots(None, Some(sa), _) => FrontEndRedirect.toBusinessTax
-          case RegimeRoots(None, _, Some(vat)) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(Some(paye), None, None, None) => FrontEndRedirect.forSession(session)
+          case RegimeRoots(None, Some(sa), _, _) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(None, _, Some(vat), _) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(None, _, _, Some(epaye)) => FrontEndRedirect.toBusinessTax
           case _ => Unauthorized(login.render())
         }
 

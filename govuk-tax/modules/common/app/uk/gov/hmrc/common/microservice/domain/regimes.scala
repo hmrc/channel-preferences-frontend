@@ -4,6 +4,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.{UserAuthority, Regimes}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 
 abstract class TaxRegime {
 
@@ -26,9 +27,10 @@ case class User(user: String,
 
 case class RegimeRoots(paye: Option[PayeRoot],
                        sa: Option[SaRoot],
-                       vat: Option[VatRoot]) {
+                       vat: Option[VatRoot],
+                       epaye: Option[EPayeRoot]) {
 
-  lazy val hasBusinessTaxRegime: Boolean = sa.isDefined || vat.isDefined
+  lazy val hasBusinessTaxRegime: Boolean = sa.isDefined || vat.isDefined || epaye.isDefined
 }
 
 //object RegimeRoots {

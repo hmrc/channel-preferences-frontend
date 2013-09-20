@@ -16,7 +16,7 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
   val vrn = Vrn("12345")
   val userAuthorityWithVrn = UserAuthority("123", Regimes(), vrn = Some(vrn))
   val aDate = "2012-06-06"
-  val regimeRootsWithVat = RegimeRoots(None, None, Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}"))))
+  val regimeRootsWithVat = RegimeRoots(None, None, Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}"))), None)
   val userEnrolledForVat = User("jim", userAuthorityWithVrn, regimeRootsWithVat, None, None)
 
   "VatAccountSummaryViewBuilder" should {
@@ -54,7 +54,7 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     "return None if the user is not enrolled for VAT" in {
 
       val userAuthority = UserAuthority("123", Regimes())
-      val regimeRoots = RegimeRoots(None, None, None)
+      val regimeRoots = RegimeRoots(None, None, None, None)
       val user = User("jim", userAuthority, regimeRoots, None, None)
       val mockVatMicroService = mock[VatMicroService]
       val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(buildPortalUrl, user, mockVatMicroService)

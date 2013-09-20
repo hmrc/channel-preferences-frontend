@@ -157,6 +157,7 @@ object MicroServiceConfig {
   lazy val keyStoreServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.keystore.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.keystore.port").getOrElse(8400)}"
   lazy val agentServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.agent.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.agent.port").getOrElse(8420)}"
   lazy val vatServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.vat.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.vat.port").getOrElse(8880)}"
+  lazy val epayeServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.epaye.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.epaye.port").getOrElse(8880)}"
 
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 

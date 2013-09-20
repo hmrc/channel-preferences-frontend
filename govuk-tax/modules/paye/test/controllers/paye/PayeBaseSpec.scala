@@ -50,7 +50,7 @@ class PayeBaseSpec extends BaseSpec {
       transactionLinks = transactionLinks
     )
 
-    User(id, ua, RegimeRoots(Some(payeRoot), None, None), None, None)
+    User(id, ua, RegimeRoots(Some(payeRoot), None, None, None), None, None)
   }
 
   val johnDensmore = setupUser("/auth/oid/jdensmore", "AB123456C", "John Densmore")
