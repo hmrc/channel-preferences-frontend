@@ -1,0 +1,5 @@
+@(employerName: Option[String])
+
+@import views.formatting.Strings._
+
+<span id="company-name">@optionalValue(employerName, "your.employer")</span>

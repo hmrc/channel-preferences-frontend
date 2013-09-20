@@ -9,16 +9,25 @@ import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import play.api.test.FakeApplication
-import scala.Some
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import org.joda.time.LocalDate
 import org.scalatest.TestData
+import controllers.paye.CarBenefitFormFields._
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.Car
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
+import uk.gov.hmrc.common.TaxYearResolver
 
-class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar {
+class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter {
 
-  private lazy val controller = new CarBenefitHomeController with MockMicroServicesForTests
+  val now = DateTimeUtils.now.withDate(2013, 10, 3)
+  val inTwoDaysTime = now.plusDays(2).toLocalDate
+  val inThreeDaysTime = now.plusDays(3).toLocalDate
+  val endOfTaxYearMinusOne = new LocalDate(2013, 4, 4)
+
+  private lazy val controller = new CarBenefitHomeController(timeSource = () => now) with MockMicroServicesForTests
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
@@ -125,6 +134,62 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar {
 
   }
 
+  "calling start add car benefit" should {
+    "return 200 and show the add car benefit form with the employers name  " in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1)
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
+    }
+    "return 200 and show the add car benefit form and show your company if the employer name does not exist " in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 2)
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#company-name").text shouldBe "Your employer"
+    }
+    "return 400 when employer for sequence number does not exist" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 5)
+
+      status(result) shouldBe 400
+    }
+  }
+
+  "submitting add car benefit" should {
+
+
+    "return 200 when form data validates successfully" in {
+      assertSuccessSubmit(Some(inTwoDaysTime), false,  None, false,  None)
+      assertSuccessSubmit(Some(inTwoDaysTime), true,  Some(15), false,  None)
+      assertSuccessSubmit(Some(inTwoDaysTime), false,  None, true,  Some(endOfTaxYearMinusOne))
+      assertSuccessSubmit(None, false,  None, false,  None)
+      assertSuccessSubmit(None, false,  None, true,  Some(endOfTaxYearMinusOne))
+      assertSuccessSubmit(None, true,  Some(30), true,  Some(endOfTaxYearMinusOne))
+    }
+
+    def assertSuccessSubmit(providedFromVal : Option[LocalDate],
+                                       carUnavailableVal:  Boolean,
+                                       numberOfDaysUnavailableVal: Option[Int],
+                                       giveBackThisTaxYearVal: Boolean,
+                                       providedToVal: Option[LocalDate]) {
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
+        providedFromVal, carUnavailableVal, numberOfDaysUnavailableVal,
+        giveBackThisTaxYearVal, providedToVal))
+
+      //todo assert saved entity / keystore capture (e.g. defaults for optional dates)
+
+      status(result) shouldBe 200
+    }
+
+  }
+
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
                                         acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
     when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
@@ -133,5 +198,18 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar {
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
+
+
+  private def newRequestForSaveAddCarBenefit(providedFromVal : Option[LocalDate] = Some(inTwoDaysTime),
+                                       carUnavailableVal:  Boolean = false,
+                                       numberOfDaysUnavailableVal: Option[Int] = Some(10) ,
+                                       giveBackThisTaxYearVal: Boolean = true,
+                                       providedToVal: Option[LocalDate] = Some(inThreeDaysTime)) =
+
+        FakeRequest().withFormUrlEncodedBody(providedFrom -> providedFromVal.map(formatToString(_)).getOrElse(""),
+          carUnavailable -> carUnavailableVal.toString,
+          numberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse("").toString,
+          giveBackThisTaxYear -> giveBackThisTaxYearVal.toString,
+          providedTo -> providedToVal.map(formatToString(_)).getOrElse(""))
 
 }
