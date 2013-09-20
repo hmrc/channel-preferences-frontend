@@ -4,6 +4,7 @@ error.paye.benefit.date.previous.taxyear=Invalid date: Return date cannot be in 
 error.paye.benefit.date.previous.startdate=Invalid date: Return date cannot be before benefit was made available
 error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
 error.paye.benefit.date.mandatory=Please enter a date
+error.paye.benefit.choice.mandatory=Please select an option below
 
 recent.change.removeBenefits.accepted=On {0}, you removed your company {1} benefit from {2}. This is being processed and you will receive a new Tax Code within 2 days.
 recent.change.removeBenefits.completed=On {0}, you removed your company {1} benefit from {2}. This has been processed and your new Tax Code is {3}. {2} have been notified.

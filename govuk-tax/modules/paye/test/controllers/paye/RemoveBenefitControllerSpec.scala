@@ -166,7 +166,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     }
   }
 
-  "Given a user who has car and fuel benefits, removing car benefit and opting for the same date for the fuel removal" should {
+  "Given a user who has car and fuel benefits, removing car benefit " should {
 
       "In step 1, display the option for the user to use for fuel removal the same or different dates than for the car"  in new WithApplication(FakeApplication())  {
 
@@ -181,7 +181,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         doc.select(".different-date") should not be empty
       }
 
-    "in step 2, display error message if user has not selected the type of date for fuel removal" in new WithApplication(FakeApplication()) {
+    "in step 1, display error message if user has not selected the type of date for fuel removal" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =
@@ -192,10 +192,13 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
 
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error").text should include("select an option")
+
       verify(controller.payeMicroService, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())
     }
 
-    "in step 2, display the calculated value for removing both fuel and car benefit from the same date" in new WithApplication(FakeApplication()) {
+    "in step 1, display the calculated value for removing both fuel and car benefit from the same date" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =
@@ -218,7 +221,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select(".amount").text shouldBe "£210.17"
     }
 
-    "in step 2, display error message if user choose different date but dont select a fuel date" in new WithApplication(FakeApplication()) {
+    "in step 1, display error message if user choose different date but dont select a fuel date" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =
@@ -230,6 +233,26 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error").text should include("date")
+
+      verify(controller.payeMicroService, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())
+    }
+
+    "in step 1, keep use choice for fuel date if a bad request redirect him to the form" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val carWithdrawDate = new LocalDate()
+
+      def requestBenefitRemovalFormSubmission(date: String, agreed: Boolean, removeFuel: Boolean) =
+        FakeRequest().withFormUrlEncodedBody("withdrawDate" -> date, "fuel.radio" -> "differentDateFuel" , "fuel.withdrawDate" -> date)
+
+      val withdrawDate = Dates.shortDate(new LocalDate())
+      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(withdrawDate, true, true), "31", 2013, 2)
+
+      status(result) shouldBe BAD_REQUEST
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.select(".different-date").hasAttr("checked") shouldBe true
+      doc.select(".return-fuel-date").attr("value") shouldBe withdrawDate
 
       verify(controller.payeMicroService, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())
     }
