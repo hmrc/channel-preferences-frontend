@@ -4,8 +4,10 @@ import controllers.common.{CarBenefitHomeRedirect, SessionTimeoutWrapper, BaseCo
 import play.api.mvc.{Result, Request}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
 import uk.gov.hmrc.common.TaxYearResolver
+import play.api.Logger
 
 class CarBenefitHomeController extends BaseController with SessionTimeoutWrapper with Benefits {
 
@@ -16,11 +18,17 @@ class CarBenefitHomeController extends BaseController with SessionTimeoutWrapper
   }
 
   private[paye] val carBenefitHomeAction: ((User, Request[_]) => Result) = (user, request) => {
-    val employerSequenceNumber = 1 // this is an assumption for the case of a single supported employment for Beta
-    val carBenefit = findExistingBenefit(user, employerSequenceNumber, BenefitTypes.CAR)
-    val fuelBenefit = findExistingBenefit(user, employerSequenceNumber, BenefitTypes.FUEL)
-    val employerName = user.regimes.paye.get.employments(TaxYearResolver()).find(_.sequenceNumber == employerSequenceNumber).flatMap(_.employerName)
+    user.regimes.paye.get.employments(TaxYearResolver()).find(_.employmentType == primaryEmploymentType) match {
+      case Some(employment) => {
+        val carBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.CAR)
+        val fuelBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.FUEL)
 
-    Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employerName))
+        Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employment.employerName))
+      }
+      case None => {
+        Logger.debug(s"Unable to find current employment for user ${user.oid}")
+        InternalServerError
+      }
+    }
   }
 }

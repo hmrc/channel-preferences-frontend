@@ -8,6 +8,12 @@ import play.api.templates.Html
 import uk.gov.hmrc.common.microservice.paye.domain.{ Benefit, Employment }
 import models.paye.{ DisplayBenefit, RecentChange, EmploymentView, PayeOverview }
 import play.api.test.{FakeApplication, WithApplication}
+import uk.gov.hmrc.common.microservice.paye.domain.Employment._
+import models.paye.EmploymentView
+import models.paye.PayeOverview
+import play.api.test.FakeApplication
+import models.paye.RecentChange
+import scala.Some
 
 class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
@@ -72,7 +78,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
     "include the hyphenated benefit type as the table row id" in new WithApplication(FakeApplication()) {
       val displayBenefit = DisplayBenefit(
-        Employment(1, LocalDate.now(), None, "123", "934503945834", None),
+        Employment(1, LocalDate.now(), None, "123", "934503945834", None, primaryEmploymentType),
         Seq(Benefit(29, 2013, BigDecimal("100.00"), 1, null, null, null, null, null, "Description", None, Map.empty, Map.empty)),
         None,
         None

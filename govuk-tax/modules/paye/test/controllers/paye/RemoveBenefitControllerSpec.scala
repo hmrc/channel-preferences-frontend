@@ -10,17 +10,22 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.mockito.Mockito._
 import org.mockito.{ArgumentMatcher, Matchers}
-import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.paye.CalculationResult
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import org.jsoup.Jsoup
+import uk.gov.hmrc.common.microservice.paye.domain.Employment._
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.Car
+import uk.gov.hmrc.common.microservice.domain.User
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import uk.gov.hmrc.common.microservice.paye.CalculationResult
+import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
@@ -290,7 +295,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val specialCarBenefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 666, employmentSequenceNumber = 3, null, null, null, null, null, null,
         car = Some(car), Map.empty, Map.empty)
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq(Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None)), Seq(specialCarBenefit), List.empty, List.empty)
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq(Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, primaryEmploymentType)), Seq(specialCarBenefit), List.empty, List.empty)
       val result = controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), CAR.toString, 2013, 3)
 
       status(result) shouldBe 200
@@ -703,7 +708,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
         override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
-          Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None))
+          Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None, primaryEmploymentType))
         }
 
         override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
@@ -728,7 +733,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map()) {
         override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
-          Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys")))
+          Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys"), primaryEmploymentType))
         }
 
         override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {

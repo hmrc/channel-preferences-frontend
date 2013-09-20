@@ -2,15 +2,11 @@ package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import org.mockito.Mockito._
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import play.api.test.FakeApplication
-import scala.Some
 import org.mockito.Matchers
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
@@ -41,6 +37,18 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar {
     fuelBenefitEmployer1)
 
   "calling carBenefitHome" should {
+
+    "return 500 if we cannot find a primary employment for the customer" in {
+      val employments = Seq(
+        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), 2),
+        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, 2))
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, employments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+
+      status(result) should be(500)
+    }
 
     "show car details for user with a company car and no fuel" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
@@ -78,8 +86,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar {
 
     "show car details for user with a company car an no employer name" in new WithApplication(FakeApplication()) {
       val johnDensmoresEmploymentsWithoutName = Seq(
-        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None),
-        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None))
+        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType),
+        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, 1))
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmploymentsWithoutName, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
 

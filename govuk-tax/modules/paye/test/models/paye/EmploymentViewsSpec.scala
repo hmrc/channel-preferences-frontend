@@ -5,6 +5,11 @@ import uk.gov.hmrc.common.microservice.paye.domain.{ TaxCode, Employment }
 import org.joda.time.{ DateTime, LocalDate }
 import uk.gov.hmrc.microservice.txqueue.{ Status, TxQueueTransaction }
 import java.net.URI
+import uk.gov.hmrc.common.microservice.paye.domain.Employment._
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import uk.gov.hmrc.microservice.txqueue.Status
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 class EmploymentViewsSpec extends BaseSpec {
 
@@ -13,8 +18,8 @@ class EmploymentViewsSpec extends BaseSpec {
   val employmentSequenceNumber = 1
 
   val employments = Seq(
-    Employment(employmentSequenceNumber, LocalDate.now(), None, "1234", "5678", None),
-    Employment(2, LocalDate.now(), None, "4321", "8765", None)
+    Employment(employmentSequenceNumber, LocalDate.now(), None, "1234", "5678", None, primaryEmploymentType),
+    Employment(2, LocalDate.now(), None, "4321", "8765", None, 2)
   )
 
   val taxCodes = Seq(

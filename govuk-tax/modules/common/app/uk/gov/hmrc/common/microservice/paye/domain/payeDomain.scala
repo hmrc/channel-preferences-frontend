@@ -110,12 +110,17 @@ case class RemoveBenefit(version: Int,
                          benefits: Seq[RevisedBenefit],
                          withdrawDate: LocalDate)
 
+object Employment {
+  val primaryEmploymentType = 1
+}
+
 case class Employment(sequenceNumber: Int,
                       startDate: LocalDate,
                       endDate: Option[LocalDate],
                       taxDistrictNumber: String,
                       payeNumber: String,
-                      employerName: Option[String]) {
+                      employerName: Option[String],
+                      employmentType: Int) {
 
   lazy val employerNameOrReference =
     if (employerName.isDefined)
