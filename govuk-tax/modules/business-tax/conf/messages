@@ -26,6 +26,17 @@ sa.message.unableToDisplayAccount.4=- If you do not this either of the above rea
 sa.message.links.viewAccountDetails=View account details
 sa.message.links.fileAReturn=File a return
 
+epaye.message.nothingToPay=You have nothing to pay.
+epaye.message.youHaveOverPaid=You have overpaid by {0}
+epaye.message.adjustFuturePayments=Please adjust your future payments
+epaye.message.dueForPayment={0} is now due for payment
+epaye.message.unableToDisplayAccountInformation=HM Revenue and Customs are currently unable to display your account information. This may be because: - there is no information to view at this time - you have only just activated this service and there is a short delay before the information is available to view. If you do not think either of the above reasons apply, please contact the Online Services Help-desk.
+epaye.message.paidToDateForPeriod={0} paid to date for period {1}
+epaye.message.links.viewAccountDetails=View account details
+epaye.message.links.makeAPayment=Make a payment
+epaye.message.links.fileAReturn=File a return
+epaye.message.empRef=
+
 
 
 

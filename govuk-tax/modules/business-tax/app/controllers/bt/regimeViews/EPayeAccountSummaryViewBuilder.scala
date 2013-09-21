@@ -13,7 +13,6 @@ import controllers.bt.AccountSummary
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import scala.Some
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
-import org.joda.time.LocalDate
 
 case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, epayeMicroService: EPayeMicroService) {
 
@@ -25,7 +24,7 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
       epayeRoot: EPayeRoot =>
 
         val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeMicroService)
-        val messages : Seq[(String, Seq[RenderableMessage])] = messageStrategy(accountSummary)()
+        val messages : Seq[(String, Seq[RenderableMessage])] = empRefMessage  ++ messageStrategy(accountSummary)()
 
         val links = Seq[RenderableMessage](
         LinkMessage(buildPortalUrl("home"), viewAccountDetailsLink),
@@ -36,7 +35,7 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
     }
   }
 
-  def messageStrategy(accountSummary: Option[EPayeAccountSummary]) : () => Seq[(String, Seq[RenderableMessage])] = {
+  private def messageStrategy(accountSummary: Option[EPayeAccountSummary]) : () => Seq[(String, Seq[RenderableMessage])] = {
     accountSummary match {
       case Some(summary) if summary.rti.isDefined => createMessages(summary.rti.get) _
       case Some(summary) if summary.nonRti.isDefined => createMessages(summary.nonRti.get) _
@@ -44,16 +43,14 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
     }
   }
 
-  def createNoInformationMessage() : Seq[(String, Seq[RenderableMessage])] = {
+  private def createNoInformationMessage() : Seq[(String, Seq[RenderableMessage])] = {
     Seq((unableToDisplayAccountInformation, Seq.empty))
   }
 
-  def createMessages(rti: RTI)() : Seq[(String, Seq[RenderableMessage])] = {
-    val amountDue = rti.amountDue
-    val amountPaidToDate = rti.amountPaidToDate
-    val balance = amountDue.amount - amountPaidToDate.amount //TODO: Move the minus method to the AmountDue
+  private def createMessages(rti: RTI)() : Seq[(String, Seq[RenderableMessage])] = {
+    val balance = rti.balance
     if(balance < 0) {
-      Seq((youHaveOverpaid, Seq(MoneyPounds(balance))), (adjustFuturePayments, Seq.empty))
+      Seq((youHaveOverpaid, Seq(MoneyPounds(balance.abs))), (adjustFuturePayments, Seq.empty))
     } else if(balance > 0) {
       Seq((dueForPayment, Seq(MoneyPounds(balance))))
     }else {
@@ -61,18 +58,19 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
     }
   }
 
-  def createMessages(nonRti: NonRTI)() : Seq[(String, Seq[RenderableMessage])] = {
+  val empRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((empRef, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
+
+  private def createMessages(nonRti: NonRTI)() : Seq[(String, Seq[RenderableMessage])] = {
     val amountDue = nonRti.paidToDate
     val currentTaxYear = nonRti.currentTaxYear
 
-    val currentTaxYearWithFollwingYear = createYearDisplayText(currentTaxYear)
-    Seq((paidToDateForPeriod, Seq(MoneyPounds(amountDue.amount), currentTaxYearWithFollwingYear)))
+    val currentTaxYearWithFollowingYear = createYearDisplayText(currentTaxYear)
+    Seq((paidToDateForPeriod, Seq(MoneyPounds(amountDue.amount), currentTaxYearWithFollowingYear)))
   }
 
-  def createYearDisplayText(currentTaxYear: Int) : String = {
-    // convert to a day in the current tax year to use LocalDate year functions instead of String.substring
-    val taxDate = new LocalDate().withYear(currentTaxYear)
-    s"%d - %d".format(taxDate.year().get(), taxDate.yearOfCentury().get() + 1)
+  private def createYearDisplayText(currentTaxYear: Int) : String = {
+    val nextTaxYear = (currentTaxYear + 1).toString.substring(2)
+    s"%d - %s".format(currentTaxYear, nextTaxYear)
   }
 }
 
@@ -84,7 +82,8 @@ object EPayeAccountSummaryMessageKeys {
   val unableToDisplayAccountInformation = "epaye.message.unableToDisplayAccountInformation"
   val paidToDateForPeriod = "epaye.message.paidToDateForPeriod"
   val viewAccountDetailsLink = "epaye.message.links.viewAccountDetails"
-  val makeAPaymentLink = "vat.accountSummary.linkText.makeAPayment"
+  val makeAPaymentLink = "epaye.message.links.makeAPayment"
   val fileAReturnLink = "epaye.message.links.fileAReturn"
+  val empRef = "epaye.message.empRef"
 }
 

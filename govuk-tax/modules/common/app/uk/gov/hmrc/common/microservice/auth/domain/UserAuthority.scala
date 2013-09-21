@@ -4,13 +4,9 @@ import org.joda.time.DateTime
 import java.net.URI
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.domain.EmpRef
-import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
-import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.Pid
 
 case class UserAuthority(id: String,
   regimes: Regimes,
@@ -28,7 +24,7 @@ case class Regimes(
   sa: Option[URI] = None,
   vat: Option[URI] = None,
   ct: Option[URI] = None,
-  epaye: Option[URI] = None                  )
+  epaye: Option[URI] = None)
 
 case class GovernmentGatewayCredentialResponse(credentialId: String)
 

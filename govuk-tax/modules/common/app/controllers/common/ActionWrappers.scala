@@ -4,7 +4,6 @@ import play.api.mvc._
 import controllers.common.service._
 import uk.gov.hmrc.common.microservice.domain.{ RegimeRoots, TaxRegime, User }
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import java.net.URI
 import views.html.login
 import com.google.common.net.HttpHeaders
 import play.api.mvc.Result

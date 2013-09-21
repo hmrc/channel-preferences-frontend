@@ -15,6 +15,7 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: 
       vatRoot: VatRoot =>
         val accountSummary: Option[VatAccountSummary] = vatRootOption.get.accountSummary(vatMicroService)
 
+
         val accountValueOption: Option[BigDecimal] = for {
           accountSummaryValue <- accountSummary
           accountBalance <- accountSummaryValue.accountBalance
