@@ -11,10 +11,22 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.sa.domain._
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
+import scala.Some
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
@@ -46,7 +58,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     User(id, ua, RegimeRoots(None, Some(saRoot), None, None), Some(nameFromGovernmentGateway), None)
   }
 
-  private val nameFromSa = "Geoff Fisher From SA"
+  private val nameFromSa = SaName("Mr.", "Geoff", None, "Fisher", Some("From SA"))
   private val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
 
   val geoffFisher = setupUser("/auth/oid/gfisher", "123456789012", "Geoff Fisher", nameFromGovernmentGateway)
@@ -74,7 +86,8 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       val content = request(geoffFisher, controller.detailsAction)
 
-      content should include(nameFromSa)
+      content should include(nameFromSa.forename)
+      content should include(nameFromSa.surname)
       content should include(nameFromGovernmentGateway)
       content should include("address line 1")
       content should include("address line 2")

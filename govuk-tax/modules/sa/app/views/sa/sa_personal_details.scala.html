@@ -10,7 +10,7 @@
 
 
     <ul class="level-1">
-        <li><p>Name:</p><span>@personalDetails.name</span></li>
+        <li><p>Name:</p><span>@personalDetails.name.forename @personalDetails.name.surname</span></li>
         <li><p>UTR:</p><span>@personalDetails.utr</span></li>
         <li>Main address: (a @{if(personalDetails.address.foreignCountry) "foreign" else "UK"} address)</li>
         <ul class="level-2">

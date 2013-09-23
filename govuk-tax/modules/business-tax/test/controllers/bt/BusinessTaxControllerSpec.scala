@@ -12,10 +12,8 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
+import uk.gov.hmrc.common.microservice.sa.domain.{SaName, SaRoot, SaIndividualAddress, SaPerson}
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountBalance, VatAccountSummary, VatRoot }
@@ -45,7 +43,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
     override lazy val authMicroService = mockAuthMicroService
   }
 
-  val nameFromSa = "Geoff Fisher From SA"
+  private val nameFromSa = SaName("Mr.", "Geoff", None, "Fisher", Some("From SA"))
+
   val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
   val encodedGovernmentGatewayToken = "someEncodedToken"
 

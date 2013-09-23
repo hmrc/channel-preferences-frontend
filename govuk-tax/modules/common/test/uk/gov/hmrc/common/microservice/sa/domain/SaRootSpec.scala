@@ -14,7 +14,8 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
     "call the SA microservice when the uri is found in the SaRoot and return its value" in {
       val uri = "sa/individual/12345/personalDetails"
       val saRoot = SaRoot("12345", Map("individual/details" -> uri))
-      val saPersonalDetails = Some(SaPerson("tim", "12345", SaIndividualAddress("line1", "line2", "line3", "line4", "line5", "46353", "Malta", "")))
+      val name = SaName("Mr", "Tim", None, "Smith", None)
+      val saPersonalDetails = Some(SaPerson("tim", name, SaIndividualAddress("line1", "line2", "line3", "line4", "line5", "46353", "Malta", "")))
       val saMicroService = mock[SaMicroService]
 
       when(saMicroService.person(uri)).thenReturn(saPersonalDetails)

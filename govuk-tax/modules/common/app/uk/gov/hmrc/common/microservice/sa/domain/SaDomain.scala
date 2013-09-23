@@ -46,7 +46,7 @@ case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
   }
 }
 
-case class SaPerson(name: String, utr: String, address: SaIndividualAddress)
+case class SaPerson(utr: String, name: SaName, address: SaIndividualAddress)
 
 case class SaIndividualAddress(
   addressLine1: String,
@@ -57,6 +57,13 @@ case class SaIndividualAddress(
   postcode: String,
   foreignCountry: String,
   additionalDeliveryInformation: String)
+
+case class SaName(
+   title: String,
+   forename: String,
+   secondForename: Option[String],
+   surname: String,
+   honours: Option[String])
 
 case class TransactionId(oid: String)
 
