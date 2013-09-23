@@ -12,9 +12,9 @@ import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 
 object SaAccountSummaryMessageKeys {
 
-  val viewAccountDetailsLink = "sa.message.links.viewAccountDetails"
-  val makeAPaymentLink = "vat.accountSummary.linkText.makeAPayment"
-  val fileAReturnLink = "sa.message.links.fileAReturn"
+  val viewAccountDetailsLink = "common.accountSummary.message.link.viewAccountDetails"
+  val makeAPaymentLink = "common.accountSummary.message.link.makeAPayment"
+  val fileAReturnLink = "common.accountSummary.message.link.fileAReturn"
 
   val nothingToPay = "sa.message.nothingToPay"
   val amountDueForPayment = "sa.message.amountDueForPayment"

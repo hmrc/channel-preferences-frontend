@@ -11,7 +11,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.RTI
 import controllers.bt.AccountSummary
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
-import scala.Some
+import scala.{Option, Some}
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
 
 case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, epayeMicroService: EPayeMicroService) {
@@ -31,7 +31,15 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
         LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLink),
         LinkMessage(buildPortalUrl("home"), fileAReturnLink))
 
-        AccountSummary("Employers PAYE (RTI)", messages, links)
+        AccountSummary(regimeName(accountSummary), messages, links)
+    }
+  }
+
+  private def regimeName(accountSummary: Option[EPayeAccountSummary]) : String = {
+    accountSummary match {
+      case Some(summary) if summary.rti.isDefined => rtiRegimeNameKey
+      case Some(summary) if summary.nonRti.isDefined => nonRtiRegimeNameKey
+      case _ => "N/A"
     }
   }
 
@@ -75,15 +83,17 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
 }
 
 object EPayeAccountSummaryMessageKeys {
+  val rtiRegimeNameKey = "epaye.message.regimeNameRti"
+  val nonRtiRegimeNameKey = "epaye.message.regimeNameNonRti"
   val nothingToPay = "epaye.message.nothingToPay"
   val youHaveOverpaid = "epaye.message.youHaveOverPaid"
   val adjustFuturePayments = "epaye.message.adjustFuturePayments"
   val dueForPayment = "epaye.message.dueForPayment"
   val unableToDisplayAccountInformation = "epaye.message.unableToDisplayAccountInformation"
   val paidToDateForPeriod = "epaye.message.paidToDateForPeriod"
-  val viewAccountDetailsLink = "epaye.message.links.viewAccountDetails"
-  val makeAPaymentLink = "epaye.message.links.makeAPayment"
-  val fileAReturnLink = "epaye.message.links.fileAReturn"
+  val viewAccountDetailsLink = "common.accountSummary.message.link.viewAccountDetails"
+  val makeAPaymentLink = "common.accountSummary.message.link.makeAPayment"
+  val fileAReturnLink = "common.accountSummary.message.link.fileAReturn"
   val empRef = "epaye.message.empRef"
 }
 

@@ -21,12 +21,12 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
     implicit user =>
       request =>
 
+        //TODO: leverage implicit user and request so this function is just available rather than an explicit call with params
         val buildPortalUrl = PortalDestinationUrlBuilder.build(request, user) _
         val portalHref = buildPortalUrl("home")
 
         val accountSummaries = accountSummaryFactory.create(buildPortalUrl)
-
-        Ok(views.html.business_tax_home(BusinessUser(user), portalHref, accountSummaries))
+        Ok(views.html.business_tax_home(BusinessUser(), portalHref, accountSummaries))
 
   })
 
@@ -41,10 +41,12 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
 
 }
 
-case class BusinessUser(regimeRoots: RegimeRoots, saUtr: Option[SaUtr], vrn: Option[Vrn], ctUtr: Option[CtUtr], empRef: Option[EmpRef], name: String, previouslyLoggedInAt: Option[DateTime], encodedGovernmentGatewayToken: String)
+case class BusinessUser(regimeRoots: RegimeRoots, saUtr: Option[SaUtr], vrn: Option[Vrn],
+                        ctUtr: Option[CtUtr], empRef: Option[EmpRef], name: String, previouslyLoggedInAt: Option[DateTime],
+                        encodedGovernmentGatewayToken: String) //extends LoggedInUser
 
 private object BusinessUser {
-  def apply(user : User) : BusinessUser = {
+  def apply()(implicit user : User) : BusinessUser = {
     val userAuthority = user.userAuthority
     new BusinessUser(user.regimes,
                       userAuthority.saUtr,
@@ -53,9 +55,15 @@ private object BusinessUser {
                       userAuthority.empRef,
                       user.nameFromGovernmentGateway.getOrElse(""),
                       userAuthority.previouslyLoggedInAt,
-                      user.decryptedToken.get)
+                      user.decryptedToken.get) {
+    }
   }
 }
+
+abstract class LoggedInUser(implicit user: User) {
+  val hasBusinessTaxRegime: Boolean = user.regimes.hasBusinessTaxRegime
+}
+
 
 case class AccountSummaries(regimes: Seq[AccountSummary])
 

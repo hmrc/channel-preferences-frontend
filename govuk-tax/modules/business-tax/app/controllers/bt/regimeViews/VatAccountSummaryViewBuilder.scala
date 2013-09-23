@@ -24,9 +24,9 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: 
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl("vatAccountDetails"), "vat.accountSummary.linkText.accountDetails"),
-          LinkMessage(makeAPaymentUri, "vat.accountSummary.linkText.makeAPayment"),
-          LinkMessage(buildPortalUrl("vatFileAReturn"), "vat.accountSummary.linkText.fileAReturn")
+          LinkMessage(buildPortalUrl("vatAccountDetails"), "common.accountSummary.message.link.viewAccountDetails"),
+          LinkMessage(makeAPaymentUri, "common.accountSummary.message.link.makeAPayment"),
+          LinkMessage(buildPortalUrl("vatFileAReturn"), "common.accountSummary.message.link.fileAReturn")
         )
 
         accountValueOption match {

@@ -4,11 +4,12 @@ import config.PortalConfig
 import org.joda.time.LocalDate
 import play.api.mvc.Request
 import scala._
-import uk.gov.hmrc.common.microservice.domain.User
 import scala.AnyRef
-import scala.Some
 import controllers.common.CookieEncryption
 import play.api.Logger
+import scala.Predef._
+import uk.gov.hmrc.common.microservice.domain.User
+import scala.Some
 
 object PortalDestinationUrlBuilder extends CookieEncryption {
 

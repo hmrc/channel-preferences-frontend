@@ -44,7 +44,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
         (nothingToPay, Seq.empty)
       )
 
-      testSaAccountSummaryBuilder(accountSummary, expectedMessages)
+      testSaAccountSummaryBuilder(rtiRegimeNameKey, accountSummary, expectedMessages)
     }
 
     "build correct Account Summary model when amount due < amount paid to date (negative balance)" in {
@@ -58,7 +58,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
         empRefMessage, overPaidMessage, adjustFuturePaymentsMessage
       )
 
-      testSaAccountSummaryBuilder(accountSummary, expectedMessages)
+      testSaAccountSummaryBuilder(rtiRegimeNameKey, accountSummary, expectedMessages)
     }
 
     "build correct Account Summary model when amount due > amount paid to date (positive balance)" in {
@@ -69,7 +69,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](empRefMessage, dueForPaymentMessage)
 
-      testSaAccountSummaryBuilder(accountSummary, expectedMessages)
+      testSaAccountSummaryBuilder(rtiRegimeNameKey, accountSummary, expectedMessages)
     }
 
     "build correct Account Summary model when no RTI and Non-RTI account summary data" in {
@@ -78,7 +78,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val unableToDisplayAccountInfoMessage = (unableToDisplayAccountInformation, Seq.empty)
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](empRefMessage, unableToDisplayAccountInfoMessage)
 
-      testSaAccountSummaryBuilder(accountSummary, expectedMessages)
+      testSaAccountSummaryBuilder("N/A", accountSummary, expectedMessages)
     }
   }
 
@@ -92,7 +92,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](empRefMessage, paidToDateForPeriodMessage)
 
-      testSaAccountSummaryBuilder(accountSummary, expectedMessages)
+      testSaAccountSummaryBuilder(nonRtiRegimeNameKey, accountSummary, expectedMessages)
     }
 
     "populate account summary model correctly if the amount paid to date is > 0" in {
@@ -104,7 +104,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](empRefMessage, paidToDateForPeriodMessage)
 
-      testSaAccountSummaryBuilder(accountSummary, expectedMessages)
+      testSaAccountSummaryBuilder(nonRtiRegimeNameKey, accountSummary, expectedMessages)
     }
 
     "populate account summary model correctly if the amount paid to is > 0 and date is 1999" in {
@@ -116,11 +116,11 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](empRefMessage, paidToDateForPeriodMessage)
 
-      testSaAccountSummaryBuilder(accountSummary, expectedMessages)
+      testSaAccountSummaryBuilder(nonRtiRegimeNameKey, accountSummary, expectedMessages)
     }
   }
 
-  private def testSaAccountSummaryBuilder(accountSummary: EPayeAccountSummary, expectedMessages: Seq[(String, Seq[RenderableMessage])]) {
+  private def testSaAccountSummaryBuilder(expectedRegimeName: String, accountSummary: EPayeAccountSummary, expectedMessages: Seq[(String, Seq[RenderableMessage])]) {
     val mockUser = mock[User]
     val mockUserAuthority = mock[UserAuthority]
     val mockEPayeMicroService = mock[EPayeMicroService]
@@ -140,7 +140,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
     val actualAccountSummary = EPayeAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockEPayeMicroService).build().get
 
-    actualAccountSummary.regimeName shouldBe "Employers PAYE (RTI)"
+    actualAccountSummary.regimeName shouldBe expectedRegimeName
 
     actualAccountSummary.messages shouldBe expectedMessages
 

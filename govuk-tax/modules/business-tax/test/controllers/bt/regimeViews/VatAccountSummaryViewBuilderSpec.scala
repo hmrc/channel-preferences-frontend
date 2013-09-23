@@ -31,9 +31,9 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe "VAT"
       accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])]("vat.message.0" -> Seq("12345"), "vat.message.1" -> Seq(MoneyPounds(BigDecimal(6.1))))
-      accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage("vatAccountDetails", "vat.accountSummary.linkText.accountDetails"),
-        LinkMessage("/makeAPaymentLanding", "vat.accountSummary.linkText.makeAPayment"),
-        LinkMessage("vatFileAReturn", "vat.accountSummary.linkText.fileAReturn"))
+      accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage("vatAccountDetails", "common.accountSummary.message.link.viewAccountDetails"),
+        LinkMessage("/makeAPaymentLanding", "common.accountSummary.message.link.makeAPayment"),
+        LinkMessage("vatFileAReturn", "common.accountSummary.message.link.fileAReturn"))
     }
 
     "return an error message if the account summary is not available" in {
