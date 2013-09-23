@@ -23,7 +23,8 @@ class WithHeaders extends Results with CookieEncryption {
       request.session.get("userId").foreach(userId => MDC.put(authorisation, decrypt(userId)))
       request.session.get("token").foreach(token => MDC.put("token", token))
       request.headers.get(forwardedFor).foreach(ip => MDC.put(forwardedFor, ip))
-      MDC.put(requestId, s"frontend-${UUID.randomUUID().toString}")
+      MDC.put(requestId, s"govuk-tax-${UUID.randomUUID().toString}")
+      request.session.get("sessionId").foreach(sessionId => MDC.put(xSessionId, decrypt(sessionId)))
       try {
         action(request)
       } catch {

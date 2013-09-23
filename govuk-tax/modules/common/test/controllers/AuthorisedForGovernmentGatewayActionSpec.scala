@@ -16,6 +16,7 @@ import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import org.scalatest.TestData
+import java.util.UUID
 
 class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -67,7 +68,7 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSuga
 
   "basic homepage test" should {
     "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
-      val result = TestController.test(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
+      val result = TestController.test(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
 
       status(result) should equal(200)
       contentAsString(result) should include("someUtr")
@@ -78,12 +79,12 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSuga
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(None)
 
-      val result = TestController.test(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
+      val result = TestController.test(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
       status(result) should equal(401)
     }
 
     "return internal server error page if the Action throws an exception" in new WithApplication(FakeApplication()) {
-      val result = TestController.testThrowsException(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
+      val result = TestController.testThrowsException(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
     }
@@ -91,23 +92,23 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSuga
     "return internal server error page if the AuthMicroService throws an exception" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenThrow(new RuntimeException("TEST"))
 
-      val result = TestController.test(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
+      val result = TestController.test(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
     "include the authorisation and request ids in the MDC" in new WithApplication(FakeApplication()) {
-      val result = TestController.testMdc(FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
+      val result = TestController.testMdc(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
       status(result) should equal(200)
       val strings = contentAsString(result).split(" ")
       strings(0) should equal("/auth/oid/gfisher")
-      strings(1) should startWith("frontend-")
+      strings(1) should startWith("govuk-tax-")
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/bob")).thenReturn(
         Some(UserAuthority("bob", Regimes(sa = None, paye = Some(URI.create("/personal/paye/12345678"))), None)))
-      val result = TestController.testAuthorisation(FakeRequest().withSession("userId" -> encrypt("/auth/oid/bob"), "token" -> encrypt(token)))
+      val result = TestController.testAuthorisation(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/bob"), "token" -> encrypt(token)))
       status(result) should equal(303)
     }
 

@@ -7,6 +7,7 @@ import play.api.data.Forms._
 import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
 import uk.gov.hmrc.microservice.UnauthorizedException
 import controllers.common.service.FrontEndConfig
+import java.util.UUID
 
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
@@ -39,7 +40,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
       try {
         val response: GovernmentGatewayResponse = governmentGatewayMicroService.login(boundForm.value.get)
         FrontEndRedirect.toBusinessTax
-          .withSession("userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken))
+          .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
         case e: UnauthorizedException => {
           Ok(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
@@ -68,7 +69,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
           authMicroService.authority(s"/auth/pid/${validationResult.hashPid.get}") match {
             case Some(authority) => {
               val target = FrontEndRedirect.forSession(session)
-              target.withSession(("userId", encrypt(authority.id)))
+              target.withSession("userId"-> encrypt(authority.id), "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"))
             }
             case _ => {
               Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")

@@ -21,6 +21,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.SaUtr
+import java.util.UUID
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -88,7 +89,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       controller.resetAll()
 
       when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(None)
-      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }

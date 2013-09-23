@@ -40,7 +40,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     override lazy val governmentGatewayMicroService = mockGovernmentGatewayMicroService
   }
 
-  val originalRequestId = "frontend-325-235235-23523"
+  val originalRequestId = "govuk-tax-325-235235-23523"
 
   override protected def beforeEach(testData: TestData) {
     //todo instead of resetting mocks it would be better to set a new one up before each test

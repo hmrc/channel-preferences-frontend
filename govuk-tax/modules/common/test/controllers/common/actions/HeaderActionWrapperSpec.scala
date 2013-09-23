@@ -13,7 +13,7 @@ object HeaderTestController extends Controller with CookieEncryption with Header
   def test() = WithHeaders {
     Action {
       request =>
-        Ok(s"${MDC.get(authorisation)}:${MDC.get("token")}:${MDC.get(forwardedFor)}:${MDC.get(requestId)}")
+        Ok(s"${MDC.get(xSessionId)}:${MDC.get(authorisation)}:${MDC.get("token")}:${MDC.get(forwardedFor)}:${MDC.get(requestId)}")
     }
   }
 
@@ -30,16 +30,17 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncry
   "HeaderActionWrapper" should {
     "add parameters from the session and the headers to the MDC " in new WithApplication(FakeApplication()) {
       val headers = Seq((forwardedFor, "192.168.1.1"))
-      val sessionParams = Seq(("userId", encrypt("john")), ("token", "12345"))
+      val sessionParams = Seq(("sessionId", encrypt("012345")), ("userId", encrypt("john")), ("token", "12345"))
       val request = FakeRequest().withHeaders(headers: _*).withSession(sessionParams: _*)
 
       val result = HeaderTestController.test()(request)
       val fields = contentAsString(result) split (":")
-
-      fields(0) should be("john")
-      fields(1) should be("12345")
-      fields(2) should be("192.168.1.1")
-      fields(3) should startWith("frontend-")
+      println(fields.toList)
+      fields(0) should be("012345")
+      fields(1) should be("john")
+      fields(2) should be("12345")
+      fields(3) should be("192.168.1.1")
+      fields(4) should startWith("govuk-tax-")
       MDC.getCopyOfContextMap should be(null)
 
     }
