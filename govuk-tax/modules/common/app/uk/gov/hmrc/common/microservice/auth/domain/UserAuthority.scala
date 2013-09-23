@@ -28,8 +28,6 @@ case class Regimes(
 
 case class GovernmentGatewayCredentialResponse(credentialId: String)
 
-case class IdaCredentialResponse(pids: List[Pid])
+case class IdaCredentialResponse(pids: List[String])
 
-case class Pid(pid: String) {
-  override lazy val toString = pid
-}
+
