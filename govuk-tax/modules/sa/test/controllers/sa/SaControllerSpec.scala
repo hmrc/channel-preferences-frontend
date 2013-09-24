@@ -10,23 +10,13 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.sa.domain._
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.domain.User
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
@@ -70,16 +60,16 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
-          utr = "123456789012",
+          utr = SaUtr("123456789012"),
           address = SaIndividualAddress(
             addressLine1 = "address line 1",
             addressLine2 = "address line 2",
-            addressLine3 = "address line 3",
-            addressLine4 = "address line 4",
-            addressLine5 = "address line 5",
-            postcode = "postcode",
-            foreignCountry = "foreign country",
-            additionalDeliveryInformation = "additional delivery information"
+            addressLine3 = Some("address line 3"),
+            addressLine4 = Some("address line 4"),
+            addressLine5 = Some("address line 5"),
+            postcode = Some("postcode"),
+            foreignCountry = Some("foreign country"),
+            additionalDeliveryInformation = Some("additional delivery information")
           )
         ))
       )

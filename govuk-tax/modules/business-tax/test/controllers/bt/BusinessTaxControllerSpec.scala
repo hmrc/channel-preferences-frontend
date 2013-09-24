@@ -74,16 +74,16 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       when(mockSaMicroService.person("/sa/individual/123456789012/home")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
-          utr = "123456789012",
+          utr = SaUtr("123456789012"),
           address = SaIndividualAddress(
             addressLine1 = "address line 1",
             addressLine2 = "address line 2",
-            addressLine3 = "address line 3",
-            addressLine4 = "address line 4",
-            addressLine5 = "address line 5",
-            postcode = "postcode",
-            foreignCountry = "foreign country",
-            additionalDeliveryInformation = "additional delivery information"
+            addressLine3 = Some("address line 3"),
+            addressLine4 = Some("address line 4"),
+            addressLine5 = Some("address line 5"),
+            postcode = Some("postcode"),
+            foreignCountry = Some("foreign country"),
+            additionalDeliveryInformation = Some("additional delivery information")
           )
         ))
       )
