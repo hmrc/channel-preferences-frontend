@@ -7,14 +7,18 @@ class EPayeMicroService extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.epayeServiceUrl
 
-  // TODO [JJS] Error handling in here
-  
-  def root(uri: String): EPayeRoot = httpGet[EPayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected EPaye root not found for resource $uri"))
+  def root(uri: String): EPayeRoot = {
+      httpGet[EPayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected EPaye root not found for resource $uri"))
+  }
 
   def accountSummary(uri: String): Option[EPayeAccountSummary] = {
-    root(uri)
-
-
-    httpGet[EPayeAccountSummary](uri)
+    httpGet[EPayeAccountSummary](uri) match {
+      case Some(EPayeAccountSummary(None, None)) => {
+        // TODO [JJS] HOW DO WE LOG HERE?
+        // warn(s"Empty account summary from EPAYE service for uri: $uri")
+        None
+      }
+      case other => other
+    }
   }
 }
