@@ -49,7 +49,7 @@ class SaMicroServiceTest extends BaseSpec {
 
       val service = new HttpMockedSaMicroService
       val saName = SaName("Mr", "Tim", None, "Smith", None)
-      val saPerson = Some(SaPerson(SaUtr("12345"), saName, SaIndividualAddress("line1", "line2", Some("line3"), Some("line4"), Some("line5"), Some("46353"), Some("Malta"), None)))
+      val saPerson = Some(SaPerson("12345", saName, SaIndividualAddress("line1", "line2", Some("line3"), Some("line4"), Some("line5"), Some("46353"), Some("Malta"), None)))
       when(service.httpWrapper.get[SaPerson]("/sa/individual/12345/address")).thenReturn(saPerson)
 
       val result = service.person("/sa/individual/12345/address")

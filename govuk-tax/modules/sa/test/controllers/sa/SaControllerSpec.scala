@@ -60,7 +60,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
-          utr = SaUtr("123456789012"),
+          utr = "123456789012",
           address = SaIndividualAddress(
             addressLine1 = "address line 1",
             addressLine2 = "address line 2",

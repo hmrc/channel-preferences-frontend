@@ -47,7 +47,7 @@ case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
   }
 }
 
-case class SaPerson(utr: SaUtr, name: SaName, address: SaIndividualAddress)
+case class SaPerson(utr: String, name: SaName, address: SaIndividualAddress)
 
 case class SaIndividualAddress(
   addressLine1: String,
