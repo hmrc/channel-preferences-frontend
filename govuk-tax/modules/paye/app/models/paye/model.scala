@@ -112,3 +112,4 @@ object EmploymentViews {
 
 case class RecentChange(messageCode: String, timeOfChange: LocalDate, types:Seq[String] = Seq.empty)
 
+case class CarFuelBenefitDates(carDate: Option[LocalDate], fuelDateType: Option[String])
