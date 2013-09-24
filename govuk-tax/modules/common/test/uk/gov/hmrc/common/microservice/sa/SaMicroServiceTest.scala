@@ -13,7 +13,12 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
 
-class SaMicroServiceTest extends BaseSpec {
+class
+
+
+
+
+SaMicroServiceTest extends BaseSpec {
 
   "SaMicroServiceTest root service" should {
 

@@ -12,6 +12,9 @@ class EPayeMicroService extends MicroService {
   def root(uri: String): EPayeRoot = httpGet[EPayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected EPaye root not found for resource $uri"))
 
   def accountSummary(uri: String): Option[EPayeAccountSummary] = {
+    root(uri)
+
+
     httpGet[EPayeAccountSummary](uri)
   }
 }

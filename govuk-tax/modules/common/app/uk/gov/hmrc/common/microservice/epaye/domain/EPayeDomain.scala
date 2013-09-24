@@ -20,7 +20,5 @@ object EPayeDomain {
 
   case class EPayeAccountSummary(rti: Option[RTI] = None, nonRti: Option[NonRTI] = None)
   case class RTI(balance: BigDecimal)
-  case class NonRTI(paidToDate: AmountDue, currentTaxYear: Int)
-
-  case class AmountDue(amount: BigDecimal)
+  case class NonRTI(paidToDate: BigDecimal, currentTaxYear: Int)
 }

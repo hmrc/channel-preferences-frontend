@@ -3,69 +3,63 @@ package uk.gov.hmrc.common.microservice.epaye
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeApplication, WithApplication}
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import org.mockito.Mockito._
 import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{NonRTI, EPayeAccountSummary, EPayeRoot}
 
 class EPayeMicroServiceSpec extends BaseSpec {
 
-  object constants {
-    val uri = "someUri"
-    val empRef = EmpRef("ABC", "12345")
-    val links = Map("someLink" -> "/some/path")
-    val rootObjectWithRtiInfo = EPayeRoot(empRef, links)
-  }
+   private val uri = "someUri"
 
   "Requesting the EPaye root" should {
 
     "Make an HTTP call to the service and return the root data" in new WithEPayeMicroService {
-      import constants._
+      val empRef = EmpRef("ABC", "12345")
+      val rootObject = EPayeRoot(empRef, Map("someLink" -> "/some/path"))
 
       when(mockHttpClient.get[EPayeRoot](uri)).thenReturn(Some(rootObject))
       epayeMicroService.root(uri) shouldBe rootObject
     }
 
-    "Make an HTTP call to the service and return the response with EPAYE Non-RTI information" in new WithEPayeMicroService {
-      pending
+    "Make an HTTP call to the service and throw an IllegalStateException if there is no root data" in new WithEPayeMicroService {
+      when(mockHttpClient.get[EPayeRoot](uri)).thenThrow(new Exception("Malformed result"))
+      epayeMicroService.root(uri) shouldBe None
     }
 
-    "Make an HTTP call to the service and return the response with invalid (neither RTI nor Non-RTI) information" in new WithEPayeMicroService {
-      pending
-    }
-
-    "Make an HTTP call to the service and return None if the response is None" in new WithEPayeMicroService {
-      pending
-    }
-
-    "Make an HTTP call to the service and return None if a MicroServiceException is thrown" in new WithEPayeMicroService {
-      pending
+    "Make an HTTP call to the service and throw an IllegalStateException if there is no root data" in new WithEPayeMicroService {
+      when(mockHttpClient.get[EPayeRoot](uri)).thenReturn(None)
+      epayeMicroService.root(uri) shouldBe None
     }
   }
 
   "Requesting the EPaye account summary" should {
 
-    ""
-    "Walk the links and return the correct response for an example with EPAYE RTI information" in new WithEPayeMicroService {
-      pending
+    "Return the correct response for an example with account summary information" in new WithEPayeMicroService {
+      val empRef = EmpRef("ABC", "12345")
+      val summary = EPayeAccountSummary(nonRti = Some(NonRTI(BigDecimal(50D), 2013)))
+
+      when(mockHttpClient.get[EPayeAccountSummary](uri)).thenReturn(Some(summary))
+      epayeMicroService.accountSummary(uri) shouldBe summary
     }
 
-    "Walk the links and return the correct response for an example with EPAYE Non-RTI information" in new WithEPayeMicroService {
-      pending
+    "Return None for an example with invalid data - containing neither RTI nor Non-RTI information" in new WithEPayeMicroService {
+      val empRef = EmpRef("ABC", "12345")
+      val invalidSummary = EPayeAccountSummary(rti = None, nonRti = None)
+
+      when(mockHttpClient.get[EPayeAccountSummary](uri)).thenReturn(Some(invalidSummary))
+      epayeMicroService.accountSummary(uri) shouldBe None
     }
 
-    "Walk the links and return the correct response for an example with invalid data - containing neither RTI nor Non-RTI information" in new WithEPayeMicroService {
-      pending
+    "Return None for an example where no data is returned" in new WithEPayeMicroService {
+      when(mockHttpClient.get[EPayeAccountSummary](uri)).thenReturn(None)
+      epayeMicroService.accountSummary(uri) shouldBe None
     }
 
-    "Walk the links and return the correct response for an example where no data is returned (404 from back-end)" in new WithEPayeMicroService {
-      pending
-    }
-
-    "Walk the links and return the correct response for an example where an exception is thrown" in new WithEPayeMicroService {
-      pending
+    "Return None for an example where an exception is thrown" in new WithEPayeMicroService {
+      when(mockHttpClient.get[EPayeAccountSummary](uri)).thenThrow(new Exception("Malformed result"))
+      epayeMicroService.accountSummary(uri) shouldBe None
     }
   }
-
 }
 
 abstract class WithEPayeMicroService extends WithApplication(FakeApplication()) with MockitoSugar {
