@@ -92,20 +92,21 @@ class PayeBaseSpec extends BaseSpec {
     Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3, null, null, null, null, null, null, car = None, actions("RC123456B", 2013, 1), Map.empty),
     removedCarBenefit))
 
-  def transactionWithTags(tags: List[String], properties: Map[String, String] = Map.empty) =
+  def transactionWithTags(tags: List[String], properties: Map[String, String] = Map.empty, employmentSequenceNumber:Int = 1) =
     TxQueueTransaction(URI.create("http://tax.com"),
       "paye",
       URI.create("http://tax.com"),
       None,
       List(Status("created", None, currentTestDate)),
       Some(tags),
-      properties ++ Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013"),
+      properties ++ Map("employmentSequenceNumber" -> employmentSequenceNumber.toString, "taxYear" -> "2013"),
       currentTestDate,
       currentTestDate.minusDays(1))
 
   val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31"))
   val otherTransaction = transactionWithTags(List("paye", "test"))
-  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29"))
+  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29") )
+  val removedFuelEmployment2Transaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29") , 2)
   val multiBenefitTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
 
   val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction)

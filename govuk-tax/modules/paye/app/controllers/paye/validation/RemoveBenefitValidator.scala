@@ -11,8 +11,8 @@ object RemoveBenefitValidator {
 
   private val FUEL_DIFFERENT_DATE = "differentDateFuel"
 
-  private[paye] def validateFuelDateChoice(benefitType:Int) = optional(text)
-    .verifying("error.paye.benefit.choice.mandatory", fuelDateChoice => isThereIfFuel(fuelDateChoice, benefitType))
+  private[paye] def validateFuelDateChoice(carBenefitWithUnremoved:Boolean) = optional(text)
+    .verifying("error.paye.benefit.choice.mandatory", fuelDateChoice => verifyFuelDate(fuelDateChoice, carBenefitWithUnremoved))
 
   private[paye] def localDateMapping(benefitStartDate:Option[LocalDate]) = jodaLocalDate
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(TaxYearResolver() + 1, 4, 6)))
@@ -40,11 +40,10 @@ object RemoveBenefitValidator {
     }
   }
 
-  private def isThereIfFuel(fuelDateChoice:Option[Any] , benefitType:Int):Boolean = {
-    benefitType match {
-      case CAR => fuelDateChoice.isDefined
-      case _ => true
-    }
+  private def verifyFuelDate(fuelDateChoice:Option[Any], carBenefitWithUnremoved:Boolean):Boolean = {
+    if(carBenefitWithUnremoved){
+      fuelDateChoice.isDefined
+    } else true
   }
 
   private def isAfter(withdrawDate:LocalDate, startDate:Option[LocalDate]) : Boolean = {

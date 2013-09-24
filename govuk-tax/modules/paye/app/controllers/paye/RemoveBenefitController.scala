@@ -42,10 +42,10 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
       val dates = getCarFuelBenefitDates(request)
 
       if (benefitType == CAR) {
-        Ok(remove_car_benefit_form(benefit,
-          hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, benefitType, dates)))
+        val unremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
+        Ok(remove_car_benefit_form(benefit, unremovedFuel , updateBenefitForm(benefitStartDate, unremovedFuel, dates)))
       } else {
-        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, benefitType, dates)))
+        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates)))
       }
     }
   }
@@ -53,8 +53,9 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
       val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver()))
+      val unremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
 
-      updateBenefitForm(benefitStartDate, benefit.benefit.benefitType, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
+      updateBenefitForm(benefitStartDate, unremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
@@ -137,13 +138,13 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
   }
 
   private def updateBenefitForm(benefitStartDate:Option[LocalDate],
-                                benefitType:Int,
+                                carBenefitWithUnremovedFuelBenefit:Boolean,
                                 dates:CarFuelBenefitDates) = Form[RemoveBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping(benefitStartDate),
       "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement"),
       "removeCar" -> boolean,
-      "fuel.radio" -> validateFuelDateChoice(benefitType),
+      "fuel.radio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
       "fuel.withdrawDate" -> validateFuelDate(dates, benefitStartDate)
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
