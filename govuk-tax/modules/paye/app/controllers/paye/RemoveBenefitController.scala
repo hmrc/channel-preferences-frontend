@@ -56,15 +56,6 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     )(RemoveBenefitFormDates.apply)(RemoveBenefitFormDates.unapply)
   )
 
-  private def dateIsBefore() = { //v:RemoveBenefitFormDates) = {
-    //val c = v.carDate
-    //val f = v.fuelDate
-    //val (carDate, fuelDate) = datesForm.bindFromRequest.get
-    val f = datesForm
-    val x = f.get.carDate
-    false
-  }
-
   private def updateBenefitForm(benefitStartDate:Option[LocalDate],
                                 benefitType:Int,
                                 dates:RemoveBenefitFormDates) = Form[RemoveBenefitFormData](
@@ -80,16 +71,16 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  private def dateIsLessThan(dateOne:Option[LocalDate], dateTwo:Option[LocalDate]) = {
+  private def dateIsLessThan(dateOne:Option[LocalDate], dateTwo:Option[LocalDate]):Boolean = {
     if (dateOne.isDefined && dateTwo.isDefined) {
-      dateOne.get.compareTo(dateTwo.get) match {
+      return dateOne.get.compareTo(dateTwo.get) match {
         case 0 => false
         case -1 => false
         case _  => true
       }
-    } else {
-      true
     }
+
+    true
   }
 
   private def checkFuelDate (optionFuelDate:Option[String], date:Option[LocalDate]):Boolean = {
