@@ -129,14 +129,14 @@ class SaMicroService extends MicroService {
   override val serviceUrl = MicroServiceConfig.saServiceUrl
 
   def savePreferences(utr: String, digital: Boolean, email: Option[String] = None) {
-    httpPutNoResponse(s"/sa/utr/$utr/preferences", Json.parse(toRequestBody(SaPreference(digital, email))))
+    httpPutNoResponse(s"/preferences/sa/utr/$utr/preferences", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 
   def getPreferences(utr: String): Option[SaPreference] = {
 
     try {
-      val v = httpGet[SaPreference](s"/sa/utr/$utr/preferences")
-      v.map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/sa/utr/$utr/preferences' gave an inconsistent response"))
+      val v = httpGet[SaPreference](s"/preferences/sa/utr/$utr/preferences")
+      v.map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/preferences/sa/utr/$utr/preferences' gave an inconsistent response"))
 
     } catch {
       case MicroServiceException(errorMessage, response) if response.status == 404 => None
