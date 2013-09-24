@@ -37,7 +37,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     (request, user, benefit) => {
       val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver()))
       val benefitType = benefit.benefit.benefitType
-      val dates = datesForm.bindFromRequest()(request).get
+      val dates = getCarFuelBenefitDates(request)
 
       if (benefitType == CAR) {
         Ok(remove_car_benefit_form(benefit,
@@ -48,31 +48,32 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     }
   }
 
-  case class RemoveBenefitFormDates(carDate: Option[LocalDate], fuelDate: Option[LocalDate])
-  private def datesForm() = Form[RemoveBenefitFormDates](
+  case class CarFuelBenefitDates(carDate: Option[LocalDate], fuelDateType: Option[String])
+
+  private def datesForm() = Form[CarFuelBenefitDates](
     mapping(
       "withdrawDate" -> optional(jodaLocalDate),
-      "fuel.withdrawDate" -> optional(jodaLocalDate)
-    )(RemoveBenefitFormDates.apply)(RemoveBenefitFormDates.unapply)
+      "fuel.radio" -> optional(text)
+    )(CarFuelBenefitDates.apply)(CarFuelBenefitDates.unapply)
   )
 
   private def updateBenefitForm(benefitStartDate:Option[LocalDate],
                                 benefitType:Int,
-                                dates:RemoveBenefitFormDates) = Form[RemoveBenefitFormData](
+                                dates:CarFuelBenefitDates) = Form[RemoveBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping(benefitStartDate),
       "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement"),
       "removeCar" -> boolean,
-      "fuel" -> tuple(
-        "radio" -> customFuelDateChoice(benefitType),
-        "withdrawDate" -> optional(jodaLocalDate)
-      ) .verifying("error.paye.benefit.date.mandatory",  data => checkFuelDate(data._1, data._2))
-        .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => isAfterIfDefined(dates.carDate, data._2))
-        .verifying("error.paye.benefit.date.previous.taxyear",data => if (optionSelectedForFuelDifferentDate(data._1)) { isAfterIfDefined(data._2 , Some(TaxYearResolver.lasDayOfPreviousTaxYear))} else true)
-        .verifying("error.paye.benefit.date.previous.startdate", data => if (optionSelectedForFuelDifferentDate(data._1)) { isAfterIfDefined(data._2, benefitStartDate)} else true)
-
+      "fuel.radio" -> validateFuelDateChoice(benefitType),
+      "fuel.withdrawDate" -> validateFuelDate(dates, benefitStartDate)
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
+
+  private def validateFuelDate(dates:CarFuelBenefitDates, benefitStartDate:Option[LocalDate]) = optional(jodaLocalDate)
+    .verifying("error.paye.benefit.date.mandatory",  data => checkFuelDate(dates.fuelDateType, data))
+    .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => isAfterIfDefined(dates.carDate, data))
+    .verifying("error.paye.benefit.date.previous.taxyear",data => if (differentDateForFuel(dates.fuelDateType)) { isAfterIfDefined(data , Some(TaxYearResolver.lasDayOfPreviousTaxYear))} else true)
+    .verifying("error.paye.benefit.date.previous.startdate", data => if (differentDateForFuel(dates.fuelDateType)) { isAfterIfDefined(data, benefitStartDate)} else true)
 
   private def isAfterIfDefined(dateOne:Option[LocalDate], dateTwo:Option[LocalDate]):Boolean = {
     dateOne match {
@@ -80,25 +81,32 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
       case _ => true
     }
   }
-  
-  private def optionSelectedForFuelDifferentDate(dateOption:Option[String]):Boolean = {
+
+  private val FUEL_DIFFERENT_DATE = "differentDateFuel"
+
+  private def differentDateForFuel(dateOption:Option[String]):Boolean = {
     dateOption match {
-      case Some(a) if a == "differentDateFuel" => true
+      case Some(a) if a == FUEL_DIFFERENT_DATE => true
       case _ => false
     }
   }
 
   private def checkFuelDate (optionFuelDate:Option[String], date:Option[LocalDate]):Boolean = {
     optionFuelDate match {
-      case Some(a) if a == "differentDateFuel" && date.isEmpty => false
+      case Some(a) if a == FUEL_DIFFERENT_DATE && date.isEmpty => false
       case _ => true
     }
+  }
+
+  private def getCarFuelBenefitDates(request:Request[_]):CarFuelBenefitDates = {
+    datesForm.bindFromRequest()(request).get
   }
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
       val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver()))
-      updateBenefitForm(benefitStartDate, benefit.benefit.benefitType, datesForm.bindFromRequest()(request).get).bindFromRequest()(request).fold(
+
+      updateBenefitForm(benefitStartDate, benefit.benefit.benefitType, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
@@ -115,7 +123,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
           val finalAndRevisedAmounts = updatedBenefit.benefits.foldLeft(BigDecimal(0), mutable.Map[String, BigDecimal]())((runningAmounts, benefit) => {
             val revisedAmount = benefit.benefitType match {
-              case FUEL if removeBenefitData.fuelDateChoice._1.getOrElse("") == "differentDateFuel" => calculateRevisedAmount (benefit, removeBenefitData.fuelDateChoice._2.get)
+              case FUEL if removeBenefitData.fuelDateChoice.getOrElse("") == FUEL_DIFFERENT_DATE => calculateRevisedAmount (benefit, removeBenefitData.fuelWithdrawDate.get)
               case _ =>  calculateRevisedAmount (benefit, removeBenefitData.withdrawDate)
             }
             (benefit, removeBenefitData.withdrawDate)
@@ -159,7 +167,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     findExistingBenefit(user, employmentNumber, CAR).isDefined
   }
 
-  private def customFuelDateChoice(benefitType:Int) = optional(text)
+  private def validateFuelDateChoice(benefitType:Int) = optional(text)
     .verifying("error.paye.benefit.choice.mandatory", fuelDateChoice => isThereIfFuel(fuelDateChoice, benefitType))
 
 
