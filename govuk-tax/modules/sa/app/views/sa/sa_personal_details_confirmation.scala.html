@@ -1,96 +1,84 @@
 @(changeAddressForm: Form[controllers.sa.ChangeAddressForm], changeAddressFormData: controllers.sa.ChangeAddressForm)
-@main(title = "Update My Details - Confirmation") {
 
-<h2>My details</h2>
-<div id="sa-details">
-    <h3>You entered:</h3>
+@main(title = "Update My Details - Confirmation", nav = true) {
 
+    <h1><span class="pre-heading">service</span>Change your address with HMRC</h1>
 
-    <ul class="level-1">
-            <li><p>Additional delivery information:</p><span>@changeAddressFormData.additionalDeliveryInformation</span></li>
-            <li><p>Address line 1:</p><span>@changeAddressFormData.addressLine1</span></li>
-            <li><p>Address line 2:</p><span>@changeAddressFormData.addressLine2</span></li>
-            <li><p>Address line 3:</p><span>@changeAddressFormData.addressLine3</span></li>
-            <li><p>Address line 4:</p><span>@changeAddressFormData.addressLine4</span></li>
-            <li><p>Postcode:</p><span>@changeAddressFormData.postcode</span></li>
-    </ul>
+    <h2>You entered:</h2>
 
-    <br/>
+    <p>
+	@if( changeAddressFormData.addressLine1 ) { @changeAddressFormData.addressLine1<br /> }
+	@if( changeAddressFormData.addressLine2 ) { @changeAddressFormData.addressLine2<br /> }
+	@if( changeAddressFormData.addressLine3 ) { @changeAddressFormData.addressLine3<br /> }
+	@if( changeAddressFormData.addressLine4 ) { @changeAddressFormData.addressLine4<br /> }
+	@if( changeAddressFormData.postcode ) { @changeAddressFormData.postcode }
+    </p>
+    @if( changeAddressFormData.additionalDeliveryInformation ) {
+    <p>Additional delivery information: @changeAddressFormData.additionalDeliveryInformation</p>
+    }
 
-    <h3>for the following regimes:</h3>
+    <p>This is your main address and communication address for Self Assessment (SA).</p>
 
-    <h4>Self Assessment (SA)</h4>
+    @helper.form(action = controllers.sa.routes.SaController.redisplayChangeAddress) {
 
-    <ul class="level-1">
-       <li><p>Main Address</p></li>
-    </ul>
+	@defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
+	    <input type="hidden" name="@additionalDeliveryInformation.name" value="@changeAddressFormData.additionalDeliveryInformation" />
+	}
 
-    <br/>
+	@defining(changeAddressForm("addressLine1")) { addressLine1 =>
+	    <input type="hidden" name="@addressLine1.name" value="@changeAddressFormData.addressLine1" />
+	}
 
-        <p>
-            @helper.form(action = controllers.sa.routes.SaController.redisplayChangeAddress) {
+	@defining(changeAddressForm("addressLine2")) { addressLine2 =>
+	    <input type="hidden" name="@addressLine2.name" value="@changeAddressFormData.addressLine2" />
+	}
 
-                @defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
-                    <input type="hidden" name="@additionalDeliveryInformation.name" value="@changeAddressFormData.additionalDeliveryInformation" />
-                }
+	@defining(changeAddressForm("optionalAddressLines.addressLine3")) { addressLine3 =>
+	    <input type="hidden" name="@addressLine3.name" value="@changeAddressFormData.addressLine3" />
+	}
 
-                @defining(changeAddressForm("addressLine1")) { addressLine1 =>
-                    <input type="hidden" name="@addressLine1.name" value="@changeAddressFormData.addressLine1" />
-                }
+	@defining(changeAddressForm("optionalAddressLines.addressLine4")) { addressLine4 =>
+	    <input type="hidden" name="@addressLine4.name" value="@changeAddressFormData.addressLine4" />
+	}
 
-                @defining(changeAddressForm("addressLine2")) { addressLine2 =>
-                    <input type="hidden" name="@addressLine2.name" value="@changeAddressFormData.addressLine2" />
-                }
+	@defining(changeAddressForm("postcode")) { postcode =>
+	    <input type="hidden" name="@postcode.name" value="@changeAddressFormData.postcode" />
+	}
 
-                @defining(changeAddressForm("optionalAddressLines.addressLine3")) { addressLine3 =>
-                    <input type="hidden" name="@addressLine3.name" value="@changeAddressFormData.addressLine3" />
-                }
+	<div class="form-field--inline">
+	    <button class="float--left" >Back</button>
+	</div>
+    }
 
-                @defining(changeAddressForm("optionalAddressLines.addressLine4")) { addressLine4 =>
-                    <input type="hidden" name="@addressLine4.name" value="@changeAddressFormData.addressLine4" />
-                }
+    @helper.form(action = controllers.sa.routes.SaController.confirmChangeAddress) {
 
-                @defining(changeAddressForm("postcode")) { postcode =>
-                    <input type="hidden" name="@postcode.name" value="@changeAddressFormData.postcode" />
-                }
+	@defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
+	    <input type="hidden" name="@additionalDeliveryInformation.name" id="@additionalDeliveryInformation.id" value="@changeAddressFormData.additionalDeliveryInformation" />
+	}
 
-                <input type="submit" value="Back"/>
-            }
+	@defining(changeAddressForm("addressLine1")) { addressLine1 =>
+	    <input type="hidden" name="@addressLine1.name" id="@addressLine1.id" value="@changeAddressFormData.addressLine1" />
+	}
 
-        </p>
+	@defining(changeAddressForm("addressLine2")) { addressLine2 =>
+	    <input type="hidden" name="@addressLine2.name" id="@addressLine2.id" value="@changeAddressFormData.addressLine2" />
+	}
 
-        <p>
+	@defining(changeAddressForm("optionalAddressLines.addressLine3")) { addressLine3 =>
+	    <input type="hidden" name="@addressLine3.name" id="@addressLine3.id" value="@changeAddressFormData.addressLine3" />
+	}
 
+	@defining(changeAddressForm("optionalAddressLines.addressLine4")) { addressLine4 =>
+	    <input type="hidden" name="@addressLine4.name" id="@addressLine4.id" value="@changeAddressFormData.addressLine4" />
+	}
 
-            @helper.form(action = controllers.sa.routes.SaController.confirmChangeAddress) {
+	@defining(changeAddressForm("postcode")) { postcode =>
+	    <input type="hidden" name="@postcode.name" id="@postcode.id" value="@changeAddressFormData.postcode" />
+	}
 
-                @defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
-                    <input type="hidden" name="@additionalDeliveryInformation.name" id="@additionalDeliveryInformation.id" value="@changeAddressFormData.additionalDeliveryInformation" />
-                }
+	<div class="form-field--inline">
+	    <button class="float--right" >Submit</button>
+	</div>
 
-                @defining(changeAddressForm("addressLine1")) { addressLine1 =>
-                    <input type="hidden" name="@addressLine1.name" id="@addressLine1.id" value="@changeAddressFormData.addressLine1" />
-                }
-
-                @defining(changeAddressForm("addressLine2")) { addressLine2 =>
-                    <input type="hidden" name="@addressLine2.name" id="@addressLine2.id" value="@changeAddressFormData.addressLine2" />
-                }
-
-                @defining(changeAddressForm("optionalAddressLines.addressLine3")) { addressLine3 =>
-                    <input type="hidden" name="@addressLine3.name" id="@addressLine3.id" value="@changeAddressFormData.addressLine3" />
-                }
-
-                @defining(changeAddressForm("optionalAddressLines.addressLine4")) { addressLine4 =>
-                    <input type="hidden" name="@addressLine4.name" id="@addressLine4.id" value="@changeAddressFormData.addressLine4" />
-                }
-
-                @defining(changeAddressForm("postcode")) { postcode =>
-                    <input type="hidden" name="@postcode.name" id="@postcode.id" value="@changeAddressFormData.postcode" />
-                }
-
-                <input type="submit" value="Submit"/>
-            }
-        </p>
-</div>
-
+}
 }
