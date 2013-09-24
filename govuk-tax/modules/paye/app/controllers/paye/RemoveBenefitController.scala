@@ -66,26 +66,23 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
       "fuel" -> tuple(
         "radio" -> customFuelDateChoice(benefitType),
         "withdrawDate" -> optional(jodaLocalDate)
-      ) .verifying( "error.paye.benefit.date.mandatory",  data => checkFuelDate(data._1, data._2))
-        .verifying("error.paye.benefit.date.before.cardate", data => dateIsLessThan(dates.carDate, dates.fuelDate))
-        .verifying("error.paye.benefit.date.previous.taxyear",data => if (fuelisDifferentDate(data._1)) { data._2.get.isAfter(new LocalDate(TaxYearResolver(), 4, 5))} else true)
-        .verifying("error.paye.benefit.date.previous.startdate", data => if (fuelisDifferentDate(data._1)) { isAfter(data._2.get, benefitStartDate)} else true)
+      ) .verifying("error.paye.benefit.date.mandatory",  data => checkFuelDate(data._1, data._2))
+        .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => isAfterIfDefined(dates.carDate, data._2))
+        .verifying("error.paye.benefit.date.previous.taxyear",data => if (optionSelectedForFuelDifferentDate(data._1)) { isAfterIfDefined(data._2 , Some(TaxYearResolver.lasDayOfPreviousTaxYear))} else true)
+        .verifying("error.paye.benefit.date.previous.startdate", data => if (optionSelectedForFuelDifferentDate(data._1)) { isAfterIfDefined(data._2, benefitStartDate)} else true)
 
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
-  private def dateIsLessThan(dateOne:Option[LocalDate], dateTwo:Option[LocalDate]):Boolean = {
-    if (dateOne.isDefined && dateTwo.isDefined) {
-      return dateOne.get.compareTo(dateTwo.get) match {
-        case 0 => false
-        case -1 => false
-        case _  => true
-      }
-    }  else true
+  private def isAfterIfDefined(dateOne:Option[LocalDate], dateTwo:Option[LocalDate]):Boolean = {
+    dateOne match {
+      case Some(date) => isAfter(date, dateTwo)
+      case _ => true
+    }
   }
   
-  private def fuelisDifferentDate(optionFuelDate:Option[String]):Boolean = {
-    optionFuelDate match {
+  private def optionSelectedForFuelDifferentDate(dateOption:Option[String]):Boolean = {
+    dateOption match {
       case Some(a) if a == "differentDateFuel" => true
       case _ => false
     }
@@ -169,7 +166,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
   private def localDateMapping(benefitStartDate:Option[LocalDate]) = jodaLocalDate
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(new LocalDate(TaxYearResolver() + 1, 4, 6)))
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(new LocalDate()))
-    .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(TaxYearResolver(), 4, 5)))
+    .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(new LocalDate(TaxYearResolver.lasDayOfPreviousTaxYear)))
     .verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
 
   private def isThereIfFuel(fuelDateChoice:Option[Any] , benefitType:Int):Boolean = {

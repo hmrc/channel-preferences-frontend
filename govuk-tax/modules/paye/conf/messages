@@ -2,9 +2,10 @@ error.paye.benefit.date.greater.7.days=Invalid date: Return date cannot be great
 error.paye.benefit.date.next.taxyear=Invalid date: Return date cannot be in next tax years
 error.paye.benefit.date.previous.taxyear=Invalid date: Return date cannot be in previous tax years
 error.paye.benefit.date.previous.startdate=Invalid date: Return date cannot be before benefit was made available
-error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
 error.paye.benefit.date.mandatory=Please enter a date
 error.paye.benefit.choice.mandatory=Please select an option below
+error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate=Invalid date: Return date for fuel cannot be after car return date
+error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
 
 recent.change.removeBenefits.accepted=On {0}, you removed your company {1} benefit from {2}. This is being processed and you will receive a new Tax Code within 2 days.
 recent.change.removeBenefits.completed=On {0}, you removed your company {1} benefit from {2}. This has been processed and your new Tax Code is {3}. {2} have been notified.

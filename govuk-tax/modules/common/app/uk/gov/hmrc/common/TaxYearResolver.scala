@@ -14,4 +14,9 @@ object TaxYearResolver {
     else
       year
   }
+
+  def lasDayOfPreviousTaxYear = {
+    val year = apply()
+    new LocalDate(year, 4, 5)
+  }
 }
