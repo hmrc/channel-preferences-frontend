@@ -1,23 +1,14 @@
 @(transactionId: uk.gov.hmrc.common.microservice.sa.domain.TransactionId)
-@main(title = "My Details - Update main address confirmation receipt") {
 
-<h2 xmlns="http://www.w3.org/1999/html">My Details</h2>
-<div id="sa-details">
+@main(title = "My Details - Update main address confirmation receipt", nav = true) {
 
-    <p>
-        Thank you for telling us about the change to your details. <br>
-        Your main address has been changed for your Self-Assessment (SA). <br>
-        Please allow 48 hours for this change to take effect.
-    </p>
-    <p>
-        Transaction ID: <b>@transactionId.oid</b>
-    </p>
+    <h1><span class="pre-heading">service</span>Change your address with HMRC</h1>
+    <h2>Thanks.</h2>
 
-    <p>
-        <a href="@controllers.sa.routes.SaController.details">Back to your details</a>
-    </p>
+    <p>Your main address has been changed for your Self-Assessment (SA).<br>Please allow 48 hours for this change to take effect.</p>
 
+    <p>Transaction ID: <b>@transactionId.oid</b></p>
 
-</div>
+    <p><a href="@controllers.sa.routes.SaController.details">Back to your tax account homepage</a></p>
 
 }
