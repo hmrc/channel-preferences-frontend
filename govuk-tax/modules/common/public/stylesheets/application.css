@@ -3244,3 +3244,27 @@ article h1 {
     line-height: 1.09375;
   }
 }
+
+label input[type="text"] {
+  display: block;
+}
+
+/*------------------------------------*\
+    form validations
+\*------------------------------------*/
+.form-field.error {
+  background-color: #fef7f7;
+  border-left: 3px solid #df3034;
+  margin: 0 -1em 0.5em -1em;
+  padding: 0.75em 1em 1em 1em;
+}
+
+.error-notification {
+  color: #df3034;
+  font-family: "nta",Arial,sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 300;
+  text-transform: none;
+  padding-bottom: 0.5em;
+}

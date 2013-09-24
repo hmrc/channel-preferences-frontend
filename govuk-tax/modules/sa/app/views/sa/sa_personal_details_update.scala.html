@@ -1,61 +1,69 @@
 @(changeAddressForm: Form[controllers.sa.ChangeAddressForm])
 
 @import helper._
-@main(title = "Change My Details") {
+@import views.html.helpers._
 
-<h2>My details</h2>
-<div id="sa-details">
-    <h3>Change Your Address</h3>
+@main(title = "Change My Details", nav = true) {
+
+    <h1><span class="pre-heading">service</span>Change your address with HMRC</h1>
 
     @helper.form(action = controllers.sa.routes.SaController.submitChangeAddress) {
-    <p>
-        @inputText(
-        changeAddressForm("additionalDeliveryInformation"),
-        '_label -> "Additional Delivery Info",
-        '_showConstraints -> false)
-    </p>
-    <p>
-        @inputText(
+
+	@helpers.input(
         changeAddressForm("addressLine1"),
-        '_label -> "Address Line 1",
-        '_error -> changeAddressForm.error("addressLine1"),
-        '_showConstraints -> false)
-    </p>
-    <p>
-        @inputText(
+	'_label -> "Address",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("addressLine1")
+	)
+
+	@helpers.input(
         changeAddressForm("addressLine2"),
-        '_label -> "Address Line 2",
-        '_error -> changeAddressForm.error("addressLine2"),
-        '_showConstraints -> false)
-    </p>
-    <p>
-        @inputText(
+	'_label -> "",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("addressLine2")
+	)
+
+	@helpers.input(
         changeAddressForm("optionalAddressLines.addressLine3"),
-        '_label -> "Address Line 3",
-        '_error -> changeAddressForm.error("optionalAddressLines"),
-        '_showConstraints -> false)
-    </p>
-    <p>
-        @inputText(
+	'_label -> "",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("optionalAddressLines")
+	)
+
+	@helpers.input(
         changeAddressForm("optionalAddressLines.addressLine4"),
-        '_label -> "Address Line 4",
-        '_error -> changeAddressForm.error("optionalAddressLines"),
-        '_showConstraints -> false)
-    </p>
-    <p>
-        @inputText(
+	'_label -> "Town or city",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("optionalAddressLines")
+	)
+
+	@helpers.input(
         changeAddressForm("postcode"),
         '_label -> "Postcode",
-        '_error -> changeAddressForm.error("postcode"),
-        '_showConstraints -> false)
-    </p>
+	'_divClass -> "form-field",
+	'_inputClass -> "input--small",
+	'_error -> changeAddressForm.error("postcode")
+	)
 
-    <p>
-        <input type="submit" value="Submit"/>
-    </p>
+@*
+	NOTE: Is Additional Delivery Info going to be used?
 
+	@helpers.input(
+	changeAddressForm("additionalDeliveryInformation"),
+	'_label -> "Additional Delivery Info",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("optionalAddressLines")
+	)
+*@
+
+	<div class="form-field">
+	    <button class="float--right" >Submit</button>
+	</div>
     }
-
-</div>
 
 }
