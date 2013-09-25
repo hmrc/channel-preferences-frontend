@@ -2,8 +2,9 @@ package uk.gov.hmrc.common.microservice.epaye
 
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{EPayeAccountSummary, EPayeRoot}
+import play.api.Logger
 
-class EPayeMicroService extends MicroService {
+class EPayeConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.epayeServiceUrl
 
@@ -13,11 +14,7 @@ class EPayeMicroService extends MicroService {
 
   def accountSummary(uri: String): Option[EPayeAccountSummary] = {
     httpGet[EPayeAccountSummary](uri) match {
-      case Some(EPayeAccountSummary(None, None)) => {
-        // TODO [JJS] HOW DO WE LOG HERE?
-        // warn(s"Empty account summary from EPAYE service for uri: $uri")
-        None
-      }
+      case Some(EPayeAccountSummary(None, None)) => Logger.warn(s"Empty account summary returned from EPAYE service for uri: $uri"); None
       case other => other
     }
   }

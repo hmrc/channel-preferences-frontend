@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.epaye.domain
 
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
-import uk.gov.hmrc.common.microservice.epaye.EPayeMicroService
+import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import uk.gov.hmrc.domain.EmpRef
 
 object EPayeDomain {
@@ -10,9 +10,9 @@ object EPayeDomain {
 
     private val accountSummaryKey = "accountSummary"
 
-    def accountSummary(implicit ePayeMicroService: EPayeMicroService): Option[EPayeAccountSummary] = {
+    def accountSummary(implicit epayeConnector: EPayeConnector): Option[EPayeAccountSummary] = {
       links.get(accountSummaryKey) match {
-        case Some(uri) => ePayeMicroService.accountSummary(uri)
+        case Some(uri) => epayeConnector.accountSummary(uri)
         case _ => None
       }
     }

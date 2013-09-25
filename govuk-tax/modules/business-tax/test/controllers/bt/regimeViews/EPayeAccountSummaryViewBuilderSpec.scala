@@ -6,7 +6,7 @@ import views.helpers.RenderableMessage
 import org.mockito.Mockito._
 import controllers.bt.regimeViews.EPayeAccountSummaryMessageKeys._
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain._
-import uk.gov.hmrc.common.microservice.epaye.EPayeMicroService
+import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import controllers.bt.routes
 import views.helpers.LinkMessage
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
@@ -134,7 +134,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
   private def testEPayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Option[EPayeAccountSummary], expectedMessages: Seq[(String, Seq[RenderableMessage])]) {
     val mockUser = mock[User]
     val mockUserAuthority = mock[UserAuthority]
-    val mockEPayeMicroService = mock[EPayeMicroService]
+    val mockEPayeConnector = mock[EPayeConnector]
     val mockRegimeRoots = mock[RegimeRoots]
     val mockEPayeRoot = mock[EPayeRoot]
 
@@ -144,12 +144,12 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockUser.userAuthority).thenReturn(mockUserAuthority)
     when(mockUserAuthority.empRef).thenReturn(Some(dummyEmpRef))
     when(mockRegimeRoots.epaye).thenReturn(Some(mockEPayeRoot))
-    when(mockEPayeRoot.accountSummary(mockEPayeMicroService)).thenReturn(accountSummary)
+    when(mockEPayeRoot.accountSummary(mockEPayeConnector)).thenReturn(accountSummary)
 
     when(mockPortalUrlBuilder.build("home")).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLink)).thenReturn(makeAPaymentUrl)
 
-    val actualAccountSummary = EPayeAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockEPayeMicroService).build().get
+    val actualAccountSummary = EPayeAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockEPayeConnector).build().get
 
     actualAccountSummary.regimeName shouldBe expectedRegimeName
 
