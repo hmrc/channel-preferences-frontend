@@ -118,7 +118,7 @@ object MicroServiceConfig {
 
   lazy val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
 
-  lazy val saServiceUrl = s"$protocol://${Play.configuration.getString(s"sa-prefs.$env.services.sa.host").getOrElse("localhost")}:${Play.configuration.getInt(s"sa-prefs.$env.services.sa.port").getOrElse(8900)}"
+  lazy val preferenceServiceUrl = s"$protocol://${Play.configuration.getString(s"sa-prefs.$env.services.preferences.host").getOrElse("localhost")}:${Play.configuration.getInt(s"sa-prefs.$env.services.preferences.port").getOrElse(8900)}"
 
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 
@@ -126,7 +126,7 @@ object MicroServiceConfig {
 
 class SaMicroService extends MicroService {
 
-  override val serviceUrl = MicroServiceConfig.saServiceUrl
+  override val serviceUrl = MicroServiceConfig.preferenceServiceUrl
 
   def savePreferences(utr: String, digital: Boolean, email: Option[String] = None) {
     httpPutNoResponse(s"/preferences/sa/utr/$utr/preferences", Json.parse(toRequestBody(SaPreference(digital, email))))
