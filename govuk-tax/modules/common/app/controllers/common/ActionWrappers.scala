@@ -114,6 +114,6 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
     paye = regimes.paye map { uri => payeMicroService.root(uri.toString) },
     sa = regimes.sa map { uri => saMicroService.root(uri.toString) },
     vat = regimes.vat map { uri => vatMicroService.root(uri.toString) },
-    epaye = regimes.epaye.map { uri => EPayeRoot(EmpRef("DUMMY_OFFICE_NUMBER", "DUMMY_OFFICE_REF "), Map.empty) } //regimes.epaye.map { uri => epayeMicroService.root(uri.toString) }
+    epaye = regimes.epaye.map { uri => EPayeRoot(EmpRef("DUMMY_OFFICE_NUMBER", "DUMMY_OFFICE_REF "), Map.empty) } //regimes.epaye.map { uri => epayeConnector.root(uri.toString) }
   )
 }

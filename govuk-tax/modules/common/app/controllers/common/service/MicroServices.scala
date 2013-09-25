@@ -1,6 +1,6 @@
 package controllers.common.service
 
-import uk.gov.hmrc.common.microservice.epaye.EPayeMicroService
+import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 
 
 @deprecated("this will eventually be removed. All new controllers should wire in the services that they require")
@@ -27,7 +27,7 @@ trait MicroServices {
   implicit lazy val keyStoreMicroService = new KeyStoreMicroService()
   implicit lazy val agentMicroService = new AgentMicroService()
   implicit lazy val vatMicroService = new VatMicroService()
-  implicit lazy val epayeMicroService = new EPayeMicroService()
+  implicit lazy val epayeConnector = new EPayeConnector()
 }
 
 object MicroServices extends MicroServices

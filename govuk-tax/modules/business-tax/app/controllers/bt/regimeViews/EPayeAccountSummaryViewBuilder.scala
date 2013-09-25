@@ -1,6 +1,6 @@
 package controllers.bt.regimeViews
 
-import uk.gov.hmrc.common.microservice.epaye.EPayeMicroService
+import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain._
 import EPayeAccountSummaryMessageKeys._
@@ -14,7 +14,7 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import scala.{Option, Some}
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
 
-case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, epayeMicroService: EPayeMicroService) {
+case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, epayeConnector: EPayeConnector) {
 
 
   def build(): Option[AccountSummary] = {
@@ -23,7 +23,7 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
     epayeRootOption.map {
       epayeRoot: EPayeRoot =>
 
-        val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeMicroService)
+        val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
         val messages : Seq[(String, Seq[RenderableMessage])] = empRefMessage  ++ messageStrategy(accountSummary)()
 
         val links = Seq[RenderableMessage](
