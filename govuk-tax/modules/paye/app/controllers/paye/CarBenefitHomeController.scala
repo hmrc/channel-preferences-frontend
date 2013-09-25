@@ -53,34 +53,23 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
     }
   }
 
-  private def getCarBenefitDates(request:Request[_]):CarBenefitDates = {
+  private def getCarBenefitDates(request:Request[_]):CarBenefitValues = {
     datesForm.bindFromRequest()(request).value.get
   }
 
-  private def carBenefitForm(carBenefitDates: CarBenefitDates) = Form[CarBenefitData](
+  private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
     mapping(
-      providedFrom -> verifyProvidedFrom(timeSource),
-      carUnavailable -> tuple(
-        carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-        numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitDates)
-      ).verifying("error.paye.add_car_benefit.missing_days_unavailable", data => !(data._1.getOrElse(false) && data._2.isEmpty)),
-      giveCarBack -> tuple(
-        giveBackThisTaxYear -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-        providedTo -> validateProvidedTo(carBenefitDates)
-      ).verifying("error.paye.add_car_benefit.missing_car_return_date", data => !(data._1.getOrElse(false) && data._2.isEmpty)),
-      listPrice -> optional(number.verifying("error.paye.list_price_less_than_1000", e => e >= 1000)
-                            .verifying("error.paye.list_price_greater_than_99999", e => e <= 99999))
-                            .verifying("error.paye.list_price_mandatory", e => {e.isDefined}),
-      employeeContribution -> tuple(
-        employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-        employeeContribution -> optional(positiveInteger.verifying("error.paye.employee_contribution_greater_than_9999", e => e <= 9999))
-      ).verifying("error.paye.add_car_benefit.missing_employee_contribution", data => !(data._1.getOrElse(false) && data._2.isEmpty)),
-      employerContribution -> tuple(
-        employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-        employerContribution -> optional(positiveInteger.verifying("error.paye.employer_contribution_greater_than_99999", e => e <= 99999))
-      ).verifying("error.paye.add_car_benefit.missing_employer_contribution", data => !(data._1.getOrElse(false) && data._2.isEmpty))
-
-    )(CarBenefitData.fromFormData)(CarBenefitData.toFormData)
+      providedFrom -> validateProvidedFrom(timeSource),
+      carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
+      numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues),
+      giveBackThisTaxYear -> validateGiveBackThisTaxYear(carBenefitValues),
+      providedTo -> validateProvidedTo(carBenefitValues),
+      listPrice -> validateListPrice,
+      employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
+      employeeContribution -> validateEmployeeContribution(carBenefitValues),
+      employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
+      employerContribution -> validateEmployerContribution(carBenefitValues)
+    )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
   private[paye] val startAddCarBenefitAction: ((User, Request[_], Int, Int) => Result) = (user, request, taxYear, employmentSequenceNumber) => {
@@ -115,45 +104,21 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
   }
 }
 
-case class CarBenefitData(providedFrom: Option[LocalDate], carUnavailable: Boolean, numberOfDaysUnavailable: Option[Int], giveBackThisTaxYear: Boolean, providedTo: Option[LocalDate],
-                          listPrice: Option[Int], employeeContributes: Boolean, employeeContribution: Option[Int], employerContributes: Boolean, employerContribution: Option[Int])
+case class CarBenefitData(providedFrom: Option[LocalDate], carUnavailable: Option[Boolean], numberOfDaysUnavailable: Option[Int], giveBackThisTaxYear: Option[Boolean], providedTo: Option[LocalDate],
+                          listPrice: Option[Int], employeeContributes: Option[Boolean], employeeContribution: Option[Int], employerContributes: Option[Boolean], employerContribution: Option[Int])
 
-object CarBenefitData {
-  // TODO: Fix DateTimeUtils or test to make "DateTimeUtils.startOfCurrentTaxYear" to work
-  def fromFormData(providedFrom: Option[LocalDate], carUnavailable : (Option[Boolean], Option[Int]),
-                   giveCarBack: (Option[Boolean], Option[LocalDate]) = (None, Some(TaxYearResolver.endOfCurrentTaxYear)),
-                   listPrice: Option[Int], employeeContribution: (Option[Boolean], Option[Int]), employerContribution: (Option[Boolean], Option[Int])) = {
-    CarBenefitData(providedFrom, carUnavailable._1.getOrElse(false), carUnavailable._2, giveCarBack._1.getOrElse(false), giveCarBack._2,
-      listPrice, employeeContribution._1.getOrElse(false), employeeContribution._2, employerContribution._1.getOrElse(false), employerContribution._2)
-  }
-
-  def toFormData(data: CarBenefitData) = {
-
-    Some(data.providedFrom, (Some(data.carUnavailable), data.numberOfDaysUnavailable), (Some(data.giveBackThisTaxYear), data.providedTo),
-      data.listPrice, (Some(data.employeeContributes), data.employeeContribution), (Some(data.employerContributes), data.employerContribution))
-  }
-
-}
-
+// TODO: Fix DateTimeUtils or test to make "DateTimeUtils.startOfCurrentTaxYear" to work
 
 object CarBenefitFormFields {
   val providedFrom = "providedFrom"
   val carUnavailable = "carUnavailable"
   val numberOfDaysUnavailable = "numberOfDaysUnavailable"
-  val qualifiedCarUnavailable = carUnavailable + "." + carUnavailable
-  val qualifiedNumberOfDaysUnavailable = carUnavailable + "." + numberOfDaysUnavailable
   val giveCarBack = "giveCarBack"
   val giveBackThisTaxYear = "giveBackThisTaxYear"
   val providedTo = "providedTo"
-  val qualifiedGiveBackThisTaxYear = giveCarBack + "." + giveBackThisTaxYear
-  val qualifiedProvidedTo = giveCarBack + "." + providedTo
   val listPrice = "listPrice"
   val employeeContributes = "employeeContributes"
   val employeeContribution = "employeeContribution"
-  val qualifiedEmployeeContributes = employeeContribution + "." + employeeContributes
-  val qualifiedEmployeeContribution = employeeContribution + "." + employeeContribution
   val employerContributes = "employerContributes"
   val employerContribution = "employerContribution"
-  val qualifiedEmployerContributes = employerContribution + "." + employerContributes
-  val qualifiedEmployerContribution = employerContribution + "." + employerContribution
 }

@@ -218,7 +218,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   "Given a user who has car and fuel benefits, removing car benefit " should {
 
-      "In step 1, display the option for the user to use for fuel removal the same or different dates than for the car"  in new WithApplication(FakeApplication())  {
+      "In step 1, display the option for the user to use for fuel removal the same or different values than for the car"  in new WithApplication(FakeApplication())  {
 
         setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
@@ -395,7 +395,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       verify(controller.payeMicroService, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())
     }
 
-    "in step 2, display the calculated value for removing fuel and car benefit on different correct dates" in new WithApplication(FakeApplication()) {
+    "in step 2, display the calculated value for removing fuel and car benefit on different correct values" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       def requestBenefitRemovalFormSubmission(date: Option[LocalDate], fuelDate:Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =

@@ -165,7 +165,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
   "submitting add car benefit" should {
 
 
-    "return 200 when dates form data validates successfully" in new WithApplication(FakeApplication()) {
+    "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
       assertSuccessfulDatesSubmit(Some(inTwoDaysTime), false,  None, false,  None)
@@ -181,7 +181,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertSuccessfulDatesSubmit2(None, false, Some("llama"), false, Some("donkey", "", ""))
     }
 
-    "return 400 and display error when dates form data fails validation" in new WithApplication(FakeApplication()) {
+    "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
       assertFailedDatesSubmit(Some(("2013", "9", "18")), Some("true"), Some("150"), Some("true"), Some("2013","12","31"), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
@@ -369,7 +369,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     }
 
     def assertSuccess(result: Result)  {
-       //todo assert saved entity / keystore capture (e.g. defaults for optional dates)
+       //todo assert saved entity / keystore capture (e.g. defaults for optional values)
 
       status(result) shouldBe 200
     }
@@ -407,16 +407,16 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
                                        employerContributionVal : Option[String] = None) = {
 
         FakeRequest().withFormUrlEncodedBody(Seq(
-          qualifiedCarUnavailable -> carUnavailableVal.getOrElse("").toString,
-          qualifiedNumberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse(""),
-          qualifiedGiveBackThisTaxYear -> giveBackThisTaxYearVal.getOrElse("").toString,
+          carUnavailable -> carUnavailableVal.getOrElse("").toString,
+          numberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse(""),
+          giveBackThisTaxYear -> giveBackThisTaxYearVal.getOrElse("").toString,
           listPrice -> listPriceVal.getOrElse(""),
-          qualifiedEmployeeContributes -> employeeContributesVal.getOrElse(""),
-          qualifiedEmployeeContribution -> employeeContributionVal.getOrElse(""),
-          qualifiedEmployerContributes -> employerContributesVal.getOrElse(""),
-          qualifiedEmployerContribution -> employerContributionVal.getOrElse(""))
+          employeeContributes -> employeeContributesVal.getOrElse(""),
+          employeeContribution -> employeeContributionVal.getOrElse(""),
+          employerContributes -> employerContributesVal.getOrElse(""),
+          employerContribution -> employerContributionVal.getOrElse(""))
           ++ buildDateFormField(providedFrom, providedFromVal)
-          ++ buildDateFormField(qualifiedProvidedTo, providedToVal) : _*)
+          ++ buildDateFormField(providedTo, providedToVal) : _*)
   }
 
 
