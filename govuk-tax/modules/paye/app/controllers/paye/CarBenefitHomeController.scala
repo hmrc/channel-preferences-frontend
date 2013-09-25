@@ -8,12 +8,12 @@ import models.paye.BenefitTypes
 import play.api.Logger
 import org.joda.time._
 import uk.gov.hmrc.utils.{TaxYearResolver, DateTimeUtils}
-import play.api.data.{Mapping, Form}
+import play.api.data.Form
 import play.api.data.Forms._
 import CarBenefitFormFields._
 import controllers.common.validators.Validators
-import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
+import controllers.paye.validation.AddCarBenefitValidator._
 
 class CarBenefitHomeController(timeSource: () => DateTime) extends BaseController with SessionTimeoutWrapper with Benefits with Validators {
 
@@ -53,76 +53,13 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
     }
   }
 
-
-  private def datesForm() = Form[CarBenefitDates](
-    mapping(
-      providedFrom -> dateTuple(false),
-      qualifiedCarUnavailable -> optional(text),
-      qualifiedNumberOfDaysUnavailable -> optional(text),
-      qualifiedGiveBackThisTaxYear -> optional(text),
-      qualifiedProvidedTo -> dateTuple(false)
-    )(CarBenefitDates.apply)(CarBenefitDates.unapply)
-  )
-
-  case class CarBenefitDates(providedFromVal : Option[LocalDate] = Some(TaxYearResolver.startOfCurrentTaxYear),
-                             carUnavailableVal:  Option[String] = None,
-                             numberOfDaysUnavailableVal:  Option[String] = None,
-                             giveBackThisTaxYearVal:  Option[String] = None,
-                             providedToVal: Option[LocalDate] = Some(TaxYearResolver.endOfCurrentTaxYear))
-
   private def getCarBenefitDates(request:Request[_]):CarBenefitDates = {
-    datesForm.bindFromRequest()(request).value.getOrElse(CarBenefitDates())
-  }
-
-  def validateProvidedTo(dates: CarBenefitDates) : Mapping[Option[LocalDate]] = dates.giveBackThisTaxYearVal.getOrElse("false") match {
-    case "true" => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => dates.providedFromVal.getOrElse(TaxYearResolver.startOfCurrentTaxYear).isBefore(d.getOrElse(TaxYearResolver.endOfCurrentTaxYear)))
-    case _ => ignored(None)
-  }
-
-  def validateNumberOfDaysUnavailable(dates: CarBenefitDates) : Mapping[Option[Int]] = dates.carUnavailableVal.getOrElse("false") match {
-    case "true" => {
-      optional(positiveInteger)
-        .verifying("error.number", n => {
-          n.getOrElse(0) <= 999
-        })
-        .verifying("error.paye.add_car_benefit.car_unavailable_too_long", e =>
-        {dates.numberOfDaysUnavailableVal.getOrElse("0").toInt <
-          getDaysBetween(dates.providedFromVal.getOrElse(TaxYearResolver.startOfCurrentTaxYear), dates.providedToVal.getOrElse(TaxYearResolver.endOfCurrentTaxYear))})
-
-    }
-    case _ => {
-      optional(ignored(0))
-    }
-  }
-
-  def getDaysBetween(start: LocalDate, end: LocalDate): Int = {
-    val n = new LocalTime(0)
-    val days = Days.daysBetween(start.toDateTime(n , DateTimeZone.UTC) , end.toDateTime(n , DateTimeZone.UTC) ).getDays()
-    days
-  }
-
-  val taxYearInterval : Interval = new Interval(TaxYearResolver.startOfCurrentTaxYear.toDateTime(new LocalTime(0), DateTimeZone.UTC),
-                                                TaxYearResolver.startOfNextTaxYear.toDateTime(new LocalTime(0), DateTimeZone.UTC))
-  val dateInCurrentTaxYear = dateTuple.verifying(
-    "error.paye.date_not_in_current_tax_year",
-    d => taxYearInterval.contains(d.getOrElse(TaxYearResolver.startOfCurrentTaxYear).toDateTime(new LocalTime(1), DateTimeZone.UTC))
-  )
-  val verifyProvidedFrom = {
-    dateInCurrentTaxYear.verifying("error.paye.date_within_7_days",
-      data => data match
-      {
-        case Some(date) =>
-        {
-           val n = new LocalTime(0)
-           Days.daysBetween(timeSource().toLocalDate.toDateTime(n , DateTimeZone.UTC), date.toDateTime(n , DateTimeZone.UTC)).getDays()  <= 7
-        }
-        case None => true
-      })
+    datesForm.bindFromRequest()(request).value.get
   }
 
   private def carBenefitForm(carBenefitDates: CarBenefitDates) = Form[CarBenefitData](
     mapping(
-      providedFrom -> verifyProvidedFrom,
+      providedFrom -> verifyProvidedFrom(timeSource),
       carUnavailable -> tuple(
         carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
         numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitDates)
@@ -167,9 +104,7 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
           errors => {
             BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber))
           },
-          removeBenefitData => {
-            Ok
-          }
+          removeBenefitData => Ok
         )
       }
       case None => {
@@ -177,7 +112,6 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
         BadRequest
       }
     }
-
   }
 }
 

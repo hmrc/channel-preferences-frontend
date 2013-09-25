@@ -11,11 +11,13 @@ import play.api.data.validation._
 import play.api.data.FormError
 import scala.Some
 import scala.Some
+import scala.Some
 
 trait Validators {
 
-  val dateTuple : Mapping[Option[LocalDate]] = dateTuple(true)
-  def dateTuple(validate : Boolean = true) = tuple(
+  val dateTuple: Mapping[Option[LocalDate]] = dateTuple(true)
+
+  def dateTuple(validate: Boolean = true, default: Option[LocalDate] = None) = tuple(
     year -> optional(text),
     month -> optional(text),
     day -> optional(text)
@@ -28,7 +30,11 @@ trait Validators {
           new LocalDate(year.getOrElse(throw new Exception("Year missing")).toInt, month.getOrElse(throw new Exception("Month missing")).toInt, day.getOrElse(throw new Exception("Day missing")).toInt)
           true
         } catch {
-          case _ => if (validate) {false} else {true}
+          case _ => if (validate) {
+            false
+          } else {
+            true
+          }
         }
       }
     }
@@ -39,15 +45,21 @@ trait Validators {
       try {
         Some(new LocalDate(year.toInt, month.toInt, day.toInt))
       } catch {
-        case e : Exception => { if (validate) {throw e} else { None }}
+        case e: Exception => {
+          if (validate) {
+            throw e
+          } else {
+            default
+          }
+        }
       }
     }
-    case (a,b,c) => None
+    case (a, b, c) => default
   },
   (date: Option[LocalDate]) => date match {
-      case Some(d) => (Some(d.getYear.toString), Some(d.getMonthOfYear.toString), Some(d.getDayOfMonth.toString))
-      case _ => (None, None, None)
-    }
+    case Some(d) => (Some(d.getYear.toString), Some(d.getMonthOfYear.toString), Some(d.getDayOfMonth.toString))
+    case _ => (None, None, None)
+  }
   )
 
   val addressTuple = tuple(
@@ -67,26 +79,41 @@ trait Validators {
 
   // Small text prevents injecting large data into fields
   def smallText = play.api.data.Forms.text(0, 100)
+
   def nonEmptySmallText = play.api.data.Forms.nonEmptyText(0, 100)
+
   def nonEmptyNotBlankSmallText = smallText.verifying("error.required", e => notBlank(e))
+
   def smallEmail = play.api.data.Forms.email.verifying("error.maxLength", e => isValidMaxLength(100)(e))
 
   def positiveInteger = number.verifying("error.positive.number", e => e >= 0)
 
   val phoneNumberErrorKey = "error.agent.phone"
 
-  def validateMandatoryPhoneNumber = { s: String => s.matches("\\d+") }
-  def validateOptionalPhoneNumber = { s: String => s.matches("\\d*") }
-  def validateSaUtr = { s: String => s.matches("\\d{10}") }
+  def validateMandatoryPhoneNumber = {
+    s: String => s.matches("\\d+")
+  }
+
+  def validateOptionalPhoneNumber = {
+    s: String => s.matches("\\d*")
+  }
+
+  def validateSaUtr = {
+    s: String => s.matches("\\d{10}")
+  }
 
   def notBlank(value: String) = !value.trim.isEmpty
+
   def isBlank(value: String) = !notBlank(value)
 
   def isValidMaxLength(maxLength: Int)(value: String): Boolean = value.length <= maxLength
+
   def isValidMinLength(minLength: Int)(value: String): Boolean = value.length >= minLength
 
   def isMainAddressLineLengthValid = isValidMaxLength(28)(_)
+
   def isOptionalAddressLineLengthValid = isValidMaxLength(18)(_)
+
   def isPostcodeLengthValid(value: String) = {
     val trimmedVal = value.replaceAll(" ", "")
     isValidMinLength(5)(trimmedVal) && isValidMaxLength(7)(trimmedVal)
@@ -113,7 +140,6 @@ object DateFields {
   val month = "month"
   val year = "year"
 }
-
 
 
 object AddressFields {
