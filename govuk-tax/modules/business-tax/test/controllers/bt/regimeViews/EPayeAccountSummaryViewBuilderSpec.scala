@@ -15,7 +15,6 @@ import scala.Some
 import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.AmountDue
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
 import uk.gov.hmrc.domain.EmpRef
@@ -76,7 +75,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
   "EPayeAccountSummaryViewBuilder with Non-RTI" should {
     
     "populate the account summary model correctly if the amount paid to date is 0" in {
-      val amountDue = AmountDue(BigDecimal(0))
+      val amountDue = BigDecimal(0)
       val nonRti = NonRTI(amountDue, 2013)
       val accountSummary = EPayeAccountSummary(nonRti = Some(nonRti))
 
@@ -88,7 +87,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     "populate account summary model correctly if the amount paid to date is > 0" in {
-      val amountDue = AmountDue(BigDecimal(100))
+      val amountDue = BigDecimal(100)
       val nonRti = NonRTI(amountDue, 2011)
       val accountSummary = EPayeAccountSummary(nonRti = Some(nonRti))
 
@@ -100,7 +99,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     "populate account summary model correctly if the amount paid to is > 0 and date is 1999" in {
-      val amountDue = AmountDue(BigDecimal(100))
+      val amountDue = BigDecimal(100)
       val nonRti = NonRTI(amountDue, 1999)
       val accountSummary = EPayeAccountSummary(nonRti = Some(nonRti))
 

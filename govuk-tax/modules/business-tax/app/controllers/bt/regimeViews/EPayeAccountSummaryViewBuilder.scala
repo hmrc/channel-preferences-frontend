@@ -73,7 +73,7 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
     val currentTaxYear = nonRti.currentTaxYear
 
     val currentTaxYearWithFollowingYear = createYearDisplayText(currentTaxYear)
-    Seq((paidToDateForPeriod, Seq(MoneyPounds(amountDue.amount), currentTaxYearWithFollowingYear)))
+    Seq((paidToDateForPeriod, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
   }
 
   private def createYearDisplayText(currentTaxYear: Int) : String = {
