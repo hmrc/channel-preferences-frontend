@@ -12,12 +12,16 @@ import play.api.data.Form
 import play.api.data.Forms._
 import CarBenefitFormFields._
 import controllers.common.validators.Validators
-import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator._
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
+import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
+import controllers.common.service.MicroServices
 
-class CarBenefitHomeController(timeSource: () => DateTime) extends BaseController with SessionTimeoutWrapper with Benefits with Validators {
+class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with Validators {
 
-  def this() = this(() => DateTimeUtils.now)
+  def this() = this(() => DateTimeUtils.now, MicroServices.keyStoreMicroService)
 
   def carBenefitHome = WithSessionTimeoutValidation {
     AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectCommand = Some(CarBenefitHomeRedirect)) {
@@ -93,7 +97,10 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
           errors => {
             BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber))
           },
-          removeBenefitData => Ok
+          removeBenefitData => {
+            keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", removeBenefitData)
+            Ok
+          }
         )
       }
       case None => {

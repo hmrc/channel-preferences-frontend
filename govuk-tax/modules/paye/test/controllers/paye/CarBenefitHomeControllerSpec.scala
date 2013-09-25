@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import org.mockito.{Mockito, Matchers}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import org.joda.time.{DateTimeZone, LocalDate}
 import org.scalatest.TestData
@@ -18,20 +18,20 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.utils.DateConverter
 import play.api.mvc.Result
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import CarBenefitDataBuilder._
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter {
 
-  val now: LocalDate = new LocalDate(2013, 10, 3)
-  val inTwoDaysTime = now.plusDays(2)
-  val inThreeDaysTime = now.plusDays(3)
-  val endOfTaxYearMinusOne = new LocalDate(2014, 4, 4)
+  val mockKeyStoreService = mock[KeyStoreMicroService]
 
-  private lazy val controller = new CarBenefitHomeController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC)) with MockMicroServicesForTests
+  private lazy val controller = new CarBenefitHomeController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService) with MockMicroServicesForTests
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
 
     controller.resetAll()
+    Mockito.reset(mockKeyStoreService)
   }
 
   val carBenefitEmployer1 = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 1, null, null, null, null, null, null,
@@ -43,6 +43,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
   val johnDensmoresBenefitsForEmployer1 = Seq(
     carBenefitEmployer1,
     fuelBenefitEmployer1)
+
+  val taxYear = 2013
+  val employmentSeqNumber = 1
 
   "calling carBenefitHome" should {
 
@@ -130,7 +133,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-amount").text shouldBe ""
       doc.select("#fuel-benefit-amount").text shouldBe ""
     }
-
   }
 
   "calling start add car benefit" should {
@@ -161,9 +163,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     }
   }
 
-
   "submitting add car benefit" should {
-
 
     "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
@@ -178,7 +178,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
        setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      assertSuccessfulDatesSubmit2(None, false, Some("llama"), false, Some("donkey", "", ""))
+      assertSuccessfulDatesSubmitWithTuple(None, false, Some("llama"), false, Some("donkey", "", ""))
     }
 
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
@@ -234,7 +234,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedListPriceSubmit(Some("10000.1"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
       assertFailedListPriceSubmit(Some("Ten thousand1"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
       assertFailedListPriceSubmit(Some("I own @ cat"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
-      //TODO: made up error msg, check ok with gail
       assertFailedListPriceSubmit(Some("100000"), "error_q_5", "List price must not be higher than £99999.")
     }
 
@@ -253,7 +252,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployeeContributionSubmit(Some("true"), Some("100.25"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
-      //TODO: made up error msg, check ok with gail
       assertFailedEmployeeContributionSubmit(Some("true"), Some("10000"), "error_q_6", "Capital contribution must not be higher than £9999.")
       assertFailedEmployeeContributionSubmit(None, None, "error_q_6", "Please answer this question.")
     }
@@ -273,12 +271,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployerContributionSubmit(Some("true"), Some("1000.25"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
-      //TODO: made up error msg, check ok with gail
       assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Employer contribution must not be higher than £99999.")
       assertFailedEmployerContributionSubmit(None, None, "error_q_7", "Please answer this question.")
     }
-
-
 
     def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],
                            carUnavailableVal:  Option[String],
@@ -301,16 +296,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
                            giveBackThisTaxYearVal: Boolean,
                            providedToVal: Option[LocalDate]) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
-        Some(localDateToTuple(providedFromVal)),
-        Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
-        Some(giveBackThisTaxYearVal).map(_.toString), Some(localDateToTuple(providedToVal))), 2013, 1)
-
-
-      assertSuccess(result)
-
+      assertSuccessfulDatesSubmitWithTuple(providedFromVal, carUnavailableVal, numberOfDaysUnavailableVal, giveBackThisTaxYearVal, Some(localDateToTuple(providedToVal)))
     }
-    def assertSuccessfulDatesSubmit2(providedFromVal : Option[LocalDate],
+
+    def assertSuccessfulDatesSubmitWithTuple(providedFromVal : Option[LocalDate],
                            carUnavailableVal:  Boolean,
                            numberOfDaysUnavailableVal: Option[String],
                            giveBackThisTaxYearVal: Boolean,
@@ -321,23 +310,29 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
         Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
         Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), 2013, 1)
 
+      val daysUnavailable = try {numberOfDaysUnavailableVal.map(_.toInt)} catch { case _ => None}
 
-      assertSuccess(result)
-
+      val expectedStoredData = CarBenefitDataBuilder(providedFrom = providedFromVal, carUnavailable = Some(carUnavailableVal),
+        numberOfDaysUnavailable = daysUnavailable,
+        giveBackThisTaxYear = Some(giveBackThisTaxYearVal), providedTo = tupleToLocalDate(providedToVal) )
+      assertSuccess(result, expectedStoredData)
     }
 
     def assertFailedListPriceSubmit(listPriceVal : Option[String], errorId: String, errorMessage: String) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal), 2013, 1)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal), taxYear, employmentSeqNumber)
 
       assertFailure(result, errorId, errorMessage)
     }
 
     def assertSuccessfulListPriceSubmit(listPriceVal : Option[Int]) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), 2013, 1)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), taxYear, employmentSeqNumber)
 
-      assertSuccess(result)
+      val expectedStoredData = CarBenefitDataBuilder(listPrice = listPriceVal)
+
+      assertSuccess(result, expectedStoredData)
+
     }
 
     def assertFailedEmployeeContributionSubmit(employeeContributesVal: Option[String], employeeContributionVal : Option[String], errorId: String, errorMessage: String) {
@@ -351,7 +346,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal.map(_.toString)), 2013, 1)
 
-      assertSuccess(result)
+      val expectedStoredData = CarBenefitDataBuilder(employeeContributes = employeeContributesVal, employeeContribution = employeeContributionVal)
+
+      assertSuccess(result, expectedStoredData)
     }
 
      def assertFailedEmployerContributionSubmit(employerContributesVal: Option[String], employerContributionVal : Option[String], errorId: String, errorMessage: String) {
@@ -365,18 +362,20 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal.map(_.toString)), 2013, 1)
 
-      assertSuccess(result)
+      val expectedStoredData = CarBenefitDataBuilder(employerContributes = employerContributesVal, employerContribution = employerContributionVal)
+
+      assertSuccess(result, expectedStoredData)
     }
 
-    def assertSuccess(result: Result)  {
-       //todo assert saved entity / keystore capture (e.g. defaults for optional values)
-
+    def assertSuccess(result: Result, collectedData: CarBenefitData)  {
       status(result) shouldBe 200
+      verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
     }
 
     def assertFailure(result: Result, errorId: String, errorMessage: String) {
       status(result) shouldBe 400
       contentAsString(result) should include(errorMessage)
+      verifyZeroInteractions(mockKeyStoreService)
      // TODO: uncomment
      // val doc = Jsoup.parse(contentAsString(result))
      // doc.select(errorId).text should include(errorMessage)
@@ -392,19 +391,16 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
 
-  private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] =
-                                             Some((now.plusDays(2).getYear.toString,
-                                                   now.plusDays(2).getMonthOfYear.toString,
-                                                   now.plusDays(2).getDayOfMonth.toString)),
-                                       carUnavailableVal:  Option[String] = Some("false"),
-                                       numberOfDaysUnavailableVal: Option[String] = None,
-                                       giveBackThisTaxYearVal: Option[String] = Some("false"),
-                                       providedToVal: Option[(String, String, String)] = None,
-                                       listPriceVal : Option[String] = Some("1000"),
-                                       employeeContributesVal: Option[String] = Some("false"),
-                                       employeeContributionVal : Option[String] = None,
-                                       employerContributesVal: Option[String] = Some("false"),
-                                       employerContributionVal : Option[String] = None) = {
+  private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] = Some(localDateToTuple(defaultProvidedFrom)),
+                                       carUnavailableVal:  Option[String] = Some(defaultCarUnavailable.toString),
+                                       numberOfDaysUnavailableVal: Option[String] = defaultNumberOfDaysUnavailable,
+                                       giveBackThisTaxYearVal: Option[String] = Some(defaultGiveBackThisTaxYear.toString),
+                                       providedToVal: Option[(String, String, String)] = defaultProvidedTo,
+                                       listPriceVal : Option[String] = Some(defaultListPrice.toString),
+                                       employeeContributesVal: Option[String] = Some(defaultEmployeeContributes.toString),
+                                       employeeContributionVal : Option[String] = defaultEmployeeContribution,
+                                       employerContributesVal: Option[String] = Some(defaultEmployerContributes.toString),
+                                       employerContributionVal : Option[String] = defaultEmployerContribution) = {
 
         FakeRequest().withFormUrlEncodedBody(Seq(
           carUnavailable -> carUnavailableVal.getOrElse("").toString,
@@ -424,10 +420,61 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       (date.map(_.getYear.toString).getOrElse(""),date.map(_.getMonthOfYear.toString).getOrElse(""),date.map(_.getDayOfMonth.toString).getOrElse(""))
     }
 
+    def tupleToLocalDate(tupleDate : Option[(String,String,String)]) : Option[LocalDate] = {
+      tupleDate match {
+        case Some((y,m,d)) => try {
+          Some(new LocalDate(y.toInt, m.toInt, d.toInt))
+        } catch {
+          case _ => None
+        }
+        case _ => None
+      }
+    }
+
     def buildDateFormField(fieldName: String, value : Option[(String, String, String)] ) : Seq[(String, String)] = {
       Seq((fieldName + "." + "day" -> value.map(_._3).getOrElse("")),
         (fieldName + "." + "month" -> value.map(_._2).getOrElse("")),
         (fieldName + "." + "year" -> value.map(_._1).getOrElse("")))
     }
+}
 
+object CarBenefitDataBuilder {
+
+  val now: LocalDate = new LocalDate(2013, 10, 3)
+  val inTwoDaysTime = now.plusDays(2)
+  val inThreeDaysTime = now.plusDays(3)
+  val endOfTaxYearMinusOne = new LocalDate(2014, 4, 4)
+  val defaultListPrice = 1000
+  val defaultEmployeeContributes = false
+  val defaultEmployeeContribution = None
+  val defaultEmployerContributes = false
+  val defaultEmployerContribution = None
+  val defaultCarUnavailable = false
+  val defaultNumberOfDaysUnavailable = None
+  val defaultGiveBackThisTaxYear = false
+  val defaultProvidedTo = None
+  val defaultProvidedFrom = Some(now.plusDays(2))
+
+  def apply(providedFrom: Option[LocalDate] = defaultProvidedFrom,
+            carUnavailable: Option[Boolean] = Some(defaultCarUnavailable),
+            numberOfDaysUnavailable: Option[Int] = defaultNumberOfDaysUnavailable,
+            giveBackThisTaxYear: Option[Boolean] = Some(defaultGiveBackThisTaxYear),
+            providedTo: Option[LocalDate] = defaultProvidedTo,
+            listPrice: Option[Int] = Some(defaultListPrice),
+            employeeContributes: Option[Boolean] = Some(defaultEmployeeContributes),
+            employeeContribution: Option[Int] = defaultEmployeeContribution,
+            employerContributes: Option[Boolean] = Some(defaultEmployerContributes),
+            employerContribution: Option[Int] = defaultEmployerContribution ) = {
+
+    CarBenefitData(providedFrom = providedFrom,
+                  carUnavailable = carUnavailable,
+                  numberOfDaysUnavailable = numberOfDaysUnavailable,
+                  giveBackThisTaxYear = giveBackThisTaxYear,
+                  providedTo = providedTo,
+                  listPrice = Some(defaultListPrice),
+                  employeeContributes = Some(defaultEmployeeContributes),
+                  employeeContribution = defaultEmployeeContribution,
+                  employerContributes = Some(defaultEmployerContributes),
+                  employerContribution = defaultEmployerContribution)
+  }
 }

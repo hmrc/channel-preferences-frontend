@@ -56,12 +56,10 @@ object AddCarBenefitValidator extends Validators {
       optional(positiveInteger)
         .verifying("error.number", n => n.getOrElse(0) <= 999 )
         .verifying("error.paye.add_car_benefit.car_unavailable_too_long", e =>
-          {values.numberOfDaysUnavailableVal.getOrElse("0").toInt < DateTimeUtils.daysBetween(values.providedFromVal.get, values.providedToVal.get)})
+          {values.numberOfDaysUnavailableVal.map(_.toInt).getOrElse(0) < DateTimeUtils.daysBetween(values.providedFromVal.get, values.providedToVal.get)})
         .verifying("error.paye.add_car_benefit.missing_days_unavailable", data => !(values.carUnavailableVal.map(_.toBoolean).getOrElse(false) && data.isEmpty))
     }
-    case _ => {
-      optional(ignored(0))
-    }
+    case _ => ignored(None)
   }
 
   private val dateInCurrentTaxYear = dateTuple.verifying(
