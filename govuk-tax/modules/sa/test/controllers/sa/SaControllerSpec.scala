@@ -85,7 +85,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       content should include("address line 4")
       content should include("address line 5")
       content should include("postcode")
-      content should include("Change address")
+      content should include("Change this address")
     }
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
@@ -469,7 +469,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       val result = controller.changeAddressCompleteAction(encodedTransactionId)
 
       val htmlBody = contentAsString(result)
-      htmlBody should include("Thank you for telling us about the change to your details.")
+      htmlBody should include("Thanks")
       htmlBody should include("Transaction ID:")
       htmlBody should include(transactionId)
     }

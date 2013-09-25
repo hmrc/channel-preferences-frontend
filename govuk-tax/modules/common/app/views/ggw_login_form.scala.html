@@ -23,7 +23,7 @@
 	    </div>
 
 	    @formWithErrors.errors("userId").map{ error =>
-		<p class="error userId">Invalid User ID: @Messages(error.message)</p>
+		<p class="error username">Invalid Username: @Messages(error.message)</p>
 	    }
 
 	    <div class="form-field">

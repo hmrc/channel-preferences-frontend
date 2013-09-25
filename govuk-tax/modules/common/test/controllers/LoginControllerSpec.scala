@@ -170,9 +170,9 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentType(result).get shouldBe "text/html"
       charset(result).get shouldBe "utf-8"
       contentAsString(result) should include("form")
-      contentAsString(result) should include("Government Gateway User ID")
-      contentAsString(result) should include("Government Gateway Password")
-      contentAsString(result) should include("Log in")
+      contentAsString(result) should include("Username")
+      contentAsString(result) should include("Password")
+      contentAsString(result) should include("Sign in")
       contentAsString(result) should not include "Invalid"
     }
 
@@ -181,8 +181,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       status(result) shouldBe OK
       contentAsString(result) should include("form")
-      contentAsString(result) should include("Government Gateway User ID")
-      contentAsString(result) should include("Invalid User ID: This field is required")
+      contentAsString(result) should include("Username")
+      contentAsString(result) should include("Invalid Username: This field is required")
       contentAsString(result) should not include "Invalid Password"
 
       session(result).get("userId") shouldBe None
@@ -194,7 +194,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> ""))
 
       status(result) shouldBe OK
-      contentAsString(result) should include("Government Gateway Password")
+      contentAsString(result) should include("Password")
       contentAsString(result) should include("Invalid Password: This field is required")
       contentAsString(result) should not include "Invalid User ID"
 

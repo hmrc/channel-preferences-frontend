@@ -62,7 +62,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
   "The home method" should {
 
-    "display both the Government Gateway name and CESA/SA name for Geoff Fisher and a link to details page of the regimes he has actively enrolled online services for (SA and VAT here)" in new WithApplication(FakeApplication()) {
+    "display both the Government Gateway name for Geoff Fisher and a link to details page of the regimes he has actively enrolled online services for (SA and VAT here)" in new WithApplication(FakeApplication()) {
 
       val utr = SaUtr("1234567890")
       val vrn = Vrn("666777889")
@@ -98,65 +98,11 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       val content = contentAsString(result)
 
       content should include(nameFromGovernmentGateway)
-      content should include("UTR: " + utr)
-      content should include("VRN: " + vrn)
-      content should include("Self-assessment (SA)</a>")
+      content should include("Self Assessment (SA)")
       content should include("href=\"/sa/home\"")
-      content should include("Value Added Tax (VAT)</a>")
-      content should include("href=\"#\"")
+//      content should include("Value Added Tax (VAT)</a>")
+//      content should include("href=\"#\"")
 
-    }
-
-    "display the Government Gateway name for Geoff Fisher and a respective notice if he is not actively enrolled for any online services" in new WithApplication(FakeApplication()) {
-
-      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(paye = None, sa = None, vat = None), Some(new DateTime(1000L)))))
-
-      val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
-        sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
-
-      status(result) should be(200)
-
-      val content = contentAsString(result)
-
-      content should include("You are not currently actively enrolled for any online services")
-      content should not include "Self-assessment (SA)</a>"
-      content should not include "Value Added Tax (VAT)</a>"
-
-    }
-
-    "display the CT UTR of Geoff Fisher if he is enrolled for the CT service" in new WithApplication(FakeApplication()) {
-
-      val ctUtr = CtUtr("ct utr 1234567890")
-      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(), Some(new DateTime(1000L)), ctUtr = Some(ctUtr))))
-
-      val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
-        sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
-
-      status(result) should be(200)
-
-      val content = contentAsString(result)
-
-      content should include(nameFromGovernmentGateway)
-      content should include("CT UTR: " + ctUtr)
-    }
-
-    "display the Employer Reference of Geoff Fisher if he is enrolled for the PAYE service" in new WithApplication(FakeApplication()) {
-
-      val empRef = EmpRef("taxRef", "taxNum")
-      when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(), Some(new DateTime(1000L)), empRef = Some(empRef))))
-
-      val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
-        sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
-
-      status(result) should be(200)
-
-      val content = contentAsString(result)
-
-      content should include(nameFromGovernmentGateway)
-      content should include("Employer Reference: " + empRef)
     }
 
     "display the account balance of a user enrolled for VAT" in new WithApplication(FakeApplication()) {
