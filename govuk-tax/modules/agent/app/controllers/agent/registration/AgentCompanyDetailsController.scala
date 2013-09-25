@@ -23,7 +23,7 @@ class AgentCompanyDetailsController
 
   private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
-      AgentCompanyDetailsFormFields.companyName -> nonEmptyNotBlankSmallText,
+      companyName -> nonEmptyNotBlankSmallText,
       tradingName -> optional(smallText),
       phoneNumbers -> tuple(
         landlineNumber -> optional(smallText.verifying(phoneNumberErrorKey, validateOptionalPhoneNumber)),

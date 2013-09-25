@@ -1,20 +1,22 @@
 package controllers.agent.registration
 
+import views.helpers.RadioButton
+
 object Configuration {
-  val agentTypeOptions: Map[String, String] = Map[String, String](
-    "inBusiness" -> "In business as an agent",
-    "unpaidAgentFamily" -> "Unpaid agent - Friends and family",
-    "unpaidAgentVoluntary" -> "Unpaid agent - Voluntary and Community Sector",
-    "employer" -> "Employer acting for employees"
+  val agentTypeOptions = Seq[RadioButton](
+    RadioButton("inBusiness", "In business as an agent"),
+    RadioButton("unpaidAgentFamily", "Unpaid agent - Friends and family"),
+    RadioButton("unpaidAgentVoluntary", "Unpaid agent - Voluntary and Community Sector"),
+    RadioButton("employer", "Employer acting for employees")
   )
 
-  val legalEntityOptions: Map[String, String] = Map[String, String](
-    "ltdCompany" -> "Limited Company",
-    "partnership" -> "Partnership (e.g. Ordinary Partnership, Limited Partnership, Limited Liability Partnership, Scottish Limited Partnership)",
-    "soleProprietor" -> "Sole Proprietor"
+  val legalEntityOptions: Seq[RadioButton] = Seq[RadioButton](
+    RadioButton("ltdCompany", "Limited Company"),
+    RadioButton("partnership", "Partnership (e.g. Ordinary Partnership, Limited Partnership, Limited Liability Partnership, Scottish Limited Partnership)"),
+    RadioButton("soleProprietor", "Sole Proprietor")
   )
 
-  val professionalBodyOptions: Map[String, String] = Map[String, String](
+  val professionalBodyOptions: Seq[(String, String)] = Seq[(String, String)](
     "associationOfAccountingTechnicians" -> "Association of Accounting Technicians",
     "associationOfCharteredCertifiedAccountants" -> "Association of Chartered Certified Accountants",
     "associationOfInternationalAccountants" -> "Association of International Accountants",
@@ -33,5 +35,5 @@ object Configuration {
   val config = new Configuration();
 }
 
-case class Configuration(agentTypeOptions: Map[String, String] = Configuration.agentTypeOptions, legalEntityOptions: Map[String, String] = Configuration.legalEntityOptions,
-  professionalBodyOptions: Map[String, String] = Configuration.professionalBodyOptions)
+case class Configuration(agentTypeOptions: Seq[RadioButton] = Configuration.agentTypeOptions, legalEntityOptions: Seq[RadioButton] = Configuration.legalEntityOptions,
+  professionalBodyOptions: Seq[(String, String)] = Configuration.professionalBodyOptions)

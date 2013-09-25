@@ -9,25 +9,24 @@ import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import org.joda.time.LocalDate
+import org.joda.time.{DateTimeZone, LocalDate}
 import org.scalatest.TestData
-import controllers.paye.CarBenefitFormFields._
+import CarBenefitFormFields._
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
-import uk.gov.hmrc.common.TaxYearResolver
+import uk.gov.hmrc.utils.DateConverter
+import play.api.mvc.Result
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter {
 
-  val now = DateTimeUtils.now.withDate(2013, 10, 3)
-  val inTwoDaysTime = now.plusDays(2).toLocalDate
-  val inThreeDaysTime = now.plusDays(3).toLocalDate
-  val endOfTaxYearMinusOne = new LocalDate(2013, 4, 4)
+  val now: LocalDate = new LocalDate(2013, 10, 3)
+  val inTwoDaysTime = now.plusDays(2)
+  val inThreeDaysTime = now.plusDays(3)
+  val endOfTaxYearMinusOne = new LocalDate(2014, 4, 4)
 
-  private lazy val controller = new CarBenefitHomeController(timeSource = () => now) with MockMicroServicesForTests
+  private lazy val controller = new CarBenefitHomeController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC)) with MockMicroServicesForTests
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
@@ -162,32 +161,226 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     }
   }
 
+
   "submitting add car benefit" should {
 
 
-    "return 200 when form data validates successfully" in {
-      assertSuccessSubmit(Some(inTwoDaysTime), false,  None, false,  None)
-      assertSuccessSubmit(Some(inTwoDaysTime), true,  Some(15), false,  None)
-      assertSuccessSubmit(Some(inTwoDaysTime), false,  None, true,  Some(endOfTaxYearMinusOne))
-      assertSuccessSubmit(None, false,  None, false,  None)
-      assertSuccessSubmit(None, false,  None, true,  Some(endOfTaxYearMinusOne))
-      assertSuccessSubmit(None, true,  Some(30), true,  Some(endOfTaxYearMinusOne))
+    "return 200 when dates form data validates successfully" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertSuccessfulDatesSubmit(Some(inTwoDaysTime), false,  None, false,  None)
+      assertSuccessfulDatesSubmit(Some(inTwoDaysTime), true,  Some("15"), false,  None)
+      assertSuccessfulDatesSubmit(Some(inTwoDaysTime), false,  None, true,  Some(endOfTaxYearMinusOne))
+      assertSuccessfulDatesSubmit(None, false,  None, false,  None)
+      assertSuccessfulDatesSubmit(None, false,  None, true,  Some(endOfTaxYearMinusOne))
+      assertSuccessfulDatesSubmit(None, true,  Some("30"), true,  Some(endOfTaxYearMinusOne))
+    }
+    "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
+       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertSuccessfulDatesSubmit2(None, false, Some("llama"), false, Some("donkey", "", ""))
     }
 
-    def assertSuccessSubmit(providedFromVal : Option[LocalDate],
-                                       carUnavailableVal:  Boolean,
-                                       numberOfDaysUnavailableVal: Option[Int],
-                                       giveBackThisTaxYearVal: Boolean,
-                                       providedToVal: Option[LocalDate]) {
+    "return 400 and display error when dates form data fails validation" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertFailedDatesSubmit(Some(("2013", "9", "18")), Some("true"), Some("150"), Some("true"), Some("2013","12","31"), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some("2012","1","1"), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), Some("2013","4","5"), "error_q_3", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(None, Some("false"), None, Some("true"),  Some("2014","4","6"), "error_q_3", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), None, "error_q_3", "You must specify when you will be returning your company car.")
+      assertFailedDatesSubmit(Some(localDateToTuple(Some(now.plusDays(8)))), Some("false"), None, Some("false"),  None, "error_q_1", "You must specify a date, which is not more than 7 days in future from today.")
+      assertFailedDatesSubmit(Some("2013","9","18"), Some("true"), Some("250"), Some("false"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some("2013","9","18"), Some("true"), None, Some("true"), Some("2013","9","17"), "error_q_3", "You cannot return your car before you get it.")
+      assertFailedDatesSubmit(None, Some("true"), Some("300"), Some("true"), Some("2013","12","31"), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(None, Some("true"), Some("367"), Some("true"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(None, Some("true"), None, Some("false"), None, "error_q_2", "You must specify the number of consecutive days the car has been unavailable.")
+
+      assertFailedDatesSubmit(None, Some("true"), Some("1367"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedDatesSubmit(None, Some("true"), Some("9.5"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedDatesSubmit(None, Some("true"), Some("&@^adsf"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
+
+      assertFailedDatesSubmit(Some(("2012","1","1")), None, None, Some("false"), None, "error_q_2", "Please answer this question.")
+      assertFailedDatesSubmit(Some(("2012","1","1")), Some("false"), None, None, None, "error_q_3", "Please answer this question.")
+
+      assertFailedDatesSubmit(Some(("2013","5", "")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","","1")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("","5","1")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","32")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","13","1")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2asd","","")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
+
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","10",""), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","","22"), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("","22","10"), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","13","2"), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","12","32"), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("adssda","",""), "error_q_3", "You must specify a valid date")
+    }
+
+    "return 200 when listPrice form data validates successfully" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertSuccessfulListPriceSubmit(Some(1000))
+      assertSuccessfulListPriceSubmit(Some(25000))
+      assertSuccessfulListPriceSubmit(Some(99999))
+    }
+
+    "return 400 and display error when listPrice form data fails validation" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertFailedListPriceSubmit(None, "error_q_5", "You must specify the list price of your company car.")
+      assertFailedListPriceSubmit(Some("999"), "error_q_5", "List price must be greater than £1000.")
+      assertFailedListPriceSubmit(Some("10000.1"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedListPriceSubmit(Some("Ten thousand1"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedListPriceSubmit(Some("I own @ cat"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
+      //TODO: made up error msg, check ok with gail
+      assertFailedListPriceSubmit(Some("100000"), "error_q_5", "List price must not be higher than £99999.")
+    }
+
+    "return 200 when employeeContribution form data validates successfully" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertSuccessfulEmployeeContributionSubmit(Some(false), None)
+      assertSuccessfulEmployeeContributionSubmit(Some(true), Some(1000))
+      assertSuccessfulEmployeeContributionSubmit(Some(true), Some(9999))
+    }
+
+    "return 400 and display error when employeeContribution form data fails validation" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertFailedEmployeeContributionSubmit(Some("true"), None, "error_q_6", "You must specify how much you paid towards the cost of the car.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("100.25"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
+      //TODO: made up error msg, check ok with gail
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("10000"), "error_q_6", "Capital contribution must not be higher than £9999.")
+      assertFailedEmployeeContributionSubmit(None, None, "error_q_6", "Please answer this question.")
+    }
+
+    "return 200 when employers form data validates successfully" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertSuccessfulEmployerContributionSubmit(Some(false), None)
+      assertSuccessfulEmployerContributionSubmit(Some(true), Some(1000))
+      assertSuccessfulEmployerContributionSubmit(Some(true), Some(99999))
+    }
+
+    "return 400 and display error when employerContribution form data fails validation" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertFailedEmployerContributionSubmit(Some("true"), None, "error_q_7", "You must specify how much you pay your employer towards the cost of the car.")
+      assertFailedEmployerContributionSubmit(Some("true"), Some("1000.25"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedEmployerContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedEmployerContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
+      //TODO: made up error msg, check ok with gail
+      assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Employer contribution must not be higher than £99999.")
+      assertFailedEmployerContributionSubmit(None, None, "error_q_7", "Please answer this question.")
+    }
+
+
+
+    def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],
+                           carUnavailableVal:  Option[String],
+                           numberOfDaysUnavailableVal: Option[String],
+                           giveBackThisTaxYearVal: Option[String],
+                           providedToVal: Option[(String, String, String)],
+                           errorId: String,
+                           errorMessage: String) {
+
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
         providedFromVal, carUnavailableVal, numberOfDaysUnavailableVal,
-        giveBackThisTaxYearVal, providedToVal))
+        giveBackThisTaxYearVal, providedToVal), 2013, 1)
 
-      //todo assert saved entity / keystore capture (e.g. defaults for optional dates)
+      assertFailure(result, errorId, errorMessage)
+    }
+
+    def assertSuccessfulDatesSubmit(providedFromVal : Option[LocalDate],
+                           carUnavailableVal:  Boolean,
+                           numberOfDaysUnavailableVal: Option[String],
+                           giveBackThisTaxYearVal: Boolean,
+                           providedToVal: Option[LocalDate]) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
+        Some(localDateToTuple(providedFromVal)),
+        Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
+        Some(giveBackThisTaxYearVal).map(_.toString), Some(localDateToTuple(providedToVal))), 2013, 1)
+
+
+      assertSuccess(result)
+
+    }
+    def assertSuccessfulDatesSubmit2(providedFromVal : Option[LocalDate],
+                           carUnavailableVal:  Boolean,
+                           numberOfDaysUnavailableVal: Option[String],
+                           giveBackThisTaxYearVal: Boolean,
+                           providedToVal: Option[(String, String, String)]) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
+        Some(localDateToTuple(providedFromVal)),
+        Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
+        Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), 2013, 1)
+
+
+      assertSuccess(result)
+
+    }
+
+    def assertFailedListPriceSubmit(listPriceVal : Option[String], errorId: String, errorMessage: String) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal), 2013, 1)
+
+      assertFailure(result, errorId, errorMessage)
+    }
+
+    def assertSuccessfulListPriceSubmit(listPriceVal : Option[Int]) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), 2013, 1)
+
+      assertSuccess(result)
+    }
+
+    def assertFailedEmployeeContributionSubmit(employeeContributesVal: Option[String], employeeContributionVal : Option[String], errorId: String, errorMessage: String) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal, employeeContributionVal = employeeContributionVal), 2013, 1)
+
+      assertFailure(result, errorId, errorMessage)
+    }
+
+    def assertSuccessfulEmployeeContributionSubmit(employeeContributesVal: Option[Boolean], employeeContributionVal : Option[Int]) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal.map(_.toString)), 2013, 1)
+
+      assertSuccess(result)
+    }
+
+     def assertFailedEmployerContributionSubmit(employerContributesVal: Option[String], employerContributionVal : Option[String], errorId: String, errorMessage: String) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal, employerContributionVal = employerContributionVal), 2013, 1)
+
+      assertFailure(result, errorId, errorMessage)
+    }
+
+    def assertSuccessfulEmployerContributionSubmit(employerContributesVal: Option[Boolean], employerContributionVal : Option[Int]) {
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal.map(_.toString)), 2013, 1)
+
+      assertSuccess(result)
+    }
+
+    def assertSuccess(result: Result)  {
+       //todo assert saved entity / keystore capture (e.g. defaults for optional dates)
 
       status(result) shouldBe 200
     }
 
+    def assertFailure(result: Result, errorId: String, errorMessage: String) {
+      status(result) shouldBe 400
+      contentAsString(result) should include(errorMessage)
+     // TODO: uncomment
+     // val doc = Jsoup.parse(contentAsString(result))
+     // doc.select(errorId).text should include(errorMessage)
+    }
   }
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
@@ -199,17 +392,42 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
 
+  private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] =
+                                             Some((now.plusDays(2).getYear.toString,
+                                                   now.plusDays(2).getMonthOfYear.toString,
+                                                   now.plusDays(2).getDayOfMonth.toString)),
+                                       carUnavailableVal:  Option[String] = Some("false"),
+                                       numberOfDaysUnavailableVal: Option[String] = None,
+                                       giveBackThisTaxYearVal: Option[String] = Some("false"),
+                                       providedToVal: Option[(String, String, String)] = None,
+                                       listPriceVal : Option[String] = Some("1000"),
+                                       employeeContributesVal: Option[String] = Some("false"),
+                                       employeeContributionVal : Option[String] = None,
+                                       employerContributesVal: Option[String] = Some("false"),
+                                       employerContributionVal : Option[String] = None) = {
 
-  private def newRequestForSaveAddCarBenefit(providedFromVal : Option[LocalDate] = Some(inTwoDaysTime),
-                                       carUnavailableVal:  Boolean = false,
-                                       numberOfDaysUnavailableVal: Option[Int] = Some(10) ,
-                                       giveBackThisTaxYearVal: Boolean = true,
-                                       providedToVal: Option[LocalDate] = Some(inThreeDaysTime)) =
+        FakeRequest().withFormUrlEncodedBody(Seq(
+          qualifiedCarUnavailable -> carUnavailableVal.getOrElse("").toString,
+          qualifiedNumberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse(""),
+          qualifiedGiveBackThisTaxYear -> giveBackThisTaxYearVal.getOrElse("").toString,
+          listPrice -> listPriceVal.getOrElse(""),
+          qualifiedEmployeeContributes -> employeeContributesVal.getOrElse(""),
+          qualifiedEmployeeContribution -> employeeContributionVal.getOrElse(""),
+          qualifiedEmployerContributes -> employerContributesVal.getOrElse(""),
+          qualifiedEmployerContribution -> employerContributionVal.getOrElse(""))
+          ++ buildDateFormField(providedFrom, providedFromVal)
+          ++ buildDateFormField(qualifiedProvidedTo, providedToVal) : _*)
+  }
 
-        FakeRequest().withFormUrlEncodedBody(providedFrom -> providedFromVal.map(formatToString(_)).getOrElse(""),
-          carUnavailable -> carUnavailableVal.toString,
-          numberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse("").toString,
-          giveBackThisTaxYear -> giveBackThisTaxYearVal.toString,
-          providedTo -> providedToVal.map(formatToString(_)).getOrElse(""))
+
+    def localDateToTuple(date : Option[LocalDate]) : (String, String, String) = {
+      (date.map(_.getYear.toString).getOrElse(""),date.map(_.getMonthOfYear.toString).getOrElse(""),date.map(_.getDayOfMonth.toString).getOrElse(""))
+    }
+
+    def buildDateFormField(fieldName: String, value : Option[(String, String, String)] ) : Seq[(String, String)] = {
+      Seq((fieldName + "." + "day" -> value.map(_._3).getOrElse("")),
+        (fieldName + "." + "month" -> value.map(_._2).getOrElse("")),
+        (fieldName + "." + "year" -> value.map(_._1).getOrElse("")))
+    }
 
 }

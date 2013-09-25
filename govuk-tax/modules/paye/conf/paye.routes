@@ -7,5 +7,7 @@ POST        /benefits/:kinds/:year/:employmentSequenceNumber/remove        @cont
 POST        /benefits/:kinds/:year/:employmentSequenceNumber/confirm      @controllers.paye.RemoveBenefitController.confirmBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
 GET         /benefits/:kinds/confirmation/:oid                             @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, oid: String)
 
-GET         /car-benefit-home                                               @controllers.paye.CarBenefitHomeController.carBenefitHome
+GET         /car-benefit/home                                               @controllers.paye.CarBenefitHomeController.carBenefitHome
+GET         /car-benefit/:year/:employmentSequenceNumber/add                @controllers.paye.CarBenefitHomeController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/add                @controllers.paye.CarBenefitHomeController.saveAddCarBenefit(year: Int, employmentSequenceNumber: Int)
 

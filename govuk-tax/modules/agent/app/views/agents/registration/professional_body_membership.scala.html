@@ -1,4 +1,4 @@
-@(agentForm:Form[controllers.agent.registration.AgentProfessionalBodyMembership], professionalBodyOptions: Map[String, String])
+@(agentForm:Form[controllers.agent.registration.AgentProfessionalBodyMembership], professionalBodyOptions: Seq[(String, String)])
 
 @import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 
@@ -11,7 +11,8 @@
         @helpers.dropdown(
             agentForm(qualifiedProfessionalBody),
             professionalBodyOptions,
-            '_label -> "Select a Professional Body:"
+            '_label -> "Select a Professional Body:",
+            '_emptyValueText -> Messages("dropdown.please.select")
         )
 
         @helpers.input(agentForm(qualifiedMembershipNumber), '_label -> "Membership Number:", '_error -> agentForm.error("professionalBodyMembership") )

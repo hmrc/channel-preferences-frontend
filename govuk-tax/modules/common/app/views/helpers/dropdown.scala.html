@@ -1,4 +1,4 @@
-@(field: play.api.data.Field, elementOptions: Map[String, String], args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+@(field: play.api.data.Field, elementOptions: Seq[(String, String)], args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
 
 @import play.api.i18n._
 @import views.html.helper._
@@ -8,10 +8,10 @@
 @value = @{ field.value match { case Some(x) => x case None => "" case x => x }}
 
 <div class="@elements.args.get('_groupDivClass) @if(elements.hasErrors) {error}">
-    <label for="@elements.field.name"><h4>@elements.label</h4></label>
+    <label for="@elements.field.name" class="@elements.args.get('_labelClass)">@elements.label</label>
     @if(elements.args.contains('_additionalTitleText)){<p>@elements.args.get('_additionalTitleText)</p>}
     <select id="@elements.field.name" name="@elements.field.name">
-        <option value="">Please select</option>
+        <option value="">@elements.args.get('_emptyValueText)</option>
         @for(option <- elementOptions) {
             <option
                     id="@elements.field.name-@option._1"

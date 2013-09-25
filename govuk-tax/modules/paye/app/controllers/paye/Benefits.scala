@@ -1,16 +1,16 @@
 package controllers.paye
 
-import uk.gov.hmrc.common.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import models.paye.matchers.transactions._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import controllers.common.ActionWrappers
+import uk.gov.hmrc.utils.TaxYearResolver
 
 trait Benefits extends ActionWrappers {
 
   def findExistingBenefit(user: User, employmentNumber: Int, benefitType: Int): Option[Benefit] = {
-    val taxYear = TaxYearResolver()
+    val taxYear = TaxYearResolver.currentTaxYear
     val benefits = user.regimes.paye.get.benefits(taxYear)
 
     benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {

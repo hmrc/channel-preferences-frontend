@@ -9,13 +9,13 @@ import play.api.data.Forms._
 import org.joda.time.LocalDate
 import models.paye._
 import models.paye.BenefitTypes._
-import uk.gov.hmrc.common.TaxYearResolver
 import controllers.common.{SessionTimeoutWrapper, BaseController}
 import scala.collection.mutable
 import controllers.paye.validation.RemoveBenefitValidator._
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.RemoveBenefitFormData
+import uk.gov.hmrc.utils.TaxYearResolver
 
 class RemoveBenefitController extends BaseController with SessionTimeoutWrapper with Benefits {
 
@@ -37,7 +37,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver()))
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver.currentTaxYear))
       val benefitType = benefit.benefit.benefitType
       val dates = getCarFuelBenefitDates(request)
 
@@ -52,7 +52,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver()))
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver.currentTaxYear))
       val unremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
 
       updateBenefitForm(benefitStartDate, unremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
@@ -221,7 +221,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     }
 
     private def getBenefitMatching(kind: Int, user: User, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
-      val taxYear = TaxYearResolver()
+      val taxYear = TaxYearResolver.currentTaxYear
       val benefit = user.regimes.paye.get.benefits(taxYear).find(
         b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
 

@@ -10,11 +10,12 @@ import play.api.Logger
 import scala.Predef._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
+import uk.gov.hmrc.utils.TaxYearResolver
 
 object PortalDestinationUrlBuilder extends CookieEncryption {
 
   def build(request: Request[AnyRef], user: User)(destinationPathKey: String): String = {
-    val currentTaxYear = TaxYearResolver.currentTaxYear(new LocalDate)
+    val currentTaxYear = TaxYearResolver.currentTaxYear
     val saUtr = user.userAuthority.saUtr
     val vrn = user.userAuthority.vrn
     val affinityGroup = parseOrExceptionFromSession(request, "affinityGroup")

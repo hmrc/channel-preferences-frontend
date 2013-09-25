@@ -6,6 +6,23 @@ error.paye.benefit.date.mandatory=Please enter a date
 error.paye.benefit.choice.mandatory=Please select an option below
 error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate=Invalid date: Return date for fuel cannot be after car return date
 error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
+error.paye.add_car_benefit.missing_employer_contribution=You must specify how much you pay your employer towards the cost of the car.
+error.paye.add_car_benefit.missing_employee_contribution=You must specify how much you paid towards the cost of the car.
+error.paye.add_car_benefit.missing_days_unavailable=You must specify the number of consecutive days the car has been unavailable.
+error.paye.add_car_benefit.missing_car_return_date=You must specify when you will be returning your company car.
+error.paye.add_car_benefit.car_unavailable_too_long=Car cannot be unavailable for longer than the total time you have a company car for.
+error.paye.date_not_in_current_tax_year=You must specify a date within the current tax year.
+error.paye.date_within_7_days=You must specify a date, which is not more than 7 days in future from today.
+error.paye.providedTo_after_providedFrom=You cannot return your car before you get it.
+error.paye.list_price_mandatory=You must specify the list price of your company car.
+error.paye.list_price_less_than_1000=List price must be greater than £1000.
+error.paye.list_price_greater_than_99999=List price must not be higher than £99999.
+error.paye.employee_contribution_greater_than_9999=Capital contribution must not be higher than £9999.
+error.paye.employer_contribution_greater_than_99999=Employer contribution must not be higher than £99999.
+
+error.number=Please use whole numbers only, not decimals or other characters.
+
+error.paye.answer_mandatory=Please answer this question.
 
 recent.change.removeBenefits.accepted=On {0}, you removed your company {1} benefit from {2}. This is being processed and you will receive a new Tax Code within 2 days.
 recent.change.removeBenefits.completed=On {0}, you removed your company {1} benefit from {2}. This has been processed and your new Tax Code is {3}. {2} have been notified.
@@ -19,3 +36,5 @@ benefitType.31.title=car
 
 your.employer=Your employer
 
+
+paye.add_car_benefit.question1=When did {0} provide your new company car?

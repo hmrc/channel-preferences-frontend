@@ -41,4 +41,6 @@ object Global extends WithFilters(MetricsFilter) {
 
     reporter.start(app.configuration.getLong(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(10L), TimeUnit.SECONDS)
   }
+
+
 }

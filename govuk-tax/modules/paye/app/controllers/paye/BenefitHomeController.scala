@@ -6,8 +6,8 @@ import views.html.paye._
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.DisplayBenefits
-import uk.gov.hmrc.common.TaxYearResolver
 import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
+import uk.gov.hmrc.utils.TaxYearResolver
 
 class BenefitHomeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -16,7 +16,7 @@ class BenefitHomeController extends BaseController with ActionWrappers with Sess
   })
 
   private[paye] val listBenefitsAction: (User, Request[_]) => Result = (user, request) => {
-    val taxYear = TaxYearResolver()
+    val taxYear = TaxYearResolver.currentTaxYear
     val benefits = user.regimes.paye.get.benefits(taxYear)
     val employments = user.regimes.paye.get.employments(taxYear)
     val transactions = user.regimes.paye.get.recentAcceptedTransactions ++

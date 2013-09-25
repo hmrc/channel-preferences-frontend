@@ -26,7 +26,7 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.CalculationResult
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.TaxYearResolver
+import uk.gov.hmrc.utils.TaxYearResolver
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
@@ -314,7 +314,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val fuelCalculationResult = CalculationResult(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
       when(controller.payeMicroService.calculateWithdrawBenefit(fuelBenefit, withdrawDate)).thenReturn(fuelCalculationResult)
 
-      val dateintaxyear = new LocalDate(TaxYearResolver())
+      val dateintaxyear = TaxYearResolver.startOfCurrentTaxYear
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), Some(fuelDate), true, true), "31", 2013, 2)
 
       status(result) shouldBe BAD_REQUEST
