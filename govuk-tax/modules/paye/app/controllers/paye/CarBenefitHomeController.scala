@@ -23,6 +23,10 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
 
   def this() = this(() => DateTimeUtils.now, MicroServices.keyStoreMicroService)
 
+  private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
+  private[paye] def startOfCurrentTaxYear = TaxYearResolver.startOfCurrentTaxYear
+  private[paye] def endOfCurrentTaxYear = TaxYearResolver.endOfCurrentTaxYear
+
   def carBenefitHome = WithSessionTimeoutValidation {
     AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectCommand = Some(CarBenefitHomeRedirect)) {
       user => request => carBenefitHomeAction(user, request)
@@ -42,7 +46,6 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
   }
 
   private[paye] val carBenefitHomeAction: ((User, Request[_]) => Result) = (user, request) => {
-    val currentTaxYear = TaxYearResolver.currentTaxYear
     user.regimes.paye.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType) match {
       case Some(employment) => {
         val carBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.CAR)
@@ -58,7 +61,7 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
   }
 
   private def getCarBenefitDates(request:Request[_]):CarBenefitValues = {
-    datesForm.bindFromRequest()(request).value.get
+    datesForm(startOfCurrentTaxYear, endOfCurrentTaxYear).bindFromRequest()(request).value.get
   }
 
   private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](

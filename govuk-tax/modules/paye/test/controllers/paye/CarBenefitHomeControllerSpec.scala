@@ -16,7 +16,7 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.utils.DateConverter
+import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
 import play.api.mvc.Result
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import CarBenefitDataBuilder._
@@ -25,7 +25,11 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
   val mockKeyStoreService = mock[KeyStoreMicroService]
 
-  private lazy val controller = new CarBenefitHomeController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService) with MockMicroServicesForTests
+  private lazy val controller = new CarBenefitHomeController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService) with MockMicroServicesForTests {
+    override def currentTaxYear = 2013
+    override def startOfCurrentTaxYear = new LocalDate(2013, 4, 6)
+    override def endOfCurrentTaxYear = new LocalDate(2014, 4, 5)
+  }
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
