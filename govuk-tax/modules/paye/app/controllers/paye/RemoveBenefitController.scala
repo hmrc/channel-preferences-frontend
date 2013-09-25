@@ -42,8 +42,8 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
       val dates = getCarFuelBenefitDates(request)
 
       if (benefitType == CAR) {
-        val unremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
-        Ok(remove_car_benefit_form(benefit, unremovedFuel , updateBenefitForm(benefitStartDate, unremovedFuel, dates)))
+        val carWithUnremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
+        Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel , updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates)))
       } else {
         Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates)))
       }
@@ -53,9 +53,9 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
       val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver.currentTaxYear))
-      val unremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
+      val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
 
-      updateBenefitForm(benefitStartDate, unremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
+      updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
