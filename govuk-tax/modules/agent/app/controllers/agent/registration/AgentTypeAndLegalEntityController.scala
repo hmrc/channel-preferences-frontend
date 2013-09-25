@@ -24,10 +24,10 @@ class AgentTypeAndLegalEntityController
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
       AgentTypeAndLegalEntityFormFields.agentType -> nonEmptySmallText.verifying("error.illegal.value", v => {
-        Configuration.config.agentTypeOptions.contains(v)
+        Configuration.config.agentTypeOptions.exists(_.key == v)
       }),
       AgentTypeAndLegalEntityFormFields.legalEntity -> nonEmptySmallText.verifying("error.illegal.value", v => {
-        Configuration.config.legalEntityOptions.contains(v)
+        Configuration.config.legalEntityOptions.exists(_.key == v)
       })
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
