@@ -1,12 +1,13 @@
 package controllers.bt
 
+import ct.CtMicroService
 import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.domain._
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import views.helpers.RenderableMessage
 import views.html.make_a_payment_landing
-import controllers.bt.regimeViews.{SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
+import controllers.bt.regimeViews.{CtAccountSummaryViewBuilder, SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.domain.{SaUtr, EmpRef, Vrn, CtUtr}
@@ -14,7 +15,7 @@ import uk.gov.hmrc.domain.{SaUtr, EmpRef, Vrn, CtUtr}
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def this() = {
-    this(new AccountSummariesFactory(new SaMicroService(), new VatMicroService()))
+    this(new AccountSummariesFactory(new SaMicroService(), new VatMicroService(), new CtMicroService))
   }
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
@@ -67,12 +68,13 @@ abstract class LoggedInUser(implicit user: User) {
 
 case class AccountSummaries(regimes: Seq[AccountSummary])
 
-class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService){
+class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService, ctMicroService : CtMicroService){
 
   def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
     val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
     val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build()
-    new AccountSummaries(Seq(saRegime, vatRegime).flatten)
+    val ctRegime = CtAccountSummaryViewBuilder(buildPortalUrl, user, ctMicroService).build()
+    new AccountSummaries(Seq(saRegime, vatRegime, ctRegime).flatten)
   }
 }
 

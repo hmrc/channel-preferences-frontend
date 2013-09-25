@@ -1,5 +1,6 @@
 package controllers.bt
 
+import ct.CtMicroService
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import java.net.URI
@@ -32,15 +33,17 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
   private lazy val mockSaMicroService = mock[SaMicroService]
   private lazy val mockVatMicroService = mock[VatMicroService]
   private lazy val mockPayeMicroService = mock[PayeMicroService]
+  private lazy val mockCtMicroService = mock[CtMicroService]
 
   private def dateTime = () => DateTimeProvider.now()
   private def sessionTimeout : String = dateTime().getMillis.toString
 
-  private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaMicroService, mockVatMicroService)) {
+  private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaMicroService, mockVatMicroService, mockCtMicroService)) {
     override lazy val payeMicroService = mockPayeMicroService
     override lazy val saMicroService = mockSaMicroService
     override lazy val vatMicroService = mockVatMicroService
     override lazy val authMicroService = mockAuthMicroService
+    override lazy val ctMicroService = mockCtMicroService
   }
 
   private val nameFromSa = SaName("Mr.", "Geoff", None, "Fisher", Some("From SA"))

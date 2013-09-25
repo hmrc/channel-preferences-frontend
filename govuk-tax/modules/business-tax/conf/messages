@@ -11,6 +11,26 @@ vat.error.message.summaryUnavailable.2= the VAT Registration Number that you hav
 vat.error.message.summaryUnavailable.3= you have only just activated this service and there is a short delay before the information is available to view.
 vat.error.message.summaryUnavailable.4= If you do not think either of the above reasons apply you can get more help {0}
 
+ct.message.0={0}
+ct.message.1=Your account currently shows a balance of {0}
+
+ct.accountSummary.linkText.accountDetails=View account details
+ct.accountSummary.linkText.makeAPayment=Make a payment
+ct.accountSummary.linkText.helpDesk=here
+
+ct.error.message.summaryUnavailable.1= We are currently unable to display your account information.  This may be because:
+ct.error.message.summaryUnavailable.2= - there is no information to view at this time
+ct.error.message.summaryUnavailable.3= - you have only just activated this service and there is a short delay before the information is available to view.
+ct.error.message.summaryUnavailable.4= If you do not this either of the above reasons apply, please contact the Online Services Helpdesk.
+
+
+
+
+
+
+
+
+
 sa.message.nothingToPay=You have nothing to pay.
 sa.message.amountDueForPayment={0} is now due for payment.
 sa.message.interestApplicable=Interest may be charged on late payments of amounts due now.

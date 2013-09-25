@@ -7,13 +7,14 @@ import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }
 import play.api.mvc.{ Session, Request }
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.domain.{Vrn, SaUtr}
+import uk.gov.hmrc.domain.{CtUtr, Vrn, SaUtr}
 
 class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   val mockConfigValues = Map("govuk-tax.Test.portal.destinationPath.someDestinationPathKey" -> "/utr/<utr>/year/<year>",
     "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "/utr/<utr>/affinitygroup/<affinitygroup>/year/<year>",
     "govuk-tax.Test.portal.destinationPath.testVatAccountDetails" -> "/vat/trader/<vrn>/account",
+    "govuk-tax.Test.portal.destinationPath.testCtAccountDetails" -> "/corporation-tax/org/<ctutr>/account",
     "govuk-tax.Test.portal.destinationRoot" -> "http://someserver:8080",
     "cookie.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ=="
   )
@@ -107,6 +108,42 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
       val actualDestinationUrl = portalUrlBuilder("testVatAccountDetails")
 
       actualDestinationUrl should startWith("""http://someserver:8080/vat/trader/<vrn>/account""")
+    }
+
+    "return a URL which is resolved using a ctUtr parameter" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+      val mockRequest = mock[Request[AnyRef]]
+      val mockSession = mock[Session]
+      val mockUser = mock[User]
+      val mockUserAuthority = mock[UserAuthority]
+      val ctUtr = "someCtUtr"
+
+      when(mockRequest.session).thenReturn(mockSession)
+      when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
+      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
+      when(mockUserAuthority.ctUtr).thenReturn(Some(CtUtr(ctUtr)))
+
+      val portalUrlBuilder = PortalDestinationUrlBuilder.build(mockRequest, mockUser) _
+      val actualDestinationUrl = portalUrlBuilder("testCtAccountDetails")
+
+      actualDestinationUrl should startWith("""http://someserver:8080/corporation-tax/org/someCtUtr/account""")
+    }
+
+    "return an invalid URL when we request a link requiring a ctUtr parameter but the ctUtr is missing" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+      val mockRequest = mock[Request[AnyRef]]
+      val mockSession = mock[Session]
+      val mockUser = mock[User]
+      val mockUserAuthority = mock[UserAuthority]
+      val ctUtr = "someCtUtr"
+
+      when(mockRequest.session).thenReturn(mockSession)
+      when(mockSession.get("affinityGroup")).thenReturn(Some(encrypt("someaffinitygroup")))
+      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
+      when(mockUserAuthority.ctUtr).thenReturn(None)
+
+      val portalUrlBuilder = PortalDestinationUrlBuilder.build(mockRequest, mockUser) _
+      val actualDestinationUrl = portalUrlBuilder("testCtAccountDetails")
+
+      actualDestinationUrl should startWith("""http://someserver:8080/corporation-tax/org/<ctutr>/account""")
     }
 
 

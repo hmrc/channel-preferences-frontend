@@ -1,5 +1,6 @@
 package controllers.common.service
 
+import ct.CtMicroService
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 
 
@@ -27,7 +28,9 @@ trait MicroServices {
   implicit lazy val keyStoreMicroService = new KeyStoreMicroService()
   implicit lazy val agentMicroService = new AgentMicroService()
   implicit lazy val vatMicroService = new VatMicroService()
+  implicit lazy val ctMicroService = new CtMicroService()
   implicit lazy val epayeConnector = new EPayeConnector()
+
 }
 
 object MicroServices extends MicroServices

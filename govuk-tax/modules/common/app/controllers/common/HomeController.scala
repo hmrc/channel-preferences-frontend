@@ -17,10 +17,11 @@ class HomeController extends BaseController with ActionWrappers with SessionTime
         Logger.debug("Choosing home for $user")
 
         user.regimes match {
-          case RegimeRoots(Some(paye), None, None, None) => FrontEndRedirect.forSession(session)
-          case RegimeRoots(None, Some(sa), _, _) => FrontEndRedirect.toBusinessTax
-          case RegimeRoots(None, _, Some(vat), _) => FrontEndRedirect.toBusinessTax
-          case RegimeRoots(None, _, _, Some(epaye)) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(Some(paye), None, None, None, None) => FrontEndRedirect.forSession(session)
+          case RegimeRoots(None, Some(sa), _, _, _) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(None, _, Some(vat), _, _) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(None, _, _, Some(epaye), _) => FrontEndRedirect.toBusinessTax
+          case RegimeRoots(None, _, _, _, Some(ct)) => FrontEndRedirect.toBusinessTax
           case _ => Unauthorized(login.render())
         }
 

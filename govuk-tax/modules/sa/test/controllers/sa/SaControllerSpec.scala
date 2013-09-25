@@ -45,7 +45,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
         "individual/details/main-address" -> "/sa/individual/123456789012/details/main-address")
     )
 
-    User(id, ua, RegimeRoots(None, Some(saRoot), None, None), Some(nameFromGovernmentGateway), None)
+    User(id, ua, RegimeRoots(None, Some(saRoot), None, None, None), Some(nameFromGovernmentGateway), None)
   }
 
   private val nameFromSa = SaName("Mr.", "Geoff", None, "Fisher", Some("From SA"))
