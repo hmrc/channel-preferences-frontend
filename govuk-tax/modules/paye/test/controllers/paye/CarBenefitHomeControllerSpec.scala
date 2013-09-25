@@ -161,9 +161,24 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       status(result) shouldBe 400
     }
+    "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1)
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some("/car-benefit/home")
+    }
   }
 
   "submitting add car benefit" should {
+
+    "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumber)
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some("/car-benefit/home")
+    }
 
     "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)

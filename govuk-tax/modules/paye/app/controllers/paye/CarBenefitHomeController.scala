@@ -76,38 +76,55 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
-  private[paye] val startAddCarBenefitAction: ((User, Request[_], Int, Int) => Result) = (user, request, taxYear, employmentSequenceNumber) => {
-    val dates = getCarBenefitDates(request)
-    user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
-      case Some(employment) => {
-        Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber))
-      }
-      case None => {
-        Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
-        BadRequest
+  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
+    (request, user, taxYear, employmentSequenceNumber) => {
+      val dates = getCarBenefitDates(request)
+      user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
+        case Some(employment) => {
+          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber))
+        }
+        case None => {
+          Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
+          BadRequest
+        }
       }
     }
   }
 
-  private[paye] val saveAddCarBenefitAction: ((User, Request[_], Int, Int) => Result) = (user, request, taxYear, employmentSequenceNumber) => {
-    user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
-      case Some(employment) => {
-        val dates = getCarBenefitDates(request)
-        carBenefitForm(dates).bindFromRequest()(request).fold(
-          errors => {
-            BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber))
-          },
-          removeBenefitData => {
-            keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", removeBenefitData)
-            Ok
-          }
-        )
-      }
-      case None => {
-        Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
-        BadRequest
+  private[paye] val saveAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
+    (request, user, taxYear, employmentSequenceNumber) => {
+      user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
+        case Some(employment) => {
+          val dates = getCarBenefitDates(request)
+          carBenefitForm(dates).bindFromRequest()(request).fold(
+            errors => {
+              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber))
+            },
+            removeBenefitData => {
+              keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", removeBenefitData)
+              Ok
+            }
+          )
+        }
+        case None => {
+          Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
+          BadRequest
+        }
       }
     }
+  }
+
+  object WithValidatedRequest {
+      def apply(action: (Request[_], User, Int, Int) => Result): (User, Request[_], Int, Int) => Result = {
+        (user, request, taxYear, employmentSequenceNumber) => {
+         if (findExistingBenefit(user, employmentSequenceNumber, BenefitTypes.CAR).isDefined) {
+            redirectToCarBenefitHome(request, user)
+          } else {
+            action(request, user, taxYear, employmentSequenceNumber)
+          }
+        }
+      }
+    private val redirectToCarBenefitHome: (Request[_], User) => Result = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome())
   }
 }
 
