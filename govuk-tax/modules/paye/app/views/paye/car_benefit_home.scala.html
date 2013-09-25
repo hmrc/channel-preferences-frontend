@@ -1,4 +1,4 @@
-@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName : Option[String] )
+@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName: Option[String], employerSequenceNumber: Int, currentTaxYear: Int)
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
@@ -24,7 +24,7 @@
             <p>You do not have a company car.</p>
             <p>Would you like to tell HMRC that:</p>
             <ul>
-                <li><a href="#">you would like to add a company car</a></li>
+                <li><a href="@controllers.paye.routes.CarBenefitHomeController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">you would like to add a company car</a></li>
             </ul>
         </div>
     }

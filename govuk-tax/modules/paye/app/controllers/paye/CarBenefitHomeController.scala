@@ -38,12 +38,13 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
   }
 
   private[paye] val carBenefitHomeAction: ((User, Request[_]) => Result) = (user, request) => {
-    user.regimes.paye.get.employments(TaxYearResolver.currentTaxYear).find(_.employmentType == primaryEmploymentType) match {
+    val currentTaxYear = TaxYearResolver.currentTaxYear
+    user.regimes.paye.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType) match {
       case Some(employment) => {
         val carBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.CAR)
         val fuelBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.FUEL)
 
-        Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employment.employerName))
+        Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employment.employerName, employment.sequenceNumber, currentTaxYear))
       }
       case None => {
         Logger.debug(s"Unable to find current employment for user ${user.oid}")
@@ -72,6 +73,7 @@ class CarBenefitHomeController(timeSource: () => DateTime) extends BaseControlle
   private def getCarBenefitDates(request:Request[_]):CarBenefitDates = {
     datesForm.bindFromRequest()(request).value.getOrElse(CarBenefitDates())
   }
+
   def validateProvidedTo(dates: CarBenefitDates) : Mapping[Option[LocalDate]] = dates.giveBackThisTaxYearVal.getOrElse("false") match {
     case "true" => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => dates.providedFromVal.getOrElse(TaxYearResolver.startOfCurrentTaxYear).isBefore(d.getOrElse(TaxYearResolver.endOfCurrentTaxYear)))
     case _ => ignored(None)
