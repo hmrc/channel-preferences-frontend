@@ -9,7 +9,8 @@
     <h1><span class="pre-heading">service</span> Your tax account</h1>
 
     @for(ac <- accountSummaries.regimes) {
-	<h2>@ac.regimeName</h2>
+
+    <h2>@Messages(ac.regimeName)</h2>
 
 	@for(message <- ac.messages) {
 	    <p>@Html(Messages(message._1, message._2.map(_.render):_*))</p>
