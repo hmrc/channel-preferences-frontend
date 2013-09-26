@@ -4,8 +4,7 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeApplication, WithApplication}
 import org.mockito.Mockito._
-import uk.gov.hmrc.domain.EmpRef
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{NonRTI, EPayeAccountSummary, EPayeRoot}
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{EPayeLinks, NonRTI, EPayeAccountSummary, EPayeRoot}
 
 class EPayeConnectorSpec extends BaseSpec {
 
@@ -14,8 +13,8 @@ class EPayeConnectorSpec extends BaseSpec {
   "Requesting the EPaye root" should {
 
     "Make an HTTP call to the service and return the root data" in new WithEPayeConnector {
-      val empRef = EmpRef("ABC", "12345")
-      val rootObject = EPayeRoot(empRef, Map("someLink" -> "/some/path"))
+      val epayeLinks = EPayeLinks(accountSummary = Some("/some/path"))
+      val rootObject = EPayeRoot(epayeLinks)
 
       when(mockHttpClient.get[EPayeRoot](uri)).thenReturn(Some(rootObject))
       epayeConnector.root(uri) shouldBe rootObject
@@ -30,7 +29,6 @@ class EPayeConnectorSpec extends BaseSpec {
   "Requesting the EPaye account summary" should {
 
     "Return the correct response for an example with account summary information" in new WithEPayeConnector {
-      val empRef = EmpRef("ABC", "12345")
       val summary = EPayeAccountSummary(nonRti = Some(NonRTI(BigDecimal(50D), 2013)))
 
       when(mockHttpClient.get[EPayeAccountSummary](uri)).thenReturn(Some(summary))
@@ -38,7 +36,6 @@ class EPayeConnectorSpec extends BaseSpec {
     }
 
     "Return None for an example with invalid data - containing neither RTI nor Non-RTI information" in new WithEPayeConnector {
-      val empRef = EmpRef("ABC", "12345")
       val invalidSummary = EPayeAccountSummary(rti = None, nonRti = None)
 
       when(mockHttpClient.get[EPayeAccountSummary](uri)).thenReturn(Some(invalidSummary))

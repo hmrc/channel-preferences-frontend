@@ -66,7 +66,7 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
     }
   }
 
-  val empRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((empRef, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
+  private def empRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((empRef, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
 
   private def createMessages(nonRti: NonRTI)() : Seq[(String, Seq[RenderableMessage])] = {
     val amountDue = nonRti.paidToDate
