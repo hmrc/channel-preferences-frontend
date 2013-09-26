@@ -7,15 +7,16 @@ import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import views.helpers.RenderableMessage
 import views.html.make_a_payment_landing
-import controllers.bt.regimeViews.{CtAccountSummaryViewBuilder, SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
+import controllers.bt.regimeViews.{EPayeAccountSummaryViewBuilder, CtAccountSummaryViewBuilder, SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.domain.{SaUtr, EmpRef, Vrn, CtUtr}
+import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def this() = {
-    this(new AccountSummariesFactory(new SaMicroService(), new VatMicroService(), new CtMicroService))
+    this(new AccountSummariesFactory(new SaMicroService(), new VatMicroService(), new CtMicroService, new EPayeConnector ))
   }
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
@@ -68,13 +69,14 @@ abstract class LoggedInUser(implicit user: User) {
 
 case class AccountSummaries(regimes: Seq[AccountSummary])
 
-class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService, ctMicroService : CtMicroService){
+class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService, ctMicroService : CtMicroService, epayeConnector : EPayeConnector){
 
   def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
     val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
     val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build()
     val ctRegime = CtAccountSummaryViewBuilder(buildPortalUrl, user, ctMicroService).build()
-    new AccountSummaries(Seq(saRegime, vatRegime, ctRegime).flatten)
+    val epayeRegime = EPayeAccountSummaryViewBuilder(buildPortalUrl, user, epayeConnector).build()
+    new AccountSummaries(Seq(saRegime, vatRegime, ctRegime, epayeRegime).flatten)
   }
 }
 

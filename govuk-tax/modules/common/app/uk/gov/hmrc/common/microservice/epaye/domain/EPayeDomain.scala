@@ -6,13 +6,13 @@ import uk.gov.hmrc.domain.EmpRef
 
 object EPayeDomain {
 
-  case class EPayeRoot(empRef: EmpRef, links: Map[String, String]) extends RegimeRoot {
+  case class EPayeLinks(accountSummary: Option[String])
 
-    private val accountSummaryKey = "accountSummary"
+  case class EPayeRoot(links: EPayeLinks) extends RegimeRoot {
 
     def accountSummary(implicit epayeConnector: EPayeConnector): Option[EPayeAccountSummary] = {
-      links.get(accountSummaryKey) match {
-        case Some(uri) => epayeConnector.accountSummary(uri)
+      links.accountSummary match {
+        case Some(accountSummaryPath) => epayeConnector.accountSummary(accountSummaryPath)
         case _ => None
       }
     }
