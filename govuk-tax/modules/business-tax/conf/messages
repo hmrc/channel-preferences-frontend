@@ -12,7 +12,7 @@ vat.error.message.summaryUnavailable.3= you have only just activated this servic
 vat.error.message.summaryUnavailable.4= If you do not think either of the above reasons apply you can get more help {0}
 
 ct.message.0={0}
-ct.message.1=Your account currently shows a balance of {0}
+ct.message.1={0} as of {1}.
 
 ct.accountSummary.linkText.accountDetails=View account details
 ct.accountSummary.linkText.makeAPayment=Make a payment

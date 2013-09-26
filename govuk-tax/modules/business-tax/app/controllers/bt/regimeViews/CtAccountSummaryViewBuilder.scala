@@ -3,8 +3,9 @@ package controllers.bt.regimeViews
 import ct.CtMicroService
 import ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import controllers.bt.{routes, AccountSummary}
+import controllers.bt.{AccountSummary, routes}
 import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.utils.DateConverter
 
 case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, ctMicroService: CtMicroService) {
 
@@ -21,6 +22,7 @@ case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
           accountBalance <- accountSummaryValue.accountBalance
           amount <- accountBalance.amount
         } yield amount
+      val dateOfBalanceOption:Option[String] = accountSummary flatMap (_.dateOfBalance)
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
@@ -31,10 +33,10 @@ case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
 
 
         )
-        accountValueOption match {
-          case Some(accountValue) => {
+        (accountValueOption, dateOfBalanceOption)  match {
+          case (Some(accountValue), Some(dateOfBalance)) => {
             AccountSummary("Corporation Tax", Seq("ct.message.0" -> Seq(user.userAuthority.ctUtr.get.utr),
-              "ct.message.1" -> Seq(MoneyPounds(accountValue))), links)
+              "ct.message.1" -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
           }
           case _ => {
             AccountSummary("Corporation Tax", Seq("ct.error.message.summaryUnavailable.1" -> Seq.empty, "ct.error.message.summaryUnavailable.2" -> Seq.empty,

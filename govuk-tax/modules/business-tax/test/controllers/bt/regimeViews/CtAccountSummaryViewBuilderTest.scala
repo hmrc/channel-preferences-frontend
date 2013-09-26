@@ -8,11 +8,13 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import controllers.bt.AccountSummary
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import java.net.URI
 import views.helpers.{LinkMessage, MoneyPounds, RenderableMessage}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+import controllers.bt.AccountSummary
+import org.joda.time.LocalDate
+import org.joda.time.chrono.ISOChronology
 
 class CtAccountSummaryViewBuilderTest extends BaseSpec with MockitoSugar {
   val buildPortalUrl: (String) => String = (value: String) => value
@@ -36,7 +38,7 @@ class CtAccountSummaryViewBuilderTest extends BaseSpec with MockitoSugar {
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe "Corporation Tax"
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]("ct.message.0" -> Seq("12347"), "ct.message.1" -> Seq(MoneyPounds(BigDecimal(4.2))))
+      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]("ct.message.0" -> Seq("12347"), "ct.message.1" -> Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC)))
       accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage("ctAccountDetails", "common.accountSummary.message.link.viewAccountDetails"),
         LinkMessage("/makeAPaymentLanding", "common.accountSummary.message.link.makeAPayment"),
         LinkMessage("ctFileAReturn", "common.accountSummary.message.link.fileAReturn"))
