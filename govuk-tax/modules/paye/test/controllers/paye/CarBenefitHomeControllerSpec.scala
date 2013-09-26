@@ -156,7 +156,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "Your employer"
+      doc.select("#company-name").text shouldBe "your employer"
     }
     "return 400 when employer for sequence number does not exist" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)

@@ -9,14 +9,14 @@
 @main(title = "Your Tax Home") {
 
 <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
-<p>We need some information about the company car provided by <span id="company-name">@optionalValue(employerName, "your.employer")</span>.</p>
+<p>We need some information about the company car provided by <span id="company-name">@optionalValue(employerName, "your.employer", true)</span>.</p>
 
 @helper.form(action = controllers.paye.routes.CarBenefitHomeController.saveAddCarBenefit(taxYear, employmentSequenceNumber)) {
 
 <fieldset>
     <h2>How long you have had the new company car</h2>
     <ol class="list--numbered">
-        <li>@helpers.dateFields(carBenefitForm, providedFrom, Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer")), (2012 to 2014))</li>
+        <li>@helpers.dateFields(carBenefitForm, providedFrom, Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer", true)), (2012 to 2014))</li>
         <li>@helpers.radioGroup(carBenefitForm(carUnavailable),
                                 Seq(RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio-right")),
                                     RadioButton("true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio-right"))),

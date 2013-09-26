@@ -16,10 +16,13 @@ object Strings {
 
   def joinList(values: Seq[String], separator: String) = values.mkString(separator)
 
-  def optionalValue(value: Option[String], defaultMessageKey: String) = {
+  def optionalValue(value: Option[String], defaultMessageKey: String, isSentence: Boolean = false) = {
     value match {
       case Some(v) => v
-      case None => Messages(defaultMessageKey)
+      case None => {
+        val message = Messages(defaultMessageKey)
+        if (isSentence)  sentence(message) else message
+      }
     }
   }
 }
