@@ -45,7 +45,7 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
 
 case class BusinessUser(regimeRoots: RegimeRoots, saUtr: Option[SaUtr], vrn: Option[Vrn],
                         ctUtr: Option[CtUtr], empRef: Option[EmpRef], name: String, previouslyLoggedInAt: Option[DateTime],
-                        encodedGovernmentGatewayToken: String) //extends LoggedInUser
+                        encodedGovernmentGatewayToken: String)
 
 private object BusinessUser {
   def apply()(implicit user : User) : BusinessUser = {
