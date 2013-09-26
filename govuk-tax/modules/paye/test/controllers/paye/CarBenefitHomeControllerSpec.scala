@@ -262,6 +262,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertSuccessfulEmployeeContributionSubmit(Some(false), None)
       assertSuccessfulEmployeeContributionSubmit(Some(true), Some(1000))
       assertSuccessfulEmployeeContributionSubmit(Some(true), Some(9999))
+      assertSuccessfulEmployeeContributionSubmit(Some(false), Some(0))
     }
 
     "return 400 and display error when employeeContribution form data fails validation" in new WithApplication(FakeApplication()) {
@@ -273,6 +274,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployeeContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("10000"), "error_q_6", "Capital contribution must not be higher than £9999.")
       assertFailedEmployeeContributionSubmit(None, None, "error_q_6", "Please answer this question.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("0"), "error_q_6", "Capital Contributions must be greater than zero if you have selected yes.")
     }
 
     "return 200 when employers form data validates successfully" in new WithApplication(FakeApplication()) {
@@ -281,6 +283,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertSuccessfulEmployerContributionSubmit(Some(false), None)
       assertSuccessfulEmployerContributionSubmit(Some(true), Some(1000))
       assertSuccessfulEmployerContributionSubmit(Some(true), Some(99999))
+      assertSuccessfulEmployerContributionSubmit(Some(false), Some(0))
     }
 
     "return 400 and display error when employerContribution form data fails validation" in new WithApplication(FakeApplication()) {
@@ -292,6 +295,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployerContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Employer contribution must not be higher than £99999.")
       assertFailedEmployerContributionSubmit(None, None, "error_q_7", "Please answer this question.")
+      assertFailedEmployerContributionSubmit(Some("true"), Some("0"), "error_q_7", "Payment towards private use must be greater than zero if you have selected yes.")
     }
 
     def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],

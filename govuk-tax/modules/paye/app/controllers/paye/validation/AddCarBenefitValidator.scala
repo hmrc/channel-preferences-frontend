@@ -35,11 +35,13 @@ object AddCarBenefitValidator extends Validators {
                             .verifying("error.paye.list_price_mandatory", e => {e.isDefined})
 
   private[paye] def validateEmployerContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
-    optional(positiveInteger.verifying("error.paye.employer_contribution_greater_than_99999", e => e <= 99999))
+    optional(number.verifying("error.paye.employer_contribution_greater_than_99999", e => e <= 99999)
+    .verifying("error.paye.employer_contribution_less_than_0", data => if(data <= 0) !values.employerContributes.map(_.toBoolean).getOrElse(false) else true))
     .verifying("error.paye.add_car_benefit.missing_employer_contribution", data => !(values.employerContributes.map(_.toBoolean).getOrElse(false) && data.isEmpty))
 
   private[paye] def validateEmployeeContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
-    optional(positiveInteger.verifying("error.paye.employee_contribution_greater_than_9999", e => e <= 9999))
+    optional(number.verifying("error.paye.employee_contribution_greater_than_9999", e => e <= 9999)
+    .verifying("error.paye.employee_contribution_less_than_0", data => if(data <= 0) !values.employeeContributes.map(_.toBoolean).getOrElse(false) else true))
     .verifying("error.paye.add_car_benefit.missing_employee_contribution", data => !(values.employeeContributes.map(_.toBoolean).getOrElse(false) && data.isEmpty))
 
   private[paye] def validateGiveBackThisTaxYear(values: CarBenefitValues) : Mapping[Option[Boolean]] =
