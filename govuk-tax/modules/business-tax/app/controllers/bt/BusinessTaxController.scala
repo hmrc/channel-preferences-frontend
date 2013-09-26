@@ -20,7 +20,7 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
   }
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
-    implicit user =>
+    implicit user: User =>
       request =>
 
         //TODO: leverage implicit user and request so this function is just available rather than an explicit call with params
@@ -60,10 +60,6 @@ private object BusinessUser {
                       user.decryptedToken.get) {
     }
   }
-}
-
-abstract class LoggedInUser(implicit user: User) {
-  val hasBusinessTaxRegime: Boolean = user.regimes.hasBusinessTaxRegime
 }
 
 

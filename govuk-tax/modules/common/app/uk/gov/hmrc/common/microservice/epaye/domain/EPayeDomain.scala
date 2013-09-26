@@ -2,7 +2,6 @@ package uk.gov.hmrc.common.microservice.epaye.domain
 
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
-import uk.gov.hmrc.domain.EmpRef
 
 object EPayeDomain {
 

@@ -1,4 +1,4 @@
-@(businessUser: controllers.bt.BusinessUser, portalHref: String, accountSummaries: controllers.bt.AccountSummaries)
+@(businessUser: controllers.bt.BusinessUser, portalHref: String, accountSummaries: controllers.bt.AccountSummaries)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Dates._
 @import config.PortalConfig
