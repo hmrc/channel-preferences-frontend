@@ -58,13 +58,34 @@
 
 	<p>
 	    @if(!businessUser.previouslyLoggedInAt.isEmpty) {
-		@businessUser.name, you last accessed your account on @formatEasyReadingTimestamp(businessUser.previouslyLoggedInAt, "")
+	    @businessUser.name, you last accessed your account on @formatEasyReadingTimestamp(businessUser.previouslyLoggedInAt, "")
 	    } else {
-		First ever login
+	    First ever login
 	    }
 	</p>
 
 	<p><a href="@common.routes.LoginController.logout">Log out of your GOV.UK account.<a/></p>
     </div>
 
+    <div class="service-info__related-subsection">
+
+	<h2>Information about business taxes</h2>
+
+	<p class="service-info__help">These links will open in a new window</p>
+
+	<nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
+	    <ul>
+		<li>
+		    <a href="https://www.gov.uk/corporation-tax-rates" target="_blank">Corporation Tax rates</a>
+		</li>
+		<li>
+		    <a href="https://www.gov.uk/prepare-file-annual-accounts-for-limited-company" target="_blank">Accounts and tax returns for private limited companies</a>
+		</li>
+		<li>
+		    <a href="https://www.gov.uk/difficulties-paying-hmrc" target="_blank">If you can't pay your tax bill on time</a>
+		</li>
+		<li><a class="service-info__navigation__more" href="https://www.gov.uk/browse/tax/self-assessment" target="_blank">more</a></li>
+	    </ul>
+	</nav>
+    </div>
 }
