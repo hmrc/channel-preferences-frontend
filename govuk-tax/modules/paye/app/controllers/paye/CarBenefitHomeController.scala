@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.{CarBenefitHomeRedirect, SessionTimeoutWrapper, BaseController}
+import controllers.common.{SessionTimeoutWrapper, BaseController}
 import play.api.mvc.{Result, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
@@ -28,13 +28,13 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
   private[paye] def endOfCurrentTaxYear = TaxYearResolver.endOfCurrentTaxYear
 
   def carBenefitHome = WithSessionTimeoutValidation {
-    AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectCommand = Some(CarBenefitHomeRedirect)) {
+    AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
       user => request => carBenefitHomeAction(user, request)
     }
   }
 
   def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation {
-    AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectCommand = Some(CarBenefitHomeRedirect)) {
+    AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
       user => request => startAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
   }

@@ -50,7 +50,7 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
 
   object AuthorisedForIdaAction {
 
-    def apply(taxRegime: Option[TaxRegime] = None, redirectCommand: Option[RedirectCommand] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
+    def apply(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
           WithRequestAuditing {
@@ -60,7 +60,8 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
                 val token: Option[String] = request.session.get("token")
                 if (encryptedUserId.isEmpty || token.isDefined) {
                   Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
-                  toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectCommand))
+                  val redirectUrl = if (redirectToOrigin) Some(request.uri) else None
+                  toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
                 } else {
                   act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
                 }
