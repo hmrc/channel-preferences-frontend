@@ -105,11 +105,9 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       val content = contentAsString(result)
 
       content should include(nameFromGovernmentGateway)
-      content should include("Self Assessment (SA)")
+      content should include("<h2>Self-Assessment</h2>")
       content should include("href=\"/sa/home\"")
-//      content should include("Value Added Tax (VAT)</a>")
-//      content should include("href=\"#\"")
-
+      content should include("<h2>VAT</h2>")
     }
 
     "display the account balance of a user enrolled for VAT" in new WithApplication(FakeApplication()) {
