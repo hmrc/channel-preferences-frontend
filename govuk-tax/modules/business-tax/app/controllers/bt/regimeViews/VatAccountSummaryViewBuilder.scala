@@ -6,12 +6,12 @@ import controllers.bt.{routes, AccountSummary}
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.domain.User
 
-case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, vatMicroService: VatMicroService) {
+case class VatAccountSummaryViewBuilder(vatMicroService: VatMicroService) {
 
   import VatMessageKeys._
   import VatPortalUrls._
 
-  def build(): Option[AccountSummary] = {
+  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
     val vatRootOption: Option[VatRoot] = user.regimes.vat
 
     vatRootOption.map {

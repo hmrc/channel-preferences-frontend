@@ -7,12 +7,12 @@ import controllers.bt.{AccountSummary, routes}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.DateConverter
 
-case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, ctMicroService: CtMicroService) {
+case class CtAccountSummaryViewBuilder(ctMicroService: CtMicroService) {
 
   import CtMessageKeys._
   import CtPortalUrlKeys._
 
-  def build(): Option[AccountSummary] = {
+  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
     val ctRootOption: Option[CtRoot] = user.regimes.ct
 
     ctRootOption.map {
@@ -29,22 +29,22 @@ case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
-          LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
-          LinkMessage(buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage)
+          LinkMessage(buildPortalUrl("ctAccountDetails"), "common.accountSummary.message.link.viewAccountDetails"),
+          LinkMessage(makeAPaymentUri, "common.accountSummary.message.link.makeAPayment"),
+          LinkMessage(buildPortalUrl("ctFileAReturn"), "common.accountSummary.message.link.fileAReturn")
 
 
 
         )
         (accountValueOption, dateOfBalanceOption)  match {
           case (Some(accountValue), Some(dateOfBalance)) => {
-            AccountSummary(ctRegimeNameMessage, Seq(ctUtrMessage -> Seq(user.userAuthority.ctUtr.get.utr),
-              ctAmountAsOfDateMessage -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
+            AccountSummary("Corporation Tax", Seq("ct.message.0" -> Seq(user.userAuthority.ctUtr.get.utr),
+              "ct.message.1" -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
           }
           case _ => {
-            AccountSummary(ctRegimeNameMessage, Seq(ctSummaryUnavailableErrorMessage1 -> Seq.empty, ctSummaryUnavailableErrorMessage2 -> Seq.empty,
-              ctSummaryUnavailableErrorMessage3 -> Seq.empty,
-              ctSummaryUnavailableErrorMessage4 -> Seq.empty), Seq.empty)
+            AccountSummary("Corporation Tax", Seq("ct.error.message.summaryUnavailable.1" -> Seq.empty, "ct.error.message.summaryUnavailable.2" -> Seq.empty,
+              "ct.error.message.summaryUnavailable.3" -> Seq.empty,
+              "ct.error.message.summaryUnavailable.4" -> Seq.empty), Seq.empty)
           }
         }
     }

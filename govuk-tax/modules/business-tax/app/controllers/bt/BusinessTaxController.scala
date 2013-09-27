@@ -67,11 +67,16 @@ case class AccountSummaries(regimes: Seq[AccountSummary])
 
 class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService, ctMicroService : CtMicroService, epayeConnector : EPayeConnector){
 
+  val saRegimeAccountSummaryViewBuilder = SaAccountSummaryViewBuilder(saMicroService)
+  val vatRegimeAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(vatMicroService)
+  val ctRegimeAccountSummaryViewBuilder = CtAccountSummaryViewBuilder(ctMicroService)
+  val epayeRegimeAccountSummaryViewBuilder = EPayeAccountSummaryViewBuilder(epayeConnector)
+
   def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
-    val saRegime = SaAccountSummaryViewBuilder(buildPortalUrl, user, saMicroService).build()
-    val vatRegime = VatAccountSummaryViewBuilder(buildPortalUrl, user, vatMicroService).build()
-    val ctRegime = CtAccountSummaryViewBuilder(buildPortalUrl, user, ctMicroService).build()
-    val epayeRegime = EPayeAccountSummaryViewBuilder(buildPortalUrl, user, epayeConnector).build()
+    val saRegime = saRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
+    val vatRegime = vatRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
+    val ctRegime = ctRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
+    val epayeRegime = epayeRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
     new AccountSummaries(Seq(saRegime, vatRegime, ctRegime, epayeRegime).flatten)
   }
 }

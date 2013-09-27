@@ -35,8 +35,8 @@ class CtAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val ctMicroSeriveMock = mock[CtMicroService]
       val ctAccountSummary = CtAccountSummary(Some(CtAccountBalance(Some(4.2), Some("GPB"))), Some("2012-12-02"))
       when(ctMicroSeriveMock.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenReturn(Some(ctAccountSummary))
-      val builder = new CtAccountSummaryViewBuilder(buildPortalUrl, userEnrolledForCt, ctMicroSeriveMock)
-      val accountSummaryOption: Option[AccountSummary] = builder.build()
+      val builder = new CtAccountSummaryViewBuilder(ctMicroSeriveMock)
+      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe ctRegimeNameMessage
@@ -50,8 +50,8 @@ class CtAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     "return an error message if the account summary is not available" in {
       val ctMicroSeriveMock = mock[CtMicroService]
       when(ctMicroSeriveMock.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenReturn(None)
-      val builder = new CtAccountSummaryViewBuilder(buildPortalUrl, userEnrolledForCt, ctMicroSeriveMock)
-      val accountSummaryOption: Option[AccountSummary] = builder.build()
+      val builder = new CtAccountSummaryViewBuilder(ctMicroSeriveMock)
+      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]((ctSummaryUnavailableErrorMessage1, Seq.empty), (ctSummaryUnavailableErrorMessage2, Seq.empty),
@@ -62,9 +62,9 @@ class CtAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     "return None if the user is not enrolled for VAT" in {
-      val builder = new CtAccountSummaryViewBuilder(buildPortalUrl, userNotEnrolledForCt, mock[CtMicroService])
-      val accountSummaryOption: Option[AccountSummary] = builder.build()
-      accountSummaryOption shouldBe None
+      val builder = new CtAccountSummaryViewBuilder(mock[CtMicroService])
+      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userNotEnrolledForCt)
+      accountSummaryOption should be(None)
 
     }
   }
