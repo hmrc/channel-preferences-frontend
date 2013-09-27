@@ -42,7 +42,9 @@ case class CtAccountSummaryBuilder(ctMicroService: CtMicroService) {
               ctAmountAsOfDateMessage -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
           }
           case _ => {
-            AccountSummary(ctRegimeNameMessage, Seq(ctSummaryUnavailableErrorMessage1 -> Seq.empty, ctSummaryUnavailableErrorMessage2 -> Seq.empty,
+            AccountSummary(ctRegimeNameMessage, Seq(ctUtrMessage -> Seq(user.userAuthority.ctUtr.get.utr),
+              ctSummaryUnavailableErrorMessage1 -> Seq.empty,
+              ctSummaryUnavailableErrorMessage2 -> Seq.empty,
               ctSummaryUnavailableErrorMessage3 -> Seq.empty,
               ctSummaryUnavailableErrorMessage4 -> Seq.empty), Seq.empty)
           }

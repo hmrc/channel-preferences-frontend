@@ -7,7 +7,10 @@ import controllers.common.domain.accountSummaryDateFormatter
 
 
 case class LinkMessage(href: String, text: String)
-case class MoneyPounds(value: BigDecimal)
+case class MoneyPounds(value: BigDecimal)  {
+  def isNegative = value < 0
+  def quantity = value.abs.toString()
+}
 
 
 trait RenderableMessage {

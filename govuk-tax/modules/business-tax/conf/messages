@@ -12,7 +12,7 @@ vat.link.message.accountSummary.helpDesk=here
 
 
 
-ct.regimeName=Corporation Tax
+ct.regimeName=Corporation Tax (CT)
 
 ct.message.utr=Unique Taxpayer Reference (UTR): {0}
 ct.message.amountAsOfDate={0} as of {1}.

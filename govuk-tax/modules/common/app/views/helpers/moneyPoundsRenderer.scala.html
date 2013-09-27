@@ -3,4 +3,4 @@
 @import play.api.i18n._
 @import views.html.helper._
 @import views.helpers._
-&pound;@money.value.toString()
+@if(money.isNegative){-}&pound;@money.quantity
