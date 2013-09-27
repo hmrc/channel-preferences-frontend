@@ -4,7 +4,7 @@
 @import controllers.paye.CarBenefitFormFields._
 @import views.helpers.CustomHelpers._
 @import helper._
-@import views.helpers.RadioButton
+@import views.helpers._
 
 @main(title = "Your Tax Home") {
 
@@ -17,17 +17,18 @@
     <h2>How long you have had the new company car</h2>
     <ol class="list--numbered">
         <li>@helpers.dateFields(carBenefitForm, providedFrom, Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer", true)), (2012 to 2014))</li>
-        <li>@helpers.radioGroup(carBenefitForm(carUnavailable),
-                                Seq(RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio-right")),
-                                    RadioButton("true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio-right"))),
-                                '_label -> "Has the new company car been unavailable to you for at least 30 consecutive days since 6 April?"
+        <li>
+            @helpers.fieldGroup(
+                Seq(
+                    FormField(carBenefitForm(carUnavailable), Seq(
+                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
+                        InputType("radio", "true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio-right")))),
+                    FormField(carBenefitForm(numberOfDaysUnavailable), Seq(InputType("text", "", "days", Some("form-field--inline"), Some(""), Some("input--xsmall"))))
+                ),
+                '_label -> "Has the new company car been unavailable to you for at least 30 consecutive days since 6 April?",
+                '_groupDivClass -> "form-field",
+                '_valueAfter -> true
             )
-            @helpers.input(carBenefitForm(numberOfDaysUnavailable),
-                           '_divClass -> "form-field--inline",
-                           '_label -> "days",
-                           '_inputClass -> "input--xsmall",
-                           '_labelClass -> "label--inlineRadio-right",
-                           '_labelAfter -> true)
         </li>
         <li>
             @helpers.radioGroup(carBenefitForm(giveBackThisTaxYear),

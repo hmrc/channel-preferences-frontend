@@ -1,0 +1,40 @@
+@(fields: Seq[views.helpers.FormField], args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+
+@allFieldElements = @{ fields.map{ f => new FieldElements(f.field.id, f.field, null, args.toMap, lang) } }
+@anyFieldHasError = @{ allFieldElements.exists( _.hasErrors ) }
+@argsMap = @{ args.toMap }
+@valueAfter = @{ argsMap.get('_valueAfter).getOrElse(false).asInstanceOf[Boolean] }
+
+<div class="@argsMap.get('_groupDivClass) @if(anyFieldHasError) {error}">
+    <p>@allFieldElements(0).label</p>
+    @if(argsMap.contains('_additionalTitleText)){<p>@argsMap.get('_additionalTitleText)</p>}
+    @for(elements <- allFieldElements) {
+        @elements.errors.map { error => <span class="error-notification">@Messages(error)</span> }
+    }
+    @for(field <- fields) {
+        @for(input <- field.inputs) {
+             @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
+                <div class='@input.divClass.getOrElse("")'>
+                    <label for="@field.field.name-@input.key" class='@input.labelClass.getOrElse("")'>
+                        @if(!valueAfter) { @input.value }
+                        <input type="@input.inputType"
+                                id="@field.field.name-@input.key"
+                                class="@input.inputClass"
+                                name="@field.field.name"
+                                @if(input.inputType == "radio") {
+                                    value="@input.key"
+                                    @if(currentValue==input.key){checked="checked"}
+                                } else {
+                                    value="@currentValue"
+                                }
+                        />
+                        @if(valueAfter) { @input.value }
+                    </label>
+                </div>
+            }
+        }
+    }
+</div>
