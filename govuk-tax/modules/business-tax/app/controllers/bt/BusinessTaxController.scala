@@ -16,7 +16,7 @@ import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def this() = {
-    this(new AccountSummariesFactory(new SaMicroService(), new VatMicroService(), new CtMicroService, new EPayeConnector ))
+    this(new AccountSummariesFactory(new SaMicroService, new VatMicroService, new CtMicroService, new EPayeConnector))
   }
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
