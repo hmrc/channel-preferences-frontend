@@ -53,7 +53,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]((ctSummaryUnavailableErrorMessage1, Seq.empty), (ctSummaryUnavailableErrorMessage2, Seq.empty),
+      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])](ctUtrMessage -> Seq(ctUtr.utr), (ctSummaryUnavailableErrorMessage1, Seq.empty), (ctSummaryUnavailableErrorMessage2, Seq.empty),
         (ctSummaryUnavailableErrorMessage3, Seq.empty), (ctSummaryUnavailableErrorMessage4, Seq.empty))
       accountSummary.addenda shouldBe Seq.empty
 
