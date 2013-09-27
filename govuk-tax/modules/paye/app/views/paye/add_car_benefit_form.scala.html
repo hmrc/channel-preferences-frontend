@@ -19,6 +19,7 @@
         <li>@helpers.dateFields(carBenefitForm, providedFrom, Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer", true)), (2012 to 2014))</li>
         <li>
             @helpers.fieldGroup(
+            carBenefitForm,
                 Seq(
                     FormField(carBenefitForm(carUnavailable), Seq(
                         InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
@@ -31,11 +32,18 @@
             )
         </li>
         <li>
-            @helpers.radioGroup(carBenefitForm(giveBackThisTaxYear),
-                                Seq(RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio-right")),
-                                    RadioButton("true", "Yes: on ", Some("form-field--inline"), Some("label--inlineRadio-right"))),
-                                '_label -> "Will you give back your new company car before 5 April?")
-            @helpers.dateFields(carBenefitForm, providedTo, "", (2012 to 2014))
+            @helpers.fieldGroup(
+            carBenefitForm,
+                Seq(
+                    FormField(carBenefitForm(giveBackThisTaxYear), Seq(
+                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
+                        InputType("radio", "true", "Yes: on ", Some("form-field--inline"), Some("label--inlineRadio-right")))),
+                    FormField(carBenefitForm(providedTo), Seq(DateControl()))
+                ),
+                '_label -> "Will you give back your new company car before 5 April?",
+                '_groupDivClass -> "form-field",
+                '_valueAfter -> true
+            )
         </li>
     </ol>
 </fieldset>

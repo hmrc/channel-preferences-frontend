@@ -1,0 +1,33 @@
+@(formItem:Form[_], fieldName: String, label: String, yearRange: Range, args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+
+@import controllers.common.validators.DateFields._
+@import play.api.i18n._
+@import views.html.helper._
+
+@dayElem = @{fieldName + "." + day}
+@helpers.dropdown(
+        formItem(dayElem),
+        ( 1 to 31) map {  i=> (i.toString, i.toString) },
+        '_label -> Messages("date.fields.day"),
+        '_groupDivClass -> "form-field--inline",
+        '_labelClass -> "label--inlineDropdown",
+        '_emptyValueText -> ""
+)
+@monthElem = @{fieldName + "." + month}
+@helpers.dropdown(
+        formItem(monthElem),
+        ( 1 to 12) map {  i=> (i.toString, i.toString) },
+        '_label -> Messages("date.fields.month"),
+        '_groupDivClass -> "form-field--inline",
+        '_labelClass -> "label--inlineDropdown",
+        '_emptyValueText -> ""
+)
+@yearElem = @{fieldName + "." + year}
+@helpers.dropdown(
+        formItem(yearElem),
+        yearRange map {  i=> (i.toString, i.toString) },
+        '_label -> Messages("date.fields.year"),
+        '_groupDivClass -> "form-field--inline",
+        '_labelClass -> "label--inlineDropdown",
+        '_emptyValueText -> ""
+)

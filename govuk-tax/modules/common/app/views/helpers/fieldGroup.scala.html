@@ -1,7 +1,9 @@
-@(fields: Seq[views.helpers.FormField], args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+@(formItem:Form[_], fields: Seq[views.helpers.FormField], args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
 
 @import play.api.i18n._
 @import views.html.helper._
+@import views.helpers._
+
 
 @allFieldElements = @{ fields.map{ f => new FieldElements(f.field.id, f.field, null, args.toMap, lang) } }
 @anyFieldHasError = @{ allFieldElements.exists( _.hasErrors ) }
@@ -16,24 +18,29 @@
     }
     @for(field <- fields) {
         @for(input <- field.inputs) {
-             @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
-                <div class='@input.divClass.getOrElse("")'>
-                    <label for="@field.field.name-@input.key" class='@input.labelClass.getOrElse("")'>
-                        @if(!valueAfter) { @input.value }
-                        <input type="@input.inputType"
-                                id="@field.field.name-@input.key"
-                                class="@input.inputClass"
-                                name="@field.field.name"
-                                @if(input.inputType == "radio") {
-                                    value="@input.key"
-                                    @if(currentValue==input.key){checked="checked"}
-                                } else {
-                                    value="@currentValue"
-                                }
-                        />
-                        @if(valueAfter) { @input.value }
-                    </label>
-                </div>
+             @if(input.isInstanceOf[DateControl]) {
+                @dateFields2(formItem, field.field.id, "", (2013 to 2015))
+             }  else {
+
+                 @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
+                    <div class='@input.divClass.getOrElse("")'>
+                        <label for="@field.field.name-@input.key" class='@input.labelClass.getOrElse("")'>
+                            @if(!valueAfter) { @input.value }
+                            <input type="@input.inputType"
+                                    id="@field.field.name-@input.key"
+                                    class="@input.inputClass"
+                                    name="@field.field.name"
+                                    @if(input.inputType == "radio") {
+                                        value="@input.key"
+                                        @if(currentValue==input.key){checked="checked"}
+                                    } else {
+                                        value="@currentValue"
+                                    }
+                            />
+                            @if(valueAfter) { @input.value }
+                        </label>
+                    </div>
+                }
             }
         }
     }
