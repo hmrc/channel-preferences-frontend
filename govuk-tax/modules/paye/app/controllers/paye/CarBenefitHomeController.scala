@@ -120,10 +120,15 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
   object WithValidatedRequest {
       def apply(action: (Request[_], User, Int, Int) => Result): (User, Request[_], Int, Int) => Result = {
         (user, request, taxYear, employmentSequenceNumber) => {
-         if (findExistingBenefit(user, employmentSequenceNumber, BenefitTypes.CAR).isDefined) {
-            redirectToCarBenefitHome(request, user)
-          } else {
-            action(request, user, taxYear, employmentSequenceNumber)
+         if(TaxYearResolver.currentTaxYear != taxYear ) {
+           Logger.error("Adding car benefit is only allowed for the current tax year")
+           BadRequest
+         } else {
+           if (findExistingBenefit(user, employmentSequenceNumber, BenefitTypes.CAR).isDefined) {
+              redirectToCarBenefitHome(request, user)
+            } else {
+              action(request, user, taxYear, employmentSequenceNumber)
+            }
           }
         }
       }

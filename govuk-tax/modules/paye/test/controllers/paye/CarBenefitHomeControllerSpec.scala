@@ -172,6 +172,13 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some("/car-benefit/home")
     }
+    "return 400 if the requested tax year is not the current tax year" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2014, 1)
+
+      status(result) shouldBe 400
+    }
   }
 
   "submitting add car benefit" should {
@@ -296,6 +303,15 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Employer contribution must not be higher than £99999.")
       assertFailedEmployerContributionSubmit(None, None, "error_q_7", "Please answer this question.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("0"), "error_q_7", "Payment towards private use must be greater than zero if you have selected yes.")
+    }
+
+    "return 400 if the submition is for year that is not the current tax year" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      assertSuccessfulDatesSubmit(Some(inTwoDaysTime), false,  None, false,  None)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2014, 1)
+
+      status(result) shouldBe 400
     }
 
     def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],
