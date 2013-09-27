@@ -9,6 +9,9 @@ import uk.gov.hmrc.utils.DateConverter
 
 case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, ctMicroService: CtMicroService) {
 
+  import CtMessageKeys._
+  import CtPortalUrlKeys._
+
   def build(): Option[AccountSummary] = {
     val ctRootOption: Option[CtRoot] = user.regimes.ct
 
@@ -26,25 +29,41 @@ case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl("ctAccountDetails"), "common.accountSummary.message.link.viewAccountDetails"),
-          LinkMessage(makeAPaymentUri, "common.accountSummary.message.link.makeAPayment"),
-          LinkMessage(buildPortalUrl("ctFileAReturn"), "common.accountSummary.message.link.fileAReturn")
+          LinkMessage(buildPortalUrl(accountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+          LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
+          LinkMessage(buildPortalUrl(fileAReturnPortalUrl), fileAReturnLinkMessage)
 
 
 
         )
         (accountValueOption, dateOfBalanceOption)  match {
           case (Some(accountValue), Some(dateOfBalance)) => {
-            AccountSummary("Corporation Tax", Seq("ct.message.0" -> Seq(user.userAuthority.ctUtr.get.utr),
-              "ct.message.1" -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
+            AccountSummary(regimeNameMessage, Seq(utrMessage -> Seq(user.userAuthority.ctUtr.get.utr),
+              amountAsOfDateMessage -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
           }
           case _ => {
-            AccountSummary("Corporation Tax", Seq("ct.error.message.summaryUnavailable.1" -> Seq.empty, "ct.error.message.summaryUnavailable.2" -> Seq.empty,
-              "ct.error.message.summaryUnavailable.3" -> Seq.empty,
-              "ct.error.message.summaryUnavailable.4" -> Seq.empty), Seq.empty)
+            AccountSummary(regimeNameMessage, Seq(summaryUnavailableErrorMessage1 -> Seq.empty, summaryUnavailableErrorMessage2 -> Seq.empty,
+              summaryUnavailableErrorMessage3 -> Seq.empty,
+              summaryUnavailableErrorMessage4 -> Seq.empty), Seq.empty)
           }
         }
     }
   }
 }
 
+object CtPortalUrlKeys {
+  val accountDetailsPortalUrl = "ctAccountDetails"
+  val fileAReturnPortalUrl = "ctFileAReturn"
+}
+
+object CtMessageKeys extends CommonBusinessMessageKeys {
+
+  val regimeNameMessage = "ct.regimeName"
+
+  val utrMessage = "ct.message.utr"
+  val summaryUnavailableErrorMessage1 = "ct.error.message.summaryUnavailable.1"
+  val summaryUnavailableErrorMessage2 = "ct.error.message.summaryUnavailable.2"
+  val summaryUnavailableErrorMessage3 = "ct.error.message.summaryUnavailable.3"
+  val summaryUnavailableErrorMessage4 = "ct.error.message.summaryUnavailable.4"
+  val amountAsOfDateMessage = "ct.message.amountAsOfDate"
+}

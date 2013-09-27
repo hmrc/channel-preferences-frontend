@@ -3,7 +3,8 @@ package controllers.bt.regimeViews
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain._
-import EPayeAccountSummaryMessageKeys._
+import EPayeMessageKeys._
+import EPayePortalUrlKeys._
 import views.helpers.RenderableMessage
 import views.helpers.LinkMessage
 import views.helpers.MoneyPounds
@@ -11,11 +12,9 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.RTI
 import controllers.bt.AccountSummary
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
-import scala.{Option, Some}
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
 
 case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, epayeConnector: EPayeConnector) {
-
 
   def build(): Option[AccountSummary] = {
     val epayeRootOption: Option[EPayeRoot] = user.regimes.epaye
@@ -24,12 +23,12 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
       epayeRoot: EPayeRoot =>
 
         val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
-        val messages : Seq[(String, Seq[RenderableMessage])] = empRefMessage  ++ messageStrategy(accountSummary)()
+        val messages : Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage  ++ messageStrategy(accountSummary)()
 
         val links = Seq[RenderableMessage](
-        LinkMessage(buildPortalUrl("home"), viewAccountDetailsLink),
-        LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLink),
-        LinkMessage(buildPortalUrl("home"), fileAReturnLink))
+        LinkMessage(buildPortalUrl(homePortalUrl), viewAccountDetailsLinkMessage),
+        LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
+        LinkMessage(buildPortalUrl(homePortalUrl), fileAReturnLinkMessage))
 
         AccountSummary(regimeName(accountSummary), messages, links)
     }
@@ -37,8 +36,8 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
 
   private def regimeName(accountSummary: Option[EPayeAccountSummary]) : String = {
     accountSummary match {
-      case Some(summary) if summary.rti.isDefined => rtiRegimeNameKey
-      case Some(summary) if summary.nonRti.isDefined => nonRtiRegimeNameKey
+      case Some(summary) if summary.rti.isDefined => rtiRegimeNameMessage
+      case Some(summary) if summary.nonRti.isDefined => nonRtiRegimeNameMessage
       case _ => "N/A"
     }
   }
@@ -52,28 +51,28 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
   }
 
   private def createNoInformationMessage() : Seq[(String, Seq[RenderableMessage])] = {
-    Seq((unableToDisplayAccountInformation, Seq.empty))
+    Seq((unableToDisplayAccountInformationMessage, Seq.empty))
   }
 
   private def createMessages(rti: RTI)() : Seq[(String, Seq[RenderableMessage])] = {
     val balance = rti.balance
     if(balance < 0) {
-      Seq((youHaveOverpaid, Seq(MoneyPounds(balance.abs))), (adjustFuturePayments, Seq.empty))
+      Seq((youHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), (adjustFuturePaymentsMessage, Seq.empty))
     } else if(balance > 0) {
-      Seq((dueForPayment, Seq(MoneyPounds(balance))))
+      Seq((dueForPaymentMessage, Seq(MoneyPounds(balance))))
     }else {
-      Seq((nothingToPay, Seq.empty))
+      Seq((nothingToPayMessage, Seq.empty))
     }
   }
 
-  private def empRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((empRef, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
+  private def renderEmpRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((empRefMessage, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
 
   private def createMessages(nonRti: NonRTI)() : Seq[(String, Seq[RenderableMessage])] = {
     val amountDue = nonRti.paidToDate
     val currentTaxYear = nonRti.currentTaxYear
 
     val currentTaxYearWithFollowingYear = createYearDisplayText(currentTaxYear)
-    Seq((paidToDateForPeriod, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
+    Seq((paidToDateForPeriodMessage, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
   }
 
   private def createYearDisplayText(currentTaxYear: Int) : String = {
@@ -82,18 +81,21 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
   }
 }
 
-object EPayeAccountSummaryMessageKeys {
-  val rtiRegimeNameKey = "epaye.message.regimeNameRti"
-  val nonRtiRegimeNameKey = "epaye.message.regimeNameNonRti"
-  val nothingToPay = "epaye.message.nothingToPay"
-  val youHaveOverpaid = "epaye.message.youHaveOverPaid"
-  val adjustFuturePayments = "epaye.message.adjustFuturePayments"
-  val dueForPayment = "epaye.message.dueForPayment"
-  val unableToDisplayAccountInformation = "epaye.message.unableToDisplayAccountInformation"
-  val paidToDateForPeriod = "epaye.message.paidToDateForPeriod"
-  val viewAccountDetailsLink = "common.accountSummary.message.link.viewAccountDetails"
-  val makeAPaymentLink = "common.accountSummary.message.link.makeAPayment"
-  val fileAReturnLink = "common.accountSummary.message.link.fileAReturn"
-  val empRef = "epaye.message.empRef"
+object EPayePortalUrlKeys {
+  val homePortalUrl = "home"
+}
+
+object EPayeMessageKeys extends CommonBusinessMessageKeys {
+
+  val rtiRegimeNameMessage = "epaye.regimeName.rti"
+  val nonRtiRegimeNameMessage = "epaye.regimeName.nonRti"
+
+  val nothingToPayMessage = "epaye.message.nothingToPay"
+  val youHaveOverpaidMessage = "epaye.message.youHaveOverPaid"
+  val adjustFuturePaymentsMessage = "epaye.message.adjustFuturePayments"
+  val dueForPaymentMessage = "epaye.message.dueForPayment"
+  val unableToDisplayAccountInformationMessage = "epaye.message.unableToDisplayAccountInformation"
+  val paidToDateForPeriodMessage = "epaye.message.paidToDateForPeriod"
+  val empRefMessage = "epaye.message.empRef"
 }
 

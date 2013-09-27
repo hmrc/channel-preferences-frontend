@@ -15,8 +15,10 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
 import controllers.bt.AccountSummary
 import org.joda.time.LocalDate
 import org.joda.time.chrono.ISOChronology
+import CtMessageKeys._
+import CtPortalUrlKeys._
 
-class CtAccountSummaryViewBuilderTest extends BaseSpec with MockitoSugar {
+class CtAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
   val buildPortalUrl: (String) => String = (value: String) => value
   val ctUtr = CtUtr("12347")
   val aDate = "2012-06-06"
@@ -37,11 +39,11 @@ class CtAccountSummaryViewBuilderTest extends BaseSpec with MockitoSugar {
       val accountSummaryOption: Option[AccountSummary] = builder.build()
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
-      accountSummary.regimeName shouldBe "Corporation Tax"
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]("ct.message.0" -> Seq("12347"), "ct.message.1" -> Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC)))
-      accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage("ctAccountDetails", "common.accountSummary.message.link.viewAccountDetails"),
-        LinkMessage("/makeAPaymentLanding", "common.accountSummary.message.link.makeAPayment"),
-        LinkMessage("ctFileAReturn", "common.accountSummary.message.link.fileAReturn"))
+      accountSummary.regimeName shouldBe regimeNameMessage
+      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])](utrMessage -> Seq("12347"), amountAsOfDateMessage -> Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC)))
+      accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage(accountDetailsPortalUrl, viewAccountDetailsLinkMessage),
+        LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage),
+        LinkMessage(fileAReturnPortalUrl, fileAReturnLinkMessage))
 
     }
 
@@ -52,8 +54,8 @@ class CtAccountSummaryViewBuilderTest extends BaseSpec with MockitoSugar {
       val accountSummaryOption: Option[AccountSummary] = builder.build()
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])](("ct.error.message.summaryUnavailable.1", Seq.empty), ("ct.error.message.summaryUnavailable.2", Seq.empty),
-        ("ct.error.message.summaryUnavailable.3", Seq.empty), ("ct.error.message.summaryUnavailable.4", Seq.empty))
+      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]((summaryUnavailableErrorMessage1, Seq.empty), (summaryUnavailableErrorMessage2, Seq.empty),
+        (summaryUnavailableErrorMessage3, Seq.empty), (summaryUnavailableErrorMessage4, Seq.empty))
       accountSummary.addenda shouldBe Seq.empty
 
 
@@ -62,7 +64,7 @@ class CtAccountSummaryViewBuilderTest extends BaseSpec with MockitoSugar {
     "return None if the user is not enrolled for VAT" in {
       val builder = new CtAccountSummaryViewBuilder(buildPortalUrl, userNotEnrolledForCt, mock[CtMicroService])
       val accountSummaryOption: Option[AccountSummary] = builder.build()
-      accountSummaryOption should be(None)
+      accountSummaryOption shouldBe None
 
     }
   }

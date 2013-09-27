@@ -1,9 +1,8 @@
-vat.message.0=Vat Registration Number: {0}
-vat.message.1=Your account currently shows a balance of {0}
-vat.message.2=You {0} owe us {1}
+vat.regimeName=VAT
 
-vat.accountSummary.linkText.accountDetails=View account details
-vat.accountSummary.linkText.makeAPayment=Make a payment
+vat.registrationNumber.message=Vat Registration Number: {0}
+vat.accountBalance.message=Your account currently shows a balance of {0}
+
 vat.accountSummary.linkText.helpDesk=here
 
 vat.error.message.summaryUnavailable.1= We are unable to display your account information. This may be because:
@@ -11,12 +10,13 @@ vat.error.message.summaryUnavailable.2= the VAT Registration Number that you hav
 vat.error.message.summaryUnavailable.3= you have only just activated this service and there is a short delay before the information is available to view.
 vat.error.message.summaryUnavailable.4= If you do not think either of the above reasons apply you can get more help {0}
 
-ct.message.0=Unique Taxpayer Reference (UTR): {0}
-ct.message.1={0} as of {1}.
 
-ct.accountSummary.linkText.accountDetails=View account details
-ct.accountSummary.linkText.makeAPayment=Make a payment
-ct.accountSummary.linkText.helpDesk=here
+
+
+ct.regimeName=Corporation Tax
+
+ct.message.utr=Unique Taxpayer Reference (UTR): {0}
+ct.message.amountAsOfDate={0} as of {1}.
 
 ct.error.message.summaryUnavailable.1= We are currently unable to display your account information.  This may be because:
 ct.error.message.summaryUnavailable.2= - there is no information to view at this time
@@ -25,11 +25,7 @@ ct.error.message.summaryUnavailable.4= If you do not this either of the above re
 
 
 
-
-
-
-
-
+sa.regimeName=Self-Assessment
 
 sa.message.nothingToPay=You have nothing to pay.
 sa.message.amountDueForPayment={0} is now due for payment.
@@ -42,10 +38,12 @@ sa.message.unableToDisplayAccount.1=We are currently unable to display your acco
 sa.message.unableToDisplayAccount.2=- there is no information to view at this time
 sa.message.unableToDisplayAccount.3=- you have only just activated this service and there is a short delay before the information is available to view.
 sa.message.unableToDisplayAccount.4=- If you do not this either of the above reasons apply, please contact the Online Services Help-desk.
-sa.message.links.viewAccountDetails=View account details
 
-epaye.message.regimeNameRti=Employers PAYE (RTI)
-epaye.message.regimeNameNonRti=Employers PAYE (non-RTI)
+
+
+epaye.regimeName.rti=Employers PAYE (RTI)
+epaye.regimeName.nonRti=Employers PAYE (non-RTI)
+
 epaye.message.nothingToPay=You have nothing to pay.
 epaye.message.youHaveOverPaid=You have overpaid by {0}
 epaye.message.adjustFuturePayments=Please adjust your future payments

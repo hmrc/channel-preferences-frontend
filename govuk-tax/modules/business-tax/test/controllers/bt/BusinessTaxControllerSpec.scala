@@ -24,6 +24,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import uk.gov.hmrc.domain.{SaUtr, Vrn}
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+import controllers.bt.regimeViews.VatMessageKeys
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -75,7 +76,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(
               sa = Some(URI.create("/sa/individual/123456789012")),
-              vat = Some(URI.create("/vat/vrn/754645112"))), Some(new DateTime(1000L)), saUtr = Some(utr), vrn = Some(vrn))))
+              vat = Some(URI.create("/vat/754645112"))), Some(new DateTime(1000L)), saUtr = Some(utr), vrn = Some(vrn))))
 
       when(mockSaMicroService.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
@@ -94,7 +95,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
         ))
       )
 
-      when(mockVatMicroService.root("/vat/vrn/754645112")).thenReturn(VatRoot(Vrn("754645112"), Map.empty))
+      when(mockVatMicroService.root("/vat/754645112")).thenReturn(VatRoot(Vrn("754645112"), Map.empty))
 
       val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
@@ -117,11 +118,11 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(Some(6.1), Some("GBP"))), Some(date))
 
       when(mockAuthMicroService.authority("/auth/oid/johnboy")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/vrn/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
 
-      when(mockVatMicroService.root(s"/vat/vrn/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/vrn/$vrn/accountSummary")))
+      when(mockVatMicroService.root(s"/vat/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/$vrn/accountSummary")))
 
-      when(mockVatMicroService.accountSummary(s"/vat/vrn/$vrn/accountSummary")).thenReturn(Some(accountSummary))
+      when(mockVatMicroService.accountSummary(s"/vat/$vrn/accountSummary")).thenReturn(Some(accountSummary))
 
       val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/johnboy"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
@@ -139,18 +140,18 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       val accountSummary = VatAccountSummary(None, Some(date))
 
       when(mockAuthMicroService.authority("/auth/oid/johnboy")).thenReturn(
-        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/vrn/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
+        Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
 
-      when(mockVatMicroService.root(s"/vat/vrn/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/vrn/$vrn/accountSummary")))
+      when(mockVatMicroService.root(s"/vat/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/$vrn/accountSummary")))
 
-      when(mockVatMicroService.accountSummary(s"/vat/vrn/$vrn/accountSummary")).thenReturn(Some(accountSummary))
+      when(mockVatMicroService.accountSummary(s"/vat/$vrn/accountSummary")).thenReturn(Some(accountSummary))
 
       val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/johnboy"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
 
       status(result) should be(200)
       val content = contentAsString(result)
-      content should include(Messages("vat.error.message.summaryUnavailable.1"))
+      content should include(Messages(VatMessageKeys.summaryUnavailableErrorMessage1))
     }
 
   }

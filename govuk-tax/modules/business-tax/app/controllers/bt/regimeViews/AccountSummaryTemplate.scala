@@ -17,8 +17,8 @@ abstract class AccountSummaryTemplate[T] {
   def regimeTitle : String
 }
 
-object CommonLinkTextKeys {
-  val viewAccountDetailsLink = "common.accountSummary.message.link.viewAccountDetails"
-  val makeAPaymentLink = "common.accountSummary.message.link.makeAPayment"
-  val fileAReturnLink = "common.accountSummary.message.link.fileAReturn"
+trait CommonBusinessMessageKeys {
+  val viewAccountDetailsLinkMessage = "common.accountSummary.message.link.viewAccountDetails"
+  val makeAPaymentLinkMessage = "common.accountSummary.message.link.makeAPayment"
+  val fileAReturnLinkMessage = "common.accountSummary.message.link.fileAReturn"
 }

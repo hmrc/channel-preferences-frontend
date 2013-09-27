@@ -8,6 +8,9 @@ import uk.gov.hmrc.common.microservice.domain.User
 
 case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, vatMicroService: VatMicroService) {
 
+  import VatMessageKeys._
+  import VatPortalUrls._
+
   def build(): Option[AccountSummary] = {
     val vatRootOption: Option[VatRoot] = user.regimes.vat
 
@@ -24,23 +27,42 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: 
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl("vatAccountDetails"), "common.accountSummary.message.link.viewAccountDetails"),
-          LinkMessage(makeAPaymentUri, "common.accountSummary.message.link.makeAPayment"),
-          LinkMessage(buildPortalUrl("vatFileAReturn"), "common.accountSummary.message.link.fileAReturn")
+          LinkMessage(buildPortalUrl(accountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+          LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
+          LinkMessage(buildPortalUrl(fileAReturnPortalUrl), fileAReturnLinkMessage)
         )
 
         accountValueOption match {
           case Some(accountValue) => {
-            AccountSummary("VAT", Seq("vat.message.0" -> Seq(user.userAuthority.vrn.get.vrn),
-              "vat.message.1" -> Seq(MoneyPounds(accountValue))), links)
+            AccountSummary(regimeNameMessage, Seq(vatRegistrationNumberMessage -> Seq(user.userAuthority.vrn.get.vrn),
+              accountBalanceMessage -> Seq(MoneyPounds(accountValue))), links)
           }
           case _ => {
-            AccountSummary("VAT", Seq("vat.error.message.summaryUnavailable.1" -> Seq.empty, "vat.error.message.summaryUnavailable.2" -> Seq.empty,
-              "vat.error.message.summaryUnavailable.3" -> Seq.empty,
-              "vat.error.message.summaryUnavailable.4" -> Seq(LinkMessage("/TODO/HelpDeskLink", "vat.accountSummary.linkText.helpDesk"))), Seq.empty)
+            AccountSummary(regimeNameMessage, Seq(summaryUnavailableErrorMessage1 -> Seq.empty, summaryUnavailableErrorMessage2 -> Seq.empty,
+              summaryUnavailableErrorMessage3 -> Seq.empty,
+              summaryUnavailableErrorMessage4 -> Seq(LinkMessage(helpDeskPortalUrl, helpDeskLinkMessage))), Seq.empty)
           }
         }
     }
   }
 }
 
+object VatPortalUrls {
+  val accountDetailsPortalUrl = "vatAccountDetails"
+  val fileAReturnPortalUrl = "vatFileAReturn"
+  val helpDeskPortalUrl = "vatHelpDesk" // TODO [JJJS] WHAT'S THE CORRECT HELP DESK LINK - was set to "/TODO/HelpDeskLink"
+}
+
+object VatMessageKeys extends CommonBusinessMessageKeys {
+
+  val regimeNameMessage = "vat.regimeName"
+
+  val vatRegistrationNumberMessage = "vat.registrationNumber.message"
+  val accountBalanceMessage = "vat.accountBalance.message"
+  val helpDeskLinkMessage = "vat.accountSummary.linkText.helpDesk"
+
+  val summaryUnavailableErrorMessage1 = "vat.error.message.summaryUnavailable.1"
+  val summaryUnavailableErrorMessage2 = "vat.error.message.summaryUnavailable.2"
+  val summaryUnavailableErrorMessage3 = "vat.error.message.summaryUnavailable.3"
+  val summaryUnavailableErrorMessage4 = "vat.error.message.summaryUnavailable.4"
+}
