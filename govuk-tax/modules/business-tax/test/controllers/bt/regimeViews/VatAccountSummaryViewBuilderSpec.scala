@@ -31,11 +31,11 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryViewOption = builder.build
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
-      accountSummaryView.regimeName shouldBe regimeNameMessage
-      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])](vatRegistrationNumberMessage -> Seq("12345"), accountBalanceMessage -> Seq(MoneyPounds(BigDecimal(6.1))))
-      accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage(accountDetailsPortalUrl, viewAccountDetailsLinkMessage),
+      accountSummaryView.regimeName shouldBe vatRegimeNameMessage
+      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])](vatRegistrationNumberMessage -> Seq("12345"), vatAccountBalanceMessage -> Seq(MoneyPounds(BigDecimal(6.1))))
+      accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage(vatAccountDetailsPortalUrl, viewAccountDetailsLinkMessage),
         LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage), // TODO [JJS] WHAT'S THIS LINK?
-        LinkMessage(fileAReturnPortalUrl, fileAReturnLinkMessage))
+        LinkMessage(vatFileAReturnPortalUrl, fileAReturnLinkMessage))
     }
 
     "return an error message if the account summary is not available" in {
@@ -47,9 +47,9 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryViewOption = builder.build
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
-      accountSummaryView.regimeName shouldBe regimeNameMessage
-      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])]((summaryUnavailableErrorMessage1, Seq.empty), (summaryUnavailableErrorMessage2, Seq.empty),
-        (summaryUnavailableErrorMessage3, Seq.empty), (summaryUnavailableErrorMessage4, Seq(LinkMessage(helpDeskPortalUrl, helpDeskLinkMessage))))
+      accountSummaryView.regimeName shouldBe vatRegimeNameMessage
+      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])]((vatSummaryUnavailableErrorMessage1, Seq.empty), (vatSummaryUnavailableErrorMessage2, Seq.empty),
+        (vatSummaryUnavailableErrorMessage3, Seq.empty), (vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
       accountSummaryView.addenda shouldBe Seq.empty
     }
 

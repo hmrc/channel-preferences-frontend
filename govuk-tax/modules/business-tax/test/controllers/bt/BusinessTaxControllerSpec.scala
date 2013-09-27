@@ -151,7 +151,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
 
       status(result) should be(200)
       val content = contentAsString(result)
-      content should include(Messages(VatMessageKeys.summaryUnavailableErrorMessage1))
+      content should include(Messages(VatMessageKeys.vatSummaryUnavailableErrorMessage1))
     }
 
   }

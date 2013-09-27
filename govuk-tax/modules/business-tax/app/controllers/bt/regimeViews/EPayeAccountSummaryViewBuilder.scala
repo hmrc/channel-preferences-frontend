@@ -26,9 +26,9 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
         val messages : Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage  ++ messageStrategy(accountSummary)()
 
         val links = Seq[RenderableMessage](
-        LinkMessage(buildPortalUrl(homePortalUrl), viewAccountDetailsLinkMessage),
+        LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
         LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-        LinkMessage(buildPortalUrl(homePortalUrl), fileAReturnLinkMessage))
+        LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
 
         AccountSummary(regimeName(accountSummary), messages, links)
     }
@@ -36,8 +36,8 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
 
   private def regimeName(accountSummary: Option[EPayeAccountSummary]) : String = {
     accountSummary match {
-      case Some(summary) if summary.rti.isDefined => rtiRegimeNameMessage
-      case Some(summary) if summary.nonRti.isDefined => nonRtiRegimeNameMessage
+      case Some(summary) if summary.rti.isDefined => epayeRtiRegimeNameMessage
+      case Some(summary) if summary.nonRti.isDefined => epayeNonRtiRegimeNameMessage
       case _ => "N/A"
     }
   }
@@ -51,28 +51,28 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
   }
 
   private def createNoInformationMessage() : Seq[(String, Seq[RenderableMessage])] = {
-    Seq((unableToDisplayAccountInformationMessage, Seq.empty))
+    Seq((epayeSummaryUnavailableErrorMessage, Seq.empty))
   }
 
   private def createMessages(rti: RTI)() : Seq[(String, Seq[RenderableMessage])] = {
     val balance = rti.balance
     if(balance < 0) {
-      Seq((youHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), (adjustFuturePaymentsMessage, Seq.empty))
+      Seq((epayeYouHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), (epayeAdjustFuturePaymentsMessage, Seq.empty))
     } else if(balance > 0) {
-      Seq((dueForPaymentMessage, Seq(MoneyPounds(balance))))
+      Seq((epayeDueForPaymentMessage, Seq(MoneyPounds(balance))))
     }else {
-      Seq((nothingToPayMessage, Seq.empty))
+      Seq((epayeNothingToPayMessage, Seq.empty))
     }
   }
 
-  private def renderEmpRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((empRefMessage, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
+  private def renderEmpRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((epayeEmpRefMessage, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
 
   private def createMessages(nonRti: NonRTI)() : Seq[(String, Seq[RenderableMessage])] = {
     val amountDue = nonRti.paidToDate
     val currentTaxYear = nonRti.currentTaxYear
 
     val currentTaxYearWithFollowingYear = createYearDisplayText(currentTaxYear)
-    Seq((paidToDateForPeriodMessage, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
+    Seq((epayePaidToDateForPeriodMessage, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
   }
 
   private def createYearDisplayText(currentTaxYear: Int) : String = {
@@ -82,20 +82,20 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
 }
 
 object EPayePortalUrlKeys {
-  val homePortalUrl = "home"
+  val epayeHomePortalUrl = "home"
 }
 
 object EPayeMessageKeys extends CommonBusinessMessageKeys {
 
-  val rtiRegimeNameMessage = "epaye.regimeName.rti"
-  val nonRtiRegimeNameMessage = "epaye.regimeName.nonRti"
+  val epayeRtiRegimeNameMessage = "epaye.regimeName.rti"
+  val epayeNonRtiRegimeNameMessage = "epaye.regimeName.nonRti"
 
-  val nothingToPayMessage = "epaye.message.nothingToPay"
-  val youHaveOverpaidMessage = "epaye.message.youHaveOverPaid"
-  val adjustFuturePaymentsMessage = "epaye.message.adjustFuturePayments"
-  val dueForPaymentMessage = "epaye.message.dueForPayment"
-  val unableToDisplayAccountInformationMessage = "epaye.message.unableToDisplayAccountInformation"
-  val paidToDateForPeriodMessage = "epaye.message.paidToDateForPeriod"
-  val empRefMessage = "epaye.message.empRef"
+  val epayeNothingToPayMessage = "epaye.message.nothingToPay"
+  val epayeYouHaveOverpaidMessage = "epaye.message.youHaveOverPaid"
+  val epayeAdjustFuturePaymentsMessage = "epaye.message.adjustFuturePayments"
+  val epayeDueForPaymentMessage = "epaye.message.dueForPayment"
+  val epayeSummaryUnavailableErrorMessage = "epaye.message.summaryUnavailable"
+  val epayePaidToDateForPeriodMessage = "epaye.message.paidToDateForPeriod"
+  val epayeEmpRefMessage = "epaye.message.empRef"
 }
 

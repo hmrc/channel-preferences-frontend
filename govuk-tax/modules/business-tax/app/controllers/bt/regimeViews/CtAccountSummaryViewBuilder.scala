@@ -29,22 +29,22 @@ case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl(accountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+          LinkMessage(buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
           LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
-          LinkMessage(buildPortalUrl(fileAReturnPortalUrl), fileAReturnLinkMessage)
+          LinkMessage(buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage)
 
 
 
         )
         (accountValueOption, dateOfBalanceOption)  match {
           case (Some(accountValue), Some(dateOfBalance)) => {
-            AccountSummary(regimeNameMessage, Seq(utrMessage -> Seq(user.userAuthority.ctUtr.get.utr),
-              amountAsOfDateMessage -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
+            AccountSummary(ctRegimeNameMessage, Seq(ctUtrMessage -> Seq(user.userAuthority.ctUtr.get.utr),
+              ctAmountAsOfDateMessage -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
           }
           case _ => {
-            AccountSummary(regimeNameMessage, Seq(summaryUnavailableErrorMessage1 -> Seq.empty, summaryUnavailableErrorMessage2 -> Seq.empty,
-              summaryUnavailableErrorMessage3 -> Seq.empty,
-              summaryUnavailableErrorMessage4 -> Seq.empty), Seq.empty)
+            AccountSummary(ctRegimeNameMessage, Seq(ctSummaryUnavailableErrorMessage1 -> Seq.empty, ctSummaryUnavailableErrorMessage2 -> Seq.empty,
+              ctSummaryUnavailableErrorMessage3 -> Seq.empty,
+              ctSummaryUnavailableErrorMessage4 -> Seq.empty), Seq.empty)
           }
         }
     }
@@ -52,18 +52,18 @@ case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
 }
 
 object CtPortalUrlKeys {
-  val accountDetailsPortalUrl = "ctAccountDetails"
-  val fileAReturnPortalUrl = "ctFileAReturn"
+  val ctAccountDetailsPortalUrl = "ctAccountDetails"
+  val ctFileAReturnPortalUrl = "ctFileAReturn"
 }
 
 object CtMessageKeys extends CommonBusinessMessageKeys {
 
-  val regimeNameMessage = "ct.regimeName"
+  val ctRegimeNameMessage = "ct.regimeName"
 
-  val utrMessage = "ct.message.utr"
-  val summaryUnavailableErrorMessage1 = "ct.error.message.summaryUnavailable.1"
-  val summaryUnavailableErrorMessage2 = "ct.error.message.summaryUnavailable.2"
-  val summaryUnavailableErrorMessage3 = "ct.error.message.summaryUnavailable.3"
-  val summaryUnavailableErrorMessage4 = "ct.error.message.summaryUnavailable.4"
-  val amountAsOfDateMessage = "ct.message.amountAsOfDate"
+  val ctUtrMessage = "ct.message.utr"
+  val ctSummaryUnavailableErrorMessage1 = "ct.message.summaryUnavailable.1"
+  val ctSummaryUnavailableErrorMessage2 = "ct.message.summaryUnavailable.2"
+  val ctSummaryUnavailableErrorMessage3 = "ct.message.summaryUnavailable.3"
+  val ctSummaryUnavailableErrorMessage4 = "ct.message.summaryUnavailable.4"
+  val ctAmountAsOfDateMessage = "ct.message.amountAsOfDate"
 }

@@ -27,20 +27,20 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: 
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl(accountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+          LinkMessage(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
           LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
-          LinkMessage(buildPortalUrl(fileAReturnPortalUrl), fileAReturnLinkMessage)
+          LinkMessage(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage)
         )
 
         accountValueOption match {
           case Some(accountValue) => {
-            AccountSummary(regimeNameMessage, Seq(vatRegistrationNumberMessage -> Seq(user.userAuthority.vrn.get.vrn),
-              accountBalanceMessage -> Seq(MoneyPounds(accountValue))), links)
+            AccountSummary(vatRegimeNameMessage, Seq(vatRegistrationNumberMessage -> Seq(user.userAuthority.vrn.get.vrn),
+              vatAccountBalanceMessage -> Seq(MoneyPounds(accountValue))), links)
           }
           case _ => {
-            AccountSummary(regimeNameMessage, Seq(summaryUnavailableErrorMessage1 -> Seq.empty, summaryUnavailableErrorMessage2 -> Seq.empty,
-              summaryUnavailableErrorMessage3 -> Seq.empty,
-              summaryUnavailableErrorMessage4 -> Seq(LinkMessage(helpDeskPortalUrl, helpDeskLinkMessage))), Seq.empty)
+            AccountSummary(vatRegimeNameMessage, Seq(vatSummaryUnavailableErrorMessage1 -> Seq.empty, vatSummaryUnavailableErrorMessage2 -> Seq.empty,
+              vatSummaryUnavailableErrorMessage3 -> Seq.empty,
+              vatSummaryUnavailableErrorMessage4 -> Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))), Seq.empty)
           }
         }
     }
@@ -48,21 +48,21 @@ case class VatAccountSummaryViewBuilder(buildPortalUrl: String => String, user: 
 }
 
 object VatPortalUrls {
-  val accountDetailsPortalUrl = "vatAccountDetails"
-  val fileAReturnPortalUrl = "vatFileAReturn"
-  val helpDeskPortalUrl = "vatHelpDesk" // TODO [JJJS] WHAT'S THE CORRECT HELP DESK LINK - was set to "/TODO/HelpDeskLink"
+  val vatAccountDetailsPortalUrl = "vatAccountDetails"
+  val vatFileAReturnPortalUrl = "vatFileAReturn"
+  val vatHelpDeskPortalUrl = "vatHelpDesk" // TODO [JJJS] WHAT'S THE CORRECT HELP DESK LINK - was set to "/TODO/HelpDeskLink"
 }
 
 object VatMessageKeys extends CommonBusinessMessageKeys {
 
-  val regimeNameMessage = "vat.regimeName"
+  val vatRegimeNameMessage = "vat.regimeName"
 
-  val vatRegistrationNumberMessage = "vat.registrationNumber.message"
-  val accountBalanceMessage = "vat.accountBalance.message"
-  val helpDeskLinkMessage = "vat.accountSummary.linkText.helpDesk"
+  val vatRegistrationNumberMessage = "vat.message.registrationNumber"
+  val vatAccountBalanceMessage = "vat.message.accountBalance"
+  val vatHelpDeskLinkMessage = "vat.link.message.accountSummary.helpDesk"
 
-  val summaryUnavailableErrorMessage1 = "vat.error.message.summaryUnavailable.1"
-  val summaryUnavailableErrorMessage2 = "vat.error.message.summaryUnavailable.2"
-  val summaryUnavailableErrorMessage3 = "vat.error.message.summaryUnavailable.3"
-  val summaryUnavailableErrorMessage4 = "vat.error.message.summaryUnavailable.4"
+  val vatSummaryUnavailableErrorMessage1 = "vat.message.summaryUnavailable.1"
+  val vatSummaryUnavailableErrorMessage2 = "vat.message.summaryUnavailable.2"
+  val vatSummaryUnavailableErrorMessage3 = "vat.message.summaryUnavailable.3"
+  val vatSummaryUnavailableErrorMessage4 = "vat.message.summaryUnavailable.4"
 }

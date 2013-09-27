@@ -19,22 +19,22 @@ case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: U
       saRoot => getAccountSummaryData(saRoot, saMicroService) match {
         case Some(saAccountSummary) => {
           AccountSummary(
-            regimeName,
+            saRegimeName,
             SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
             Seq(
-              LinkMessage(buildPortalUrl(homePortalUrl), viewAccountDetailsLinkMessage),
+              LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage),
               LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-              LinkMessage(buildPortalUrl(homePortalUrl), fileAReturnLinkMessage))
+              LinkMessage(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage))
           )
         }
         case _ =>
           AccountSummary(
-            regimeName,
+            saRegimeName,
             Seq(
-              (unableToDisplayAccountMessage1, Seq.empty),
-              (unableToDisplayAccountMessage2, Seq.empty),
-              (unableToDisplayAccountMessage3, Seq.empty),
-              (unableToDisplayAccountMessage4, Seq.empty)
+              (saSummaryUnavailableErrorMessage1, Seq.empty),
+              (saSummaryUnavailableErrorMessage2, Seq.empty),
+              (saSummaryUnavailableErrorMessage3, Seq.empty),
+              (saSummaryUnavailableErrorMessage4, Seq.empty)
             ),
             Seq.empty
           )
@@ -60,7 +60,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
 
         addLiabilityMessageIfApplicable(accountSummary.nextPayment,
-                                    Seq((youHaveOverpaidMessage, Seq.empty),(amountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))
+                                    Seq((saYouHaveOverpaidMessage, Seq.empty),(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))
                                     ), None)
       }
       case _ => {
@@ -69,18 +69,18 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
                 Seq(
-                  (amountDueForPaymentMessage, Seq[RenderableMessage](MoneyPounds(totalAmountDueToHmrc.amount))),
-                  (interestApplicableMessage, Seq.empty)
+                  (saAmountDueForPaymentMessage, Seq[RenderableMessage](MoneyPounds(totalAmountDueToHmrc.amount))),
+                  (saInterestApplicableMessage, Seq.empty)
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
                 Seq(
-                  (nothingToPayMessage, Seq.empty)
+                  (saNothingToPayMessage, Seq.empty)
                 )
               }
               case false => {
                 Seq(
-                  (amountDueForPaymentMessage, Seq[RenderableMessage](MoneyPounds(totalAmountDueToHmrc.amount))),
-                  (smallAmountToPayMessage, Seq.empty)
+                  (saAmountDueForPaymentMessage, Seq[RenderableMessage](MoneyPounds(totalAmountDueToHmrc.amount))),
+                  (saSmallAmountToPayMessage, Seq.empty)
                 )
               }
             }
@@ -88,7 +88,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
           }
           case _ => {
             val msgs = Seq(
-              (nothingToPayMessage, Seq.empty)
+              (saNothingToPayMessage, Seq.empty)
             )
             addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, None)
           }
@@ -101,7 +101,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
   private def getLiabilityMessage(liability: Option[Liability]): Option[(String, Seq[RenderableMessage])] = {
     liability match {
-      case Some(l) => Some((willBecomeDueMessage, Seq(MoneyPounds(liability.get.amount), liability.get.dueDate)))
+      case Some(l) => Some((saWillBecomeDueMessage, Seq(MoneyPounds(liability.get.amount), liability.get.dueDate)))
       case None => None
     }
   }
@@ -122,22 +122,22 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 }
 
 object SaPortalUrlKeys {
-  val homePortalUrl = "home"
+  val saHomePortalUrl = "home"
 }
 
 object SaMessageKeys extends CommonBusinessMessageKeys {
 
-  val regimeName = "sa.regimeName"
+  val saRegimeName = "sa.regimeName"
 
-  val nothingToPayMessage = "sa.message.nothingToPay"
-  val amountDueForPaymentMessage = "sa.message.amountDueForPayment"
-  val interestApplicableMessage = "sa.message.interestApplicable"
-  val willBecomeDueMessage = "sa.message.willBecomeDue"
-  val youHaveOverpaidMessage = "sa.message.youHaveOverpaid"
-  val amountDueForRepaymentMessage = "sa.message.amountDueForRepayment"
-  val smallAmountToPayMessage = "sa.message.smallAmountToPay"
-  val unableToDisplayAccountMessage1 = "sa.message.unableToDisplayAccount.1"
-  val unableToDisplayAccountMessage2 = "sa.message.unableToDisplayAccount.2"
-  val unableToDisplayAccountMessage3 = "sa.message.unableToDisplayAccount.3"
-  val unableToDisplayAccountMessage4 = "sa.message.unableToDisplayAccount.4"
+  val saNothingToPayMessage = "sa.message.nothingToPay"
+  val saAmountDueForPaymentMessage = "sa.message.amountDueForPayment"
+  val saInterestApplicableMessage = "sa.message.interestApplicable"
+  val saWillBecomeDueMessage = "sa.message.willBecomeDue"
+  val saYouHaveOverpaidMessage = "sa.message.youHaveOverpaid"
+  val saAmountDueForRepaymentMessage = "sa.message.amountDueForRepayment"
+  val saSmallAmountToPayMessage = "sa.message.smallAmountToPay"
+  val saSummaryUnavailableErrorMessage1 = "sa.message.summaryUnavailable.1"
+  val saSummaryUnavailableErrorMessage2 = "sa.message.summaryUnavailable.2"
+  val saSummaryUnavailableErrorMessage3 = "sa.message.summaryUnavailable.3"
+  val saSummaryUnavailableErrorMessage4 = "sa.message.summaryUnavailable.4"
 }

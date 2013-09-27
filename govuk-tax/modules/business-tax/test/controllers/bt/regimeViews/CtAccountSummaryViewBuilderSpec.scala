@@ -39,11 +39,11 @@ class CtAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryOption: Option[AccountSummary] = builder.build()
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
-      accountSummary.regimeName shouldBe regimeNameMessage
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])](utrMessage -> Seq("12347"), amountAsOfDateMessage -> Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC)))
-      accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage(accountDetailsPortalUrl, viewAccountDetailsLinkMessage),
+      accountSummary.regimeName shouldBe ctRegimeNameMessage
+      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])](ctUtrMessage -> Seq("12347"), ctAmountAsOfDateMessage -> Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC)))
+      accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage(ctAccountDetailsPortalUrl, viewAccountDetailsLinkMessage),
         LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage),
-        LinkMessage(fileAReturnPortalUrl, fileAReturnLinkMessage))
+        LinkMessage(ctFileAReturnPortalUrl, fileAReturnLinkMessage))
 
     }
 
@@ -54,8 +54,8 @@ class CtAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryOption: Option[AccountSummary] = builder.build()
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]((summaryUnavailableErrorMessage1, Seq.empty), (summaryUnavailableErrorMessage2, Seq.empty),
-        (summaryUnavailableErrorMessage3, Seq.empty), (summaryUnavailableErrorMessage4, Seq.empty))
+      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])]((ctSummaryUnavailableErrorMessage1, Seq.empty), (ctSummaryUnavailableErrorMessage2, Seq.empty),
+        (ctSummaryUnavailableErrorMessage3, Seq.empty), (ctSummaryUnavailableErrorMessage4, Seq.empty))
       accountSummary.addenda shouldBe Seq.empty
 
 

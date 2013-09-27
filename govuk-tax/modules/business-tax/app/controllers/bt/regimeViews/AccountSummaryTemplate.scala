@@ -18,7 +18,7 @@ abstract class AccountSummaryTemplate[T] {
 }
 
 trait CommonBusinessMessageKeys {
-  val viewAccountDetailsLinkMessage = "common.accountSummary.message.link.viewAccountDetails"
-  val makeAPaymentLinkMessage = "common.accountSummary.message.link.makeAPayment"
-  val fileAReturnLinkMessage = "common.accountSummary.message.link.fileAReturn"
+  val viewAccountDetailsLinkMessage = "common.link.message.accountSummary.viewAccountDetails"
+  val makeAPaymentLinkMessage = "common.link.message.accountSummary.makeAPayment"
+  val fileAReturnLinkMessage = "common.link.message.accountSummary.fileAReturn"
 }
