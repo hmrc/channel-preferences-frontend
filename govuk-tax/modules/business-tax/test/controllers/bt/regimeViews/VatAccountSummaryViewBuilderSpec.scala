@@ -26,7 +26,7 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(Some(6.1), Some("GBP"))), Some(aDate))
       val mockVatMicroService = mock[VatMicroService]
-      when(mockVatMicroService.accountSummary(s"/vat/vrn/${vrn.vrn}")).thenReturn(Some(accountSummary))
+      when(mockVatMicroService.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
       val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(mockVatMicroService)
       val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)
@@ -42,7 +42,7 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
 
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(None, Some("GBP"))), Some(aDate))
       val mockVatMicroService = mock[VatMicroService]
-      when(mockVatMicroService.accountSummary(s"/vat/vrn/${vrn.vrn}")).thenReturn(Some(accountSummary))
+      when(mockVatMicroService.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
       val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(mockVatMicroService)
       val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)

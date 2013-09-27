@@ -29,22 +29,22 @@ case class CtAccountSummaryViewBuilder(ctMicroService: CtMicroService) {
 
         val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
         val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl("ctAccountDetails"), "common.accountSummary.message.link.viewAccountDetails"),
-          LinkMessage(makeAPaymentUri, "common.accountSummary.message.link.makeAPayment"),
-          LinkMessage(buildPortalUrl("ctFileAReturn"), "common.accountSummary.message.link.fileAReturn")
+          LinkMessage(buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+          LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
+          LinkMessage(buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage)
 
 
 
         )
         (accountValueOption, dateOfBalanceOption)  match {
           case (Some(accountValue), Some(dateOfBalance)) => {
-            AccountSummary("Corporation Tax", Seq("ct.message.0" -> Seq(user.userAuthority.ctUtr.get.utr),
-              "ct.message.1" -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
+            AccountSummary(ctRegimeNameMessage, Seq(ctUtrMessage -> Seq(user.userAuthority.ctUtr.get.utr),
+              ctAmountAsOfDateMessage -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))), links)
           }
           case _ => {
-            AccountSummary("Corporation Tax", Seq("ct.error.message.summaryUnavailable.1" -> Seq.empty, "ct.error.message.summaryUnavailable.2" -> Seq.empty,
-              "ct.error.message.summaryUnavailable.3" -> Seq.empty,
-              "ct.error.message.summaryUnavailable.4" -> Seq.empty), Seq.empty)
+            AccountSummary(ctRegimeNameMessage, Seq(ctSummaryUnavailableErrorMessage1 -> Seq.empty, ctSummaryUnavailableErrorMessage2 -> Seq.empty,
+              ctSummaryUnavailableErrorMessage3 -> Seq.empty,
+              ctSummaryUnavailableErrorMessage4 -> Seq.empty), Seq.empty)
           }
         }
     }
