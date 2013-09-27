@@ -10,7 +10,6 @@ import views.helpers.LinkMessage
 import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.RTI
-import controllers.bt.AccountSummary
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
 

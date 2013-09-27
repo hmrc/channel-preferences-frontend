@@ -2,16 +2,19 @@ package controllers.bt
 
 import ct.CtMicroService
 import org.joda.time.DateTime
-import uk.gov.hmrc.common.microservice.domain._
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
-import views.helpers.RenderableMessage
 import views.html.make_a_payment_landing
-import controllers.bt.regimeViews.{EPayeAccountSummaryViewBuilder, CtAccountSummaryViewBuilder, SaAccountSummaryViewBuilder, VatAccountSummaryViewBuilder}
+import controllers.bt.regimeViews._
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
-import uk.gov.hmrc.domain.{SaUtr, EmpRef, Vrn, CtUtr}
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.Vrn
 
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
@@ -63,22 +66,4 @@ private object BusinessUser {
 }
 
 
-case class AccountSummaries(regimes: Seq[AccountSummary])
 
-class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService, ctMicroService : CtMicroService, epayeConnector : EPayeConnector){
-
-  val saRegimeAccountSummaryViewBuilder = SaAccountSummaryViewBuilder(saMicroService)
-  val vatRegimeAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(vatMicroService)
-  val ctRegimeAccountSummaryViewBuilder = CtAccountSummaryViewBuilder(ctMicroService)
-  val epayeRegimeAccountSummaryViewBuilder = EPayeAccountSummaryViewBuilder(epayeConnector)
-
-  def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
-    val saRegime = saRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-    val vatRegime = vatRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-    val ctRegime = ctRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-    val epayeRegime = epayeRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-    new AccountSummaries(Seq(saRegime, vatRegime, ctRegime, epayeRegime).flatten)
-  }
-}
-
-case class AccountSummary(regimeName: String, messages: Seq[(String, Seq[RenderableMessage])], addenda: Seq[RenderableMessage])

@@ -8,7 +8,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.Liability
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.bt.AccountSummary
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 
 case class SaAccountSummaryViewBuilder(saMicroService: SaMicroService) {

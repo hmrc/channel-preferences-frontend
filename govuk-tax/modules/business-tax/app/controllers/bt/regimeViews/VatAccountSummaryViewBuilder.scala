@@ -2,7 +2,7 @@ package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountSummary, VatRoot}
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import controllers.bt.{routes, AccountSummary}
+import controllers.bt.{routes}
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.domain.User
 

@@ -3,7 +3,7 @@ package controllers.bt.regimeViews
 import ct.CtMicroService
 import ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import controllers.bt.{AccountSummary, routes}
+import controllers.bt.{routes}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.DateConverter
 

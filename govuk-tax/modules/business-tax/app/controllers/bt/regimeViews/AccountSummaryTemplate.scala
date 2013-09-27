@@ -1,7 +1,6 @@
 package controllers.bt.regimeViews
 
-import controllers.bt.AccountSummary
-import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoots}
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import views.helpers.RenderableMessage
 
 abstract class AccountSummaryTemplate[T] {

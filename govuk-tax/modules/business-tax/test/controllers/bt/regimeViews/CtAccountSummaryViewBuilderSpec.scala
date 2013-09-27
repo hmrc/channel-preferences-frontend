@@ -12,7 +12,6 @@ import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import java.net.URI
 import views.helpers.{LinkMessage, MoneyPounds, RenderableMessage}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import controllers.bt.AccountSummary
 import org.joda.time.LocalDate
 import org.joda.time.chrono.ISOChronology
 import CtMessageKeys._

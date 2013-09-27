@@ -24,7 +24,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import uk.gov.hmrc.domain.{SaUtr, Vrn}
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
-import controllers.bt.regimeViews.VatMessageKeys
+import controllers.bt.regimeViews.{AccountSummariesFactory, VatMessageKeys}
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 

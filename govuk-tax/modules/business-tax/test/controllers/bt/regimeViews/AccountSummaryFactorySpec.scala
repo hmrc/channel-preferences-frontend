@@ -3,7 +3,6 @@ package controllers.bt.regimeViews
 import ct.CtMicroService
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import controllers.bt.{AccountSummary, AccountSummariesFactory}
 import uk.gov.hmrc.common.microservice.vat.VatMicroService
 import uk.gov.hmrc.common.microservice.sa.SaMicroService
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
