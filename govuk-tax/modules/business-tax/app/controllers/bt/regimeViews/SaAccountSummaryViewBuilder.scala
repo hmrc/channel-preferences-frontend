@@ -11,9 +11,9 @@ import uk.gov.hmrc.common.microservice.domain.User
 import controllers.bt.AccountSummary
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 
-case class SaAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, saMicroService: SaMicroService) {
+case class SaAccountSummaryViewBuilder(saMicroService: SaMicroService) {
 
-  def build(): Option[AccountSummary] = {
+  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
 
     user.regimes.sa.map {
       saRoot => getAccountSummaryData(saRoot, saMicroService) match {

@@ -7,12 +7,12 @@ import controllers.bt.{AccountSummary, routes}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.DateConverter
 
-case class CtAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, ctMicroService: CtMicroService) {
+case class CtAccountSummaryViewBuilder(ctMicroService: CtMicroService) {
 
   import CtMessageKeys._
   import CtPortalUrlKeys._
 
-  def build(): Option[AccountSummary] = {
+  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
     val ctRootOption: Option[CtRoot] = user.regimes.ct
 
     ctRootOption.map {

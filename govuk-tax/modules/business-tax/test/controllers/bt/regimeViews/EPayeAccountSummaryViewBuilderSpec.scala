@@ -148,7 +148,7 @@ class EPayeAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockPortalUrlBuilder.build(epayeHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG
 
-    val actualAccountSummary = EPayeAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockEPayeConnector).build().get
+    val actualAccountSummary = EPayeAccountSummaryViewBuilder(mockEPayeConnector).build(mockPortalUrlBuilder.build _, mockUser).get
 
     actualAccountSummary.regimeName shouldBe expectedRegimeName
 

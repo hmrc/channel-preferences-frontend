@@ -14,16 +14,17 @@ import controllers.bt.AccountSummary
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
 
-case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user: User, epayeConnector: EPayeConnector) {
+case class EPayeAccountSummaryViewBuilder(epayeConnector: EPayeConnector) {
 
-  def build(): Option[AccountSummary] = {
+
+  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
     val epayeRootOption: Option[EPayeRoot] = user.regimes.epaye
 
     epayeRootOption.map {
       epayeRoot: EPayeRoot =>
 
         val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
-        val messages : Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage  ++ messageStrategy(accountSummary)()
+        val messages : Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage(user)  ++ messageStrategy(accountSummary)()
 
         val links = Seq[RenderableMessage](
         LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
@@ -65,7 +66,7 @@ case class EPayeAccountSummaryViewBuilder(buildPortalUrl: String => String, user
     }
   }
 
-  private def renderEmpRefMessage : Seq[(String, Seq[RenderableMessage])] = Seq((epayeEmpRefMessage, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
+  private def renderEmpRefMessage(user: User) : Seq[(String, Seq[RenderableMessage])] = Seq((epayeEmpRefMessage, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
 
   private def createMessages(nonRti: NonRTI)() : Seq[(String, Seq[RenderableMessage])] = {
     val amountDue = nonRti.paidToDate

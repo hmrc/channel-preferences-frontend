@@ -158,8 +158,8 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
           (saSummaryUnavailableErrorMessage4, Seq.empty)
         )
 
-      val actualAccountSummary = SaAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockSaMicroService).build().get
-      actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName
+      val actualAccountSummary = SaAccountSummaryViewBuilder(mockSaMicroService).build(mockPortalUrlBuilder.build _, mockUser).get
+      actualAccountSummary.regimeName shouldBe saRegimeName
       actualAccountSummary.messages shouldBe expectedMessages
 
     }
@@ -181,7 +181,7 @@ class SaAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockPortalUrlBuilder.build(saHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl)
 
-    val actualAccountSummary = SaAccountSummaryViewBuilder(mockPortalUrlBuilder.build _, mockUser, mockSaMicroService).build().get
+    val actualAccountSummary = SaAccountSummaryViewBuilder(mockSaMicroService).build(mockPortalUrlBuilder.build _, mockUser).get
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName
 

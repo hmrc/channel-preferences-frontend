@@ -27,8 +27,8 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(Some(6.1), Some("GBP"))), Some(aDate))
       val mockVatMicroService = mock[VatMicroService]
       when(mockVatMicroService.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
-      val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(buildPortalUrl, userEnrolledForVat, mockVatMicroService)
-      val accountSummaryViewOption = builder.build
+      val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(mockVatMicroService)
+      val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
@@ -43,8 +43,8 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(None, Some("GBP"))), Some(aDate))
       val mockVatMicroService = mock[VatMicroService]
       when(mockVatMicroService.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
-      val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(buildPortalUrl, userEnrolledForVat, mockVatMicroService)
-      val accountSummaryViewOption = builder.build
+      val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(mockVatMicroService)
+      val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
@@ -59,8 +59,8 @@ class VatAccountSummaryViewBuilderSpec extends BaseSpec with MockitoSugar {
       val regimeRoots = RegimeRoots(None, None, None, None, None)
       val user = User("jim", userAuthority, regimeRoots, None, None)
       val mockVatMicroService = mock[VatMicroService]
-      val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(buildPortalUrl, user, mockVatMicroService)
-      val accountSummaryViewOption = builder.build
+      val builder: VatAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(mockVatMicroService)
+      val accountSummaryViewOption = builder.build(buildPortalUrl, user)
       accountSummaryViewOption shouldBe None
     }
   }
