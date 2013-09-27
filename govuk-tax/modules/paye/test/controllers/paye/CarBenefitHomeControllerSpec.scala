@@ -12,14 +12,14 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import org.joda.time.{DateTimeZone, LocalDate}
 import org.scalatest.TestData
 import CarBenefitFormFields._
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import uk.gov.hmrc.common.microservice.paye.domain.Car
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
+import uk.gov.hmrc.utils.DateConverter
 import play.api.mvc.Result
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import CarBenefitDataBuilder._
+import uk.gov.hmrc.common.microservice.paye.domain.Car
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter {
 
@@ -150,9 +150,12 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
     }
     "return 200 and show the add car benefit form and show your company if the employer name does not exist " in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val johnDensmoresNamelessEmployments = Seq(
+        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType))
 
-      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 2)
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresNamelessEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1)
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -176,6 +179,13 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
       val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2014, 1)
+
+      status(result) shouldBe 400
+    }
+    "return 400 if the employer is not the primary employer" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 2)
 
       status(result) shouldBe 400
     }
@@ -305,14 +315,22 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployerContributionSubmit(Some("true"), Some("0"), "error_q_7", "Payment towards private use must be greater than zero if you have selected yes.")
     }
 
-    "return 400 if the submition is for year that is not the current tax year" in new WithApplication(FakeApplication()) {
+    "return 400 if the submitting is for year that is not the current tax year" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      assertSuccessfulDatesSubmit(Some(inTwoDaysTime), false,  None, false,  None)
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2014, 1)
 
       status(result) shouldBe 400
     }
+
+    "return 400 if the submitting is for employment number that is not the primary employment" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2013, 2)
+
+      status(result) shouldBe 400
+    }
+
 
     def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],
                            carUnavailableVal:  Option[String],
