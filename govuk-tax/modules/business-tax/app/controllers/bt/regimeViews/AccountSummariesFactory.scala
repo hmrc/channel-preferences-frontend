@@ -8,10 +8,10 @@ import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 
 class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService, ctMicroService : CtMicroService, epayeConnector : EPayeConnector){
 
-  val saRegimeAccountSummaryViewBuilder = SaAccountSummaryViewBuilder(saMicroService)
-  val vatRegimeAccountSummaryViewBuilder = VatAccountSummaryViewBuilder(vatMicroService)
-  val ctRegimeAccountSummaryViewBuilder = CtAccountSummaryViewBuilder(ctMicroService)
-  val epayeRegimeAccountSummaryViewBuilder = EPayeAccountSummaryViewBuilder(epayeConnector)
+  private [regimeViews] val saRegimeAccountSummaryViewBuilder = SaAccountSummaryBuilder(saMicroService)
+  private [regimeViews] val vatRegimeAccountSummaryViewBuilder = VatAccountSummaryBuilder(vatMicroService)
+  private [regimeViews] val ctRegimeAccountSummaryViewBuilder = CtAccountSummaryBuilder(ctMicroService)
+  private [regimeViews] val epayeRegimeAccountSummaryViewBuilder = EPayeAccountSummaryBuilder(epayeConnector)
 
   def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
     val saRegime = saRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
