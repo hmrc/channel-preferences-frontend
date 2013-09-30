@@ -12,29 +12,28 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
+import uk.gov.hmrc.domain.EmpRef
 
-case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) {
+case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) extends AccountSummaryTemplate[EPayeRoot] {
+
+  override def buildAccountSummary(epayeRoot: EPayeRoot, buildPortalUrl: String => String): AccountSummary = {
 
 
-  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
-    val epayeRootOption: Option[EPayeRoot] = user.regimes.epaye
+    val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
+    val messages: Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
 
-    epayeRootOption.map {
-      epayeRoot: EPayeRoot =>
+    val links = Seq[RenderableMessage](
+      LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
+      LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
 
-        val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
-        val messages : Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage(user)  ++ messageStrategy(accountSummary)()
-
-        val links = Seq[RenderableMessage](
-        LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
-        LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-        LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
-
-        AccountSummary(regimeName(accountSummary), messages, links)
-    }
+    AccountSummary(regimeName(accountSummary), messages, links)
   }
 
-  private def regimeName(accountSummary: Option[EPayeAccountSummary]) : String = {
+  override def rootForRegime(user: User): Option[EPayeRoot] = user.regimes.epaye
+
+
+  private def regimeName(accountSummary: Option[EPayeAccountSummary]): String = {
     accountSummary match {
       case Some(summary) if summary.rti.isDefined => epayeRtiRegimeNameMessage
       case Some(summary) if summary.nonRti.isDefined => epayeNonRtiRegimeNameMessage
@@ -42,32 +41,32 @@ case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) {
     }
   }
 
-  private def messageStrategy(accountSummary: Option[EPayeAccountSummary]) : () => Seq[(String, Seq[RenderableMessage])] = {
+  private def messageStrategy(accountSummary: Option[EPayeAccountSummary]): () => Seq[(String, Seq[RenderableMessage])] = {
     accountSummary match {
-      case Some(summary) if summary.rti.isDefined => createMessages(summary.rti.get) _
-      case Some(summary) if summary.nonRti.isDefined => createMessages(summary.nonRti.get) _
-      case _ => createNoInformationMessage _
+      case Some(summary) if summary.rti.isDefined => createMessages(summary.rti.get)
+      case Some(summary) if summary.nonRti.isDefined => createMessages(summary.nonRti.get)
+      case _ => createNoInformationMessage
     }
   }
 
-  private def createNoInformationMessage() : Seq[(String, Seq[RenderableMessage])] = {
+  private def createNoInformationMessage(): Seq[(String, Seq[RenderableMessage])] = {
     Seq((epayeSummaryUnavailableErrorMessage, Seq.empty))
   }
 
-  private def createMessages(rti: RTI)() : Seq[(String, Seq[RenderableMessage])] = {
+  private def createMessages(rti: RTI)(): Seq[(String, Seq[RenderableMessage])] = {
     val balance = rti.balance
-    if(balance < 0) {
+    if (balance < 0) {
       Seq((epayeYouHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), (epayeAdjustFuturePaymentsMessage, Seq.empty))
-    } else if(balance > 0) {
+    } else if (balance > 0) {
       Seq((epayeDueForPaymentMessage, Seq(MoneyPounds(balance))))
-    }else {
+    } else {
       Seq((epayeNothingToPayMessage, Seq.empty))
     }
   }
 
-  private def renderEmpRefMessage(user: User) : Seq[(String, Seq[RenderableMessage])] = Seq((epayeEmpRefMessage, Seq[RenderableMessage](user.userAuthority.empRef.get.toString)))
+  private def renderEmpRefMessage(empRef: EmpRef): Seq[(String, Seq[RenderableMessage])] = Seq((epayeEmpRefMessage, Seq[RenderableMessage](empRef.toString)))
 
-  private def createMessages(nonRti: NonRTI)() : Seq[(String, Seq[RenderableMessage])] = {
+  private def createMessages(nonRti: NonRTI)(): Seq[(String, Seq[RenderableMessage])] = {
     val amountDue = nonRti.paidToDate
     val currentTaxYear = nonRti.currentTaxYear
 
@@ -75,7 +74,7 @@ case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) {
     Seq((epayePaidToDateForPeriodMessage, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
   }
 
-  private def createYearDisplayText(currentTaxYear: Int) : String = {
+  private def createYearDisplayText(currentTaxYear: Int): String = {
     val nextTaxYear = (currentTaxYear + 1).toString.substring(2)
     s"%d - %s".format(currentTaxYear, nextTaxYear)
   }

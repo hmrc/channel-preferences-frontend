@@ -6,6 +6,7 @@ import uk.gov.hmrc.common.microservice.domain.{ TaxRegime, RegimeRoot }
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import org.joda.time.LocalDate
+import uk.gov.hmrc.domain.SaUtr
 
 object SaRegime extends TaxRegime {
   override def isAuthorised(regimes: Regimes) = {
@@ -17,12 +18,13 @@ object SaRegime extends TaxRegime {
   }
 }
 
-case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
+case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot[SaUtr] {
 
   private val individualDetailsKey = "individual/details"
   private val individualMainAddressKey = "individual/details/main-address"
   private val individualAccountSummaryKey = "individual/account-summary"
 
+  def identifier = SaUtr(utr)
   def personalDetails(implicit saConnector: SaConnector): Option[SaPerson] = {
     links.get(individualDetailsKey) match {
       case Some(uri) => saConnector.person(uri)

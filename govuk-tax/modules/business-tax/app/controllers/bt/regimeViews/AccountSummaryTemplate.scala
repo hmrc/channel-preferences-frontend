@@ -1,19 +1,17 @@
 package controllers.bt.regimeViews
 
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import views.helpers.RenderableMessage
+import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoot}
 
-abstract class AccountSummaryTemplate[T] {
+abstract class AccountSummaryTemplate[R <: RegimeRoot[_]] {
 
-  def build(regimeRoots: RegimeRoots, buildPortalUrl: String => String) : AccountSummary = {
-      val hodAccountSummary: Option[T] = regimeAccountSummary(regimeRoots)
-      AccountSummary(regimeTitle, messages(hodAccountSummary), links(buildPortalUrl))
+  def build(buildPortalUrl: String => String, user: User) : Option[AccountSummary] = {
+    rootForRegime(user).map {
+      regimeRoot => buildAccountSummary(regimeRoot, buildPortalUrl)
+    }
   }
 
-  def regimeAccountSummary(userRegimes: RegimeRoots) : Option[T]
-  def messages(regimeModel: Option[T]) : Seq[(String, Seq[RenderableMessage])]
-  def links(buildPortalUrl: String => String) : Seq[RenderableMessage]
-  def regimeTitle : String
+  def buildAccountSummary(regimeRoot : R, buildPortalUrl: String => String) : AccountSummary
+  def rootForRegime(user : User): Option[R]
 }
 
 trait CommonBusinessMessageKeys {

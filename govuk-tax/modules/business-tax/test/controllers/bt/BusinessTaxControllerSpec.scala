@@ -250,12 +250,12 @@ trait GeoffFisherExpectations {
 
   val geoffFisherVatRoot = VatRoot(vrn = geoffFisherVrn, links = Map("something" -> s"$geoffFisherVrn/stuff"))
 
-  val geoffFisherEPayeRoot = EPayeRoot(links = EPayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah")))
+  val geoffFisherEPayeRoot = EPayeRoot(links = EPayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ), geoffFisherEmpRef )
 
-  val geoffFisherCtRoot = CtRoot(links = Map("something" -> s"$geoffFisherCtUtr/dsffds"))
+  val geoffFisherCtRoot = CtRoot(links = Map("something" -> s"$geoffFisherCtUtr/dsffds"), ctUtr = geoffFisherCtUtr)
 
   implicit val geoffFisherUser = User(
-    user = geoffFisherAuthId,
+    userId = geoffFisherAuthId,
     userAuthority = geoffFisherAuthority,
     regimes = RegimeRoots(paye = None, sa = Some(geoffFisherSaRoot), vat = Some(geoffFisherVatRoot), epaye = Some(geoffFisherEPayeRoot), ct = Some(geoffFisherCtRoot)),
     nameFromGovernmentGateway = nameFromGovernmentGateway,
@@ -287,7 +287,7 @@ trait NonBusinessUserExpectations {
   val johnDensmorePayeRoot = mock[PayeRoot]
 
   val johnDensmoreUser = User(
-    user = johnDensmoreAuthId,
+    userId = johnDensmoreAuthId,
     userAuthority = johnDensmoreAuthority,
     regimes = RegimeRoots(paye = Some(johnDensmorePayeRoot), sa = None, vat = None, epaye = None, ct = None),
     nameFromGovernmentGateway = None,

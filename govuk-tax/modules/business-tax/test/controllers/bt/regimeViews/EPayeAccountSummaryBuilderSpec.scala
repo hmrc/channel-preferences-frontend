@@ -141,8 +141,8 @@ class EPayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
     when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-    when(mockUserAuthority.empRef).thenReturn(Some(dummyEmpRef))
     when(mockRegimeRoots.epaye).thenReturn(Some(mockEPayeRoot))
+    when(mockEPayeRoot.identifier).thenReturn(dummyEmpRef)
     when(mockEPayeRoot.accountSummary(mockEPayeConnector)).thenReturn(accountSummary)
 
     when(mockPortalUrlBuilder.build(epayeHomePortalUrl)).thenReturn(homeUrl)

@@ -13,7 +13,7 @@ import play.api.libs.json.JsValue
 import org.slf4j.MDC
 import controllers.common.HeaderNames
 
-trait TaxRegimeMicroService[A <: RegimeRoot] extends MicroService {
+trait TaxRegimeMicroService[A <: RegimeRoot[_]] extends MicroService {
 
   def root[A](uri: String)(implicit m: Manifest[A]): A = httpGet[A](uri).getOrElse(throw new IllegalStateException(s"Expected root not found at URI '$uri'"))
 

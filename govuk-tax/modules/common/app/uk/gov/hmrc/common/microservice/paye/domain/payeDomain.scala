@@ -7,6 +7,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
+import uk.gov.hmrc.domain.Nino
 
 object PayeRegime extends TaxRegime {
 
@@ -24,9 +25,11 @@ case class PayeRoot(nino: String,
                     name: String,
                     dateOfBirth: String,
                     links: Map[String, String],
-                    transactionLinks: Map[String, String]) extends RegimeRoot {
+                    transactionLinks: Map[String, String]) extends RegimeRoot[Nino] {
 
   private val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
+
+  def identifier = Nino(nino)
 
   def currentDate = new DateTime(DateTimeZone.UTC)
 

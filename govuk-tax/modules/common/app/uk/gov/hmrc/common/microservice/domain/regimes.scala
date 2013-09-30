@@ -14,15 +14,17 @@ abstract class TaxRegime {
   def unauthorisedLandingPage: String
 }
 
-abstract class RegimeRoot
+abstract class RegimeRoot[I] {
+  def identifier  : I
+}
 
-case class User(user: String,
+case class User(userId: String,
                 userAuthority: UserAuthority,
                 regimes: RegimeRoots,
                 nameFromGovernmentGateway: Option[String] = None,
                 decryptedToken: Option[String]) {
 
-  def oid: String = user.substring(user.lastIndexOf("/") + 1)
+  def oid: String = userId.substring(userId.lastIndexOf("/") + 1)
 
 }
 

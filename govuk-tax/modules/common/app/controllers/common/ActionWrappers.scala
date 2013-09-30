@@ -3,7 +3,7 @@ package controllers.common
 import play.api.mvc._
 import controllers.common.service._
 import uk.gov.hmrc.common.microservice.domain.{ RegimeRoots, TaxRegime, User }
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.auth.domain.{UserAuthority, Regimes}
 import views.html.login
 import com.google.common.net.HttpHeaders
 import play.api.mvc.Result
@@ -34,7 +34,7 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
             Logger.debug("user not authorised for " + regime.getClass)
             Redirect(regime.unauthorisedLandingPage)
           case _ =>
-            val user = User(userId, ua, getRegimeRootsObject(ua.regimes), decrypt(request.session.get("name")), token)
+            val user = User(userId, ua, getRegimeRootsObject(ua), decrypt(request.session.get("name")), token)
             auditRequest(user, request)
             action(user)(request)
         }
@@ -109,11 +109,14 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
       }
   }
 
-  private def getRegimeRootsObject(regimes: Regimes): RegimeRoots = RegimeRoots(
-    paye = regimes.paye map { uri => payeMicroService.root(uri.toString) },
-    sa = regimes.sa map { uri => saConnector.root(uri.toString) },
-    vat = regimes.vat map { uri => vatConnector.root(uri.toString) },
-    epaye = regimes.epaye.map { uri => epayeConnector.root(uri.toString)  },
-    ct = regimes.ct.map { uri => ctConnector.root(uri.toString)}
-  )
+  private def getRegimeRootsObject(authority: UserAuthority): RegimeRoots = {
+    val regimes = authority.regimes
+    RegimeRoots(
+      paye = regimes.paye map { uri => payeMicroService.root(uri.toString) },
+      sa = regimes.sa map { uri => saConnector.root(uri.toString) },
+      vat = regimes.vat map { uri => vatConnector.root(uri.toString) },
+      epaye = regimes.epaye.map { uri => epayeConnector.root(uri.toString, authority.empRef.get)  },
+      ct = regimes.ct.map { uri => ctConnector.root(uri.toString)}
+    )
+  }
 }

@@ -6,43 +6,40 @@ import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 
-case class VatAccountSummaryBuilder(vatConnector: VatConnector) {
+case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryTemplate[VatRoot] {
 
   import VatMessageKeys._
   import VatPortalUrls._
 
-  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
-    val vatRootOption: Option[VatRoot] = user.regimes.vat
+  def rootForRegime(user: User): Option[VatRoot] = user.regimes.vat
 
-    vatRootOption.map {
-      vatRoot: VatRoot =>
-        val accountSummary: Option[VatAccountSummary] = vatRootOption.get.accountSummary(vatConnector)
+  def buildAccountSummary(vatRoot: VatRoot, buildPortalUrl: String => String): AccountSummary = {
+    val accountSummary: Option[VatAccountSummary] = vatRoot.accountSummary(vatConnector)
 
 
-        val accountValueOption: Option[BigDecimal] = for {
-          accountSummaryValue <- accountSummary
-          accountBalance <- accountSummaryValue.accountBalance
-          amount <- accountBalance.amount
-        } yield amount
+    val accountValueOption: Option[BigDecimal] = for {
+      accountSummaryValue <- accountSummary
+      accountBalance <- accountSummaryValue.accountBalance
+      amount <- accountBalance.amount
+    } yield amount
 
-        val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
-        val links = Seq[RenderableMessage](
-          LinkMessage(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
-          LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
-          LinkMessage(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage)
-        )
+    val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
+    val links = Seq[RenderableMessage](
+      LinkMessage(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
+      LinkMessage(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage)
+    )
 
-        accountValueOption match {
-          case Some(accountValue) => {
-            AccountSummary(vatRegimeNameMessage, Seq(vatRegistrationNumberMessage -> Seq(user.userAuthority.vrn.get.vrn),
-              vatAccountBalanceMessage -> Seq(MoneyPounds(accountValue))), links)
-          }
-          case _ => {
-            AccountSummary(vatRegimeNameMessage, Seq(vatSummaryUnavailableErrorMessage1 -> Seq.empty, vatSummaryUnavailableErrorMessage2 -> Seq.empty,
-              vatSummaryUnavailableErrorMessage3 -> Seq.empty,
-              vatSummaryUnavailableErrorMessage4 -> Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))), Seq.empty)
-          }
-        }
+    accountValueOption match {
+      case Some(accountValue) => {
+        AccountSummary(vatRegimeNameMessage, Seq(vatRegistrationNumberMessage -> Seq(vatRoot.identifier.vrn),
+          vatAccountBalanceMessage -> Seq(MoneyPounds(accountValue))), links)
+      }
+      case _ => {
+        AccountSummary(vatRegimeNameMessage, Seq(vatSummaryUnavailableErrorMessage1 -> Seq.empty, vatSummaryUnavailableErrorMessage2 -> Seq.empty,
+          vatSummaryUnavailableErrorMessage3 -> Seq.empty,
+          vatSummaryUnavailableErrorMessage4 -> Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))), Seq.empty)
+      }
     }
   }
 }

@@ -8,34 +8,33 @@ import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, Liability, S
 import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 
-case class SaAccountSummaryBuilder(saConnector: SaConnector) {
+case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryTemplate[SaRoot] {
 
-  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
+  def rootForRegime(user: User): Option[SaRoot] = user.regimes.sa
 
-    user.regimes.sa.map {
-      saRoot => getAccountSummaryData(saRoot, saConnector) match {
-        case Some(saAccountSummary) => {
-          AccountSummary(
-            saRegimeName,
-            SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
-            Seq(
-              LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, Some("portalLink")),
-              LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-              LinkMessage(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage))
-          )
-        }
-        case _ =>
-          AccountSummary(
-            saRegimeName,
-            Seq(
-              (saSummaryUnavailableErrorMessage1, Seq.empty),
-              (saSummaryUnavailableErrorMessage2, Seq.empty),
-              (saSummaryUnavailableErrorMessage3, Seq.empty),
-              (saSummaryUnavailableErrorMessage4, Seq.empty)
-            ),
-            Seq.empty
-          )
+  def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String): AccountSummary = {
+    getAccountSummaryData(saRoot, saConnector) match {
+      case Some(saAccountSummary) => {
+        AccountSummary(
+          saRegimeName,
+          SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
+          Seq(
+            LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, Some("portalLink")),
+            LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
+            LinkMessage(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage))
+        )
       }
+      case _ =>
+        AccountSummary(
+          saRegimeName,
+          Seq(
+            (saSummaryUnavailableErrorMessage1, Seq.empty),
+            (saSummaryUnavailableErrorMessage2, Seq.empty),
+            (saSummaryUnavailableErrorMessage3, Seq.empty),
+            (saSummaryUnavailableErrorMessage4, Seq.empty)
+          ),
+          Seq.empty
+        )
     }
   }
 
@@ -57,8 +56,8 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
 
         addLiabilityMessageIfApplicable(accountSummary.nextPayment,
-                                    Seq((saYouHaveOverpaidMessage, Seq.empty),(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))
-                                    ), None)
+          Seq((saYouHaveOverpaidMessage, Seq.empty), (saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))
+          ), None)
       }
       case _ => {
         accountSummary.totalAmountDueToHmrc match {
