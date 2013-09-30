@@ -5,7 +5,7 @@ error.paye.benefit.date.previous.startdate=Invalid date: Return date cannot be b
 error.paye.benefit.date.mandatory=Please enter a date
 error.paye.benefit.choice.mandatory=Please select an option below
 error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate=Invalid date: Return date for fuel cannot be after car return date
-error.paye.remove.carbenefit.accept.agreement=Please confirm that you are no longer provided with a company car
+error.paye.remove.benefit.accept.agreement=Please confirm that you are no longer provided with this benefit
 error.paye.add_car_benefit.missing_employer_contribution=You must specify how much you pay your employer towards the cost of the car.
 error.paye.add_car_benefit.missing_employee_contribution=You must specify how much you paid towards the cost of the car.
 error.paye.add_car_benefit.missing_days_unavailable=You must specify the number of consecutive days the car has been unavailable.
@@ -22,8 +22,7 @@ error.paye.employee_contribution_less_than_0=Capital Contributions must be great
 error.paye.employer_contribution_greater_than_99999=Employer contribution must not be higher than £99999.
 error.paye.employer_contribution_less_than_0=Payment towards private use must be greater than zero if you have selected yes.
 
-
-
+error.boolean=Please use a boolean value.
 error.number=Please use whole numbers only, not decimals or other characters.
 
 error.paye.answer_mandatory=Please answer this question.

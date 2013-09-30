@@ -19,11 +19,11 @@ object RemoveBenefitValidator {
     .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(TaxYearResolver.startOfCurrentTaxYear.minusDays(1)))
     .verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
 
-  private[paye] def validateFuelDate(dates:CarFuelBenefitDates, benefitStartDate:Option[LocalDate]) = optional(jodaLocalDate)
-    .verifying("error.paye.benefit.date.mandatory",  data => checkFuelDate(dates.fuelDateType, data))
-    .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => isAfterIfDefined(dates.carDate, data))
-    .verifying("error.paye.benefit.date.previous.taxyear", data => if (differentDateForFuel(dates.fuelDateType)) { isAfterIfDefined(data , Some(TaxYearResolver.startOfCurrentTaxYear.minusDays(1)))} else true)
-    .verifying("error.paye.benefit.date.previous.startdate", data => if (differentDateForFuel(dates.fuelDateType)) { isAfterIfDefined(data, benefitStartDate)} else true)
+  private[paye] def validateFuelDate(dates:Option[CarFuelBenefitDates], benefitStartDate:Option[LocalDate]) = optional(jodaLocalDate)
+    .verifying("error.paye.benefit.date.mandatory",  data => if(dates.isDefined) {checkFuelDate(dates.get.fuelDateType, data)} else true)
+    .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => if(dates.isDefined) {isAfterIfDefined(dates.get.carDate, data)} else true)
+    .verifying("error.paye.benefit.date.previous.taxyear", data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) { isAfterIfDefined(data , Some(TaxYearResolver.startOfCurrentTaxYear.minusDays(1)))} else true)
+    .verifying("error.paye.benefit.date.previous.startdate", data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) { isAfterIfDefined(data, benefitStartDate)} else true)
 
   private[paye] def differentDateForFuel(dateOption:Option[String]):Boolean = {
     dateOption match {

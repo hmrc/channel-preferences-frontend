@@ -23,8 +23,8 @@
     @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
         @defining(updateForm("withdrawDate")) { withdrawDateField =>
-        <div class="@if(withdrawDateField.error.isDefined){error-notification}">
-        @if(withdrawDateField.error.isDefined){<p class="error">@Messages(withdrawDateField.errors(0).message)</p>}
+        <div class="@if(withdrawDateField.error.isDefined){error}">
+        @if(withdrawDateField.error.isDefined){<p class="error-notification">@Messages(withdrawDateField.errors(0).message)</p>}
         <label>Date you gave back the car: </label>
         <input class="return-date" type="date" name="withdrawDate" value="@{withdrawDateField.value}" />
         </div>
@@ -48,14 +48,14 @@
 
                 @defining(updateForm("fuel.radio")) { fuelRadioField =>
 
-                <div class="@if(fuelRadioField.error.isDefined){error-notification}">
-                    @if(fuelRadioField.error.isDefined){<p class="error">@Messages(fuelRadioField.errors(0).message)</p>}
+                <div class="@if(fuelRadioField.error.isDefined){error}">
+                    @if(fuelRadioField.error.isDefined){<p class="error-notification">@Messages(fuelRadioField.errors(0).message)</p>}
 
                     <input type="radio" class="same-date" name="fuel.radio" value="sameDateFuel" @if( fuelRadioField.value.getOrElse("") == "sameDateFuel"){checked}> I gave them up at the same time</Input> <br/>
                     @defining(updateForm("fuel.withdrawDate")) { fuelwithdrawDateField =>
 
-                    <div class="@if(fuelwithdrawDateField.error.isDefined){error-notification}">
-                        @if(fuelwithdrawDateField.error.isDefined){<p class="error">@Messages(fuelwithdrawDateField.errors(0).message)</p>}
+                    <div class="@if(fuelwithdrawDateField.error.isDefined){error}">
+                        @if(fuelwithdrawDateField.error.isDefined){<p class="error-notification">@Messages(fuelwithdrawDateField.errors(0).message)</p>}
                     <input type="radio" class="different-date" name="fuel.radio"  value="differentDateFuel" @if(fuelRadioField.value.getOrElse("") == "differentDateFuel"){checked}> I gave my fuel on:
                             <input class="return-fuel-date" type="date" name="fuel.withdrawDate" value="@{fuelwithdrawDateField.value}"/>
                         }

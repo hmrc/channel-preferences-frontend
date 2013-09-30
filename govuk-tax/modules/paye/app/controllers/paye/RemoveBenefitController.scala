@@ -139,10 +139,10 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
   private def updateBenefitForm(benefitStartDate:Option[LocalDate],
                                 carBenefitWithUnremovedFuelBenefit:Boolean,
-                                dates:CarFuelBenefitDates) = Form[RemoveBenefitFormData](
+                                dates:Option[CarFuelBenefitDates]) = Form[RemoveBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping(benefitStartDate),
-      "agreement" -> checked("error.paye.remove.carbenefit.accept.agreement"),
+      "agreement" -> checked("error.paye.remove.benefit.accept.agreement"),
       "removeCar" -> boolean,
       "fuel.radio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
       "fuel.withdrawDate" -> validateFuelDate(dates, benefitStartDate)
@@ -156,8 +156,8 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     )(CarFuelBenefitDates.apply)(CarFuelBenefitDates.unapply)
   )
 
-  private def getCarFuelBenefitDates(request:Request[_]):CarFuelBenefitDates = {
-    datesForm.bindFromRequest()(request).get
+  private def getCarFuelBenefitDates(request:Request[_]):Option[CarFuelBenefitDates] = {
+    datesForm.bindFromRequest()(request).value
   }
 
   private def findStartDate(thisBenefit: Benefit, allBenefits: Seq[Benefit]): Option[LocalDate] = {
