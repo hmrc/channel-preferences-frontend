@@ -43,8 +43,8 @@
                 Seq(
                     FormField(carBenefitForm(giveBackThisTaxYear), Seq(
                         InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
-                        InputType("radio", "true", "Yes: on ", Some("form-field--inline"), Some("label--inlineRadio-right")))),
-                    FormField(carBenefitForm(providedTo), Seq(DateControl(currentTaxYearYearsRange)))
+                        InputType("radio", "true", "Yes: on ", Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right")))),
+                    FormField(carBenefitForm(providedTo), Seq(DateControl((2013 to 2014))))
                 ),
                 '_label -> "Will you give back your new company car before 5 April?",
                 '_groupDivClass -> "form-field",
@@ -94,7 +94,7 @@
         </li>
     </ol>
 </fieldset>
-        <p><input type="submit" value="Next"/></p>
+        <input type="submit" class="button" value="Next"/>
     }
 }
 
