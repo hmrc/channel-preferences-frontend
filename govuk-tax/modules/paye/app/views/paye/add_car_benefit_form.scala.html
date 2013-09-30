@@ -16,7 +16,13 @@
 <fieldset>
     <h2>How long you have had the new company car</h2>
     <ol class="list--numbered">
-        <li>@helpers.dateFields(carBenefitForm, providedFrom, Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer", true)), (2012 to 2014))</li>
+        <li>
+            @helpers.dateFields(carBenefitForm,
+                                providedFrom,
+                                Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer", true)),
+                                (2012 to 2014),
+                                '_groupDivClass -> "form-field")
+        </li>
         <li>
             @helpers.fieldGroup(
                 carBenefitForm,

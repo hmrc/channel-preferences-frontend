@@ -6,7 +6,9 @@
 
 @elements = @{ new FieldElements(formItem(fieldName).id, formItem(fieldName), null, args.toMap, lang) }
 
-<p>@label</p>
-@elements.errors.map { error => <span style="display: block" class="error-notification">@Messages(error)</span>}
+<div class="@elements.args.get('_groupDivClass) @if(elements.hasErrors) {error}">
+    <p>@label</p>
+    @elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
 
-@dateFieldsInline(formItem, fieldName, label, yearRange, args : _*)
+    @dateFieldsInline(formItem, fieldName, label, yearRange, args : _*)
+</div>
