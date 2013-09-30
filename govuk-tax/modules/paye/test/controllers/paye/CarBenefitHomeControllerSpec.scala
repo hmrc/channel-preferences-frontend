@@ -276,10 +276,11 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "return 200 when employeeContribution form data validates successfully" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      assertSuccessfulEmployeeContributionSubmit(Some(false), None)
-      assertSuccessfulEmployeeContributionSubmit(Some(true), Some(1000))
-      assertSuccessfulEmployeeContributionSubmit(Some(true), Some(9999))
-      assertSuccessfulEmployeeContributionSubmit(Some(false), Some(0))
+      assertSuccessfulEmployeeContributionSubmit(Some(false), None, None)
+      assertSuccessfulEmployeeContributionSubmit(Some(true), Some("1000"), Some(1000))
+      assertSuccessfulEmployeeContributionSubmit(Some(true), Some("9999"), Some(9999))
+      assertSuccessfulEmployeeContributionSubmit(Some(false), Some("0"), None)
+      assertSuccessfulEmployeeContributionSubmit(Some(false), Some("5.5"), None)
     }
 
     "return 400 and display error when employeeContribution form data fails validation" in new WithApplication(FakeApplication()) {
@@ -297,10 +298,11 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "return 200 when employers form data validates successfully" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      assertSuccessfulEmployerContributionSubmit(Some(false), None)
-      assertSuccessfulEmployerContributionSubmit(Some(true), Some(1000))
-      assertSuccessfulEmployerContributionSubmit(Some(true), Some(99999))
-      assertSuccessfulEmployerContributionSubmit(Some(false), Some(0))
+      assertSuccessfulEmployerContributionSubmit(Some(false), None, None)
+      assertSuccessfulEmployerContributionSubmit(Some(true), Some("1000"), Some(1000))
+      assertSuccessfulEmployerContributionSubmit(Some(true), Some("99999"), Some(99999))
+      assertSuccessfulEmployerContributionSubmit(Some(false), Some("0"), None)
+      assertSuccessfulEmployerContributionSubmit(Some(false), Some("5.5"), None)
     }
 
     "return 400 and display error when employerContribution form data fails validation" in new WithApplication(FakeApplication()) {
@@ -399,11 +401,12 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailure(result, errorId, errorMessage)
     }
 
-    def assertSuccessfulEmployeeContributionSubmit(employeeContributesVal: Option[Boolean], employeeContributionVal : Option[Int]) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal.map(_.toString)), 2013, 1)
+    def assertSuccessfulEmployeeContributionSubmit(employeeContributesVal: Option[Boolean], employeeContributionVal : Option[String], expectedContributionVal : Option[Int]) {
 
-      val expectedStoredData = CarBenefitDataBuilder(employeeContributes = employeeContributesVal, employeeContribution = employeeContributionVal)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal), 2013, 1)
+
+      val expectedStoredData = CarBenefitDataBuilder(employeeContributes = employeeContributesVal, employeeContribution = expectedContributionVal)
 
       assertSuccess(result, expectedStoredData)
     }
@@ -415,11 +418,12 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailure(result, errorId, errorMessage)
     }
 
-    def assertSuccessfulEmployerContributionSubmit(employerContributesVal: Option[Boolean], employerContributionVal : Option[Int]) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal.map(_.toString)), 2013, 1)
+    def assertSuccessfulEmployerContributionSubmit(employerContributesVal: Option[Boolean], employerContributionVal : Option[String], expectedContributionVal : Option[Int]) {
 
-      val expectedStoredData = CarBenefitDataBuilder(employerContributes = employerContributesVal, employerContribution = employerContributionVal)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal), 2013, 1)
+
+      val expectedStoredData = CarBenefitDataBuilder(employerContributes = employerContributesVal, employerContribution = expectedContributionVal)
 
       assertSuccess(result, expectedStoredData)
     }
@@ -427,6 +431,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     def assertSuccess(result: Result, collectedData: CarBenefitData)  {
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
+
+      Mockito.reset(mockKeyStoreService)
     }
 
     def assertFailure(result: Result, errorId: String, errorMessage: String) {
@@ -528,10 +534,10 @@ object CarBenefitDataBuilder {
                   numberOfDaysUnavailable = numberOfDaysUnavailable,
                   giveBackThisTaxYear = giveBackThisTaxYear,
                   providedTo = providedTo,
-                  listPrice = Some(defaultListPrice),
-                  employeeContributes = Some(defaultEmployeeContributes),
-                  employeeContribution = defaultEmployeeContribution,
-                  employerContributes = Some(defaultEmployerContributes),
-                  employerContribution = defaultEmployerContribution)
+                  listPrice = listPrice,
+                  employeeContributes = employeeContributes,
+                  employeeContribution = employeeContribution,
+                  employerContributes = employerContributes,
+                  employerContribution = employerContribution)
   }
 }
