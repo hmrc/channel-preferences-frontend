@@ -4,7 +4,7 @@
 @import config.PortalConfig
 @import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 
-@main(title = "Your tax home", nav = true, sidebar) {
+@main(title = "Your tax home", nav = true, sidebarLinks = Some(sidebarLinks), user = Some(user)) {
 
     <h1><span class="pre-heading">service</span> Your tax account</h1>
 
@@ -51,22 +51,7 @@
     <p>When you have successfully moved your services, you will be able to see them on the 'Your HMRC services' page of your chosen account.</p>
 }
 
-@sidebar = {
-
-    <div class="service-info">
-	<p class="service-info__organisation-logo">HM Revenue<br />&amp; Customs</p>
-
-	<p>
-	    @if(!businessUser.previouslyLoggedInAt.isEmpty) {
-	    @businessUser.name, you last accessed your account on @formatEasyReadingTimestamp(businessUser.previouslyLoggedInAt, "")
-	    } else {
-	    First ever login
-	    }
-	</p>
-
-	<p><a href="@common.routes.LoginController.logout">Log out of your GOV.UK account.<a/></p>
-    </div>
-
+@sidebarLinks = {
     <div class="service-info__related-subsection">
 
 	<h2>Information about business taxes</h2>

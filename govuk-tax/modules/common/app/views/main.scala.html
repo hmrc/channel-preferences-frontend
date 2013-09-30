@@ -1,4 +1,4 @@
-@(title: String, nav: Boolean = false, sidebar: Html = Html(""))(content: Html)
+@(title: String, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, nav: Boolean = false, sidebarLinks: Option[Html] = None)(content: Html)
 <!DOCTYPE html>
 <!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
@@ -20,10 +20,10 @@
 	    @content
 	    </div>
 
-	    @if( sidebar != "" ) {
-		<aside class="l-bodyRightColumn">
-		    @sidebar
-		</aside>
+	    @if( user.isDefined && user.get.regimes.hasBusinessTaxRegime ) {
+	    <aside class="l-bodyRightColumn">
+		@includes.sidebar(user, sidebarLinks)
+	    </aside>
 	    }
 	</section>
 

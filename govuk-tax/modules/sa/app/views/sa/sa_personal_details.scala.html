@@ -1,6 +1,6 @@
 @(utr: String, personalDetails: uk.gov.hmrc.common.microservice.sa.domain.SaPerson, nameFromGovernmentGateway: String)
 
-@main(title = "My Details", nav = true, sidebar) {
+@main(title = "My Details", nav = true) {
 
     <h1><span class="pre-heading">service</span> Your tax account</h1>
 
@@ -37,14 +37,4 @@
 	</li>
     </ol>
 
-}
-
-@sidebar = {
-    <div class="service-info">
-	<p class="service-info__organisation-logo">HM Revenue<br>&amp; Customs</p>
-
-	<p>@nameFromGovernmentGateway, you last accessed your account on ...</p>
-
-	<p><a href="@common.routes.LoginController.logout">Log out of your account<a/></p>
-    </div>
 }

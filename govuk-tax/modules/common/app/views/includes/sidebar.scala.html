@@ -1,0 +1,21 @@
+@(user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html])
+
+@import views.formatting.Dates._
+
+<div class="service-info">
+    <p class="service-info__organisation-logo">HM Revenue<br />&amp; Customs</p>
+
+    <p>
+	@if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
+	    @user.get.nameFromGovernmentGateway, you last accessed your account on @formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, "")
+	} else {
+	    First ever login
+	}
+    </p>
+
+    <p><a href="@common.routes.LoginController.logout">Log out of your GOV.UK account.<a/></p>
+</div>
+
+@if( sidebarLinks.isDefined ) {
+    @sidebarLinks.get
+}
