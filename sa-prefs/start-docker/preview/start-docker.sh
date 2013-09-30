@@ -1,3 +1,3 @@
 #!/bin/sh
-echo "127.0.0.1 $(hostname)" > /etc/hosts
+#echo "127.0.0.1 $(hostname)" > /etc/hosts
 exec sh -ex /src/sa-prefs-0.0.1-SNAPSHOT/start -Dhttp.port=8080 -Dapplication.log=INFO -Dlogger.resource=/sa-prefs-logger.xml -Dconfig.resource=/CONF_FILE
