@@ -88,7 +88,7 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
       val dates = getCarBenefitDates(request)
       user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
         case Some(employment) => {
-          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber))
+          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange))
         }
         case None => {
           Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
@@ -105,7 +105,7 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
           val dates = getCarBenefitDates(request)
           carBenefitForm(dates).bindFromRequest()(request).fold(
             errors => {
-              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber))
+              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange))
             },
             removeBenefitData => {
               keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", removeBenefitData)
@@ -145,8 +145,6 @@ class CarBenefitHomeController(timeSource: () => DateTime, keyStoreService: KeyS
 
 case class CarBenefitData(providedFrom: Option[LocalDate], carUnavailable: Option[Boolean], numberOfDaysUnavailable: Option[Int], giveBackThisTaxYear: Option[Boolean], providedTo: Option[LocalDate],
                           listPrice: Option[Int], employeeContributes: Option[Boolean], employeeContribution: Option[Int], employerContributes: Option[Boolean], employerContribution: Option[Int])
-
-// TODO: Fix DateTimeUtils or test to make "DateTimeUtils.startOfCurrentTaxYear" to work
 
 object CarBenefitFormFields {
   val providedFrom = "providedFrom"

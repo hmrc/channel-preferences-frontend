@@ -1,4 +1,4 @@
-@(carBenefitForm: Form[controllers.paye.CarBenefitData], employerName: Option[String], taxYear: Int, employmentSequenceNumber: Int)
+@(carBenefitForm: Form[controllers.paye.CarBenefitData], employerName: Option[String], taxYear: Int, employmentSequenceNumber: Int, currentTaxYearYearsRange: Range)
 
 @import views.formatting.Strings._
 @import controllers.paye.CarBenefitFormFields._
@@ -20,7 +20,7 @@
             @helpers.dateFields(carBenefitForm,
                                 providedFrom,
                                 Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer", true)),
-                                (2012 to 2014),
+                                currentTaxYearYearsRange,
                                 '_groupDivClass -> "form-field")
         </li>
         <li>
@@ -44,7 +44,7 @@
                     FormField(carBenefitForm(giveBackThisTaxYear), Seq(
                         InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
                         InputType("radio", "true", "Yes: on ", Some("form-field--inline"), Some("label--inlineRadio-right")))),
-                    FormField(carBenefitForm(providedTo), Seq(DateControl((2013 to 2014))))
+                    FormField(carBenefitForm(providedTo), Seq(DateControl(currentTaxYearYearsRange)))
                 ),
                 '_label -> "Will you give back your new company car before 5 April?",
                 '_groupDivClass -> "form-field",
