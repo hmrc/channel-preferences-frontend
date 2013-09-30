@@ -119,14 +119,14 @@ class EPayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val unableToDisplayAccountInfoMessage = (epayeSummaryUnavailableErrorMessage, Seq.empty)
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](empRefMessageString, unableToDisplayAccountInfoMessage)
 
-      testEPayeAccountSummaryBuilder("N/A", Some(accountSummary), expectedMessages)
+      testEPayeAccountSummaryBuilder("epaye.regimeName.unknown", Some(accountSummary), expectedMessages)
     }
 
     "build the correct account summary model if no summary is returned from the service (e.g. due to 404 or 500 from the REST call)" in {
 
       val unableToDisplayAccountInfoMessage = (epayeSummaryUnavailableErrorMessage, Seq.empty)
       val expectedMessages = Seq[(String, Seq[RenderableMessage])](empRefMessageString, unableToDisplayAccountInfoMessage)
-      testEPayeAccountSummaryBuilder("N/A", None, expectedMessages)
+      testEPayeAccountSummaryBuilder("epaye.regimeName.unknown", None, expectedMessages)
     }
   }
 

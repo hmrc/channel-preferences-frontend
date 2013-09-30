@@ -38,7 +38,7 @@ case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) {
     accountSummary match {
       case Some(summary) if summary.rti.isDefined => epayeRtiRegimeNameMessage
       case Some(summary) if summary.nonRti.isDefined => epayeNonRtiRegimeNameMessage
-      case _ => "N/A"
+      case _ => epayeUnknownRegimeName
     }
   }
 
@@ -89,6 +89,7 @@ object EPayeMessageKeys extends CommonBusinessMessageKeys {
 
   val epayeRtiRegimeNameMessage = "epaye.regimeName.rti"
   val epayeNonRtiRegimeNameMessage = "epaye.regimeName.nonRti"
+  val epayeUnknownRegimeName = "epaye.regimeName.unknown"
 
   val epayeNothingToPayMessage = "epaye.message.nothingToPay"
   val epayeYouHaveOverpaidMessage = "epaye.message.youHaveOverPaid"

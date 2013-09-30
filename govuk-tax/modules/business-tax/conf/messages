@@ -43,6 +43,7 @@ sa.message.summaryUnavailable.4=- If you do not this either of the above reasons
 
 epaye.regimeName.rti=Employers PAYE (RTI)
 epaye.regimeName.nonRti=Employers PAYE (non-RTI)
+epaye.regimeName.unknown=Employers PAYE
 
 epaye.message.empRef=PAYE Emp/Ref: {0}
 epaye.message.nothingToPay=You have nothing to pay.
