@@ -1,0 +1,22 @@
+@(redirectUrl: String, digitalOnly: Boolean)
+
+@main(title = "My Preferences") {
+
+<h2>Turn off paper</h2>
+<div id="print-prefs">
+    <p>
+        @if(digitalOnly) {
+            You have already opted into email alerts and at this time there is no way to change your email address or preference
+        } else {
+            Unfortunately, you are no longer able to opt into email alerts.The option to switch to email alerts will be available on gov.uk early next year
+        }
+    </p>
+
+    <form action="@redirectUrl" method="GET">
+        <button class="button" type="submit">Back to Self Assessment</button>
+    </form>
+
+
+</div>
+
+}

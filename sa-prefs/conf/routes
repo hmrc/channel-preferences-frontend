@@ -5,6 +5,7 @@
 # Home page
 GET     /sa/print-preferences/:token                            @controllers.SaPrefsController.index(token: String, return_url: String)
 GET     /sa/print-preferences-saved                             @controllers.SaPrefsController.confirm(return_url: String)
+GET     /sa/print-preferences-no-action                         @controllers.SaPrefsController.noAction(return_url: String, digital: Boolean)
 POST    /sa/print-preferences/:token                            @controllers.SaPrefsController.submitPrefsForm(token: String, return_url: String)
 POST    /sa/print-preferences/keep-paper/:token                 @controllers.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
 

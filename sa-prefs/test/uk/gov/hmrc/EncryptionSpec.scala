@@ -15,14 +15,14 @@ class EncryptionSpec extends WordSpec with ShouldMatchers with TokenEncryption {
       val validToken = s"utr:${DateTime.now(DateTimeZone.UTC).getMillis}"
       val encryptedToken = URLEncoder.encode(encrypt(validToken), "UTF-8")
 
-      decryptToken(encryptedToken) shouldBe "utr"
+      decryptToken(encryptedToken, 5) shouldBe "utr"
     }
 
     "decrypt a valid unencoded token" in {
       val validToken = s"cjsajjdajdas:${DateTime.now(DateTimeZone.UTC).getMillis}"
       val encryptedToken = encrypt(validToken)
 
-      decryptToken(encryptedToken) shouldBe "cjsajjdajdas"
+      decryptToken(encryptedToken, 5) shouldBe "cjsajjdajdas"
     }
 
     "decrypt token with slashes and plus chars" in {
@@ -36,13 +36,13 @@ class EncryptionSpec extends WordSpec with ShouldMatchers with TokenEncryption {
       val encryptedToken = URLEncoder.encode(encrypt(expiredToken), "UTF-8")
 
       intercept[TokenExpiredException] {
-        decryptToken(encryptedToken)
+        decryptToken(encryptedToken, 5)
       }
     }
 
     "fail with corrupted token" in {
       intercept[SecurityException] {
-        decryptToken("invalid")
+        decryptToken("invalid", 5)
       }
     }
   }

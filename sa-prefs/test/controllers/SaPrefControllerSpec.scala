@@ -18,6 +18,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
   val validUtr = "1234567"
   lazy val validToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
+  lazy val expiredToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
   val validReturnUrl = URLEncoder.encode("http://localhost:8080/portal", "UTF-8")
   private val mockRedirectWhiteListService = mock[RedirectWhiteListService]
 
@@ -52,6 +53,16 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
     }
 
+    "redirect to portal if the token is expired on the landing page" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+      val controller = createController
+
+      val page = controller.index(expiredToken, validReturnUrl)(FakeRequest())
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(validReturnUrl)
+    }
+
     "include a link to keep mail preference" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
@@ -74,12 +85,26 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
   "A post to set preferences" should {
 
-    "redirect to a confirmation page" in new WithApplication(FakeApplication()) {
+    "redirect to return url if the token is expired when submitting the form" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+
       val controller = createController
+
+      val page = controller.submitPrefsForm(expiredToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
+      verify(controller.saMicroService, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(validReturnUrl)
+    }
+
+    "redirect to a confirmation page" in new WithApplication(FakeApplication()) {
+      val controller = createController
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
 
+      verify(controller.saMicroService).getPreferences(validUtr)
       status(page) shouldBe 303
       header("Location", page).get should include(s"/sa/print-preferences-saved?return_url=$validReturnUrl")
     }
@@ -110,9 +135,44 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
       controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
       verify(controller.saMicroService, times(1)).savePreferences(validUtr, true, Some("foo@bar.com"))
+    }
+
+    "redirect to no-action page if the preference is already set to digital when submitting the form" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+
+      val controller = createController
+
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(Some(SaPreference(true, Some("foo@bar.com"))))
+
+      val action = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
+
+      verify(controller.saMicroService, times(1)).getPreferences(validUtr)
+      verify(controller.saMicroService, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
+
+      status(action) shouldBe 303
+      header("Location", action).get should include("/sa/print-preferences-no-action")
+      header("Location", action).get should include("digital=true")
+    }
+
+    "redirect to no-action page if the preference is already set to paper when submitting the form" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+
+      val controller = createController
+
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(Some(SaPreference(false, None)))
+
+      val action = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email", "foo@bar.com")))
+
+      verify(controller.saMicroService, times(1)).getPreferences(validUtr)
+      verify(controller.saMicroService, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
+
+      status(action) shouldBe 303
+      header("Location", action).get should include("/sa/print-preferences-no-action")
+      header("Location", action).get should include("digital=false")
     }
 
     "return bad request if redirect_url is not in the whitelist" in {
@@ -124,34 +184,72 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       status(page) shouldBe 500
     }
 
-    "A post to keep paper notification" should {
+    "keep paper notification and redirect to the portal" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+      val controller = createController
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
-      "redirect to the portal" in new WithApplication(FakeApplication()) {
-        when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
-        val controller = createController
+      val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
 
-        val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
-
-        status(page) shouldBe 303
-        header("Location", page).get should include(validReturnUrl)
-      }
-
-      "return bad request if redirect_url is not in the whitelist" in {
-        when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(false)
-        val controller = createController
-
-        val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
-
-        status(page) shouldBe 500
-      }
+      status(page) shouldBe 303
+      header("Location", page).get should include(validReturnUrl)
     }
 
     "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
       controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
       verify(controller.saMicroService, times(1)).savePreferences(validUtr, false)
+    }
+
+    "redirect to return url if the token is expired when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+
+      val controller = createController
+
+      val page = controller.submitKeepPaperForm(expiredToken, validReturnUrl)(FakeRequest())
+      verify(controller.saMicroService, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(validReturnUrl)
+    }
+
+    "redirect to no-action page if the preference is already set to digital when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+
+      val controller = createController
+
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(Some(SaPreference(true, Some("foo@bar.com"))))
+
+      val action = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+
+      verify(controller.saMicroService, times(1)).getPreferences(validUtr)
+      verify(controller.saMicroService, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
+
+      status(action) shouldBe 303
+      header("Location", action).get should include("/sa/print-preferences-no-action")
+      header("Location", action).get should include("digital=true")
+
+    }
+
+    "redirect to no-action page if the preference is already set to paper when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+
+      val controller = createController
+
+      when(controller.saMicroService.getPreferences(validUtr)).thenReturn(Some(SaPreference(false, None)))
+
+      val action = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+
+      verify(controller.saMicroService, times(1)).getPreferences(validUtr)
+      verify(controller.saMicroService, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
+
+      status(action) shouldBe 303
+      header("Location", action).get should include("/sa/print-preferences-no-action")
+      header("Location", action).get should include("digital=false")
+
     }
   }
 }

@@ -10,5 +10,6 @@ object FrontEndConfig {
   lazy val env = Play.mode
 
   lazy val redirectDomainWhiteList = Play.configuration.getStringList(s"sa-prefs.$env.portal.redirectDomainWhiteList").getOrElse(Collections.emptyList()).toSet
+  lazy val tokenTimeout = Play.configuration.getInt(s"sa-prefs.$env.portal.tokenTimeout").getOrElse(240)
 
 }
