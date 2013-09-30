@@ -38,12 +38,12 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import org.mockito.Matchers.any
 import controllers.bt.regimeViews.{AccountSummariesFactory, AccountSummaries}
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
+import org.mockito.Matchers
 
 trait BusinessTaxControllerBehaviours extends BaseSpec {
 
@@ -92,12 +92,10 @@ class BusinessTaxControllerNewSpec extends BaseSpec with CookieEncryption {
 
       val expectedHtml = "<html>some html for landing page</html>"
 
-      override def makeAPaymentLandingPageExpectations()(implicit user: User): String = {
-        user shouldBe geoffFisherUser
-        expectedHtml
-      }
+      when (expectations.makeAPaymentLandingPage(geoffFisherUser)).thenReturn(expectedHtml)
 
       val result: Result = businessTaxController.makeAPaymentLanding(request)
+
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml
     }
@@ -107,28 +105,18 @@ class BusinessTaxControllerNewSpec extends BaseSpec with CookieEncryption {
 
     "pass the correct data to the home page for a user in all regimes" in new WithBusinessTaxApplication with GeoffFisherExpectations {
 
-      val expectedSummaries = mock[AccountSummaries]
-
-      override def buildPortalUrlExpectations(base: String, actualRequest: Request[AnyRef], user: User): String = {
-        user shouldBe geoffFisherUser
-        actualRequest shouldBe request
-        base + "URL"
-      }
-
+      val geoffFisherSummaries = mock[AccountSummaries]
+      val geoffFisherBusinessUser = BusinessUser()(geoffFisherUser)
       val expectedHtml = "<html>some html for the Business Tax Homepage</html>"
 
-      override def businessTaxHomepageExpectations(businessUser: BusinessUser, portalHref: String, accountSummaries: AccountSummaries)(implicit user: User): String = {
-        user shouldBe geoffFisherUser
-        // TODO Set expectations for business user
-        //businessUser shouldBe expectedBusinessUser
-        portalHref shouldBe "homeURL"
-        accountSummaries shouldBe expectedSummaries
-        expectedHtml
-      }
+      when (expectations.buildPortalUrl(geoffFisherUser, request, "home")).thenReturn("homeURL")
 
-      when(mockAccountSummariesFactory.create(any(classOf[String => String]))(org.mockito.Matchers.eq[User](geoffFisherUser))).thenReturn(expectedSummaries)
+      when (expectations.businessTaxHomepage(geoffFisherUser, geoffFisherBusinessUser, "homeURL", geoffFisherSummaries)).thenReturn(expectedHtml)
+
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(geoffFisherUser))).thenReturn(geoffFisherSummaries)
 
       val result: Result = businessTaxController.home(request)
+
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml
     }
@@ -182,17 +170,16 @@ abstract class WithBusinessTaxApplication extends WithApplication(FakeApplicatio
 
   val governmentGatewayToken: Option[String] = None
 
-  def makeAPaymentLandingPageExpectations()(implicit user: User): String = {
-    throw new AssertionError("Unexpected call to render make a payment landing page")
+  trait Expectations {
+
+    def makeAPaymentLandingPage(user: User): String
+
+    def businessTaxHomepage(user: User, businessUser: BusinessUser, portalHref: String, accountSummaries: AccountSummaries): String
+
+    def buildPortalUrl(user: User, request: Request[AnyRef], base: String): String
   }
 
-  def businessTaxHomepageExpectations(businessUser: BusinessUser, portalHref: String, accountSummaries: AccountSummaries)(implicit user: User): String = {
-    throw new AssertionError("Unexpected call to render business tax homepage")
-  }
-
-  def buildPortalUrlExpectations(base: String, request: Request[AnyRef], user: User): String = {
-    throw new AssertionError("Unexpected call to buildPortalUrlExpectations")
-  }
+  val expectations = mock[Expectations]
 
   val businessTaxController = new BusinessTaxController(mockAccountSummariesFactory) with MockedMicroServices {
 
@@ -200,16 +187,16 @@ abstract class WithBusinessTaxApplication extends WithApplication(FakeApplicatio
 
     override private[bt] def makeAPaymentLandingPage()(implicit user: User): Html = {
       Logger.debug("RENDERING makeAPaymentLandingPage")
-      Html(makeAPaymentLandingPageExpectations)
+      Html(expectations.makeAPaymentLandingPage(user))
     }
 
     override private[bt] def businessTaxHomepage(businessUser: BusinessUser, portalHref: String, accountSummaries: AccountSummaries)(implicit user: User): Html = {
       Logger.debug("RENDERING businessTaxHomePage")
-      Html(businessTaxHomepageExpectations(businessUser, portalHref, accountSummaries))
+      Html(expectations.businessTaxHomepage(user, businessUser, portalHref, accountSummaries))
     }
 
     override def buildPortalUrl(base: String)(implicit request: Request[AnyRef], user: User): String = {
-      buildPortalUrlExpectations(base, request, user)
+      expectations.buildPortalUrl(user, request, base)
     }
   }
 
