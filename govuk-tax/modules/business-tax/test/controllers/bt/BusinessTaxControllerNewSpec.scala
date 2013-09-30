@@ -106,12 +106,11 @@ class BusinessTaxControllerNewSpec extends BaseSpec with CookieEncryption {
     "pass the correct data to the home page for a user in all regimes" in new WithBusinessTaxApplication with GeoffFisherExpectations {
 
       val geoffFisherSummaries = mock[AccountSummaries]
-      val geoffFisherBusinessUser = BusinessUser()(geoffFisherUser)
       val expectedHtml = "<html>some html for the Business Tax Homepage</html>"
 
       when (expectations.buildPortalUrl(geoffFisherUser, request, "home")).thenReturn("homeURL")
 
-      when (expectations.businessTaxHomepage(geoffFisherUser, geoffFisherBusinessUser, "homeURL", geoffFisherSummaries)).thenReturn(expectedHtml)
+      when (expectations.businessTaxHomepage(geoffFisherUser, "homeURL", geoffFisherSummaries)).thenReturn(expectedHtml)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(geoffFisherUser))).thenReturn(geoffFisherSummaries)
 
@@ -174,7 +173,7 @@ abstract class WithBusinessTaxApplication extends WithApplication(FakeApplicatio
 
     def makeAPaymentLandingPage(user: User): String
 
-    def businessTaxHomepage(user: User, businessUser: BusinessUser, portalHref: String, accountSummaries: AccountSummaries): String
+    def businessTaxHomepage(user: User, portalHref: String, accountSummaries: AccountSummaries): String
 
     def buildPortalUrl(user: User, request: Request[AnyRef], base: String): String
   }
@@ -190,9 +189,9 @@ abstract class WithBusinessTaxApplication extends WithApplication(FakeApplicatio
       Html(expectations.makeAPaymentLandingPage(user))
     }
 
-    override private[bt] def businessTaxHomepage(businessUser: BusinessUser, portalHref: String, accountSummaries: AccountSummaries)(implicit user: User): Html = {
+    override private[bt] def businessTaxHomepage(portalHref: String, accountSummaries: AccountSummaries)(implicit user: User): Html = {
       Logger.debug("RENDERING businessTaxHomePage")
-      Html(expectations.businessTaxHomepage(user, businessUser, portalHref, accountSummaries))
+      Html(expectations.businessTaxHomepage(user, portalHref, accountSummaries))
     }
 
     override def buildPortalUrl(base: String)(implicit request: Request[AnyRef], user: User): String = {
