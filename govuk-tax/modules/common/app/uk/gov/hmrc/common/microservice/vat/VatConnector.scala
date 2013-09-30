@@ -3,7 +3,7 @@ package uk.gov.hmrc.common.microservice.vat
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatRoot, VatAccountSummary }
 
-class VatMicroService extends MicroService {
+class VatConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.vatServiceUrl
 

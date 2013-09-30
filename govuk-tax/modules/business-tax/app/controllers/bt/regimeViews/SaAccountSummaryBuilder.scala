@@ -1,19 +1,19 @@
 package controllers.bt.regimeViews
 
 import controllers.bt.routes
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
 import SaMessageKeys._
 import SaPortalUrlKeys._
 import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 
-case class SaAccountSummaryBuilder(saMicroService: SaMicroService) {
+case class SaAccountSummaryBuilder(saConnector: SaConnector) {
 
   def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
 
     user.regimes.sa.map {
-      saRoot => getAccountSummaryData(saRoot, saMicroService) match {
+      saRoot => getAccountSummaryData(saRoot, saConnector) match {
         case Some(saAccountSummary) => {
           AccountSummary(
             saRegimeName,
@@ -39,9 +39,9 @@ case class SaAccountSummaryBuilder(saMicroService: SaMicroService) {
     }
   }
 
-  private def getAccountSummaryData(saRoot: SaRoot, saMicroService: SaMicroService): Option[SaAccountSummary] = {
+  private def getAccountSummaryData(saRoot: SaRoot, saConnector: SaConnector): Option[SaAccountSummary] = {
     try {
-      saRoot.accountSummary(saMicroService)
+      saRoot.accountSummary(saConnector)
     } catch {
       case e: Exception => None
     }

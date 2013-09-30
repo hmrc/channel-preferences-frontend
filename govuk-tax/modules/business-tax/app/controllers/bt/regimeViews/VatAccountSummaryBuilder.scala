@@ -2,11 +2,11 @@ package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountSummary, VatRoot}
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import controllers.bt.{routes}
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import controllers.bt.routes
+import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 
-case class VatAccountSummaryBuilder(vatMicroService: VatMicroService) {
+case class VatAccountSummaryBuilder(vatConnector: VatConnector) {
 
   import VatMessageKeys._
   import VatPortalUrls._
@@ -16,7 +16,7 @@ case class VatAccountSummaryBuilder(vatMicroService: VatMicroService) {
 
     vatRootOption.map {
       vatRoot: VatRoot =>
-        val accountSummary: Option[VatAccountSummary] = vatRootOption.get.accountSummary(vatMicroService)
+        val accountSummary: Option[VatAccountSummary] = vatRootOption.get.accountSummary(vatConnector)
 
 
         val accountValueOption: Option[BigDecimal] = for {

@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
 
-class SaMicroService extends MicroService {
+class SaConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.saServiceUrl
 

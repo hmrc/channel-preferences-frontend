@@ -1,6 +1,6 @@
 package controllers.bt.regimeViews
 
-import ct.CtMicroService
+import ct.CtConnector
 import ct.domain.CtDomain.{CtAccountBalance, CtAccountSummary, CtRoot}
 import uk.gov.hmrc.domain.{Vrn, CtUtr}
 import uk.gov.hmrc.common.BaseSpec
@@ -31,7 +31,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   "CtAccountSummaryViewBuilder" should {
     "return the correct account summary for complete data" in {
-      val ctMicroSeriveMock = mock[CtMicroService]
+      val ctMicroSeriveMock = mock[CtConnector]
       val ctAccountSummary = CtAccountSummary(Some(CtAccountBalance(Some(4.2), Some("GPB"))), Some("2012-12-02"))
       when(ctMicroSeriveMock.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenReturn(Some(ctAccountSummary))
       val builder = new CtAccountSummaryBuilder(ctMicroSeriveMock)
@@ -47,7 +47,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     "return an error message if the account summary is not available" in {
-      val ctMicroSeriveMock = mock[CtMicroService]
+      val ctMicroSeriveMock = mock[CtConnector]
       when(ctMicroSeriveMock.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenReturn(None)
       val builder = new CtAccountSummaryBuilder(ctMicroSeriveMock)
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
@@ -61,7 +61,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     "return None if the user is not enrolled for VAT" in {
-      val builder = new CtAccountSummaryBuilder(mock[CtMicroService])
+      val builder = new CtAccountSummaryBuilder(mock[CtConnector])
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userNotEnrolledForCt)
       accountSummaryOption should be(None)
 

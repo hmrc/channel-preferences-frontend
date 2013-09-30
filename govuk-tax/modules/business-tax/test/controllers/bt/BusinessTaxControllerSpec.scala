@@ -1,11 +1,11 @@
 package controllers.bt
 
-import ct.CtMicroService
+import ct.CtConnector
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import java.net.URI
 import org.joda.time.DateTime
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
 import play.api.test.Helpers._
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
@@ -16,7 +16,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.sa.domain.{SaName, SaRoot, SaIndividualAddress, SaPerson}
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountBalance, VatAccountSummary, VatRoot }
 import play.api.i18n.Messages
 import config.DateTimeProvider
@@ -31,21 +31,21 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
   import uk.gov.hmrc.common.MockUtils._
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
-  private lazy val mockSaMicroService = mock[SaMicroService]
-  private lazy val mockVatMicroService = mock[VatMicroService]
+  private lazy val mockSaConnector = mock[SaConnector]
+  private lazy val mockVatConnector = mock[VatConnector]
   private lazy val mockPayeMicroService = mock[PayeMicroService]
-  private lazy val mockCtMicroService = mock[CtMicroService]
+  private lazy val mockCtConnector = mock[CtConnector]
   private lazy val mockEPayeConnector = mock[EPayeConnector]
 
   private def dateTime = () => DateTimeProvider.now()
   private def sessionTimeout : String = dateTime().getMillis.toString
 
-  private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaMicroService, mockVatMicroService, mockCtMicroService, mockEPayeConnector)) {
+  private def controller = new BusinessTaxController(new AccountSummariesFactory(mockSaConnector, mockVatConnector, mockCtConnector, mockEPayeConnector)) {
     override lazy val payeMicroService = mockPayeMicroService
-    override lazy val saMicroService = mockSaMicroService
-    override lazy val vatMicroService = mockVatMicroService
+    override lazy val saConnector = mockSaConnector
+    override lazy val vatConnector = mockVatConnector
     override lazy val authMicroService = mockAuthMicroService
-    override lazy val ctMicroService = mockCtMicroService
+    override lazy val ctConnector = mockCtConnector
     override lazy val epayeConnector = mockEPayeConnector
   }
 
@@ -54,7 +54,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
   val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
   val encodedGovernmentGatewayToken = "someEncodedToken"
 
-  when(mockSaMicroService.root("/sa/individual/123456789012")).thenReturn(
+  when(mockSaConnector.root("/sa/individual/123456789012")).thenReturn(
     SaRoot(
       utr = "123456789012",
       links = Map(
@@ -63,7 +63,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
   )
 
   before {
-    resetAll(mockAuthMicroService, mockSaMicroService, mockVatMicroService, mockEPayeConnector)
+    resetAll(mockAuthMicroService, mockSaConnector, mockVatConnector, mockEPayeConnector)
   }
 
   "The home method" should {
@@ -78,7 +78,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
               sa = Some(URI.create("/sa/individual/123456789012")),
               vat = Some(URI.create("/vat/754645112"))), Some(new DateTime(1000L)), saUtr = Some(utr), vrn = Some(vrn))))
 
-      when(mockSaMicroService.person("/sa/individual/123456789012/details")).thenReturn(
+      when(mockSaConnector.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           utr = "123456789012",
@@ -95,7 +95,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
         ))
       )
 
-      when(mockVatMicroService.root("/vat/754645112")).thenReturn(VatRoot(Vrn("754645112"), Map.empty))
+      when(mockVatConnector.root("/vat/754645112")).thenReturn(VatRoot(Vrn("754645112"), Map.empty))
 
       val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
@@ -118,9 +118,9 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       when(mockAuthMicroService.authority("/auth/oid/johnboy")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
 
-      when(mockVatMicroService.root(s"/vat/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/$vrn/accountSummary")))
+      when(mockVatConnector.root(s"/vat/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/$vrn/accountSummary")))
 
-      when(mockVatMicroService.accountSummary(s"/vat/$vrn/accountSummary")).thenReturn(Some(accountSummary))
+      when(mockVatConnector.accountSummary(s"/vat/$vrn/accountSummary")).thenReturn(Some(accountSummary))
 
       val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/johnboy"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))
@@ -140,9 +140,9 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEn
       when(mockAuthMicroService.authority("/auth/oid/johnboy")).thenReturn(
         Some(UserAuthority("someIdWeDontCareAboutHere", Regimes(vat = Some(new URI(s"/vat/$vrn"))), Some(new DateTime(1000L)), None, Some(Vrn(vrn)))))
 
-      when(mockVatMicroService.root(s"/vat/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/$vrn/accountSummary")))
+      when(mockVatConnector.root(s"/vat/$vrn")).thenReturn(VatRoot(Vrn(vrn), Map("accountSummary" -> s"/vat/$vrn/accountSummary")))
 
-      when(mockVatMicroService.accountSummary(s"/vat/$vrn/accountSummary")).thenReturn(Some(accountSummary))
+      when(mockVatConnector.accountSummary(s"/vat/$vrn/accountSummary")).thenReturn(Some(accountSummary))
 
       val result = controller.home(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/johnboy"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt(encodedGovernmentGatewayToken),
         sessionTimestampKey -> sessionTimeout, "affinityGroup" -> encrypt("someaffinitygroup")))

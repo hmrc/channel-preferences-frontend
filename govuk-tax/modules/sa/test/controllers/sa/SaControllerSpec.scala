@@ -57,7 +57,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(
+      when(controller.saConnector.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           utr = "123456789012",
@@ -91,7 +91,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
       controller.resetAll()
 
-      when(controller.saMicroService.person("/sa/individual/123456789012/details")).thenReturn(None)
+      when(controller.saConnector.person("/sa/individual/123456789012/details")).thenReturn(None)
       val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
@@ -417,7 +417,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
-      when(controller.saMicroService.updateMainAddress(uri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
+      when(controller.saConnector.updateMainAddress(uri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
 
       val result = controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
@@ -427,7 +427,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       status(result) shouldBe 303
       redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressComplete?id=$encodedTransactionId")
 
-      verify(controller.saMicroService).updateMainAddress(uri, addressForUpdate)
+      verify(controller.saConnector).updateMainAddress(uri, addressForUpdate)
     }
 
     "redirect to the change address failed page if the address cannot be updated" in new WithApplication(FakeApplication()) {
@@ -444,7 +444,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
       val errorMessage = "some error occurred"
-      when(controller.saMicroService.updateMainAddress(uri, addressForUpdate)).thenReturn(Left(errorMessage))
+      when(controller.saConnector.updateMainAddress(uri, addressForUpdate)).thenReturn(Left(errorMessage))
 
       val result = controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2))
@@ -453,7 +453,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 303
       redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressFailed?id=$encodedErrorMessage")
-      verify(controller.saMicroService).updateMainAddress(uri, addressForUpdate)
+      verify(controller.saConnector).updateMainAddress(uri, addressForUpdate)
     }
 
   }

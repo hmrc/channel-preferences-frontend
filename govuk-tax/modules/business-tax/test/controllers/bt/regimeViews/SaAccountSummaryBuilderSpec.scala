@@ -2,7 +2,7 @@ package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
 import org.mockito.Mockito._
 import views.helpers._
 import org.joda.time.LocalDate
@@ -140,7 +140,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     "when account summary is not available " in {
       val mockUser = mock[User]
-      val mockSaMicroService = mock[SaMicroService]
+      val mockSaConnector = mock[SaConnector]
       val mockRegimeRoots = mock[RegimeRoots]
       val mockSaRoot = mock[SaRoot]
 
@@ -148,7 +148,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       when(mockUser.regimes).thenReturn(mockRegimeRoots)
       when(mockRegimeRoots.sa).thenReturn(Some(mockSaRoot))
-      when(mockSaRoot.accountSummary(mockSaMicroService)).thenThrow(new RuntimeException)
+      when(mockSaRoot.accountSummary(mockSaConnector)).thenThrow(new RuntimeException)
 
       val expectedMessages =
         Seq(
@@ -158,7 +158,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
           (saSummaryUnavailableErrorMessage4, Seq.empty)
         )
 
-      val actualAccountSummary = SaAccountSummaryBuilder(mockSaMicroService).build(mockPortalUrlBuilder.build _, mockUser).get
+      val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build _, mockUser).get
       actualAccountSummary.regimeName shouldBe saRegimeName
       actualAccountSummary.messages shouldBe expectedMessages
 
@@ -168,7 +168,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   private def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[(String, Seq[RenderableMessage])]) {
     val mockUser = mock[User]
-    val mockSaMicroService = mock[SaMicroService]
+    val mockSaConnector = mock[SaConnector]
     val mockRegimeRoots = mock[RegimeRoots]
     val mockSaRoot = mock[SaRoot]
 
@@ -176,12 +176,12 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
     when(mockRegimeRoots.sa).thenReturn(Some(mockSaRoot))
-    when(mockSaRoot.accountSummary(mockSaMicroService)).thenReturn(Some(accountSummary))
+    when(mockSaRoot.accountSummary(mockSaConnector)).thenReturn(Some(accountSummary))
 
     when(mockPortalUrlBuilder.build(saHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl)
 
-    val actualAccountSummary = SaAccountSummaryBuilder(mockSaMicroService).build(mockPortalUrlBuilder.build _, mockUser).get
+    val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build _, mockUser).get
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName
 

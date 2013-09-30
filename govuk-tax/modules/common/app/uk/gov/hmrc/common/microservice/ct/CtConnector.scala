@@ -1,9 +1,9 @@
-package ct
+package uk.gov.hmrc.common.microservice.ct
 
-import ct.domain.CtDomain.{CtRoot, CtAccountSummary}
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
+import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 
-class CtMicroService extends MicroService {
+class CtConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.ctServiceUrl
 

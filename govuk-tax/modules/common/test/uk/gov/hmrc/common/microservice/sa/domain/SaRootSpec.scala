@@ -2,7 +2,7 @@ package uk.gov.hmrc.common.microservice.sa.domain
 
 import uk.gov.hmrc.common.BaseSpec
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import org.mockito.Matchers
@@ -17,20 +17,20 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val saRoot = SaRoot("12345", Map("individual/details" -> uri))
       val name = SaName("Mr", "Tim", None, "Smith", None)
       val saPersonalDetails = Some(SaPerson("tim", name, SaIndividualAddress("line1", "line2", Some("line3"), Some("line4"), Some("line5"), Some("46353"), Some("Malta"),None)))
-      val saMicroService = mock[SaMicroService]
+      val saConnector = mock[SaConnector]
 
-      when(saMicroService.person(uri)).thenReturn(saPersonalDetails)
+      when(saConnector.person(uri)).thenReturn(saPersonalDetails)
 
-      saRoot.personalDetails(saMicroService) shouldBe saPersonalDetails
-      verify(saMicroService).person(Matchers.eq(uri))
+      saRoot.personalDetails(saConnector) shouldBe saPersonalDetails
+      verify(saConnector).person(Matchers.eq(uri))
     }
 
     "return None when the personal details link is not present" in {
       val saRoot = SaRoot("12345", Map.empty)
-      val saMicroService = mock[SaMicroService]
+      val saConnector = mock[SaConnector]
 
-      saRoot.personalDetails(saMicroService) shouldBe None
-      verify(saMicroService, times(0)).person(Matchers.anyString())
+      saRoot.personalDetails(saConnector) shouldBe None
+      verify(saConnector, times(0)).person(Matchers.anyString())
     }
 
   }
@@ -41,20 +41,20 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val uri = "sa/individual/12345/accountSummary"
       val saRoot = SaRoot("12345", Map("individual/account-summary" -> uri))
       val accountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(30.2), false)), None, Some(BigDecimal(454.2))))
-      val saMicroService = mock[SaMicroService]
+      val saConnector = mock[SaConnector]
 
-      when(saMicroService.accountSummary(uri)).thenReturn(accountSummary)
+      when(saConnector.accountSummary(uri)).thenReturn(accountSummary)
 
-      saRoot.accountSummary(saMicroService) shouldBe accountSummary
-      verify(saMicroService).accountSummary(Matchers.eq(uri))
+      saRoot.accountSummary(saConnector) shouldBe accountSummary
+      verify(saConnector).accountSummary(Matchers.eq(uri))
     }
 
     "return None when the account summary link is not present" in {
       val saRoot = SaRoot("12345", Map.empty)
-      val saMicroService = mock[SaMicroService]
+      val saConnector = mock[SaConnector]
 
-      saRoot.accountSummary(saMicroService) shouldBe None
-      verify(saMicroService, times(0)).accountSummary(Matchers.anyString())
+      saRoot.accountSummary(saConnector) shouldBe None
+      verify(saConnector, times(0)).accountSummary(Matchers.anyString())
     }
 
   }
@@ -65,22 +65,22 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val uri = "sa/individual/12345/mainAddress"
       val saRoot = SaRoot("12345", Map("individual/details/main-address" -> uri))
       val saMainAddress = SaAddressForUpdate("line1", "line2", None, None, None, None)
-      implicit val saMicroService = mock[SaMicroService]
+      implicit val saConnector = mock[SaConnector]
       val transactionId = Right(TransactionId("12343asdfkjhaslkdfhoi3243kjh3kj4h343"))
 
-      when(saMicroService.updateMainAddress(uri, saMainAddress)).thenReturn(transactionId)
+      when(saConnector.updateMainAddress(uri, saMainAddress)).thenReturn(transactionId)
 
       saRoot.updateIndividualMainAddress(saMainAddress) shouldBe transactionId
-      verify(saMicroService).updateMainAddress(Matchers.eq(uri), Matchers.any())
+      verify(saConnector).updateMainAddress(Matchers.eq(uri), Matchers.any())
     }
 
     "throw a IllegalStateException when link the uri is not found in the SaRoot" in {
       val saRoot = SaRoot("12345", Map.empty)
-      implicit val saMicroService = mock[SaMicroService]
+      implicit val saConnector = mock[SaConnector]
       val saMainAddress = SaAddressForUpdate("line1", "line2", None, None, None, None)
 
       evaluating(saRoot.updateIndividualMainAddress(saMainAddress)) should produce[IllegalStateException]
-      verify(saMicroService, times(0)).accountSummary(Matchers.anyString())
+      verify(saConnector, times(0)).accountSummary(Matchers.anyString())
     }
 
   }
