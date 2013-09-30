@@ -19,7 +19,7 @@
         <li>@helpers.dateFields(carBenefitForm, providedFrom, Messages("paye.add_car_benefit.question1", optionalValue(employerName, "your.employer", true)), (2012 to 2014))</li>
         <li>
             @helpers.fieldGroup(
-            carBenefitForm,
+                carBenefitForm,
                 Seq(
                     FormField(carBenefitForm(carUnavailable), Seq(
                         InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
@@ -33,12 +33,12 @@
         </li>
         <li>
             @helpers.fieldGroup(
-            carBenefitForm,
+                carBenefitForm,
                 Seq(
                     FormField(carBenefitForm(giveBackThisTaxYear), Seq(
                         InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
                         InputType("radio", "true", "Yes: on ", Some("form-field--inline"), Some("label--inlineRadio-right")))),
-                    FormField(carBenefitForm(providedTo), Seq(DateControl()))
+                    FormField(carBenefitForm(providedTo), Seq(DateControl((2013 to 2014))))
                 ),
                 '_label -> "Will you give back your new company car before 5 April?",
                 '_groupDivClass -> "form-field",
@@ -58,26 +58,33 @@
                            '_inputClass -> "input--small",
                            '_labelClass -> "label--inlineRadio")
         </li>
-        <li>@helpers.radioGroup(carBenefitForm(employeeContributes),
-                                Seq(RadioButton("false", "No", Some("form-field clear"), Some("label--inlineRadio-right")),
-                                    RadioButton("true", "Yes: £", Some("form-field--inline"), Some("label--inlineRadio-right"))),
-                                '_label -> "Did you pay anything towards the cost of the car?"
+        <li>
+            @helpers.fieldGroup(
+                carBenefitForm,
+                Seq(
+                    FormField(carBenefitForm(employeeContributes), Seq(
+                        InputType("radio", "false", "No", Some("form-field clear"), Some("label--inlineRadio-right")),
+                        InputType("radio", "true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio-right")))),
+                    FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline"), Some(""), Some("input--small"))))
+                ),
+                '_label -> "Did you pay anything towards the cost of the car?",
+                '_groupDivClass -> "form-field",
+                '_valueAfter -> true
             )
-            @helpers.input(carBenefitForm(employeeContribution),
-                           '_divClass -> "form-field--inline",
-                           '_inputClass -> "input--small")
         </li>
-        <li>@helpers.radioGroup(carBenefitForm(employerContributes),
-                                Seq(RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio-right")),
-                                    RadioButton("true", "Yes: £", Some("form-field--inline"), Some("label--inlineRadio-right"))),
-                                '_label -> "Do you pay your employer for private use of the company car?"
+        <li>
+             @helpers.fieldGroup(
+                carBenefitForm,
+                Seq(
+                    FormField(carBenefitForm(employerContributes), Seq(
+                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
+                        InputType("radio", "true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio-right")))),
+                    FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", "a year", Some("form-field--inline"), Some(""), Some("input--xsmall"))))
+                ),
+                '_label -> "Do you pay your employer for private use of the company car?",
+                '_groupDivClass -> "form-field",
+                '_valueAfter -> true
             )
-            @helpers.input(carBenefitForm(employerContribution),
-                           '_divClass -> "form-field--inline",
-                           '_label -> "a year",
-                           '_inputClass -> "input--xsmall",
-                           '_labelClass -> "label--inlineRadio-right",
-                           '_labelAfter -> true)
         </li>
     </ol>
 </fieldset>

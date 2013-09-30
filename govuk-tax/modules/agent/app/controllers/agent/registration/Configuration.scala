@@ -1,16 +1,16 @@
 package controllers.agent.registration
 
-import views.helpers.RadioButton
+import views.helpers.{InputType, RadioButton}
 
 object Configuration {
-  val agentTypeOptions = Seq[RadioButton](
+  val agentTypeOptions = Seq[InputType](
     RadioButton("inBusiness", "In business as an agent"),
     RadioButton("unpaidAgentFamily", "Unpaid agent - Friends and family"),
     RadioButton("unpaidAgentVoluntary", "Unpaid agent - Voluntary and Community Sector"),
     RadioButton("employer", "Employer acting for employees")
   )
 
-  val legalEntityOptions: Seq[RadioButton] = Seq[RadioButton](
+  val legalEntityOptions = Seq[InputType](
     RadioButton("ltdCompany", "Limited Company"),
     RadioButton("partnership", "Partnership (e.g. Ordinary Partnership, Limited Partnership, Limited Liability Partnership, Scottish Limited Partnership)"),
     RadioButton("soleProprietor", "Sole Proprietor")
@@ -35,5 +35,5 @@ object Configuration {
   val config = new Configuration();
 }
 
-case class Configuration(agentTypeOptions: Seq[RadioButton] = Configuration.agentTypeOptions, legalEntityOptions: Seq[RadioButton] = Configuration.legalEntityOptions,
+case class Configuration(agentTypeOptions: Seq[InputType] = Configuration.agentTypeOptions, legalEntityOptions: Seq[InputType] = Configuration.legalEntityOptions,
   professionalBodyOptions: Seq[(String, String)] = Configuration.professionalBodyOptions)

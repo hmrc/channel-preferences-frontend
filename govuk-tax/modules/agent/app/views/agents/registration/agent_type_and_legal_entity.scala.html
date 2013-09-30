@@ -1,6 +1,7 @@
 @(agentForm:Form[controllers.agent.registration.AgentTypeAndLegalEntity], conf:controllers.agent.registration.Configuration)
 
 @import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
+@import views.helpers._
 
 @main(title = "Your tax home") {
 
@@ -8,16 +9,26 @@
 
     @helper.form(action = agent.registration.routes.AgentTypeAndLegalEntityController.postAgentType) {
 
-        @helpers.radioGroup(agentForm(legalEntity),
-            conf.legalEntityOptions,
-            '_label -> "Legal Entity",
-            '_groupDivClass -> legalEntity,
-            '_additionalTitleText -> "(only for 'In business as an agent' and 'Employer acting for employees')")
+         @helpers.fieldGroup(
+                agentForm,
+                Seq(
+                    FormField(agentForm(legalEntity), conf.legalEntityOptions)
+                ),
+                '_label -> "Legal Entity",
+                '_groupDivClass -> legalEntity,
+                '_additionalTitleText -> "(only for 'In business as an agent' and 'Employer acting for employees')",
+                '_valueAfter -> true
+         )
 
-        @helpers.radioGroup(agentForm(agentType),
-            conf.agentTypeOptions,
-            '_label -> "Agent Type",
-            '_groupDivClass -> agentType)
+         @helpers.fieldGroup(
+                agentForm,
+                Seq(
+                    FormField(agentForm(agentType), conf.agentTypeOptions)
+                ),
+                '_label -> "Agent Type",
+                '_groupDivClass -> agentType,
+                '_valueAfter -> true
+         )
 
         <p><input type="submit" value="Next"/></p>
 
