@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.vat.domain
 
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.domain.Vrn
 
 object VatDomain {
@@ -10,9 +10,9 @@ object VatDomain {
 
     private val accountSummaryKey = "accountSummary"
 
-    def accountSummary(implicit vatMicroService: VatMicroService): Option[VatAccountSummary] = {
+    def accountSummary(implicit vatConnector: VatConnector): Option[VatAccountSummary] = {
       links.get(accountSummaryKey) match {
-        case Some(uri) => vatMicroService.accountSummary(uri)
+        case Some(uri) => vatConnector.accountSummary(uri)
         case _ => None
       }
     }

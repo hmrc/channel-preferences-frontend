@@ -1,14 +1,14 @@
 package controllers.bt.regimeViews
 
-import ct.CtMicroService
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.vat.VatConnector
+import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import scala.Predef._
 import uk.gov.hmrc.common.microservice.domain.User
 import org.mockito.Mockito._
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 
 class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
@@ -19,7 +19,7 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
   def mockEPayeRegimeAccountSummaryViewBuilder = mock[EPayeAccountSummaryBuilder]
   def mockUser = mock[User]
 
-      def factory() = new AccountSummariesFactory(mock[SaMicroService], mock[VatMicroService],mock[CtMicroService], mock[EPayeConnector]) {
+      def factory() = new AccountSummariesFactory(mock[SaConnector], mock[VatConnector],mock[CtConnector], mock[EPayeConnector]) {
         override val saRegimeAccountSummaryViewBuilder = mockSaRegimeAccountSummaryViewBuilder
         override val vatRegimeAccountSummaryViewBuilder = mockVatRegimeAccountSummaryViewBuilder
         override val ctRegimeAccountSummaryViewBuilder = mockCtRegimeAccountSummaryViewBuilder

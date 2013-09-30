@@ -113,9 +113,9 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
 
   private def getRegimeRootsObject(regimes: Regimes): RegimeRoots = RegimeRoots(
     paye = regimes.paye map { uri => payeMicroService.root(uri.toString) },
-    sa = regimes.sa map { uri => saMicroService.root(uri.toString) },
-    vat = regimes.vat map { uri => vatMicroService.root(uri.toString) },
+    sa = regimes.sa map { uri => saConnector.root(uri.toString) },
+    vat = regimes.vat map { uri => vatConnector.root(uri.toString) },
     epaye = regimes.epaye.map { uri => epayeConnector.root(uri.toString)  },
-    ct = regimes.ct.map { uri => ctMicroService.root(uri.toString)}
+    ct = regimes.ct.map { uri => ctConnector.root(uri.toString)}
   )
 }

@@ -3,7 +3,7 @@ package controllers.bt.regimeViews
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountBalance, VatAccountSummary, VatRoot}
 import org.mockito.Mockito._
@@ -25,9 +25,9 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     "return the correct account summary for complete data" in {
 
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(Some(6.1), Some("GBP"))), Some(aDate))
-      val mockVatMicroService = mock[VatMicroService]
-      when(mockVatMicroService.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
-      val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatMicroService)
+      val mockVatConnector = mock[VatConnector]
+      when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
+      val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
       val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
@@ -41,9 +41,9 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     "return an error message if the account summary is not available" in {
 
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(None, Some("GBP"))), Some(aDate))
-      val mockVatMicroService = mock[VatMicroService]
-      when(mockVatMicroService.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
-      val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatMicroService)
+      val mockVatConnector = mock[VatConnector]
+      when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
+      val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
       val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
@@ -58,8 +58,8 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val userAuthority = UserAuthority("123", Regimes())
       val regimeRoots = RegimeRoots(None, None, None, None, None)
       val user = User("jim", userAuthority, regimeRoots, None, None)
-      val mockVatMicroService = mock[VatMicroService]
-      val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatMicroService)
+      val mockVatConnector = mock[VatConnector]
+      val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
       val accountSummaryViewOption = builder.build(buildPortalUrl, user)
       accountSummaryViewOption shouldBe None
     }

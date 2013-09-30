@@ -11,7 +11,7 @@ import play.api.test.Helpers._
 import java.net.URI
 import org.slf4j.MDC
 import uk.gov.hmrc.common.microservice.sa.domain.{ SaRoot, SaRegime }
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
@@ -21,13 +21,13 @@ import java.util.UUID
 class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
-  private lazy val mockSaMicroService = mock[SaMicroService]
+  private lazy val mockSaConnector = mock[SaConnector]
   private val token = "someToken"
 
   override protected def beforeEach(testData: TestData) {
     reset(mockAuthMicroService)
-    reset(mockSaMicroService)
-    when(mockSaMicroService.root("/sa/detail/AB123456C")).thenReturn(
+    reset(mockSaConnector)
+    when(mockSaConnector.root("/sa/detail/AB123456C")).thenReturn(
       SaRoot("someUtr", Map("link1" -> "http://somelink/1"))
     )
     when(mockAuthMicroService.authority("/auth/oid/gfisher")).thenReturn(
@@ -37,7 +37,7 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSuga
   object TestController extends Controller with ActionWrappers with MockMicroServicesForTests with HeaderNames {
 
     override lazy val authMicroService = mockAuthMicroService
-    override lazy val saMicroService = mockSaMicroService
+    override lazy val saConnector = mockSaConnector
 
     def test = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
       implicit user =>

@@ -1,8 +1,7 @@
-package ct.domain
+package uk.gov.hmrc.common.microservice.ct.domain
 
-import ct.CtMicroService
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
-import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 object CtDomain {
 
@@ -10,9 +9,9 @@ object CtDomain {
 
     private val accountSummaryKey = "accountSummary"
 
-    def accountSummary(implicit ctMicroService: CtMicroService): Option[CtAccountSummary] = {
+    def accountSummary(implicit ctConnector: CtConnector): Option[CtAccountSummary] = {
       links.get(accountSummaryKey) match {
-        case Some(uri) => ctMicroService.accountSummary(uri)
+        case Some(uri) => ctConnector.accountSummary(uri)
         case _ => None
       }
     }

@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.sa.domain
 
 import controllers.common.FrontEndRedirect
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.domain.{ TaxRegime, RegimeRoot }
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
@@ -23,22 +23,22 @@ case class SaRoot(utr: String, links: Map[String, String]) extends RegimeRoot {
   private val individualMainAddressKey = "individual/details/main-address"
   private val individualAccountSummaryKey = "individual/account-summary"
 
-  def personalDetails(implicit saMicroService: SaMicroService): Option[SaPerson] = {
+  def personalDetails(implicit saConnector: SaConnector): Option[SaPerson] = {
     links.get(individualDetailsKey) match {
-      case Some(uri) => saMicroService.person(uri)
+      case Some(uri) => saConnector.person(uri)
       case _ => None
     }
   }
 
-  def accountSummary(implicit saMicroService: SaMicroService): Option[SaAccountSummary] = {
+  def accountSummary(implicit saConnector: SaConnector): Option[SaAccountSummary] = {
     links.get(individualAccountSummaryKey) match {
-      case Some(uri) => saMicroService.accountSummary(uri)
+      case Some(uri) => saConnector.accountSummary(uri)
       case _ => None
     }
   }
 
-  def updateIndividualMainAddress(address: SaAddressForUpdate)(implicit saMicroService: SaMicroService): Either[String, TransactionId] = {
-    saMicroService.updateMainAddress(uriFor(individualMainAddressKey), address)
+  def updateIndividualMainAddress(address: SaAddressForUpdate)(implicit saConnector: SaConnector): Either[String, TransactionId] = {
+    saConnector.updateMainAddress(uriFor(individualMainAddressKey), address)
   }
 
   private def uriFor(key: String): String = {

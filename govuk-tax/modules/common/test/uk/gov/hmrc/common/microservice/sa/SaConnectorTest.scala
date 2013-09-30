@@ -12,20 +12,19 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
-import uk.gov.hmrc.domain.SaUtr
 
 class
 
 
 
 
-SaMicroServiceTest extends BaseSpec {
+SaConnectorTest extends BaseSpec {
 
-  "SaMicroServiceTest root service" should {
+  "SaConnectorTest root service" should {
 
     "call the microservice with the correct uri and get the contents " in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedSaMicroService
+      val service = new HttpMockedSaConnector
       val saRoot = SaRoot("12345", Map.empty)
       when(service.httpWrapper.get[SaRoot]("/sa/individual/12345")).thenReturn(Some(saRoot))
 
@@ -38,7 +37,7 @@ SaMicroServiceTest extends BaseSpec {
 
     "call the microservice with the correct uri but SA root is not found" in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedSaMicroService
+      val service = new HttpMockedSaConnector
       when(service.httpWrapper.get[SaRoot]("/sa/individual/12345")).thenReturn(None)
 
       evaluating(service.root("/sa/individual/12345")) should produce[IllegalStateException]
@@ -48,11 +47,11 @@ SaMicroServiceTest extends BaseSpec {
 
   }
 
-  "SaMicroServiceTest person service" should {
+  "SaConnectorTest person service" should {
 
     "call the microservice with the correct uri and get the contents" in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedSaMicroService
+      val service = new HttpMockedSaConnector
       val saName = SaName("Mr", "Tim", None, "Smith", None)
       val saPerson = Some(SaPerson("12345", saName, SaIndividualAddress("line1", "line2", Some("line3"), Some("line4"), Some("line5"), Some("46353"), Some("Malta"), None)))
       when(service.httpWrapper.get[SaPerson]("/sa/individual/12345/address")).thenReturn(saPerson)
@@ -65,11 +64,11 @@ SaMicroServiceTest extends BaseSpec {
     }
   }
 
-  "SaMicroServiceTest account summary service" should {
+  "SaConnectorTest account summary service" should {
 
     "call the microservice with the correct uri and get the contents" in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedSaMicroService
+      val service = new HttpMockedSaConnector
       val saAccountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(1367.29), true)), None, Some(BigDecimal(34.03))))
       when(service.httpWrapper.get[SaAccountSummary]("/sa/individual/12345/accountSummary")).thenReturn(saAccountSummary)
 
@@ -84,7 +83,7 @@ SaMicroServiceTest extends BaseSpec {
 
 }
 
-class HttpMockedSaMicroService extends SaMicroService with MockitoSugar {
+class HttpMockedSaConnector extends SaConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 

@@ -1,13 +1,12 @@
 package controllers.bt
 
-import ct.CtMicroService
 import org.joda.time.DateTime
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import views.html.make_a_payment_landing
 import controllers.bt.regimeViews._
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
+import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.domain.CtUtr
@@ -15,11 +14,12 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def this() = {
-    this(new AccountSummariesFactory(new SaMicroService, new VatMicroService, new CtMicroService, new EPayeConnector))
+    this(new AccountSummariesFactory(new SaConnector, new VatConnector, new CtConnector, new EPayeConnector))
   }
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {

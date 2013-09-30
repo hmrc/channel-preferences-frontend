@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.vat.domain
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{ VatAccountSummary, VatRoot }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
@@ -16,20 +16,20 @@ class VatDomainSpec extends BaseSpec with MockitoSugar {
       val uri = "/vat/vrn/12345/accountSummary"
       val vatRoot = VatRoot(Vrn("12345"), Map("accountSummary" -> uri))
       val accountSummary = Some(VatAccountSummary(None, Some("2013-03-03")))
-      val vatMicroService = mock[VatMicroService]
+      val vatConnector = mock[VatConnector]
 
-      when(vatMicroService.accountSummary(uri)).thenReturn(accountSummary)
+      when(vatConnector.accountSummary(uri)).thenReturn(accountSummary)
 
-      vatRoot.accountSummary(vatMicroService) shouldBe accountSummary
-      verify(vatMicroService).accountSummary(Matchers.eq(uri))
+      vatRoot.accountSummary(vatConnector) shouldBe accountSummary
+      verify(vatConnector).accountSummary(Matchers.eq(uri))
     }
 
     "return None when the account summary link is not present" in {
       val vatRoot = VatRoot(Vrn("12345"), Map("designatoryDetails" -> "/vat/vrn/12345/designatoryDetails"))
-      val vatMicroService = mock[VatMicroService]
+      val vatConnector = mock[VatConnector]
 
-      vatRoot.accountSummary(vatMicroService) shouldBe None
-      verify(vatMicroService, times(0)).accountSummary(Matchers.anyString())
+      vatRoot.accountSummary(vatConnector) shouldBe None
+      verify(vatConnector, times(0)).accountSummary(Matchers.anyString())
     }
 
   }

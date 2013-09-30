@@ -1,13 +1,14 @@
 package controllers.bt.regimeViews
 
-import ct.CtMicroService
-import ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import controllers.bt.{routes}
+import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.DateConverter
+import uk.gov.hmrc.common.microservice.ct.CtConnector
+import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 
-case class CtAccountSummaryBuilder(ctMicroService: CtMicroService) {
+
+case class CtAccountSummaryBuilder(ctConnector: CtConnector) {
 
   import CtMessageKeys._
   import CtPortalUrlKeys._
@@ -17,7 +18,7 @@ case class CtAccountSummaryBuilder(ctMicroService: CtMicroService) {
 
     ctRootOption.map {
       ctRoot: CtRoot =>
-        val accountSummary: Option[CtAccountSummary] = ctRootOption.get.accountSummary(ctMicroService)
+        val accountSummary: Option[CtAccountSummary] = ctRootOption.get.accountSummary(ctConnector)
 
 
         val accountValueOption: Option[BigDecimal] = for {

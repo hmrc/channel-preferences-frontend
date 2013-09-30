@@ -1,16 +1,16 @@
 package controllers.bt.regimeViews
 
-import ct.CtMicroService
-import uk.gov.hmrc.common.microservice.sa.SaMicroService
-import uk.gov.hmrc.common.microservice.vat.VatMicroService
+import uk.gov.hmrc.common.microservice.sa.SaConnector
+import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
-class AccountSummariesFactory(saMicroService : SaMicroService, vatMicroService : VatMicroService, ctMicroService : CtMicroService, epayeConnector : EPayeConnector){
+class AccountSummariesFactory(saConnector : SaConnector, vatConnector : VatConnector, ctConnector : CtConnector, epayeConnector : EPayeConnector){
 
-  private [regimeViews] val saRegimeAccountSummaryViewBuilder = SaAccountSummaryBuilder(saMicroService)
-  private [regimeViews] val vatRegimeAccountSummaryViewBuilder = VatAccountSummaryBuilder(vatMicroService)
-  private [regimeViews] val ctRegimeAccountSummaryViewBuilder = CtAccountSummaryBuilder(ctMicroService)
+  private [regimeViews] val saRegimeAccountSummaryViewBuilder = SaAccountSummaryBuilder(saConnector)
+  private [regimeViews] val vatRegimeAccountSummaryViewBuilder = VatAccountSummaryBuilder(vatConnector)
+  private [regimeViews] val ctRegimeAccountSummaryViewBuilder = CtAccountSummaryBuilder(ctConnector)
   private [regimeViews] val epayeRegimeAccountSummaryViewBuilder = EPayeAccountSummaryBuilder(epayeConnector)
 
   def create(buildPortalUrl  : (String) => String)(implicit user : User) : AccountSummaries = {
