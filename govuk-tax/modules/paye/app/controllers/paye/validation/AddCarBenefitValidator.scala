@@ -63,7 +63,7 @@ object AddCarBenefitValidator extends Validators {
   private[paye] def validateNumberOfDaysUnavailable(values: CarBenefitValues) : Mapping[Option[Int]] = values.carUnavailableVal.map(_.toBoolean) match {
     case Some(true) => {
       optional(positiveInteger)
-        .verifying("error.number", n => n.getOrElse(0) <= 999 )
+        .verifying("error.paye.number_max_3_chars", n => n.getOrElse(0) <= 999 )
         .verifying("error.paye.add_car_benefit.car_unavailable_too_long", e =>
           {values.numberOfDaysUnavailableVal.map(_.toInt).getOrElse(0) < DateTimeUtils.daysBetween(values.providedFromVal.get, values.providedToVal.get)})
         .verifying("error.paye.add_car_benefit.missing_days_unavailable", data => !(values.carUnavailableVal.map(_.toBoolean).getOrElse(false) && data.isEmpty))

@@ -18,9 +18,10 @@ error.paye.list_price_mandatory=You must specify the list price of your company 
 error.paye.list_price_less_than_1000=List price must be greater than £1000.
 error.paye.list_price_greater_than_99999=List price must not be higher than £99999.
 error.paye.employee_contribution_greater_than_9999=Capital contribution must not be higher than £9999.
-error.paye.employee_contribution_less_than_0=Capital Contributions must be greater than zero if you have selected yes.
-error.paye.employer_contribution_greater_than_99999=Employer contribution must not be higher than £99999.
+error.paye.employee_contribution_less_than_0=Capital contribution must be greater than zero if you have selected yes.
+error.paye.employer_contribution_greater_than_99999=Employee payment must not be higher than £99999.
 error.paye.employer_contribution_less_than_0=Payment towards private use must be greater than zero if you have selected yes.
+error.paye.number_max_3_chars=Please enter a number of 3 characters or less.
 
 error.boolean=Please use a boolean value.
 error.number=Please use whole numbers only, not decimals or other characters.

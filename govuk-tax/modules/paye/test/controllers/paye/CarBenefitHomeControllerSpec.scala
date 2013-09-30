@@ -232,7 +232,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedDatesSubmit(None, Some("true"), Some("367"), Some("true"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
       assertFailedDatesSubmit(None, Some("true"), None, Some("false"), None, "error_q_2", "You must specify the number of consecutive days the car has been unavailable.")
 
-      assertFailedDatesSubmit(None, Some("true"), Some("1367"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
+      assertFailedDatesSubmit(None, Some("true"), Some("1367"), Some("false"), None, "error_q_2", "Please enter a number of 3 characters or less.")
       assertFailedDatesSubmit(None, Some("true"), Some("9.5"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
       assertFailedDatesSubmit(None, Some("true"), Some("&@^adsf"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
 
@@ -292,7 +292,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployeeContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("10000"), "error_q_6", "Capital contribution must not be higher than £9999.")
       assertFailedEmployeeContributionSubmit(None, None, "error_q_6", "Please answer this question.")
-      assertFailedEmployeeContributionSubmit(Some("true"), Some("0"), "error_q_6", "Capital Contributions must be greater than zero if you have selected yes.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("0"), "error_q_6", "Capital contribution must be greater than zero if you have selected yes.")
     }
 
     "return 200 when employers form data validates successfully" in new WithApplication(FakeApplication()) {
@@ -312,7 +312,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       assertFailedEmployerContributionSubmit(Some("true"), Some("1000.25"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
-      assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Employer contribution must not be higher than £99999.")
+      assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Employee payment must not be higher than £99999.")
       assertFailedEmployerContributionSubmit(None, None, "error_q_7", "Please answer this question.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("0"), "error_q_7", "Payment towards private use must be greater than zero if you have selected yes.")
     }
