@@ -92,7 +92,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       controller.resetAll()
 
       when(controller.saConnector.person("/sa/individual/123456789012/details")).thenReturn(None)
-      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), sessionTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), lastRequestTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }

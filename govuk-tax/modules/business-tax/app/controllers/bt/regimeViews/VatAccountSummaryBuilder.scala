@@ -50,7 +50,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector) {
 object VatPortalUrls {
   val vatAccountDetailsPortalUrl = "vatAccountDetails"
   val vatFileAReturnPortalUrl = "vatFileAReturn"
-  val vatHelpDeskPortalUrl = "vatHelpDesk" // TODO [JJJS] WHAT'S THE CORRECT HELP DESK LINK - was set to "/TODO/HelpDeskLink"
+  val vatHelpDeskPortalUrl = "vatHelpDesk" // TODO [JJS] WHAT'S THE CORRECT HELP DESK LINK - was set to "/TODO/HelpDeskLink"
 }
 
 object VatMessageKeys extends CommonBusinessMessageKeys {

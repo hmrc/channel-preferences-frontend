@@ -4,13 +4,13 @@ import config.DateTimeProvider
 import scala.Some
 import org.joda.time.DateTime
 
-trait SessionTimeoutWrapper extends DateTimeProvider{
+trait SessionTimeoutWrapper extends DateTimeProvider {
   object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(now)
   object WithNewSessionTimeout extends WithNewSessionTimeout(now)
 }
 
 object SessionTimeoutWrapper {
-  val sessionTimestampKey = "ts"
+  val lastRequestTimestampKey = "ts"
   val timeoutSeconds = 900
 }
 
@@ -40,7 +40,7 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
   private def hasValidTimestamp(session: Session): Boolean = {
     val valid: Option[Boolean] = for {
       lastRequestTimestamp: DateTime <- extractTimestamp(session)
-      sessionExpiryTimestamp: DateTime <- Some(lastRequestTimestamp.withDurationAdded(Duration.standardSeconds(timeoutSeconds), 1))
+      sessionExpiryTimestamp: DateTime <- Some(lastRequestTimestamp.plus(Duration.standardSeconds(timeoutSeconds)))
       if now().isBefore(sessionExpiryTimestamp)
     } yield true
 
@@ -49,7 +49,7 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
 
   private def extractTimestamp(session: Session): Option[DateTime] = {
     try {
-      session.get(sessionTimestampKey) map (timestamp => new DateTime(timestamp.toLong, DateTimeZone.UTC))
+      session.get(lastRequestTimestampKey) map (timestamp => new DateTime(timestamp.toLong, DateTimeZone.UTC))
     } catch {
       case e: NumberFormatException => None
     }
@@ -91,7 +91,7 @@ trait SessionTimeout {
 
   private def insertTimestampNow(request: Request[AnyContent], result: PlainResult): Result = {
     val sessionData = sessionFromResultOrRequest(request, result).data.toSeq
-    val newSessionData = sessionData :+ (sessionTimestampKey -> now().getMillis.toString)
+    val newSessionData = sessionData :+ (lastRequestTimestampKey -> now().getMillis.toString)
     result.withSession(newSessionData: _*)
   }
 

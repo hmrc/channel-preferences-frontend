@@ -1,20 +1,15 @@
 package uk.gov.hmrc.common
 
 import config.PortalConfig
-import org.joda.time.LocalDate
 import play.api.mvc.Request
-import scala._
-import scala.AnyRef
 import controllers.common.CookieEncryption
 import play.api.Logger
-import scala.Predef._
 import uk.gov.hmrc.common.microservice.domain.User
-import scala.Some
 import uk.gov.hmrc.utils.TaxYearResolver
 
-object PortalDestinationUrlBuilder extends CookieEncryption {
 
-  def build(request: Request[AnyRef], user: User)(destinationPathKey: String): String = {
+trait PortalDestinationUrlBuilder extends CookieEncryption {
+  def buildPortalUrl(destinationPathKey: String)(implicit request: Request[AnyRef], user: User): String = {
     val currentTaxYear = TaxYearResolver.currentTaxYear
     val saUtr = user.userAuthority.saUtr
     val vrn = user.userAuthority.vrn

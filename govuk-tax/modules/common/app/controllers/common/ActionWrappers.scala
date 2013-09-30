@@ -10,8 +10,6 @@ import play.api.mvc.Result
 import play.api.Logger
 import controllers.common.actions.{ LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper }
 import controllers.common.FrontEndRedirect._
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
-import uk.gov.hmrc.domain.EmpRef
 
 trait HeaderNames {
   val requestId = "X-Request-ID"

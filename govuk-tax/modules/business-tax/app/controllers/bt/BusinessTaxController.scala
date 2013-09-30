@@ -3,7 +3,6 @@ package controllers.bt
 import org.joda.time.DateTime
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
-import views.html.make_a_payment_landing
 import controllers.bt.regimeViews._
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
@@ -16,7 +15,10 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 
-class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper with PortalDestinationUrlBuilder {
+
+  private[bt] def makeAPaymentLandingPage()(implicit user: User) = views.html.make_a_payment_landing()
+  private[bt] def businessTaxHomepage(businessUser: BusinessUser, portalHref: String, accountSummaries: AccountSummaries)(implicit user: User) = views.html.business_tax_home(businessUser, portalHref, accountSummaries)
 
   def this() = {
     this(new AccountSummariesFactory(new SaConnector, new VatConnector, new CtConnector, new EPayeConnector))
@@ -24,26 +26,20 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
     implicit user: User =>
-      request =>
+      implicit request =>
 
-        //TODO: leverage implicit user and request so this function is just available rather than an explicit call with params
-        val buildPortalUrl = PortalDestinationUrlBuilder.build(request, user) _
-        val portalHref = buildPortalUrl("home")
+        val portalHref: String = buildPortalUrl("home")
 
         val accountSummaries = accountSummaryFactory.create(buildPortalUrl)
-        Ok(views.html.business_tax_home(BusinessUser(), portalHref, accountSummaries))
+        Ok(businessTaxHomepage(BusinessUser(), portalHref, accountSummaries))
 
   })
 
   def makeAPaymentLanding = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
-    user => request => makeAPaymentLandingAction()
+    implicit user =>
+      request =>
+        Ok(makeAPaymentLandingPage())
   })
-
-  private[bt] def makeAPaymentLandingAction() = {
-    Ok(make_a_payment_landing())
-  }
-
-
 }
 
 case class BusinessUser(regimeRoots: RegimeRoots, saUtr: Option[SaUtr], vrn: Option[Vrn],
@@ -64,6 +60,3 @@ private object BusinessUser {
     }
   }
 }
-
-
-
