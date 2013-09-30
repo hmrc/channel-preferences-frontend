@@ -1,7 +1,5 @@
 package controllers.bt.regimeViews
 
-import ct.CtConnector
-import ct.domain.CtDomain.{CtAccountBalance, CtAccountSummary, CtRoot}
 import uk.gov.hmrc.domain.{Vrn, CtUtr}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
@@ -16,6 +14,8 @@ import org.joda.time.LocalDate
 import org.joda.time.chrono.ISOChronology
 import CtMessageKeys._
 import CtPortalUrlKeys._
+import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountBalance, CtAccountSummary, CtRoot}
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val buildPortalUrl: (String) => String = (value: String) => value
@@ -30,6 +30,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val userNotEnrolledForCt = User("jim", userAuthorityWithoutCt, regimeRootsWithoutCt, None, None)
 
   "CtAccountSummaryViewBuilder" should {
+
     "return the correct account summary for complete data" in {
       val ctMicroSeriveMock = mock[CtConnector]
       val ctAccountSummary = CtAccountSummary(Some(CtAccountBalance(Some(4.2), Some("GPB"))), Some("2012-12-02"))

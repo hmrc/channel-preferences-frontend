@@ -1,6 +1,5 @@
 package controllers.bt
 
-import ct.CtConnector
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import java.net.URI
@@ -25,6 +24,7 @@ import uk.gov.hmrc.domain.{SaUtr, Vrn}
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import controllers.bt.regimeViews.{AccountSummariesFactory, VatMessageKeys}
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 

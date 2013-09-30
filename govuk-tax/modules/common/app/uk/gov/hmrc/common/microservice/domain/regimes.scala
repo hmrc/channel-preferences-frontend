@@ -1,6 +1,5 @@
 package uk.gov.hmrc.common.microservice.domain
 
-import ct.domain.CtDomain.CtRoot
 import uk.gov.hmrc.common.microservice.auth.domain.{UserAuthority, Regimes}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot

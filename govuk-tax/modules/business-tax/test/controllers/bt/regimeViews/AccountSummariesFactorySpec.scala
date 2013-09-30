@@ -1,6 +1,5 @@
 package controllers.bt.regimeViews
 
-import ct.CtConnector
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.vat.VatConnector
@@ -9,6 +8,7 @@ import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
 import scala.Predef._
 import uk.gov.hmrc.common.microservice.domain.User
 import org.mockito.Mockito._
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 
 class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {

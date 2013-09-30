@@ -1,6 +1,5 @@
 package controllers.bt
 
-import ct.CtConnector
 import org.joda.time.DateTime
 import controllers.common._
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
@@ -15,6 +14,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 

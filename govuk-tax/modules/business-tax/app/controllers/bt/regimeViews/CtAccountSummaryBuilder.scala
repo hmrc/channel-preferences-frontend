@@ -1,11 +1,12 @@
 package controllers.bt.regimeViews
 
-import ct.CtConnector
-import ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import controllers.bt.{routes}
+import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.DateConverter
+import uk.gov.hmrc.common.microservice.ct.CtConnector
+import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountSummary, CtRoot}
+
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector) {
 

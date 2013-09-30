@@ -1,8 +1,5 @@
 package controllers.common.service
 
-import ct.CtConnector
-import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
-
 
 @deprecated("this will eventually be removed. All new controllers should wire in the services that they require", "")
 trait MicroServices {
@@ -14,6 +11,8 @@ trait MicroServices {
   import uk.gov.hmrc.common.microservice.agent.AgentMicroService
   import uk.gov.hmrc.common.microservice.vat.VatConnector
   import uk.gov.hmrc.common.microservice.saml.SamlMicroService
+  import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+  import uk.gov.hmrc.common.microservice.ct.CtConnector
   import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
   import uk.gov.hmrc.common.microservice.sa.SaConnector
   import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService

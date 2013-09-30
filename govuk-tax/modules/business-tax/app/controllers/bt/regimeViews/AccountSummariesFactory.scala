@@ -1,10 +1,10 @@
 package controllers.bt.regimeViews
 
-import ct.CtConnector
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 class AccountSummariesFactory(saConnector : SaConnector, vatConnector : VatConnector, ctConnector : CtConnector, epayeConnector : EPayeConnector){
 
