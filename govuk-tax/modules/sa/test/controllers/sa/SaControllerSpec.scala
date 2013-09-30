@@ -48,8 +48,8 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     User(id, ua, RegimeRoots(None, Some(saRoot), None, None, None), Some(nameFromGovernmentGateway), None)
   }
 
-  private val nameFromSa = SaName("Mr.", "Geoff", None, "Fisher", Some("From SA"))
-  private val nameFromGovernmentGateway = "Geoffrey From Government Gateway"
+  private val nameFromSa = SaName("", "", None, "", Some(""))
+  private val nameFromGovernmentGateway = ""
 
   val geoffFisher = setupUser("/auth/oid/gfisher", "123456789012", "Geoff Fisher", nameFromGovernmentGateway)
 
