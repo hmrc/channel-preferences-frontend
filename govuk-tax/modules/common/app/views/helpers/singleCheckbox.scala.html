@@ -5,7 +5,7 @@
 
 @elements = @{ new FieldElements(field.id, field, null, args.toMap, lang) }
 @value = @{ field.value match { case Some(x) => x case None => "false" case x => x }}
-<div class="@if(elements.hasErrors) {error}">
+<div class=" form-field @if(elements.hasErrors) {error}">
     <input type="checkbox" id="@elements.id"
     @if( elements.args.get('_inputClass) ){ class="@elements.args.get('_inputClass)" }
     name="@elements.field.name" value="true" @if(value=="true"){checked="checked"}/>
