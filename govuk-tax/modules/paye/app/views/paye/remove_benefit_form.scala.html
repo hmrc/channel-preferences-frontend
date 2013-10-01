@@ -1,4 +1,4 @@
-@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData])
+@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
@@ -19,13 +19,12 @@
 
         @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
-            @defining(updateForm("withdrawDate")) { withdrawDateField =>
-            <div class=" form-field @if(withdrawDateField.error.isDefined){error}">
-            @if(withdrawDateField.error.isDefined){<p class="error-notification">@Messages(withdrawDateField.errors(0).message)</p>}
-            <label>Date you stopped receiving the benefit: </label>
-                <input class="return-date" type="date" name="withdrawDate" value="@{withdrawDateField.value}" />
-            </div>
-            }
+           @helpers.dateFields(updateForm,
+                                "withdrawDate",
+                                "Date you stopped receiving the benefit:",
+                                currentTaxYearYearsRange,
+                                '_groupDivClass -> "form-field")
+
         <div>
 
             @singleCheckbox(

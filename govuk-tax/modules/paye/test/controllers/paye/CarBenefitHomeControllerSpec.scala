@@ -20,8 +20,9 @@ import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import controllers.DateFieldsHelper
 
-class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter {
+class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
   val mockKeyStoreService = mock[KeyStoreMicroService]
 
@@ -478,27 +479,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
           ++ buildDateFormField(providedTo, providedToVal) : _*)
   }
 
-
-    def localDateToTuple(date : Option[LocalDate]) : (String, String, String) = {
-      (date.map(_.getYear.toString).getOrElse(""),date.map(_.getMonthOfYear.toString).getOrElse(""),date.map(_.getDayOfMonth.toString).getOrElse(""))
-    }
-
-    def tupleToLocalDate(tupleDate : Option[(String,String,String)]) : Option[LocalDate] = {
-      tupleDate match {
-        case Some((y,m,d)) => try {
-          Some(new LocalDate(y.toInt, m.toInt, d.toInt))
-        } catch {
-          case _ => None
-        }
-        case _ => None
-      }
-    }
-
-    def buildDateFormField(fieldName: String, value : Option[(String, String, String)] ) : Seq[(String, String)] = {
-      Seq((fieldName + "." + "day" -> value.map(_._3).getOrElse("")),
-        (fieldName + "." + "month" -> value.map(_._2).getOrElse("")),
-        (fieldName + "." + "year" -> value.map(_._1).getOrElse("")))
-    }
 }
 
 object CarBenefitDataBuilder {

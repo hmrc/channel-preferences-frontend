@@ -1,4 +1,4 @@
-@(displayBenefit: models.paye.DisplayBenefit, hasFuelBenefit:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData])
+@(displayBenefit: models.paye.DisplayBenefit, hasFuelBenefit:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)
 
 @import views.formatting.Dates._
 @import org.joda.time.LocalDate
@@ -7,6 +7,7 @@
 @import views.helpers.CustomHelpers._
 @import helper._
 @import views.formatting.Strings._
+@import views.helpers._
 
 @main(title = "Remove your company benefit") {
 
@@ -22,13 +23,12 @@
 
     @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
-        @defining(updateForm("withdrawDate")) { withdrawDateField =>
-        <div class="form-field @if(withdrawDateField.error.isDefined){error}">
-        @if(withdrawDateField.error.isDefined){<p class="error-notification">@Messages(withdrawDateField.errors(0).message)</p>}
-        <label>Date you gave back the car: </label>
-        <input class="return-date" type="date" name="withdrawDate" value="@{withdrawDateField.value}" />
-        </div>
-        }
+        @helpers.dateFields(updateForm,
+                                "withdrawDate",
+                                "Date you gave back the car:",
+                                currentTaxYearYearsRange,
+                                '_groupDivClass -> "form-field")
+
         <div class="form-field">
 
             @singleCheckbox(
@@ -43,27 +43,19 @@
         @if(hasFuelBenefit){
 
                 <p class="fuel-benefit-info" >We will also remove your fuel benefit.</p>
-                <p>Did you give back your fuel before you gave back the car?</p>
 
-
-
-                @defining(updateForm("fuel.radio")) { fuelRadioField =>
-
-                <div class=" form-field @if(fuelRadioField.error.isDefined){error}">
-                    @if(fuelRadioField.error.isDefined){<p class="error-notification">@Messages(fuelRadioField.errors(0).message)</p>}
-
-                    <input type="radio" class="same-date flush--left" name="fuel.radio" value="sameDateFuel" @if( fuelRadioField.value.getOrElse("") == "sameDateFuel"){checked}> I gave them up at the same time</Input> <br/>
-                    @defining(updateForm("fuel.withdrawDate")) { fuelwithdrawDateField =>
-
-                    <div class="@if(fuelwithdrawDateField.error.isDefined){error}">
-                        @if(fuelwithdrawDateField.error.isDefined){<p class="error-notification">@Messages(fuelwithdrawDateField.errors(0).message)</p>}
-                    <input type="radio" class="different-date flush--left" name="fuel.radio"  value="differentDateFuel" @if(fuelRadioField.value.getOrElse("") == "differentDateFuel"){checked}> I gave my fuel on:
-                            <input class="return-fuel-date" type="date" name="fuel.withdrawDate" value="@{fuelwithdrawDateField.value}"/>
-                        }
-                    </input>
-                    </div>
-                </div>
-                }
+                 @helpers.fieldGroup(
+                    updateForm,
+                    Seq(
+                        FormField(updateForm("fuelRadio"), Seq(
+                            InputType("radio", "sameDateFuel", "I gave them up at the same time", Some("form-field"), Some("label--inlineRadio-right"), Some("flush--left")),
+                            InputType("radio", "differentDateFuel", "I gave my fuel on:", Some("form-field--inline"), Some("label--inlineRadio-right"), Some("flush--left")))),
+                        FormField(updateForm("fuelWithdrawDate"), Seq(DateControl(currentTaxYearYearsRange)))
+                    ),
+                    '_label -> "Did you give back your fuel before you gave back the car?",
+                    '_groupDivClass -> "form-field",
+                    '_valueAfter -> true
+                )
         }
         <div class="form-field">
             <input class="button button--next flush--left" type="submit" value="Next" />

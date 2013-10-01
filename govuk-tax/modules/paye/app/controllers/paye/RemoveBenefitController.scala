@@ -43,9 +43,9 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
       if (benefitType == CAR) {
         val carWithUnremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
-        Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel , updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates)))
+        Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel , updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), TaxYearResolver.currentTaxYearYearsRange))
       } else {
-        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates)))
+        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), TaxYearResolver.currentTaxYearYearsRange))
       }
     }
   }
@@ -58,8 +58,8 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
       updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
-            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors))
-            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors))
+            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange))
+            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange))
             case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
         },
@@ -144,15 +144,15 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
       "withdrawDate" -> localDateMapping(benefitStartDate),
       "agreement" -> checked("error.paye.remove.benefit.accept.agreement"),
       "removeCar" -> boolean,
-      "fuel.radio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
-      "fuel.withdrawDate" -> validateFuelDate(dates, benefitStartDate)
+      "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
+      "fuelWithdrawDate" -> validateFuelDate(dates, benefitStartDate)
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 
   private def datesForm() = Form[CarFuelBenefitDates](
     mapping(
-      "withdrawDate" -> optional(jodaLocalDate),
-      "fuel.radio" -> optional(text)
+      "withdrawDate" -> dateTuple(false),
+      "fuelRadio" -> optional(text)
     )(CarFuelBenefitDates.apply)(CarFuelBenefitDates.unapply)
   )
 

@@ -16,6 +16,7 @@ import scala.Some
 trait Validators {
 
   val dateTuple: Mapping[Option[LocalDate]] = dateTuple(true)
+  def mandatoryDateTuple(error : String): Mapping[LocalDate] = dateTuple.verifying(error, data => data.isDefined).transform(o => o.get, v => if (v == null) None else Some(v))
 
   def dateTuple(validate: Boolean = true, default: Option[LocalDate] = None) = tuple(
     year -> optional(text),
