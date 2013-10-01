@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.{UserAuthority, Regimes}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
 
 abstract class TaxRegime {
@@ -31,7 +31,7 @@ case class User(userId: String,
 case class RegimeRoots(paye: Option[PayeRoot],
                        sa: Option[SaRoot],
                        vat: Option[VatRoot],
-                       epaye: Option[EPayeRoot],
+                       epaye: Option[EpayeRoot],
                        ct: Option[CtRoot]
                         ) {
 

@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 import controllers.bt.regimeViews._
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
-import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 
@@ -15,7 +15,7 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
   private[bt] def businessTaxHomepage(portalHref: String, accountSummaries: AccountSummaries)(implicit user: User) = views.html.business_tax_home(portalHref, accountSummaries)
 
   def this() = {
-    this(new AccountSummariesFactory(new SaConnector, new VatConnector, new CtConnector, new EPayeConnector))
+    this(new AccountSummariesFactory(new SaConnector, new VatConnector, new CtConnector, new EpayeConnector))
   }
 
   def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {

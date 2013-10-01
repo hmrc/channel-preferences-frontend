@@ -1,20 +1,20 @@
 package uk.gov.hmrc.common.microservice.epaye
 
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{EPayeJsonRoot, EPayeAccountSummary}
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeJsonRoot, EpayeAccountSummary}
 import play.api.Logger
 
-class EPayeConnector extends MicroService {
+class EpayeConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.epayeServiceUrl
 
-  def root(uri: String): EPayeJsonRoot = {
-      httpGet[EPayeJsonRoot](uri).getOrElse(throw new IllegalStateException(s"Expected EPaye root not found for resource $uri"))
+  def root(uri: String): EpayeJsonRoot = {
+      httpGet[EpayeJsonRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Epaye root not found for resource $uri"))
   }
 
-  def accountSummary(uri: String): Option[EPayeAccountSummary] = {
-    httpGet[EPayeAccountSummary](uri) match {
-      case Some(EPayeAccountSummary(None, None)) => Logger.warn(s"Empty account summary returned from EPAYE service for uri: $uri"); None
+  def accountSummary(uri: String): Option[EpayeAccountSummary] = {
+    httpGet[EpayeAccountSummary](uri) match {
+      case Some(EpayeAccountSummary(None, None)) => Logger.warn(s"Empty account summary returned from EPAYE service for uri: $uri"); None
       case other => other
     }
   }

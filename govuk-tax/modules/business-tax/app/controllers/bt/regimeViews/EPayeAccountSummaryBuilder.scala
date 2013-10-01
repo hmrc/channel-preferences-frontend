@@ -1,25 +1,25 @@
 package controllers.bt.regimeViews
 
-import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain._
-import EPayeMessageKeys._
-import EPayePortalUrlKeys._
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain._
+import EpayeMessageKeys._
+import EpayePortalUrlKeys._
 import views.helpers.RenderableMessage
 import views.helpers.LinkMessage
 import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.RTI
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
 import uk.gov.hmrc.domain.EmpRef
 
-case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) extends AccountSummaryTemplate[EPayeRoot] {
+case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends AccountSummaryTemplate[EpayeRoot] {
 
-  override def buildAccountSummary(epayeRoot: EPayeRoot, buildPortalUrl: String => String): AccountSummary = {
+  override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String): AccountSummary = {
 
 
-    val accountSummary: Option[EPayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
+    val accountSummary: Option[EpayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
     val messages: Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
 
     val links = Seq[RenderableMessage](
@@ -30,10 +30,10 @@ case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) extends Ac
     AccountSummary(regimeName(accountSummary), messages, links)
   }
 
-  override def rootForRegime(user: User): Option[EPayeRoot] = user.regimes.epaye
+  override def rootForRegime(user: User): Option[EpayeRoot] = user.regimes.epaye
 
 
-  private def regimeName(accountSummary: Option[EPayeAccountSummary]): String = {
+  private def regimeName(accountSummary: Option[EpayeAccountSummary]): String = {
     accountSummary match {
       case Some(summary) if summary.rti.isDefined => epayeRtiRegimeNameMessage
       case Some(summary) if summary.nonRti.isDefined => epayeNonRtiRegimeNameMessage
@@ -41,7 +41,7 @@ case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) extends Ac
     }
   }
 
-  private def messageStrategy(accountSummary: Option[EPayeAccountSummary]): () => Seq[(String, Seq[RenderableMessage])] = {
+  private def messageStrategy(accountSummary: Option[EpayeAccountSummary]): () => Seq[(String, Seq[RenderableMessage])] = {
     accountSummary match {
       case Some(summary) if summary.rti.isDefined => createMessages(summary.rti.get)
       case Some(summary) if summary.nonRti.isDefined => createMessages(summary.nonRti.get)
@@ -80,11 +80,11 @@ case class EPayeAccountSummaryBuilder(epayeConnector: EPayeConnector) extends Ac
   }
 }
 
-object EPayePortalUrlKeys {
+object EpayePortalUrlKeys {
   val epayeHomePortalUrl = "home"
 }
 
-object EPayeMessageKeys extends CommonBusinessMessageKeys {
+object EpayeMessageKeys extends CommonBusinessMessageKeys {
 
   val epayeRtiRegimeNameMessage = "epaye.regimeName.rti"
   val epayeNonRtiRegimeNameMessage = "epaye.regimeName.nonRti"

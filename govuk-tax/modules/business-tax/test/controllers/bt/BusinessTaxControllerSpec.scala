@@ -12,7 +12,7 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.agent.AgentMicroService
-import uk.gov.hmrc.common.microservice.epaye.EPayeConnector
+import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import org.mockito.Mockito._
 import controllers.common.service.MicroServices
 import play.api.mvc.{Request, AnyContent, Action, Result}
@@ -24,7 +24,7 @@ import play.api.templates.Html
 import java.net.URI
 import uk.gov.hmrc.domain._
 import play.api.Logger
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{EPayeJsonRoot, EPayeLinks, EPayeRoot}
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeJsonRoot, EpayeLinks, EpayeRoot}
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
@@ -133,7 +133,7 @@ private [bt] trait MicroServiceMocks extends MockitoSugar {
   val mockAgentMicroService = mock[AgentMicroService]
   val mockVatConnector = mock[VatConnector]
   val mockCtConnector = mock[CtConnector]
-  val mockEPayeConnector = mock[EPayeConnector]
+  val mockEpayeConnector = mock[EpayeConnector]
 
   trait MockedMicroServices extends MicroServices {
     override lazy val authMicroService = mockAuthMicroService
@@ -147,7 +147,7 @@ private [bt] trait MicroServiceMocks extends MockitoSugar {
     override lazy val agentMicroService = mockAgentMicroService
     override lazy val vatConnector = mockVatConnector
     override lazy val ctConnector = mockCtConnector
-    override lazy val epayeConnector = mockEPayeConnector
+    override lazy val epayeConnector = mockEpayeConnector
   }
 }
 
@@ -249,8 +249,8 @@ trait GeoffFisherExpectations {
 
   val geoffFisherVatRoot = VatRoot(vrn = geoffFisherVrn, links = Map("something" -> s"$geoffFisherVrn/stuff"))
 
-  val geoffFisherEPayeJsonRoot = EPayeJsonRoot(EPayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ) )
-  val geoffFisherEPayeRoot = EPayeRoot(geoffFisherEPayeJsonRoot, geoffFisherEmpRef)
+  val geoffFisherEpayeJsonRoot = EpayeJsonRoot(EpayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ) )
+  val geoffFisherEpayeRoot = EpayeRoot(geoffFisherEpayeJsonRoot, geoffFisherEmpRef)
 
   val geoffFisherCtJsonRoot = CtJsonRoot(Map("something" -> s"$geoffFisherCtUtr/dsffds"))
   val geoffFisherCtRoot = CtRoot(geoffFisherCtJsonRoot, ctUtr = geoffFisherCtUtr)
@@ -260,7 +260,7 @@ trait GeoffFisherExpectations {
   implicit val geoffFisherUser = User(
     userId = geoffFisherAuthId,
     userAuthority = geoffFisherAuthority,
-    regimes = RegimeRoots(paye = None, sa = Some(geoffFisherSaRoot), vat = Some(geoffFisherVatRoot), epaye = Some(geoffFisherEPayeRoot), ct = Some(geoffFisherCtRoot)),
+    regimes = RegimeRoots(paye = None, sa = Some(geoffFisherSaRoot), vat = Some(geoffFisherVatRoot), epaye = Some(geoffFisherEpayeRoot), ct = Some(geoffFisherCtRoot)),
     nameFromGovernmentGateway = nameFromGovernmentGateway,
     decryptedToken = governmentGatewayToken
   )
@@ -268,7 +268,7 @@ trait GeoffFisherExpectations {
   when(mockAuthMicroService.authority(geoffFisherAuthId)).thenReturn(Some(geoffFisherAuthority))
   when(mockSaConnector.root(geoffFisherSaUtr.toString)).thenReturn(geoffFisherSaRoot)
   when(mockVatConnector.root(geoffFisherVrn.toString)).thenReturn(geoffFisherVatRoot)
-  when(mockEPayeConnector.root(geoffFisherEmpRef.toString)).thenReturn(geoffFisherEPayeJsonRoot)
+  when(mockEpayeConnector.root(geoffFisherEmpRef.toString)).thenReturn(geoffFisherEpayeJsonRoot)
   when(mockCtConnector.root(geoffFisherCtUtr.toString)).thenReturn(geoffFisherCtJsonRoot)
 }
 
