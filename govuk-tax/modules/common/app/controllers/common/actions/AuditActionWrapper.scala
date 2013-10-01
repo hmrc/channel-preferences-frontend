@@ -17,6 +17,7 @@ trait AuditActionWrapper extends MicroServices with HeaderNames {
     if (auditMicroService.enabled) {
       val tags = new collection.mutable.HashMap[String, String]
       tags.put("requestId", MDC.get(requestId))
+      tags.put("sessionId", MDC.get(xSessionId))
       tags.put("authId", user.userAuthority.id)
       user.userAuthority.nino.foreach(nino => tags.put("nino", nino.toString))
       user.userAuthority.ctUtr.foreach(utr => tags.put("ctUtr", utr.toString))
