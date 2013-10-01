@@ -57,12 +57,15 @@
     <h2>Cost of the car</h2>
     <ol class="list--numbered">
         <li>
-            <p>What is the list price of the car including VAT and accessories?</p>
-            @helpers.input(carBenefitForm(listPrice),
-                           '_divClass -> "form-field--inline",
-                           '_label -> "£",
-                           '_inputClass -> "input--small",
-                           '_labelClass -> "label--inlineRadio")
+            @helpers.fieldGroup(
+                carBenefitForm,
+                Seq(
+                    FormField(carBenefitForm(listPrice), Seq(InputType("text", "", "£", Some("form-field--inline"), Some(""), Some("input--small"))))
+                ),
+                '_label -> "What is the list price of the car including VAT and accessories?",
+                '_groupDivClass -> "form-field--inline",
+                '_valueAfter -> false
+            )
         </li>
         <li>
             @helpers.fieldGroup(
