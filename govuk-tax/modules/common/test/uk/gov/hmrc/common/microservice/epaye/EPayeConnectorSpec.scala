@@ -2,10 +2,14 @@ package uk.gov.hmrc.common.microservice.epaye
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{FakeApplication, WithApplication}
+import play.api.test.WithApplication
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{EPayeLinks, NonRTI, EPayeAccountSummary, EPayeRoot}
-import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain._
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeLinks
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.NonRTI
+import play.api.test.FakeApplication
+import scala.Some
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeAccountSummary
 
 class EPayeConnectorSpec extends BaseSpec {
 
@@ -15,9 +19,9 @@ class EPayeConnectorSpec extends BaseSpec {
 
     "Make an HTTP call to the service and return the root data" in new WithEPayeConnector {
       val epayeLinks = EPayeLinks(accountSummary = Some("/some/path"))
-      val rootObject = EPayeRoot(epayeLinks, EmpRef("dummyOffice", "dummyReference"))
+      val rootObject = EPayeJsonRoot(epayeLinks)
 
-      when(mockHttpClient.get[EPayeRoot](uri)).thenReturn(Some(rootObject))
+      when(mockHttpClient.get[EPayeJsonRoot](uri)).thenReturn(Some(rootObject))
       epayeConnector.root(uri) shouldBe rootObject
     }
 

@@ -24,5 +24,12 @@ object CtDomain {
 
   case class CtAccountBalance(amount: Option[BigDecimal], currency: Option[String])
 
+  case class CtJsonRoot(links: Map[String, String])
+
+  object CtRoot{
+
+    def apply(root: CtJsonRoot, ctUtr: CtUtr): CtRoot = new CtRoot(root.links, ctUtr)
+  }
+
 }
 

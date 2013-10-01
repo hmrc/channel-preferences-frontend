@@ -3,13 +3,15 @@ package controllers.common
 import play.api.mvc._
 import controllers.common.service._
 import uk.gov.hmrc.common.microservice.domain.{ RegimeRoots, TaxRegime, User }
-import uk.gov.hmrc.common.microservice.auth.domain.{UserAuthority, Regimes}
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import views.html.login
 import com.google.common.net.HttpHeaders
 import play.api.mvc.Result
 import play.api.Logger
 import controllers.common.actions.{ LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper }
 import controllers.common.FrontEndRedirect._
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -113,10 +115,10 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map { uri => payeMicroService.root(uri.toString) },
-      sa = regimes.sa map { uri => saConnector.root(uri.toString) },
-      vat = regimes.vat map { uri => vatConnector.root(uri.toString) },
-      epaye = regimes.epaye.map { uri => epayeConnector.root(uri.toString, authority.empRef.get)  },
-      ct = regimes.ct.map { uri => ctConnector.root(uri.toString)}
+      sa = regimes.sa map { uri => saConnector.root(uri.toString)},
+      vat = regimes.vat map { uri => vatConnector.root(uri.toString)},
+      epaye = regimes.epaye.map { uri => EPayeRoot(epayeConnector.root(uri.toString), authority.empRef.get)},
+      ct = regimes.ct.map { uri => CtRoot(ctConnector.root(uri.toString), authority.ctUtr.get)}
     )
   }
 }

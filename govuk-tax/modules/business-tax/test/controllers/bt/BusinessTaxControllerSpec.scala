@@ -24,7 +24,7 @@ import play.api.templates.Html
 import java.net.URI
 import uk.gov.hmrc.domain._
 import play.api.Logger
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeLinks
+import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.{EPayeJsonRoot, EPayeLinks, EPayeRoot}
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
@@ -34,7 +34,6 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EPayeDomain.EPayeRoot
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
@@ -42,7 +41,7 @@ import controllers.bt.regimeViews.{AccountSummariesFactory, AccountSummaries}
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtJsonRoot, CtRoot}
 import org.mockito.Matchers
 
 trait BusinessTaxControllerBehaviours extends BaseSpec {
@@ -250,9 +249,13 @@ trait GeoffFisherExpectations {
 
   val geoffFisherVatRoot = VatRoot(vrn = geoffFisherVrn, links = Map("something" -> s"$geoffFisherVrn/stuff"))
 
-  val geoffFisherEPayeRoot = EPayeRoot(links = EPayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ), geoffFisherEmpRef )
+  val geoffFisherEPayeJsonRoot = EPayeJsonRoot(EPayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ) )
+  val geoffFisherEPayeRoot = EPayeRoot(geoffFisherEPayeJsonRoot, geoffFisherEmpRef)
 
-  val geoffFisherCtRoot = CtRoot(links = Map("something" -> s"$geoffFisherCtUtr/dsffds"), ctUtr = geoffFisherCtUtr)
+  val geoffFisherCtJsonRoot = CtJsonRoot(Map("something" -> s"$geoffFisherCtUtr/dsffds"))
+  val geoffFisherCtRoot = CtRoot(geoffFisherCtJsonRoot, ctUtr = geoffFisherCtUtr)
+
+
 
   implicit val geoffFisherUser = User(
     userId = geoffFisherAuthId,
@@ -265,8 +268,8 @@ trait GeoffFisherExpectations {
   when(mockAuthMicroService.authority(geoffFisherAuthId)).thenReturn(Some(geoffFisherAuthority))
   when(mockSaConnector.root(geoffFisherSaUtr.toString)).thenReturn(geoffFisherSaRoot)
   when(mockVatConnector.root(geoffFisherVrn.toString)).thenReturn(geoffFisherVatRoot)
-  when(mockEPayeConnector.root(geoffFisherEmpRef.toString)).thenReturn(geoffFisherEPayeRoot)
-  when(mockCtConnector.root(geoffFisherCtUtr.toString)).thenReturn(geoffFisherCtRoot)
+  when(mockEPayeConnector.root(geoffFisherEmpRef.toString)).thenReturn(geoffFisherEPayeJsonRoot)
+  when(mockCtConnector.root(geoffFisherCtUtr.toString)).thenReturn(geoffFisherCtJsonRoot)
 }
 
 
