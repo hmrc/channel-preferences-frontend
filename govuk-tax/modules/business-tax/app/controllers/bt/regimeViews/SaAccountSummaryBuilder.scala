@@ -19,7 +19,7 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) {
             saRegimeName,
             SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
             Seq(
-              LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage),
+              LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, Some("portalLink")),
               LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
               LinkMessage(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage))
           )

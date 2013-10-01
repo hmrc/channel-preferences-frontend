@@ -3,4 +3,12 @@
 @import play.api.i18n._
 @import views.html.helper._
 @import views.helpers._
-<A href="@link.href">@Messages(link.text)</A>
+
+@link.id match {
+    case Some(e) => {
+        <A href="@link.href" id="@link.id">@Messages(link.text)</A>
+    }
+    case None => {
+        <A href="@link.href" >@Messages(link.text)</A>
+    }
+}
