@@ -20,13 +20,6 @@ import SaPortalUrlKeys._
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
-  trait DummyPortalUrlBuilder {
-    def build(a: String): String
-  }
-
-  private val homeUrl = "http://home"
-  private val makeAPaymentUrl = routes.BusinessTaxController.makeAPaymentLanding().url
-  private val liabilityDate = new LocalDate(2014, 1, 15)
 
   "Sa Account SummaryView Builder builds correct Account Summary model " should {
     " when no amounts are due now or later " in {
@@ -165,6 +158,13 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
   }
+  trait DummyPortalUrlBuilder {
+    def build(a: String): String
+  }
+
+  private val homeUrl = "http://home"
+  private val makeAPaymentUrl = routes.BusinessTaxController.makeAPaymentLanding().url
+  private val liabilityDate = new LocalDate(2014, 1, 15)
 
   private def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[(String, Seq[RenderableMessage])]) {
     val mockUser = mock[User]

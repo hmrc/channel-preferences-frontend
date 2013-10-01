@@ -13,7 +13,7 @@
     <h2>@Messages(ac.regimeName)</h2>
 
 	@for(message <- ac.messages) {
-	    <p>@Html(Messages(message._1, message._2.map(_.render):_*))</p>
+	    <p>@Html(Messages(message.messageKey, message.params.map(_.render):_*))</p>
 	}
 
 	<p>

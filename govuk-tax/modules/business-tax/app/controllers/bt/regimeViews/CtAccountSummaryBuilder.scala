@@ -36,11 +36,11 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
   def rootForRegime(user : User): Option[CtRoot]= user.regimes.ct
 
   private def emptyAccountSummary(ctRoot : CtRoot): AccountSummary = {
-    val messages: Seq[(String, Seq[RenderableMessage])] = Seq(ctUtrMessage -> Seq(ctRoot.identifier.utr),
-      ctSummaryUnavailableErrorMessage1 -> Seq.empty,
-      ctSummaryUnavailableErrorMessage2 -> Seq.empty,
-      ctSummaryUnavailableErrorMessage3 -> Seq.empty,
-      ctSummaryUnavailableErrorMessage4 -> Seq.empty)
+    val messages: Seq[Msg] = Seq(Msg(ctUtrMessage,Seq(ctRoot.identifier.utr)),
+      Msg(ctSummaryUnavailableErrorMessage1),
+      Msg(ctSummaryUnavailableErrorMessage2),
+      Msg(ctSummaryUnavailableErrorMessage3),
+      Msg(ctSummaryUnavailableErrorMessage4))
     AccountSummary(ctRegimeNameMessage, messages, Seq.empty)
   }
 
@@ -51,8 +51,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
       LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
       LinkMessage(buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage)
     )
-    val messages: Seq[(String, Seq[RenderableMessage])] = Seq(ctUtrMessage -> Seq(ctRoot.identifier.utr),
-      ctAmountAsOfDateMessage -> Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance)))
+    val messages = Seq(Msg(ctUtrMessage,Seq(ctRoot.identifier.utr)),Msg(ctAmountAsOfDateMessage,Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))))
     AccountSummary(ctRegimeNameMessage, messages, links)
   }
 
