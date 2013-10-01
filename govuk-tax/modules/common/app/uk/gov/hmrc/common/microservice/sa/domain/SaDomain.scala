@@ -60,7 +60,7 @@ case class SaIndividualAddress(
   foreignCountry: Option[String],
   additionalDeliveryInformation: Option[String])
 
-case class SaName(
+case class  SaName(
    title: String,
    forename: String,
    secondForename: Option[String],

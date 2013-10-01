@@ -48,8 +48,8 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     User(id, ua, RegimeRoots(None, Some(saRoot), None, None, None), Some(nameFromGovernmentGateway), None)
   }
 
-  private val nameFromSa = SaName("", "", None, "", Some(""))
-  private val nameFromGovernmentGateway = ""
+  private val nameFromSa = SaName("Mr.", "Geoff", None, "Fisher", Some("From SA"))
+  private val nameFromGovernmentGateway = "Geoffrey Fisher"
 
   val geoffFisher = setupUser("/auth/oid/gfisher", "123456789012", "Geoff Fisher", nameFromGovernmentGateway)
 
@@ -74,7 +74,19 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
         ))
       )
 
-      val content = request(geoffFisher, controller.detailsAction)
+//      private def request(user: User, action: (User, Request[_]) => Result): String = {
+//        val result = action(user, FakeRequest())
+//
+//        status(result) should be(200)
+//
+//        contentAsString(result)
+//      }
+
+      //val content = request(geoffFisher, controller.detailsAction))
+
+      val result = controller.detailsAction(geoffFisher, FakeRequest())
+      status(result) should be(200)
+      val content = contentAsString(result)
 
       content should include(nameFromSa.forename)
       content should include(nameFromSa.surname)
@@ -466,9 +478,13 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       val encodedTransactionId = SecureParameter(transactionId, currentTime).encrypt
 
-      val result = controller.changeAddressCompleteAction(encodedTransactionId)
-
+      val result = controller.changeAddressCompleteAction(encodedTransactionId)(geoffFisher, FakeRequest())
+      status(result) should be(200)
       val htmlBody = contentAsString(result)
+
+//      val result = controller.changeAddressCompleteAction(encodedTransactionId)
+//
+//      val htmlBody = contentAsString(result)
       htmlBody should include("Thanks")
       htmlBody should include("Transaction ID:")
       htmlBody should include(transactionId)
@@ -482,7 +498,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       val errorMessage = "some error occurred"
       val encodedErrorMessage = SecureParameter(errorMessage, currentTime).encrypt
 
-      val result = controller.changeAddressFailedAction(encodedErrorMessage)
+      val result = controller.changeAddressFailedAction(encodedErrorMessage)(geoffFisher, FakeRequest())
 
       status(result) shouldBe 200
       val htmlBody = contentAsString(result)

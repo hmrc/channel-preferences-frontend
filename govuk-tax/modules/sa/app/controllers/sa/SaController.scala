@@ -7,12 +7,13 @@ import play.api.data.Forms._
 
 import uk.gov.hmrc.common.microservice.sa.domain._
 import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
 
 //import views.html.sa._
 import controllers.common._
 import config.DateTimeProvider
 
-import play.api.mvc.{ Result, Request }
+import play.api.mvc.{Request, Result}
 import controllers.common.validators.{ characterValidator, Validators }
 import scala.util.{ Success, Try, Left }
 import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
@@ -23,9 +24,25 @@ import controllers.sa.{ routes => saRoutes }
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
 
-  def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => detailsAction(user, request) })
+  def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+    implicit user: User =>
+      implicit request =>
+	detailsAction
+  })
 
-  private[sa] def detailsAction: (User, Request[_]) => Result = (user, request) => {
+//  def details2 = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+//    implicit user: User =>
+//      implicit request =>
+//        val userData: SaRoot = user.regimes.sa.get
+//
+//        userData.personalDetails match {
+//          case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
+//          case _ => NotFound //FIXME: this should really be an error page
+//        }
+//
+//  })
+
+  private[sa] def detailsAction(implicit user: User, request: Request[_]):  Result = {
 
     val userData: SaRoot = user.regimes.sa.get
 
@@ -34,6 +51,16 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
       case _ => NotFound //FIXME: this should really be an error page
     }
   }
+
+//  private[sa] def detailsAction: (User, Request[_]) => Result = (user, request) => {
+//
+//    val userData: SaRoot = user.regimes.sa.get
+//
+//    userData.personalDetails match {
+//      case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse(""))(user))
+//      case _ => NotFound //FIXME: this should really be an error page
+//    }
+//  }
 
   val changeAddressForm: Form[ChangeAddressForm] = Form(
     mapping(
@@ -66,22 +93,22 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   )
 
-  def changeAddress = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeAddressAction(user, request) })
+  def changeAddress = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { implicit user => implicit request => changeAddressAction })
 
-  private[sa] def changeAddressAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def changeAddressAction(implicit user: User, request: Request[_]): Result = {
     Ok(sa_personal_details_update(changeAddressForm))
   }
 
-  def redisplayChangeAddress() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => redisplayChangeAddressAction(user, request) })
+  def redisplayChangeAddress() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { implicit user => implicit request => redisplayChangeAddressAction })
 
-  private[sa] def redisplayChangeAddressAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def redisplayChangeAddressAction (implicit user: User, request: Request[_]): Result = {
     val form = changeAddressForm.bindFromRequest()(request)
     Ok(sa_personal_details_update(form))
   }
 
-  def submitChangeAddress() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => submitChangeAddressAction(user, request) })
+  def submitChangeAddress() = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { implicit user => implicit request => submitChangeAddressAction })
 
-  private[sa] def submitChangeAddressAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def submitChangeAddressAction(implicit user: User, request: Request[_]): Result = {
     changeAddressForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_personal_details_update(errors)),
       formData => {
@@ -90,9 +117,9 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     )
   }
 
-  def confirmChangeAddress = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => confirmChangeAddressAction(user, request) })
+  def confirmChangeAddress = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { implicit user => implicit request => confirmChangeAddressAction })
 
-  private[sa] def confirmChangeAddressAction: (User, Request[_]) => Result = (user, request) => {
+  private[sa] def confirmChangeAddressAction(implicit user: User, request: Request[_]): Result = {
     changeAddressForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_personal_details_update(errors)),
       formData => {
@@ -108,9 +135,9 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   private def decryptParameter(value: String): Try[SecureParameter] = SecureParameter.decrypt(value)
 
-  def changeAddressComplete(id: String) = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeAddressCompleteAction(id) })
+  def changeAddressComplete(id: String) = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { implicit user => implicit request => changeAddressCompleteAction(id) })
 
-  private[sa] def changeAddressCompleteAction(id: String) = {
+  private[sa] def changeAddressCompleteAction(id: String)(implicit user: User, request: Request[_]): Result = {
 
     decryptParameter(id) match {
       case Success(SecureParameter(transactionId, _)) => Ok(sa_personal_details_confirmation_receipt(TransactionId(transactionId)))
@@ -118,9 +145,9 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     }
   }
 
-  def changeAddressFailed(id: String) = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { user => request => changeAddressFailedAction(id) })
+  def changeAddressFailed(id: String) = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) { implicit user => implicit request => changeAddressFailedAction(id) })
 
-  private[sa] def changeAddressFailedAction(id: String) = {
+  private[sa] def changeAddressFailedAction(id: String)(implicit user: User, request: Request[_]): Result = {
 
     decryptParameter(id) match {
       case Success(SecureParameter(errorMessage, _)) => Ok(sa_personal_details_update_failed(errorMessage))

@@ -1,9 +1,9 @@
-@(changeAddressForm: Form[controllers.sa.ChangeAddressForm])
+@(changeAddressForm: Form[controllers.sa.ChangeAddressForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import helper._
 @import views.html.helpers._
 
-@main(title = "Change My Details", nav = true) {
+@main(title = "Change My Details", nav = true, user = Some(user)) {
 
     <h1><span class="pre-heading">service</span>Change your address with HMRC</h1>
 

@@ -1,13 +1,13 @@
-@(utr: String, personalDetails: uk.gov.hmrc.common.microservice.sa.domain.SaPerson, nameFromGovernmentGateway: String)
+@(utr: String, personalDetails: uk.gov.hmrc.common.microservice.sa.domain.SaPerson, nameFromGovernmentGateway: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@main(title = "My Details", nav = true) {
+@main(title = "My Details", nav = true, user = Some(user)) {
 
     <h1><span class="pre-heading">service</span> Your tax account</h1>
 
     <h2 class="heading-36">Notification information</h2>
 
     <ul class="default-list no-bullets">
-	<li>Name: @personalDetails.name</li>
+	<li>Name: @nameFromGovernmentGateway</li>
 	<li>UTR: @personalDetails.utr</li>
     </ul>
 
@@ -36,5 +36,6 @@
 	    <p><a href="@controllers.sa.routes.SaController.changeAddress">Change this address</a></p>
 	</li>
     </ol>
+
 
 }

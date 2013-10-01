@@ -1,6 +1,6 @@
-@(transactionId: uk.gov.hmrc.common.microservice.sa.domain.TransactionId)
+@(transactionId: uk.gov.hmrc.common.microservice.sa.domain.TransactionId)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@main(title = "My Details - Update main address confirmation receipt", nav = true) {
+@main(title = "My Details - Update main address confirmation receipt", nav = true, user = Some(user)) {
 
     <h1><span class="pre-heading">service</span>Change your address with HMRC</h1>
     <h2>Thanks.</h2>
