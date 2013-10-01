@@ -2,7 +2,6 @@ package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import views.helpers.RenderableMessage
 import org.mockito.Mockito._
 import controllers.bt.regimeViews.EpayeMessageKeys._
 import controllers.bt.regimeViews.EpayePortalUrlKeys._
