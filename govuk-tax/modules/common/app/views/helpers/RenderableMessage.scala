@@ -6,7 +6,7 @@ import org.joda.time.LocalDate
 import controllers.common.domain.accountSummaryDateFormatter
 
 
-case class LinkMessage(href: String, text: String)
+case class LinkMessage(href: String, text: String, id: Option[String] = None)
 case class MoneyPounds(value: BigDecimal)  {
   def isNegative = value < 0
   def quantity = value.abs.toString()

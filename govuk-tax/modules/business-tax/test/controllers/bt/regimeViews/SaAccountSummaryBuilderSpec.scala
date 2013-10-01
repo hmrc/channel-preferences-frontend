@@ -188,7 +188,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     actualAccountSummary.messages shouldBe expectedMessages
 
     val expectedLinks = Seq(
-      RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage)),
+      RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, Some("portalLink"))),
       RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage)),
       RenderableLinkMessage(LinkMessage(homeUrl, fileAReturnLinkMessage))
 
