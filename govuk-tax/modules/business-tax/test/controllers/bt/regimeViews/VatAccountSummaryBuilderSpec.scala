@@ -32,7 +32,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
-      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])](vatRegistrationNumberMessage -> Seq("12345"), vatAccountBalanceMessage -> Seq(MoneyPounds(BigDecimal(6.1))))
+      accountSummaryView.messages shouldBe Seq[Msg](Msg(vatRegistrationNumberMessage ,Seq("12345")), Msg(vatAccountBalanceMessage,Seq(MoneyPounds(BigDecimal(6.1)))) )
       accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage(vatAccountDetailsPortalUrl, viewAccountDetailsLinkMessage),
         LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage), // TODO [JJS] WHAT'S THIS LINK?
         LinkMessage(vatFileAReturnPortalUrl, fileAReturnLinkMessage))
@@ -48,8 +48,8 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
-      accountSummaryView.messages shouldBe Seq[(String, Seq[RenderableMessage])]((vatSummaryUnavailableErrorMessage1, Seq.empty), (vatSummaryUnavailableErrorMessage2, Seq.empty),
-        (vatSummaryUnavailableErrorMessage3, Seq.empty), (vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
+      accountSummaryView.messages shouldBe Seq[Msg](Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
+        Msg(vatSummaryUnavailableErrorMessage3), Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
       accountSummaryView.addenda shouldBe Seq.empty
     }
 
