@@ -5,9 +5,7 @@ import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain._
 import EpayeMessageKeys._
 import EpayePortalUrlKeys._
-import views.helpers.RenderableMessage
-import views.helpers.LinkMessage
-import views.helpers.MoneyPounds
+import views.helpers.{RenderableLinkMessage, RenderableMessage, LinkMessage, MoneyPounds}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
@@ -18,11 +16,12 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
 
   override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String): AccountSummary = {
 
-
     val accountSummary: Option[EpayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
     val messages = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
 
-    val links = Seq[RenderableMessage](
+    val links = createLinks(buildPortalUrl, accountSummary)
+
+      Seq[RenderableMessage](
       LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
       LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
       LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
@@ -46,6 +45,26 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
       case Some(summary) if summary.rti.isDefined => createMessages(summary.rti.get)
       case Some(summary) if summary.nonRti.isDefined => createMessages(summary.nonRti.get)
       case _ => createNoInformationMessage
+    }
+  }
+
+  private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]) : Seq[RenderableMessage] = {
+    val expectedRtiLinks = Seq[RenderableMessage](
+      LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage)
+    )
+
+
+    val expectedNonRtiLinks = Seq[RenderableMessage](
+      LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
+      LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
+
+
+    accountSummary match {
+      case Some(summary) if summary.rti.isDefined => expectedRtiLinks
+      case Some(summary) if summary.nonRti.isDefined => expectedNonRtiLinks
+      case _ => expectedNonRtiLinks
     }
   }
 
