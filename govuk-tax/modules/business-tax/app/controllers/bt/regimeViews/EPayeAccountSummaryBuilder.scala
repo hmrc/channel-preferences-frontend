@@ -20,7 +20,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
 
 
     val accountSummary: Option[EpayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
-    val messages: Seq[(String, Seq[RenderableMessage])] = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
+    val messages = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
 
     val links = Seq[RenderableMessage](
       LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
@@ -41,7 +41,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
     }
   }
 
-  private def messageStrategy(accountSummary: Option[EpayeAccountSummary]): () => Seq[(String, Seq[RenderableMessage])] = {
+  private def messageStrategy(accountSummary: Option[EpayeAccountSummary]): () => Seq[Msg] = {
     accountSummary match {
       case Some(summary) if summary.rti.isDefined => createMessages(summary.rti.get)
       case Some(summary) if summary.nonRti.isDefined => createMessages(summary.nonRti.get)
@@ -49,29 +49,29 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
     }
   }
 
-  private def createNoInformationMessage(): Seq[(String, Seq[RenderableMessage])] = {
-    Seq((epayeSummaryUnavailableErrorMessage, Seq.empty))
+  private def createNoInformationMessage(): Seq[Msg] = {
+    Seq(Msg(epayeSummaryUnavailableErrorMessage))
   }
 
-  private def createMessages(rti: RTI)(): Seq[(String, Seq[RenderableMessage])] = {
+  private def createMessages(rti: RTI)(): Seq[Msg] = {
     val balance = rti.balance
     if (balance < 0) {
-      Seq((epayeYouHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), (epayeAdjustFuturePaymentsMessage, Seq.empty))
+      Seq(Msg(epayeYouHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), Msg(epayeAdjustFuturePaymentsMessage))
     } else if (balance > 0) {
-      Seq((epayeDueForPaymentMessage, Seq(MoneyPounds(balance))))
+      Seq(Msg(epayeDueForPaymentMessage, Seq(MoneyPounds(balance))))
     } else {
-      Seq((epayeNothingToPayMessage, Seq.empty))
+      Seq(Msg(epayeNothingToPayMessage))
     }
   }
 
-  private def renderEmpRefMessage(empRef: EmpRef): Seq[(String, Seq[RenderableMessage])] = Seq((epayeEmpRefMessage, Seq[RenderableMessage](empRef.toString)))
+  private def renderEmpRefMessage(empRef: EmpRef): Seq[Msg] = Seq(Msg(epayeEmpRefMessage, Seq(empRef.toString)))
 
-  private def createMessages(nonRti: NonRTI)(): Seq[(String, Seq[RenderableMessage])] = {
+  private def createMessages(nonRti: NonRTI)(): Seq[Msg] = {
     val amountDue = nonRti.paidToDate
     val currentTaxYear = nonRti.currentTaxYear
 
     val currentTaxYearWithFollowingYear = createYearDisplayText(currentTaxYear)
-    Seq((epayePaidToDateForPeriodMessage, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
+    Seq(Msg(epayePaidToDateForPeriodMessage, Seq(MoneyPounds(amountDue), currentTaxYearWithFollowingYear)))
   }
 
   private def createYearDisplayText(currentTaxYear: Int): String = {

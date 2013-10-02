@@ -29,16 +29,16 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountS
       LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
       LinkMessage(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage)
     )
-
     accountValueOption match {
       case Some(accountValue) => {
-        AccountSummary(vatRegimeNameMessage, Seq(vatRegistrationNumberMessage -> Seq(vatRoot.identifier.vrn),
-          vatAccountBalanceMessage -> Seq(MoneyPounds(accountValue))), links)
+        val messages = Seq(Msg(vatRegistrationNumberMessage,Seq(vatRoot.identifier.vrn)), Msg(vatAccountBalanceMessage,Seq(MoneyPounds(accountValue))))
+        AccountSummary(vatRegimeNameMessage, messages, links)
       }
       case _ => {
-        AccountSummary(vatRegimeNameMessage, Seq(vatSummaryUnavailableErrorMessage1 -> Seq.empty, vatSummaryUnavailableErrorMessage2 -> Seq.empty,
-          vatSummaryUnavailableErrorMessage3 -> Seq.empty,
-          vatSummaryUnavailableErrorMessage4 -> Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))), Seq.empty)
+        val messages = Seq(Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
+          Msg(vatSummaryUnavailableErrorMessage3),
+          Msg(vatSummaryUnavailableErrorMessage4,Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
+        AccountSummary(vatRegimeNameMessage, messages, Seq.empty)
       }
     }
   }

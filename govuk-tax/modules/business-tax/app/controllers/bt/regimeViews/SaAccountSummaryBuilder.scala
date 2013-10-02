@@ -28,10 +28,10 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
         AccountSummary(
           saRegimeName,
           Seq(
-            (saSummaryUnavailableErrorMessage1, Seq.empty),
-            (saSummaryUnavailableErrorMessage2, Seq.empty),
-            (saSummaryUnavailableErrorMessage3, Seq.empty),
-            (saSummaryUnavailableErrorMessage4, Seq.empty)
+            Msg(saSummaryUnavailableErrorMessage1),
+            Msg(saSummaryUnavailableErrorMessage2),
+            Msg(saSummaryUnavailableErrorMessage3),
+            Msg(saSummaryUnavailableErrorMessage4)
           ),
           Seq.empty
         )
@@ -49,14 +49,14 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
 
 case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
-  def build(): Seq[(String, Seq[RenderableMessage])] = {
+  def build(): Seq[Msg] = {
 
     val messages = accountSummary.amountHmrcOwe match {
 
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
 
         addLiabilityMessageIfApplicable(accountSummary.nextPayment,
-          Seq((saYouHaveOverpaidMessage, Seq.empty), (saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))
+          Seq(Msg(saYouHaveOverpaidMessage), Msg(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))
           ), None)
       }
       case _ => {
@@ -65,18 +65,18 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
                 Seq(
-                  (saAmountDueForPaymentMessage, Seq[RenderableMessage](MoneyPounds(totalAmountDueToHmrc.amount))),
-                  (saInterestApplicableMessage, Seq.empty)
+                  Msg(saAmountDueForPaymentMessage, Seq(MoneyPounds(totalAmountDueToHmrc.amount))),
+                  Msg(saInterestApplicableMessage)
                 )
               case false if totalAmountDueToHmrc.amount == BigDecimal(0) => {
                 Seq(
-                  (saNothingToPayMessage, Seq.empty)
+                  Msg(saNothingToPayMessage)
                 )
               }
               case false => {
                 Seq(
-                  (saAmountDueForPaymentMessage, Seq[RenderableMessage](MoneyPounds(totalAmountDueToHmrc.amount))),
-                  (saSmallAmountToPayMessage, Seq.empty)
+                  Msg(saAmountDueForPaymentMessage, Seq[RenderableMessage](MoneyPounds(totalAmountDueToHmrc.amount))),
+                  Msg(saSmallAmountToPayMessage)
                 )
               }
             }
@@ -84,7 +84,7 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
           }
           case _ => {
             val msgs = Seq(
-              (saNothingToPayMessage, Seq.empty)
+              Msg(saNothingToPayMessage)
             )
             addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, None)
           }
@@ -95,14 +95,14 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
     messages
   }
 
-  private def getLiabilityMessage(liability: Option[Liability]): Option[(String, Seq[RenderableMessage])] = {
+  private def getLiabilityMessage(liability: Option[Liability]): Option[Msg] = {
     liability match {
-      case Some(l) => Some((saWillBecomeDueMessage, Seq(MoneyPounds(liability.get.amount), liability.get.dueDate)))
+      case Some(l) => Some(Msg(saWillBecomeDueMessage, Seq(MoneyPounds(liability.get.amount), liability.get.dueDate)))
       case None => None
     }
   }
 
-  private def addLiabilityMessageIfApplicable(liability: Option[Liability], msgs: Seq[(String, Seq[RenderableMessage])], alternativeMsg: Option[(String, Seq[RenderableMessage])]): Seq[(String, Seq[RenderableMessage])] = {
+  private def addLiabilityMessageIfApplicable(liability: Option[Liability], msgs: Seq[Msg], alternativeMsg: Option[Msg]): Seq[Msg] = {
     val liabilityMessage = getLiabilityMessage(accountSummary.nextPayment)
     liabilityMessage match {
       case Some(message) => msgs ++ liabilityMessage

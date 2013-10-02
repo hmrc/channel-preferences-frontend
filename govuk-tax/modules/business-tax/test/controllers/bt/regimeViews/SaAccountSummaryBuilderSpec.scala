@@ -19,14 +19,10 @@ import uk.gov.hmrc.common.microservice.sa.domain.AmountDue
 import SaPortalUrlKeys._
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
-
-  trait DummyPortalUrlBuilder {
-    def build(a: String): String
-  }
-
   private val homeUrl = "http://home"
   private val makeAPaymentUrl = routes.BusinessTaxController.makeAPaymentLanding().url
   private val liabilityDate = new LocalDate(2014, 1, 15)
+
 
   "Sa Account SummaryView Builder builds correct Account Summary model " should {
     " when no amounts are due now or later " in {
@@ -35,10 +31,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = None
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages: Seq[(String, Seq[RenderableMessage])] =
-        Seq(
-          (saNothingToPayMessage, Seq.empty)
-        )
+      val expectedMessages = Seq(Msg(saNothingToPayMessage, Seq.empty))
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
     }
@@ -50,10 +43,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(0))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
-        (saAmountDueForPaymentMessage, Seq(MoneyPounds(amountDue))),
-        (saInterestApplicableMessage, Seq.empty)
-      )
+      val expectedMessages = Seq(Msg(saAmountDueForPaymentMessage, Seq(MoneyPounds(amountDue))), Msg(saInterestApplicableMessage, Seq.empty))
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
 
@@ -68,11 +58,8 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(0))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
-        (saAmountDueForPaymentMessage, Seq(MoneyPounds(amountDue))),
-        (saInterestApplicableMessage, Seq.empty),
-        (saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate))
-      )
+      val expectedMessages = Seq(Msg(saAmountDueForPaymentMessage, Seq(MoneyPounds(amountDue))), Msg(saInterestApplicableMessage),
+        Msg(saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate)))
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
 
@@ -84,10 +71,9 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(100))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
-        (saYouHaveOverpaidMessage, Seq.empty),
-        (saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe.get)))
-      )
+      val expectedMessages = Seq[Msg](
+        Msg(saYouHaveOverpaidMessage),
+        Msg(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe.get))))
 
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
 
@@ -100,11 +86,9 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(100))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
-        (saYouHaveOverpaidMessage, Seq.empty),
-        (saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe.get))),
-        (saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate))
-      )
+      val expectedMessages = Seq[Msg](
+        Msg(saYouHaveOverpaidMessage), Msg(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe.get))),
+        Msg(saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate)))
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
     }
 
@@ -115,9 +99,9 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = Some(BigDecimal(0))
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
-        (saNothingToPayMessage, Seq.empty),
-        (saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate))
+      val expectedMessages = Seq[Msg](
+        Msg(saNothingToPayMessage, Seq.empty),
+        Msg(saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate))
       )
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
     }
@@ -130,10 +114,10 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val amountHmrcOwe = None
 
       val accountSummary = SaAccountSummary(totalAmountDueToHmrc, nextPayment, amountHmrcOwe)
-      val expectedMessages = Seq[(String, Seq[RenderableMessage])](
-        (saAmountDueForPaymentMessage, Seq(MoneyPounds(amountDue))),
-        (saSmallAmountToPayMessage, Seq.empty),
-        (saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate))
+      val expectedMessages = Seq(
+        Msg(saAmountDueForPaymentMessage, Seq(MoneyPounds(amountDue))),
+        Msg(saSmallAmountToPayMessage),
+        Msg(saWillBecomeDueMessage, Seq(MoneyPounds(liabilityAmount), liabilityDate))
       )
       testSaAccountSummaryBuilder(accountSummary, expectedMessages)
     }
@@ -152,13 +136,13 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages =
         Seq(
-          (saSummaryUnavailableErrorMessage1, Seq.empty),
-          (saSummaryUnavailableErrorMessage2, Seq.empty),
-          (saSummaryUnavailableErrorMessage3, Seq.empty),
-          (saSummaryUnavailableErrorMessage4, Seq.empty)
+          Msg(saSummaryUnavailableErrorMessage1),
+          Msg(saSummaryUnavailableErrorMessage2),
+          Msg(saSummaryUnavailableErrorMessage3),
+          Msg(saSummaryUnavailableErrorMessage4)
         )
 
-      val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build _, mockUser).get
+      val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build, mockUser).get
       actualAccountSummary.regimeName shouldBe saRegimeName
       actualAccountSummary.messages shouldBe expectedMessages
 
@@ -166,7 +150,12 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   }
 
-  private def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[(String, Seq[RenderableMessage])]) {
+  trait DummyPortalUrlBuilder {
+    def build(a: String): String
+  }
+
+
+  private def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[Msg]) {
     val mockUser = mock[User]
     val mockSaConnector = mock[SaConnector]
     val mockRegimeRoots = mock[RegimeRoots]
@@ -181,7 +170,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockPortalUrlBuilder.build(saHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl)
 
-    val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build _, mockUser).get
+    val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build, mockUser).get
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName
 

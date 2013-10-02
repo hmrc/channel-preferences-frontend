@@ -40,7 +40,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe ctRegimeNameMessage
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])](ctUtrMessage -> Seq("12347"), ctAmountAsOfDateMessage -> Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC)))
+      accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage, Seq("12347")), Msg(ctAmountAsOfDateMessage ,Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC))))
       accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage(ctAccountDetailsPortalUrl, viewAccountDetailsLinkMessage),
         LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage),
         LinkMessage(ctFileAReturnPortalUrl, fileAReturnLinkMessage))
@@ -54,8 +54,8 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
-      accountSummary.messages shouldBe Seq[(String, Seq[RenderableMessage])](ctUtrMessage -> Seq(ctUtr.utr), (ctSummaryUnavailableErrorMessage1, Seq.empty), (ctSummaryUnavailableErrorMessage2, Seq.empty),
-        (ctSummaryUnavailableErrorMessage3, Seq.empty), (ctSummaryUnavailableErrorMessage4, Seq.empty))
+      accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage , Seq(ctUtr.utr)), Msg(ctSummaryUnavailableErrorMessage1),
+        Msg(ctSummaryUnavailableErrorMessage2),Msg (ctSummaryUnavailableErrorMessage3), Msg(ctSummaryUnavailableErrorMessage4))
       accountSummary.addenda shouldBe Seq.empty
 
 
