@@ -128,6 +128,50 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-date-available").text shouldBe ""
       doc.select("#car-benefit-amount").text shouldBe ""
       doc.select("#fuel-benefit-amount").text shouldBe ""
+      doc.getElementById("addCarLink") should not be (None)
+    }
+
+    "not show an add Car link for a user with a company car" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
+
+      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById("addCarLink") should be (null)
+    }
+
+    "show a remove car link and not show a remove fuel link for a user who has a car without a fuel benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
+
+      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById("rmFuelLink") should be (null)
+      doc.getElementById("rmCarLink") should not be (null)
+    }
+
+    "show a remove car and remove fuel link for a user who has a car and fuel benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
+
+      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById("rmFuelLink") should not be (null)
+      doc.getElementById("rmCarLink") should not be (null)
+    }
+
+    "show an add car link for a user who has 2 employments and a car on the non primary employment" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefit), List.empty, List.empty)
+
+      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById("addCarLink") should not be (null)
     }
   }
 
