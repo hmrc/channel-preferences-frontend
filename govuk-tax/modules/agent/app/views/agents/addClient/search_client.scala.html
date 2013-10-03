@@ -1,0 +1,46 @@
+@(dateRange: Range, newClientSearchForm: Form[models.agent.ClientSearch])
+
+@import views.helpers._
+
+@main(title = "Add a new client") {
+
+<h2>Add a new client</h2>
+
+    <h3>Search for your client</h3>
+
+    @helper.form(action = controllers.agent.addClient.routes.SearchClientController.search()) {
+
+        <p>
+            <label>
+                Client National Insurance Number
+                <input type="text" id="nino" />
+            </label>
+        </p>
+        <p>
+            <label>
+                Client First Name
+                <input type="text" id="firstName" />
+            </label>
+        </p>
+        <p>
+            <label>
+                Client Last Name
+                <input type="text" id="lastName" />
+            </label>
+        </p>
+
+        @helpers.dateFields(newClientSearchForm,
+            "dob",
+            "Date Of Birth",
+            dateRange,
+            '_groupDivClass -> "form-field")
+
+        <p>
+            <input type="submit" value="Search"/>
+        </p>
+
+    }
+
+
+
+}
