@@ -51,6 +51,19 @@
                 '_valueAfter -> true
             )
         </li>
+        <li>
+            @helpers.fieldGroup(
+                carBenefitForm,
+                Seq(
+                FormField(carBenefitForm(registeredBefore98), Seq(
+                    InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
+                    InputType("radio", "true", "Yes", Some("form-field"), Some("label--inlineRadio-right"))))
+                ),
+                '_label -> "Was the car first registered with DVLA before 1 January 1998?",
+                '_groupDivClass -> "form-field",
+                '_valueAfter -> true
+            )
+        </li>
     </ol>
 </fieldset>
 <fieldset>
@@ -97,6 +110,94 @@
         </li>
     </ol>
 </fieldset>
+<fieldset>
+    <h2>Car fuel and emissions</h2>
+    <ol class="list--numbered">
+        <li>
+            @helpers.fieldGroup(
+            carBenefitForm,
+            Seq(
+                FormField(
+                    carBenefitForm(fuelType),
+                    Seq(
+                        InputType("radio", "diesel", "Diesel", Some("form-field"), Some("label--inlineRadio-right")),
+                        InputType("radio", "electricity", "electricity only, or other zero emission technology", Some("form-field"), Some("label--inlineRadio-right")),
+                        InputType("radio", "other", "any other fuel, including petrol and hybrids", Some("form-field"), Some("label--inlineRadio-right"))
+                    )
+                )
+            ),
+            '_label -> "What type of fuel does the car run on?",
+            '_groupDivClass -> "form-field",
+            '_valueAfter -> true
+            )
+        </li>
+        <li>
+            @helpers.fieldGroup(
+            carBenefitForm,
+            Seq(
+                FormField(
+                    carBenefitForm(co2Figure),
+                    Seq(
+                        InputType("text", "", "g/km", Some("form-field--inline"), Some(""), Some("input--small"), Some("Emission figure: "))
+                    )
+                ),
+            FormField(
+                    carBenefitForm(co2NoFigure),
+                    Seq(
+                        InputType("checkbox", "", "The VCA does not have an emission figure for your car", Some("form-field--inline"), Some(""), Some("input--small"))
+                    )
+                )
+            ),
+            '_label -> new String("The <a href='http://www.dft.gov.uk/vca/' target='_blank'>VCA Website</a> lists approved emission figures for cars."),
+            '_groupDivClass -> "form-field--inline",
+            '_valueAfter -> true
+            )
+        </li>
+        <li>
+            @helpers.fieldGroup(
+            carBenefitForm,
+            Seq(
+            FormField(carBenefitForm(engineCapacity), Seq(
+                InputType("radio", "1400", "14000cc or less", Some("form-field"), Some("label--inlineRadio-right")),
+                InputType("radio", "2000", "1401cc to 2000cc", Some("form-field"), Some("label--inlineRadio-right")),
+                InputType("radio", "9999", "2001cc or greater", Some("form-field"), Some("label--inlineRadio-right"))))
+            ),
+            '_label -> "What is your car's engine capacity?",
+            '_groupDivClass -> "form-field",
+            '_valueAfter -> true
+            )
+        </li>
+        <li>
+            @helpers.fieldGroup(
+            carBenefitForm,
+            Seq(
+                FormField(
+                    carBenefitForm(employerPayFuel),
+                    Seq(
+                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
+                        InputType("radio", "true", "Yes, private fuel is available when you use the car", Some("form-field"), Some("label--inlineRadio-right")),
+                        InputType("radio", "date", optionalValue(employerName, "your.employer")+" did pay for fuel for private travel, but stopped paying on", Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"))
+                    )
+                ),
+                FormField(
+                    carBenefitForm(dateFuelWithdrawn),
+                    Seq(DateControl((2013 to 2014)))
+                ),
+                FormField(
+                    carBenefitForm(employerPayFuel),
+                    Seq(
+                        InputType("radio", "again", optionalValue(employerName, "your.employer")+" stopped providing fuel for private use after 5 April but has now started again", Some("form-field"), Some("label--inlineRadio-right"))
+                    )
+                )
+            ),
+            '_label -> new String(optionalValue(employerName, "your.employer") +" pays for fuel for your private travel."),
+            '_groupDivClass -> "form-field",
+            '_valueAfter -> true
+            )
+        </li>
+    </ol>
+ </fieldset>
+
         <input type="submit" class="button" value="Next"/>
     }
 }
