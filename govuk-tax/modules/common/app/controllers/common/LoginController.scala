@@ -5,7 +5,7 @@ import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
 import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
-import uk.gov.hmrc.microservice.UnauthorizedException
+import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import controllers.common.service.FrontEndConfig
 import java.util.UUID
 
@@ -42,9 +42,10 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         FrontEndRedirect.toBusinessTax
           .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
-        case e: UnauthorizedException => {
-          Ok(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
-        }
+        case e: UnauthorizedException =>
+          Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+        case e: ForbiddenException =>
+          Forbidden(views.html.ggw_login_form(boundForm.withGlobalError("Not on whitelist!!")))
       }
     }
   })

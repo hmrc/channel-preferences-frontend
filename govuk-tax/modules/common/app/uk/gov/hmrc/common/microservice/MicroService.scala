@@ -110,15 +110,13 @@ trait MicroService extends Status with HeaderNames {
       res =>
         res.status match {
           case OK => Some(handleResponse(res))
-          //          case success() => //do nothing
           case CREATED => Some(handleResponse(res))
-          //TODO: add some proper error handling
-          // 204 or 404 are returned to the micro service as None
+          //TODO: add some proper error handling - 204 or 404 are returned to the micro service as None
           case NO_CONTENT => None
           case NOT_FOUND => None
           case BAD_REQUEST => throw MicroServiceException("Bad request", res)
           case UNAUTHORIZED => throw UnauthorizedException("Unauthenticated request", res)
-          case FORBIDDEN => throw MicroServiceException("Not authorised to make this request", res)
+          case FORBIDDEN => throw ForbiddenException("Not authorised to make this request", res)
           case CONFLICT => throw MicroServiceException("Invalid state", res)
           case x => throw MicroServiceException(s"Internal server error, response status is: $x", res)
         }
@@ -133,6 +131,8 @@ trait HasResponse {
 case class MicroServiceException(message: String, response: Response) extends RuntimeException(message) with HasResponse
 
 case class UnauthorizedException(message: String, response: Response) extends RuntimeException(message) with HasResponse
+
+case class ForbiddenException(message: String, response: Response) extends RuntimeException(message) with HasResponse
 
 object MicroServiceConfig {
 

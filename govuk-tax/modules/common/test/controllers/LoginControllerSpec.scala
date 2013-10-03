@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
 import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayResponse
-import uk.gov.hmrc.microservice.UnauthorizedException
+import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import play.api.libs.ws.Response
 import scala.Some
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
@@ -210,9 +210,23 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
-      status(result) shouldBe OK
+      status(result) shouldBe 401
       contentAsString(result) should include("form")
       contentAsString(result) should include("Invalid User ID or Password")
+
+      session(result).get("userId") shouldBe None
+    }
+
+    "not be able to log in and should return to the login form with an error message on submitting valid Government Gateway credentials but not on the whitelist" in new WithApplication(FakeApplication()) {
+
+      val mockResponse = mock[Response]
+      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(ForbiddenException("Not authorised to make this request", mockResponse))
+
+      val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
+
+      status(result) shouldBe 403
+      contentAsString(result) should include("form")
+      contentAsString(result) should include("Not on whitelist!!")
 
       session(result).get("userId") shouldBe None
     }
