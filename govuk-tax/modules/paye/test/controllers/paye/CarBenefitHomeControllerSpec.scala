@@ -9,14 +9,16 @@ import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
 import org.scalatest.TestData
 import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction}
 import controllers.DateFieldsHelper
+import java.net.URI
+import uk.gov.hmrc.microservice.txqueue
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -29,6 +31,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
     controller.resetAll()
   }
+
+  val removeFuelLinkId = "rmFuelLink"
+  val removeCarLinkId = "rmCarLink"
+  val addCarLinkId = "addCarLink"
 
   val carBenefitEmployer1 = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 1, null, null, null, null, null, null,
     car = Some(Car(Some(new LocalDate(2012, 12, 12)), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1), Map.empty)
@@ -128,7 +134,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-date-available").text shouldBe ""
       doc.select("#car-benefit-amount").text shouldBe ""
       doc.select("#fuel-benefit-amount").text shouldBe ""
-      doc.getElementById("addCarLink") should not be (None)
+      doc.getElementById(addCarLinkId) should not be (None)
     }
 
     "not show an add Car link for a user with a company car" in new WithApplication(FakeApplication()) {
@@ -139,7 +145,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById("addCarLink") should be (null)
+      doc.getElementById(addCarLinkId) should be (null)
     }
 
     "show a remove car link and not show a remove fuel link for a user who has a car without a fuel benefit" in new WithApplication(FakeApplication()) {
@@ -149,8 +155,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById("rmFuelLink") should be (null)
-      doc.getElementById("rmCarLink") should not be (null)
+      doc.getElementById(removeFuelLinkId) should be (null)
+      doc.getElementById(removeCarLinkId) should not be (null)
     }
 
     "show a remove car and remove fuel link for a user who has a car and fuel benefit" in new WithApplication(FakeApplication()) {
@@ -160,8 +166,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById("rmFuelLink") should not be (null)
-      doc.getElementById("rmCarLink") should not be (null)
+      doc.getElementById(removeFuelLinkId) should not be (null)
+      doc.getElementById(removeCarLinkId) should not be (null)
     }
 
     "show an add car link for a user who has 2 employments and a car on the non primary employment" in new WithApplication(FakeApplication()) {
@@ -171,7 +177,47 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById("addCarLink") should not be (null)
+      doc.getElementById(addCarLinkId) should not be (null)
+    }
+
+    "show an add Car link for a user with a company car who has an accepted car removal transaction" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List(generateTransactionData(31, false)), List.empty)
+
+      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById(addCarLinkId) should not be (null)
+    }
+
+    "show a remove car link and not show a remove fuel link for a user with both benefits who has an accepted fuel removal transaction" in new WithApplication(FakeApplication()) {
+      removeBenefitTransactionLinkVisibilityTest(29, false, false, true)
+    }
+
+    "not show a remove car or remove fuel link for a user with both benefits who has an accepted car removal transaction" in new WithApplication(FakeApplication()) {
+      removeBenefitTransactionLinkVisibilityTest(31, false, false, false)
+    }
+
+    "show a remove car link and not show a remove fuel link for a user with both benefits who has a completed fuel removal transaction" in new WithApplication(FakeApplication()) {
+      removeBenefitTransactionLinkVisibilityTest(29, true, false, true)
+    }
+
+    "not show a remove car or remove fuel link for a user with both benefits who has a completed car removal transaction" in new WithApplication(FakeApplication()) {
+      removeBenefitTransactionLinkVisibilityTest(31, true, false, false)
+    }
+
+    def removeBenefitTransactionLinkVisibilityTest(removeTransactionBenefitType : Int, isCompleted : Boolean, expRemoveFuelLink : Boolean, expRemoveCarLink : Boolean){
+      val acceptedTransactions = if (!isCompleted) List(generateTransactionData(removeTransactionBenefitType , false)) else List.empty
+      val completedTransactions = if (isCompleted) List(generateTransactionData(removeTransactionBenefitType , true)) else List.empty
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1, fuelBenefitEmployer1), acceptedTransactions, completedTransactions)
+      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+
+      if (expRemoveFuelLink) doc.getElementById(removeFuelLinkId) should not be (null) else doc.getElementById(removeFuelLinkId) should be (null)
+      if (expRemoveCarLink) doc.getElementById(removeCarLinkId) should not be (null) else doc.getElementById(removeCarLinkId) should be (null)
     }
   }
 
@@ -183,5 +229,28 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
+  }
+
+  private def generateTransactionData(benefitType : Int, isCompletedTransaction : Boolean) : TxQueueTransaction = {
+    val benefitTypes = Map(29 -> "fuel", 31 -> "car")
+    val acceptedStatus = txqueue.Status("ACCEPTED", None, DateTime.now())
+    val createdStatus = txqueue.Status("CREATED", None, DateTime.now())
+    val completedStatus = txqueue.Status("COMPLETED", None, DateTime.now())
+
+    val statusList = if (isCompletedTransaction)
+      List(completedStatus, acceptedStatus, createdStatus)
+    else
+      List(acceptedStatus, createdStatus)
+
+     TxQueueTransaction(
+      new URI("Test"),
+      "paye",
+      new URI("/auth/oid/jdensmore"),
+      None,
+      statusList,
+      Some(List("benefits", "remove", "message.code.removeBenefits", benefitTypes(benefitType))),
+      Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitTypes" -> benefitType.toString) ,
+      DateTime.now(),
+      DateTime.now())
   }
 }
