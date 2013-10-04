@@ -10,7 +10,7 @@
 @import views.helpers._
 
 @main(title = "Remove your company benefit") {
-
+<h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
 <h2 class="benefit-type">Remove your company @benefitsTitle benefit</h2>
 }
