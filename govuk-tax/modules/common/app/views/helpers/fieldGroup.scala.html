@@ -11,7 +11,7 @@
 @valueAfter = @{ argsMap.get('_valueAfter).getOrElse(false).asInstanceOf[Boolean] }
 
 <div class="@argsMap.get('_groupDivClass) @if(anyFieldHasError) {error}">
-    <p>@allFieldElements(0).label</p>
+    <p>@Html(allFieldElements(0).label.toString())</p>
     @if(argsMap.contains('_additionalTitleText)){<p>@argsMap.get('_additionalTitleText)</p>}
     @for(elements <- allFieldElements) {
         @elements.errors.map { error => <span class="error-notification">@Messages(error)</span> }
@@ -25,11 +25,13 @@
                 }
                 case inputType: InputType => {
                         @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
+                        @defining(field.field.name + (if(inputType.key != ""){"-"+ inputType.key} else ""))  { inputId =>
                         <div class='@inputType.divClass.getOrElse("")'>
-                            <label for="@field.field.name-@inputType.key" class='@inputType.labelClass.getOrElse("")'>
+                            <label for="@inputId" class='@inputType.labelClass.getOrElse("")'>
+                                @if(inputType.label.isDefined) {@inputType.label}
                                 @if(!valueAfter) { @inputType.value }
                                 <input type="@inputType.inputType"
-                                        id="@field.field.name-@inputType.key"
+                                        id="@inputId"
                                         class="@inputType.inputClass"
                                         name="@field.field.name"
                                         @if(inputType.inputType == "radio") {
@@ -42,7 +44,7 @@
                                 @if(valueAfter) { @inputType.value }
                             </label>
                         </div>
-                        }
+                        }}
                     }
              }
         }

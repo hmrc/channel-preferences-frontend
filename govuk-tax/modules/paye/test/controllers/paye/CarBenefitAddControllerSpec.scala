@@ -60,24 +60,45 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
-//      doc.select("#registered-before-98")  should not be empty
-//      doc.select("#registered-before-98-true")  should not be empty
-//      doc.select("#registered-before-98-false")  should not be empty
-//      doc.select("#fuel-type")  should not be empty
-//      doc.select("#fuel-type-diesel")  should not be empty
-//      doc.select("#fuel-type-electricity")  should not be empty
-//      doc.select("#fuel-type-fuel")  should not be empty
-//      doc.select("#co2-figure")  should not be empty
-//      doc.select("#no-co2")  should not be empty
-//      doc.select("#engine-capacity")  should not be empty
-//      doc.select("#engine-capacity-1400-less")  should not be empty
-//      doc.select("#engine-capacity-1401-2000")  should not be empty
-//      doc.select("#engine-capacity-2001-greater")  should not be empty
-//      doc.select("#employer-pay-fuel")  should not be empty
-//      doc.select("#employer-pay-fuel-true")  should not be empty
-//      doc.select("#employer-pay-fuel-false")  should not be empty
-//      doc.select("#date-fuel-withdrawn")  should not be empty
-//      doc.select("#employer-pay-fuel-again")  should not be empty
+    }
+
+    "return 200 and show the add car benefit form with the required fields" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val result = controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1)
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("[id~=providedFrom]").select("[id~=day]") should not be empty
+      doc.select("#carUnavailable-true")  should not be empty
+      doc.select("#numberOfDaysUnavailable")  should not be empty
+      doc.select("#carUnavailable-false")  should not be empty
+      doc.select("#giveBackThisTaxYear-true")  should not be empty
+      doc.select("#giveBackThisTaxYear-false")  should not be empty
+      doc.select("[id~=providedTo]").select("[id~=day]") should not be empty
+      doc.select("#listPrice")  should not be empty
+      doc.select("#employeeContributes-false")  should not be empty
+      doc.select("#employeeContributes-true")  should not be empty
+      doc.select("#employeeContribution")  should not be empty
+      doc.select("#employerContributes-false")  should not be empty
+      doc.select("#employerContributes-true")  should not be empty
+      doc.select("#employerContribution")  should not be empty
+
+      doc.select("#registeredBefore98-true")  should not be empty
+      doc.select("#registeredBefore98-false")  should not be empty
+      doc.select("#fuelType-diesel")  should not be empty
+      doc.select("#fuelType-electricity")  should not be empty
+      doc.select("#fuelType-other")  should not be empty
+      doc.select("#engineCapacity-1400")  should not be empty
+      doc.select("#engineCapacity-2000")  should not be empty
+      doc.select("#engineCapacity-9999")  should not be empty
+      doc.select("#employerPayFuel-true")  should not be empty
+      doc.select("#employerPayFuel-false")  should not be empty
+      doc.select("#employerPayFuel-again")  should not be empty
+      doc.select("#employerPayFuel-date")  should not be empty
+      doc.select("[id~=dateFuelWithdrawn]").select("[id~=day]") should not be empty
+      doc.select("#co2Figure")  should not be empty
+      doc.select("#co2NoFigure")  should not be empty
     }
 
     "return 200 and show the add car benefit form and show your company if the employer name does not exist " in new WithApplication(FakeApplication()) {

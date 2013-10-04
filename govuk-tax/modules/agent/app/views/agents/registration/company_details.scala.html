@@ -6,7 +6,7 @@
 
 <h2>Company Details</h2>
 
-@helper.form(action = agent.registration.routes.AgentCompanyDetailsController.postCompanyDetails) {
+@helper.form(action = controllers.agent.registration.routes.AgentCompanyDetailsController.postCompanyDetails) {
 
         @helpers.input(companyDetailsForm(companyName), '_label -> "Company Name:")
 
