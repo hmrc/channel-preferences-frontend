@@ -66,6 +66,14 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       }
       "fail with less than 6 middle digits" in { controller.validateNino("AB12345C") should equal (false) }
       "fail with more than 6 middle digits" in { controller.validateNino("AB1234567C") should equal (false) }
+
+      "fail if we start with invalid characters" in {
+        for (v <- List('D', 'F', 'I', 'Q', 'U', 'V').combinations(2)) {
+          controller.validateNino(v.mkString("") + "123456C") should equal (false)
+        }
+
+      }
+
       //  Neither of . The second letter also cannot be O. The prefixes BG, GB, NK, KN, TN, NT and ZZ are not allocated
 //      "fail if any of the first two letters are D, F, I, Q, U or V" in {
 //        controller.validateNino("AD123456C") should equal (true)

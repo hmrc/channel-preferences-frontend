@@ -31,7 +31,7 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
   )
 
   private[addClient] def validateNino(s: String) =  {
-      s.matches("[A-Z]{2} ?\\d{2} ?\\d{2} ?\\d{2} ?[A-Z]{1}")
+      s.matches("[[A-Z]&&[^DFIQUV]]{2} ?\\d{2} ?\\d{2} ?\\d{2} ?[A-Z]{1}")
   }
 
   private[addClient] def validateLastName(s: String) = s.matches("\\.+")
