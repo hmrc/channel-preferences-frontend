@@ -15,10 +15,13 @@ import org.mockito.{Matchers, Mockito}
 import play.api.mvc.Result
 import org.mockito.Mockito._
 import controllers.paye.CarBenefitFormFields._
-import scala.Some
-import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import CarBenefitDataBuilder._
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.Car
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import play.api.i18n.Messages
 
 class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -162,6 +165,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       assertSuccessfulDatesSubmit(None, false,  None, false,  None)
       assertSuccessfulDatesSubmit(None, false,  None, true,  Some(endOfTaxYearMinusOne))
       assertSuccessfulDatesSubmit(None, true,  Some("30"), true,  Some(endOfTaxYearMinusOne))
+
     }
     "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
@@ -285,6 +289,93 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 400
     }
 
+    "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("true"))
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 200
+    }
+
+    "return 400 if the user does not select any option for the registered before 98 question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = None)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+    }
+
+    "return 400 if the user sends an invalid value for the registered before 98 question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("hacking!"))
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+    }
+
+    "keep the selected option in the registered before 98 question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("true"), carUnavailableVal = None)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#registeredBefore98-true").attr("checked") shouldBe "checked"
+    }
+
+    "return 200 if the user submits selects an option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"))
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 200
+    }
+
+    "return 400 if the user does not select any option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = None)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error-notification").text should include(Messages("error.paye.fuel_type_mandatory"))
+    }
+
+    "return 400 if the user sends an invalid value for the FUEL TYPE question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("hacking!"))
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+    }
+
+    "keep the selected option in the FUEL TYPE question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), carUnavailableVal = None)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
+    }
+
+    "return 200 if the user enters a valid integer for the CO2 FIGURE question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"))
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 200
+    }
+
+    "return 400 if the user sends an invalid value for the CO2 FIGURE question" in new WithApplication(FakeApplication()){
+      pending
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("hacking!"))
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+    }
+
+    "keep the selected option in the CO2 FIGURE question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
+      pending
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), carUnavailableVal = None)
+      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
+    }
 
     def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],
                                 carUnavailableVal:  Option[String],
@@ -416,17 +507,23 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
                                              employeeContributesVal: Option[String] = Some(defaultEmployeeContributes.toString),
                                              employeeContributionVal : Option[String] = defaultEmployeeContribution,
                                              employerContributesVal: Option[String] = Some(defaultEmployerContributes.toString),
-                                             employerContributionVal : Option[String] = defaultEmployerContribution) = {
+                                             employerContributionVal : Option[String] = defaultEmployerContribution,
+                                             registeredBefore98Val: Option[String] = Some(defaultRegisteredBefore98.toString),
+                                             fuelTypeVal:Option[String]= Some(defaultFuelType.toString),
+                                             co2FigureVal: Option[String] = Some(defaultCo2Figure.toString)) = {
 
     FakeRequest().withFormUrlEncodedBody(Seq(
       carUnavailable -> carUnavailableVal.getOrElse("").toString,
       numberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse(""),
       giveBackThisTaxYear -> giveBackThisTaxYearVal.getOrElse("").toString,
+      registeredBefore98 -> registeredBefore98Val.getOrElse("").toString,
       listPrice -> listPriceVal.getOrElse(""),
       employeeContributes -> employeeContributesVal.getOrElse(""),
       employeeContribution -> employeeContributionVal.getOrElse(""),
       employerContributes -> employerContributesVal.getOrElse(""),
-      employerContribution -> employerContributionVal.getOrElse(""))
+      employerContribution -> employerContributionVal.getOrElse(""),
+      fuelType -> fuelTypeVal.getOrElse(""),
+      co2Figure -> co2FigureVal.getOrElse(""))
       ++ buildDateFormField(providedFrom, providedFromVal)
       ++ buildDateFormField(providedTo, providedToVal) : _*)
   }
@@ -446,29 +543,36 @@ object CarBenefitDataBuilder {
   val defaultCarUnavailable = false
   val defaultNumberOfDaysUnavailable = None
   val defaultGiveBackThisTaxYear = false
+  val defaultRegisteredBefore98 = false
+  val defaultFuelType = "diesel"
   val defaultProvidedTo = None
   val defaultProvidedFrom = Some(now.plusDays(2))
+  val defaultCo2Figure = None
 
   def apply(providedFrom: Option[LocalDate] = defaultProvidedFrom,
             carUnavailable: Option[Boolean] = Some(defaultCarUnavailable),
             numberOfDaysUnavailable: Option[Int] = defaultNumberOfDaysUnavailable,
             giveBackThisTaxYear: Option[Boolean] = Some(defaultGiveBackThisTaxYear),
+            registeredBefore98: Boolean = defaultRegisteredBefore98,
             providedTo: Option[LocalDate] = defaultProvidedTo,
             listPrice: Option[Int] = Some(defaultListPrice),
             employeeContributes: Option[Boolean] = Some(defaultEmployeeContributes),
             employeeContribution: Option[Int] = defaultEmployeeContribution,
             employerContributes: Option[Boolean] = Some(defaultEmployerContributes),
-            employerContribution: Option[Int] = defaultEmployerContribution ) = {
+            employerContribution: Option[Int] = defaultEmployerContribution,
+            fuelType:String = defaultFuelType) = {
 
     CarBenefitData(providedFrom = providedFrom,
       carUnavailable = carUnavailable,
       numberOfDaysUnavailable = numberOfDaysUnavailable,
       giveBackThisTaxYear = giveBackThisTaxYear,
+      registeredBefore98 = registeredBefore98,
       providedTo = providedTo,
       listPrice = listPrice,
       employeeContributes = employeeContributes,
       employeeContribution = employeeContribution,
       employerContributes = employerContributes,
-      employerContribution = employerContribution)
+      employerContribution = employerContribution,
+      fuelType = fuelType)
   }
 }

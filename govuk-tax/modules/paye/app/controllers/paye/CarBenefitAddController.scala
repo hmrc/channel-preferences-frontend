@@ -53,12 +53,14 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues),
       giveBackThisTaxYear -> validateGiveBackThisTaxYear(carBenefitValues),
+      registeredBefore98 -> boolean,
       providedTo -> validateProvidedTo(carBenefitValues),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employeeContribution -> validateEmployeeContribution(carBenefitValues),
       employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-      employerContribution -> validateEmployerContribution(carBenefitValues)
+      employerContribution -> validateEmployerContribution(carBenefitValues),
+      fuelType -> validateFuelType
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
@@ -122,8 +124,18 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   }
 }
 
-case class CarBenefitData(providedFrom: Option[LocalDate], carUnavailable: Option[Boolean], numberOfDaysUnavailable: Option[Int], giveBackThisTaxYear: Option[Boolean], providedTo: Option[LocalDate],
-                          listPrice: Option[Int], employeeContributes: Option[Boolean], employeeContribution: Option[Int], employerContributes: Option[Boolean], employerContribution: Option[Int])
+case class CarBenefitData(providedFrom: Option[LocalDate],
+                          carUnavailable: Option[Boolean],
+                          numberOfDaysUnavailable: Option[Int],
+                          giveBackThisTaxYear: Option[Boolean],
+                          registeredBefore98: Boolean,
+                          providedTo: Option[LocalDate],
+                          listPrice: Option[Int],
+                          employeeContributes: Option[Boolean],
+                          employeeContribution: Option[Int],
+                          employerContributes: Option[Boolean],
+                          employerContribution: Option[Int],
+                          fuelType:String)
 
 object CarBenefitFormFields {
   val providedFrom = "providedFrom"
