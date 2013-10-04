@@ -10,24 +10,9 @@
 
     @helper.form(action = controllers.agent.addClient.routes.SearchClientController.search()) {
 
-        <p>
-            <label>
-                Client National Insurance Number
-                <input type="text" id="nino" />
-            </label>
-        </p>
-        <p>
-            <label>
-                Client First Name
-                <input type="text" id="firstName" />
-            </label>
-        </p>
-        <p>
-            <label>
-                Client Last Name
-                <input type="text" id="lastName" />
-            </label>
-        </p>
+        @helpers.input(newClientSearchForm("nino"), '_label -> "National Insurance Number")
+        @helpers.input(newClientSearchForm("firstName"), '_label -> "Client First Name")
+        @helpers.input(newClientSearchForm("lastName"), '_label -> "Client Last Name")
 
         @helpers.dateFields(newClientSearchForm,
             "dob",
@@ -40,7 +25,4 @@
         </p>
 
     }
-
-
-
 }
