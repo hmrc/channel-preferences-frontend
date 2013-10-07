@@ -1,4 +1,4 @@
-@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)
+@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
@@ -6,7 +6,7 @@
 @import org.joda.time.LocalDate
 @import views.html.helpers.singleCheckbox
 
-@main(title = "Remove your company benefit") {
+@main(title = "Remove your company benefit", user = Some(user)) {
     <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
     @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
     <h2 class="benefit-type">Remove your company @benefitsTitle benefit</h2>

@@ -1,7 +1,7 @@
 package controllers.paye
 
 import controllers.common.{SessionTimeoutWrapper, BaseController}
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.common.microservice.paye.domain.{Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
@@ -17,11 +17,10 @@ class CarBenefitHomeController extends BaseController with SessionTimeoutWrapper
 
   def carBenefitHome = WithSessionTimeoutValidation {
     AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
-      user => request => carBenefitHomeAction(user, request)
+      implicit user: User => implicit request => carBenefitHomeAction
     }
   }
-
-  private[paye] val carBenefitHomeAction: ((User, Request[_]) => Result) = (user, request) => {
+  private[paye] def carBenefitHomeAction(implicit user: User, request: Request[_]):  Result = {
     findPrimaryEmployment(user) match {
       case Some(employment) => {
         val carBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.CAR)

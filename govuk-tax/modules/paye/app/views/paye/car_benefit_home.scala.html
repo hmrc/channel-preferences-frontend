@@ -1,10 +1,11 @@
-@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName: Option[String], employerSequenceNumber: Int, currentTaxYear: Int)
+@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName: Option[String], employerSequenceNumber: Int, currentTaxYear: Int)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
 @import config.RefData._
 
-@main(title = "Your tax home") {
+@main(title = "Your tax home", user = Some(user)) {
+
 
     <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 

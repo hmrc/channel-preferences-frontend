@@ -1,4 +1,4 @@
-@(carBenefitForm: Form[controllers.paye.CarBenefitData], employerName: Option[String], taxYear: Int, employmentSequenceNumber: Int, currentTaxYearYearsRange: Range)
+@(carBenefitForm: Form[controllers.paye.CarBenefitData], employerName: Option[String], taxYear: Int, employmentSequenceNumber: Int, currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
 @import controllers.paye.CarBenefitFormFields._
@@ -6,7 +6,7 @@
 @import helper._
 @import views.helpers._
 
-@main(title = "Your Tax Home") {
+@main(title = "Your Tax Home", user = Some(user)) {
 
 <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 <p>We need some information about the company car provided by <span id="company-name">@optionalValue(employerName, "your.employer", true)</span>.</p>

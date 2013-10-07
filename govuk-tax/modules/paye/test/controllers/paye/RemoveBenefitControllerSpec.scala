@@ -28,6 +28,8 @@ import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.DateFieldsHelper
+import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import java.net.URI
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper {
 
@@ -870,7 +872,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
+      val ua = UserAuthority(s"/personal/paye/CE927349E", Regimes(paye = Some(URI.create(s"/personal/paye/CE927349E"))), None)
+
+      val user = User("wshakespeare", ua, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
       val request = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 
@@ -895,7 +899,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val user = User("wshakespeare", null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
+      val ua = UserAuthority(s"/personal/paye/CE927349E", Regimes(paye = Some(URI.create(s"/personal/paye/CE927349E"))), None)
+
+      val user = User("wshakespeare", ua, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
       val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 

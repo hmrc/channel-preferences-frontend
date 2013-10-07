@@ -67,7 +67,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       val dates = getCarBenefitDates(request)
       user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
         case Some(employment) => {
-          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange))
+          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
         }
         case None => {
           Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
@@ -84,7 +84,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
           val dates = getCarBenefitDates(request)
           carBenefitForm(dates).bindFromRequest()(request).fold(
             errors => {
-              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange))
+              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
             },
             removeBenefitData => {
               keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", removeBenefitData)

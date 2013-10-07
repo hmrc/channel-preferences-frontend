@@ -20,7 +20,7 @@
 	    @content
 	    </div>
 
-	    @if( user.isDefined && user.get.regimes.hasBusinessTaxRegime ) {
+	    @if( user.isDefined ) {
 	    <aside class="l-bodyRightColumn">
 		@includes.sidebar(user, sidebarLinks)
 	    </aside>

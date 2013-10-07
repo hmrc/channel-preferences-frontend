@@ -20,11 +20,11 @@ import uk.gov.hmrc.utils.TaxYearResolver
 class RemoveBenefitController extends BaseController with SessionTimeoutWrapper with Benefits {
 
   def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
+    implicit user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   })
 
   def requestBenefitRemoval(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => requestBenefitRemovalAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
+    implicit user => request => requestBenefitRemovalAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   })
 
   def confirmBenefitRemoval(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
@@ -43,9 +43,9 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
       if (benefitType == CAR) {
         val carWithUnremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
-        Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel , updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), TaxYearResolver.currentTaxYearYearsRange))
+        Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel , updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), TaxYearResolver.currentTaxYearYearsRange)(user))
       } else {
-        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), TaxYearResolver.currentTaxYearYearsRange))
+        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), TaxYearResolver.currentTaxYearYearsRange)(user))
       }
     }
   }
@@ -54,12 +54,11 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     (request, user, benefit) => {
       val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver.currentTaxYear))
       val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
-
       updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
-            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange))
-            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange))
+            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange)(user))
+            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange)(user))
             case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
         },
@@ -84,7 +83,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
           keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, finalAndRevisedAmounts._2.toMap))
 
           benefitType match {
-            case CAR | FUEL => Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit))
+            case CAR | FUEL => Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit)(user))
             case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
         }
