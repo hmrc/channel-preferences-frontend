@@ -61,7 +61,7 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#clientSearchResults #nino").text should include ("AB123456C")
       doc.select("#clientSearchResults #name").text should include ("firstName lastName")
-      doc.select("#clientSearchResults #dob").text should include ("1990-01-01")
+      doc.select("#clientSearchResults #dob").text should include ("January 1, 1990")
     }
 
     def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String)) = {
