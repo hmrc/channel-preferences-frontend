@@ -9,7 +9,11 @@
     <p>HMRC has found the following tax payer</p>
 
     <div name="clientSearchResults" id="clientSearchResults">
-    <p name="name" id="name">Name: @clientSearch.firstName.getOrElse("") @clientSearch.lastName.getOrElse("")</p>
+    <p name="name" id="name">
+        Name:
+        @if(clientSearch.firstName.isDefined){ <span name="firstName" id="firstName">@clientSearch.firstName.getOrElse("")</span>  }
+        @if(clientSearch.lastName.isDefined){ <span name="lastName" id="lastName">@clientSearch.lastName.getOrElse("")</span>  }
+    </p>
     <p name="nino" id="nino">National Insurance Number: @clientSearch.nino</p>
 
     @if(clientSearch.dob.isDefined){ <p name="dob" id="dob"> Date of birth @views.formatting.Dates.formatDate(clientSearch.dob.get) </p>  }

@@ -53,7 +53,7 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       doc.select(".error #globalErrors") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
     }
 
-    "not show any errors on the form when we make a submission with valid values" in new WithApplication(FakeApplication()) {
+    "not show any errors on the form when we make a submission with valid nino, firstName, lastName, dob" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"))
 
       status(result) shouldBe 200
@@ -61,6 +61,42 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#clientSearchResults #nino").text should include ("AB123456C")
       doc.select("#clientSearchResults #name").text should include ("firstName lastName")
+      doc.select("#clientSearchResults #dob").text should include ("January 1, 1990")
+    }
+
+    "not show any errors on the form when we make a submission with valid nino, firstName, lastName" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("","", ""))
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#clientSearchResults #nino").text should include ("AB123456C")
+      doc.select("#clientSearchResults #firstName").text should include ("firstName")
+      doc.select("#clientSearchResults #lastName").text should include ("lastName")
+      doc.select("#clientSearchResults #dob") should be ('empty)
+    }
+
+    "not show any errors on the form when we make a submission with valid nino, firstName, dob" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="", dob=("1","1", "1990"))
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#clientSearchResults #nino").text should include ("AB123456C")
+      doc.select("#clientSearchResults #firstName").text should include ("firstName")
+      doc.select("#clientSearchResults #lastName") should be (empty)
+      doc.select("#clientSearchResults #dob").text should include ("January 1, 1990")
+    }
+
+    "not show any errors on the form when we make a submission with valid nino, lastName, dob" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="AB123456C", firstName="", lastName="lastName", dob=("1","1", "1990"))
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#clientSearchResults #nino").text should include ("AB123456C")
+      doc.select("#clientSearchResults #firstName") should be (empty)
+      doc.select("#clientSearchResults #lastName").text should include ("lastName")
       doc.select("#clientSearchResults #dob").text should include ("January 1, 1990")
     }
 
