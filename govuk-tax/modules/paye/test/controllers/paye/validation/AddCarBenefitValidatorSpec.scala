@@ -29,7 +29,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar  with Da
     "reject a value that is not one of the options" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm, engineCapacity, "-123")
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, engineCapacity, "Value not accepted. Please select one of the option.")
+      assertHasThisErrorMessage(form, engineCapacity, "Value not accepted. Please select one of the options.")
     }
     "accept a value that is one of the options" in {
       val form = bindFormWithValue(dummyForm, engineCapacity, "2000")
@@ -53,7 +53,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar  with Da
     "reject a value that is not one of the options for the employer pay fuel field" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm, employerPayFuel, "-123")
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, employerPayFuel, "Value not accepted. Please select one of the option.")
+      assertHasThisErrorMessage(form, employerPayFuel, "Value not accepted. Please select one of the options.")
     }
 
     "reject if there is no value for the employer pay fuel field" in new WithApplication(FakeApplication()) {

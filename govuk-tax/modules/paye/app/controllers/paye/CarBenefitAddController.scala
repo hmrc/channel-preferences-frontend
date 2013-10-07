@@ -60,7 +60,12 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       employeeContribution -> validateEmployeeContribution(carBenefitValues),
       employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employerContribution -> validateEmployerContribution(carBenefitValues),
-      fuelType -> validateFuelType
+      fuelType -> validateFuelType,
+      co2Figure -> validateCo2Figure,
+      co2NoFigure -> validateNoCo2Figure,
+      engineCapacity -> validateEngineCapacity,
+      employerPayFuel -> validateEmployerPayFuel,
+      dateFuelWithdrawn -> validateDateFuelWithdrawn
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
@@ -135,7 +140,12 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
                           employeeContribution: Option[Int],
                           employerContributes: Option[Boolean],
                           employerContribution: Option[Int],
-                          fuelType:String)
+                          fuelType: String,
+                          co2Figure: Option[Int],
+                          co2NoFigure: Option[Boolean],
+                          engineCapacity: Option[String],
+                          employerPayFuel: String,
+                          dateFuelWithdrawn: Option[LocalDate])
 
 object CarBenefitFormFields {
   val providedFrom = "providedFrom"
