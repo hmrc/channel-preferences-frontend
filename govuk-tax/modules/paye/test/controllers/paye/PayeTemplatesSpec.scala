@@ -15,7 +15,7 @@ import play.api.test.FakeApplication
 import models.paye.RecentChange
 import scala.Some
 
-class PayeTemplatesSpec extends BaseSpec with PageSugar {
+class PayeTemplatesSpec extends PayeBaseSpec with PageSugar {
 
   "Tax overview page" should {
 
@@ -23,7 +23,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
-      val payeHome: Html = paye_home(overview)
+      val payeHome: Html = paye_home(overview)(johnDensmore)
 
       payeHome(".welcome").text() should include("John Densmore")
 
@@ -33,7 +33,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
-      val payeHome: Html = paye_home(overview)
+      val payeHome: Html = paye_home(overview)(johnDensmore)
 
       payeHome(".overview__actions__done").html() should include("<li>")
 
@@ -43,7 +43,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
-      val payeHome: Html = paye_home(overview)
+      val payeHome: Html = paye_home(overview)(johnDensmore)
 
       payeHome(".overview__contacts__nino").text() should include("CS700100A")
 
@@ -53,7 +53,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
-      val payeHome: Html = paye_home(overview)
+      val payeHome: Html = paye_home(overview)(johnDensmore)
 
       payeHome(".overview__contacts__heading").first().text() should include("Sainsbury's")
       payeHome(".overview__contacts__companies li").first().child(4).text() should include("277T")
@@ -64,7 +64,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
 
       val overview: PayeOverview = PayeOverview("John Densmore", Some(new DateTime()), "CS700100A",
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
-      val payeHome: Html = paye_home(overview)
+      val payeHome: Html = paye_home(overview)(johnDensmore)
 
       println(payeHome(".overview__contacts p").last().html())
 
@@ -84,7 +84,7 @@ class PayeTemplatesSpec extends BaseSpec with PageSugar {
         None
       )
 
-      val page = paye_benefit_home(Seq(displayBenefit))
+      val page = paye_benefit_home(Seq(displayBenefit))(johnDensmore)
       println(page)
       page("tr#car-fuel-benefit").size should be(1)
     }

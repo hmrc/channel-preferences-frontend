@@ -12,10 +12,10 @@ import uk.gov.hmrc.utils.TaxYearResolver
 class BenefitHomeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => listBenefitsAction(user, request)
+    implicit user: User => implicit request => listBenefitsAction(user, request)
   })
 
-  private[paye] val listBenefitsAction: (User, Request[_]) => Result = (user, request) => {
+  private[paye] def listBenefitsAction(implicit user: User, request: Request[_]): Result = {
     val taxYear = TaxYearResolver.currentTaxYear
     val benefits = user.regimes.paye.get.benefits(taxYear)
     val employments = user.regimes.paye.get.employments(taxYear)

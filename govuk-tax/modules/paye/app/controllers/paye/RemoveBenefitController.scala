@@ -28,11 +28,11 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
   })
 
   def confirmBenefitRemoval(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => confirmBenefitRemovalAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
+    implicit user => request => confirmBenefitRemovalAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   })
 
   def benefitRemoved(benefitTypes: String, oid: String) = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
-    user => request => benefitRemovedAction(user, request, benefitTypes, oid)
+    implicit user => request => benefitRemovedAction(user, request, benefitTypes, oid)
   })
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
@@ -90,7 +90,6 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
       )
     }
   }
-
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, displayBenefit) => {
       val payeRoot = user.regimes.paye.get
@@ -123,7 +122,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
           keyStoreMicroService.deleteKeyStore(user.oid, "paye_ui")
           val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
           if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
-            Ok(remove_benefit_confirmation(Dates.formatDate(formData.withdrawDate), removedKinds, oid))
+            Ok(remove_benefit_confirmation(Dates.formatDate(formData.withdrawDate), removedKinds, oid)(user))
           } else {
             Redirect(routes.BenefitHomeController.listBenefits())
           }

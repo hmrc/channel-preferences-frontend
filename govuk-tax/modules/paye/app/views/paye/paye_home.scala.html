@@ -1,9 +1,9 @@
-@(payeOverview: models.paye.PayeOverview)
+@(payeOverview: models.paye.PayeOverview)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
 
-@main(title = "Your tax home") {
+@main(title = "Your tax home", user = Some(user)) {
 
 <h2 class="welcome">Welcome, @payeOverview.name</h2>
 

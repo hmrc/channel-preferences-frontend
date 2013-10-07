@@ -109,8 +109,7 @@ class PayeHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieE
     }
 
     def requestHomeAction: String = {
-      val homeAction = controller.homeAction
-      val result = homeAction(johnDensmore, FakeRequest())
+      val result = controller.homeAction(FakeRequest())(johnDensmore)
       status(result) should be(200)
       contentAsString(result)
     }

@@ -10,9 +10,9 @@ import uk.gov.hmrc.utils.TaxYearResolver
 
 class PayeHomeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
-  def home = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => homeAction(user, request) } }
+  def home = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { implicit user: User => implicit request => homeAction(request)(user) } }
 
-  private[paye] val homeAction: (User, Request[_]) => Result = (user, request) => {
+  private[paye] def homeAction(request: Request[_])(implicit user: User): Result = {
     val payeData = user.regimes.paye.get
     val taxYear = TaxYearResolver.currentTaxYear
     val benefits = payeData.benefits(taxYear)
