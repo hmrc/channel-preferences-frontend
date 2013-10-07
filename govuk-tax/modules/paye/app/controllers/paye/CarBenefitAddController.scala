@@ -54,7 +54,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues),
       giveBackThisTaxYear -> validateGiveBackThisTaxYear(carBenefitValues),
-      registeredBefore98 -> boolean,
+      registeredBefore98 -> validateRegisteredBefore98(carBenefitValues),
       providedTo -> validateProvidedTo(carBenefitValues),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
@@ -62,11 +62,11 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employerContribution -> validateEmployerContribution(carBenefitValues),
       fuelType -> validateFuelType,
-      co2Figure -> validateCo2Figure,
-      co2NoFigure -> validateNoCo2Figure,
-      engineCapacity -> validateEngineCapacity,
-      employerPayFuel -> validateEmployerPayFuel,
-      dateFuelWithdrawn -> validateDateFuelWithdrawn
+      co2Figure -> validateCo2Figure(carBenefitValues),
+      co2NoFigure -> validateNoCo2Figure(carBenefitValues),
+      engineCapacity -> validateEngineCapacity(carBenefitValues),
+      employerPayFuel -> validateEmployerPayFuel(carBenefitValues),
+      dateFuelWithdrawn -> validateDateFuelWithdrawn(carBenefitValues)
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
@@ -101,7 +101,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val emission = if (removeBenefitData.co2NoFigure.getOrElse(false)) None else removeBenefitData.co2Figure
 
-              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98, removeBenefitData.fuelType, emission , removeBenefitData.engineCapacity.get.toInt)
+              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98, removeBenefitData.fuelType, emission , removeBenefitData.engineCapacity.map(_.toInt))
 
               val uri = payeRoot.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
                 .replace("{year}", taxYear.toString).replace("{employment}", employmentSequenceNumber.toString)

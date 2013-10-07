@@ -184,7 +184,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         registeredBefore98Val = Some("true"),
         fuelTypeVal = Some("diesel"),
         co2FigureVal = Some("20"),
-        co2NoFigureVal = Some("true"),
+        co2NoFigureVal = Some("false"),
         engineCapacityVal= Some("1400"),
         employerPayFuelVal = Some("date"),
         dateFuelWithdrawnVal = Some(localDateToTuple(now))
@@ -205,7 +205,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         data.registeredBefore98 shouldBe true
         data.fuelType shouldBe "diesel"
         data.co2Figure shouldBe Some(20)
-        data.co2NoFigure shouldBe Some(true)
+        data.co2NoFigure shouldBe Some(false)
         data.engineCapacity shouldBe Some("1400")
         data.employerPayFuel shouldBe "date"
         data.dateFuelWithdrawn shouldBe now
@@ -365,7 +365,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 200 if the user selects an option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"))
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), engineCapacityVal = None, co2NoFigureVal = None)
       val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
@@ -398,7 +398,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 200 if the user enters a valid integer for the CO2 FIGURE question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"))
+      val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"), co2NoFigureVal = Some("false"))
       val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
@@ -603,7 +603,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
-                          johnDensmore.regimes.paye.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, defaultEngineCapacity))
+                          johnDensmore.regimes.paye.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, Some(defaultEngineCapacity)))
       Mockito.reset(mockKeyStoreService)
       Mockito.reset(mockPayeMicroService)
     }
