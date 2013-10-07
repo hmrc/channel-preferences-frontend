@@ -71,7 +71,9 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
   }
 
   private[agent] val searchAction: (User, Request[_]) => Result = (user, request) => {
-    Ok(search_client(validDobRange, searchForm(request).bindFromRequest()(request)))
+    val form = searchForm(request).bindFromRequest()(request)
+    if (form.hasErrors) BadRequest(search_client(validDobRange, form))
+    else Ok("Searching...")
   }
 }
 

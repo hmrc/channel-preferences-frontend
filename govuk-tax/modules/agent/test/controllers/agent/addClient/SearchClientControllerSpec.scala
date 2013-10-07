@@ -25,7 +25,7 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
     "show errors on the form when we make a submission with no values" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="", firstName="", lastName="", dob=("", "", ""))
 
-      status(result) shouldBe 200
+      status(result) shouldBe 400
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error #nino") should not be 'empty
@@ -34,7 +34,7 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
     "show errors on the form when we make a submission with invalid values" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="XXX", firstName="123", lastName="alert('foo')", dob=("1","1", LocalDate.now().minusYears(111).getYear.toString))
 
-      status(result) shouldBe 200
+      status(result) shouldBe 400
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error #nino") should not be 'empty
@@ -46,7 +46,7 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
     "show global error on the form when we fill in nino and only one other field" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="AB123456C", firstName="hasNoValidation", lastName="", dob=("", "", ""))
 
-      status(result) shouldBe 200
+      status(result) shouldBe 400
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error #nino") should be ('empty)
