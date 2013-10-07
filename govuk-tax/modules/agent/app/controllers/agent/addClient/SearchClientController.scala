@@ -5,20 +5,22 @@ import play.api.mvc.{ Result, Request }
 import views.html.agents.addClient._
 import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
 import uk.gov.hmrc.utils.TaxYearResolver
-import play.api.data.{Form, Forms}
+import play.api.data.{Mapping, Form, Forms}
 import Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import models.agent.ClientSearch
 import scala.Some
+import org.joda.time.LocalDate
+import controllers.common.validators.Validators
 
-class SearchClientController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+class SearchClientController extends BaseController with ActionWrappers with SessionTimeoutWrapper with Validators {
 
   def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => homeAction(user, request) } }
 
   def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => searchAction(user, request) } }
 
   private[agent] val homeAction: (User, Request[_]) => Result = (user, request) => {
-    Ok(search_client(TaxYearResolver.currentTaxYearYearsRange, searchForm()))
+    Ok(search_client(validDobRange, searchForm()))
   }
 
   private def searchForm() = Form[ClientSearch](
@@ -26,7 +28,7 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
       "nino" -> text.verifying("You must provide a valid nino", validateNino(_)),
       "firstName" -> text.verifying("Invalid firstname", validateLastName(_)),
       "lastName" -> text.verifying("Invalid last name", validateFirst(_)),
-      "dob" -> jodaLocalDate("dd-MM-yyyy")
+      "dob" -> dateTuple.verifying("Invalid date of birth", validateDob(_))
     )(ClientSearch.apply)(ClientSearch.unapply)
   )
 
@@ -40,11 +42,22 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
 
 
 
-  private[addClient] def validateLastName(s: String) = s.matches("\\.+")
-  private[addClient] def validateFirst(s: String) = s.matches("\\.+")
+  private[addClient] def validateLastName(s: String) = s.matches("""\w+""")
+  private[addClient] def validateFirst(s: String) = s.matches("""\w+""")
+  private[addClient] def validateDob(dobOption: Option[LocalDate]) = {
+    dobOption match {
+      case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
+      case _ => false
+    }
+  }
+
+  val validDobRange = {
+    val thisYear = LocalDate.now().getYear
+    (thisYear - 110) to (thisYear - 16)
+  }
 
   private[agent] val searchAction: (User, Request[_]) => Result = (user, request) => {
-    Ok(search_client(TaxYearResolver.currentTaxYearYearsRange, searchForm.bindFromRequest()(request)))
+    Ok(search_client(validDobRange, searchForm.bindFromRequest()(request)))
   }
 }
 

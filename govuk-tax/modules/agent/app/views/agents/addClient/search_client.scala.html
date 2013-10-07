@@ -10,16 +10,16 @@
 
     @helper.form(action = controllers.agent.addClient.routes.SearchClientController.search()) {
 
-        @helpers.input(newClientSearchForm("nino"), '_label -> "National Insurance Number")
-        @helpers.input(newClientSearchForm("firstName"), '_label -> "Client First Name")
-        @helpers.input(newClientSearchForm("lastName"), '_label -> "Client Last Name")
+        <p>@helpers.input(newClientSearchForm("nino"), '_label -> "National Insurance Number") </p>
+        <p>@helpers.input(newClientSearchForm("firstName"), '_label -> "Client First Name")    </p>
+        <p>@helpers.input(newClientSearchForm("lastName"), '_label -> "Client Last Name")      </p>
 
-        @helpers.dateFields(newClientSearchForm,
+        <p>@helpers.dateFields(newClientSearchForm,
             "dob",
             "Date Of Birth",
             dateRange,
             '_groupDivClass -> "form-field")
-
+        </p>
         <p>
             <input type="submit" value="Search"/>
         </p>

@@ -8,6 +8,7 @@ import play.api.test.FakeApplication
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import org.joda.time.LocalDate
 
 class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -20,10 +21,8 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
   val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
   "Given that Bob is on the search screen the page" should {
-    "show errors on the form when we get an invalid submission" in new WithApplication(FakeApplication()) {
-
-      private val request = FakeRequest()
-      request.withFormUrlEncodedBody()
+    "show errors on the form when we make a submission with no values" in new WithApplication(FakeApplication()) {
+      private val request = FakeRequest().withFormUrlEncodedBody()
       val result = controller.searchAction(user, request)
 
       status(result) shouldBe 200
@@ -33,6 +32,42 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       doc.select(".error #firstName") should not be 'empty
       doc.select(".error #lastName") should not be 'empty
       doc.select(".error select") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+    }
+
+    "show errors on the form when we make a submission with invalid values" in new WithApplication(FakeApplication()) {
+      private val request = FakeRequest().withFormUrlEncodedBody(("nino", "XXX"),
+                                     ("firstName", "hasNoValidation"),
+                                     ("lastName", "hasNoValidation"),
+                                     ("dob.day", "1"),
+                                     ("dob.month", "1"),
+                                     ("dob.year", LocalDate.now().minusYears(111).getYear.toString))
+      val result = controller.searchAction(user, request)
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #nino") should not be 'empty
+      doc.select(".error #firstName") should be ('empty)
+      doc.select(".error #lastName") should be ('empty)
+      doc.select(".error select") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+    }
+
+    "not show any errors on the form when we make a submission with valid values" in new WithApplication(FakeApplication()) {
+      private val request = FakeRequest().withFormUrlEncodedBody(("nino", "AB123456C"),
+                                     ("firstName", "hasNoValidation"),
+                                     ("lastName", "hasNoValidation"),
+                                     ("dob.day", "1"),
+                                     ("dob.month", "1"),
+                                     ("dob.year", LocalDate.now().minusYears(17).getYear.toString))
+      val result = controller.searchAction(user, request)
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #nino") should be ('empty)
+      doc.select(".error #firstName") should be ('empty)
+      doc.select(".error #lastName") should be ('empty)
+      doc.select(".error select") should be ('empty)     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
     }
   }
 
@@ -68,7 +103,6 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
         val invalidStartLetterCombinations = List('D', 'F', 'I', 'Q', 'U', 'V').combinations(2).map(_.mkString("")).toList
         val invalidPrefixes = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ")
         for (v <- invalidStartLetterCombinations ::: invalidPrefixes) {
-          println(v)
           controller.validateNino(v + "123456C") should equal (false)
         }
 
@@ -79,6 +113,24 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       }
 
     }
+
+    "allow the date of birth not to be entered" in { controller.validateDob(None) should be (false) }
+
+    "ensure that the date of birth of the user is no more than 110 years before now" should {
+      val hundredAndTenYearsAgo = LocalDate.now.minusYears(110)
+      "fail with a dob more than 110 years in age" in { controller.validateDob(Some(hundredAndTenYearsAgo.minusDays(1))) should be (false) }
+      "pass with a dob exactly 110 years old" in      { controller.validateDob(Some(hundredAndTenYearsAgo)) should be (true) }
+      "pass with a dob < 110 years" in                { controller.validateDob(Some(hundredAndTenYearsAgo.plusDays(1))) should be (true) }
+    }
+
+    "ensure that the date of birth of the user is no less than 16 years before now" should {
+      val sixteenYearsAgo = LocalDate.now.minusYears(16)
+      "fail with a dob less than 16 years in age" in { controller.validateDob(Some(sixteenYearsAgo.plusDays(1))) should be (false) }
+      "pass with a dob exactly 16 years old" in      { controller.validateDob(Some(sixteenYearsAgo)) should be (true) }
+      "pass with a dob > 16 years" in                { controller.validateDob(Some(sixteenYearsAgo.minusDays(1))) should be (true) }
+    }
+
+    //  DOB rules - maximum age should be 110 based on todays date, minimum age should be 16
 
   }
 
@@ -154,15 +206,5 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
 //    When he executes the search with a DOB that puts a client at over 110 years of age, or under 16 years or age on the day of the search
 //    Then he should not be taken to the results screen but prompted for a valid DOB
 //
-
-
-
-
-//
-//    Only the first letter of the client's first name and the first three letters of the client's last name should be used in the search
-//
-//  DOB rules - maximum age should be 110 based on todays date, minimum age should be 16
-
-
 
 }
