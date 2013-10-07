@@ -26,11 +26,13 @@ class PayeBaseSpec extends BaseSpec {
     "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}",
     "findByOid" -> "/txqueue/oid/{oid}")
 
+  def defaultActions(nino: String) = Map("addBenefit" -> s"/paye/${nino}/benefits/{year}/{employment}/add")
+
   protected def setupUser(id: String, nino: String, name: String): User = {
-    setupUser(id, nino, name, defaultTxLinks(nino))
+    setupUser(id, nino, name, defaultTxLinks(nino), defaultActions(nino))
   }
 
-  protected def setupUser(id: String, nino: String, name: String, transactionLinks: Map[String, String]): User = {
+  protected def setupUser(id: String, nino: String, name: String, transactionLinks: Map[String, String], actions: Map[String, String]): User = {
 
     val ua = UserAuthority(s"/personal/paye/$nino", Regimes(paye = Some(URI.create(s"/personal/paye/$nino"))), None)
 
@@ -47,7 +49,8 @@ class PayeBaseSpec extends BaseSpec {
         "taxCode" -> s"/paye/$nino/tax-codes/2013",
         "employments" -> s"/paye/$nino/employments/2013",
         "benefits" -> s"/paye/$nino/benefits/2013"),
-      transactionLinks = transactionLinks
+      transactionLinks = transactionLinks,
+      actions = actions
     )
 
     User(id, ua, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)

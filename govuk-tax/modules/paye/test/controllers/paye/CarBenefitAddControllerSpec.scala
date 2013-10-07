@@ -1,9 +1,9 @@
 package controllers.paye
 
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.paye.domain.{Car, Benefit, TaxCode, Employment}
+import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.{DateTimeZone, LocalDate}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.utils.DateConverter
@@ -17,6 +17,10 @@ import org.mockito.Mockito._
 import controllers.paye.CarBenefitFormFields._
 import CarBenefitDataBuilder._
 import play.api.i18n.Messages
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import play.api.test.FakeApplication
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import controllers.paye.CarBenefitData
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
@@ -26,8 +30,9 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
   val mockKeyStoreService = mock[KeyStoreMicroService]
+  val mockPayeMicroService = mock[PayeMicroService]
 
-  private lazy val controller = new CarBenefitAddController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService) with MockMicroServicesForTests {
+  private lazy val controller = new CarBenefitAddController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests {
     override def currentTaxYear = 2013
     override def startOfCurrentTaxYear = new LocalDate(2013, 4, 6)
     override def endOfCurrentTaxYear = new LocalDate(2014, 4, 5)
@@ -38,6 +43,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     controller.resetAll()
     Mockito.reset(mockKeyStoreService)
+    Mockito.reset(mockPayeMicroService)
   }
 
   val carBenefitEmployer1 = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 1, null, null, null, null, null, null,
@@ -524,6 +530,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
                                              giveBackThisTaxYearVal: Boolean,
                                              providedToVal: Option[(String, String, String)]) {
 
+      setupPayeMicroServiceMock()
+
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
         Some(localDateToTuple(providedFromVal)),
         Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
@@ -545,6 +553,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     def assertSuccessfulListPriceSubmit(listPriceVal : Option[Int]) {
+      setupPayeMicroServiceMock()
 
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), taxYear, employmentSeqNumber)
 
@@ -563,6 +572,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
 
     def assertSuccessfulEmployeeContributionSubmit(employeeContributesVal: Option[Boolean], employeeContributionVal : Option[String], expectedContributionVal : Option[Int]) {
+      setupPayeMicroServiceMock()
 
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal), 2013, 1)
 
@@ -580,6 +590,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
 
     def assertSuccessfulEmployerContributionSubmit(employerContributesVal: Option[Boolean], employerContributionVal : Option[String], expectedContributionVal : Option[Int]) {
+      setupPayeMicroServiceMock()
 
       val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal), 2013, 1)
 
@@ -591,8 +602,10 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccess(result: Result, collectedData: CarBenefitData)  {
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
-
+      verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
+                          johnDensmore.regimes.paye.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, defaultEngineCapacity))
       Mockito.reset(mockKeyStoreService)
+      Mockito.reset(mockPayeMicroService)
     }
 
     def assertFailure(result: Result, errorId: String, errorMessage: String) {
@@ -613,6 +626,11 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
+    setupPayeMicroServiceMock()
+  }
+
+  private def setupPayeMicroServiceMock() {
+    when(mockPayeMicroService.addBenefit(Matchers.anyString(), Matchers.eq("AB123456C"), Matchers.any[AddCarBenefit])).thenReturn(Some(AddCarBenefitResponse(14)))
   }
 
   private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] = Some(localDateToTuple(defaultProvidedFrom)),
@@ -628,8 +646,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
                                              registeredBefore98Val: Option[String] = Some(defaultRegisteredBefore98.toString),
                                              fuelTypeVal:Option[String]= Some(defaultFuelType.toString),
                                              co2FigureVal: Option[String] = defaultCo2Figure,
-                                             co2NoFigureVal: Option[String] = defaultCo2NoFigure,
-                                             engineCapacityVal: Option[String] = defaultEngineCapacity,
+                                             co2NoFigureVal: Option[String] = Some(defaultCo2NoFigure.toString),
+                                             engineCapacityVal: Option[String] = Some(defaultEngineCapacity.toString),
                                              employerPayFuelVal: Option[String] = Some(defaultEmployerPayFuel.toString),
                                              dateFuelWithdrawnVal: Option[(String, String, String)] = Some(localDateToTuple(defaultDateFuelWithdrawn))) = {
 
@@ -673,8 +691,8 @@ object CarBenefitDataBuilder {
   val defaultProvidedTo = None
   val defaultProvidedFrom = Some(now.plusDays(2))
   val defaultCo2Figure = None
-  val defaultCo2NoFigure = None
-  val defaultEngineCapacity = None
+  val defaultCo2NoFigure = true
+  val defaultEngineCapacity = 1400
   val defaultEmployerPayFuel = "false"
   val defaultDateFuelWithdrawn = None
 
@@ -691,8 +709,8 @@ object CarBenefitDataBuilder {
             employerContribution: Option[Int] = defaultEmployerContribution,
             fuelType:String = defaultFuelType,
             co2Figure: Option[Int] = defaultCo2Figure,
-            co2NoFigure: Option[Boolean] = defaultCo2NoFigure,
-            engineCapacity: Option[String] = defaultEngineCapacity,
+            co2NoFigure: Option[Boolean] = Some(defaultCo2NoFigure),
+            engineCapacity: Option[String] = Some(defaultEngineCapacity.toString),
             employerPayFuel: String = defaultEmployerPayFuel,
             dateFuelWithdrawn: Option[LocalDate] = defaultDateFuelWithdrawn) = {
 

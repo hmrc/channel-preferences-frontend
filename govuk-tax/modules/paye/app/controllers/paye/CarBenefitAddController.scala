@@ -2,7 +2,7 @@ package controllers.paye
 
 import controllers.common.{SessionTimeoutWrapper, BaseController}
 import play.api.mvc.{Result, Request}
-import uk.gov.hmrc.common.microservice.paye.domain.{Employment, PayeRegime}
+import uk.gov.hmrc.common.microservice.paye.domain.{AddCarBenefit, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
 import play.api.Logger
@@ -18,10 +18,11 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 
-class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with Validators {
+class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with Validators {
 
-  def this() = this(() => DateTimeUtils.now, MicroServices.keyStoreMicroService)
+  def this() = this(() => DateTimeUtils.now, MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
 
   private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
   private[paye] def startOfCurrentTaxYear = TaxYearResolver.startOfCurrentTaxYear
@@ -89,13 +90,25 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)
+          val payeRoot = user.regimes.paye.get
           carBenefitForm(dates).bindFromRequest()(request).fold(
             errors => {
               BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
             },
             removeBenefitData => {
+
               keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", removeBenefitData)
-              Ok
+
+              val emission = if (removeBenefitData.co2NoFigure.getOrElse(false)) None else removeBenefitData.co2Figure
+
+              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98, removeBenefitData.fuelType, emission , removeBenefitData.engineCapacity.get.toInt)
+
+              val uri = payeRoot.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
+                .replace("{year}", taxYear.toString).replace("{employment}", employmentSequenceNumber.toString)
+
+              val response = payeService.addBenefit(uri, payeRoot.nino, addCarBenefitPayload)
+
+              Ok("Calculated percentage: " + response.get.percentage.toString)
             }
           )
         }

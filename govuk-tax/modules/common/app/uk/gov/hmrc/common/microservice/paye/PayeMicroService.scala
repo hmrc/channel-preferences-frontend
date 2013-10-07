@@ -40,8 +40,18 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     )
   }
 
+  def addBenefit(uri: String, nino: String, addCarBenefit: AddCarBenefit): Option[AddCarBenefitResponse] = {
+    httpPost[AddCarBenefitResponse](
+      uri,
+      body = Json.parse(
+        toRequestBody(
+          addCarBenefit
+        )
+      )
+    )
+  }
+
+
   def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate) =
     httpGet[CalculationResult](benefit.calculations("withdraw").replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
 }
-
-case class CalculationResult(result: Map[String, BigDecimal])

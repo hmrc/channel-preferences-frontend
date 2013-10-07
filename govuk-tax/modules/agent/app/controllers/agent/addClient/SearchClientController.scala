@@ -7,10 +7,10 @@ import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseControlle
 import play.api.data.{Form, Forms}
 import Forms._
 import uk.gov.hmrc.common.microservice.domain.User
-import models.agent.ClientSearch
 import scala.Some
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
+import models.agent.addClient.ClientSearch
 
 class SearchClientController extends BaseController with ActionWrappers with SessionTimeoutWrapper with Validators {
 
@@ -33,10 +33,10 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
 
   private def searchForm(request: Request[_]) = Form[ClientSearch](
     mapping(
-      "nino" -> text.verifying("You must provide a valid nino", validateNino(_)),
-      "firstName" -> optional(text).verifying("Invalid firstname", validateLastName(_)),
-      "lastName" -> optional(text).verifying("Invalid last name", validateFirstName(_)),
-      "dob" -> dateTuple.verifying("Invalid date of birth", validateDob(_))
+      "nino" -> text.verifying("You must provide a valid nino", validateNino _),
+      "firstName" -> optional(text).verifying("Invalid firstname", validateName _),
+      "lastName" -> optional(text).verifying("Invalid last name", validateName _),
+      "dob" -> dateTuple.verifying("Invalid date of birth", validateDob)
     ) (ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptional(unValidatedSearchForm.bindFromRequest()(request).get))
   )
 
@@ -56,13 +56,10 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
 
   val nameRegex = """[\p{L}\s'.-]*"""
 
-  private[addClient] def validateLastName(s: Option[String]) = s.getOrElse("").matches(nameRegex)
-  private[addClient] def validateFirstName(s: Option[String]) = s.getOrElse("").matches(nameRegex)
-  private[addClient] def validateDob(dobOption: Option[LocalDate]) = {
-    dobOption match {
-      case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
-      case None => true
-    }
+  private[addClient] def validateName(s: Option[String]) = s.getOrElse("").matches(nameRegex)
+  private[addClient] val validateDob: Option[LocalDate] => Boolean = {
+    case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
+    case None => true
   }
 
   val validDobRange = {
@@ -73,7 +70,7 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
   private[agent] val searchAction: (User, Request[_]) => Result = (user, request) => {
     val form = searchForm(request).bindFromRequest()(request)
     if (form.hasErrors) BadRequest(search_client(validDobRange, form))
-    else Ok("Searching...")
+    else Ok(search_client_result(form.get))
   }
 }
 

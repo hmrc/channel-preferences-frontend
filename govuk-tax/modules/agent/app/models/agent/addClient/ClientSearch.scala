@@ -1,4 +1,4 @@
-package models.agent
+package models.agent.addClient
 
 import org.joda.time.LocalDate
 
