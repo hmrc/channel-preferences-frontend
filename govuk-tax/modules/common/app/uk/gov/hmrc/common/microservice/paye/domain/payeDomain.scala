@@ -25,7 +25,8 @@ case class PayeRoot(nino: String,
                     name: String,
                     dateOfBirth: String,
                     links: Map[String, String],
-                    transactionLinks: Map[String, String]) extends RegimeRoot[Nino] {
+                    transactionLinks: Map[String, String],
+                    actions: Map[String, String]) extends RegimeRoot[Nino] {
 
   private val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 

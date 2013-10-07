@@ -13,7 +13,7 @@ trait DateFieldsHelper {
         case Some((y,m,d)) => try {
           Some(new LocalDate(y.toInt, m.toInt, d.toInt))
         } catch {
-          case _ => None
+          case _: Throwable => None
         }
         case _ => None
       }
