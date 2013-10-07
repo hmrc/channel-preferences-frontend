@@ -6,5 +6,5 @@ import controllers.common.domain.Transform._
 
 class AgentMicroService(override val serviceUrl: String = MicroServiceConfig.agentServiceUrl) extends MicroService {
 
-  def create(newAgent: Agent): Option[Agent] = httpPost[Agent](s"/agent/", Json.parse(toRequestBody(newAgent)))
+  def create(nino: String, newAgent: Agent): Option[Agent] = httpPost[Agent](s"/agent/register/nino/$nino", Json.parse(toRequestBody(newAgent)))
 }

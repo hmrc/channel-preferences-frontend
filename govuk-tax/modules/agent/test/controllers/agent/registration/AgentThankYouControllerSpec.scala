@@ -39,14 +39,14 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
     "get the keystore, save the agent, delete the keystore and go to the thank you page" in new WithApplication(FakeApplication()) {
 
       when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(Some(mockKeyStore))
-      when(controller.agentMicroService.create(mockAgent)).thenReturn(Some(mockAgent))
+      when(controller.agentMicroService.create("CE927349E", mockAgent)).thenReturn(Some(mockAgent))
       when(mockAgent.uar).thenReturn(Some("12345"))
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 200
 
       verify(controller.keyStoreMicroService).getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)
-      verify(controller.agentMicroService).create(mockAgent)
+      verify(controller.agentMicroService).create("CE927349E", mockAgent)
       verify(controller.keyStoreMicroService).deleteKeyStore(controller.registrationId(user), controller.agent)
 
     }
