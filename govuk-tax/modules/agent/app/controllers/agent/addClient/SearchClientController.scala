@@ -7,10 +7,10 @@ import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseControlle
 import play.api.data.{Form, Forms}
 import Forms._
 import uk.gov.hmrc.common.microservice.domain.User
-import models.agent.ClientSearch
 import scala.Some
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
+import models.agent.addClient.ClientSearch
 
 class SearchClientController extends BaseController with ActionWrappers with SessionTimeoutWrapper with Validators {
 
@@ -73,7 +73,7 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
   private[agent] val searchAction: (User, Request[_]) => Result = (user, request) => {
     val form = searchForm(request).bindFromRequest()(request)
     if (form.hasErrors) BadRequest(search_client(validDobRange, form))
-    else Ok("Searching...")
+    else Ok(search_client_result(form.get))
   }
 }
 

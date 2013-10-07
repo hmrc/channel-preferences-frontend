@@ -1,0 +1,18 @@
+@(clientSearch: models.agent.addClient.ClientSearch)
+
+@main(title = "Add a new client") {
+
+<h2>Add a new client to your agent tax account</h2>
+
+    <h3>Check your client details</h3>
+
+    <p>HMRC has found the following tax payer</p>
+
+    <div name="clientSearchResults" id="clientSearchResults">
+        <p name="name" id="name">Name: @clientSearch.firstName.getOrElse("") @clientSearch.lastName.getOrElse("")</p>
+        <p name="nino" id="nino">National Insurance Number: @clientSearch.nino</p>
+        <p name="dob" id="dob">Date of birth @clientSearch.dob.getOrElse("")</p>
+
+        <p> put the input stuf in the next story</p>
+    </div>
+}

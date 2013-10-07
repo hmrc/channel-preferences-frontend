@@ -9,7 +9,7 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import org.joda.time.LocalDate
-import models.agent.ClientSearch
+import models.agent.addClient.ClientSearch
 
 class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -54,15 +54,14 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not show any errors on the form when we make a submission with valid values" in new WithApplication(FakeApplication()) {
-      val result = executeSearchActionWith(nino="AB123456C", firstName="hasNoValidation", lastName="hasNoValidation", dob=("1","1", LocalDate.now().minusYears(17).getYear.toString))
+      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"))
 
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error #nino") should be ('empty)
-      doc.select(".error #firstName") should be ('empty)
-      doc.select(".error #lastName") should be ('empty)
-      doc.select(".error select") should be ('empty)     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+      doc.select("#clientSearchResults #nino").text should include ("AB123456C")
+      doc.select("#clientSearchResults #name").text should include ("firstName lastName")
+      doc.select("#clientSearchResults #dob").text should include ("1990-01-01")
     }
 
     def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String)) = {
