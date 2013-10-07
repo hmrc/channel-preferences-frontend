@@ -23,7 +23,7 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
 
   private def searchForm() = Form[ClientSearch](
     mapping(
-      "nino" -> text.verifying("you must provide a nino", validateNino(_)),
+      "nino" -> text.verifying("You must provide a valid nino", validateNino(_)),
       "firstName" -> text.verifying("Invalid firstname", validateLastName(_)),
       "lastName" -> text.verifying("Invalid last name", validateFirst(_)),
       "dob" -> jodaLocalDate("dd-MM-yyyy")
@@ -31,8 +31,14 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
   )
 
   private[addClient] def validateNino(s: String) =  {
-      s.matches("[[A-Z]&&[^DFIQUV]]{2} ?\\d{2} ?\\d{2} ?\\d{2} ?[A-Z]{1}")
+      val startsWithNaughtyCharacters = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ").foldLeft(false) {
+        ((found,stringVal) => found || s.startsWith(stringVal))
+      }
+      def validNinoFormat = s.matches("[[A-Z]&&[^DFIQUV]][[A-Z]&&[^DFIQUVO]] ?\\d{2} ?\\d{2} ?\\d{2} ?[A-Z]{1}")
+      !startsWithNaughtyCharacters && validNinoFormat
   }
+
+
 
   private[addClient] def validateLastName(s: String) = s.matches("\\.+")
   private[addClient] def validateFirst(s: String) = s.matches("\\.+")

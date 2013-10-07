@@ -33,11 +33,6 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       doc.select(".error #firstName") should not be 'empty
       doc.select(".error #lastName") should not be 'empty
       doc.select(".error select") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
-
-
-      //When he attempts tyo execute the search where there are format validation failures
-      //Then he should not be taken to the results screen but prompted to resolve the format validations
-
     }
   }
 
@@ -67,27 +62,23 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       "fail with less than 6 middle digits" in { controller.validateNino("AB12345C") should equal (false) }
       "fail with more than 6 middle digits" in { controller.validateNino("AB1234567C") should equal (false) }
 
+
+
       "fail if we start with invalid characters" in {
-        for (v <- List('D', 'F', 'I', 'Q', 'U', 'V').combinations(2)) {
-          controller.validateNino(v.mkString("") + "123456C") should equal (false)
+        val invalidStartLetterCombinations = List('D', 'F', 'I', 'Q', 'U', 'V').combinations(2).map(_.mkString("")).toList
+        val invalidPrefixes = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ")
+        for (v <- invalidStartLetterCombinations ::: invalidPrefixes) {
+          println(v)
+          controller.validateNino(v + "123456C") should equal (false)
         }
 
       }
 
-      //  Neither of . The second letter also cannot be O. The prefixes BG, GB, NK, KN, TN, NT and ZZ are not allocated
-//      "fail if any of the first two letters are D, F, I, Q, U or V" in {
-//        controller.validateNino("AD123456C") should equal (true)
-//        controller.validateNino("AF123456C") should equal (true)
-//        controller.validateNino("AI123456C") should equal (true)
-//        controller.validateNino("AQ123456C") should equal (true)
-//        controller.validateNino("AU123456C") should equal (true)
-//        controller.validateNino("AV123456C") should equal (true)
-//      }
-    }
+      "fail if the second letter O" in {
+        controller.validateNino("AO123456C") should equal (false)
+      }
 
-//    private def validateNino(s: String) = s.matches("\\.+")
-//    private def validateLastName(s: String) = s.matches("\\.+")
-//    private def validateFirst(s: String) = s.matches("\\.+")
+    }
 
   }
 
