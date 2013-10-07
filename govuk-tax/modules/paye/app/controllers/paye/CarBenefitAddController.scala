@@ -99,7 +99,9 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", removeBenefitData)
 
-              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98, removeBenefitData.fuelType, None, 0) //TODO fix call when we have form data
+              val emission = if (removeBenefitData.co2NoFigure.getOrElse(false)) None else removeBenefitData.co2Figure
+
+              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98, removeBenefitData.fuelType, emission , removeBenefitData.engineCapacity.get.toInt)
 
               val uri = payeRoot.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
                 .replace("{year}", taxYear.toString).replace("{employment}", employmentSequenceNumber.toString)

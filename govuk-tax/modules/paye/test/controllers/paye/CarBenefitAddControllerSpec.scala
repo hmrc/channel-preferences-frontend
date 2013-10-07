@@ -603,7 +603,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
-                          johnDensmore.regimes.paye.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, 0))
+                          johnDensmore.regimes.paye.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, defaultEngineCapacity))
       Mockito.reset(mockKeyStoreService)
       Mockito.reset(mockPayeMicroService)
     }
@@ -646,8 +646,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
                                              registeredBefore98Val: Option[String] = Some(defaultRegisteredBefore98.toString),
                                              fuelTypeVal:Option[String]= Some(defaultFuelType.toString),
                                              co2FigureVal: Option[String] = defaultCo2Figure,
-                                             co2NoFigureVal: Option[String] = defaultCo2NoFigure,
-                                             engineCapacityVal: Option[String] = defaultEngineCapacity,
+                                             co2NoFigureVal: Option[String] = Some(defaultCo2NoFigure.toString),
+                                             engineCapacityVal: Option[String] = Some(defaultEngineCapacity.toString),
                                              employerPayFuelVal: Option[String] = Some(defaultEmployerPayFuel.toString),
                                              dateFuelWithdrawnVal: Option[(String, String, String)] = Some(localDateToTuple(defaultDateFuelWithdrawn))) = {
 
@@ -691,8 +691,8 @@ object CarBenefitDataBuilder {
   val defaultProvidedTo = None
   val defaultProvidedFrom = Some(now.plusDays(2))
   val defaultCo2Figure = None
-  val defaultCo2NoFigure = None
-  val defaultEngineCapacity = None
+  val defaultCo2NoFigure = true
+  val defaultEngineCapacity = 1400
   val defaultEmployerPayFuel = "false"
   val defaultDateFuelWithdrawn = None
 
@@ -709,8 +709,8 @@ object CarBenefitDataBuilder {
             employerContribution: Option[Int] = defaultEmployerContribution,
             fuelType:String = defaultFuelType,
             co2Figure: Option[Int] = defaultCo2Figure,
-            co2NoFigure: Option[Boolean] = defaultCo2NoFigure,
-            engineCapacity: Option[String] = defaultEngineCapacity,
+            co2NoFigure: Option[Boolean] = Some(defaultCo2NoFigure),
+            engineCapacity: Option[String] = Some(defaultEngineCapacity.toString),
             employerPayFuel: String = defaultEmployerPayFuel,
             dateFuelWithdrawn: Option[LocalDate] = defaultDateFuelWithdrawn) = {
 
