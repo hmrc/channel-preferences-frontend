@@ -10,6 +10,10 @@ import controllers.common.validators.Validators
 
 object AddCarBenefitValidator extends Validators {
 
+  private val engineCapacityOptions = Seq("1400", "2000", "9999")
+  private val fuelTypeOptions = Seq("diesel", "electricity", "other")
+  private val employerPayFuelOptions = Seq("false", "true", "date", "again")
+
   private[paye] case class CarBenefitValues(providedFromVal : Option[LocalDate],
                                      carUnavailableVal:  Option[String],
                                      numberOfDaysUnavailableVal:  Option[String],
@@ -43,6 +47,9 @@ object AddCarBenefitValidator extends Validators {
       case _ => ignored(None)
     }
 
+  private[paye] def validateFuelType(): Mapping[String] =
+     nonEmptyText.verifying("error.paye.fuel_type_mandatory" , data => isValidValue(fuelTypeOptions, data))
+
   private[paye] def validateEmployeeContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
     values.employeeContributes.map(_.toBoolean) match {
       case Some(true) =>  optional(number.verifying("error.paye.employee_contribution_greater_than_9999", e => e <= 9999)
@@ -50,6 +57,10 @@ object AddCarBenefitValidator extends Validators {
         .verifying("error.paye.add_car_benefit.missing_employee_contribution", data => data.isDefined)
       case _ => ignored(None)
   }
+
+  private[paye] def validateEngineCapacity : Mapping[Option[String]] = optional(text.verifying("error.paye.non_valid_option" , data => isValidValue(engineCapacityOptions, data)))
+
+  private[paye] def validateEmployerPayFuel : Mapping[String] = nonEmptyText.verifying("error.paye.non_valid_option" , data => isValidValue(employerPayFuelOptions, data))
 
   private[paye] def validateGiveBackThisTaxYear(values: CarBenefitValues) : Mapping[Option[Boolean]] =
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
@@ -71,6 +82,12 @@ object AddCarBenefitValidator extends Validators {
     case _ => ignored(None)
   }
 
+  private[paye] def validateNoCo2Figure(): Mapping[Option[Boolean]] = optional(boolean)
+
+  private[paye] def validateCo2Figure(): Mapping[Option[Int]] = optional(number
+    .verifying("error.paye.co2_figure_max_3_chars", e => (e <= 999))
+    .verifying("error.paye.co2_figure_greater_than_zero", e => (e > 0)))
+
   private val dateInCurrentTaxYear = dateTuple.verifying(
     "error.paye.date_not_in_current_tax_year",
     data =>  data match {
@@ -78,6 +95,10 @@ object AddCarBenefitValidator extends Validators {
       case _ => true
     }
   )
+
+  private[paye] def validateDateFuelWithdrawn(): Mapping[Option[LocalDate]] = dateTuple
+
+  private def isValidValue(options: Seq[String], value: String): Boolean = {options.contains(value)}
 
   private[paye] def validateProvidedFrom(timeSource: () => DateTime) = {
     dateInCurrentTaxYear.verifying("error.paye.date_within_7_days",

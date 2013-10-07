@@ -22,7 +22,11 @@ error.paye.employee_contribution_less_than_0=Capital contribution must be greate
 error.paye.employer_contribution_greater_than_99999=Employee payment must not be higher than £99999.
 error.paye.employer_contribution_less_than_0=Payment towards private use must be greater than zero if you have selected yes.
 error.paye.number_max_3_chars=Please enter a number of 3 characters or less.
+error.paye.fuel_type_mandatory=You must select a fuel type.
+error.paye.co2_figure_greater_than_zero=You must provide a number greater than zero.
+error.paye.co2_figure_max_3_chars=You must provide a number which is 3 characters or less.
 
+error.paye.non_valid_option=Value not accepted. Please select one of the options.
 error.boolean=Please use a boolean value.
 error.number=Please use whole numbers only, not decimals or other characters.
 

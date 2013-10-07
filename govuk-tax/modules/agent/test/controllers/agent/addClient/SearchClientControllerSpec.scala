@@ -8,6 +8,8 @@ import play.api.test.FakeApplication
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import org.joda.time.LocalDate
+import models.agent.ClientSearch
 
 class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -20,24 +22,56 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
   val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
   "Given that Bob is on the search screen the page" should {
-    "show errors on the form when we get an invalid submission" in new WithApplication(FakeApplication()) {
+    "show errors on the form when we make a submission with no values" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="", firstName="", lastName="", dob=("", "", ""))
 
-      private val request = FakeRequest()
-      request.withFormUrlEncodedBody()
-      val result = controller.searchAction(user, request)
+      status(result) shouldBe 400
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #nino") should not be 'empty
+    }
+
+    "show errors on the form when we make a submission with invalid values" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="XXX", firstName="123", lastName="alert('foo')", dob=("1","1", LocalDate.now().minusYears(111).getYear.toString))
+
+      status(result) shouldBe 400
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #nino") should not be 'empty
+      doc.select(".error #firstName") should not be ('empty)
+      doc.select(".error #lastName") should not be ('empty)
+      doc.select(".error select") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+    }
+
+    "show global error on the form when we fill in nino and only one other field" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="AB123456C", firstName="hasNoValidation", lastName="", dob=("", "", ""))
+
+      status(result) shouldBe 400
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #nino") should be ('empty)
+      doc.select(".error #globalErrors") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+    }
+
+    "not show any errors on the form when we make a submission with valid values" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="AB123456C", firstName="hasNoValidation", lastName="hasNoValidation", dob=("1","1", LocalDate.now().minusYears(17).getYear.toString))
 
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error #nino") should not be 'empty
-      doc.select(".error #firstName") should not be 'empty
-      doc.select(".error #lastName") should not be 'empty
-      doc.select(".error select") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+      doc.select(".error #nino") should be ('empty)
+      doc.select(".error #firstName") should be ('empty)
+      doc.select(".error #lastName") should be ('empty)
+      doc.select(".error select") should be ('empty)     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+    }
 
-
-      //When he attempts tyo execute the search where there are format validation failures
-      //Then he should not be taken to the results screen but prompted to resolve the format validations
-
+    def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String)) = {
+      controller.searchAction(user, FakeRequest().withFormUrlEncodedBody(("nino", nino),
+        ("firstName", firstName),
+        ("lastName", lastName),
+        ("dob.day", dob._1),
+        ("dob.month", dob._2),
+        ("dob.year", dob._3)))
     }
   }
 
@@ -66,20 +100,66 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
       }
       "fail with less than 6 middle digits" in { controller.validateNino("AB12345C") should equal (false) }
       "fail with more than 6 middle digits" in { controller.validateNino("AB1234567C") should equal (false) }
-      //  Neither of . The second letter also cannot be O. The prefixes BG, GB, NK, KN, TN, NT and ZZ are not allocated
-//      "fail if any of the first two letters are D, F, I, Q, U or V" in {
-//        controller.validateNino("AD123456C") should equal (true)
-//        controller.validateNino("AF123456C") should equal (true)
-//        controller.validateNino("AI123456C") should equal (true)
-//        controller.validateNino("AQ123456C") should equal (true)
-//        controller.validateNino("AU123456C") should equal (true)
-//        controller.validateNino("AV123456C") should equal (true)
-//      }
+
+
+
+      "fail if we start with invalid characters" in {
+        val invalidStartLetterCombinations = List('D', 'F', 'I', 'Q', 'U', 'V').combinations(2).map(_.mkString("")).toList
+        val invalidPrefixes = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ")
+        for (v <- invalidStartLetterCombinations ::: invalidPrefixes) {
+          controller.validateNino(v + "123456C") should equal (false)
+        }
+
+      }
+
+      "fail if the second letter O" in {
+        controller.validateNino("AO123456C") should equal (false)
+      }
+
     }
 
-//    private def validateNino(s: String) = s.matches("\\.+")
-//    private def validateLastName(s: String) = s.matches("\\.+")
-//    private def validateFirst(s: String) = s.matches("\\.+")
+    "allow the date of birth not to be entered" in { controller.validateDob(None) should be (true) }
+
+    "ensure that the date of birth of the user is no more than 110 years before now" should {
+      val hundredAndTenYearsAgo = LocalDate.now.minusYears(110)
+      "fail with a dob more than 110 years in age" in { controller.validateDob(Some(hundredAndTenYearsAgo.minusDays(1))) should be (false) }
+      "pass with a dob exactly 110 years old" in      { controller.validateDob(Some(hundredAndTenYearsAgo)) should be (true) }
+      "pass with a dob < 110 years" in                { controller.validateDob(Some(hundredAndTenYearsAgo.plusDays(1))) should be (true) }
+    }
+
+    "ensure that the date of birth of the user is no less than 16 years before now" should {
+      val sixteenYearsAgo = LocalDate.now.minusYears(16)
+      "fail with a dob less than 16 years in age" in { controller.validateDob(Some(sixteenYearsAgo.plusDays(1))) should be (false) }
+      "pass with a dob exactly 16 years old" in      { controller.validateDob(Some(sixteenYearsAgo)) should be (true) }
+      "pass with a dob > 16 years" in                { controller.validateDob(Some(sixteenYearsAgo.minusDays(1))) should be (true) }
+    }
+
+    "ensure that the nino and at least two other fields have been filled in" should {
+      "Pass with nino, first name, last name and dob" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", Some("foo"), Some("bar"), Some(LocalDate.now))) should be (true)
+      }
+      "Pass with nino, first name and last name" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", Some("foo"), Some("bar"), None)) should be (true)
+      }
+      "pass with nino first and dob" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", Some("foo"), None, Some(LocalDate.now))) should be (true)
+      }
+      "pass with nino last and dob" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", None, Some("bar"), Some(LocalDate.now))) should be (true)
+      }
+      "fail with nino only" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", None, None, None)) should be (false)
+      }
+      "fail with nino and first" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", Some("foo"), None, None)) should be (false)
+      }
+      "fail with nino and last" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", None, Some("bar"), None)) should be (false)
+      }
+      "fail with nino and dob" in {
+        controller.atLeastTwoOptional(ClientSearch("nino", None, None, Some(LocalDate.now))) should be (false)
+      }
+    }
 
   }
 
@@ -155,15 +235,5 @@ class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
 //    When he executes the search with a DOB that puts a client at over 110 years of age, or under 16 years or age on the day of the search
 //    Then he should not be taken to the results screen but prompted for a valid DOB
 //
-
-
-
-
-//
-//    Only the first letter of the client's first name and the first three letters of the client's last name should be used in the search
-//
-//  DOB rules - maximum age should be 110 based on todays date, minimum age should be 16
-
-
 
 }

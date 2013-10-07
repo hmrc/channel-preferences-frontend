@@ -40,6 +40,9 @@
                                         } else {
                                             value="@currentValue"
                                         }
+                                        @if(inputType.inputType == "checkbox"){
+                                            @if(currentValue=="true"){checked="checked"}
+                                        }
                                 />
                                 @if(valueAfter) { @inputType.value }
                             </label>
