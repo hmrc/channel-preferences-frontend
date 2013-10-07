@@ -17,7 +17,7 @@ class SearchClientControllerViewSpec extends BaseSpec with MockitoSugar {
   val id = "wshakespeare"
   val authority = s"/auth/oid/$id"
   val uri = "/personal/paye/blah"
-  val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map())
+  val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
   val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
   "Given that Bob is on the search screen the page" should {
