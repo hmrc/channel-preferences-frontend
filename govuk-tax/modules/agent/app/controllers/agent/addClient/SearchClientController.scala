@@ -33,10 +33,10 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
 
   private def searchForm(request: Request[_]) = Form[ClientSearch](
     mapping(
-      "nino" -> text.verifying("You must provide a valid nino", validateNino(_)),
-      "firstName" -> optional(text).verifying("Invalid firstname", validateLastName(_)),
-      "lastName" -> optional(text).verifying("Invalid last name", validateFirstName(_)),
-      "dob" -> dateTuple.verifying("Invalid date of birth", validateDob(_))
+      "nino" -> text.verifying("You must provide a valid nino", validateNino _),
+      "firstName" -> optional(text).verifying("Invalid firstname", validateName _),
+      "lastName" -> optional(text).verifying("Invalid last name", validateName _),
+      "dob" -> dateTuple.verifying("Invalid date of birth", validateDob)
     ) (ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptional(unValidatedSearchForm.bindFromRequest()(request).get))
   )
 
@@ -56,13 +56,10 @@ class SearchClientController extends BaseController with ActionWrappers with Ses
 
   val nameRegex = """[\p{L}\s'.-]*"""
 
-  private[addClient] def validateLastName(s: Option[String]) = s.getOrElse("").matches(nameRegex)
-  private[addClient] def validateFirstName(s: Option[String]) = s.getOrElse("").matches(nameRegex)
-  private[addClient] def validateDob(dobOption: Option[LocalDate]) = {
-    dobOption match {
-      case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
-      case None => true
-    }
+  private[addClient] def validateName(s: Option[String]) = s.getOrElse("").matches(nameRegex)
+  private[addClient] val validateDob: Option[LocalDate] => Boolean = {
+    case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
+    case None => true
   }
 
   val validDobRange = {
