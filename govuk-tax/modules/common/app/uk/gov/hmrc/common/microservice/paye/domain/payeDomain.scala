@@ -138,3 +138,6 @@ case class TransactionId(oid: String)
 case class RecentTransaction(messageCode: String,
                              txTime: LocalDate)
 
+case class RemoveBenefitResponse(transaction: TransactionId, calculatedTaxCode: Option[String])
+
+

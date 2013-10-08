@@ -104,8 +104,8 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
             val revisedBenefits = displayBenefit.benefits.map(b => RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
               throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
 
-            val transactionId = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, revisedBenefits, formData.withdrawDate)
-            Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, transactionId.get.oid))
+            val removeBenefitResponse = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, revisedBenefits, formData.withdrawDate)
+            Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, removeBenefitResponse.get.transaction.oid))
           }
           case _ => Redirect(routes.BenefitHomeController.listBenefits())
         }

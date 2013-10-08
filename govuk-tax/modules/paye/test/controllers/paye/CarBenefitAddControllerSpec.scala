@@ -18,10 +18,6 @@ import controllers.paye.CarBenefitFormFields._
 import CarBenefitDataBuilder._
 import play.api.i18n.Messages
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import controllers.paye.CarBenefitData
-import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
