@@ -18,6 +18,24 @@
 
     @if(clientSearch.dob.isDefined){ <p name="dob" id="dob"> Date of birth @views.formatting.Dates.formatDate(clientSearch.dob.get) </p>  }
 
-    <p> put the input stuf in the next story</p>
+
+    <form>
+        <label>
+            <input type="checkbox">
+            This is the client I am looking for
+        </label>
+
+        <label>
+            <input type="checkbox">
+            I have authorisation from the client to act on their behalf dor {regime} with {authority level}
+        </label>
+
+        <span>Your internal client reference number</span>
+        <input type="text" name="internalClientReference" id="internalClientReference" />
+        <input type="submit" value="Next" />
+    </form>
+
+    <a href="../add-client">This is not the client I am searching for - return to search</a>
+
     </div>
 }
