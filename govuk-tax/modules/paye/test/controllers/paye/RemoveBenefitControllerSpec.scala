@@ -25,6 +25,8 @@ import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import java.net.URI
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper {
 
