@@ -43,8 +43,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       override lazy val authMicroService = mockAuthMicroService
       override lazy val governmentGatewayMicroService = mockGovernmentGatewayMicroService
 
-      override def notOnBusinessTaxWhitelistPage(boundForm: Form[Credentials]) = {
-        Html(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage(boundForm))
+      override def notOnBusinessTaxWhitelistPage = {
+        Html(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage)
       }
     }
 
@@ -52,7 +52,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   }
 
   trait BusinessTaxPages {
-    def notOnBusinessTaxWhitelistPage(boundForm: Form[Credentials]): String
+    def notOnBusinessTaxWhitelistPage: String
   }
 
   "Login controller GET /login" should {
@@ -229,7 +229,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       val mockResponse = mock[Response]
       when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(ForbiddenException("Not authorised to make this request", mockResponse))
-      when(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage(Matchers.any[Form[Credentials]])).thenReturn("<html>NOT IN WHITELIST</html>")
+      when(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage).thenReturn("<html>NOT IN WHITELIST</html>")
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 

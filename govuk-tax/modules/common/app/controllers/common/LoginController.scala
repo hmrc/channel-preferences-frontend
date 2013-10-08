@@ -44,12 +44,12 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
           .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
         case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
-        case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage(boundForm))
+        case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
       }
     }
   })
 
-  private[common] def notOnBusinessTaxWhitelistPage(boundForm: Form[Credentials]) = views.html.ggw_login_form(boundForm.withGlobalError("Not on whitelist!!"))
+  private[common] def notOnBusinessTaxWhitelistPage = views.html.whitelist_notice()
 
   case class SAMLResponse(response: String)
 
