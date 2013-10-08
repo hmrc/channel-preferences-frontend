@@ -3,6 +3,7 @@ package controllers.bt.regimeViews
 import uk.gov.hmrc.domain.{Vrn, CtUtr}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
+import scala.util.Success
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -21,12 +22,12 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val buildPortalUrl: (String) => String = (value: String) => value
   val ctUtr = CtUtr("12347")
   val aDate = "2012-06-06"
-  val regimeRootsWithCt = RegimeRoots(None, None, None, None, Some(CtRoot(Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary"), ctUtr)))
+  val regimeRootsWithCt = RegimeRoots(None, None, None, None, Some(Success(CtRoot(Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary"), ctUtr))))
   val userAuthorityWithCt = UserAuthority("123", Regimes(ct = Some(new URI(s"/ct/${ctUtr.utr}"))), ctUtr = Some(ctUtr))
   val userEnrolledForCt = User("tim", userAuthorityWithCt, regimeRootsWithCt, None, None)
   val vrn = Vrn("123")
   val userAuthorityWithoutCt = UserAuthority("123", Regimes(), vrn = Some(vrn))
-  val regimeRootsWithoutCt = RegimeRoots(None, None, Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}"))), None, None)
+  val regimeRootsWithoutCt = RegimeRoots(None, None, Some(Success(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}")))), None, None)
   val userNotEnrolledForCt = User("jim", userAuthorityWithoutCt, regimeRootsWithoutCt, None, None)
 
   "CtAccountSummaryViewBuilder" should {

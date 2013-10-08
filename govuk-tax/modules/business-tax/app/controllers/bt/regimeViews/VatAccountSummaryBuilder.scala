@@ -5,13 +5,14 @@ import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
+import scala.util.Try
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryTemplate[VatRoot] {
 
   import VatMessageKeys._
   import VatPortalUrls._
 
-  def rootForRegime(user: User): Option[VatRoot] = user.regimes.vat
+  def rootForRegime(user: User): Option[Try[VatRoot]] = user.regimes.vat
 
   def buildAccountSummary(vatRoot: VatRoot, buildPortalUrl: String => String): AccountSummary = {
     val accountSummary: Option[VatAccountSummary] = vatRoot.accountSummary(vatConnector)

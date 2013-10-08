@@ -37,7 +37,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver.currentTaxYear))
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.get.benefits(TaxYearResolver.currentTaxYear))
       val benefitType = benefit.benefit.benefitType
       val dates = getCarFuelBenefitDates(request)
 
@@ -52,7 +52,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.benefits(TaxYearResolver.currentTaxYear))
+      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.get.benefits(TaxYearResolver.currentTaxYear))
       val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
       updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
@@ -104,7 +104,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
             val revisedBenefits = displayBenefit.benefits.map(b => RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
               throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
 
-            val removeBenefitResponse = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, revisedBenefits, formData.withdrawDate)
+            val removeBenefitResponse = payeMicroService.removeBenefits(uri, payeRoot.get.nino, payeRoot.get.version, revisedBenefits, formData.withdrawDate)
             Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString, removeBenefitResponse.get.transaction.oid))
           }
           case _ => Redirect(routes.BenefitHomeController.listBenefits())
@@ -114,7 +114,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
   }
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, String) => play.api.mvc.Result = (user, request, kinds, oid) =>
-    if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
+    if (txQueueMicroService.transaction(oid, user.regimes.paye.get.get).isEmpty) {
       NotFound
     } else {
       loadFormDataFor(user) match {
@@ -220,12 +220,12 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
 
     private def getBenefitMatching(kind: Int, user: User, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
       val taxYear = TaxYearResolver.currentTaxYear
-      val benefit = user.regimes.paye.get.benefits(taxYear).find(
+      val benefit = user.regimes.paye.get.get.benefits(taxYear).find(
         b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
 
-      val transactions = user.regimes.paye.get.recentCompletedTransactions
+      val transactions = user.regimes.paye.get.get.recentCompletedTransactions
 
-      val matchedBenefits = DisplayBenefits(benefit.toList, user.regimes.paye.get.employments(taxYear), transactions)
+      val matchedBenefits = DisplayBenefits(benefit.toList, user.regimes.paye.get.get.employments(taxYear), transactions)
 
       if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
     }

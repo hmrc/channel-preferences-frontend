@@ -7,10 +7,11 @@ import SaPortalUrlKeys._
 import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
+import scala.util.Try
 
 case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryTemplate[SaRoot] {
 
-  def rootForRegime(user: User): Option[SaRoot] = user.regimes.sa
+  def rootForRegime(user: User): Option[Try[SaRoot]] = user.regimes.sa
 
   def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String): AccountSummary = {
     getAccountSummaryData(saRoot, saConnector) match {

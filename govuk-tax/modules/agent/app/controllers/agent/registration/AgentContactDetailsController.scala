@@ -27,7 +27,7 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
   def contactDetails = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime), redirectToOrigin = true) { MultiFormAction(multiFormConfig) { user => request => contactDetailsAction(user, request) } } }
 
   private[registration] val contactDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
-    val paye: PayeRoot = user.regimes.paye.get
+    val paye: PayeRoot = user.regimes.paye.get.get
     val form = contactForm.fill(AgentContactDetails())
     Ok(views.html.agents.registration.contact_details(form, paye))
   }
@@ -37,10 +37,10 @@ class AgentContactDetailsController extends MicroServices with BaseController wi
   private[registration] val postContactDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
     contactForm.bindFromRequest()(request).fold(
       errors => {
-        BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get))
+        BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get.get))
       },
       _ => {
-        val paye: PayeRoot = user.regimes.paye.get
+        val paye: PayeRoot = user.regimes.paye.get.get
         var agentDetails = contactForm.bindFromRequest()(request).data
         agentDetails += ((title, paye.title), (firstName, paye.firstName), (lastName, paye.surname), (dateOfBirth, paye.dateOfBirth), (nino, paye.nino))
         keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, contactFormName, agentDetails)

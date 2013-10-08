@@ -15,6 +15,7 @@ import play.api.test.FakeApplication
 import scala.Some
 import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.common.validators.AddressFields._
+import scala.util.Success
 
 class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -23,7 +24,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
   val uri = "/personal/paye/blah"
 
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
-  val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
+  val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
 
   private val controller = new AgentCompanyDetailsController with MockMicroServicesForTests
 

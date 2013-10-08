@@ -17,6 +17,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.sa.domain.AmountDue
 import SaPortalUrlKeys._
+import scala.util.Success
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://home"
@@ -131,7 +132,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val mockPortalUrlBuilder = mock[DummyPortalUrlBuilder]
 
       when(mockUser.regimes).thenReturn(mockRegimeRoots)
-      when(mockRegimeRoots.sa).thenReturn(Some(mockSaRoot))
+      when(mockRegimeRoots.sa).thenReturn(Some(Success(mockSaRoot)))
       when(mockSaRoot.accountSummary(mockSaConnector)).thenThrow(new RuntimeException)
 
       val expectedMessages =
@@ -164,7 +165,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     val mockPortalUrlBuilder = mock[DummyPortalUrlBuilder]
 
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
-    when(mockRegimeRoots.sa).thenReturn(Some(mockSaRoot))
+    when(mockRegimeRoots.sa).thenReturn(Some(Success(mockSaRoot)))
     when(mockSaRoot.accountSummary(mockSaConnector)).thenReturn(Some(accountSummary))
 
     when(mockPortalUrlBuilder.build(saHomePortalUrl)).thenReturn(homeUrl)

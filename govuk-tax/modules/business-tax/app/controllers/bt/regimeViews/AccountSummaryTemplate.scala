@@ -1,17 +1,18 @@
 package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoot}
+import scala.util.Try
 
 abstract class AccountSummaryTemplate[R <: RegimeRoot[_]] {
 
   def build(buildPortalUrl: String => String, user: User) : Option[AccountSummary] = {
     rootForRegime(user).map {
-      regimeRoot => buildAccountSummary(regimeRoot, buildPortalUrl)
+      regimeRoot => buildAccountSummary(regimeRoot.get, buildPortalUrl)
     }
   }
 
   def buildAccountSummary(regimeRoot : R, buildPortalUrl: String => String) : AccountSummary
-  def rootForRegime(user : User): Option[R]
+  def rootForRegime(user : User): Option[Try[R]]
 }
 
 trait CommonBusinessMessageKeys {

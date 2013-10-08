@@ -18,6 +18,7 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import scala.util.Success
 
 trait DummyPortalUrlBuilder {
   def build(a: String): String
@@ -147,7 +148,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
     when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-    when(mockRegimeRoots.epaye).thenReturn(Some(mockEpayeRoot))
+    when(mockRegimeRoots.epaye).thenReturn(Some(Success(mockEpayeRoot)))
     when(mockEpayeRoot.identifier).thenReturn(dummyEmpRef)
     when(mockEpayeRoot.accountSummary(mockEpayeConnector)).thenReturn(accountSummary)
 

@@ -11,6 +11,7 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
 import uk.gov.hmrc.domain.EmpRef
+import scala.util.Try
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends AccountSummaryTemplate[EpayeRoot] {
 
@@ -29,7 +30,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
     AccountSummary(regimeName(accountSummary), messages, links)
   }
 
-  override def rootForRegime(user: User): Option[EpayeRoot] = user.regimes.epaye
+  override def rootForRegime(user: User): Option[Try[EpayeRoot]] = user.regimes.epaye
 
 
   private def regimeName(accountSummary: Option[EpayeAccountSummary]): String = {

@@ -15,13 +15,13 @@ class PayeHomeController extends BaseController with ActionWrappers with Session
   private[paye] def homeAction(request: Request[_])(implicit user: User): Result = {
     val payeData = user.regimes.paye.get
     val taxYear = TaxYearResolver.currentTaxYear
-    val benefits = payeData.benefits(taxYear)
-    val employments = payeData.employments(taxYear)
-    val taxCodes = payeData.taxCodes(taxYear)
+    val benefits = payeData.get.benefits(taxYear)
+    val employments = payeData.get.employments(taxYear)
+    val taxCodes = payeData.get.taxCodes(taxYear)
 
     val employmentViews: Seq[EmploymentView] =
-      EmploymentViews(employments, taxCodes, taxYear, payeData.recentAcceptedTransactions(), payeData.recentCompletedTransactions())
+      EmploymentViews(employments, taxCodes, taxYear, payeData.get.recentAcceptedTransactions(), payeData.get.recentCompletedTransactions())
 
-    Ok(paye_home(PayeOverview(payeData.name, user.userAuthority.previouslyLoggedInAt, payeData.nino, employmentViews, !benefits.isEmpty)))
+    Ok(paye_home(PayeOverview(payeData.get.name, user.userAuthority.previouslyLoggedInAt, payeData.get.nino, employmentViews, !benefits.isEmpty)))
   }
 }

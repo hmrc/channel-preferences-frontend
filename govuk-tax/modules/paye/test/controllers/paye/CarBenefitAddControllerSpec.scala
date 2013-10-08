@@ -598,8 +598,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccess(result: Result, collectedData: CarBenefitData)  {
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
-      verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
-                          johnDensmore.regimes.paye.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, Some(defaultEngineCapacity)))
+      verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
+                          johnDensmore.regimes.paye.get.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, Some(defaultEngineCapacity)))
       Mockito.reset(mockKeyStoreService)
       Mockito.reset(mockPayeMicroService)
     }

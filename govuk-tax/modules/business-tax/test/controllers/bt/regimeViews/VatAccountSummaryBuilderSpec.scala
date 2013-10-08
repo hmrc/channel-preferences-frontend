@@ -11,6 +11,7 @@ import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import uk.gov.hmrc.domain.Vrn
 import VatMessageKeys._
 import VatPortalUrls._
+import scala.util.Success
 
 class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -18,7 +19,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val vrn = Vrn("12345")
   val userAuthorityWithVrn = UserAuthority("123", Regimes(), vrn = Some(vrn))
   val aDate = "2012-06-06"
-  val regimeRootsWithVat = RegimeRoots(None, None, Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}"))), None, None)
+  val regimeRootsWithVat = RegimeRoots(None, None, Some(Success(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}")))), None, None)
   val userEnrolledForVat = User("jim", userAuthorityWithVrn, regimeRootsWithVat, None, None)
 
   "VatAccountSummaryViewBuilder" should {

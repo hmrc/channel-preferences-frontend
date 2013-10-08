@@ -41,7 +41,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   }
 
   private def findPrimaryEmployment(user: User) : Option[Employment] = {
-    user.regimes.paye.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
+    user.regimes.paye.get.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
   }
 
   private def getCarBenefitDates(request:Request[_]):CarBenefitValues = {
@@ -73,7 +73,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber) => {
       val dates = getCarBenefitDates(request)
-      user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
+      user.regimes.paye.get.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
         case Some(employment) => {
           Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
         }
@@ -87,7 +87,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
   private[paye] val saveAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber) => {
-      user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
+      user.regimes.paye.get.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)
           val payeRoot = user.regimes.paye.get
@@ -103,10 +103,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98, removeBenefitData.fuelType, emission , removeBenefitData.engineCapacity.map(_.toInt))
 
-              val uri = payeRoot.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
+              val uri = payeRoot.get.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
                 .replace("{year}", taxYear.toString).replace("{employment}", employmentSequenceNumber.toString)
 
-              val response = payeService.addBenefit(uri, payeRoot.nino, addCarBenefitPayload)
+              val response = payeService.addBenefit(uri, payeRoot.get.nino, addCarBenefitPayload)
 
               Ok("Calculated percentage: " + response.get.percentage.toString)
             }

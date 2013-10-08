@@ -43,6 +43,7 @@ import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtJsonRoot, CtRoot}
 import org.mockito.Matchers
+import scala.util.Success
 
 trait BusinessTaxControllerBehaviours extends BaseSpec {
 
@@ -218,11 +219,11 @@ trait GeoffFisherExpectations {
 
   self: WithBusinessTaxApplication =>
 
-  val geoffFisherAuthId = "/auth/oid/geoff"
-  val geoffFisherSaUtr = SaUtr("/sa/individual/123456789012")
-  val geoffFisherCtUtr = CtUtr("/ct/6666644444")
-  val geoffFisherEmpRef = EmpRef("342", "sdfdsf")
-  val geoffFisherVrn = Vrn("456345576")
+  def geoffFisherAuthId = "/auth/oid/geoff"
+  def geoffFisherSaUtr = SaUtr("/sa/individual/123456789012")
+  def geoffFisherCtUtr = CtUtr("/ct/6666644444")
+  def geoffFisherEmpRef = EmpRef("342", "sdfdsf")
+  def geoffFisherVrn = Vrn("456345576")
 
   override val userId: Option[String] = Some(geoffFisherAuthId)
 
@@ -232,7 +233,7 @@ trait GeoffFisherExpectations {
 
   override val governmentGatewayToken: Option[String] = Some("someToken")
 
-  val geoffFisherAuthority = UserAuthority(
+  def geoffFisherAuthority = UserAuthority(
     id = geoffFisherAuthId,
     regimes = Regimes(
       sa = Some(URI.create(geoffFisherSaUtr.toString)),
@@ -245,22 +246,23 @@ trait GeoffFisherExpectations {
     ctUtr = Some(geoffFisherCtUtr),
     empRef = Some(geoffFisherEmpRef))
 
-  val geoffFisherSaRoot = SaRoot(utr = geoffFisherSaUtr.toString, links = Map("something" -> s"$geoffFisherSaUtr/stuff"))
+  def geoffFisherSaRoot = SaRoot(utr = geoffFisherSaUtr.toString, links = Map("something" -> s"$geoffFisherSaUtr/stuff"))
 
-  val geoffFisherVatRoot = VatRoot(vrn = geoffFisherVrn, links = Map("something" -> s"$geoffFisherVrn/stuff"))
+  def geoffFisherVatRoot = VatRoot(vrn = geoffFisherVrn, links = Map("something" -> s"$geoffFisherVrn/stuff"))
 
-  val geoffFisherEpayeJsonRoot = EpayeJsonRoot(EpayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ) )
-  val geoffFisherEpayeRoot = EpayeRoot(geoffFisherEpayeJsonRoot, geoffFisherEmpRef)
+  def geoffFisherEpayeJsonRoot = EpayeJsonRoot(EpayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ) )
+  def geoffFisherEpayeRoot = EpayeRoot(geoffFisherEpayeJsonRoot, geoffFisherEmpRef)
 
-  val geoffFisherCtJsonRoot = CtJsonRoot(Map("something" -> s"$geoffFisherCtUtr/dsffds"))
-  val geoffFisherCtRoot = CtRoot(geoffFisherCtJsonRoot, ctUtr = geoffFisherCtUtr)
+  def geoffFisherCtJsonRoot = CtJsonRoot(Map("something" -> s"$geoffFisherCtUtr/dsffds"))
+  def geoffFisherCtRoot = CtRoot(geoffFisherCtJsonRoot, ctUtr = geoffFisherCtUtr)
 
 
 
   implicit val geoffFisherUser = User(
     userId = geoffFisherAuthId,
     userAuthority = geoffFisherAuthority,
-    regimes = RegimeRoots(paye = None, sa = Some(geoffFisherSaRoot), vat = Some(geoffFisherVatRoot), epaye = Some(geoffFisherEpayeRoot), ct = Some(geoffFisherCtRoot)),
+    regimes = RegimeRoots(paye = None, sa = Some(Success(geoffFisherSaRoot)), vat = Some(Success(geoffFisherVatRoot)),
+      epaye = Some(Success(geoffFisherEpayeRoot)), ct = Some(Success(geoffFisherCtRoot))),
     nameFromGovernmentGateway = nameFromGovernmentGateway,
     decryptedToken = governmentGatewayToken
   )
@@ -292,7 +294,7 @@ trait NonBusinessUserExpectations {
   val johnDensmoreUser = User(
     userId = johnDensmoreAuthId,
     userAuthority = johnDensmoreAuthority,
-    regimes = RegimeRoots(paye = Some(johnDensmorePayeRoot), sa = None, vat = None, epaye = None, ct = None),
+    regimes = RegimeRoots(paye = Some(Success(johnDensmorePayeRoot)), sa = None, vat = None, epaye = None, ct = None),
     nameFromGovernmentGateway = None,
     decryptedToken = None
   )

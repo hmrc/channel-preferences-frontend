@@ -17,10 +17,10 @@ class BenefitHomeController extends BaseController with ActionWrappers with Sess
 
   private[paye] def listBenefitsAction(implicit user: User, request: Request[_]): Result = {
     val taxYear = TaxYearResolver.currentTaxYear
-    val benefits = user.regimes.paye.get.benefits(taxYear)
-    val employments = user.regimes.paye.get.employments(taxYear)
-    val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
-      user.regimes.paye.get.recentCompletedTransactions()
+    val benefits = user.regimes.paye.get.get.benefits(taxYear)
+    val employments = user.regimes.paye.get.get.employments(taxYear)
+    val transactions = user.regimes.paye.get.get.recentAcceptedTransactions ++
+      user.regimes.paye.get.get.recentCompletedTransactions()
 
     Ok(paye_benefit_home(DisplayBenefits(benefits, employments, transactions)))
   }

@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import scala.Some
 import uk.gov.hmrc.common.microservice.agent.Agent
+import scala.util.Success
 
 class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -25,7 +26,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
 
-  val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
+  val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
 
   private val controller = new AgentThankYouController with MockMicroServicesForTests {
 

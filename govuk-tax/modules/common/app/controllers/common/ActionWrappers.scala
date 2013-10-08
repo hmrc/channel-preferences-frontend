@@ -12,6 +12,7 @@ import controllers.common.actions.{ LoggingActionWrapper, AuditActionWrapper, He
 import controllers.common.FrontEndRedirect._
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots.RegimeRootBuilder
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -111,14 +112,15 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
       }
   }
 
-  private def getRegimeRootsObject(authority: UserAuthority): RegimeRoots = {
+  private[common] def getRegimeRootsObject(authority: UserAuthority): RegimeRoots = {
     val regimes = authority.regimes
-    RegimeRoots(
-      paye = regimes.paye map { uri => payeMicroService.root(uri.toString) },
-      sa = regimes.sa map { uri => saConnector.root(uri.toString)},
-      vat = regimes.vat map { uri => vatConnector.root(uri.toString)},
-      epaye = regimes.epaye.map { uri => EpayeRoot(epayeConnector.root(uri.toString), authority.empRef.get)},
-      ct = regimes.ct.map { uri => CtRoot(ctConnector.root(uri.toString), authority.ctUtr.get)}
+    new RegimeRoots(
+      payeBuilder = regimes.paye map { uri => RegimeRootBuilder(() => payeMicroService.root(uri.toString)) },
+      saBuilder = regimes.sa map { uri => RegimeRootBuilder(() => saConnector.root(uri.toString))},
+      vatBuilder = regimes.vat map { uri => RegimeRootBuilder(() => vatConnector.root(uri.toString))},
+      epayeBuilder = regimes.epaye.map { uri => RegimeRootBuilder(() => EpayeRoot(epayeConnector.root(uri.toString), authority.empRef.get))},
+      ctBuilder = regimes.ct.map { uri => RegimeRootBuilder(() => CtRoot(ctConnector.root(uri.toString), authority.ctUtr.get))}
     )
   }
+
 }

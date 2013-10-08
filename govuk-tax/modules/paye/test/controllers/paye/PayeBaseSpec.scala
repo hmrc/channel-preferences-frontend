@@ -15,6 +15,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.txqueue.{ Status, TxQueueTransaction }
 import org.joda.time.format.DateTimeFormat
+import scala.util.Success
 
 class PayeBaseSpec extends BaseSpec {
 
@@ -53,7 +54,7 @@ class PayeBaseSpec extends BaseSpec {
       actions = actions
     )
 
-    User(id, ua, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
+    User(id, ua, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
   }
 
   val johnDensmore = setupUser("/auth/oid/jdensmore", "AB123456C", "John Densmore")

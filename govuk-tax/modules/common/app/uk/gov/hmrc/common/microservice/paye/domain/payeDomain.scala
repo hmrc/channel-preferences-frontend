@@ -13,7 +13,7 @@ object PayeRegime extends TaxRegime {
 
   override def isAuthorised(regimes: Regimes) = regimes.paye.isDefined
 
-  override def unauthorisedLandingPage: String = routes.LoginController.login.url
+  override def unauthorisedLandingPage: String = routes.LoginController.login().url
 }
 
 case class PayeRoot(nino: String,

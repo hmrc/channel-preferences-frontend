@@ -44,7 +44,7 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 
   private[sa] def detailsAction(implicit user: User, request: Request[_]):  Result = {
 
-    val userData: SaRoot = user.regimes.sa.get
+    val userData: SaRoot = user.regimes.sa.get.get
 
     userData.personalDetails match {
       case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
@@ -123,7 +123,7 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
     changeAddressForm.bindFromRequest()(request).fold(
       errors => BadRequest(sa_personal_details_update(errors)),
       formData => {
-        user.regimes.sa.get.updateIndividualMainAddress(formData.toUpdateAddress) match {
+        user.regimes.sa.get.get.updateIndividualMainAddress(formData.toUpdateAddress) match {
           case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptParameter(errorMessage)))
           case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(encryptParameter(transactionId.oid)))
         }

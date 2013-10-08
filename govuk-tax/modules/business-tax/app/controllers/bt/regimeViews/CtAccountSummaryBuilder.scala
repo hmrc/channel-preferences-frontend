@@ -7,6 +7,7 @@ import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain
+import scala.util.Try
 
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSummaryTemplate[CtRoot]{
@@ -33,7 +34,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
     }
   }
 
-  def rootForRegime(user : User): Option[CtRoot]= user.regimes.ct
+  def rootForRegime(user : User): Option[Try[CtRoot]] = user.regimes.ct
 
   private def emptyAccountSummary(ctRoot : CtRoot): AccountSummary = {
     val messages: Seq[Msg] = Seq(Msg(ctUtrMessage,Seq(ctRoot.identifier.utr)),
