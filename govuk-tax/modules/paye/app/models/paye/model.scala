@@ -78,6 +78,7 @@ object EmploymentViews {
   }
 
   private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {
+    //TODO it's possible to have multiple tax codes for the same employment, in that case we have to use the one with the highest 'codingSequenceNumber'
     taxCodes.find(_.employmentSequenceNumber == employmentSequenceNumber).map(_.taxCode).getOrElse("N/A")
   }
 
