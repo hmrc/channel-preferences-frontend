@@ -7,7 +7,7 @@ import models.agent.addClient.ClientSearch
 
 class SearchClientControllerSpec extends BaseSpec with MockitoSugar {
 
-  private val controller = new SearchClientController()
+  private val controller = SearchClientController.Validation
 
   "The validation rules" should {
 
