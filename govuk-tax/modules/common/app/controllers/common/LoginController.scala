@@ -1,6 +1,6 @@
 package controllers.common
 
-import play.api.mvc.{ Session, AnyContent, Action }
+import play.api.mvc.{ AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
@@ -8,6 +8,7 @@ import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, C
 import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import controllers.common.service.FrontEndConfig
 import java.util.UUID
+import uk.gov.hmrc.common.microservice.domain.User
 
 
 class LoginController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
@@ -42,13 +43,13 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
         FrontEndRedirect.toBusinessTax
           .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken))
       } catch {
-        case e: UnauthorizedException =>
-          Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
-        case e: ForbiddenException =>
-          Forbidden(views.html.ggw_login_form(boundForm.withGlobalError("Not on whitelist!!")))
+        case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+        case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage(boundForm))
       }
     }
   })
+
+  private[common] def notOnBusinessTaxWhitelistPage(boundForm: Form[Credentials]) = views.html.ggw_login_form(boundForm.withGlobalError("Not on whitelist!!"))
 
   case class SAMLResponse(response: String)
 
