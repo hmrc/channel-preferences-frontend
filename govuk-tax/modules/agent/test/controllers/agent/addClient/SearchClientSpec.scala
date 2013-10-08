@@ -15,7 +15,7 @@ import org.mockito.Matchers._
 import org.scalatest.BeforeAndAfter
 import models.agent.addClient.ClientSearch
 
-class SearchClientControllerViewSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
+class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
   var keyStore: KeyStoreMicroService = _
   var controller: SearchClientController = _

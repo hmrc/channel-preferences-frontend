@@ -60,7 +60,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
       firstName -> optional(text).verifying("Invalid firstname", validateName _),
       lastName -> optional(text).verifying("Invalid last name", validateName _),
       dob -> dateTuple.verifying("Invalid date of birth", validateDob)
-    ) (ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptional(unValidatedSearchForm.bindFromRequest()(request).get))
+    )(ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptional(unValidatedSearchForm.bindFromRequest()(request).get))
   )
 
   val validDobRange = {
