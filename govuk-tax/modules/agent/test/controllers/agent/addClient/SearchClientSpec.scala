@@ -53,6 +53,16 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(".error select") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
     }
 
+    "show errors on the form when we make a submission with only spaces for names" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="XXX", firstName="      ", lastName="      ", dob=("1","1", LocalDate.now().minusYears(111).getYear.toString))
+
+      status(result) shouldBe 400
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(s".error #${controller.nino}") should not be 'empty
+      doc.select(".error select") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+    }
+
     "show global error on the form when we fill in nino and only one other field" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="AB123456C", firstName="hasNoValidation", lastName="", dob=("", "", ""))
 

@@ -6,14 +6,9 @@ import views.html.agents.addClient._
 import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
 import play.api.data.{Form, Forms}
 import Forms._
-import uk.gov.hmrc.common.microservice.domain.User
-import scala.Some
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
-import models.agent.addClient.ClientSearch
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import play.api.libs.json.Json
-import controllers.common.domain.Transform._
 import models.agent.addClient.ClientSearch
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
@@ -56,11 +51,11 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 
   private def searchForm(request: Request[_]) = Form[ClientSearch](
     mapping(
-      nino -> text.verifying("You must provide a valid nino", validateNino _),
-      firstName -> optional(text).verifying("Invalid firstname", validateName _),
-      lastName -> optional(text).verifying("Invalid last name", validateName _),
-      dob -> dateTuple.verifying("Invalid date of birth", validateDob)
-    )(ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptional(unValidatedSearchForm.bindFromRequest()(request).get))
+      "nino" -> text.verifying("You must provide a valid nino", validateNino _),
+      "firstName" -> optional(text).verifying("Invalid firstname", validateName _),
+      "lastName" -> optional(text).verifying("Invalid last name", validateName _),
+      "dob" -> dateTuple.verifying("Invalid date of birth", validateDob)
+    ) (ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
   )
 
   val validDobRange = {
@@ -81,20 +76,35 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 object SearchClientController {
 
   private[addClient] object Validation {
+    val nameRegex = """^[\p{L}\s'.-]*"""
+
     val validateDob: Option[LocalDate] => Boolean = {
       case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
       case None => true
     }
 
-    def validateName(s: Option[String]) = s.getOrElse("").matches( """[\p{L}\s'.-]*""")
+    private[addClient] def validateName(s: Option[String]) = s.getOrElse("").trim.matches(nameRegex)
 
-    def atLeastTwoOptional(clientSearchNonValidated: ClientSearch) = {
-      val ClientSearch(_, firstName, lastName, dob) = clientSearchNonValidated
-      val populatedOptionalFields = Seq(firstName, lastName, dob).count(_ != None)
-      populatedOptionalFields >= 2
+    private[addClient] def atLeastTwoOptionalAndAllMandatory(clientSearchNonValidated: ClientSearch) = {
+      var count = 0 //FIXME: just so i can commit tonight
+      val firstNamePresent = clientSearchNonValidated.firstName.getOrElse("").trim.length > 0
+      val lastNamePresent = clientSearchNonValidated.lastName.getOrElse("").trim.length > 0
+      val dobPresent = clientSearchNonValidated.dob.isDefined
+
+      if (firstNamePresent)
+        count = count + 1
+      if (lastNamePresent)
+        count = count + 1
+      if (dobPresent)
+        count = count + 1
+
+      count >= 2 && validateNino(clientSearchNonValidated.nino)
     }
 
-    def validateNino(s: String) =  {
+    def validateNino(s: String):Boolean =  {
+      if (s == null)
+        return false
+
       val startsWithNaughtyCharacters = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ").foldLeft(false) {
         ((found,stringVal) => found || s.startsWith(stringVal))
       }
