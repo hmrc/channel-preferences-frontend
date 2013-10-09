@@ -1,0 +1,14 @@
+@(formItem:Form[_], fieldName: String, label: String, yearRange: Range, args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+
+@import controllers.common.validators.DateFields._
+@import play.api.i18n._
+@import views.html.helper._
+
+@elements = @{ new FieldElements(formItem(fieldName).id, formItem(fieldName), null, args.toMap, lang) }
+
+<div class="@elements.args.get('_groupDivClass) @if(elements.hasErrors) {error}">
+    <p>@label</p>
+    @elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
+
+    @dateFieldsFreeYearInline(formItem, fieldName, label, args : _*)
+</div>
