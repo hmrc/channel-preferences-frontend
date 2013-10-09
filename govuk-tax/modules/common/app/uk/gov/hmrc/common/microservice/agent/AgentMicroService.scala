@@ -7,4 +7,11 @@ import controllers.common.domain.Transform._
 class AgentMicroService(override val serviceUrl: String = MicroServiceConfig.agentServiceUrl) extends MicroService {
 
   def create(nino: String, newAgent: Agent): Option[Agent] = httpPost[Agent](s"/agent/register/nino/$nino", Json.parse(toRequestBody(newAgent)))
+
+  def searchClient(searchRequest: SearchRequest): Option[MatchingPerson] = httpPost[MatchingPerson](s"/agent/search", Json.parse(toRequestBody(searchRequest)))
+}
+
+trait AgentMicroServices {
+
+  implicit lazy val agentMicroService = new AgentMicroService()
 }

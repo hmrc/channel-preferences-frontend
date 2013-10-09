@@ -13,6 +13,8 @@ import models.agent.addClient.ClientSearch
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroServices}
+import uk.gov.hmrc.utils.DateConverter
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
                                                                 with ActionWrappers
@@ -64,13 +66,23 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
   }
   private[agent] val searchAction: (User, Request[_]) => Result = (user, request) => {
     val form = searchForm(request).bindFromRequest()(request)
-    if (form.hasErrors) BadRequest(search_client(validDobRange, form))
-    else {
-      //FIXME This should be the search result when the API is available...
-      val clientSearchResult = form.get
-      keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey, clientSearchResult)
-      Ok(search_client_result(clientSearchResult))
-    }
+    form.fold(
+      errors => BadRequest(search_client(validDobRange, errors)),
+      search => {
+        val searchDob = search.dob.map(data => DateConverter.formatToString(data))
+        agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
+          case Some(result) => {
+            val restrictedResult = MatchingPerson(result.nino,
+                                                  search.firstName.flatMap(_ => result.firstName),
+                                                  search.lastName.flatMap(_ => result.lastName),
+                                                  search.dob.flatMap(_ => result.dateOfBirth))
+            keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey, restrictedResult)
+            Ok(search_client_result(restrictedResult))
+          }
+          case None => NotFound(search_client(validDobRange, form.withGlobalError("No match found")))
+        }
+      }
+    )
   }
 }
 object SearchClientController {

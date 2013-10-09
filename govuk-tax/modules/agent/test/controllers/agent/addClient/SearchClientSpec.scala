@@ -11,13 +11,16 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import org.joda.time.LocalDate
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.mockito.Mockito._
+import org.mockito.Matchers._
 import org.scalatest.BeforeAndAfter
 import models.agent.addClient.ClientSearch
 import scala.util.Success
+import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroService}
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
   var keyStore: KeyStoreMicroService = _
+  var agentService: AgentMicroService = _
   var controller: SearchClientController = _
 
   val id = "wshakespeare"
@@ -28,7 +31,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
   before {
     keyStore = mock[KeyStoreMicroService]
-    controller = new SearchClientController(keyStore)
+    agentService = mock[AgentMicroService]
+    controller = new SearchClientController(keyStore) {
+      override implicit lazy val agentMicroService: AgentMicroService = agentService
+    }
   }
 
   "Given that Bob is on the search screen the page" should {
@@ -70,46 +76,54 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(s".error #${controller.nino}") should be ('empty)
-      doc.select(".error #globalErrors") should not be 'empty     //TODO: Due to id with . we have this selection instead of #dob.date, not perfect
+      doc.select(".error #globalErrors") should not be 'empty
     }
 
-    "not show any errors on the form when we make a submission with valid nino, firstName, lastName, dob" in new WithApplication(FakeApplication()) {
+    "allow a submission with valid nino, firstName, lastName, dob and display all fields" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch()
+
       val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"))
 
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(s"#clientSearchResults #${controller.nino}").text should include ("AB123456C")
-      doc.select(s"#clientSearchResults #${controller.firstName}").text should include ("firstName")
-      doc.select(s"#clientSearchResults #${controller.lastName}").text should include ("lastName")
-      doc.select(s"#clientSearchResults #${controller.dob}").text should include ("January 1, 1990")
+      doc.select(s"#clientSearchResults #${controller.firstName}").text should include ("resFirstName")
+      doc.select(s"#clientSearchResults #${controller.lastName}").text should include ("resLastName")
+      doc.select(s"#clientSearchResults #${controller.dob}").text should include ("January 1, 1991")
     }
 
-    "not show any errors on the form when we make a submission with valid nino, firstName, lastName" in new WithApplication(FakeApplication()) {
+    "allow a submission with valid nino, firstName, lastName and not display the dob" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch()
+
       val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("","", ""))
 
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(s"#clientSearchResults #${controller.nino}").text should include ("AB123456C")
-      doc.select(s"#clientSearchResults #${controller.firstName}").text should include ("firstName")
-      doc.select(s"#clientSearchResults #${controller.lastName}").text should include ("lastName")
+      doc.select(s"#clientSearchResults #${controller.firstName}").text should include ("resFirstName")
+      doc.select(s"#clientSearchResults #${controller.lastName}").text should include ("resLastName")
       doc.select(s"#clientSearchResults #${controller.dob}") should be ('empty)
     }
 
-    "not show any errors on the form when we make a submission with valid nino, firstName, dob" in new WithApplication(FakeApplication()) {
+    "allow a submission with valid nino, firstName, dob and not display the lastname" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch()
+
       val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="", dob=("1","1", "1990"))
 
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(s"#clientSearchResults #${controller.nino}").text should include ("AB123456C")
-      doc.select(s"#clientSearchResults #${controller.firstName}").text should include ("firstName")
+      doc.select(s"#clientSearchResults #${controller.firstName}").text should include ("resFirstName")
       doc.select(s"#clientSearchResults #${controller.lastName}") should be (empty)
-      doc.select(s"#clientSearchResults #${controller.dob}").text should include ("January 1, 1990")
+      doc.select(s"#clientSearchResults #${controller.dob}").text should include ("January 1, 1991")
     }
 
-    "not show any errors on the form when we make a submission with valid nino, lastName, dob" in new WithApplication(FakeApplication()) {
+    "allow a submission with valid nino, lastName, dob and not display the firstname" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch()
+
       val result = executeSearchActionWith(nino="AB123456C", firstName="", lastName="lastName", dob=("1","1", "1990"))
 
       status(result) shouldBe 200
@@ -117,8 +131,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(s"#clientSearchResults #${controller.nino}").text should include ("AB123456C")
       doc.select(s"#clientSearchResults #${controller.firstName}") should be (empty)
-      doc.select(s"#clientSearchResults #${controller.lastName}").text should include ("lastName")
-      doc.select(s"#clientSearchResults #${controller.dob}").text should include ("January 1, 1990")
+      doc.select(s"#clientSearchResults #${controller.lastName}").text should include ("resLastName")
+      doc.select(s"#clientSearchResults #${controller.dob}").text should include ("January 1, 1991")
     }
 
     "not save anything to keystore when we make a submission with errors" in new WithApplication(FakeApplication()) {
@@ -129,10 +143,23 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "save the client search results to the keystore when we make a successful submission" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("firstName"), Some("lastName"), Some(new LocalDate(1990, 1, 1)))
+      givenTheAgentServiceReturnsAMatch()
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         (clientSearch.dob.get.getDayOfMonth.toString,clientSearch.dob.get.getMonthOfYear.toString, clientSearch.dob.get.getYear.toString))
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(controller.keystoreId(user.oid), controller.serviceSourceKey, controller.clientSearchObjectKey, clientSearch)
+      verify(keyStore).addKeyStoreEntry(controller.keystoreId(user.oid), controller.serviceSourceKey, controller.clientSearchObjectKey,
+        MatchingPerson("AB123456C",Some("resFirstName"),Some("resLastName"),Some("1991-01-01")))
+    }
+
+    "display an error when no match is found and not save anything to the keystore" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceFindsNoMatch()
+      val result = executeSearchActionWith(nino="AB123456C", firstName="", lastName="lastName", dob=("1","1", "1990"))
+
+      status(result) shouldBe 404
+      verifyZeroInteractions(keyStore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #globalErrors") should not be 'empty
     }
 
     def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String)) = {
@@ -143,6 +170,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
         ("dob.month", dob._2),
         ("dob.year", dob._3)))
     }
+
+    def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[SearchRequest])).thenReturn(None)
+    def givenTheAgentServiceReturnsAMatch() =
+      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"))))
   }
 
 
@@ -197,4 +228,5 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 //  Then he should *not* be taken to the results screen but should remain on the search screen
 //  And he should be prompted that the search returned no matches
 //
+
 }

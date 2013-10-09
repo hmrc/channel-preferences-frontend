@@ -3,6 +3,7 @@ package uk.gov.hmrc.common.microservice.agent
 import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.domain.{CtUtr, SaUtr, Vrn, Nino}
+import uk.gov.hmrc.utils.DateConverter
 
 case class Agent(legalEntity: String,
   agentType: String,
@@ -38,3 +39,9 @@ case class ContactDetails(title: String,
   dob: Long,
   nino: Nino,
   middleName: Option[String] = None)
+
+
+case class MatchingPerson(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String]) {
+  lazy val dobAsLocalDate = dateOfBirth.map(DateConverter.parseToLocalDate)
+}
+case class SearchRequest(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String])
