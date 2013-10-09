@@ -3,7 +3,7 @@ package controllers.paye
 import uk.gov.hmrc.common.microservice.paye.domain.{RevisedBenefit, Benefit, PayeRegime}
 import play.api.mvc.{Result, Request}
 import views.html.paye._
-import views.formatting.Dates
+import views.formatting.Dates._
 import play.api.data.Form
 import play.api.data.Forms._
 import org.joda.time.LocalDate
@@ -16,6 +16,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.RemoveBenefitFormData
 import uk.gov.hmrc.utils.TaxYearResolver
+import org.joda.time.format.DateTimeFormat
 
 class RemoveBenefitController extends BaseController with SessionTimeoutWrapper with Benefits {
 
@@ -50,6 +51,15 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
     }
   }
 
+  private def getSecondBenefit(user: User, mainBenefit: Benefit, removeCar:Boolean): Option[Benefit] = {
+
+    mainBenefit.benefitType match {
+      case CAR => findExistingBenefit(user, mainBenefit.employmentSequenceNumber, FUEL)
+      case FUEL if removeCar => findExistingBenefit(user, mainBenefit.employmentSequenceNumber, CAR)
+      case _ => None
+    }
+  }
+
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
       val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.get.benefits(TaxYearResolver.currentTaxYear))
@@ -63,13 +73,14 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
           }
         },
         removeBenefitData => {
-          val benefitType = benefit.benefit.benefitType
-          val fuelBenefit = if (benefitType == CAR ) findExistingBenefit(user, benefit.benefit.employmentSequenceNumber, FUEL) else None
-          val carBenefit = if (benefitType == FUEL && removeBenefitData.removeCar) findExistingBenefit(user, benefit.benefit.employmentSequenceNumber, CAR) else None
 
-          val updatedBenefit = benefit.copy(benefits = benefit.benefits ++ Seq(fuelBenefit,carBenefit).filter(_.isDefined).map(_.get))
+          val mainBenefitType = benefit.benefit.benefitType
 
-          val finalAndRevisedAmounts = updatedBenefit.benefits.foldLeft(BigDecimal(0), mutable.Map[String, BigDecimal]())((runningAmounts, benefit) => {
+          val secondBenefit = getSecondBenefit(user, benefit.benefit, removeBenefitData.removeCar)
+
+          val benefits = benefit.benefits ++ Seq(secondBenefit).filter(_.isDefined).map(_.get)
+
+          val finalAndRevisedAmounts = benefits.foldLeft(BigDecimal(0), mutable.Map[String, BigDecimal]())((runningAmounts, benefit) => {
             val revisedAmount = benefit.benefitType match {
               case FUEL if differentDateForFuel(removeBenefitData.fuelDateChoice) => calculateRevisedAmount (benefit, removeBenefitData.fuelWithdrawDate.get)
               case _ =>  calculateRevisedAmount (benefit, removeBenefitData.withdrawDate)
@@ -80,16 +91,46 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
             (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2)
           })
 
-          keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, finalAndRevisedAmounts._2.toMap))
+          val apportionedValues = finalAndRevisedAmounts._2.toMap
+          val secondWithdrawDate = if(removeBenefitData.fuelWithdrawDate.isDefined) removeBenefitData.fuelWithdrawDate else Some(removeBenefitData.withdrawDate)
+          
+          val benefitsInfo:Map[String, BenefitInfo]  = mapBenefitsInfo(benefit.benefits(0), Some(removeBenefitData.withdrawDate), apportionedValues) ++ 
+                                                        secondBenefit.map( mapBenefitsInfo(_, secondWithdrawDate, apportionedValues)).getOrElse(Nil)
 
-          benefitType match {
-            case CAR | FUEL => Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit)(user))
+          keyStoreMicroService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues))
+
+          mainBenefitType match {
+            case CAR | FUEL => {
+              val updatedBenefit = benefit.copy(benefits = benefits , benefitsInfo = benefitsInfo)
+              Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit)(user))
+            }
             case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
         }
       )
     }
   }
+
+  private def mapBenefitsInfo(benefit:Benefit, withdrawDate:Option[LocalDate], values:Map[String, BigDecimal]):Map[String, BenefitInfo] = {
+    val benefitType = benefit.benefitType.toString
+    Map(benefitType -> getBenefitInfo(benefit, withdrawDate, values.get(benefitType)))
+  }
+
+  private def getBenefitInfo(benefit:Benefit, withdrawDate: Option[LocalDate], apportionedValue: Option[BigDecimal])  = {
+      val pathIncludingStartDate = benefit.calculations(payeMicroService.calculationWithdrawKey)
+      BenefitInfo(getStartDate(pathIncludingStartDate).map(formatDate(_)), withdrawDate.map(formatDate(_)), apportionedValue)
+  }
+
+  private final val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
+  private final val dateRegex ="""(\d\d\d\d-\d\d-\d\d)""".r
+  
+  private def getStartDate(path:String): Option[LocalDate] = {
+    dateRegex.findFirstIn(path) match {
+      case Some(date)=> Some(dateFormat.parseLocalDate(date))
+      case _ => None
+    }
+  }
+
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, displayBenefit) => {
       val payeRoot = user.regimes.paye.get
@@ -122,7 +163,7 @@ class RemoveBenefitController extends BaseController with SessionTimeoutWrapper 
           keyStoreMicroService.deleteKeyStore(user.oid, "paye_ui")
           val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
           if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
-            Ok(remove_benefit_confirmation(Dates.formatDate(formData.withdrawDate), removedKinds, oid)(user))
+            Ok(remove_benefit_confirmation(formatDate(formData.withdrawDate), removedKinds, oid)(user))
           } else {
             Redirect(routes.BenefitHomeController.listBenefits())
           }

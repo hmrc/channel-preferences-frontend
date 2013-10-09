@@ -4,14 +4,29 @@
 
 @main(title = "Confirm", user = Some(user)) {
 
-<h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
 
-<h2 class="title">Remove your company @{benefitsTitle} benefit</h2>
+<h1 id="main-heading"><span class="pre-heading">service</span> Tell HMRC about a change to your company @{benefitsTitle}</h1>
 
-<p>Removing your @{benefitsTitle} will increase your Personal Allowance by <span class="amount">£@{amount}</span>.<br>
-    This means we will need to issue you with a new tax code.</p>
+<h2 class="title">@{displayBenefit.employment.employerNameOrReference} no longer provide a company @{benefitsTitle} benefit</h2>
 
+@defining(displayBenefit.benefitsInfo) { benefitsInfo => @defining(benefitsInfo.keys.toList) { keys =>
+
+    <p id="first-section">Removing your company
+    @for(key <- keys){
+        @Messages(s"benefitType.${key}.title") benefit from <span id="withdraw-date-@{key}">@{benefitsInfo(key).withdrawDate.getOrElse("")}</span>
+        @if(keys.length > 1 && keys.indexOf(key) < 1){ and }
+    }
+    , means that you will pay a proportion of the benefit for the time you had the company @{benefitsTitle}.</p>
+
+    @for(key <- keys){
+    <p>For the period <span id="start-date-@{key}">@{benefitsInfo(key).startDate.getOrElse("")}</span> to @{benefitsInfo(key).withdrawDate.getOrElse("")}, the change will be
+        <span id="apportioned-value-@{key}">£@{benefitsInfo(key).apportionedValue.getOrElse("")}</span> for the company @Messages(s"benefitType.${key}.title").</p>
+    }
+
+}}
+
+<p>This means your tax-free allowance will increase by <span id="allowance-increase" class="amount">£@{amount}</span>. This means we will need to issue you with a new tax code.</p>
 }
 
 @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {

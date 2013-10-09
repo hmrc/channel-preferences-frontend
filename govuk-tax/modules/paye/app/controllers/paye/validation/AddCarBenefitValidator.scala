@@ -112,7 +112,7 @@ object AddCarBenefitValidator extends Validators {
     .verifying("error.paye.co2_figure_greater_than_zero", e => (e > 0))
     .verifying("error.paye.co2_figure_blank_for_electricity_fuel_type", data => !(isFuelTypeElectric(carBenefitValues.fuelType)))
     .verifying("error.paye.co2_figure_and_co2_no_figure_cannot_be_both_present", data => (carBenefitValues.co2NoFigure.getOrElse("") != "true"))
-  ) .verifying("error.paye.co2_figures_not_blank", co2Fig => if(!isFuelTypeElectric(carBenefitValues.fuelType)){co2FiguresNotBlank(co2Fig, carBenefitValues.co2NoFigure)} else true)
+  )
 
   private def isFuelTypeElectric(fuelType:Option[String]) = {
     fuelType.getOrElse("") == fuelTypeElectric

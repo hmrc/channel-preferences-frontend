@@ -51,7 +51,7 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
     )
   }
 
-
+  def calculationWithdrawKey():String = "withdraw"
   def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate) =
-    httpGet[CalculationResult](benefit.calculations("withdraw").replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
+    httpGet[CalculationResult](benefit.calculations(calculationWithdrawKey).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
 }

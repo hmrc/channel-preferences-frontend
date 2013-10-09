@@ -15,10 +15,14 @@ object BenefitTypes {
 
 }
 
+case class BenefitInfo(startDate:Option[String], withdrawDate:Option[String], apportionedValue:Option[BigDecimal])
+
+
 case class DisplayBenefit(employment: Employment,
     benefits: Seq[Benefit],
     car: Option[Car],
-    transaction: Option[TxQueueTransaction]) {
+    transaction: Option[TxQueueTransaction],
+    benefitsInfo:Map[String, BenefitInfo] = Map.empty) {
 
   lazy val benefit = benefits(0)
 
