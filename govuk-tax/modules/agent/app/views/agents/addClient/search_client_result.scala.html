@@ -1,4 +1,4 @@
-@(matchingPerson: uk.gov.hmrc.common.microservice.agent.MatchingPerson)
+@(matchingPerson: uk.gov.hmrc.common.microservice.agent.MatchingPerson, addClient: Form[models.agent.addClient.AddClient])
 
 @main(title = "Add a new client") {
 
@@ -19,21 +19,16 @@
     @if(matchingPerson.dobAsLocalDate.isDefined){ <p name="dob" id="dob"> Date of birth @views.formatting.Dates.formatDate(matchingPerson.dobAsLocalDate.get) </p>  }
 
 
-    <form>
-        <label>
-            <input type="checkbox">
-            This is the client I am looking for
-        </label>
+    @helper.form(action = controllers.agent.addClient.routes.SearchClientController.add()) {
 
-        <label>
-            <input type="checkbox">
-            I have authorisation from the client to act on their behalf dor {regime} with {authority level}
-        </label>
+        @helpers.singleCheckbox(addClient("correctClient"), '_Label -> "This is the client I am looking for")
+        @helpers.singleCheckbox(addClient("authorised"), '_Label -> "I have authorisation from the client to act on their behalf dor {regime} with {authority level}")
+        @helpers.input(addClient("internalClientReference"), '_label -> "Your internal client reference number")
 
-        <span>Your internal client reference number</span>
-        <input type="text" name="internalClientReference" id="internalClientReference" />
-        <input type="submit" value="Next" />
-    </form>
+        <p>
+            <input type="submit" value="Next" />
+        </p>
+    }
 
     <a href="../add-client">This is not the client I am searching for - return to search</a>
 

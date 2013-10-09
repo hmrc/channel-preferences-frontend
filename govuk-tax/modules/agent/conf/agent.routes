@@ -20,3 +20,4 @@ GET         /thank-you                           @controllers.agent.registration
 
 GET         /add-client                          @controllers.agent.addClient.SearchClientController.start
 POST        /add-client/search                   @controllers.agent.addClient.SearchClientController.search
+POST        /add-client/add                      @controllers.agent.addClient.SearchClientController.add

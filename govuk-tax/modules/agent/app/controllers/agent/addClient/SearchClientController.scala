@@ -9,7 +9,7 @@ import Forms._
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import models.agent.addClient.ClientSearch
+import models.agent.addClient.{AddClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
@@ -37,6 +37,8 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
   def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => homeAction(user, request) } }
 
   def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => searchAction(user, request) } }
+
+  def add = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => addAction(user, request) } }
 
   private[agent] val homeAction: (User, Request[_]) => Result = (user, request) => {
     Ok(search_client(validDobRange, searchForm(request)))
@@ -77,14 +79,33 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
                                                   search.lastName.flatMap(_ => result.lastName),
                                                   search.dob.flatMap(_ => result.dateOfBirth))
             keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey, restrictedResult)
-            Ok(search_client_result(restrictedResult))
+            Ok(search_client_result(restrictedResult, addClientForm(request)))
           }
           case None => NotFound(search_client(validDobRange, form.withGlobalError("No match found")))
         }
       }
     )
   }
+
+  private def addClientForm(request: Request[_]) = Form[AddClient](
+    mapping(
+      "correctClient" -> checked("You must check"),
+      "authorised" -> checked("tou must check"),
+      "internalClientReference" -> nonEmptyText()
+    ) (AddClient.apply)(AddClient.unapply)
+  )
+
+  private[agent] val addAction: (User, Request[_]) => Result = (user, request) => {
+    val form = addClientForm(request).bindFromRequest()(request)
+    if (form.hasErrors) {
+      Ok(search_client_result(new MatchingPerson("keystorereqd", Some("key"), Some("store"), None), form))
+    } else {
+      Ok("This needs to redirect to the next page whgich is the next story")
+    }
+  }
+
 }
+
 object SearchClientController {
 
   private[addClient] object Validation {
