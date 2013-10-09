@@ -101,7 +101,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val emission = if (removeBenefitData.co2NoFigure.getOrElse(false)) None else removeBenefitData.co2Figure
 
-              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98, removeBenefitData.fuelType, emission , removeBenefitData.engineCapacity.map(_.toInt))
+              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98.get, removeBenefitData.fuelType, emission , removeBenefitData.engineCapacity.map(_.toInt))
 
               val uri = payeRoot.get.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
                 .replace("{year}", taxYear.toString).replace("{employment}", employmentSequenceNumber.toString)
@@ -146,7 +146,7 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
                           carUnavailable: Option[Boolean],
                           numberOfDaysUnavailable: Option[Int],
                           giveBackThisTaxYear: Option[Boolean],
-                          registeredBefore98: Boolean,
+                          registeredBefore98: Option[Boolean],
                           providedTo: Option[LocalDate],
                           listPrice: Option[Int],
                           employeeContributes: Option[Boolean],

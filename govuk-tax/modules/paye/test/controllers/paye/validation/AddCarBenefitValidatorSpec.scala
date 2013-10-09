@@ -168,11 +168,21 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val form = bindFormWithValue(dummyForm(values), co2NoFigure, "dmdknadsfklads.(0383k378@__//")
       form.hasErrors shouldBe true
     }
+
+    "accept a NO CO2 FIGURE that is a boolean" in new WithApplication(FakeApplication()) {
+      val form = bindFormWithValue(dummyForm(values), co2NoFigure, "true")
+      form.hasErrors shouldBe false
+    }
+
+    "accept a NO CO2 FIGURE that is a boolean and an empty CO2 figure" in new WithApplication(FakeApplication()) {
+      val form = dummyForm(getValues(co2NoFigureVal = Some("true"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(co2Figure -> "", co2NoFigure -> "true"))
+      form.hasErrors shouldBe false
+    }
   }
 
   "AddCarBenefitValidator for fields REGISTERED BEFORE 98, FUEL TYPE, CO2 FIGUREs and ENGINE CAPACITY  " should {
 
-    case class FiguresDummyModel(registeredBefore98: Boolean, fuelType: String, co2Figure: Option[Int], co2NoFigure: Option[Boolean], engineCapacity: Option[String])
+    case class FiguresDummyModel(registeredBefore98: Option[Boolean], fuelType: String, co2Figure: Option[Int], co2NoFigure: Option[Boolean], engineCapacity: Option[String])
 
     def dummyForm(values: CarBenefitValues) = {
       Form[FiguresDummyModel](
@@ -183,6 +193,12 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
           co2NoFigure -> validateNoCo2Figure(values),
           engineCapacity -> validateEngineCapacity(values)
         )(FiguresDummyModel.apply)(FiguresDummyModel.unapply))
+    }
+
+    "reject registered before 98 if it is blank" in new WithApplication(FakeApplication()) {
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> ""))
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, registeredBefore98, "Please answer this question.")
     }
 
     "reject registered before 98 if fuel type is electricity and registered before 98 is true" in new WithApplication(FakeApplication()) {
