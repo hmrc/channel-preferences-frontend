@@ -76,7 +76,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 object SearchClientController {
 
   private[addClient] object Validation {
-    val nameRegex = """^[\p{L}\s'.-]*"""
+    val nameRegex = """^[\p{L}\s'.-[0-9]]*"""
 
     val validateDob: Option[LocalDate] => Boolean = {
       case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
@@ -86,18 +86,11 @@ object SearchClientController {
     private[addClient] def validateName(s: Option[String]) = s.getOrElse("").trim.matches(nameRegex)
 
     private[addClient] def atLeastTwoOptionalAndAllMandatory(clientSearchNonValidated: ClientSearch) = {
-      var count = 0 //FIXME: just so i can commit tonight
-      val firstNamePresent = clientSearchNonValidated.firstName.getOrElse("").trim.length > 0
-      val lastNamePresent = clientSearchNonValidated.lastName.getOrElse("").trim.length > 0
-      val dobPresent = clientSearchNonValidated.dob.isDefined
+      val items = List(clientSearchNonValidated.firstName.getOrElse("").trim.length > 0,
+          clientSearchNonValidated.lastName.getOrElse("").trim.length > 0,
+          clientSearchNonValidated.dob.isDefined)
 
-      if (firstNamePresent)
-        count = count + 1
-      if (lastNamePresent)
-        count = count + 1
-      if (dobPresent)
-        count = count + 1
-
+      val count = items.foldLeft(0)((sum, valid) => if (valid) sum + 1 else sum)
       count >= 2 && validateNino(clientSearchNonValidated.nino)
     }
 

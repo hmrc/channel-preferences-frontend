@@ -42,7 +42,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "show errors on the form when we make a submission with invalid values" in new WithApplication(FakeApplication()) {
-      val result = executeSearchActionWith(nino="XXX", firstName="123", lastName="alert('foo')", dob=("1","1", LocalDate.now().minusYears(111).getYear.toString))
+      val result = executeSearchActionWith(nino="XXX", firstName="&&%", lastName="alert('foo')", dob=("1","1", LocalDate.now().minusYears(111).getYear.toString))
 
       status(result) shouldBe 400
 

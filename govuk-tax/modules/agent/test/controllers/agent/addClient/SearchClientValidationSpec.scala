@@ -60,6 +60,9 @@ class SearchClientValidationSpec extends BaseSpec with MockitoSugar {
       "pass with allowed characters" in {
         validateName(Some("funky '.-")) should be (true)
       }
+      "pass with numbers in a name" in {
+        validateName(Some("Fredrick Barrins the 3rd")) should be (true)
+      }
     }
 
     "allow the date of birth not to be entered" in { validateDob(None) should be (true) }
