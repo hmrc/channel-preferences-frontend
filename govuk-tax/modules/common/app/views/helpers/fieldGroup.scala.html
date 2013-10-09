@@ -34,11 +34,14 @@
                                         id="@inputId"
                                         class="@inputType.inputClass"
                                         name="@field.field.name"
+                                        value="@{inputType.inputType match {
+                                           case "radio" => inputType.key
+                                           case "checkbox" => "true"
+                                           case _ => currentValue
+                                            }}"
+
                                         @if(inputType.inputType == "radio") {
-                                            value="@inputType.key"
                                             @if(currentValue==inputType.key){checked="checked"}
-                                        } else {
-                                            value="@currentValue"
                                         }
                                         @if(inputType.inputType == "checkbox"){
                                             @if(currentValue=="true"){checked="checked"}

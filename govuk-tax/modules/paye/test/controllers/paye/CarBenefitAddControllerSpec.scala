@@ -198,7 +198,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         keyStoreDataCaptor.capture()) (Matchers.any())
 
         val data = keyStoreDataCaptor.getValue
-        data.registeredBefore98 shouldBe true
+        data.registeredBefore98 shouldBe Some(true)
         data.fuelType shouldBe "diesel"
         data.co2Figure shouldBe Some(20)
         data.co2NoFigure shouldBe Some(false)
@@ -435,6 +435,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#co2NoFigure").attr("value") shouldBe "true"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
 
@@ -599,7 +600,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
-                          johnDensmore.regimes.paye.get.get.nino, AddCarBenefit(collectedData.registeredBefore98, collectedData.fuelType, None, Some(defaultEngineCapacity)))
+                          johnDensmore.regimes.paye.get.get.nino, AddCarBenefit(collectedData.registeredBefore98.get, collectedData.fuelType, None, Some(defaultEngineCapacity)))
       Mockito.reset(mockKeyStoreService)
       Mockito.reset(mockPayeMicroService)
     }
@@ -629,7 +630,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     when(mockPayeMicroService.addBenefit(Matchers.anyString(), Matchers.eq("AB123456C"), Matchers.any[AddCarBenefit])).thenReturn(Some(AddCarBenefitResponse(14)))
   }
 
-  private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] = Some(localDateToTuple(defaultProvidedFrom)),
+  private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] = Some(localDateToTuple(Some(defaultProvidedFrom))),
                                              carUnavailableVal:  Option[String] = Some(defaultCarUnavailable.toString),
                                              numberOfDaysUnavailableVal: Option[String] = defaultNumberOfDaysUnavailable,
                                              giveBackThisTaxYearVal: Option[String] = Some(defaultGiveBackThisTaxYear.toString),
@@ -685,18 +686,18 @@ object CarBenefitDataBuilder {
   val defaultRegisteredBefore98 = false
   val defaultFuelType = "diesel"
   val defaultProvidedTo = None
-  val defaultProvidedFrom = Some(now.plusDays(2))
+  val defaultProvidedFrom = now.plusDays(2)
   val defaultCo2Figure = None
   val defaultCo2NoFigure = true
   val defaultEngineCapacity = 1400
   val defaultEmployerPayFuel = "false"
   val defaultDateFuelWithdrawn = None
 
-  def apply(providedFrom: Option[LocalDate] = defaultProvidedFrom,
+  def apply(providedFrom: Option[LocalDate] = Some(defaultProvidedFrom),
             carUnavailable: Option[Boolean] = Some(defaultCarUnavailable),
             numberOfDaysUnavailable: Option[Int] = defaultNumberOfDaysUnavailable,
             giveBackThisTaxYear: Option[Boolean] = Some(defaultGiveBackThisTaxYear),
-            registeredBefore98: Boolean = defaultRegisteredBefore98,
+            registeredBefore98: Option[Boolean] = Some(defaultRegisteredBefore98),
             providedTo: Option[LocalDate] = defaultProvidedTo,
             listPrice: Option[Int] = Some(defaultListPrice),
             employeeContributes: Option[Boolean] = Some(defaultEmployeeContributes),
