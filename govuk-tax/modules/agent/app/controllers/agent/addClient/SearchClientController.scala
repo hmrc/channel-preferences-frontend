@@ -1,6 +1,5 @@
 package controllers.agent.addClient
 
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{ Result, Request }
 import views.html.agents.addClient._
 import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
@@ -9,11 +8,11 @@ import Forms._
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import models.agent.addClient.{PreferredContact, AddClient, ClientSearch}
+import models.agent.addClient.ClientSearch
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroServices}
+import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest}
 import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import ConfirmClientController.addClientForm
@@ -57,6 +56,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     val thisYear = LocalDate.now().getYear
     (thisYear - 110) to (thisYear - 16)
   }
+
   private[agent] def searchAction(user: User)(request: Request[_]): Result = {
     val form = searchForm(request).bindFromRequest()(request)
     form.fold(
