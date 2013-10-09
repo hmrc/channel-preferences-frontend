@@ -87,14 +87,54 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     ) (AddClient.apply)(AddClient.unapply)
   )
 
+  private val contactMapping = mapping(
+    "pointOfContact" -> text,
+    "contactName" -> text,
+    "contactPhone" -> text,
+    "contactEmail" -> text
+  )(PreferredContact.apply)(PreferredContact.unapply)
+  private def unValidatedPreferredContactForm(request: Request[_]) = Form[PreferredContact](
+    contactMapping
+  )
+
   private def preferredContactForm(request: Request[_]) = Form[PreferredContact](
     mapping(
       "pointOfContact" -> text,
-      "contactName" -> text,
-      "contactPhone" -> text,
-      "contactEmail" -> text
+      "contactName" -> text.verifying("Name is required",
+        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
+      "contactPhone" -> text.verifying("Phone is required",
+        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
+      "contactEmail" -> text.verifying("Email is required",
+        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
     ) (PreferredContact.apply)(PreferredContact.unapply)
   )
+
+  private[addClient] def verifyContactName(name:String, preferredContact:PreferredContact) = {
+    preferredContact.pointOfContact match {
+      case "me" => true
+      case "other" => false
+      case "notUs" => true
+      case _ => false // unknown situation
+    }
+  }
+
+  private[addClient] def verifyContactPhone(name:String, preferredContact:PreferredContact) = {
+    preferredContact.pointOfContact match {
+      case "me" => true
+      case "other" => false
+      case "notUs" => true
+      case _ => false // unknown situation
+    }
+  }
+
+  private[addClient] def verifyContactEmail(name:String, preferredContact:PreferredContact) = {
+    preferredContact.pointOfContact match {
+      case "me" => true
+      case "other" => false
+      case "notUs" => true
+      case _ => false // unknown situation
+    }
+  }
 
   private[agent] def addAction(user: User)(request: Request[_]): Result = {
     val searchedUser = keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)
@@ -105,7 +145,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
         if (form.hasErrors) {
           Ok(search_client_result(u, form))
         } else {
-          Ok(search_client_preferred_contact(preferredContactForm(request).bindFromRequest()(request)))
+          Ok(search_client_preferred_contact(preferredContactForm(request)))
         }
       }
       case None => BadRequest("Requested to add a user but none has been selected")
@@ -113,7 +153,13 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
   }
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
-    Ok("yay")
+    val form = preferredContactForm(request).bindFromRequest()(request)
+
+    if (form.hasErrors) {
+      BadRequest(search_client_preferred_contact(form))
+    }  else {
+      Ok("you have added a client!")
+    }
   }
 }
 

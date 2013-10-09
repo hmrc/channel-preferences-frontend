@@ -1,4 +1,5 @@
 @(preferredContactForm: Form[models.agent.addClient.PreferredContact])
+@import models.agent.addClient.PreferredContact
 
 @main(title = "Add a new client") {
 
@@ -8,26 +9,33 @@
 
     @helper.form(action = controllers.agent.addClient.routes.SearchClientController.preferredContact()) {
 
-        <p>
+            <p>
         <label>
-            <input type="radio" name="pointOfContact" checked="checked" value="me">
+            <input type="radio" name="pointOfContact"
+            @if(preferredContactForm.value.getOrElse(new PreferredContact("me", "", "", "")).pointOfContact == "me"){checked="checked"}
+            value="me">
             I am the preferred point of contact
         </label>
         </p>
         <p>
         <label>
-            <input type="radio" name="pointOfContact" value="other">
+            <input type="radio" name="pointOfContact"
+            @if(preferredContactForm.value.getOrElse(new PreferredContact("me", "", "", "")).pointOfContact == "other"){checked="checked"}
+            value="other">
+
             A named person in my office is the preferred point of contact
         </label>
 
-            @helpers.input(preferredContactForm("contactName"), 'label -> "Contact name")
-            @helpers.input(preferredContactForm("contactPhone"), 'label -> "Contact phone number")
-            @helpers.input(preferredContactForm("contactEmail"), 'label -> "Contact email address")
+            @helpers.input(preferredContactForm("contactName"), 'Label -> "Contact name")
+            @helpers.input(preferredContactForm("contactPhone"), 'Label -> "Contact phone number")
+            @helpers.input(preferredContactForm("contactEmail"), 'Label -> "Contact email address")
 
         </p>
         <p>
         <label>
-            <input type="radio" name="pointOfContact" value="notUs">
+            <input type="radio" name="pointOfContact"
+            @if(preferredContactForm.value.getOrElse(new PreferredContact("me", "", "", "")).pointOfContact == "notUs"){checked="checked"}
+            value="notUs">
             I am not the preferred point of contact
         </label>
         </p>
