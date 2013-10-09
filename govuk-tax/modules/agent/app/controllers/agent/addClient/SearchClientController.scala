@@ -16,6 +16,7 @@ import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroServices}
 import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
+import ConfirmClientController.addClientForm
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
                                                                 with ActionWrappers
@@ -29,8 +30,6 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 
   def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { homeAction } }
   def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { searchAction } }
-  def add = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { addAction } }
-  def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
 
   private[agent] def homeAction(user: User)(request: Request[_]): Result = {
     Ok(search_client(validDobRange, searchForm(request)))
@@ -77,89 +76,6 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
         }
       }
     )
-  }
-
-  private def addClientForm(request: Request[_]) = Form[AddClient](
-    mapping(
-      "correctClient" -> checked("You must check"),
-      "authorised" -> checked("tou must check"),
-      "internalClientReference" -> nonEmptyText()
-    ) (AddClient.apply)(AddClient.unapply)
-  )
-
-  private val contactMapping = mapping(
-    "pointOfContact" -> text,
-    "contactName" -> text,
-    "contactPhone" -> text,
-    "contactEmail" -> text
-  )(PreferredContact.apply)(PreferredContact.unapply)
-  private def unValidatedPreferredContactForm(request: Request[_]) = Form[PreferredContact](
-    contactMapping
-  )
-
-  private def preferredContactForm(request: Request[_]) = Form[PreferredContact](
-    mapping(
-      "pointOfContact" -> text,
-      "contactName" -> text.verifying("Name is required",
-        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      "contactPhone" -> text.verifying("Phone is required",
-        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      "contactEmail" -> text.verifying("Email is required",
-        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
-    ) (PreferredContact.apply)(PreferredContact.unapply)
-  )
-
-  private[addClient] def verifyContactName(name:String, preferredContact:PreferredContact) = {
-    preferredContact.pointOfContact match {
-      case "me" => true
-      case "other" => false
-      case "notUs" => true
-      case _ => false // unknown situation
-    }
-  }
-
-  private[addClient] def verifyContactPhone(name:String, preferredContact:PreferredContact) = {
-    preferredContact.pointOfContact match {
-      case "me" => true
-      case "other" => false
-      case "notUs" => true
-      case _ => false // unknown situation
-    }
-  }
-
-  private[addClient] def verifyContactEmail(name:String, preferredContact:PreferredContact) = {
-    preferredContact.pointOfContact match {
-      case "me" => true
-      case "other" => false
-      case "notUs" => true
-      case _ => false // unknown situation
-    }
-  }
-
-  private[agent] def addAction(user: User)(request: Request[_]): Result = {
-    val searchedUser = keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)
-
-    searchedUser match {
-      case Some(u) => {
-        val form = addClientForm(request).bindFromRequest()(request)
-        if (form.hasErrors) {
-          Ok(search_client_result(u, form))
-        } else {
-          Ok(search_client_preferred_contact(preferredContactForm(request)))
-        }
-      }
-      case None => BadRequest("Requested to add a user but none has been selected")
-    }
-  }
-
-  private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
-    val form = preferredContactForm(request).bindFromRequest()(request)
-
-    if (form.hasErrors) {
-      BadRequest(search_client_preferred_contact(form))
-    }  else {
-      Ok("you have added a client!")
-    }
   }
 }
 
