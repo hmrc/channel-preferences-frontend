@@ -73,7 +73,10 @@ case class PayeRoot(nino: String,
 
 case class TaxCode(employmentSequenceNumber: Int,
                    taxYear: Int,
-                   taxCode: String)
+                   taxCode: String,
+                   allowances: List[Allowance])
+
+case class Allowance(sourceAmount: Int, adjustedAmount: Int, `type`: Int)
 
 case class Benefit(benefitType: Int,
                    taxYear: Int,
@@ -138,6 +141,6 @@ case class TransactionId(oid: String)
 case class RecentTransaction(messageCode: String,
                              txTime: LocalDate)
 
-case class RemoveBenefitResponse(transaction: TransactionId, calculatedTaxCode: Option[String])
+case class RemoveBenefitResponse(transaction: TransactionId, calculatedTaxCode: Option[String], personalAllowance: Option[Int])
 
 

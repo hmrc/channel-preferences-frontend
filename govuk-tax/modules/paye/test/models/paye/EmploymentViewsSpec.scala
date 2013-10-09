@@ -23,8 +23,8 @@ class EmploymentViewsSpec extends BaseSpec {
   )
 
   val taxCodes = Seq(
-    TaxCode(employmentSequenceNumber, taxYear, "B211"),
-    TaxCode(2, taxYear, "L332")
+    TaxCode(employmentSequenceNumber, taxYear, "B211", List.empty),
+    TaxCode(2, taxYear, "L332", List.empty)
   )
 
   "EmploymentViews apply" should {

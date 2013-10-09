@@ -61,7 +61,7 @@ class PayeBaseSpec extends BaseSpec {
 
   val userWithRemovedCar = setupUser("/auth/oid/removedCar", "RC123456B", "User With Removed Car")
 
-  val johnDensmoresTaxCodes = Seq(TaxCode(1, 2013, "430L"))
+  val johnDensmoresTaxCodes = Seq(TaxCode(1, 2013, "430L", List(Allowance(1000, 2000, 11))))
 
   def johnDensmoresOneEmployment(sequenceNumberVal:Int = 1) = Seq(
     Employment(sequenceNumber = sequenceNumberVal, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), primaryEmploymentType))

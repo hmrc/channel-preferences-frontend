@@ -75,16 +75,12 @@ object EmploymentViews {
     acceptedTransactions: Seq[TxQueueTransaction],
     completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentView] = {
     for (e <- employments) yield EmploymentView(
-      e.employerNameOrReference, e.startDate, e.endDate, taxCodeWithEmploymentNumber(e.sequenceNumber, taxCodes),
+      e.employerNameOrReference, e.startDate, e.endDate, TaxCodeResolver.currentTaxCode(taxCodes, e.sequenceNumber),
       (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, ".accepted") ++
         transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, ".completed")).toList,
       taxCodeChange(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions))
   }
 
-  private def taxCodeWithEmploymentNumber(employmentSequenceNumber: Int, taxCodes: Seq[TaxCode]) = {
-    //TODO it's possible to have multiple tax codes for the same employment, in that case we have to use the one with the highest 'codingSequenceNumber'
-    taxCodes.find(_.employmentSequenceNumber == employmentSequenceNumber).map(_.taxCode).getOrElse("N/A")
-  }
 
   private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
     messageCodePostfix: String): Seq[RecentChange] = {
@@ -118,3 +114,5 @@ object EmploymentViews {
 case class RecentChange(messageCode: String, timeOfChange: LocalDate, types:Seq[String] = Seq.empty)
 
 case class CarFuelBenefitDates(carDate: Option[LocalDate], fuelDateType: Option[String])
+
+case class RemoveBenefitConfirmationData(oldTaxCode: String, newTaxCode: Option[String], personalAllowance: Option[Int], taxYearStart: String, taxYearEnd: String)

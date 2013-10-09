@@ -1,14 +1,14 @@
-GET         /home                                                         @controllers.paye.PayeHomeController.home
+GET         /home                                                               @controllers.paye.PayeHomeController.home
 
-GET         /benefits                                                     @controllers.paye.BenefitHomeController.listBenefits
+GET         /benefits                                                           @controllers.paye.BenefitHomeController.listBenefits
 
-GET         /benefits/:kinds/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.benefitRemovalForm(kinds: String, year: Int, employmentSequenceNumber: Int)
-POST        /benefits/:kinds/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.requestBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
-POST        /benefits/:kinds/:year/:employmentSequenceNumber/confirm      @controllers.paye.RemoveBenefitController.confirmBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
-GET         /benefits/:kinds/confirmation/:oid                             @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, oid: String)
+GET         /benefits/:kinds/:year/:employmentSequenceNumber/remove             @controllers.paye.RemoveBenefitController.benefitRemovalForm(kinds: String, year: Int, employmentSequenceNumber: Int)
+POST        /benefits/:kinds/:year/:employmentSequenceNumber/remove             @controllers.paye.RemoveBenefitController.requestBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
+POST        /benefits/:kinds/:year/:employmentSequenceNumber/confirm            @controllers.paye.RemoveBenefitController.confirmBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
+GET         /benefits/:kinds/:year/:employmentSequenceNumber/confirmation/:oid  @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 
-GET         /car-benefit/home                                               @controllers.paye.CarBenefitHomeController.carBenefitHome
+GET         /car-benefit/home                                                   @controllers.paye.CarBenefitHomeController.carBenefitHome
 
-GET         /car-benefit/:year/:employmentSequenceNumber/add                @controllers.paye.CarBenefitAddController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/add                @controllers.paye.CarBenefitAddController.saveAddCarBenefit(year: Int, employmentSequenceNumber: Int)
+GET         /car-benefit/:year/:employmentSequenceNumber/add                    @controllers.paye.CarBenefitAddController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/add                    @controllers.paye.CarBenefitAddController.saveAddCarBenefit(year: Int, employmentSequenceNumber: Int)
 

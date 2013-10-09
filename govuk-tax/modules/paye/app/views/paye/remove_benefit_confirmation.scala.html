@@ -1,23 +1,28 @@
-@(withdrawDate: String, benefitTypes: Seq[Int], oid: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(benefitTypes: Seq[Int], removalData: models.paye.RemoveBenefitConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
 @import config.RefData._
 
 @main(title = "Benefit removed", user = Some(user)) {
-    <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
     @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-      <h2 class="benefit-type">Company @{benefitsTitle} benefit removed</h2>
+      <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company <span id="benefit-type">@{benefitsTitle}</span></h1>
     }
-      <p>Thank you for telling us about the change to your company benefits.</p>
+      <h2>Thanks.</h2>
 
-      <p>Your benefits have been removed from your employment from <span id="withdraw-date">@withdrawDate</span>.</p>
+      <p>
+          Your tax code has changed from <span id="old-tax-code">@{removalData.oldTaxCode}</span>.
+          @if(removalData.newTaxCode.isDefined){
+            Your new tax code is <span id="new-tax-code">@{removalData.newTaxCode}</span>.
+          }
+      </p>
 
-      <p>We need to calculate a new tax code for you. We will notify you by email when this has happened. This should take less than 1 week.</p>
+      @if(removalData.personalAllowance.isDefined){
+        <p>This means that you will pay tax on anything you earn above <span id="personal-allowance">£@{removalData.personalAllowance}</span> between @{removalData.taxYearStart} and @{removalData.taxYearEnd}.</p>
+      }
 
-      <p class="transaction-id">Transaction ID: @{oid.toUpperCase}</p>
+      <p>HMRC will send you a confirmation by post within a week.</p>
 
-      <p><a class="cta cta--benefits" href="@controllers.paye.routes.BenefitHomeController.listBenefits">Back to your benefits</a></p>
-      <p><a class="cta cta--home" href="@controllers.paye.routes.PayeHomeController.home">Back to your tax overview</a></p>
+      <p>If you have finished, you can <a href="@common.routes.LoginController.logout">log out of your GOV.UK account.</a></p>
 
 }
 
