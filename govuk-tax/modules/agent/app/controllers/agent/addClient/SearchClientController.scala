@@ -9,7 +9,7 @@ import Forms._
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import models.agent.addClient.{AddClient, ClientSearch}
+import models.agent.addClient.{PreferredContact, AddClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
@@ -39,6 +39,8 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
   def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => searchAction(user, request) } }
 
   def add = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => addAction(user, request) } }
+
+  def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => preferredContactAction(user, request) } }
 
   private[agent] val homeAction: (User, Request[_]) => Result = (user, request) => {
     Ok(search_client(validDobRange, searchForm(request)))
@@ -95,6 +97,15 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     ) (AddClient.apply)(AddClient.unapply)
   )
 
+  private def preferredContactForm(request: Request[_]) = Form[PreferredContact](
+    mapping(
+      "pointOfContact" -> text,
+      "contactName" -> text,
+      "contactPhone" -> text,
+      "contactEmail" -> text
+    ) (PreferredContact.apply)(PreferredContact.unapply)
+  )
+
   private[agent] val addAction: (User, Request[_]) => Result = (user, request) => {
     val searchedUser = keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)
 
@@ -104,16 +115,16 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
         if (form.hasErrors) {
           Ok(search_client_result(u, form))
         } else {
-          Ok("This needs to redirect to the next page which is the next story")
+          Ok(search_client_preferred_contact(preferredContactForm(request).bindFromRequest()(request)))
         }
       }
       case None => BadRequest("Requested to add a user but none has been selected")
     }
-
-
-
   }
 
+  private[agent] val preferredContactAction: (User, Request[_]) => Result = (user, request) => {
+    Ok("yay")
+  }
 }
 
 object SearchClientController {

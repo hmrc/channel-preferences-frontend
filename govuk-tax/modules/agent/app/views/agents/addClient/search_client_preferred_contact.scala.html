@@ -1,0 +1,38 @@
+@(preferredContactForm: Form[models.agent.addClient.PreferredContact])
+
+@main(title = "Add a new client") {
+
+<h2>Add a new client to your agent tax account</h2>
+
+    <p>We would like to understand if you are the preferred point of contact in relation to PAYE payment matters for this client?</p>
+
+    @helper.form(action = controllers.agent.addClient.routes.SearchClientController.preferredContact()) {
+
+        <p>
+        <label>
+            <input type="radio" name="pointOfContact" checked="checked" value="me">
+            I am the preferred point of contact
+        </label>
+        </p>
+        <p>
+        <label>
+            <input type="radio" name="pointOfContact" value="other">
+            A named person in my office is the preferred point of contact
+        </label>
+
+            @helpers.input(preferredContactForm("contactName"), 'label -> "Contact name")
+            @helpers.input(preferredContactForm("contactPhone"), 'label -> "Contact phone number")
+            @helpers.input(preferredContactForm("contactEmail"), 'label -> "Contact email address")
+
+        </p>
+        <p>
+        <label>
+            <input type="radio" name="pointOfContact" value="notUs">
+            I am not the preferred point of contact
+        </label>
+        </p>
+        <p>
+            <input type="submit" value="Submit" />
+        </p>
+    }
+}
