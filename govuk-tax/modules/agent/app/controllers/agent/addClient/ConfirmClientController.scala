@@ -37,7 +37,7 @@ class ConfirmClientController extends BaseController
           Ok(search_client_preferred_contact(preferredContactForm(request)))
         }
       }
-      case None => BadRequest("Requested to add a user but none has been selected")
+      case _ => BadRequest("Requested to add a user but none has been selected")
     }
   }
 

@@ -12,7 +12,7 @@
             <p>
         <label>
             <input type="radio" name="pointOfContact"
-            @if(preferredContactForm.value.getOrElse(new PreferredContact("me", "", "", "")).pointOfContact == "me"){checked="checked"}
+            @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "me"){checked="checked"}
             value="me">
             I am the preferred point of contact
         </label>
@@ -20,7 +20,7 @@
         <p>
         <label>
             <input type="radio" name="pointOfContact"
-            @if(preferredContactForm.value.getOrElse(new PreferredContact("me", "", "", "")).pointOfContact == "other"){checked="checked"}
+            @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "other"){checked="checked"}
             value="other">
 
             A named person in my office is the preferred point of contact
@@ -34,7 +34,7 @@
         <p>
         <label>
             <input type="radio" name="pointOfContact"
-            @if(preferredContactForm.value.getOrElse(new PreferredContact("me", "", "", "")).pointOfContact == "notUs"){checked="checked"}
+            @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "notUs"){checked="checked"}
             value="notUs">
             I am not the preferred point of contact
         </label>
