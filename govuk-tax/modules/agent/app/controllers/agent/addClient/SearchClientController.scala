@@ -22,28 +22,17 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
                                                                 with SessionTimeoutWrapper
                                                                 with Validators {
   import SearchClientController.Validation._
-
-  private[addClient] val nino = "nino";
-  private[addClient] val firstName = "firstName";
-  private[addClient] val lastName = "lastName";
-  private[addClient] val dob = "dob";
-
-  //FIXME: move to an object
-  private[addClient] val serviceSourceKey = "agentFrontEnd"
-  private[addClient] def keystoreId(id: String) = s"AddClient:$id"
-  private[addClient] val clientSearchObjectKey = "clientSearchObject"
+  import SearchClientController.KeyStoreKeys._
+  import SearchClientController.FieldIds._
 
   def this() = this(MicroServices.keyStoreMicroService)
 
-  def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { user => request => homeAction(user, request) } }
+  def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { homeAction } }
+  def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { searchAction } }
+  def add = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { addAction } }
+  def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
 
-  def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { user => request => searchAction(user, request) } }
-
-  def add = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { user => request => addAction(user, request) } }
-
-  def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => preferredContactAction(user, request) } }
-
-  private[agent] val homeAction: (User, Request[_]) => Result = (user, request) => {
+  private[agent] def homeAction(user: User)(request: Request[_]): Result = {
     Ok(search_client(validDobRange, searchForm(request)))
   }
 
@@ -58,10 +47,10 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 
   private def searchForm(request: Request[_]) = Form[ClientSearch](
     mapping(
-      "nino" -> text.verifying("You must provide a valid nino", validateNino _),
-      "firstName" -> optional(text).verifying("Invalid firstname", validateName _),
-      "lastName" -> optional(text).verifying("Invalid last name", validateName _),
-      "dob" -> dateTuple.verifying("Invalid date of birth", validateDob)
+      nino -> text.verifying("You must provide a valid nino", validateNino _),
+      firstName -> optional(text).verifying("Invalid firstname", validateName _),
+      lastName -> optional(text).verifying("Invalid last name", validateName _),
+      dob -> dateTuple.verifying("Invalid date of birth", validateDob)
     ) (ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
   )
 
@@ -69,7 +58,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     val thisYear = LocalDate.now().getYear
     (thisYear - 110) to (thisYear - 16)
   }
-  private[agent] val searchAction: (User, Request[_]) => Result = (user, request) => {
+  private[agent] def searchAction(user: User)(request: Request[_]): Result = {
     val form = searchForm(request).bindFromRequest()(request)
     form.fold(
       errors => BadRequest(search_client(validDobRange, errors)),
@@ -107,7 +96,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     ) (PreferredContact.apply)(PreferredContact.unapply)
   )
 
-  private[agent] val addAction: (User, Request[_]) => Result = (user, request) => {
+  private[agent] def addAction(user: User)(request: Request[_]): Result = {
     val searchedUser = keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)
 
     searchedUser match {
@@ -123,7 +112,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     }
   }
 
-  private[agent] val preferredContactAction: (User, Request[_]) => Result = (user, request) => {
+  private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
     Ok("yay")
   }
 }
@@ -161,5 +150,17 @@ object SearchClientController {
     }
   }
 
+  private[addClient] object KeyStoreKeys {
+    val serviceSourceKey = "agentFrontEnd"
+    def keystoreId(id: String) = s"AddClient:$id"
+    val clientSearchObjectKey = "clientSearchObject"
+  }
+
+  private[addClient] object FieldIds {
+    val nino = "nino";
+    val firstName = "firstName";
+    val lastName = "lastName";
+    val dob = "dob";
+  }
 }
 
