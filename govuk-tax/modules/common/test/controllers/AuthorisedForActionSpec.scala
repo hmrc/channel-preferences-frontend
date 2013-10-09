@@ -17,16 +17,20 @@ import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import org.scalatest.TestData
 import java.util.UUID
+import uk.gov.hmrc.common.microservice.agent.{Agent, AgentMicroService, AgentRegime}
+import uk.gov.hmrc.domain.Uar
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockPayeMicroService = mock[PayeMicroService]
+  private lazy val mockAgentMicroService = mock[AgentMicroService]
 
   override protected def beforeEach(testData: TestData) {
     reset(mockAuthMicroService)
     reset(mockPayeMicroService)
-    when(mockPayeMicroService.root("/personal/paye/AB123456C")).thenReturn(
+    reset(mockAgentMicroService)
+    when(mockPayeMicroService.root("/paye/AB123456C")).thenReturn(
       PayeRoot(
         name = "John Densmore",
         firstName = "John",
@@ -42,13 +46,14 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       )
     )
     when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
-      Some(UserAuthority("/auth/oid/jfisher", Regimes(paye = Some(URI.create("/personal/paye/AB123456C"))), None)))
+      Some(UserAuthority("/auth/oid/jfisher", Regimes(paye = Some(URI.create("/paye/AB123456C"))), None)))
   }
 
   object TestController extends Controller with ActionWrappers with MockMicroServicesForTests with HeaderNames {
 
     override lazy val authMicroService = mockAuthMicroService
     override lazy val payeMicroService = mockPayeMicroService
+    override lazy val agentMicroService = mockAgentMicroService
 
     def test = AuthorisedForIdaAction(Some(PayeRegime)) {
       implicit user =>
@@ -66,6 +71,13 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
           Ok(userName)
     }
 
+    def testAgentAuthorisation = AuthorisedForIdaAction(Some(AgentRegime)) {
+      implicit user =>
+        implicit request =>
+          val userAgentRegimeRoot = user.regimes.agent.get.get
+          val uar = userAgentRegimeRoot.uar
+          Ok(uar.get)
+    }
 
     def testAuthorisationWithRedirectCommand = AuthorisedForIdaAction(redirectToOrigin = true) {
       implicit user =>
@@ -127,10 +139,33 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       strings(1) should startWith("govuk-tax-")
     }
 
+
+    "return 200 in case the agent is successfuly authorised" in new WithApplication(FakeApplication()) {
+
+
+      when(mockAuthMicroService.authority("/auth/oid/goeff")).thenReturn(
+        Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))), None)))
+
+      val agent = mock[Agent]
+      when(agent.uar).thenReturn(Some("uar-for-goeff"))
+      when(mockAgentMicroService.root("/agent/uar-for-goeff")).thenReturn(agent)
+      val result = TestController.testAgentAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/goeff"))))
+      status(result) should equal(200)
+      contentAsString(result) shouldBe "uar-for-goeff"
+    }
+
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
       val result = TestController.testAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), "userId" -> encrypt("/auth/oid/john")))
+      status(result) should equal(303)
+      redirectLocation(result).get shouldBe "/login"
+    }
+
+    "redirect to the Tax Regime landing page if the agent is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
+      when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
+        Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
+      val result = TestController.testAgentAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), "userId" -> encrypt("/auth/oid/john")))
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/login"
     }

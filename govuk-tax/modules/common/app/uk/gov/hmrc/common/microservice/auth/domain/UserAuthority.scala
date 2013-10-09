@@ -16,11 +16,13 @@ case class UserAuthority(id: String,
   ctUtr: Option[CtUtr] = None,
   empRef: Option[EmpRef] = None,
   nino: Option[Nino] = None,
+  uar: Option[Uar] = None,
   governmentGatewayCredential: Option[GovernmentGatewayCredentialResponse] = None,
   idaCredential: Option[IdaCredentialResponse] = None)
 
 case class Regimes(
   paye: Option[URI] = None,
+  agent: Option[URI] = None,
   sa: Option[URI] = None,
   vat: Option[URI] = None,
   ct: Option[URI] = None,

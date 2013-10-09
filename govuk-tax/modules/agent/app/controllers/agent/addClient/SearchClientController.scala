@@ -15,6 +15,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroServices}
 import uk.gov.hmrc.utils.DateConverter
+import uk.gov.hmrc.common.microservice.agent.AgentRegime
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
                                                                 with ActionWrappers
@@ -34,11 +35,11 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 
   def this() = this(MicroServices.keyStoreMicroService)
 
-  def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => homeAction(user, request) } }
+  def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { user => request => homeAction(user, request) } }
 
-  def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => searchAction(user, request) } }
+  def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { user => request => searchAction(user, request) } }
 
-  def add = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => addAction(user, request) } }
+  def add = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { user => request => addAction(user, request) } }
 
   def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { user => request => preferredContactAction(user, request) } }
 

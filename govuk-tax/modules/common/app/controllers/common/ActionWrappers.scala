@@ -119,7 +119,8 @@ trait ActionWrappers extends MicroServices with Results with CookieEncryption wi
       saBuilder = regimes.sa map { uri => RegimeRootBuilder(() => saConnector.root(uri.toString))},
       vatBuilder = regimes.vat map { uri => RegimeRootBuilder(() => vatConnector.root(uri.toString))},
       epayeBuilder = regimes.epaye.map { uri => RegimeRootBuilder(() => EpayeRoot(epayeConnector.root(uri.toString), authority.empRef.get))},
-      ctBuilder = regimes.ct.map { uri => RegimeRootBuilder(() => CtRoot(ctConnector.root(uri.toString), authority.ctUtr.get))}
+      ctBuilder = regimes.ct.map { uri => RegimeRootBuilder(() => CtRoot(ctConnector.root(uri.toString), authority.ctUtr.get))},
+      agentBuilder = regimes.agent.map { uri => RegimeRootBuilder(() => agentMicroService.root(uri.toString))}
     )
   }
 
