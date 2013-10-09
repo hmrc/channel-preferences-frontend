@@ -188,7 +188,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       Form[FiguresDummyModel](
         mapping(
           registeredBefore98 -> validateRegisteredBefore98(values),
-          fuelType -> validateFuelType,
+          fuelType -> validateFuelType(values),
           co2Figure -> validateCo2Figure(values),
           co2NoFigure -> validateNoCo2Figure(values),
           engineCapacity -> validateEngineCapacity(values)
@@ -201,10 +201,10 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, registeredBefore98, "Please answer this question.")
     }
 
-    "reject registered before 98 if fuel type is electricity and registered before 98 is true" in new WithApplication(FakeApplication()) {
-      val form = dummyForm(getValues(fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> "true", fuelType -> "electricity"))
+    "reject fuel type is electricity if registered before 98 is true" in new WithApplication(FakeApplication()) {
+      val form = dummyForm(getValues(registeredBefore98Val = Some("true"), fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> "true", fuelType -> "electricity"))
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, registeredBefore98, "Fuel type cannot be electric or zero emissions if your car was first registered with the DVLA before 1998.")
+      assertHasThisErrorMessage(form, fuelType, "Fuel type cannot be electric or zero emissions if your car was first registered with the DVLA before 1998.")
     }
 
     "reject co2 figure value if fuel type is electricity and co2 figure is not blank" in new WithApplication(FakeApplication()) {
@@ -231,22 +231,16 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is electric or zero emissions, then you must not select an engine size.")
     }
 
-    "reject engine capacity blank if fuel type is not electricity" in new WithApplication(FakeApplication()) {
-      val form = dummyForm(getValues(fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "diesel", engineCapacity -> ""))
-      form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is not electric or zero emissions, then you must select an engine capacity. No engine size does not apply to non-electric vehicles.")
-    }
-
     "reject co2 figures if co2 no figure is false (blank) and co2 figure is blank and fuel type is not electricity" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "diesel", co2Figure -> "", co2NoFigure -> ""))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, co2NoFigure, "You must provide a CO2 emissions figure, or select that the VCA do not have one.")
     }
 
-    "reject engine capacity blank if registered before 98 is true" in new WithApplication(FakeApplication()) {
-      val form = dummyForm(getValues(registeredBefore98Val = Some("true"), fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> "true", engineCapacity -> ""))
+    "reject engine capacity blank if fuel type is not electricity" in new WithApplication(FakeApplication()) {
+      val form = dummyForm(getValues(registeredBefore98Val = Some("true"), fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> "true", engineCapacity -> ""))
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, engineCapacity, "If your car was registered with the DVLA before 1998, then you must provide an engine capacity.")
+      assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is not electric or zero emissions, then you must select an engine capacity. No engine size does not apply to non-electric vehicles.")
 
     }
   }

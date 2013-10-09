@@ -59,8 +59,9 @@ object AddCarBenefitValidator extends Validators {
       case _ => ignored(None)
     }
 
-  private[paye] def validateFuelType(): Mapping[String] =
+  private[paye] def validateFuelType(values: CarBenefitValues): Mapping[String] =
      nonEmptyText.verifying("error.paye.fuel_type_mandatory" , data => isValidValue(fuelTypeOptions, data))
+     .verifying("error.paye.fuel_type_electricity_must_be_registered_after_98", data => if(values.registeredBefore98.getOrElse("") == "true") {!isFuelTypeElectric(Some(data)) } else true)
 
   private[paye] def validateEmployeeContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
     values.employeeContributes.map(_.toBoolean) match {
@@ -74,7 +75,6 @@ object AddCarBenefitValidator extends Validators {
     .verifying("error.paye.non_valid_option" , data => isValidValue(engineCapacityOptions, data))
     .verifying("error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity" , data => !isFuelTypeElectric(values.fuelType))
   ).verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(data.isEmpty) {isFuelTypeElectric(values.fuelType)} else true)
-  .verifying("error.paye.engine_capacity_must_not_be_blank_for_registered_before_98" , data => if(data.isEmpty) {values.registeredBefore98.getOrElse("") != "true"} else true)
 
   private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[String] = nonEmptyText
     .verifying("error.paye.non_valid_option" , data => isValidValue(employerPayFuelOptions, data))
@@ -84,8 +84,7 @@ object AddCarBenefitValidator extends Validators {
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateRegisteredBefore98(values: CarBenefitValues) : Mapping[Option[Boolean]] =
-    optional(boolean.verifying("error.paye.fuel_type_electricity_must_be_registered_after_98", data => !(isFuelTypeElectric(values.fuelType) && data == true)))
-    .verifying("error.paye.answer_mandatory", data => data.isDefined)
+    optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateProvidedTo(values: CarBenefitValues) : Mapping[Option[LocalDate]] = values.giveBackThisTaxYearVal.map(_.toBoolean) match {
     case Some(true) => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => values.providedFromVal.get.isBefore(values.providedToVal.get))

@@ -61,7 +61,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       employeeContribution -> validateEmployeeContribution(carBenefitValues),
       employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employerContribution -> validateEmployerContribution(carBenefitValues),
-      fuelType -> validateFuelType,
+      fuelType -> validateFuelType(carBenefitValues),
       co2Figure -> validateCo2Figure(carBenefitValues),
       co2NoFigure -> validateNoCo2Figure(carBenefitValues),
       engineCapacity -> validateEngineCapacity(carBenefitValues),
