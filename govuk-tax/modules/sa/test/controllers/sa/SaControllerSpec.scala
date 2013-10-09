@@ -2,7 +2,6 @@ package controllers.sa
 
 import play.api.test._
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-import play.api.mvc.{ Result, Request }
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URI }
 import controllers.common.SessionTimeoutWrapper._
@@ -10,17 +9,12 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.common.microservice.sa.domain._
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain._
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
-import scala.Some
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
-import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.SaUtr
 import java.util.UUID
@@ -40,7 +34,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     val ua = UserAuthority(s"/personal/$saUtr", Regimes(sa = Some(URI.create(s"/personal/utr/$saUtr"))), None, Some(SaUtr("123456789012")))
 
     val saRoot = SaRoot(
-      utr = "123456789012",
+      utr = SaUtr("123456789012"),
       links = Map(
         "individual/details" -> "/sa/individual/123456789012/details",
         "individual/details/main-address" -> "/sa/individual/123456789012/details/main-address")
@@ -61,7 +55,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       when(controller.saConnector.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
-          utr = "123456789012",
           address = SaIndividualAddress(
             addressLine1 = "address line 1",
             addressLine2 = "address line 2",
@@ -74,16 +67,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
           )
         ))
       )
-
-//      private def request(user: User, action: (User, Request[_]) => Result): String = {
-//        val result = action(user, FakeRequest())
-//
-//        status(result) should be(200)
-//
-//        contentAsString(result)
-//      }
-
-      //val content = request(geoffFisher, controller.detailsAction))
 
       val result = controller.detailsAction(geoffFisher, FakeRequest())
       status(result) should be(200)
@@ -551,13 +534,5 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       htmlBody should include(postcode)
       htmlBody should include(additionalInfo)
     }
-  }
-
-  private def request(user: User, action: (User, Request[_]) => Result): String = {
-    val result = action(user, FakeRequest())
-
-    status(result) should be(200)
-
-    contentAsString(result)
   }
 }

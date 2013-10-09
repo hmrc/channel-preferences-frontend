@@ -6,7 +6,7 @@ import scala.util.Try
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import play.api.Logger
 import org.apache.commons.lang.exception.ExceptionUtils
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots.RegimeRootBuilder
@@ -60,6 +60,7 @@ class RegimeRoots(payeBuilder: Option[RegimeRootBuilder[PayeRoot]],
 }
 
 object RegimeRoots {
+
   def apply(paye: Option[Try[PayeRoot]] = None, sa: Option[Try[SaRoot]] = None,
             vat: Option[Try[VatRoot]] = None, epaye: Option[Try[EpayeRoot]] = None,
             ct: Option[Try[CtRoot]] = None, agent: Option[Try[Agent]] = None): RegimeRoots = {
@@ -70,6 +71,7 @@ object RegimeRoots {
     val epayeBuilder = epaye.map(tryEpayeRoot => new RegimeRootBuilder(() => tryEpayeRoot.get))
     val ctBuilder = ct.map(tryCtRoot => new RegimeRootBuilder(() => tryCtRoot.get))
     val agentBuilder = agent.map(tryAgentRoot => new RegimeRootBuilder(() => tryAgentRoot.get))
+
     new RegimeRoots(payeBuilder, saBuilder, vatBuilder, epayeBuilder, ctBuilder, agentBuilder)
   }
 

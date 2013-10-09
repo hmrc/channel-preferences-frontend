@@ -3,7 +3,7 @@ package controllers.bt.regimeViews
 import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoot}
 import scala.util.Try
 
-abstract class AccountSummaryTemplate[R <: RegimeRoot[_]] {
+abstract class AccountSummaryBuilder[R <: RegimeRoot[_]] {
 
   def build(buildPortalUrl: String => String, user: User) : Option[AccountSummary] = {
     rootForRegime(user).map {
@@ -12,6 +12,9 @@ abstract class AccountSummaryTemplate[R <: RegimeRoot[_]] {
   }
 
   def buildAccountSummary(regimeRoot : R, buildPortalUrl: String => String) : AccountSummary
+
+  // def oops() : AccountSummary
+
   def rootForRegime(user : User): Option[Try[R]]
 }
 

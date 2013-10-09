@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.ct.domain.CtDomain
 import scala.util.Try
 
 
-case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSummaryTemplate[CtRoot]{
+case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSummaryBuilder[CtRoot]{
 
   import CtMessageKeys._
   import CtPortalUrlKeys._

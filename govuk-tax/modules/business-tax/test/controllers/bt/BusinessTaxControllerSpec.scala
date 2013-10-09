@@ -27,13 +27,13 @@ import play.api.Logger
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeJsonRoot, EpayeLinks, EpayeRoot}
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.{SaRoot, SaJsonRoot}
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatJsonRoot, VatRoot}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
@@ -246,15 +246,17 @@ trait GeoffFisherExpectations {
     ctUtr = Some(geoffFisherCtUtr),
     empRef = Some(geoffFisherEmpRef))
 
-  def geoffFisherSaRoot = SaRoot(utr = geoffFisherSaUtr.toString, links = Map("something" -> s"$geoffFisherSaUtr/stuff"))
+  def geoffFisherSaJsonRoot = SaJsonRoot(links = Map("something" -> s"$geoffFisherSaUtr/stuff"))
+  def geoffFisherSaRoot = SaRoot(geoffFisherSaUtr, geoffFisherSaJsonRoot)
 
+  def geoffFisherVatJsonRoot = VatJsonRoot(links = Map("something" -> s"$geoffFisherVrn/stuff"))
   def geoffFisherVatRoot = VatRoot(vrn = geoffFisherVrn, links = Map("something" -> s"$geoffFisherVrn/stuff"))
 
   def geoffFisherEpayeJsonRoot = EpayeJsonRoot(EpayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ) )
-  def geoffFisherEpayeRoot = EpayeRoot(geoffFisherEpayeJsonRoot, geoffFisherEmpRef)
+  def geoffFisherEpayeRoot = EpayeRoot(geoffFisherEmpRef, geoffFisherEpayeJsonRoot)
 
   def geoffFisherCtJsonRoot = CtJsonRoot(Map("something" -> s"$geoffFisherCtUtr/dsffds"))
-  def geoffFisherCtRoot = CtRoot(geoffFisherCtJsonRoot, ctUtr = geoffFisherCtUtr)
+  def geoffFisherCtRoot = CtRoot(geoffFisherCtUtr, geoffFisherCtJsonRoot)
 
 
 
@@ -268,8 +270,8 @@ trait GeoffFisherExpectations {
   )
 
   when(mockAuthMicroService.authority(geoffFisherAuthId)).thenReturn(Some(geoffFisherAuthority))
-  when(mockSaConnector.root(geoffFisherSaUtr.toString)).thenReturn(geoffFisherSaRoot)
-  when(mockVatConnector.root(geoffFisherVrn.toString)).thenReturn(geoffFisherVatRoot)
+  when(mockSaConnector.root(geoffFisherSaUtr.toString)).thenReturn(geoffFisherSaJsonRoot)
+  when(mockVatConnector.root(geoffFisherVrn.toString)).thenReturn(geoffFisherVatJsonRoot)
   when(mockEpayeConnector.root(geoffFisherEmpRef.toString)).thenReturn(geoffFisherEpayeJsonRoot)
   when(mockCtConnector.root(geoffFisherCtUtr.toString)).thenReturn(geoffFisherCtJsonRoot)
 }

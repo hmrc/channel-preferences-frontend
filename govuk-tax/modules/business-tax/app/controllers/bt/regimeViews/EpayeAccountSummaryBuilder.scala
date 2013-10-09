@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSumm
 import uk.gov.hmrc.domain.EmpRef
 import scala.util.Try
 
-case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends AccountSummaryTemplate[EpayeRoot] {
+case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends AccountSummaryBuilder[EpayeRoot] {
 
   override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String): AccountSummary = {
 

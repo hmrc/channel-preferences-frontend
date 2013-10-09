@@ -8,8 +8,9 @@ object EpayeDomain {
 
   case class EpayeLinks(accountSummary: Option[String])
 
-  case class EpayeRoot(links: EpayeLinks, empref: EmpRef) extends RegimeRoot[EmpRef] {
-    def identifier = empref
+  case class EpayeRoot(empRef: EmpRef, links: EpayeLinks) extends RegimeRoot[EmpRef] {
+
+    override val identifier = empRef
 
     def accountSummary(implicit epayeConnector: EpayeConnector): Option[EpayeAccountSummary] = {
       links.accountSummary match {
@@ -20,7 +21,7 @@ object EpayeDomain {
   }
 
   object EpayeRoot {
-    def apply(root : EpayeJsonRoot, empref: EmpRef) : EpayeRoot = new EpayeRoot(root.links, empref)
+    def apply(empRef: EmpRef, root : EpayeJsonRoot) : EpayeRoot = new EpayeRoot(empRef, root.links)
   }
 
   case class EpayeJsonRoot(links: EpayeLinks)

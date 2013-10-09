@@ -7,10 +7,11 @@ class CtConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.ctServiceUrl
 
-  def root(uri: String): CtJsonRoot = httpGet[CtJsonRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Ct root not found for resource $uri"))
+  def root(uri: String): CtJsonRoot =
+    httpGet[CtJsonRoot](uri).getOrElse(CtJsonRoot(Map.empty))
 
   def accountSummary(uri: String): Option[CtAccountSummary] = {
     httpGet[CtAccountSummary](uri)
   }
-
 }
+

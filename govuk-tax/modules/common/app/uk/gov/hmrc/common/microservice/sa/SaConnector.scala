@@ -3,18 +3,15 @@ package uk.gov.hmrc.common.microservice.sa
 import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
-import uk.gov.hmrc.common.microservice.sa.domain._
-import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
-import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
-import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain._
+import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import uk.gov.hmrc.microservice.MicroServiceException
-import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
 
 class SaConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.saServiceUrl
 
-  def root(uri: String): SaRoot = httpGet[SaRoot](uri).getOrElse(throw new IllegalStateException(s"Expected SA root not found at URI '$uri'"))
+  def root(uri: String): SaJsonRoot = httpGet[SaJsonRoot](uri).getOrElse(SaJsonRoot(Map.empty))
 
   def person(uri: String): Option[SaPerson] = httpGet[SaPerson](uri)
 

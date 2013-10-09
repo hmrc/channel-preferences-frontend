@@ -7,7 +7,7 @@ import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.util.Try
 
-case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryTemplate[VatRoot] {
+case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryBuilder[VatRoot] {
 
   import VatMessageKeys._
   import VatPortalUrls._

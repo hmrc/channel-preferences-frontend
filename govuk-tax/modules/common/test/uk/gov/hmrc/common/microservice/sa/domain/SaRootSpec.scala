@@ -4,9 +4,10 @@ import uk.gov.hmrc.common.BaseSpec
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import org.mockito.Matchers
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain._
 
 class SaRootSpec extends BaseSpec with MockitoSugar {
 
@@ -14,9 +15,9 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
 
     "call the SA microservice when the uri is found in the SaRoot and return its value" in {
       val uri = "sa/individual/12345/personalDetails"
-      val saRoot = SaRoot("12345", Map("individual/details" -> uri))
+      val saRoot = SaRoot(SaUtr("12345"), Map("individual/details" -> uri))
       val name = SaName("Mr", "Tim", None, "Smith", None)
-      val saPersonalDetails = Some(SaPerson("tim", name, SaIndividualAddress("line1", "line2", Some("line3"), Some("line4"), Some("line5"), Some("46353"), Some("Malta"),None)))
+      val saPersonalDetails = Some(SaPerson(name, SaIndividualAddress("line1", "line2", Some("line3"), Some("line4"), Some("line5"), Some("46353"), Some("Malta"),None)))
       val saConnector = mock[SaConnector]
 
       when(saConnector.person(uri)).thenReturn(saPersonalDetails)
@@ -26,7 +27,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
     }
 
     "return None when the personal details link is not present" in {
-      val saRoot = SaRoot("12345", Map.empty)
+      val saRoot = SaRoot(SaUtr("12345"), Map[String, String]())
       val saConnector = mock[SaConnector]
 
       saRoot.personalDetails(saConnector) shouldBe None
@@ -39,8 +40,8 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
 
     "call the SA microservice when the uri is found in the SaRoot and return its value" in {
       val uri = "sa/individual/12345/accountSummary"
-      val saRoot = SaRoot("12345", Map("individual/account-summary" -> uri))
-      val accountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(30.2), false)), None, Some(BigDecimal(454.2))))
+      val saRoot = SaRoot(SaUtr("12345"), Map("individual/account-summary" -> uri))
+      val accountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(30.2), requiresPayment = false)), None, Some(BigDecimal(454.2))))
       val saConnector = mock[SaConnector]
 
       when(saConnector.accountSummary(uri)).thenReturn(accountSummary)
@@ -50,7 +51,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
     }
 
     "return None when the account summary link is not present" in {
-      val saRoot = SaRoot("12345", Map.empty)
+      val saRoot = SaRoot(SaUtr("12345"), Map[String, String]())
       val saConnector = mock[SaConnector]
 
       saRoot.accountSummary(saConnector) shouldBe None
@@ -63,7 +64,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
 
     "call the SA microservice when the uri is found in the SaRoot for updating the main address" in {
       val uri = "sa/individual/12345/mainAddress"
-      val saRoot = SaRoot("12345", Map("individual/details/main-address" -> uri))
+      val saRoot = SaRoot(SaUtr("12345"), Map("individual/details/main-address" -> uri))
       val saMainAddress = SaAddressForUpdate("line1", "line2", None, None, None, None)
       implicit val saConnector = mock[SaConnector]
       val transactionId = Right(TransactionId("12343asdfkjhaslkdfhoi3243kjh3kj4h343"))
@@ -75,7 +76,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
     }
 
     "throw a IllegalStateException when link the uri is not found in the SaRoot" in {
-      val saRoot = SaRoot("12345", Map.empty)
+      val saRoot = SaRoot(SaUtr("12345"), Map[String, String]())
       implicit val saConnector = mock[SaConnector]
       val saMainAddress = SaAddressForUpdate("line1", "line2", None, None, None, None)
 

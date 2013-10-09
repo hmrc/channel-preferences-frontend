@@ -3,20 +3,20 @@ package uk.gov.hmrc.common.microservice.domain
 
 import uk.gov.hmrc.common.BaseSpec
 import scala.util.{Try, Success}
-import uk.gov.hmrc.domain.{CtUtr, Vrn, EmpRef}
+import uk.gov.hmrc.domain.{SaUtr, CtUtr, Vrn, EmpRef}
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeLinks, EpayeRoot}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
 
 class RegimeRootsSpec extends BaseSpec {
-  def empref: EmpRef = EmpRef("123", "456")
+  def empRef: EmpRef = EmpRef("123", "456")
   def ctUtr: CtUtr = CtUtr("aCtUtr")
-  def someRoot(sa: Option[Try[SaRoot]] = Some(Success(SaRoot("someUtr", Map("link1" -> "http://sa/1"))))) = RegimeRoots(
+  def someRoot(sa: Option[Try[SaRoot]] = Some(Success(SaRoot(SaUtr("someUtr"), Map("link1" -> "http://sa/1"))))) = RegimeRoots(
     sa = sa,
-    ct = Some(Success(CtRoot(Map("link1" -> "http://ct/1"), ctUtr))),
+    ct = Some(Success(CtRoot(ctUtr, Map("link1" -> "http://ct/1")))),
     vat = Some(Success(VatRoot(Vrn("someVrn"), Map("link1" -> "http://vat/1")))),
-    epaye = Some(Success(EpayeRoot(EpayeLinks(Some("http://epaye/1")), empref))),
+    epaye = Some(Success(EpayeRoot(empRef, EpayeLinks(Some("http://epaye/1"))))),
     paye = None)
 
   "Matching RegimeRoot" should {

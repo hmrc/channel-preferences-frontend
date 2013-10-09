@@ -7,3 +7,5 @@ case class SaAddressForUpdate(
   addressLine4: Option[String],
   postcode: Option[String],
   additionalDeliveryInformation: Option[String])
+
+case class TransactionId(oid: String)

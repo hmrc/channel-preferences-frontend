@@ -4,12 +4,12 @@ import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import SaMessageKeys._
 import SaPortalUrlKeys._
-import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, Liability, SaRoot}
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import scala.util.Try
 
-case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryTemplate[SaRoot] {
+case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryBuilder[SaRoot] {
 
   def rootForRegime(user: User): Option[Try[SaRoot]] = user.regimes.sa
 

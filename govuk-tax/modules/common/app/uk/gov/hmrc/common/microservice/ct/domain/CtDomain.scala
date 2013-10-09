@@ -6,11 +6,15 @@ import uk.gov.hmrc.domain.CtUtr
 
 object CtDomain {
 
-  case class CtRoot(links: Map[String, String], ctUtr: CtUtr) extends RegimeRoot[CtUtr] {
+  object CtRoot {
+    def apply(utr: CtUtr, root: CtJsonRoot): CtRoot = new CtRoot(utr, root.links)
+  }
+
+  case class CtRoot(utr: CtUtr, links: Map[String, String]) extends RegimeRoot[CtUtr] {
 
     private val accountSummaryKey = "accountSummary"
 
-    def identifier = ctUtr
+    override val identifier = utr
 
     def accountSummary(implicit ctConnector: CtConnector): Option[CtAccountSummary] = {
       links.get(accountSummaryKey) match {
@@ -25,11 +29,5 @@ object CtDomain {
   case class CtAccountBalance(amount: Option[BigDecimal], currency: Option[String])
 
   case class CtJsonRoot(links: Map[String, String])
-
-  object CtRoot{
-
-    def apply(root: CtJsonRoot, ctUtr: CtUtr): CtRoot = new CtRoot(root.links, ctUtr)
-  }
-
 }
 

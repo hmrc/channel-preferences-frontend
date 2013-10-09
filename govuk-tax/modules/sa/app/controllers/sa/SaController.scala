@@ -1,26 +1,22 @@
 package controllers.sa
 
-  import views.html.sa._
+import views.html.sa._
 
 import play.api.data._
 import play.api.data.Forms._
 
-import uk.gov.hmrc.common.microservice.sa.domain._
-import scala.Some
-import uk.gov.hmrc.common.microservice.domain.User
-
-//import views.html.sa._
 import controllers.common._
 import config.DateTimeProvider
 
 import play.api.mvc.{Request, Result}
 import controllers.common.validators.{ characterValidator, Validators }
 import scala.util.{ Success, Try, Left }
-import uk.gov.hmrc.common.microservice.sa.domain.TransactionId
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaPerson
 import controllers.sa.{ routes => saRoutes }
+import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 
 class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
 
@@ -30,37 +26,15 @@ class SaController extends BaseController with ActionWrappers with SessionTimeou
 	detailsAction
   })
 
-//  def details2 = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
-//    implicit user: User =>
-//      implicit request =>
-//        val userData: SaRoot = user.regimes.sa.get
-//
-//        userData.personalDetails match {
-//          case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
-//          case _ => NotFound //FIXME: this should really be an error page
-//        }
-//
-//  })
-
   private[sa] def detailsAction(implicit user: User, request: Request[_]):  Result = {
 
     val userData: SaRoot = user.regimes.sa.get.get
 
     userData.personalDetails match {
-      case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
+      case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
       case _ => NotFound //FIXME: this should really be an error page
     }
   }
-
-//  private[sa] def detailsAction: (User, Request[_]) => Result = (user, request) => {
-//
-//    val userData: SaRoot = user.regimes.sa.get
-//
-//    userData.personalDetails match {
-//      case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr, person, user.nameFromGovernmentGateway.getOrElse(""))(user))
-//      case _ => NotFound //FIXME: this should really be an error page
-//    }
-//  }
 
   val changeAddressForm: Form[ChangeAddressForm] = Form(
     mapping(

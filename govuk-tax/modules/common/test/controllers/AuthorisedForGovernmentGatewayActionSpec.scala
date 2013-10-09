@@ -10,7 +10,8 @@ import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import play.api.test.Helpers._
 import java.net.URI
 import org.slf4j.MDC
-import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, SaRegime}
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.{SaJsonRoot, SaRoot}
+import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
@@ -21,36 +22,47 @@ import scala.util.Success
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatJsonRoot, VatRoot}
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeRoot, EpayeLinks, EpayeJsonRoot}
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtRoot, CtJsonRoot}
-import uk.gov.hmrc.domain.{CtUtr, EmpRef, Vrn}
+import uk.gov.hmrc.domain.{SaUtr, CtUtr, EmpRef, Vrn}
 
 class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSugar with CookieEncryption with Controller with ActionWrappers with MockMicroServicesForTests with HeaderNames {
 
   private val token = "someToken"
+  
   override lazy val authMicroService = mock[AuthMicroService]
   override lazy val saConnector = mock[SaConnector]
   override lazy val epayeConnector = mock[EpayeConnector]
   override lazy val ctConnector = mock[CtConnector]
   override lazy val vatConnector = mock[VatConnector]
-  val lottyRegime_empref: EmpRef = EmpRef("123", "456")
-  val lottyRegime_ctUtr: CtUtr = CtUtr("aCtUtr")
+  
+  private val lottyRegime_empRef: EmpRef = EmpRef("123", "456")
+  private val lottyRegime_ctUtr: CtUtr = CtUtr("aCtUtr")
+  private val lottyRegime_vrn: Vrn = Vrn("someVrn")
+  private val lottyRegime_saUtr: SaUtr = SaUtr("aSaUtr")
 
   override protected def beforeEach(testData: TestData) {
     reset(authMicroService)
     reset(saConnector)
-    when(saConnector.root("/sa/detail/AB123456C")).thenReturn(
-      SaRoot("someUtr", Map("link1" -> "http://somelink/1"))
+
+    when(saConnector.root("/sa/detail/3333333333")).thenReturn(
+      SaJsonRoot(Map("link1" -> "http://somelink/1"))
     )
+
     when(authMicroService.authority("/auth/oid/gfisher")).thenReturn(
-      Some(UserAuthority("/auth/oid/gfisher", Regimes(sa = Some(URI.create("/sa/detail/AB123456C"))), None)))
+      Some(UserAuthority(id = "/auth/oid/gfisher", saUtr = Some(SaUtr("3333333333")), regimes = Regimes(sa = Some(URI.create("/sa/detail/3333333333"))))))
+
     when(authMicroService.authority("/auth/oid/lottyRegimes")).thenReturn(
       Some(UserAuthority("/auth/oid/lottyRegimes",
-        Regimes(sa = Some(URI.create("/saDetailEndpoint")),
+        regimes = Regimes(sa = Some(URI.create("/saDetailEndpoint")),
           epaye = Some(URI.create("/epayeDetailEndpoint")),
           vat = Some(URI.create("/vatDetailEndpoint")),
-          ct = Some(URI.create("/ctDetailEndpoint"))), None, empRef = Some(lottyRegime_empref), ctUtr = Some(lottyRegime_ctUtr))))
+          ct = Some(URI.create("/ctDetailEndpoint"))),
+        vrn = Some(lottyRegime_vrn),
+        empRef = Some(lottyRegime_empRef),
+        ctUtr = Some(lottyRegime_ctUtr),
+        saUtr = Some(lottyRegime_saUtr))))
   }
 
 
@@ -58,14 +70,14 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSuga
     implicit user =>
       implicit request =>
         val saUtr = user.regimes.sa.get.get.utr
-        Ok(saUtr)
+        Ok(saUtr.utr)
   }
 
   def testAuthorisation = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         val saUtr = user.regimes.sa.get.get.utr
-        Ok(saUtr)
+        Ok(saUtr.utr)
   }
 
 
@@ -86,7 +98,7 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSuga
       val result = test(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "token" -> encrypt(token)))
 
       status(result) should equal(200)
-      contentAsString(result) should include("someUtr")
+      contentAsString(result) should include("3333333333")
     }
   }
 
@@ -138,71 +150,64 @@ class AuthorisedForGovernmentGatewayActionSpec extends BaseSpec with MockitoSuga
       def testRegimeRoots = AuthorisedForGovernmentGatewayAction() {
         implicit user =>
           implicit request =>
-            when(saConnector.root("/saDetailEndpoint")).thenReturn(
-              SaRoot("someUtr", Map("link1" -> "http://sa/1"))
-            )
-            when(ctConnector.root("/ctDetailEndpoint")).thenReturn(
-              CtJsonRoot(Map("link1" -> "http://ct/1"))
-            )
-            when(vatConnector.root("/vatDetailEndpoint")).thenReturn(
-              VatRoot(Vrn("someVrn"), Map("link1" -> "http://vat/1"))
-            )
-            when(epayeConnector.root("/epayeDetailEndpoint")).thenReturn(
-              EpayeJsonRoot(EpayeLinks(Some("http://epaye/1")))
-            )
+
+            when(saConnector.root("/saDetailEndpoint")).thenReturn(SaJsonRoot(Map("link1" -> "http://sa/1")))
+
+            when(ctConnector.root("/ctDetailEndpoint")).thenReturn(CtJsonRoot(Map("link1" -> "http://ct/1")))
+
+            when(vatConnector.root("/vatDetailEndpoint")).thenReturn(VatJsonRoot(Map("link1" -> "http://vat/1")))
+
+            when(epayeConnector.root("/epayeDetailEndpoint")).thenReturn(EpayeJsonRoot(EpayeLinks(Some("http://epaye/1"))))
+
             user.regimes should have(
-              'sa(Some(Success(SaRoot("someUtr", Map("link1" -> "http://sa/1"))))),
-              'ct(Some(Success(CtRoot(Map("link1" -> "http://ct/1"), lottyRegime_ctUtr)))),
-              'vat(Some(Success(VatRoot(Vrn("someVrn"), Map("link1" -> "http://vat/1"))))),
-              'epaye(Some(Success(EpayeRoot(EpayeLinks(Some("http://epaye/1")), lottyRegime_empref)))),
+              'sa(Some(Success(SaRoot(lottyRegime_saUtr, Map("link1" -> "http://sa/1"))))),
+              'ct(Some(Success(CtRoot(lottyRegime_ctUtr, Map("link1" -> "http://ct/1"))))),
+              'vat(Some(Success(VatRoot(lottyRegime_vrn, Map("link1" -> "http://vat/1"))))),
+              'epaye(Some(Success(EpayeRoot(lottyRegime_empRef, EpayeLinks(Some("http://epaye/1")))))),
               'paye(None))
             Ok("dummy argument")
       }
+
       val result = testRegimeRoots(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         "userId" -> encrypt("/auth/oid/lottyRegimes"), "token" -> encrypt(token)))
+
       status(result) should equal(200)
     }
+
     "evaluate root endpoints lazily" in new WithApplication(FakeApplication()) {
 
       def testRegimeRoots = AuthorisedForGovernmentGatewayAction() {
         implicit user =>
           implicit request =>
-            when(saConnector.root("/saDetailEndpoint")).thenReturn(
-              SaRoot("someUtr", Map("link1" -> "http://sa/1"))
-            )
-            when(ctConnector.root("/ctDetailEndpoint")).thenReturn(
-              CtJsonRoot(Map("link1" -> "http://ct/1"))
-            )
-            when(vatConnector.root("/vatDetailEndpoint")).thenReturn(
-              VatRoot(Vrn("someVrn"), Map("link1" -> "http://vat/1"))
-            )
-            when(epayeConnector.root("/epayeDetailEndpoint")).thenReturn(
-              EpayeJsonRoot(EpayeLinks(Some("http://epaye/1")))
-            )
+
+            when(saConnector.root("/saDetailEndpoint")).thenReturn(SaJsonRoot(Map("link1" -> "http://sa/1")))
+
+            when(ctConnector.root("/ctDetailEndpoint")).thenReturn(CtJsonRoot(Map("link1" -> "http://ct/1")))
+
+            when(vatConnector.root("/vatDetailEndpoint")).thenReturn(VatJsonRoot(Map("link1" -> "http://vat/1")))
+
+            when(epayeConnector.root("/epayeDetailEndpoint")).thenReturn(EpayeJsonRoot(EpayeLinks(Some("http://epaye/1"))))
+
             user.regimes should have(
-              'sa(Some(Success(SaRoot("someUtr", Map("link1" -> "http://sa/1"))))),
-              'ct(Some(Success(CtRoot(Map("link1" -> "http://ct/1"), lottyRegime_ctUtr)))),
+              'sa(Some(Success(SaRoot(lottyRegime_saUtr, Map("link1" -> "http://sa/1"))))),
+              'ct(Some(Success(CtRoot(lottyRegime_ctUtr, Map("link1" -> "http://ct/1"))))),
               'vat(Some(Success(VatRoot(Vrn("someVrn"), Map("link1" -> "http://vat/1"))))),
-              'epaye(Some(Success(EpayeRoot(EpayeLinks(Some("http://epaye/1")), lottyRegime_empref)))),
+              'epaye(Some(Success(EpayeRoot(lottyRegime_empRef, EpayeLinks(Some("http://epaye/1")))))),
               'paye(None))
             Ok("dummy argument")
       }
 
-      when(saConnector.root("/saDetailEndpoint")).thenReturn(
-        SaRoot("someUtr", Map("link1" -> "http://sa/2"))
-      )
-      when(ctConnector.root("/ctDetailEndpoint")).thenReturn(
-        CtJsonRoot(Map("link1" -> "http://ct/2"))
-      )
-      when(vatConnector.root("/vatDetailEndpoint")).thenReturn(
-        VatRoot(Vrn("someVrn"), Map("link1" -> "http://vat/2"))
-      )
-      when(epayeConnector.root("/epayeDetailEndpoint")).thenReturn(
-        EpayeJsonRoot(EpayeLinks(Some("http://epaye/2")))
-      )
+      when(saConnector.root("/saDetailEndpoint")).thenReturn(SaJsonRoot(Map("link1" -> "http://sa/2")))
+
+      when(ctConnector.root("/ctDetailEndpoint")).thenReturn(CtJsonRoot(Map("link1" -> "http://ct/2")))
+
+      when(vatConnector.root("/vatDetailEndpoint")).thenReturn(VatJsonRoot(Map("link1" -> "http://vat/2")))
+
+      when(epayeConnector.root("/epayeDetailEndpoint")).thenReturn(EpayeJsonRoot(EpayeLinks(Some("http://epaye/2"))))
 
       val result = testRegimeRoots(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         "userId" -> encrypt("/auth/oid/lottyRegimes"), "token" -> encrypt(token)))
+
       status(result) should equal(200)
     }
   }

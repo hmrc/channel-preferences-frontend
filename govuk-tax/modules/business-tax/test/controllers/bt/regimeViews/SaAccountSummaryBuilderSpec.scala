@@ -9,13 +9,13 @@ import org.joda.time.LocalDate
 import controllers.bt.routes
 import controllers.bt.regimeViews.SaMessageKeys._
 import views.helpers.LinkMessage
-import uk.gov.hmrc.common.microservice.sa.domain.Liability
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.Liability
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import views.helpers.RenderableLinkMessage
-import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaAccountSummary
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.sa.domain.AmountDue
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.AmountDue
 import SaPortalUrlKeys._
 import scala.util.Success
 

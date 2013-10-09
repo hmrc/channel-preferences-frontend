@@ -22,7 +22,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val buildPortalUrl: (String) => String = (value: String) => value
   val ctUtr = CtUtr("12347")
   val aDate = "2012-06-06"
-  val regimeRootsWithCt = RegimeRoots(None, None, None, None, Some(Success(CtRoot(Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary"), ctUtr))))
+  val regimeRootsWithCt = RegimeRoots(None, None, None, None, Some(Success(CtRoot(ctUtr, Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary")))))
   val userAuthorityWithCt = UserAuthority("123", Regimes(ct = Some(new URI(s"/ct/${ctUtr.utr}"))), ctUtr = Some(ctUtr))
   val userEnrolledForCt = User("tim", userAuthorityWithCt, regimeRootsWithCt, None, None)
   val vrn = Vrn("123")
