@@ -47,21 +47,21 @@ trait MicroService extends Status with HeaderNames {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get())(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
 
   protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
   }
 
   protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
     val wsResource = httpResource(uri)
-    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body))(extractNoResponse), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), MicroServiceConfig.defaultTimeoutDuration)
   }
 
   protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
   }
 
   protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
@@ -105,7 +105,7 @@ trait MicroService extends Status with HeaderNames {
     response
   }
 
-  protected def response[A](futureResponse: Future[Response])(handleResponse: (Response) => A)(implicit m: Manifest[A]): Future[Option[A]] = {
+  protected def response[A](futureResponse: Future[Response], uri: String)(handleResponse: (Response) => A)(implicit m: Manifest[A]): Future[Option[A]] = {
     futureResponse map {
       res =>
         res.status match {
@@ -118,7 +118,7 @@ trait MicroService extends Status with HeaderNames {
           case UNAUTHORIZED => throw UnauthorizedException("Unauthenticated request", res)
           case FORBIDDEN => throw ForbiddenException("Not authorised to make this request", res)
           case CONFLICT => throw MicroServiceException("Invalid state", res)
-          case x => throw MicroServiceException(s"Internal server error, response status is: $x", res)
+          case x => throw MicroServiceException(s"Internal server error, response status is: $x trying to hit: ${httpResource(uri)}", res)
         }
     }
   }

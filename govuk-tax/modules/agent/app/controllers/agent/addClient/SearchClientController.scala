@@ -96,12 +96,22 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
   )
 
   private[agent] val addAction: (User, Request[_]) => Result = (user, request) => {
-    val form = addClientForm(request).bindFromRequest()(request)
-    if (form.hasErrors) {
-      Ok(search_client_result(new MatchingPerson("keystorereqd", Some("key"), Some("store"), None), form))
-    } else {
-      Ok("This needs to redirect to the next page whgich is the next story")
+    val searchedUser = keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)
+
+    searchedUser match {
+      case Some(u) => {
+        val form = addClientForm(request).bindFromRequest()(request)
+        if (form.hasErrors) {
+          Ok(search_client_result(u, form))
+        } else {
+          Ok("This needs to redirect to the next page which is the next story")
+        }
+      }
+      case None => BadRequest("Requested to add a user but none has been selected")
     }
+
+
+
   }
 
 }

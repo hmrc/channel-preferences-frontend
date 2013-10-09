@@ -21,8 +21,8 @@
 
     @helper.form(action = controllers.agent.addClient.routes.SearchClientController.add()) {
 
-        @helpers.singleCheckbox(addClient("correctClient"), '_Label -> "This is the client I am looking for")
-        @helpers.singleCheckbox(addClient("authorised"), '_Label -> "I have authorisation from the client to act on their behalf dor {regime} with {authority level}")
+        @helpers.singleCheckbox(addClient("correctClient"), '_label -> "This is the client I am looking for")
+        @helpers.singleCheckbox(addClient("authorised"), '_label -> "I have authorisation from the client to act on their behalf dor {regime} with {authority level}")
         @helpers.input(addClient("internalClientReference"), '_label -> "Your internal client reference number")
 
         <p>
