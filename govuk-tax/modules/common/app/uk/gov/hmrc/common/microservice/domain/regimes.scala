@@ -74,16 +74,14 @@ object RegimeRoots {
     Some((root.paye, root.sa, root.vat, root.epaye, root.ct))
   }
 
-  class RegimeRootBuilder[R](build: () => R) {
+  case class RegimeRootBuilder[R](build: () => R) {
     def apply(): Try[R] = {
       val result = Try(build())
       if (result.isFailure) Logger.error(s"Exception caught here but may be re-thrown later: ${ExceptionUtils.getFullStackTrace(result.failed.get)}")
       result
     }
   }
-
 }
-
 
 
 
