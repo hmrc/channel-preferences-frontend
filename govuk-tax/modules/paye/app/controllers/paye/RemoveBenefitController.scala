@@ -14,6 +14,7 @@ import scala.collection.mutable
 import controllers.paye.validation.RemoveBenefitValidator._
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.RemoveBenefitFormData
+import uk.gov.hmrc.utils.TaxYearResolver
 import org.joda.time.format.DateTimeFormat
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
@@ -43,7 +44,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit, user)
+      val benefitStartDate = getStartDate(benefit.benefit)
       val dates = getCarFuelBenefitDates(request)
 
       benefit.benefit.benefitType match {
@@ -67,7 +68,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit, user)
+      val benefitStartDate = getStartDate(benefit.benefit)
       val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
       updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
@@ -122,17 +123,23 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
   }
 
   private def getBenefitInfo(benefit:Benefit, withdrawDate: Option[LocalDate], apportionedValue: Option[BigDecimal])  = {
-      val pathIncludingStartDate = benefit.calculations(payeService.calculationWithdrawKey)
-      BenefitInfo(getStartDate(pathIncludingStartDate).map(formatDate(_)), withdrawDate.map(formatDate(_)), apportionedValue)
+      BenefitInfo(getStartDate(benefit).map(formatDate(_)), withdrawDate.map(formatDate(_)), apportionedValue)
   }
 
   private final val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
   private final val dateRegex ="""(\d\d\d\d-\d\d-\d\d)""".r
   
-  private def getStartDate(path:String): Option[LocalDate] = {
-    dateRegex.findFirstIn(path) match {
+  private def getStartDate(benefit:Benefit): Option[LocalDate] = {
+    val pathIncludingStartDate = benefit.calculations.get(payeService.calculationWithdrawKey).getOrElse("")
+
+    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) match {
       case Some(date)=> Some(dateFormat.parseLocalDate(date))
       case _ => None
+    }
+
+    benefitStartDate match {
+      case Some(date) if date.isAfter(startOfCurrentTaxYear) => benefitStartDate
+      case _ => Some(startOfCurrentTaxYear)
     }
   }
 
@@ -206,12 +213,10 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     datesForm.bindFromRequest()(request).value
   }
 
-  private def findStartDate(thisBenefit: DisplayBenefit, user: User): Option[LocalDate] = {
-    val benefitYear = thisBenefit.benefit.taxYear
-    val allBenefitsForTaxYear = user.regimes.paye.get.get.benefits(benefitYear)
-    thisBenefit.benefit.benefitType match {
+  private def findStartDate(thisBenefit: Benefit, allBenefits: Seq[Benefit]): Option[LocalDate] = {
+    thisBenefit.benefitType match {
       case CAR => thisBenefit.car.get.dateCarMadeAvailable
-      case FUEL =>  { val carBenefit = Benefit.findByTypeAndEmploymentNumber(allBenefitsForTaxYear, thisBenefit.benefit.employmentSequenceNumber, CAR)
+      case FUEL =>  { val carBenefit = Benefit.findByTypeAndEmploymentNumber(allBenefits, thisBenefit.employmentSequenceNumber, CAR)
         carBenefit.flatMap(_.car.get.dateCarMadeAvailable) }
       case _ => None
     }

@@ -29,6 +29,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import java.net.URI
 import scala.util.Success
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import org.joda.time.format.DateTimeFormat
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper {
 
@@ -162,12 +163,16 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
     "Not validate the view and redirect with correct error" in new WithApplication(FakeApplication()) {
 
+      val benefitStartDate = new LocalDate()
+      val startDateToString = DateTimeFormat.forPattern("yyyy-MM-dd").print(benefitStartDate)
+      val calculation:String = "/calculation/paye/thenino/benefit/withdraw/3333/"+ startDateToString+"/withdrawDate"
+
       val carBenefitStartedThisYear = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
-        car = Some(Car(Some(new LocalDate()), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
+        car = Some(Car(None, None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map("withdraw" -> calculation))
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitStartedThisYear), List.empty, List.empty)
 
-      val withdrawDate = carBenefitStartedThisYear.car.get.dateCarMadeAvailable.get.minusDays(2)
+      val withdrawDate = benefitStartDate.minusDays(2)
 
       def requestBenefitRemovalFormSubmission(date: Option[LocalDate], agreed: Boolean, removeFuel: Boolean) =
         FakeRequest().withFormUrlEncodedBody(Seq(
@@ -414,8 +419,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 1, display error message if user choose a fuel date before benefit started" in new WithApplication(FakeApplication()) {
 
       val benefitStartDate = new LocalDate()
+      val startDateToString = DateTimeFormat.forPattern("yyyy-MM-dd").print(benefitStartDate)
+      val calculation:String = "/calculation/paye/thenino/benefit/withdraw/3333/"+ startDateToString+"/withdrawDate"
+
       val carBenefitStartedThisYear = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 2, null, null, null, null, null, null,
-        car = Some(Car(Some(benefitStartDate), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map.empty)
+        car = Some(Car(Some(benefitStartDate), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), Map.empty, Map("withdraw" -> calculation))
 
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitStartedThisYear, fuelBenefit), List.empty, List.empty)
