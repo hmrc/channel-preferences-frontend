@@ -123,6 +123,20 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include ("January 1, 1991")
     }
 
+    "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch()
+
+      val result = executeSearchActionWith(nino="AB123456C", firstName="étåtø", lastName="étåtœ", dob=("1","1", "1990"))
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include ("AB123456C")
+      doc.select(s"#clientSearchResults #${FieldIds.firstName}").text should include ("étåtø")
+      doc.select(s"#clientSearchResults #${FieldIds.lastName}").text should include ("étåtœ")
+      doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include ("January 1, 1991")
+    }
+
     "allow a submission with valid nino, lastName, dob and not display the firstname" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
 
