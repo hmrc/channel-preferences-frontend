@@ -6,3 +6,13 @@ error.agent.accept.sroAgreement=Please specify that you are the Senior Responsib
 error.agent.accept.tncAgreement=Please accept the terms and conditions
 error.agent.phone=Please enter a valid phone number
 error.agent.saUtr=Please enter a valid SA UTR value
+error.agent.addClient.confirmClient.correctClient=Please confirm this is the correct client
+error.agent.addClient.confirmClient.authorised=You must confirm that you are authorised
+error.agent.addClient.contact.name=A valid name is required
+error.agent.addClient.contact.phone=A valid email is required
+error.agent.addClient.contact.email=A valid email is required
+error.agent.addClient.search.nino=text.verifying("You must provide a valid nino
+error.agent.addClient.search.firstname=Invalid firstname
+error.agent.addClient.search.lastname=Invalid last name
+error.agent.addClient.search.dob=Invalid date of birth
+

@@ -9,26 +9,32 @@
 
     @helper.form(action = controllers.agent.addClient.routes.ConfirmClientController.preferredContact()) {
 
-            <p>
-        <label>
-            <input type="radio" name="pointOfContact"
-            @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "me"){checked="checked"}
-            value="me">
-            I am the preferred point of contact
-        </label>
-        </p>
         <p>
-        <label>
-            <input type="radio" name="pointOfContact"
-            @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "other"){checked="checked"}
-            value="other">
+            <label>
+                <input type="radio" name="pointOfContact"
+                @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "me"){checked="checked"}
+                value="me">
+                I am the preferred point of contact
+            </label>
+        </p>
 
-            A named person in my office is the preferred point of contact
-        </label>
+        <p>
+            <label>
+                <input type="radio" name="pointOfContact"
+                @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "other"){checked="checked"}
+                value="other">
+                A named person in my office is the preferred point of contact
+            </label>
 
-            @helpers.input(preferredContactForm("contactName"), 'Label -> "Contact name")
-            @helpers.input(preferredContactForm("contactPhone"), 'Label -> "Contact phone number")
-            @helpers.input(preferredContactForm("contactEmail"), 'Label -> "Contact email address")
+            <p>
+            @helpers.input(preferredContactForm("contactName"), '_label -> "Contact name")
+            </p>
+            <p>
+            @helpers.input(preferredContactForm("contactPhone"), '_label -> "Contact phone number")
+            </p>
+            <p>
+            @helpers.input(preferredContactForm("contactEmail"), '_label -> "Contact email address")
+            </p>
 
         </p>
         <p>

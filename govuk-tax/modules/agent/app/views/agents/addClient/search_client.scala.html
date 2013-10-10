@@ -14,8 +14,12 @@
             <span name="globalErrors" id="globalErrors" class="error-notification">@newClientSearchForm.globalError.map(_.message).getOrElse("")</span>
         </div>
 
-        <p>@helpers.input(newClientSearchForm("nino"), '_label -> "National Insurance Number") </p>
+        <p>
+        @helpers.input(newClientSearchForm("nino"), '_label -> "National Insurance Number")
+        </p>
+
         <p>@helpers.input(newClientSearchForm("firstName"), '_label -> "Client First Name")    </p>
+
         <p>@helpers.input(newClientSearchForm("lastName"), '_label -> "Client Last Name")      </p>
 
         <p>@helpers.dateFieldsFreeYear(newClientSearchForm,

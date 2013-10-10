@@ -42,11 +42,11 @@ class ConfirmClientController extends BaseController
   private def preferredContactForm(request: Request[_]) = Form[PreferredContact](
     mapping(
       pointOfContact -> text,
-      contactName -> text.verifying("Valid name is required",
+      contactName -> text.verifying("error.agent.addClient.contact.name",
         verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      contactPhone -> text.verifying("Valid phone is required",
+      contactPhone -> text.verifying("error.agent.addClient.contact.phone",
         verifyContactPhone(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      contactEmail -> text.verifying("Valid email is required",
+      contactEmail -> text.verifying("error.agent.addClient.contact.email",
         verifyContactEmail(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
     ) (PreferredContact.apply)(PreferredContact.unapply)
   )
@@ -117,8 +117,8 @@ object ConfirmClientController {
   private[addClient] def confirmClientForm() = {
     Form[ConfirmClient](
       mapping(
-        FieldIds.correctClient -> checked("You must check"),
-        FieldIds.authorised -> checked("tou must check"),
+        FieldIds.correctClient -> checked("error.agent.addClient.confirmClient.correctClient"),
+        FieldIds.authorised -> checked("error.agent.addClient.confirmClient.authorised"),
         FieldIds.internalClientRef -> optional(text)
       )(ConfirmClient.apply)(ConfirmClient.unapply)
     )

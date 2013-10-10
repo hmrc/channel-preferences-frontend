@@ -45,11 +45,12 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 
   private def searchForm(request: Request[_]) = Form[ClientSearch](
     mapping(
-      nino -> text.verifying("You must provide a valid nino", validateNino _),
-      firstName -> optional(text).verifying("Invalid firstname", validateName _),
-      lastName -> optional(text).verifying("Invalid last name", validateName _),
-      dob -> dateTuple.verifying("Invalid date of birth", validateDob)
-    ) (ClientSearch.apply)(ClientSearch.unapply).verifying("nino and at least two others must be filled in", (_) => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
+      nino -> text.verifying("error.agent.addClient.search.nino", validateNino _),
+      firstName -> optional(text).verifying("error.agent.addClient.search.firstname", validateName _),
+      lastName -> optional(text).verifying("error.agent.addClient.search.lastname", validateName _),
+      dob -> dateTuple.verifying("error.agent.addClient.search.dob", validateDob)
+    ) (ClientSearch.apply)(ClientSearch.unapply).verifying("Nino and at least two others must be filled in",
+      (_) => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
   )
 
   val validDobRange = {
