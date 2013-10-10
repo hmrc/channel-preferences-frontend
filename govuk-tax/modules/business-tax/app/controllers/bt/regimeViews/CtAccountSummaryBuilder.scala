@@ -8,9 +8,10 @@ import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain
 import scala.util.Try
+import uk.gov.hmrc.domain.CtUtr
 
 
-case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSummaryBuilder[CtRoot]{
+case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot]{
 
   import CtMessageKeys._
   import CtPortalUrlKeys._
@@ -21,22 +22,20 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
         val accountValueOption: Option[BigDecimal] = accountValueIfPresent(accountSummary)
         val dateOfBalanceOption: Option[String] = accountSummary flatMap (_.dateOfBalance)
 
-
-
         (accountValueOption, dateOfBalanceOption) match {
 
           case (Some(accountValue), Some(dateOfBalance)) => {
             accountSummaryWithDetails(buildPortalUrl, ctRoot, accountValue, dateOfBalance)
           }
           case _ => {
-            emptyAccountSummary(ctRoot)
+            defaultAccountSummary(ctRoot)
           }
     }
   }
 
   def rootForRegime(user : User): Option[Try[CtRoot]] = user.regimes.ct
 
-  private def emptyAccountSummary(ctRoot : CtRoot): AccountSummary = {
+  private def defaultAccountSummary(ctRoot : CtRoot): AccountSummary = {
     val messages: Seq[Msg] = Seq(Msg(ctUtrMessage,Seq(ctRoot.identifier.utr)),
       Msg(ctSummaryUnavailableErrorMessage1),
       Msg(ctSummaryUnavailableErrorMessage2),
@@ -64,6 +63,8 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
     } yield amount
     accountValueOption
   }
+
+  override protected def oops(user: User): AccountSummary = ???
 }
 
 object CtPortalUrlKeys {

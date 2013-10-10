@@ -8,8 +8,9 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.{SaAccountSummary, Lia
 import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import scala.util.Try
+import uk.gov.hmrc.domain.SaUtr
 
-case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryBuilder[SaRoot] {
+case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
 
   def rootForRegime(user: User): Option[Try[SaRoot]] = user.regimes.sa
 
@@ -46,6 +47,8 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
       case e: Exception => None
     }
   }
+
+  override protected def oops(user: User): AccountSummary = ???
 }
 
 case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {

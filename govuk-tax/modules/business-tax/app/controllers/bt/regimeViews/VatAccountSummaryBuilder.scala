@@ -6,8 +6,9 @@ import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.util.Try
+import uk.gov.hmrc.domain.Vrn
 
-case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryBuilder[VatRoot] {
+case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 
   import VatMessageKeys._
   import VatPortalUrls._
@@ -43,6 +44,8 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountS
       }
     }
   }
+
+  override protected def oops(user: User): AccountSummary = ???
 }
 
 object VatPortalUrls {

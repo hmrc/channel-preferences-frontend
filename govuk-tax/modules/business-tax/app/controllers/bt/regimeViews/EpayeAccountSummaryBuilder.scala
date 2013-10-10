@@ -5,7 +5,7 @@ import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain._
 import EpayeMessageKeys._
 import EpayePortalUrlKeys._
-import views.helpers.{RenderableLinkMessage, RenderableMessage, LinkMessage, MoneyPounds}
+import views.helpers.{RenderableMessage, LinkMessage, MoneyPounds}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSumm
 import uk.gov.hmrc.domain.EmpRef
 import scala.util.Try
 
-case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends AccountSummaryBuilder[EpayeRoot] {
+case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
 
   override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String): AccountSummary = {
 
@@ -98,6 +98,8 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
     val nextTaxYear = (currentTaxYear + 1).toString.substring(2)
     s"%d - %s".format(currentTaxYear, nextTaxYear)
   }
+
+  override protected def oops(user: User): AccountSummary = ???
 }
 
 object EpayePortalUrlKeys {

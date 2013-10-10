@@ -1,21 +1,27 @@
 package controllers.bt.regimeViews
 
 import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoot}
-import scala.util.Try
+import scala.util.{Success, Failure, Try}
+import uk.gov.hmrc.domain.TaxIdentifier
 
-abstract class AccountSummaryBuilder[R <: RegimeRoot[_]] {
+abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
 
-  def build(buildPortalUrl: String => String, user: User) : Option[AccountSummary] = {
+  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
     rootForRegime(user).map {
-      regimeRoot => buildAccountSummary(regimeRoot.get, buildPortalUrl)
+      case Failure(_) => oops(user)
+      case Success(regimeRoot) => try {
+        buildAccountSummary(regimeRoot, buildPortalUrl)
+      } catch {
+        case e: Throwable => oops(user)
+      }
     }
   }
 
-  def buildAccountSummary(regimeRoot : R, buildPortalUrl: String => String) : AccountSummary
+  protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String): AccountSummary
 
-  // def oops() : AccountSummary
+  protected def oops(user: User): AccountSummary
 
-  def rootForRegime(user : User): Option[Try[R]]
+  protected def rootForRegime(user: User): Option[Try[R]]
 }
 
 trait CommonBusinessMessageKeys {
