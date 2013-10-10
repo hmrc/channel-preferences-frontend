@@ -8,11 +8,11 @@ import Forms._
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import models.agent.addClient.{PotentialClient, PreferredContact, ConfirmClient, ClientSearch}
+import models.agent.addClient.{PotentialClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest}
+import uk.gov.hmrc.common.microservice.agent.SearchRequest
 import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import ConfirmClientController.confirmClientForm
