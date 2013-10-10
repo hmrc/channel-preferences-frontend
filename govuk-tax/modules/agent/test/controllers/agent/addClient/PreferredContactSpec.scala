@@ -75,13 +75,15 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     controller.preferredContactAction(user)(request)
   }
 
-  "Given the system has loaded the preferred contact page" should {
-
+  "When navigating to the preferred contact controller via the add action controller the controller" should {
     "return a 400 when there is no session in play" in new WithApplication(FakeApplication()) {
       val result = executeAddActionPostWithValues("true", "true", "FOO")
       status(result) shouldBe 303
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
     }
+  }
+
+  "When hitting the preferred contact controller the result" should {
 
     "have the default radio button selected when entering via the add action controller" in new WithApplication(FakeApplication()) {
       val person = Some(MatchingPerson("AB123456C", Some("Foo"), Some("Bar"), None))
@@ -105,6 +107,16 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       elements.get(0).getElementsByAttribute("value") is ("other")
     }
 
+    "pass When all data is correctly provided" in new WithApplication(FakeApplication()) {
+      val person = Some(MatchingPerson("AB123456C", Some("Foo"), Some("Bar"), None))
+      when(keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)).thenReturn(person)
+      val result = executePreferredContactActionPostWithValues("other", "firstName", "lastName", "v@v.com")
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      val elements = doc.select("input[checked]")
+      elements.size should be (1)
+      elements.get(0).getElementsByAttribute("value") is ("other")
+    }
 
   }
 
