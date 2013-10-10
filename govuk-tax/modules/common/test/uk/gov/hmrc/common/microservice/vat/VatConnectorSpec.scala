@@ -43,7 +43,7 @@ class VatConnectorSpec extends BaseSpec {
 
     "call the micro service with the correct uri and return the contents" in new VatConnectorApplication {
 
-      val accountSummary = Some(VatAccountSummary(Some(VatAccountBalance(Some(4.0), None)), None))
+      val accountSummary = Some(VatAccountSummary(Some(VatAccountBalance(Some(4.0))), None))
       when(mockHttpClient.get[VatAccountSummary]("/vat/vrn/123456/accountSummary")).thenReturn(accountSummary)
 
       val result = connector.accountSummary("/vat/vrn/123456/accountSummary")

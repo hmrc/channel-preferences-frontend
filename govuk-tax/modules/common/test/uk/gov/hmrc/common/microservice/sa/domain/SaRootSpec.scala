@@ -11,7 +11,47 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaDomain._
 
 class SaRootSpec extends BaseSpec with MockitoSugar {
 
-  "VatRoot personalDetails" should {
+  private val utr = SaUtr("2222233333")
+  private val accountSummaryLink = s"/sa/individual/$utr/account-summary"
+  private val accountSummary = SaAccountSummary(None, None, Some(1))
+
+  "Requesting AccountSummary" should {
+
+    "return an AccountSummary object if the service call is successful" in {
+      val mockConnector = mock[SaConnector]
+      val root = SaRoot(utr, Map("individual/account-summary" -> accountSummaryLink))
+      when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Some(accountSummary))
+      root.accountSummary(mockConnector) shouldBe Some(accountSummary)
+
+    }
+
+    "return None if no accountSummary link exists" in {
+      val mockConnector = mock[SaConnector]
+      val root = SaRoot(utr, Map[String, String]())
+      root.accountSummary(mockConnector) shouldBe None
+      verifyZeroInteractions(mockConnector)
+    }
+
+    "throw an exception if we have an accountSummary link but it returns a not found status" in {
+      val mockConnector = mock[SaConnector]
+      val root = SaRoot(utr, Map("individual/account-summary" -> accountSummaryLink))
+      when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(None)
+
+      val thrown = evaluating(root.accountSummary(mockConnector) shouldBe Some(accountSummary)) should produce [IllegalStateException]
+
+      thrown.getMessage shouldBe s"Expected HOD data not found for link 'individual/account-summary' with path: $accountSummaryLink"
+    }
+
+    "propagate an exception if thrown by the external connector while requesting the accountSummary" in {
+      val mockConnector = mock[SaConnector]
+      val root = SaRoot(utr, Map("individual/account-summary" -> accountSummaryLink))
+      when(mockConnector.accountSummary(accountSummaryLink)).thenThrow(new NumberFormatException("Not a number"))
+
+      evaluating(root.accountSummary(mockConnector) shouldBe Some(accountSummary)) should produce [NumberFormatException]
+    }
+  }
+
+  "personalDetails" should {
 
     "call the SA microservice when the uri is found in the SaRoot and return its value" in {
       val uri = "sa/individual/12345/personalDetails"
@@ -36,31 +76,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
 
   }
 
-  "VatRoot accountSummary" should {
-
-    "call the SA microservice when the uri is found in the SaRoot and return its value" in {
-      val uri = "sa/individual/12345/accountSummary"
-      val saRoot = SaRoot(SaUtr("12345"), Map("individual/account-summary" -> uri))
-      val accountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(30.2), requiresPayment = false)), None, Some(BigDecimal(454.2))))
-      val saConnector = mock[SaConnector]
-
-      when(saConnector.accountSummary(uri)).thenReturn(accountSummary)
-
-      saRoot.accountSummary(saConnector) shouldBe accountSummary
-      verify(saConnector).accountSummary(Matchers.eq(uri))
-    }
-
-    "return None when the account summary link is not present" in {
-      val saRoot = SaRoot(SaUtr("12345"), Map[String, String]())
-      val saConnector = mock[SaConnector]
-
-      saRoot.accountSummary(saConnector) shouldBe None
-      verify(saConnector, times(0)).accountSummary(Matchers.anyString())
-    }
-
-  }
-
-  "VatRoot updateIndividualMainAddress" should {
+  "updateIndividualMainAddress" should {
 
     "call the SA microservice when the uri is found in the SaRoot for updating the main address" in {
       val uri = "sa/individual/12345/mainAddress"
@@ -83,7 +99,5 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       evaluating(saRoot.updateIndividualMainAddress(saMainAddress)) should produce[IllegalStateException]
       verify(saConnector, times(0)).accountSummary(Matchers.anyString())
     }
-
   }
-
 }

@@ -25,7 +25,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   "VatAccountSummaryViewBuilder" should {
     "return the correct account summary for complete data" in {
 
-      val accountSummary = VatAccountSummary(Some(VatAccountBalance(Some(6.1), Some("GBP"))), Some(aDate))
+      val accountSummary = VatAccountSummary(Some(VatAccountBalance(Some(6.1))), Some(aDate))
       val mockVatConnector = mock[VatConnector]
       when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
       val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
@@ -41,7 +41,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     "return an error message if the account summary is not available" in {
 
-      val accountSummary = VatAccountSummary(Some(VatAccountBalance(None, Some("GBP"))), Some(aDate))
+      val accountSummary = VatAccountSummary(Some(VatAccountBalance(None)), Some(aDate))
       val mockVatConnector = mock[VatConnector]
       when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
       val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)

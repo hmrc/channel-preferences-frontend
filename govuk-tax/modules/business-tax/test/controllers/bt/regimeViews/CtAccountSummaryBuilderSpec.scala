@@ -19,22 +19,25 @@ import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountBalance, CtA
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
-  val buildPortalUrl: (String) => String = (value: String) => value
-  val ctUtr = CtUtr("12347")
-  val aDate = "2012-06-06"
-  val regimeRootsWithCt = RegimeRoots(None, None, None, None, Some(Success(CtRoot(ctUtr, Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary")))))
-  val userAuthorityWithCt = UserAuthority("123", Regimes(ct = Some(new URI(s"/ct/${ctUtr.utr}"))), ctUtr = Some(ctUtr))
-  val userEnrolledForCt = User("tim", userAuthorityWithCt, regimeRootsWithCt, None, None)
-  val vrn = Vrn("123")
-  val userAuthorityWithoutCt = UserAuthority("123", Regimes(), vrn = Some(vrn))
-  val regimeRootsWithoutCt = RegimeRoots(None, None, Some(Success(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}")))), None, None)
-  val userNotEnrolledForCt = User("jim", userAuthorityWithoutCt, regimeRootsWithoutCt, None, None)
+
+  private val buildPortalUrl: (String) => String = (value: String) => value
+  private val ctUtr = CtUtr("12347")
+
+  private val userAuthorityWithCt = UserAuthority("123", Regimes(ct = Some(new URI(s"/ct/${ctUtr.utr}"))), ctUtr = Some(ctUtr))
+
+  private val regimeRootsWithCt = RegimeRoots(ct = Some(Success(CtRoot(ctUtr, Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary")))))
+  private val userEnrolledForCt = User("tim", userAuthorityWithCt, regimeRootsWithCt, None, None)
+
+  private val vrn = Vrn("123")
+  private val userAuthorityWithoutCt = UserAuthority("123", Regimes(), vrn = Some(vrn))
+  private val regimeRootsWithoutCt = RegimeRoots(None, None, Some(Success(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}")))), None, None)
+  private val userNotEnrolledForCt = User("jim", userAuthorityWithoutCt, regimeRootsWithoutCt, None, None)
 
   "CtAccountSummaryViewBuilder" should {
 
     "return the correct account summary for complete data" in {
       val ctMicroSeriveMock = mock[CtConnector]
-      val ctAccountSummary = CtAccountSummary(Some(CtAccountBalance(Some(4.2), Some("GPB"))), Some("2012-12-02"))
+      val ctAccountSummary = CtAccountSummary(Some(CtAccountBalance(Some(4.2))), Some("2012-12-02"))
       when(ctMicroSeriveMock.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenReturn(Some(ctAccountSummary))
       val builder = new CtAccountSummaryBuilder(ctMicroSeriveMock)
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
@@ -48,18 +51,17 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     }
 
-    "return an error message if the account summary is not available" in {
-      val ctMicroSeriveMock = mock[CtConnector]
-      when(ctMicroSeriveMock.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenReturn(None)
-      val builder = new CtAccountSummaryBuilder(ctMicroSeriveMock)
-      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
+    "return an error message if the account summary link is missing" in {
+      val regimeRootsWithNoCtAccountSummary = RegimeRoots(ct = Some(Success(CtRoot(ctUtr, Map[String, String]()))))
+      val userEnrolledForCtWithNoAccountSummary = User("tim", userAuthorityWithCt, regimeRootsWithNoCtAccountSummary, None, None)
+      val mockCtConnector = mock[CtConnector]
+      val builder = new CtAccountSummaryBuilder(mockCtConnector)
+      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCtWithNoAccountSummary)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage , Seq(ctUtr.utr)), Msg(ctSummaryUnavailableErrorMessage1),
         Msg(ctSummaryUnavailableErrorMessage2),Msg (ctSummaryUnavailableErrorMessage3), Msg(ctSummaryUnavailableErrorMessage4))
       accountSummary.addenda shouldBe Seq.empty
-
-
     }
 
     "return None if the user is not enrolled for VAT" in {

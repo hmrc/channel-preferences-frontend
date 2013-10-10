@@ -20,7 +20,12 @@ object VatDomain {
 
     def accountSummary(implicit vatConnector: VatConnector): Option[VatAccountSummary] = {
       links.get(accountSummaryKey) match {
-        case Some(uri) => vatConnector.accountSummary(uri)
+        case Some(uri) => {
+          vatConnector.accountSummary(uri) match {
+            case None => throw new IllegalStateException(s"Expected HOD data not found for link '$accountSummaryKey' with path: $uri")
+            case summary => summary
+          }
+        }
         case _ => None
       }
     }
@@ -28,7 +33,6 @@ object VatDomain {
 
   case class VatAccountSummary(accountBalance: Option[VatAccountBalance], dateOfBalance: Option[String])
 
-  case class VatAccountBalance(amount: Option[BigDecimal], currency: Option[String])
-
+  case class VatAccountBalance(amount: Option[BigDecimal])
 }
 

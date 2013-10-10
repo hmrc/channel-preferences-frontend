@@ -14,7 +14,12 @@ object EpayeDomain {
 
     def accountSummary(implicit epayeConnector: EpayeConnector): Option[EpayeAccountSummary] = {
       links.accountSummary match {
-        case Some(accountSummaryPath) => epayeConnector.accountSummary(accountSummaryPath)
+        case Some(uri) => {
+          epayeConnector.accountSummary(uri) match {
+            case None => throw new IllegalStateException(s"Expected HOD data not found for link 'accountSummary' with path: $uri")
+            case summary => summary
+          }
+        }
         case _ => None
       }
     }

@@ -43,7 +43,12 @@ object SaDomain {
 
     def accountSummary(implicit saConnector: SaConnector): Option[SaAccountSummary] = {
       links.get(individualAccountSummaryKey) match {
-        case Some(uri) => saConnector.accountSummary(uri)
+        case Some(uri) => {
+          saConnector.accountSummary(uri) match {
+            case None => throw new IllegalStateException(s"Expected HOD data not found for link '$individualAccountSummaryKey' with path: $uri")
+            case summary => summary
+          }
+        }
         case _ => None
       }
     }
