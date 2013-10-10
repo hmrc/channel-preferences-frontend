@@ -4,7 +4,7 @@ import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import play.api.mvc.{Result, Request}
-import views.html.agents.addClient.{search_client_preferred_contact, search_client_result}
+import views.html.agents.addClient.{client_successfully_added, search_client_preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
 import models.agent.addClient.{PreferredContact, ConfirmClient}
@@ -22,7 +22,6 @@ class ConfirmClientController extends BaseController
 
   def confirm = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { confirmAction } }
   def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
-
 
   private[agent] def confirmAction(user: User)(request: Request[_]): Result = {
     keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey) match {
@@ -96,7 +95,7 @@ class ConfirmClientController extends BaseController
         val form = preferredContactForm(request).bindFromRequest()(request)
         form.fold (
           errors => BadRequest(search_client_preferred_contact(form)),
-          search => Ok("you have added a client!")
+          search => Ok(client_successfully_added())
         )
       }
       case _ => Redirect(routes.SearchClientController.start())

@@ -102,7 +102,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "firstName", "lastName", "email@email.com")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("body").text() should include ("you have added a client")
+      doc.select("body").text() should include ("A client has been successfully added")
     }
 
     "pass when user is preferred contact and all data is correctly provided" in new WithApplication(FakeApplication()) {
@@ -111,7 +111,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val result = executePreferredContactActionPostWithValues(ConfirmClientController.me, "firstName", "lastName", "email@email.com")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("body").text() should include ("you have added a client")
+      doc.select("body").text() should include ("A client has been successfully added")
     }
 
     "pass when not us is selected and all data is correctly provided" in new WithApplication(FakeApplication()) {
@@ -120,7 +120,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val result = executePreferredContactActionPostWithValues(ConfirmClientController.notUs, "", "", "")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("body").text() should include ("you have added a client")
+      doc.select("body").text() should include ("A client has been successfully added")
     }
   }
 
