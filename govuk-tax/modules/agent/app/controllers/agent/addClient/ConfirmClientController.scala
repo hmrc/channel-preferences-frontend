@@ -7,7 +7,7 @@ import play.api.mvc.{Result, Request}
 import views.html.agents.addClient.{client_successfully_added, search_client_preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
-import models.agent.addClient.{PreferredContact, ConfirmClient}
+import models.agent.addClient.{PotentialClient, PreferredContact, ConfirmClient}
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.agent.MatchingPerson
@@ -24,13 +24,13 @@ class ConfirmClientController extends BaseController
   def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
 
   private[agent] def confirmAction(user: User)(request: Request[_]): Result = {
-    keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey) match {
-      case Some(person) => {
+    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
+      case Some(potentialClient) if potentialClient.clientSearch.isDefined  => {
         val form = confirmClientForm().bindFromRequest()(request)
         form.fold (
-          errors => BadRequest(search_client_result(person, form)),
+          errors => BadRequest(search_client_result(potentialClient.clientSearch.get, form)),
           confirmation => {
-            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchConfirmKey, confirmation)
+            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, potentialClient.copy(confirmation = Some(confirmation)))
             Ok(search_client_preferred_contact(preferredContactForm(request)))
           }
         )

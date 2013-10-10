@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import org.scalatest.BeforeAndAfter
-import models.agent.addClient.ClientSearch
+import models.agent.addClient.{PotentialClient, ClientSearch}
 import scala.util.Success
 import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroService}
 import SearchClientController.KeyStoreKeys
@@ -149,8 +149,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         (clientSearch.dob.get.getDayOfMonth.toString,clientSearch.dob.get.getMonthOfYear.toString, clientSearch.dob.get.getYear.toString))
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.clientSearchObjectKey,
-        MatchingPerson("AB123456C",Some("resFirstName"),Some("resLastName"),Some("1991-01-01")))
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+        PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),Some(new LocalDate(1991, 1, 1)))), None, None))
     }
 
     "save partial client search results to the keystore when we make a successful submission with some fields" in new WithApplication(FakeApplication()) {
@@ -159,8 +159,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         ("", "", ""))
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.clientSearchObjectKey,
-        MatchingPerson("AB123456C",Some("resFirstName"),Some("resLastName"),None))
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+        PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),None)), None, None))
     }
 
     "display an error when no match is found and not save anything to the keystore" in new WithApplication(FakeApplication()) {

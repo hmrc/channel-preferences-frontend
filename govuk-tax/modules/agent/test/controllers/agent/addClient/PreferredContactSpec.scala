@@ -9,6 +9,15 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
+import models.agent.addClient.{PotentialClient, ClientSearch}
+import scala.util.Success
+import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroService}
+import SearchClientController.KeyStoreKeys
+import SearchClientController.FieldIds
+import uk.gov.hmrc.common.microservice.domain.User
+import scala.util.Success
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import scala.Some
 import uk.gov.hmrc.common.microservice.agent.AgentMicroService
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.agent.addClient.SearchClientController.KeyStoreKeys._
@@ -74,8 +83,10 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     }
 
     "have the default radio button selected when entering via the add action controller" in new WithApplication(FakeApplication()) {
-      val person = Some(MatchingPerson("AB123456C", Some("Foo"), Some("Bar"), None))
-      when(keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)).thenReturn(person)
+      val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
+      when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
+        .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
+
       val result = executeAddActionPostWithValues("true", "true", "FOO")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -85,9 +96,10 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     }
 
     "have the other radio button selected when entering invalid data via the preferredContactAction" in new WithApplication(FakeApplication()) {
-      val person = Some(MatchingPerson("AB123456C", Some("Foo"), Some("Bar"), None))
-      when(keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)).thenReturn(person)
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "", "+123456", "v@v.com")
+      val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
+      when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
+        .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
+      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "", "123456", "v@v.com")
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       val elements = doc.select("input[checked]")
