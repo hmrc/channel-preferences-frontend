@@ -59,9 +59,10 @@ object AddCarBenefitValidator extends Validators {
       case _ => ignored(None)
     }
 
-  private[paye] def validateFuelType(values: CarBenefitValues): Mapping[String] =
-     nonEmptyText.verifying("error.paye.fuel_type_mandatory" , data => isValidValue(fuelTypeOptions, data))
+  private[paye] def validateFuelType(values: CarBenefitValues): Mapping[Option[String]] =
+     optional(text.verifying("error.paye.fuel_type_mandatory" , data => isValidValue(fuelTypeOptions, data))
      .verifying("error.paye.fuel_type_electricity_must_be_registered_after_98", data => if(values.registeredBefore98.getOrElse("") == "true") {!isFuelTypeElectric(Some(data)) } else true)
+     ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateEmployeeContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
     values.employeeContributes.map(_.toBoolean) match {
@@ -76,9 +77,10 @@ object AddCarBenefitValidator extends Validators {
     .verifying("error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity" , data => !isFuelTypeElectric(values.fuelType))
   ).verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(data.isEmpty) {isFuelTypeElectric(values.fuelType)} else true)
 
-  private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[String] = nonEmptyText
+  private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[Option[String]] = optional(text
     .verifying("error.paye.non_valid_option" , data => isValidValue(employerPayFuelOptions, data))
     .verifying("error.paye.employer_pay_fuel_must_not_have_days_unavailable" , data => isValidCompareTo(data, values.numberOfDaysUnavailableVal))
+  ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateGiveBackThisTaxYear(values: CarBenefitValues) : Mapping[Option[Boolean]] =
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)

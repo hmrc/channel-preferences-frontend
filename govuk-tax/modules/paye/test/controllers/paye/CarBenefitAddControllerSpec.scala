@@ -596,7 +596,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
-                          johnDensmore.regimes.paye.get.get.nino, AddCarBenefit(collectedData.registeredBefore98.get, collectedData.fuelType, None, Some(defaultEngineCapacity)))
+                          johnDensmore.regimes.paye.get.get.nino, AddCarBenefit(collectedData.registeredBefore98.get, collectedData.fuelType.get, None, Some(defaultEngineCapacity)))
       Mockito.reset(mockKeyStoreService)
       Mockito.reset(mockPayeMicroService)
     }
@@ -700,11 +700,11 @@ object CarBenefitDataBuilder {
             employeeContribution: Option[Int] = defaultEmployeeContribution,
             employerContributes: Option[Boolean] = Some(defaultEmployerContributes),
             employerContribution: Option[Int] = defaultEmployerContribution,
-            fuelType:String = defaultFuelType,
+            fuelType:Option[String] = Some(defaultFuelType),
             co2Figure: Option[Int] = defaultCo2Figure,
             co2NoFigure: Option[Boolean] = Some(defaultCo2NoFigure),
             engineCapacity: Option[String] = Some(defaultEngineCapacity.toString),
-            employerPayFuel: String = defaultEmployerPayFuel,
+            employerPayFuel: Option[String] = Some(defaultEmployerPayFuel),
             dateFuelWithdrawn: Option[LocalDate] = defaultDateFuelWithdrawn) = {
 
     CarBenefitData(providedFrom = providedFrom,

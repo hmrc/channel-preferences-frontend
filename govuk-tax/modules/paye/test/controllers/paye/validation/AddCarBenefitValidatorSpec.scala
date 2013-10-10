@@ -43,7 +43,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
   "AddCarBenefitValidator for fields EMPLOYER PAY FUEL & DATE FUEL WITHDRAWN" should {
 
-    case class DummyModel(employerPayFuel: String, dateFuelWithdrawn: Option[LocalDate])
+    case class DummyModel(employerPayFuel: Option[String], dateFuelWithdrawn: Option[LocalDate])
 
     val values = getValues()
     def dummyForm(values: CarBenefitValues) = {
@@ -182,7 +182,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
   "AddCarBenefitValidator for fields REGISTERED BEFORE 98, FUEL TYPE, CO2 FIGUREs and ENGINE CAPACITY  " should {
 
-    case class FiguresDummyModel(registeredBefore98: Option[Boolean], fuelType: String, co2Figure: Option[Int], co2NoFigure: Option[Boolean], engineCapacity: Option[String])
+    case class FiguresDummyModel(registeredBefore98: Option[Boolean], fuelType: Option[String], co2Figure: Option[Int], co2NoFigure: Option[Boolean], engineCapacity: Option[String])
 
     def dummyForm(values: CarBenefitValues) = {
       Form[FiguresDummyModel](
