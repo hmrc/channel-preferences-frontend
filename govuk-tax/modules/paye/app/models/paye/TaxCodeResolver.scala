@@ -6,13 +6,20 @@ import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 
 object TaxCodeResolver {
 
+  val NON_DEFINED_TAXCODE = "N/A"
+
   def currentTaxCode(payeRoot: PayeRoot, employmentSequenceNumber: Int, taxYear: Int)(implicit microservice: PayeMicroService) : String = {
     currentTaxCode(payeRoot.taxCodes(taxYear), employmentSequenceNumber )
   }
 
   def currentTaxCode(taxCodes: Seq[TaxCode], employmentSequenceNumber: Int): String = {
-    //TODO it's possible to have multiple tax codes for the same employment, in that case we have to use the one with the highest 'codingSequenceNumber'
-    taxCodes.find(_.employmentSequenceNumber == employmentSequenceNumber).map(_.taxCode).getOrElse("N/A")
+
+    val taxCodesForEmployment = taxCodes.filter(taxCode => taxCode.employmentSequenceNumber == employmentSequenceNumber && taxCode.codingSequenceNumber.isDefined)
+    taxCodesForEmployment match {
+      case Nil => NON_DEFINED_TAXCODE
+      case _ => taxCodesForEmployment.sortWith((tc1, tc2) => tc1.codingSequenceNumber.get > tc2.codingSequenceNumber.get).head.taxCode
+    }
+
   }
 
 }

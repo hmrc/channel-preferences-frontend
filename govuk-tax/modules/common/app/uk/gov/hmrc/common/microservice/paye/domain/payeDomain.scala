@@ -72,6 +72,7 @@ case class PayeRoot(nino: String,
 }
 
 case class TaxCode(employmentSequenceNumber: Int,
+                   codingSequenceNumber: Option[Int],
                    taxYear: Int,
                    taxCode: String,
                    allowances: List[Allowance])
