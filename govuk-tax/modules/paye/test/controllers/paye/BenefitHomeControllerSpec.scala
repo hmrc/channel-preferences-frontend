@@ -14,10 +14,14 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import scala.Some
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import org.scalatest.TestData
 
 class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
-  private lazy val controller = new BenefitHomeController with MockMicroServicesForTests
+  private val mockPayeService = mock[PayeMicroService]
+
+  private lazy val controller = new BenefitHomeController(mockPayeService) with MockMicroServicesForTests
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
     acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
@@ -28,24 +32,29 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
 
+  override protected def beforeEach(testData: TestData) {
+    super.beforeEach(testData)
+
+    controller.resetAll()
+    reset(mockPayeService)
+  }
+
+
   "The benefits list page" should {
 
     "display John s benefits" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       requestBenefitsAction(johnDensmore) should include("£135.33")
     }
 
     "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresOneEmployment(), johnDensmoresBenefits, List.empty, List.empty)
 
       requestBenefitsAction(johnDensmore) should not include "22.22"
     }
 
     "display car details" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       requestBenefitsAction(johnDensmore) should include("Medical Insurance")
@@ -58,14 +67,12 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
     }
 
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
       requestBenefitsAction(johnDensmore) should include("""href="/benefits/31/2013/2/remove"""")
     }
 
     "display a Car removed if there is an accepted transaction present for the car benefit" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(userWithRemovedCarEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(userWithRemovedCarBenefits)
       when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
@@ -77,7 +84,6 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
     }
 
     "display a benefit removed if there is a completed transaction present for the car benefit" in new WithApplication(FakeApplication()) {
-      controller.resetAll
       when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/RC123456B/employments/2013")).thenReturn(userWithRemovedCarEmployments)
       when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/RC123456B/benefits/2013")).thenReturn(userWithRemovedCarBenefits)
       when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/RC123456B/ACCEPTED/.*"))).thenReturn(Some(List.empty))

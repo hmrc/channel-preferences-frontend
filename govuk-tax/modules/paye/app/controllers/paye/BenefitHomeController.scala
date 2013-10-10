@@ -8,8 +8,12 @@ import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.DisplayBenefits
 import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
 import uk.gov.hmrc.utils.TaxYearResolver
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import controllers.common.service.MicroServices
 
-class BenefitHomeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+class BenefitHomeController(payeService : PayeMicroService) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+
+  def this() = this(MicroServices.payeMicroService)
 
   def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
     implicit user: User => implicit request => listBenefitsAction(user, request)
