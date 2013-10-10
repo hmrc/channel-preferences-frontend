@@ -19,6 +19,7 @@ import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import controllers.common.service.MicroServices
+import play.api.Logger
 
 class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService: PayeMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with TaxYearSupport {
 
@@ -73,7 +74,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
           benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearRange)(user))
             case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearRange)(user))
-            case _ => Redirect(routes.BenefitHomeController.listBenefits())
+            case _ => Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to benefit list"); Redirect(routes.BenefitHomeController.listBenefits())
           }
         },
         removeBenefitData => {
@@ -108,7 +109,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
               val updatedBenefit = benefit.copy(benefits = benefits , benefitsInfo = benefitsInfo)
               Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit)(user))
             }
-            case _ => Redirect(routes.BenefitHomeController.listBenefits())
+            case _ => Logger.error(s"Unsupported type of the main benefit: ${mainBenefitType}, redirecting to benefit list"); Redirect(routes.BenefitHomeController.listBenefits())
           }
         }
       )
@@ -154,7 +155,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
               displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
               removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
           }
-          case _ => Redirect(routes.BenefitHomeController.listBenefits())
+          case _ => Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to benefit list");Redirect(routes.BenefitHomeController.listBenefits())
         }
       }
     }
@@ -172,6 +173,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
           newTaxCode, personalAllowance, Dates.formatDate(startOfCurrentTaxYear), Dates.formatDate(endOfCurrentTaxYear))
         Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
       } else {
+        Logger.error(s"Unsupported type of removed benefits: ${kinds}, redirecting to benefit list")
         Redirect(routes.BenefitHomeController.listBenefits())
       }
     }
@@ -244,6 +246,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
           val validMergedBenefit = validBenefits.map(_.get).foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
           action(request, user, validMergedBenefit)
         } else {
+          Logger.error(s"The requested benefit is not a valid benefit (year: $taxYear, empl: $employmentSequenceNumber, types: $benefitTypes), redirecting to benefit list")
           redirectToBenefitHome(request, user)
         }
       }
