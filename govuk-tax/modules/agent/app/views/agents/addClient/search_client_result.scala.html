@@ -1,4 +1,4 @@
-@(matchingPerson: uk.gov.hmrc.common.microservice.agent.MatchingPerson, addClient: Form[models.agent.addClient.ConfirmClient])
+@(matchingPerson: models.agent.addClient.ClientSearch, addClient: Form[models.agent.addClient.ConfirmClient])
 
 @main(title = "Add a new client") {
 
@@ -16,7 +16,7 @@
     </p>
     <p name="nino" id="nino">National Insurance Number: @matchingPerson.nino</p>
 
-    @if(matchingPerson.dobAsLocalDate.isDefined){ <p name="dob" id="dob"> Date of birth @views.formatting.Dates.formatDate(matchingPerson.dobAsLocalDate.get) </p>  }
+    @if(matchingPerson.dob.isDefined){ <p name="dob" id="dob"> Date of birth @views.formatting.Dates.formatDate(matchingPerson.dob.get) </p>  }
 
 
     @helper.form(action = controllers.agent.addClient.routes.ConfirmClientController.confirm()) {

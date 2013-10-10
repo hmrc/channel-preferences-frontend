@@ -8,7 +8,7 @@ import Forms._
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import models.agent.addClient.{PreferredContact, ConfirmClient, ClientSearch}
+import models.agent.addClient.{PotentialClient, PreferredContact, ConfirmClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
@@ -65,11 +65,11 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
           case Some(result) => {
-            val restrictedResult = MatchingPerson(result.nino,
-                                                  search.firstName.flatMap(_ => result.firstName),
-                                                  search.lastName.flatMap(_ => result.lastName),
-                                                  search.dob.flatMap(_ => result.dateOfBirth))
-            keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey, restrictedResult)
+            val restrictedResult = ClientSearch(result.nino,
+                                                search.firstName.flatMap(_ => result.firstName),
+                                                search.lastName.flatMap(_ => result.lastName),
+                                                search.dob.flatMap(_ => result.dobAsLocalDate))
+            keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))
             Ok(search_client_result(restrictedResult, confirmClientForm()))
           }
           case None => NotFound(search_client(validDobRange, form.withGlobalError("No match found")))
@@ -84,6 +84,7 @@ object SearchClientController {
   private[addClient] object Validation {
     val nameRegex = """^[\p{L}\s'.-[0-9]]*"""
     val emailRegex = ".+\\@.+\\..+"
+    val phoneRegex = "^\\+[1-9]{1}[0-9]{10}$"
 
     val validateDob: Option[LocalDate] => Boolean = {
       case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
@@ -93,6 +94,8 @@ object SearchClientController {
     private[addClient] def validateName(s: Option[String]) = s.getOrElse("").trim.matches(nameRegex)
 
     private[addClient] def validateEmail(s: Option[String]) = s.getOrElse("").trim.matches(emailRegex)
+
+    private[addClient] def validatePhone(s: Option[String]) = s.getOrElse("").trim.matches(phoneRegex)
 
     private[addClient] def atLeastTwoOptionalAndAllMandatory(clientSearchNonValidated: ClientSearch) = {
       val items = List(clientSearchNonValidated.firstName.getOrElse("").trim.length > 0,
@@ -118,8 +121,7 @@ object SearchClientController {
   private[addClient] object KeyStoreKeys {
     val serviceSourceKey = "agentFrontEnd"
     def keystoreId(id: String) = s"AddClient:$id"
-    val clientSearchObjectKey = "clientSearchObject"
-    val clientSearchConfirmKey = "clientSearchConfirm"
+    val addClientKey = "addClient"
   }
 
   private[addClient] object FieldIds {

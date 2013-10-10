@@ -92,11 +92,11 @@ trait Validators {
   val phoneNumberErrorKey = "error.agent.phone"
 
   def validateMandatoryPhoneNumber = {
-    s: String => s.matches("\\d+")
+    s: String => s.matches("\\+?\\d+")
   }
 
   def validateOptionalPhoneNumber = {
-    s: String => s.matches("\\d*")
+    s: String => s.matches("\\+?\\d*")
   }
 
   def validateSaUtr = {

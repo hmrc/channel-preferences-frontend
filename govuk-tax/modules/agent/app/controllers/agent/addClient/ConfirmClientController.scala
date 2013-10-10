@@ -7,7 +7,7 @@ import play.api.mvc.{Result, Request}
 import views.html.agents.addClient.{client_successfully_added, search_client_preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
-import models.agent.addClient.{PreferredContact, ConfirmClient}
+import models.agent.addClient.{PotentialClient, PreferredContact, ConfirmClient}
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.agent.MatchingPerson
@@ -24,13 +24,13 @@ class ConfirmClientController extends BaseController
   def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
 
   private[agent] def confirmAction(user: User)(request: Request[_]): Result = {
-    keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey) match {
-      case Some(person) => {
+    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
+      case Some(potentialClient @ PotentialClient(Some(searchedClient), _ , _ )) => {
         val form = confirmClientForm().bindFromRequest()(request)
         form.fold (
-          errors => BadRequest(search_client_result(person, form)),
+          errors => BadRequest(search_client_result(searchedClient, form)),
           confirmation => {
-            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchConfirmKey, confirmation)
+            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, potentialClient.copy(confirmation = Some(confirmation)))
             Ok(search_client_preferred_contact(preferredContactForm(request)))
           }
         )
@@ -45,7 +45,7 @@ class ConfirmClientController extends BaseController
       contactName -> text.verifying("Valid name is required",
         verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
       contactPhone -> text.verifying("Valid phone is required",
-        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
+        verifyContactPhone(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
       contactEmail -> text.verifying("Valid email is required",
         verifyContactEmail(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
     ) (PreferredContact.apply)(PreferredContact.unapply)
@@ -71,10 +71,10 @@ class ConfirmClientController extends BaseController
     }
   }
 
-  private[addClient] def verifyContactPhone(name:String, preferredContact:PreferredContact) = {
+  private[addClient] def verifyContactPhone(phone:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
       case ConfirmClientController.me => true
-      case ConfirmClientController.other => SearchClientController.Validation.validateName(Some(name))
+      case ConfirmClientController.other => validateMandatoryPhoneNumber(phone) //  SearchClientController.Validation.validatePhone(Some(phone))
       case ConfirmClientController.notUs => true
       case _ => false // unknown situation
     }
@@ -90,8 +90,8 @@ class ConfirmClientController extends BaseController
   }
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
-    keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey) match {
-      case Some(person) => {
+    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
+      case Some(PotentialClient(Some(_), Some(_), _ )) => {
         val form = preferredContactForm(request).bindFromRequest()(request)
         form.fold (
           errors => BadRequest(search_client_preferred_contact(form)),

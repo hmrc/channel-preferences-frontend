@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import org.scalatest.BeforeAndAfter
-import models.agent.addClient.ClientSearch
+import models.agent.addClient.{PotentialClient, ClientSearch}
 import scala.util.Success
 import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroService}
 import SearchClientController.KeyStoreKeys
@@ -123,6 +123,19 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include ("January 1, 1991")
     }
 
+    "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
+      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
+      val result = executeSearchActionWith(nino="AB123456C", firstName="étåtø", lastName="étåtœ", dob=("1","1", "1990"))
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include ("AB123456C")
+      doc.select(s"#clientSearchResults #${FieldIds.firstName}").text should include ("étåtø")
+      doc.select(s"#clientSearchResults #${FieldIds.lastName}").text should include ("étåtœ")
+      doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include ("January 1, 1991")
+    }
+
     "allow a submission with valid nino, lastName, dob and not display the firstname" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
 
@@ -149,8 +162,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         (clientSearch.dob.get.getDayOfMonth.toString,clientSearch.dob.get.getMonthOfYear.toString, clientSearch.dob.get.getYear.toString))
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.clientSearchObjectKey,
-        MatchingPerson("AB123456C",Some("resFirstName"),Some("resLastName"),Some("1991-01-01")))
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+        PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),Some(new LocalDate(1991, 1, 1)))), None, None))
     }
 
     "save partial client search results to the keystore when we make a successful submission with some fields" in new WithApplication(FakeApplication()) {
@@ -159,8 +172,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         ("", "", ""))
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.clientSearchObjectKey,
-        MatchingPerson("AB123456C",Some("resFirstName"),Some("resLastName"),None))
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+        PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),None)), None, None))
     }
 
     "display an error when no match is found and not save anything to the keystore" in new WithApplication(FakeApplication()) {
