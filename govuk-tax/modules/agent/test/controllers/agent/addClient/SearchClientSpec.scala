@@ -143,7 +143,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       verifyZeroInteractions(keyStore)
     }
 
-    "save the client search results to the keystore when we make a successful submission" in new WithApplication(FakeApplication()) {
+    "save the client search results to the keystore when we make a successful submission with all fields" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("firstName"), Some("lastName"), Some(new LocalDate(1990, 1, 1)))
       givenTheAgentServiceReturnsAMatch()
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
@@ -151,6 +151,16 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
       verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.clientSearchObjectKey,
         MatchingPerson("AB123456C",Some("resFirstName"),Some("resLastName"),Some("1991-01-01")))
+    }
+
+    "save partial client search results to the keystore when we make a successful submission with some fields" in new WithApplication(FakeApplication()) {
+      val clientSearch = ClientSearch("AB123456C", Some("firstName"), Some("lastName"), Some(new LocalDate(1990, 1, 1)))
+      givenTheAgentServiceReturnsAMatch()
+      val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
+        ("", "", ""))
+      status(result) shouldBe 200
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.clientSearchObjectKey,
+        MatchingPerson("AB123456C",Some("resFirstName"),Some("resLastName"),None))
     }
 
     "display an error when no match is found and not save anything to the keystore" in new WithApplication(FakeApplication()) {

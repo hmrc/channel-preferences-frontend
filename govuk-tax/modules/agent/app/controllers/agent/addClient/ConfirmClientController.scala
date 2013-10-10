@@ -8,7 +8,7 @@ import play.api.mvc.{Result, Request}
 import views.html.agents.addClient.{search_client_preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
-import models.agent.addClient.{PreferredContact, AddClient}
+import models.agent.addClient.{PreferredContact, ConfirmClient}
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.agent.MatchingPerson
@@ -21,23 +21,20 @@ class ConfirmClientController extends BaseController
                                  with Validators {
   import ConfirmClientController._
 
-  def confirm = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { addAction } }
+  def confirm = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { confirmAction } }
   def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
 
 
-  private[agent] def addAction(user: User)(request: Request[_]): Result = {
-    val searchedUser = keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)
-
-    searchedUser match {
-      case Some(u) => {
-        val form = addClientForm(request).bindFromRequest()(request)
-        if (form.hasErrors) {
-          Ok(search_client_result(u, form))
-        } else {
-          Ok(search_client_preferred_contact(preferredContactForm(request)))
-        }
+  private[agent] def confirmAction(user: User)(request: Request[_]): Result = {
+    keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey) match {
+      case Some(person) => {
+        val form = confirmClientForm().bindFromRequest()(request)
+        form.fold (
+          errors => BadRequest(search_client_result(person, form)),
+          search => Ok(search_client_preferred_contact(preferredContactForm(request)))
+        )
       }
-      case _ => BadRequest("Requested to add a user but none has been selected")
+      case _ => Redirect(routes.SearchClientController.start())
     }
   }
 
@@ -102,11 +99,18 @@ class ConfirmClientController extends BaseController
   }
 }
 object ConfirmClientController {
-  private[addClient] def addClientForm(request: Request[_]) = Form[AddClient](
-    mapping(
-      "correctClient" -> checked("You must check"),
-      "authorised" -> checked("tou must check"),
-      "internalClientReference" -> nonEmptyText()
-    ) (AddClient.apply)(AddClient.unapply)
-  )
+  private[addClient] def confirmClientForm() = {
+    Form[ConfirmClient](
+      mapping(
+        FieldIds.correctClient -> checked("You must check"),
+        FieldIds.authorised -> checked("tou must check"),
+        FieldIds.internalClientRef -> nonEmptyText()
+      )(ConfirmClient.apply)(ConfirmClient.unapply)
+    )
+  }
+  object FieldIds {
+    val correctClient = "correctClient"
+    val authorised = "authorised"
+    val internalClientRef = "internalClientReference"
+  }
 }

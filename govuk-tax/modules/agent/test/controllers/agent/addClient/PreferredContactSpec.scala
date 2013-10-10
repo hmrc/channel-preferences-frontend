@@ -62,7 +62,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       ("correctClient", correctClient),
       ("authorised", authorised),
       ("internalClientReference", internalClientReference))
-    controller.addAction(user)(request)
+    controller.confirmAction(user)(request)
   }
 
   def executePreferredContactActionPostWithValues(poc: String, name: String, phone: String, email: String) = {
@@ -79,7 +79,8 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
 
     "return a 400 when there is no session in play" in new WithApplication(FakeApplication()) {
       val result = executeAddActionPostWithValues("true", "true", "FOO")
-      status(result) shouldBe 400
+      status(result) shouldBe 303
+      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
     }
 
     "have the default radio button selected when entering via the add action controller" in new WithApplication(FakeApplication()) {

@@ -8,14 +8,14 @@ import Forms._
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import models.agent.addClient.ClientSearch
+import models.agent.addClient.{PreferredContact, ConfirmClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest}
 import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
-import ConfirmClientController.addClientForm
+import ConfirmClientController.confirmClientForm
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
                                                                 with ActionWrappers
@@ -70,7 +70,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
                                                   search.lastName.flatMap(_ => result.lastName),
                                                   search.dob.flatMap(_ => result.dateOfBirth))
             keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey, restrictedResult)
-            Ok(search_client_result(restrictedResult, addClientForm(request)))
+            Ok(search_client_result(restrictedResult, confirmClientForm()))
           }
           case None => NotFound(search_client(validDobRange, form.withGlobalError("No match found")))
         }
