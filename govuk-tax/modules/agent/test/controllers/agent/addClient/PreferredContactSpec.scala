@@ -18,6 +18,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.util.Success
 import play.api.test.FakeApplication
+import controllers.agent.addClient.ConfirmClientController
 
 class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -41,18 +42,18 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
 
   def executeAddActionPostWithValues(correctClient: String, authorised: String, internalClientReference: String) = {
     val request = FakeRequest().withFormUrlEncodedBody(
-      ("correctClient", correctClient),
-      ("authorised", authorised),
-      ("internalClientReference", internalClientReference))
+      (ConfirmClientController.FieldIds.correctClient, correctClient),
+      (ConfirmClientController.FieldIds.authorised, authorised),
+      (ConfirmClientController.FieldIds.internalClientRef, internalClientReference))
     controller.confirmAction(user)(request)
   }
 
   def executePreferredContactActionPostWithValues(poc: String, name: String, phone: String, email: String) = {
     val request = FakeRequest().withFormUrlEncodedBody(
-      ("pointOfContact", poc),
-      ("contactName", name),
-      ("contactPhone", phone),
-      ("contactEmail", email)
+      (ConfirmClientController.pointOfContact, poc),
+      (ConfirmClientController.contactName, name),
+      (ConfirmClientController.contactPhone, phone),
+      (ConfirmClientController.contactEmail, email)
     )
     controller.preferredContactAction(user)(request)
   }
@@ -68,7 +69,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   "When hitting the preferred contact controller the result" should {
 
     "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
-      val result = executePreferredContactActionPostWithValues("other", "", "123456", "v@v.com")
+      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "", "123456", "v@v.com")
       status(result) shouldBe 303
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
     }
@@ -92,13 +93,13 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val doc = Jsoup.parse(contentAsString(result))
       val elements = doc.select("input[checked]")
       elements.size should be (1)
-      elements.get(0).getElementsByAttribute("value") is ("other")
+      elements.get(0).getElementsByAttribute("value") is (ConfirmClientController.other)
     }
 
     "pass When all data is correctly provided" in new WithApplication(FakeApplication()) {
       val person = Some(MatchingPerson("AB123456C", Some("Foo"), Some("Bar"), None))
       when(keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)).thenReturn(person)
-      val result = executePreferredContactActionPostWithValues("other", "firstName", "lastName", "email@email.com")
+      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "firstName", "lastName", "email@email.com")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("body").text() should include ("you have added a client")

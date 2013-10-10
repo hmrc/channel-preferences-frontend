@@ -13,7 +13,6 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.agent.MatchingPerson
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import controllers.agent.addClient.SearchClientController
 
 class ConfirmClientController extends BaseController
                                  with ActionWrappers
@@ -43,21 +42,21 @@ class ConfirmClientController extends BaseController
 
   private def preferredContactForm(request: Request[_]) = Form[PreferredContact](
     mapping(
-      "pointOfContact" -> text,
-      "contactName" -> text.verifying("Valid name is required",
+      pointOfContact -> text,
+      contactName -> text.verifying("Valid name is required",
         verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      "contactPhone" -> text.verifying("Valid phone is required",
+      contactPhone -> text.verifying("Valid phone is required",
         verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      "contactEmail" -> text.verifying("Valid email is required",
+      contactEmail -> text.verifying("Valid email is required",
         verifyContactEmail(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
     ) (PreferredContact.apply)(PreferredContact.unapply)
   )
 
   private val contactMapping = mapping(
-    "pointOfContact" -> text,
-    "contactName" -> text,
-    "contactPhone" -> text,
-    "contactEmail" -> text
+    pointOfContact -> text,
+    contactName -> text,
+    contactPhone -> text,
+    contactEmail -> text
   )(PreferredContact.apply)(PreferredContact.unapply)
 
   private def unValidatedPreferredContactForm(request: Request[_]) = Form[PreferredContact](
@@ -66,27 +65,27 @@ class ConfirmClientController extends BaseController
 
   private[addClient] def verifyContactName(name:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
-      case "me" => true
-      case "other" => name != null && !name.trim.isEmpty && SearchClientController.Validation.validateName(Some(name))
-      case "notUs" => true
+      case ConfirmClientController.me => true
+      case ConfirmClientController.other => name != null && !name.trim.isEmpty && SearchClientController.Validation.validateName(Some(name))
+      case ConfirmClientController.notUs => true
       case _ => false // unknown situation
     }
   }
 
   private[addClient] def verifyContactPhone(name:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
-      case "me" => true
-      case "other" => SearchClientController.Validation.validateName(Some(name))
-      case "notUs" => true
+      case ConfirmClientController.me => true
+      case ConfirmClientController.other => SearchClientController.Validation.validateName(Some(name))
+      case ConfirmClientController.notUs => true
       case _ => false // unknown situation
     }
   }
 
   private[addClient] def verifyContactEmail(email:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
-      case "me" => true
-      case "other" => SearchClientController.Validation.validateEmail(Some(email))
-      case "notUs" => true
+      case ConfirmClientController.me => true
+      case ConfirmClientController.other => SearchClientController.Validation.validateEmail(Some(email))
+      case ConfirmClientController.notUs => true
       case _ => false // unknown situation
     }
   }
@@ -106,6 +105,16 @@ class ConfirmClientController extends BaseController
 }
 
 object ConfirmClientController {
+
+  private[addClient] val pointOfContact = "pointOfContact"
+  private[addClient] val contactName = "contactName"
+  private[addClient] val contactPhone = "contactPhone"
+  private[addClient] val contactEmail = "contactEmail"
+
+  private[addClient] val me = "me"
+  private[addClient] val other = "other"
+  private[addClient] val notUs = "notUs"
+
   private[addClient] def confirmClientForm() = {
     Form[ConfirmClient](
       mapping(
