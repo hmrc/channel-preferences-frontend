@@ -4,32 +4,14 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
-import play.api.test.FakeApplication
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import org.joda.time.LocalDate
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.mockito.Mockito._
-import org.mockito.Matchers._
 import org.scalatest.BeforeAndAfter
-import models.agent.addClient.ClientSearch
-import scala.util.Success
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroService}
-import SearchClientController.KeyStoreKeys
-import SearchClientController.FieldIds
-import uk.gov.hmrc.common.microservice.domain.User
-import scala.util.Success
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import scala.Some
+import uk.gov.hmrc.common.microservice.agent.AgentMicroService
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.agent.addClient.SearchClientController.KeyStoreKeys._
-import uk.gov.hmrc.common.microservice.domain.User
-import scala.util.Success
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.agent.MatchingPerson
-import scala.Some
-import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.agent.MatchingPerson
 import scala.Some
@@ -76,7 +58,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   }
 
   "When navigating to the preferred contact controller via the add action controller the controller" should {
-    "return a 400 when there is no session in play" in new WithApplication(FakeApplication()) {
+    "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
       val result = executeAddActionPostWithValues("true", "true", "FOO")
       status(result) shouldBe 303
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
@@ -84,6 +66,12 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   }
 
   "When hitting the preferred contact controller the result" should {
+
+    "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
+      val result = executePreferredContactActionPostWithValues("other", "", "123456", "v@v.com")
+      status(result) shouldBe 303
+      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
+    }
 
     "have the default radio button selected when entering via the add action controller" in new WithApplication(FakeApplication()) {
       val person = Some(MatchingPerson("AB123456C", Some("Foo"), Some("Bar"), None))
@@ -115,7 +103,22 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("body").text() should include ("you have added a client")
     }
-
   }
+
+  "When using the validation rules i expect that they" should {
+    "fail an empty email" in {
+      SearchClientController.Validation.validateEmail(Some("")) should be (false)
+    }
+    "fail a clearly invalid email email" in {
+      SearchClientController.Validation.validateEmail(Some("erfgjerf8wefd")) should be (false)
+    }
+    "fail an email with two @ symbols" in {
+      SearchClientController.Validation.validateEmail(Some("erfgj@erf8@wefd")) should be (false)
+    }
+    "pass a valid email" in {
+      SearchClientController.Validation.validateEmail(Some("foo@foomail.com")) should be (true)
+    }
+  }
+
 
 }
