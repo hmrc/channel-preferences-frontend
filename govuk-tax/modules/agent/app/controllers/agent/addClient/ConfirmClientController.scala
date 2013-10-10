@@ -25,10 +25,10 @@ class ConfirmClientController extends BaseController
 
   private[agent] def confirmAction(user: User)(request: Request[_]): Result = {
     keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
-      case Some(potentialClient) if potentialClient.clientSearch.isDefined  => {
+      case Some(potentialClient @ PotentialClient(Some(searchedClient), _ , _ )) => {
         val form = confirmClientForm().bindFromRequest()(request)
         form.fold (
-          errors => BadRequest(search_client_result(potentialClient.clientSearch.get, form)),
+          errors => BadRequest(search_client_result(searchedClient, form)),
           confirmation => {
             keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, potentialClient.copy(confirmation = Some(confirmation)))
             Ok(search_client_preferred_contact(preferredContactForm(request)))
@@ -91,7 +91,7 @@ class ConfirmClientController extends BaseController
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
     keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
-      case Some(potentialClient) if potentialClient.clientSearch.isDefined &&  potentialClient.confirmation.isDefined=> {
+      case Some(PotentialClient(Some(_), Some(_), _ )) => {
         val form = preferredContactForm(request).bindFromRequest()(request)
         form.fold (
           errors => BadRequest(search_client_preferred_contact(form)),
