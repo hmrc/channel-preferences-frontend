@@ -90,8 +90,8 @@ class ConfirmClientController extends BaseController
   }
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
-    keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey) match {
-      case Some(person) => {
+    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
+      case Some(potentialClient) if potentialClient.clientSearch.isDefined &&  potentialClient.confirmation.isDefined=> {
         val form = preferredContactForm(request).bindFromRequest()(request)
         form.fold (
           errors => BadRequest(search_client_preferred_contact(form)),
