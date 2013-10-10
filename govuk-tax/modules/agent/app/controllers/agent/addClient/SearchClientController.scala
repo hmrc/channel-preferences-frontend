@@ -116,6 +116,7 @@ object SearchClientController {
     val serviceSourceKey = "agentFrontEnd"
     def keystoreId(id: String) = s"AddClient:$id"
     val clientSearchObjectKey = "clientSearchObject"
+    val clientSearchConfirmKey = "clientSearchConfirm"
   }
 
   private[addClient] object FieldIds {

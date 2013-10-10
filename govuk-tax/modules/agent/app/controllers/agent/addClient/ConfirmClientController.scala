@@ -31,7 +31,10 @@ class ConfirmClientController extends BaseController
         val form = confirmClientForm().bindFromRequest()(request)
         form.fold (
           errors => BadRequest(search_client_result(person, form)),
-          search => Ok(search_client_preferred_contact(preferredContactForm(request)))
+          confirmation => {
+            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, clientSearchConfirmKey, confirmation)
+            Ok(search_client_preferred_contact(preferredContactForm(request)))
+          }
         )
       }
       case _ => Redirect(routes.SearchClientController.start())
@@ -104,7 +107,7 @@ object ConfirmClientController {
       mapping(
         FieldIds.correctClient -> checked("You must check"),
         FieldIds.authorised -> checked("tou must check"),
-        FieldIds.internalClientRef -> nonEmptyText()
+        FieldIds.internalClientRef -> optional(text)
       )(ConfirmClient.apply)(ConfirmClient.unapply)
     )
   }

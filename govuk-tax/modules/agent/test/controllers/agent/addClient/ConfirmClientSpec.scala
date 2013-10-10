@@ -16,11 +16,11 @@ import SearchClientController.KeyStoreKeys._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.jsoup.Jsoup
+import models.agent.addClient.ConfirmClient
 
 class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
   def keyStore: KeyStoreMicroService = controller.keyStoreMicroService
-  def agentService: AgentMicroService = controller.agentMicroService
   var controller: ConfirmClientController = _
 
   val id = "wshakespeare"
@@ -46,8 +46,6 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s".error #${correctClient}") should not be ('empty)
       doc.select(s".error #${authorised}") should be ('empty)
       doc.select(s".error #${internalClientRef}") should be ('empty)
-
-      verifyZeroInteractions(agentService)
     }
 
     "show an error if the user does not confirm that they are authorised and not call the agent service"  in new WithApplication(FakeApplication()) {
@@ -62,8 +60,6 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s".error #${correctClient}") should be ('empty)
       doc.select(s".error #${authorised}") should not be ('empty)
       doc.select(s".error #${internalClientRef}") should be ('empty)
-
-      verifyZeroInteractions(agentService)
     }
 
     "redirect the user to the search client page if they do not have a stored search result"  in new WithApplication(FakeApplication()) {
@@ -75,8 +71,26 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
       status(result) should be (303)
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
+    }
 
-      verifyZeroInteractions(agentService)
+    "save the succesful acknoledgement to the keystore and show the prefered contact view"  in new WithApplication(FakeApplication()) {
+      when(keyStore.getEntry[MatchingPerson](keystoreId(id), serviceSourceKey, clientSearchObjectKey)).thenReturn(Some(MatchingPerson("exnino", Some("exFirst"), Some("exLast"), Some("1990-01-01"))))
+      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+        (correctClient, "true"),
+        (authorised, "true"),
+        (internalClientRef, "")))
+      status(result) should be (200)
+      verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, clientSearchConfirmKey, ConfirmClient(true, true, None))
+    }
+
+    "save the succesful acknoledgement and internal ref to the keystore and show the prefered contact view"  in new WithApplication(FakeApplication()) {
+      when(keyStore.getEntry[MatchingPerson](keystoreId(id), serviceSourceKey, clientSearchObjectKey)).thenReturn(Some(MatchingPerson("exnino", Some("exFirst"), Some("exLast"), Some("1990-01-01"))))
+      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+        (correctClient, "true"),
+        (authorised, "true"),
+        (internalClientRef, "1234567")))
+      status(result) should be (200)
+      verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, clientSearchConfirmKey, ConfirmClient(true, true, Some("1234567")))
     }
   }
 }
