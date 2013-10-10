@@ -110,12 +110,10 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "pass When all data is correctly provided" in new WithApplication(FakeApplication()) {
       val person = Some(MatchingPerson("AB123456C", Some("Foo"), Some("Bar"), None))
       when(keyStore.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey)).thenReturn(person)
-      val result = executePreferredContactActionPostWithValues("other", "firstName", "lastName", "v@v.com")
-      status(result) shouldBe 400
+      val result = executePreferredContactActionPostWithValues("other", "firstName", "lastName", "email@email.com")
+      status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      val elements = doc.select("input[checked]")
-      elements.size should be (1)
-      elements.get(0).getElementsByAttribute("value") is ("other")
+      doc.select("body").text() should include ("you have added a client")
     }
 
   }

@@ -2,8 +2,7 @@ package controllers.agent.addClient
 
 import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
 import controllers.common.validators.Validators
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, AgentRegime}
-import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import play.api.mvc.{Result, Request}
 import views.html.agents.addClient.{search_client_preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
@@ -14,6 +13,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.agent.MatchingPerson
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
+import controllers.agent.addClient.SearchClientController
 
 class ConfirmClientController extends BaseController
                                  with ActionWrappers
@@ -44,12 +44,12 @@ class ConfirmClientController extends BaseController
   private def preferredContactForm(request: Request[_]) = Form[PreferredContact](
     mapping(
       "pointOfContact" -> text,
-      "contactName" -> text.verifying("Name is required",
+      "contactName" -> text.verifying("Valid name is required",
         verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      "contactPhone" -> text.verifying("Phone is required",
+      "contactPhone" -> text.verifying("Valid phone is required",
         verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
-      "contactEmail" -> text.verifying("Email is required",
-        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
+      "contactEmail" -> text.verifying("Valid email is required",
+        verifyContactEmail(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
     ) (PreferredContact.apply)(PreferredContact.unapply)
   )
 
@@ -67,7 +67,7 @@ class ConfirmClientController extends BaseController
   private[addClient] def verifyContactName(name:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
       case "me" => true
-      case "other" => false
+      case "other" => name != null && !name.trim.isEmpty && SearchClientController.Validation.validateName(Some(name))
       case "notUs" => true
       case _ => false // unknown situation
     }
@@ -76,31 +76,35 @@ class ConfirmClientController extends BaseController
   private[addClient] def verifyContactPhone(name:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
       case "me" => true
-      case "other" => false
+      case "other" => SearchClientController.Validation.validateName(Some(name))
       case "notUs" => true
       case _ => false // unknown situation
     }
   }
 
-  private[addClient] def verifyContactEmail(name:String, preferredContact:PreferredContact) = {
+  private[addClient] def verifyContactEmail(email:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
       case "me" => true
-      case "other" => false
+      case "other" => SearchClientController.Validation.validateEmail(Some(email))
       case "notUs" => true
       case _ => false // unknown situation
     }
   }
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
-    val form = preferredContactForm(request).bindFromRequest()(request)
-
-    if (form.hasErrors) {
-      BadRequest(search_client_preferred_contact(form))
-    }  else {
-      Ok("you have added a client!")
+    keyStoreMicroService.getEntry[MatchingPerson](keystoreId(user.oid), serviceSourceKey, clientSearchObjectKey) match {
+      case Some(person) => {
+        val form = preferredContactForm(request).bindFromRequest()(request)
+        form.fold (
+          errors => BadRequest(search_client_preferred_contact(form)),
+          search => Ok("you have added a client!")
+        )
+      }
+      case _ => Redirect(routes.SearchClientController.start())
     }
   }
 }
+
 object ConfirmClientController {
   private[addClient] def confirmClientForm() = {
     Form[ConfirmClient](
@@ -117,3 +121,4 @@ object ConfirmClientController {
     val internalClientRef = "internalClientReference"
   }
 }
+
