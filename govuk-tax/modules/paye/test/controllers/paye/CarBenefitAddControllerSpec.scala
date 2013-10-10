@@ -28,11 +28,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
   val mockKeyStoreService = mock[KeyStoreMicroService]
   val mockPayeMicroService = mock[PayeMicroService]
 
-  private lazy val controller = new CarBenefitAddController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests {
-    override def currentTaxYear = 2013
-    override def startOfCurrentTaxYear = new LocalDate(2013, 4, 6)
-    override def endOfCurrentTaxYear = new LocalDate(2014, 4, 5)
-  }
+  private lazy val controller = new CarBenefitAddController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests with MockedTaxYearSupport
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)

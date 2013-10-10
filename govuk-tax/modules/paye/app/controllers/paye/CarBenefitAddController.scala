@@ -14,19 +14,14 @@ import CarBenefitFormFields._
 import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 
-class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with Validators {
+class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with Validators with TaxYearSupport {
 
   def this() = this(() => DateTimeUtils.now, MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
-
-  private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
-  private[paye] def startOfCurrentTaxYear = TaxYearResolver.startOfCurrentTaxYear
-  private[paye] def endOfCurrentTaxYear = TaxYearResolver.endOfCurrentTaxYear
 
   def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation {
     AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {

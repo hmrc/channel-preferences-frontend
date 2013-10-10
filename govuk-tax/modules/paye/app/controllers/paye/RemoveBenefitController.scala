@@ -12,17 +12,15 @@ import models.paye.BenefitTypes._
 import controllers.common.{SessionTimeoutWrapper, BaseController}
 import scala.collection.mutable
 import controllers.paye.validation.RemoveBenefitValidator._
-import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.RemoveBenefitFormData
-import uk.gov.hmrc.utils.TaxYearResolver
 import org.joda.time.format.DateTimeFormat
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import controllers.common.service.MicroServices
 
-class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService: PayeMicroService) extends BaseController with SessionTimeoutWrapper with Benefits {
+class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService: PayeMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with TaxYearSupport {
 
   def this() = this(MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
 
@@ -44,15 +42,15 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.get.benefits(TaxYearResolver.currentTaxYear))
-      val benefitType = benefit.benefit.benefitType
+      val benefitStartDate = findStartDate(benefit, user)
       val dates = getCarFuelBenefitDates(request)
 
-      if (benefitType == CAR) {
-        val carWithUnremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
-        Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel , updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), TaxYearResolver.currentTaxYearYearsRange)(user))
-      } else {
-        Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), TaxYearResolver.currentTaxYearYearsRange)(user))
+      benefit.benefit.benefitType match {
+        case CAR => {
+          val carWithUnremovedFuel = hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
+          Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel , updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), currentTaxYearYearRange)(user))
+        }
+        case _ => Ok(remove_benefit_form(benefit,hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), currentTaxYearYearRange)(user))
       }
     }
   }
@@ -68,13 +66,13 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, benefit) => {
-      val benefitStartDate = findStartDate(benefit.benefit, user.regimes.paye.get.get.benefits( TaxYearResolver.currentTaxYear))
+      val benefitStartDate = findStartDate(benefit, user)
       val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber)
       updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
-            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange)(user))
-            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors, TaxYearResolver.currentTaxYearYearsRange)(user))
+            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(user, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearRange)(user))
+            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(user,benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearRange)(user))
             case _ => Redirect(routes.BenefitHomeController.listBenefits())
           }
         },
@@ -171,7 +169,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
         val removalData = RemoveBenefitConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get.get, employmentSequenceNumber, year),
-          newTaxCode, personalAllowance, Dates.formatDate(TaxYearResolver.startOfCurrentTaxYear), Dates.formatDate(TaxYearResolver.endOfCurrentTaxYear))
+          newTaxCode, personalAllowance, Dates.formatDate(startOfCurrentTaxYear), Dates.formatDate(endOfCurrentTaxYear))
         Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
       } else {
         Redirect(routes.BenefitHomeController.listBenefits())
@@ -206,10 +204,12 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     datesForm.bindFromRequest()(request).value
   }
 
-  private def findStartDate(thisBenefit: Benefit, allBenefits: Seq[Benefit]): Option[LocalDate] = {
-    thisBenefit.benefitType match {
+  private def findStartDate(thisBenefit: DisplayBenefit, user: User): Option[LocalDate] = {
+    val benefitYear = thisBenefit.benefit.taxYear
+    val allBenefitsForTaxYear = user.regimes.paye.get.get.benefits(benefitYear)
+    thisBenefit.benefit.benefitType match {
       case CAR => thisBenefit.car.get.dateCarMadeAvailable
-      case FUEL =>  { val carBenefit = Benefit.findByTypeAndEmploymentNumber(allBenefits, thisBenefit.employmentSequenceNumber, CAR)
+      case FUEL =>  { val carBenefit = Benefit.findByTypeAndEmploymentNumber(allBenefitsForTaxYear, thisBenefit.benefit.employmentSequenceNumber, CAR)
         carBenefit.flatMap(_.car.get.dateCarMadeAvailable) }
       case _ => None
     }
@@ -267,7 +267,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     }
 
     private def getBenefitMatching(kind: Int, user: User, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
-      val taxYear = TaxYearResolver.currentTaxYear
+      val taxYear = currentTaxYear
       val benefit = user.regimes.paye.get.get.benefits(taxYear).find(
         b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
 

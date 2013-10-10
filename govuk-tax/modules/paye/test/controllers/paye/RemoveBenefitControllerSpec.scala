@@ -37,7 +37,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   val mockKeyStoreService = mock[KeyStoreMicroService]
   val mockPayeMicroService = mock[PayeMicroService]
 
-  private lazy val controller = new RemoveBenefitController(mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests
+  private lazy val controller = new RemoveBenefitController(mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests with MockedTaxYearSupport
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
