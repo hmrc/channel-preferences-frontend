@@ -66,9 +66,7 @@ object RegimeRoots {
             ct: Option[Try[CtRoot]] = None, agent: Option[Try[Agent]] = None): RegimeRoots = {
 
     val payeBuilder = paye.map(tryPayeRoot => new RegimeRootBuilder(() => tryPayeRoot.get))
-    val saBuilder = sa.map(trySaRoot => new RegimeRootBuilder(() => {
-      trySaRoot.get
-    }))
+    val saBuilder = sa.map(trySaRoot => new RegimeRootBuilder(() => trySaRoot.get))
     val vatBuilder = vat.map(tryVatRoot => new RegimeRootBuilder(() => tryVatRoot.get))
     val epayeBuilder = epaye.map(tryEpayeRoot => new RegimeRootBuilder(() => tryEpayeRoot.get))
     val ctBuilder = ct.map(tryCtRoot => new RegimeRootBuilder(() => tryCtRoot.get))
