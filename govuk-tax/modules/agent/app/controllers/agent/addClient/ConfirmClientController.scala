@@ -45,7 +45,7 @@ class ConfirmClientController extends BaseController
       contactName -> text.verifying("Valid name is required",
         verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
       contactPhone -> text.verifying("Valid phone is required",
-        verifyContactName(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
+        verifyContactPhone(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get)),
       contactEmail -> text.verifying("Valid email is required",
         verifyContactEmail(_, unValidatedPreferredContactForm(request).bindFromRequest()(request).get))
     ) (PreferredContact.apply)(PreferredContact.unapply)
@@ -71,10 +71,10 @@ class ConfirmClientController extends BaseController
     }
   }
 
-  private[addClient] def verifyContactPhone(name:String, preferredContact:PreferredContact) = {
+  private[addClient] def verifyContactPhone(phone:String, preferredContact:PreferredContact) = {
     preferredContact.pointOfContact match {
       case ConfirmClientController.me => true
-      case ConfirmClientController.other => SearchClientController.Validation.validateName(Some(name))
+      case ConfirmClientController.other => validateMandatoryPhoneNumber(phone) //  SearchClientController.Validation.validatePhone(Some(phone))
       case ConfirmClientController.notUs => true
       case _ => false // unknown situation
     }

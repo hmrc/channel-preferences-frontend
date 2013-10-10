@@ -84,6 +84,7 @@ object SearchClientController {
   private[addClient] object Validation {
     val nameRegex = """^[\p{L}\s'.-[0-9]]*"""
     val emailRegex = ".+\\@.+\\..+"
+    val phoneRegex = "^\\+[1-9]{1}[0-9]{10}$"
 
     val validateDob: Option[LocalDate] => Boolean = {
       case Some(dob) => dob.isBefore(LocalDate.now.minusYears(16).plusDays(1)) && dob.isAfter(LocalDate.now.minusYears(110).minusDays(1))
@@ -93,6 +94,8 @@ object SearchClientController {
     private[addClient] def validateName(s: Option[String]) = s.getOrElse("").trim.matches(nameRegex)
 
     private[addClient] def validateEmail(s: Option[String]) = s.getOrElse("").trim.matches(emailRegex)
+
+    private[addClient] def validatePhone(s: Option[String]) = s.getOrElse("").trim.matches(phoneRegex)
 
     private[addClient] def atLeastTwoOptionalAndAllMandatory(clientSearchNonValidated: ClientSearch) = {
       val items = List(clientSearchNonValidated.firstName.getOrElse("").trim.length > 0,
