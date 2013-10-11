@@ -124,7 +124,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
-      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
+      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"), false)))
       val result = executeSearchActionWith(nino="AB123456C", firstName="étåtø", lastName="étåtœ", dob=("1","1", "1990"))
 
       status(result) shouldBe 200
@@ -150,6 +150,20 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include ("January 1, 1991")
     }
 
+    "display an error when the client has already been added to the agent and not allow the user to proceed" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch(alreadyClient = true)
+
+      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"))
+
+      status(result) shouldBe 200
+
+      verifyZeroInteractions(keyStore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #globalErrors") should not be 'empty
+      doc.select("#submit").hasAttr("disabled") shouldBe true
+    }
+
     "not save anything to keystore when we make a submission with errors" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="", firstName="", lastName="", dob=("", "", ""))
       status(result) shouldBe 400
@@ -164,6 +178,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
       verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),Some(new LocalDate(1991, 1, 1)))), None, None))
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #globalErrors") shouldBe 'empty
+      doc.select("#submit").hasAttr("disabled") shouldBe false
     }
 
     "save partial client search results to the keystore when we make a successful submission with some fields" in new WithApplication(FakeApplication()) {
@@ -174,6 +192,9 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
       verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),None)), None, None))
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #globalErrors") shouldBe 'empty
+      doc.select("#submit").hasAttr("disabled") shouldBe false
     }
 
     "display an error when no match is found and not save anything to the keystore" in new WithApplication(FakeApplication()) {
@@ -197,9 +218,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       controller.searchAction(user)(request)
     }
 
-    def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[SearchRequest])).thenReturn(None)
-    def givenTheAgentServiceReturnsAMatch() =
-      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"))))
+    def givenTheAgentServiceFindsNoMatch()  = when(agentService.searchClient(any[SearchRequest])).thenReturn(None)
+    def givenTheAgentServiceReturnsAMatch(alreadyClient: Boolean = false) =
+      when(agentService.searchClient(any[SearchRequest]))
+      .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"), alreadyClient)))
   }
 
 }

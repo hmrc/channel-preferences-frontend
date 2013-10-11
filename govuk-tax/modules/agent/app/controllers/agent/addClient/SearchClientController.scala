@@ -12,9 +12,8 @@ import models.agent.addClient.{PotentialClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.agent.SearchRequest
+import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentRegime}
 import uk.gov.hmrc.utils.DateConverter
-import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import ConfirmClientController.confirmClientForm
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
@@ -63,16 +62,19 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     form.fold(
       errors => BadRequest(search_client(validDobRange, errors)),
       search => {
+        def restricted(person: MatchingPerson) = ClientSearch(person.nino,
+                                                              search.firstName.flatMap(_ => person.firstName),
+                                                              search.lastName.flatMap(_ => person.lastName),
+                                                              search.dob.flatMap(_ => person.dobAsLocalDate))
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
-          case Some(result) => {
-            val restrictedResult = ClientSearch(result.nino,
-                                                search.firstName.flatMap(_ => result.firstName),
-                                                search.lastName.flatMap(_ => result.lastName),
-                                                search.dob.flatMap(_ => result.dobAsLocalDate))
+          case Some(result @ MatchingPerson(_, _, _, _, false)) => {
+            val restrictedResult = restricted(result)
             keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))
             Ok(search_client_result(restrictedResult, confirmClientForm()))
           }
+          case Some(result @ MatchingPerson(_, _, _, _, true)) =>
+            Ok(search_client_result(restricted(result), confirmClientForm().withGlobalError("This person is already your client")))
           case None => NotFound(search_client(validDobRange, form.withGlobalError("No match found")))
         }
       }

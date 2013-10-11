@@ -52,7 +52,7 @@ case class ContactDetails(title: String,
   middleName: Option[String] = None)
 
 
-case class MatchingPerson(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String]) {
+case class MatchingPerson(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String], alreadyClient: Boolean) {
   lazy val dobAsLocalDate = dateOfBirth.map(DateConverter.parseToLocalDate)
 }
 case class SearchRequest(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String])
