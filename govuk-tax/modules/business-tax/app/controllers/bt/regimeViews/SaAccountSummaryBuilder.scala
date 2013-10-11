@@ -2,6 +2,7 @@ package controllers.bt.regimeViews
 
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.sa.SaConnector
+import CommonBusinessMessageKeys._
 import SaMessageKeys._
 import SaPortalUrlKeys._
 import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.{SaAccountSummary, Liability, SaRoot}
@@ -15,7 +16,7 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
   def rootForRegime(user: User): Option[Try[SaRoot]] = user.regimes.sa
 
   def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String): AccountSummary = {
-    getAccountSummaryData(saRoot, saConnector) match {
+    saRoot.accountSummary(saConnector) match {
       case Some(saAccountSummary) => {
         AccountSummary(
           saRegimeName,
@@ -23,7 +24,8 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
           Seq(
             LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, Some("portalLink")),
             LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-            LinkMessage(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage))
+            LinkMessage(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage)),
+          SummaryStatus.success
         )
       }
       case _ =>
@@ -35,20 +37,13 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
             Msg(saSummaryUnavailableErrorMessage3),
             Msg(saSummaryUnavailableErrorMessage4)
           ),
-          Seq.empty
+          Seq.empty,
+          SummaryStatus.default
         )
     }
   }
 
-  private def getAccountSummaryData(saRoot: SaRoot, saConnector: SaConnector): Option[SaAccountSummary] = {
-    try {
-      saRoot.accountSummary(saConnector)
-    } catch {
-      case e: Exception => None
-    }
-  }
-
-  override protected def oops(user: User): AccountSummary = ???
+  override protected val defaultRegimeNameMessageKey = saRegimeName
 }
 
 case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
@@ -125,7 +120,7 @@ object SaPortalUrlKeys {
   val saHomePortalUrl = "home"
 }
 
-object SaMessageKeys extends CommonBusinessMessageKeys {
+object SaMessageKeys {
 
   val saRegimeName = "sa.regimeName"
 

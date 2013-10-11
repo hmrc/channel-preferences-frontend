@@ -42,10 +42,10 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
     }
 
     "construct an AccountSummaries model using the AccountSummary regimes factories that return models" in {
-      val saAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty)
-      val vatAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty)
-      val ctAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty)
-      val epayeAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty)
+      val saAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
+      val vatAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
+      val ctAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
+      val epayeAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
 
       val factoryUnderTest = factory()
       val userUnderTest = mockUser

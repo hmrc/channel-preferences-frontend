@@ -3,6 +3,7 @@ package controllers.bt.regimeViews
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain._
+import CommonBusinessMessageKeys._
 import EpayeMessageKeys._
 import EpayePortalUrlKeys._
 import views.helpers.{RenderableMessage, LinkMessage, MoneyPounds}
@@ -27,7 +28,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
       LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
       LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
 
-    AccountSummary(regimeName(accountSummary), messages, links)
+    AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
   }
 
   override def rootForRegime(user: User): Option[Try[EpayeRoot]] = user.regimes.epaye
@@ -99,14 +100,14 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
     s"%d - %s".format(currentTaxYear, nextTaxYear)
   }
 
-  override protected def oops(user: User): AccountSummary = ???
+  override protected val defaultRegimeNameMessageKey = epayeUnknownRegimeName
 }
 
 object EpayePortalUrlKeys {
   val epayeHomePortalUrl = "home"
 }
 
-object EpayeMessageKeys extends CommonBusinessMessageKeys {
+object EpayeMessageKeys {
 
   val epayeRtiRegimeNameMessage = "epaye.regimeName.rti"
   val epayeNonRtiRegimeNameMessage = "epaye.regimeName.nonRti"

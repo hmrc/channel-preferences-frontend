@@ -33,15 +33,15 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     val mockBuilder = mock[MockableBuilder]
 
+    val regimeNameKey = "test.regime.name"
+
     val builder = new AccountSummaryBuilder[SaUtr, SaRoot] {
 
       override def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String): AccountSummary = {
         mockBuilder.buildAccountSummary(regimeRoot, buildPortalUrl)
       }
 
-      override def oops(user: User): AccountSummary = {
-        mockBuilder.oops(user)
-      }
+      override def defaultRegimeNameMessageKey = regimeNameKey
 
       override def rootForRegime(user: User): Option[Try[SaRoot]] = {
         regimeRoot
@@ -53,18 +53,18 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     "call oops if the root service call throws an exception" in new Builder {
       override lazy val regimeRoot = Some(Failure(new RuntimeException()))
-      builder.build(buildPortalUrl, user)
-      verify(mockBuilder).oops(user)
+      val expectedSummary = AccountSummary(regimeNameKey, Seq(Msg(CommonBusinessMessageKeys.oopsMessage)), Seq.empty, SummaryStatus.oops)
+      builder.build(buildPortalUrl, user) shouldBe Some(expectedSummary)
     }
 
     "call oops if the buildAccountSummary method throws an exception" in new Builder {
       when(mockBuilder.buildAccountSummary(saRoot, buildPortalUrl)).thenThrow(new NumberFormatException("broken"))
-      builder.build(buildPortalUrl, user)
-      verify(mockBuilder).oops(user)
+      val expectedSummary = AccountSummary(regimeNameKey, Seq(Msg(CommonBusinessMessageKeys.oopsMessage)), Seq.empty, SummaryStatus.oops)
+      builder.build(buildPortalUrl, user) shouldBe Some(expectedSummary)
     }
 
     "return the accountSummary from buildAccountSummary when it completes successfully" in new Builder {
-      val accountSummary = AccountSummary("Some Regime", Seq.empty, Seq.empty)
+      val accountSummary = AccountSummary("Some Regime", Seq.empty, Seq.empty, SummaryStatus.success)
       when(mockBuilder.buildAccountSummary(saRoot, buildPortalUrl)).thenReturn(accountSummary)
       builder.build(buildPortalUrl, user) shouldBe Some(accountSummary)
     }

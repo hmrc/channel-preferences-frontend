@@ -1,8 +1,11 @@
 package controllers.bt.regimeViews
 
-import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoot}
-import scala.util.{Success, Failure, Try}
+import uk.gov.hmrc.common.microservice.domain.RegimeRoot
+import scala.util.Try
 import uk.gov.hmrc.domain.TaxIdentifier
+import scala.util.Failure
+import uk.gov.hmrc.common.microservice.domain.User
+import scala.util.Success
 
 abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
 
@@ -17,15 +20,20 @@ abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
     }
   }
 
+  private def oops(user: User): AccountSummary = {
+    AccountSummary(defaultRegimeNameMessageKey, Seq(Msg(CommonBusinessMessageKeys.oopsMessage)), Seq.empty, SummaryStatus.oops)
+  }
+
   protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String): AccountSummary
 
-  protected def oops(user: User): AccountSummary
+  protected def defaultRegimeNameMessageKey: String
 
   protected def rootForRegime(user: User): Option[Try[R]]
 }
 
-trait CommonBusinessMessageKeys {
+object CommonBusinessMessageKeys {
   val viewAccountDetailsLinkMessage = "common.link.message.accountSummary.viewAccountDetails"
   val makeAPaymentLinkMessage = "common.link.message.accountSummary.makeAPayment"
   val fileAReturnLinkMessage = "common.link.message.accountSummary.fileAReturn"
+  val oopsMessage = "common.message.oops"
 }

@@ -59,7 +59,7 @@ epaye.message.paidToDateForPeriod={0} paid to date for period {1}
 common.link.message.accountSummary.viewAccountDetails=View account details
 common.link.message.accountSummary.makeAPayment=Make a payment
 common.link.message.accountSummary.fileAReturn=File a return
-
+common.message.oops=Oops, something went wrong, we can't display your details.
 
 
 

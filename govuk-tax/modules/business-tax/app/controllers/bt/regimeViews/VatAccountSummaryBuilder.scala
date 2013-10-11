@@ -10,6 +10,7 @@ import uk.gov.hmrc.domain.Vrn
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 
+  import CommonBusinessMessageKeys._
   import VatMessageKeys._
   import VatPortalUrls._
 
@@ -34,18 +35,18 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountS
     accountValueOption match {
       case Some(accountValue) => {
         val messages = Seq(Msg(vatRegistrationNumberMessage,Seq(vatRoot.identifier.vrn)), Msg(vatAccountBalanceMessage,Seq(MoneyPounds(accountValue))))
-        AccountSummary(vatRegimeNameMessage, messages, links)
+        AccountSummary(vatRegimeNameMessage, messages, links, SummaryStatus.success)
       }
       case _ => {
         val messages = Seq(Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
           Msg(vatSummaryUnavailableErrorMessage3),
           Msg(vatSummaryUnavailableErrorMessage4,Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
-        AccountSummary(vatRegimeNameMessage, messages, Seq.empty)
+        AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
       }
     }
   }
 
-  override protected def oops(user: User): AccountSummary = ???
+  override protected val defaultRegimeNameMessageKey = vatRegimeNameMessage
 }
 
 object VatPortalUrls {
@@ -54,7 +55,7 @@ object VatPortalUrls {
   val vatHelpDeskPortalUrl = "vatHelpDesk" // TODO [JJS] WHAT'S THE CORRECT HELP DESK LINK - was set to "/TODO/HelpDeskLink"
 }
 
-object VatMessageKeys extends CommonBusinessMessageKeys {
+object VatMessageKeys {
 
   val vatRegimeNameMessage = "vat.regimeName"
 

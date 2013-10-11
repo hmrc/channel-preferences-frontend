@@ -16,9 +16,10 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
-import uk.gov.hmrc.domain.EmpRef
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import scala.util.Success
+import uk.gov.hmrc.domain.{Vrn, EmpRef}
+import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import scala.util.{Failure, Try, Success}
+import CommonBusinessMessageKeys._
 
 trait DummyPortalUrlBuilder {
   def build(a: String): String
@@ -31,6 +32,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://homeUrl"
   private val makeAPaymentUrl = routes.BusinessTaxController.makeAPaymentLanding().url
   private val empRefMessageString: Msg = Msg(epayeEmpRefMessage, Seq(dummyEmpRef.toString))
+  private val buildPortalUrl: (String) => String = (value: String) => value
 
   private val expectedRtiLinks = Seq(
     RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage)),
@@ -52,7 +54,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq(empRefMessageString, Msg(epayeNothingToPayMessage, Seq.empty))
 
-      testEpayeAccountSummaryBuilder(epayeRtiRegimeNameMessage, Some(accountSummary), expectedMessages, expectedRtiLinks)
+      testEpayeAccountSummaryBuilder(epayeRtiRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
 
     "build correct account summary model when amount due < amount paid to date (negative balance)" in {
@@ -64,7 +66,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq[Msg]( empRefMessageString, overPaidMessage, adjustFuturePaymentsMessageString      )
 
-      testEpayeAccountSummaryBuilder(epayeRtiRegimeNameMessage, Some(accountSummary), expectedMessages, expectedRtiLinks)
+      testEpayeAccountSummaryBuilder(epayeRtiRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
 
     "build correct account summary model when amount due > amount paid to date (positive balance)" in {
@@ -75,7 +77,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq(empRefMessageString, dueForPaymentMessageString)
 
-      testEpayeAccountSummaryBuilder(epayeRtiRegimeNameMessage, Some(accountSummary), expectedMessages, expectedRtiLinks)
+      testEpayeAccountSummaryBuilder(epayeRtiRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
   }
 
@@ -90,7 +92,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq(empRefMessageString, paidToDateForPeriodMessageString)
 
-      testEpayeAccountSummaryBuilder(epayeNonRtiRegimeNameMessage, Some(accountSummary), expectedMessages, expectedNonRtiLinks)
+      testEpayeAccountSummaryBuilder(epayeNonRtiRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
     }
 
     "populate account summary model correctly if the amount paid to date is > 0" in {
@@ -102,7 +104,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq(empRefMessageString, paidToDateForPeriodMessageString)
 
-      testEpayeAccountSummaryBuilder(epayeNonRtiRegimeNameMessage, Some(accountSummary), expectedMessages, expectedNonRtiLinks)
+      testEpayeAccountSummaryBuilder(epayeNonRtiRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
     }
 
     "populate account summary model correctly if the amount paid to is > 0 and date is 1999" in {
@@ -114,7 +116,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val expectedMessages = Seq(empRefMessageString, paidToDateForPeriodMessageString)
 
-      testEpayeAccountSummaryBuilder(epayeNonRtiRegimeNameMessage, Some(accountSummary), expectedMessages, expectedNonRtiLinks)
+      testEpayeAccountSummaryBuilder(epayeNonRtiRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
     }
   }
 
@@ -126,18 +128,40 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val unableToDisplayAccountInfoMessage =Msg (epayeSummaryUnavailableErrorMessage)
       val expectedMessages = Seq(empRefMessageString, unableToDisplayAccountInfoMessage)
 
-      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Some(accountSummary), expectedMessages, expectedNonRtiLinks)
+      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
     }
 
     "build the correct account summary model if no summary is returned from the service (e.g. due to 404 or 500 from the REST call)" in {
 
       val unableToDisplayAccountInfoMessage =Msg (epayeSummaryUnavailableErrorMessage)
       val expectedMessages = Seq(empRefMessageString, unableToDisplayAccountInfoMessage)
-      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", None, expectedMessages, expectedNonRtiLinks)
+      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Success(None), expectedMessages, expectedNonRtiLinks)
+    }
+
+    "return the oops summary if there is an exception when requesting the root" in {
+      val empRef = EmpRef("ABC", "12345")
+      val userAuthorityWithEmpRef = UserAuthority("123", Regimes(), empRef = Some(empRef))
+      val regimeRoots = RegimeRoots(epaye = Some(Failure(new NumberFormatException)))
+      val user = User("tim", userAuthorityWithEmpRef, regimeRoots, None, None)
+      val mockEpayeConnector = mock[EpayeConnector]
+      val builder = new EpayeAccountSummaryBuilder(mockEpayeConnector)
+      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
+      accountSummaryOption should not be None
+      val accountSummary = accountSummaryOption.get
+      accountSummary.regimeName shouldBe epayeUnknownRegimeName
+      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+      accountSummary.addenda shouldBe Seq.empty
+      accountSummary.status shouldBe SummaryStatus.oops
+      verifyZeroInteractions(mockEpayeConnector)
+    }
+
+    "return the oops summary if there is an exception when requesting the account summary" in {
+      val expectedMessages = Seq(Msg(oopsMessage, Seq.empty))
+      testEpayeAccountSummaryBuilder(epayeUnknownRegimeName, Failure(new NumberFormatException), expectedMessages, Seq.empty)
     }
   }
 
-  private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Option[EpayeAccountSummary], expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage]) {
+  private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Try[Option[EpayeAccountSummary]], expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage]) {
     val mockUser = mock[User]
     val mockUserAuthority = mock[UserAuthority]
     val mockEpayeConnector = mock[EpayeConnector]
@@ -150,7 +174,10 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockUser.userAuthority).thenReturn(mockUserAuthority)
     when(mockRegimeRoots.epaye).thenReturn(Some(Success(mockEpayeRoot)))
     when(mockEpayeRoot.identifier).thenReturn(dummyEmpRef)
-    when(mockEpayeRoot.accountSummary(mockEpayeConnector)).thenReturn(accountSummary)
+    accountSummary match {
+      case Success(aSummary) => when(mockEpayeRoot.accountSummary(mockEpayeConnector)).thenReturn(aSummary)
+      case Failure(exception) => when(mockEpayeRoot.accountSummary(mockEpayeConnector)).thenThrow(exception)
+    }
 
     when(mockPortalUrlBuilder.build(epayeHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG

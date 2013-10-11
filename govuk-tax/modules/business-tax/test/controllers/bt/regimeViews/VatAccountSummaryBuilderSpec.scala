@@ -11,7 +11,8 @@ import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import uk.gov.hmrc.domain.Vrn
 import VatMessageKeys._
 import VatPortalUrls._
-import scala.util.Success
+import scala.util.{Failure, Success}
+import CommonBusinessMessageKeys._
 
 class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -37,6 +38,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage(vatAccountDetailsPortalUrl, viewAccountDetailsLinkMessage),
         LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage),
         LinkMessage(vatFileAReturnPortalUrl, fileAReturnLinkMessage))
+      accountSummaryView.status shouldBe SummaryStatus.success
     }
 
     "return an error message if the account summary is not available" in {
@@ -52,6 +54,35 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryView.messages shouldBe Seq[Msg](Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
         Msg(vatSummaryUnavailableErrorMessage3), Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
       accountSummaryView.addenda shouldBe Seq.empty
+      accountSummaryView.status shouldBe SummaryStatus.default
+    }
+
+    "return the oops summary if there is an exception when requesting the root" in {
+      val regimeRoots = RegimeRoots(vat = Some(Failure(new NumberFormatException)))
+      val user = User("tim", userAuthorityWithVrn, regimeRoots, None, None)
+      val mockVatConnector = mock[VatConnector]
+      val builder = new VatAccountSummaryBuilder(mockVatConnector)
+      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
+      accountSummaryOption should not be None
+      val accountSummary = accountSummaryOption.get
+      accountSummary.regimeName shouldBe vatRegimeNameMessage
+      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+      accountSummary.addenda shouldBe Seq.empty
+      accountSummary.status shouldBe SummaryStatus.oops
+      verifyZeroInteractions(mockVatConnector)
+    }
+
+    "return the oops summary if there is an exception when requesting the account summary" in {
+      val mockVatConnector = mock[VatConnector]
+      when(mockVatConnector.accountSummary(s"/vat/$vrn/account-summary")).thenThrow(new NumberFormatException)
+      val builder = new VatAccountSummaryBuilder(mockVatConnector)
+      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForVat)
+      accountSummaryOption should not be None
+      val accountSummary = accountSummaryOption.get
+      accountSummary.regimeName shouldBe vatRegimeNameMessage
+      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+      accountSummary.addenda shouldBe Seq.empty
+      accountSummary.status shouldBe SummaryStatus.oops
     }
 
     "return None if the user is not enrolled for VAT" in {
