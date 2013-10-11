@@ -5,42 +5,47 @@
 
 @main(title = "My Preferences") {
 
-<h2>Turn off paper</h2>
-<div id="print-prefs">
+    <h1>Go paperless.<br>Save taxpayers money.</h1>
 
-    <p>
-        Soon you can receive email alerts when new reminders and statements are available online, rather than letters.
-    </p>
+    <p>HMRC sends out 44 million letters to their customers each year. This costs the taxpayer £11.5 million and isn’t environmentally friendly.</p>
 
-    <p>
-        HMRC will be making this available over the next year and will let you know when this happens.
-    </p>
+    <p>You might, for example, get one of these letters to remind to file a Self Assessment return or payment is due.</p>
 
-    <p>
-        If you would like to receive your reminders by email when this is available, enter your email address.
-    </p>
+    <p>You can now sign up to stop letters and get emails instead.</p>
+
+    <h2>How email reminders work</h2>
+
+    <p>Emails from HMRC are secure and won’t include any sensitive information about your tax. They simply alert you to check your online account for further information, for example the amount of tax that’s due.</p>
+
+    <h2>Benefits of emails</h2>
+
+    <ul class="bullets">
+	<li>we do the filing for you - all Self Assessment statements and reminders are kept in your online tax account</li>
+
+	<li>be up to date quicker - you don’t have to wait for letters to arrive in the post</li>
+
+	<li>more secure - emails don’t contain personal information about your tax</li>
+    </ul>
+
+    <p>Enter your email address to sign up for emails.</p>
 
     @helper.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
-         <p>
-            @inputText(
-             emailForm("email"),
-            '_label -> "",
-            '_showConstraints -> false)
-        </p>
 
-        <p>
+	@helpers.input(
+	    emailForm("email"),
+            '_label -> "",
+	    '_divClass -> "form-field",
+	    '_inputClass -> "input--medium"
+	)
+
+	<div class="form-field">
             <button class="button" type="submit">Submit</button>
-        </p>
+	</div>
 
     }
 
     @helper.form(action = controllers.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl)) {
-    <p>
-       <input type="submit" style="border:none; background-color:transparent; text-decoration:underline; color:#0000FF;" value="No thanks. Keep sending me reminders by letter"></button>
-    </p>
+	<p><input class="input--link" type="submit" value="No thanks. Keep sending me reminders by letter" /></p>
     }
-
-
-</div>
 
 }
