@@ -116,5 +116,19 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, Some("1234567"))), None))
       contentAsString(result) should include ("preferred point of contact")
     }
+
+    "save the succesful acknoledgement and whitespace only internal ref to the keystore and show the prefered contact view"  in new WithApplication(FakeApplication()) {
+      val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
+      when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
+        .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
+      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+        (correctClient, "true"),
+        (authorised, "true"),
+        (internalClientRef, "      ")))
+      status(result) should be (200)
+      verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, addClientKey,
+        PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, None)), None))
+      contentAsString(result) should include ("preferred point of contact")
+    }
   }
 }

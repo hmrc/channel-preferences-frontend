@@ -24,11 +24,12 @@ class PreferredContactController extends BaseController
     keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
       case Some(PotentialClient(Some(_), Some(_), _ )) => {
         val form = preferredContactForm(request).bindFromRequest()(request)
+        //FIXME we should trim contact details before saving them here
         form.fold (
           errors => BadRequest(preferred_contact(form)),
           search => Ok(client_successfully_added())
         )
-      } 
+      }
       case _ => Redirect(routes.SearchClientController.start())
     }
   }

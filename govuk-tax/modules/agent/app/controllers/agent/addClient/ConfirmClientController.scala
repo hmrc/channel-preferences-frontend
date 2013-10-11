@@ -28,7 +28,8 @@ class ConfirmClientController extends BaseController
         form.fold (
           errors => BadRequest(search_client_result(searchedClient, form)),
           confirmation => {
-            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, potentialClient.copy(confirmation = Some(confirmation)))
+            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey,
+              potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference)))))
             Ok(preferred_contact(preferredContactForm(request)))
           }
         )
@@ -37,7 +38,6 @@ class ConfirmClientController extends BaseController
     }
   }
 }
-
 object ConfirmClientController {
 
   private[addClient] def confirmClientForm() = {
@@ -45,7 +45,7 @@ object ConfirmClientController {
       mapping(
         FieldIds.correctClient -> checked("error.agent.addClient.confirmClient.correctClient"),
         FieldIds.authorised -> checked("error.agent.addClient.confirmClient.authorised"),
-        FieldIds.internalClientRef -> optional(text)
+        FieldIds.internalClientRef -> optional(nonEmptyText)
       )(ConfirmClient.apply)(ConfirmClient.unapply)
     )
   }
@@ -54,4 +54,6 @@ object ConfirmClientController {
     val authorised = "authorised"
     val internalClientRef = "internalClientReference"
   }
+
+  def trimmed(original: Option[String]): Option[String] = original.filter(!_.trim().isEmpty)
 }
