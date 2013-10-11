@@ -27,12 +27,14 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.util.Success
 import play.api.test.FakeApplication
+import PreferredClientController.FieldIds._
 
 class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
-  var keyStore: KeyStoreMicroService = _
-  var agentService: AgentMicroService = _
-  var controller: ConfirmClientController = _
+  def keyStore: KeyStoreMicroService = controller.keyStoreMicroService
+  def agentService: AgentMicroService = controller.agentMicroService
+  var controller: PreferredContactController = _
+  var confirmController: ConfirmClientController = _
 
   val id = "wshakespeare"
   val authority = s"/auth/oid/$id"
@@ -41,11 +43,8 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
 
   before {
-    agentService = mock[AgentMicroService]
-    controller = new ConfirmClientController with MockMicroServicesForTests {
-      override implicit lazy val agentMicroService: AgentMicroService = agentService
-    }
-    keyStore = controller.keyStoreMicroService
+    controller = new PreferredContactController with MockMicroServicesForTests
+    confirmController = new ConfirmClientController with MockMicroServicesForTests
   }
 
   def executeAddActionPostWithValues(correctClient: String, authorised: String, internalClientReference: String) = {
@@ -53,15 +52,15 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       (ConfirmClientController.FieldIds.correctClient, correctClient),
       (ConfirmClientController.FieldIds.authorised, authorised),
       (ConfirmClientController.FieldIds.internalClientRef, internalClientReference))
-    controller.confirmAction(user)(request)
+    confirmController.confirmAction(user)(request)
   }
 
   def executePreferredContactActionPostWithValues(poc: String, name: String, phone: String, email: String) = {
     val request = FakeRequest().withFormUrlEncodedBody(
-      (ConfirmClientController.pointOfContact, poc),
-      (ConfirmClientController.contactName, name),
-      (ConfirmClientController.contactPhone, phone),
-      (ConfirmClientController.contactEmail, email)
+      (pointOfContact, poc),
+      (contactName, name),
+      (contactPhone, phone),
+      (contactEmail, email)
     )
     controller.preferredContactAction(user)(request)
   }
@@ -77,7 +76,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   "When hitting the preferred contact controller the result" should {
 
     "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "", "123456", "v@v.com")
+      val result = executePreferredContactActionPostWithValues(other, "", "123456", "v@v.com")
       status(result) shouldBe 303
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
     }
@@ -85,7 +84,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "have the default radio button selected when entering via the add action controller" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
+      when(confirmController.keyStoreMicroService.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
 
       val result = executeAddActionPostWithValues("true", "true", "FOO")
@@ -101,12 +100,12 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "", "123456", "v@v.com")
+      val result = executePreferredContactActionPostWithValues(other, "", "123456", "v@v.com")
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       val elements = doc.select("input[checked]")
       elements.size should be (1)
-      elements.get(0).getElementsByAttribute("value") is (ConfirmClientController.other)
+      elements.get(0).getElementsByAttribute("value") is (other)
     }
 
     "fail when no phone number is provided provided" in new WithApplication(FakeApplication()) {
@@ -114,7 +113,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "firstName", "", "email@email.com")
+      val result = executePreferredContactActionPostWithValues(other, "firstName", "", "email@email.com")
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error #contactPhone") should not be 'empty
@@ -125,7 +124,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "firstName", "aefwefw", "email@email.com")
+      val result = executePreferredContactActionPostWithValues(other, "firstName", "aefwefw", "email@email.com")
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error #contactPhone") should not be 'empty
@@ -136,7 +135,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.other, "firstName", "1123", "email@email.com")
+      val result = executePreferredContactActionPostWithValues(other, "firstName", "1123", "email@email.com")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("body").text() should include ("A client has been successfully added")
@@ -147,7 +146,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.me, "firstName", "lastName", "email@email.com")
+      val result = executePreferredContactActionPostWithValues(me, "firstName", "lastName", "email@email.com")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("body").text() should include ("A client has been successfully added")
@@ -158,7 +157,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
-      val result = executePreferredContactActionPostWithValues(ConfirmClientController.notUs, "", "", "")
+      val result = executePreferredContactActionPostWithValues(notUs, "", "", "")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("body").text() should include ("A client has been successfully added")

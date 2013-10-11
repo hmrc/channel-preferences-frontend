@@ -21,4 +21,4 @@ GET         /thank-you                           @controllers.agent.registration
 GET         /add-client                          @controllers.agent.addClient.SearchClientController.start
 POST        /add-client/search                   @controllers.agent.addClient.SearchClientController.search
 POST        /add-client/confirm                  @controllers.agent.addClient.ConfirmClientController.confirm
-POST        /add-client/preferred-contact        @controllers.agent.addClient.ConfirmClientController.preferredContact
+POST        /add-client/preferred-contact        @controllers.agent.addClient.PreferredContactController.preferredContact

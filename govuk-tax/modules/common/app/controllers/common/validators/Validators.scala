@@ -120,6 +120,7 @@ trait Validators {
     isValidMinLength(5)(trimmedVal) && isValidMaxLength(7)(trimmedVal)
   }
 }
+object Validators extends Validators
 
 
 object characterValidator {
