@@ -60,7 +60,7 @@ object AddCarBenefitValidator extends Validators {
     }
 
   private[paye] def validateFuelType(values: CarBenefitValues): Mapping[Option[String]] =
-     optional(text.verifying("error.paye.fuel_type_mandatory" , data => isValidValue(fuelTypeOptions, data))
+     optional(text.verifying("error.paye.fuel_type_correct_option" , data => isValidValue(fuelTypeOptions, data))
      .verifying("error.paye.fuel_type_electricity_must_be_registered_after_98", data => if(values.registeredBefore98.getOrElse("") == "true") {!isFuelTypeElectric(Some(data)) } else true)
      ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 

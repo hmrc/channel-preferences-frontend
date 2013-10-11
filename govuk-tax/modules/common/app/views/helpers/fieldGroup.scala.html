@@ -5,7 +5,7 @@
 @import views.helpers._
 
 
-@allFieldElements = @{ fields.map{ f => new FieldElements(f.field.id, f.field, null, args.toMap, lang) } }
+@allFieldElements = @{ fields.groupBy{_.field}.map{_._2 head}.map{ f => new FieldElements(f.field.id, f.field, null, args.toMap, lang) }.toList}
 @anyFieldHasError = @{ allFieldElements.exists( _.hasErrors ) }
 @argsMap = @{ args.toMap }
 @valueAfter = @{ argsMap.get('_valueAfter).getOrElse(false).asInstanceOf[Boolean] }

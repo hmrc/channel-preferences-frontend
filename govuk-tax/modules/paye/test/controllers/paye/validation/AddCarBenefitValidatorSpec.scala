@@ -63,13 +63,13 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     "reject if there is no value for the employer pay fuel field" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), employerPayFuel, "")
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, employerPayFuel, "This field is required")
+      assertHasThisErrorMessage(form, employerPayFuel, "Please answer this question.")
     }
 
     "accept a value that is one of the options" in {
       val form = bindFormWithValue(dummyForm(values), employerPayFuel, "again")
       form.hasErrors shouldBe false
-      form.value.get.employerPayFuel shouldBe "again"
+      form.value.get.employerPayFuel shouldBe Some("again")
     }
 
     "reject if date fuel withdrawn is not a valid date" in new WithApplication(FakeApplication()) {

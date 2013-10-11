@@ -195,11 +195,11 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
         val data = keyStoreDataCaptor.getValue
         data.registeredBefore98 shouldBe Some(true)
-        data.fuelType shouldBe "diesel"
+        data.fuelType shouldBe Some("diesel")
         data.co2Figure shouldBe Some(20)
         data.co2NoFigure shouldBe Some(false)
         data.engineCapacity shouldBe Some("1400")
-        data.employerPayFuel shouldBe "date"
+        data.employerPayFuel shouldBe Some("date")
         data.dateFuelWithdrawn shouldBe now
     }
 
@@ -369,7 +369,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 400
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text should include(Messages("error.paye.fuel_type_mandatory"))
+      doc.select(".error-notification").text should include(Messages("error.paye.answer_mandatory"))
     }
 
     "return 400 if the user sends an invalid value for the FUEL TYPE question" in new WithApplication(FakeApplication()){
@@ -470,9 +470,9 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = None)
       val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
-
+      print(contentAsString(result))
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text should include(Messages("error.paye.non_valid_option"))
+      doc.select(".error-notification").text should be(Messages("error.paye.answer_mandatory"))
     }
 
     "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
