@@ -10,6 +10,12 @@ object RadioButton {
   }
 }
 
+object InputText {
+  def apply(fieldLabel: String, divClass: Option[String] = None, labelClass: Option[String] = None, inputClass: Option[String] = None, label:Option[String] = None) = {
+    InputType("text", "", fieldLabel, divClass, labelClass, inputClass, label)
+  }
+}
+
 case class DateControl(yearRange: Range) extends FieldType
 
 case class FormField(field: play.api.data.Field, inputs: Seq[FieldType])

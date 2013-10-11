@@ -28,8 +28,8 @@
                 carBenefitForm,
                 Seq(
                     FormField(carBenefitForm(carUnavailable), Seq(
-                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio")),
-                        InputType("radio", "true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio")))),
+                        RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio")),
+                        RadioButton("true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio")))),
                     FormField(carBenefitForm(numberOfDaysUnavailable), Seq(InputType("text", "", "days", Some("form-field--inline"), Some(""), Some("input--xsmall"))))
                 ),
                 '_label -> "Has the new company car been unavailable to you for at least 30 consecutive days since 6 April?",
@@ -42,8 +42,8 @@
                 carBenefitForm,
                 Seq(
                     FormField(carBenefitForm(giveBackThisTaxYear), Seq(
-                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio")),
-                        InputType("radio", "true", "Yes: on ", Some("form-field--inline-spaced-right"), Some("")))),
+                        RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio")),
+                        RadioButton("true", "Yes: on ", Some("form-field--inline-spaced-right"), Some("")))),
                     FormField(carBenefitForm(providedTo), Seq(DateControl((2013 to 2014))))
                 ),
                 '_label -> "Will you give back your new company car before 5 April?",
@@ -56,8 +56,8 @@
                 carBenefitForm,
                 Seq(
                 FormField(carBenefitForm(registeredBefore98), Seq(
-                    InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
-                    InputType("radio", "true", "Yes", Some("form-field"), Some("label--inlineRadio-right"))))
+                    RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio-right")),
+                    RadioButton("true", "Yes", Some("form-field"), Some("label--inlineRadio-right"))))
                 ),
                 '_label -> "Was the car first registered with DVLA before 1 January 1998?",
                 '_groupDivClass -> "form-field",
@@ -85,8 +85,8 @@
                 carBenefitForm,
                 Seq(
                     FormField(carBenefitForm(employeeContributes), Seq(
-                        InputType("radio", "false", "No", Some("form-field clear"), Some("label--inlineRadio")),
-                        InputType("radio", "true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio")))),
+                        RadioButton("false", "No", Some("form-field clear"), Some("label--inlineRadio")),
+                        RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio")))),
                     FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline"), Some(""), Some("input--small"))))
                 ),
                 '_label -> "Did you pay anything towards the cost of the car?",
@@ -99,8 +99,8 @@
                 carBenefitForm,
                 Seq(
                     FormField(carBenefitForm(employerContributes), Seq(
-                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio")),
-                        InputType("radio", "true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio")))),
+                        RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio")),
+                        RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio")))),
                     FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", "a year", Some("form-field--inline"), Some(""), Some("input--xsmall"))))
                 ),
                 '_label -> "Do you pay your employer for private use of the company car?",
@@ -120,9 +120,9 @@
                 FormField(
                     carBenefitForm(fuelType),
                     Seq(
-                        InputType("radio", "diesel", "Diesel", Some("form-field"), Some("label--inlineRadio-right")),
-                        InputType("radio", "electricity", "electricity only, or other zero emission technology", Some("form-field"), Some("label--inlineRadio-right")),
-                        InputType("radio", "other", "any other fuel, including petrol and hybrids", Some("form-field"), Some("label--inlineRadio-right"))
+                        RadioButton("diesel", "Diesel", Some("form-field"), Some("label--inlineRadio-right")),
+                        RadioButton("electricity", "electricity only, or other zero emission technology", Some("form-field"), Some("label--inlineRadio-right")),
+                        RadioButton("other", "any other fuel, including petrol and hybrids", Some("form-field"), Some("label--inlineRadio-right"))
                     )
                 )
             ),
@@ -138,7 +138,7 @@
                 FormField(
                     carBenefitForm(co2Figure),
                     Seq(
-                        InputType("text", "", "g/km", Some("form-field--inline"), Some(""), Some("input--small"), Some("Emission figure: "))
+                        InputText("g/km", divClass = Some("form-field--inline"), inputClass = Some("input--small"), label = Some("Emission figure: "))
                     )
                 ),
                 FormField(
@@ -158,9 +158,9 @@
             carBenefitForm,
             Seq(
             FormField(carBenefitForm(engineCapacity), Seq(
-                InputType("radio", "1400", "1400cc or less", Some("form-field"), Some("label--inlineRadio-right")),
-                InputType("radio", "2000", "1401cc to 2000cc", Some("form-field"), Some("label--inlineRadio-right")),
-                InputType("radio", "9999", "2001cc or greater", Some("form-field"), Some("label--inlineRadio-right"))))
+                RadioButton("1400", "1400cc or less", Some("form-field"), Some("label--inlineRadio-right")),
+                RadioButton("2000", "1401cc to 2000cc", Some("form-field"), Some("label--inlineRadio-right")),
+                RadioButton("9999", "2001cc or greater", Some("form-field"), Some("label--inlineRadio-right"))))
             ),
             '_label -> "What is your car's engine capacity?",
             '_groupDivClass -> "form-field",
@@ -174,9 +174,9 @@
                 FormField(
                     carBenefitForm(employerPayFuel),
                     Seq(
-                        InputType("radio", "false", "No", Some("form-field"), Some("label--inlineRadio-right")),
-                        InputType("radio", "true", "Yes, private fuel is available when you use the car", Some("form-field"), Some("label--inlineRadio-right")),
-                        InputType("radio", "date", optionalValue(employerName, "your.employer")+" did pay for fuel for private travel, but stopped paying on", Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"))
+                        RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio-right")),
+                        RadioButton("true", "Yes, private fuel is available when you use the car", Some("form-field"), Some("label--inlineRadio-right")),
+                        RadioButton("date", optionalValue(employerName, "your.employer")+" did pay for fuel for private travel, but stopped paying on", Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"))
                     )
                 ),
                 FormField(
@@ -186,7 +186,7 @@
                 FormField(
                     carBenefitForm(employerPayFuel),
                     Seq(
-                        InputType("radio", "again", optionalValue(employerName, "your.employer")+" stopped providing fuel for private use after 5 April but has now started again", Some("form-field"), Some("label--inlineRadio-right"))
+                        RadioButton("again", optionalValue(employerName, "your.employer")+" stopped providing fuel for private use after 5 April but has now started again", Some("form-field"), Some("label--inlineRadio-right"))
                     )
                 )
             ),
