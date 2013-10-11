@@ -225,6 +225,13 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, co2Figure, "You cannot specify a CO2 emission figure and select that VCA do not have a CO2 figure.")
     }
 
+    "reject CO2 figures with only one error message for blank field if fuel type is electricity" in new WithApplication(FakeApplication()) {
+      val form = dummyForm(getValues(fuelTypeVal = Some("electricity"),  co2FigureVal = Some("123") ,  co2NoFigureVal = Some("true"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", co2Figure -> "123", co2NoFigure -> "true"))
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, co2Figure, "CO2 emissions must be blank if your fuel type is electric or zero emissions.")
+      form.errors(co2NoFigure) shouldBe empty
+    }
+
     "reject engine capacity value if fuel type is electricity and engine capacity is not blank" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", engineCapacity -> "1400"))
       form.hasErrors shouldBe true

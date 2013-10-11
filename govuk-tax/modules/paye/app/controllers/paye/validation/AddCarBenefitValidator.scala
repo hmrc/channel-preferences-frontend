@@ -106,7 +106,7 @@ object AddCarBenefitValidator extends Validators {
   }
 
   private[paye] def validateNoCo2Figure(carBenefitValues: CarBenefitValues): Mapping[Option[Boolean]] = optional(boolean
-    .verifying("error.paye.co2_figure_blank_for_electricity_fuel_type", data => !(data== true && isFuelTypeElectric(carBenefitValues.fuelType)))
+    .verifying("error.paye.co2_figure_blank_for_electricity_fuel_type", data => !(data==true && isFuelTypeElectric(carBenefitValues.fuelType) && carBenefitValues.co2Figure.isEmpty))
   ) .verifying("error.paye.co2_figures_not_blank", co2NoFig => if(!isFuelTypeElectric(carBenefitValues.fuelType)){co2FiguresNotBlank(carBenefitValues.co2Figure, co2NoFig)} else true)
 
   private[paye] def validateCo2Figure(carBenefitValues: CarBenefitValues): Mapping[Option[Int]] = optional(number
