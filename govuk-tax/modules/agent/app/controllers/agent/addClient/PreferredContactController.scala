@@ -3,7 +3,7 @@ package controllers.agent.addClient
 import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
 import controllers.common.validators.Validators
 import play.api.mvc.{Result, Request}
-import views.html.agents.addClient.{client_successfully_added, search_client_preferred_contact}
+import views.html.agents.addClient.{client_successfully_added, preferred_contact}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -25,10 +25,10 @@ class PreferredContactController extends BaseController
       case Some(PotentialClient(Some(_), Some(_), _ )) => {
         val form = preferredContactForm(request).bindFromRequest()(request)
         form.fold (
-          errors => BadRequest(search_client_preferred_contact(form)),
+          errors => BadRequest(preferred_contact(form)),
           search => Ok(client_successfully_added())
         )
-      }
+      } 
       case _ => Redirect(routes.SearchClientController.start())
     }
   }

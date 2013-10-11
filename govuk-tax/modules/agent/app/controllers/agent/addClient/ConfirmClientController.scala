@@ -4,14 +4,13 @@ import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import play.api.mvc.{Result, Request}
-import views.html.agents.addClient.{search_client_preferred_contact, search_client_result}
+import views.html.agents.addClient.{preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
 import models.agent.addClient.{PotentialClient, ConfirmClient}
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import PreferredClientController.preferredContactForm
 
 class ConfirmClientController extends BaseController
@@ -30,7 +29,7 @@ class ConfirmClientController extends BaseController
           errors => BadRequest(search_client_result(searchedClient, form)),
           confirmation => {
             keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, potentialClient.copy(confirmation = Some(confirmation)))
-            Ok(search_client_preferred_contact(preferredContactForm(request)))
+            Ok(preferred_contact(preferredContactForm(request)))
           }
         )
       }
