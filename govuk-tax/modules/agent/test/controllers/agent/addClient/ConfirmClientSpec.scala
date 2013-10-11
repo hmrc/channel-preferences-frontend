@@ -35,7 +35,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
   }
 
   "The confirm client page" should {
-    "show an error if the user does not accept the client and not call the agent service"  in new WithApplication(FakeApplication()) {
+    "show an error if the user does not accept the client"  in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
@@ -51,7 +51,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s".error #${internalClientRef}") should be ('empty)
     }
 
-    "show an error if the user does not confirm that they are authorised and not call the agent service"  in new WithApplication(FakeApplication()) {
+    "show an error if the user does not confirm that they are authorised"  in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
@@ -67,7 +67,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s".error #${internalClientRef}") should be ('empty)
     }
 
-    "redirect the user to the search client page if they do not have a stored search result"  in new WithApplication(FakeApplication()) {
+    "redirect the user to the search client page if they do not have any potential client stored"  in new WithApplication(FakeApplication()) {
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey)).thenReturn(None)
       val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (correctClient, "true"),
@@ -78,7 +78,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
     }
 
-    "redirect the user to the search client page if they do not have a stored result"  in new WithApplication(FakeApplication()) {
+    "redirect the user to the search client page if they do not have a search result in their potential client"  in new WithApplication(FakeApplication()) {
       when(keyStore.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey)).thenReturn(Some(PotentialClient(None, None, None)))
       val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (correctClient, "true"),
@@ -100,6 +100,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, None)), None))
+      contentAsString(result) should include ("preferred point of contact")
     }
 
     "save the succesful acknoledgement and internal ref to the keystore and show the prefered contact view"  in new WithApplication(FakeApplication()) {
@@ -113,6 +114,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, Some("1234567"))), None))
+      contentAsString(result) should include ("preferred point of contact")
     }
   }
 }
