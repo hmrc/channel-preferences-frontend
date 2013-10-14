@@ -18,7 +18,6 @@ import scala.util.Success
 import uk.gov.hmrc.common.microservice.agent.{AgentRoot, MatchingPerson, SearchRequest, AgentMicroService}
 import SearchClientController.KeyStoreKeys
 import SearchClientController.FieldIds
-import uk.gov.hmrc.domain.Uar
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -30,8 +29,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
   val authority = s"/auth/oid/$id"
   val uri = "/personal/paye/blah"
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
-  val agent = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot(Uar("SomeUAR"), Map.empty)))), None, None)
-  val agentWithClients = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot(Uar("SomeUAR"), Map("AB123456C" -> "/some/link"))))), None, None)
+  val agent = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot("SomeUAR", Map.empty, Map("search" -> "/agent/search"))))), None, None)
+  val agentWithClients = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot("SomeUAR", Map("AB123456C" -> "/some/link"), Map("search" -> "/agent/search"))))), None, None)
 
   before {
     keyStore = mock[KeyStoreMicroService]
@@ -189,7 +188,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
-      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
+      when(agentService.searchClient(any[String], any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
       val result = executeSearchActionWith(nino="AB123456C", firstName="étåtø", lastName="étåtœ", dob=("1","1", "1991"))
 
       status(result) shouldBe 200
@@ -278,9 +277,9 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       controller.searchAction(agent)(request)
     }
 
-    def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[SearchRequest])).thenReturn(None)
+    def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[String], any[SearchRequest])).thenReturn(None)
     def givenTheAgentServiceReturnsAMatch(alreadyClient: Boolean = false) =
-      when(agentService.searchClient(any[SearchRequest]))
+      when(agentService.searchClient(any[String], any[SearchRequest]))
       .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"))))
     
     }

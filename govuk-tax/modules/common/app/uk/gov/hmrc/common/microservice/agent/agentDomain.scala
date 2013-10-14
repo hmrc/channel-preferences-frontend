@@ -15,7 +15,7 @@ object AgentRegime extends TaxRegime {
   override def unauthorisedLandingPage: String = routes.LoginController.login().url
 }
 
-case class AgentRoot(uar: Uar, clients: Map[String, String])
+case class AgentRoot(uar: String, clients: Map[String, String], actions: Map[String, String])
 
 case class AgentRegistrationRequest(legalEntity: String,
   agentType: String,

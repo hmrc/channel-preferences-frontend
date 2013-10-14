@@ -75,7 +75,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       implicit user =>
         implicit request =>
           val userAgentRegimeRoot = user.regimes.agent.get.get
-          Ok(userAgentRegimeRoot.uar.uar)
+          Ok(userAgentRegimeRoot.uar)
     }
 
     def testAuthorisationWithRedirectCommand = AuthorisedForIdaAction(redirectToOrigin = true) {
@@ -146,7 +146,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
         Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))), None)))
 
       val agent = mock[AgentRoot]
-      when(agent.uar).thenReturn(Uar("uar-for-goeff"))
+      when(agent.uar).thenReturn("uar-for-goeff")
       when(mockAgentMicroService.root("/agent/uar-for-goeff")).thenReturn(agent)
       val result = TestController.testAgentAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/goeff"))))
       status(result) should equal(200)

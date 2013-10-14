@@ -15,7 +15,7 @@ class AgentMicroServiceSpec extends WordSpec with Matchers with MockitoSugar {
           Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob"))).asInstanceOf[Some[A]]
         }
       }
-      service.searchClient(request) shouldBe Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob")))
+      service.searchClient("", request) shouldBe Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob")))
     }
 
     "return none if not found"  in new WithApplication(FakeApplication()) {
@@ -25,7 +25,7 @@ class AgentMicroServiceSpec extends WordSpec with Matchers with MockitoSugar {
           None
         }
       }
-      service.searchClient(request) shouldBe None
+      service.searchClient("", request) shouldBe None
     }
   }
 }

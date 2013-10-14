@@ -43,7 +43,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
       when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(Some(mockKeyStore))
       when(controller.agentMicroService.create("CE927349E", agentRegistrationRequest)).thenReturn(Uar("12345"))
-      when(agentRoot.uar).thenReturn(Uar("12345"))
+      when(agentRoot.uar).thenReturn("12345")
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 200

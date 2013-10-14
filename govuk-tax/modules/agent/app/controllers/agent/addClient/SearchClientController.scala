@@ -53,8 +53,10 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
                                                               for (sDob <- search.dob;
                                                                    rDob <- result.dobAsLocalDate
                                                                    if sDob.isEqual(rDob)) yield rDob)
+        val agentRoot = user.regimes.agent.get.get
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
-        agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
+        val searchUri: String = agentRoot.actions.get("search").getOrElse(throw new IllegalArgumentException(s"No search action uri found"))
+        agentMicroService.searchClient(searchUri, SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
           case Some(matchingPerson) => {
             user.regimes.agent.get.get.clients.find(_._1 == search.nino) match {
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))

@@ -14,8 +14,9 @@ class AgentMicroService(override val serviceUrl: String = MicroServiceConfig.age
     uar.getOrElse(throw new RuntimeException("Unexpected error creating a new agent"))
   }
 
-  def searchClient(searchRequest: SearchRequest): Option[MatchingPerson] = httpPost[MatchingPerson](s"/agent/search", Json.parse(toRequestBody(searchRequest)))
+  def searchClient(uri: String, searchRequest: SearchRequest): Option[MatchingPerson] = httpPost[MatchingPerson](uri, Json.parse(toRequestBody(searchRequest)))
 
+//  def saveOrUpdateClient(uri: String, client: Client)
 }
 
 trait AgentMicroServices {
