@@ -39,7 +39,29 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
   }
 
-  "Given that Bob is on the search screen the page" should {
+  "The search client page" should {
+    "generate an identifier when the page is visited" in new WithApplication(FakeApplication()) {
+      val result = controller.homeAction(user)(FakeRequest())
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(s"input#${FieldIds.instanceId}").attr("value") should not be 'empty
+    }
+
+    "have a generated identifier which is different each time the page is visited" in new WithApplication(FakeApplication()) {
+      def visitPage =  {
+        val result = controller.homeAction(user)(FakeRequest())
+        Jsoup.parse(contentAsString(result))
+      }
+      visitPage.select(s"input#${FieldIds.instanceId}").attr("value") should not equal (visitPage.select(s"input#instanceId").attr("value"))
+    }
+
+    "maintain the same generated identifier when the form is submitted with errors" in new WithApplication(FakeApplication()) {
+      val result = executeSearchActionWith(nino="", firstName="", lastName="", dob=("", "", ""), instanceId="blahblah")
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(s"input#${FieldIds.instanceId}").attr("value") should equal ("blahblah")
+    }
+
     "show errors on the form when we make a submission with no values" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="", firstName="", lastName="", dob=("", "", ""))
 
@@ -178,10 +200,6 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
       verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),Some(new LocalDate(1991, 1, 1)))), None, None))
-
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error #globalErrors") shouldBe 'empty
-      doc.select("#submit").hasAttr("disabled") shouldBe false
     }
 
     "save partial client search results to the keystore when we make a successful submission with some fields" in new WithApplication(FakeApplication()) {
@@ -192,9 +210,6 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
       verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),None)), None, None))
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error #globalErrors") shouldBe 'empty
-      doc.select("#submit").hasAttr("disabled") shouldBe false
     }
 
     "display an error when no match is found and not save anything to the keystore" in new WithApplication(FakeApplication()) {
@@ -208,17 +223,19 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(".error #globalErrors") should not be 'empty
     }
 
-    def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String)) = {
-      val request = FakeRequest().withFormUrlEncodedBody(("nino", nino),
-        ("firstName", firstName),
-        ("lastName", lastName),
-        ("dob.day", dob._1),
-        ("dob.month", dob._2),
-        ("dob.year", dob._3))
+    def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String), instanceId: String = "12637868") = {
+      val request = FakeRequest().withFormUrlEncodedBody(
+        (FieldIds.nino, nino),
+        (FieldIds.firstName, firstName),
+        (FieldIds.lastName, lastName),
+        (FieldIds.dob+".day", dob._1),
+        (FieldIds.dob+".month", dob._2),
+        (FieldIds.dob+".year", dob._3),
+        (FieldIds.instanceId, instanceId))
       controller.searchAction(user)(request)
     }
 
-    def givenTheAgentServiceFindsNoMatch()  = when(agentService.searchClient(any[SearchRequest])).thenReturn(None)
+    def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[SearchRequest])).thenReturn(None)
     def givenTheAgentServiceReturnsAMatch(alreadyClient: Boolean = false) =
       when(agentService.searchClient(any[SearchRequest]))
       .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"), alreadyClient)))

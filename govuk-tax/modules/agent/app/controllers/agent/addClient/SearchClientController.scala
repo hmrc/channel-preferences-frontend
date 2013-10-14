@@ -15,6 +15,7 @@ import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentRegime}
 import uk.gov.hmrc.utils.DateConverter
 import ConfirmClientController.confirmClientForm
+import org.bson.types.ObjectId
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
                                                                 with ActionWrappers
@@ -30,7 +31,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
   def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { searchAction } }
 
   private[agent] def homeAction(user: User)(request: Request[_]): Result = {
-    Ok(search_client(validDobRange, searchForm(request)))
+    Ok(search_client(validDobRange, searchForm(request).fill((ClientSearch("", None, None, None), ObjectId.get().toString))))
   }
 
   private def unValidatedSearchForm = Form[ClientSearch](
@@ -42,14 +43,18 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     )(ClientSearch.apply)(ClientSearch.unapply)
   )
 
-  private def searchForm(request: Request[_]) = Form[ClientSearch](
+  private def searchForm(request: Request[_]) = Form (
     mapping(
       nino -> text.verifying("error.agent.addClient.search.nino", validateNino _),
       firstName -> optional(text).verifying("error.agent.addClient.search.firstname", validateName _),
       lastName -> optional(text).verifying("error.agent.addClient.search.lastname", validateName _),
-      dob -> dateTuple.verifying("error.agent.addClient.search.dob", validateDob)
-    ) (ClientSearch.apply)(ClientSearch.unapply).verifying("Nino and at least two others must be filled in",
-      (_) => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
+      dob -> dateTuple.verifying("error.agent.addClient.search.dob", validateDob),
+      instanceId -> nonEmptyText
+    )
+    ((nino, firstName, lastName, dob, instanceId) => (ClientSearch(nino, firstName, lastName, dob), instanceId))
+    ((c: (ClientSearch, String)) => Some(c._1.nino, c._1.firstName, c._1.lastName, c._1.dob, c._2))
+    .verifying("Nino and at least two others must be filled in",
+      _ => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
   )
 
   val validDobRange = {
@@ -61,7 +66,8 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     val form = searchForm(request).bindFromRequest()(request)
     form.fold(
       errors => BadRequest(search_client(validDobRange, errors)),
-      search => {
+      searchWithInstanceId => {
+        val (search, _) = searchWithInstanceId
         def restricted(person: MatchingPerson) = ClientSearch(person.nino,
                                                               search.firstName.flatMap(_ => person.firstName),
                                                               search.lastName.flatMap(_ => person.lastName),
@@ -132,6 +138,7 @@ object SearchClientController {
     val firstName = "firstName";
     val lastName = "lastName";
     val dob = "dob";
+    val instanceId = "instanceId";
   }
 }
 

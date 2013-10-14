@@ -1,4 +1,4 @@
-@(dateRange: Range, newClientSearchForm: Form[models.agent.addClient.ClientSearch])
+@(dateRange: Range, form: Form[(models.agent.addClient.ClientSearch, String)])
 
 @main(title = "Add a new client") {
 
@@ -6,28 +6,27 @@
 
     <h3>Search for your client</h3>
 
-
-
     @helper.form(action = controllers.agent.addClient.routes.SearchClientController.search()) {
 
-        <div class="@if(newClientSearchForm.hasGlobalErrors){error}">
-            <span name="globalErrors" id="globalErrors" class="error-notification">@newClientSearchForm.globalError.map(_.message).getOrElse("")</span>
+        <div class="@if(form.hasGlobalErrors){error}">
+            <span name="globalErrors" id="globalErrors" class="error-notification">@form.globalError.map(_.message).getOrElse("")</span>
         </div>
 
         <p>
-        @helpers.input(newClientSearchForm("nino"), '_label -> "National Insurance Number")
+        @helpers.input(form("nino"), '_label -> "National Insurance Number")
         </p>
 
-        <p>@helpers.input(newClientSearchForm("firstName"), '_label -> "Client First Name")    </p>
+        <p>@helpers.input(form("firstName"), '_label -> "Client First Name")    </p>
 
-        <p>@helpers.input(newClientSearchForm("lastName"), '_label -> "Client Last Name")      </p>
+        <p>@helpers.input(form("lastName"), '_label -> "Client Last Name")      </p>
 
-        <p>@helpers.dateFieldsFreeYear(newClientSearchForm,
+        <p>@helpers.dateFieldsFreeYear(form,
             "dob",
             "Date Of Birth",
             dateRange,
             '_groupDivClass -> "form-field")
         </p>
+            <input type="hidden" value="@{form("instanceId").value}" id="instanceId" name="instanceId" />
         <p>
             <input type="submit" value="Search"/>
         </p>
