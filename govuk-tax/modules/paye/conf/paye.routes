@@ -10,5 +10,5 @@ GET         /benefits/:kinds/:year/:employmentSequenceNumber/confirmation/:oid  
 GET         /car-benefit/home                                                   @controllers.paye.CarBenefitHomeController.carBenefitHome
 
 GET         /car-benefit/:year/:employmentSequenceNumber/add                    @controllers.paye.CarBenefitAddController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/add                    @controllers.paye.CarBenefitAddController.saveAddCarBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/add                    @controllers.paye.CarBenefitAddController.reviewAddCarBenefit(year: Int, employmentSequenceNumber: Int)
 

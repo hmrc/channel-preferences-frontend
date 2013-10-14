@@ -29,13 +29,13 @@ object AddCarBenefitValidator extends Validators {
                                      co2NoFigure:Option[String],
                                      employerPayFuel:Option[String])
 
-  private[paye] def datesForm(taxYearStart: LocalDate, taxYearEnd: LocalDate) = Form[CarBenefitValues](
+  private[paye] def datesForm(providedFromDefaultValue: LocalDate, providedToDefaultValue: LocalDate) = Form[CarBenefitValues](
     mapping(
-      providedFrom -> dateTuple(false, Some(taxYearStart)),
+      providedFrom -> dateTuple(false, Some(providedFromDefaultValue)),
       carUnavailable -> optional(text),
       numberOfDaysUnavailable -> optional(text),
       giveBackThisTaxYear -> optional(text),
-      providedTo -> dateTuple(false, Some(taxYearEnd)),
+      providedTo -> dateTuple(false, Some(providedToDefaultValue)),
       registeredBefore98 -> optional(text),
       employeeContributes -> optional(text),
       employerContributes -> optional(text),

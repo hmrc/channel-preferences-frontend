@@ -149,7 +149,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumber)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumber)
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some("/car-benefit/home")
     }
@@ -184,7 +184,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[CarBenefitData])
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
 
       verify(mockKeyStoreService).addKeyStoreEntry(
@@ -312,7 +312,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 400 if the submitting is for year that is not the current tax year" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2014, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2014, 1)
 
       status(result) shouldBe 400
     }
@@ -320,7 +320,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 400 if the submitting is for employment number that is not the primary employment" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2013, 2)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2013, 2)
 
       status(result) shouldBe 400
     }
@@ -328,28 +328,28 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("true"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
 
     "return 400 if the user does not select any option for the registered before 98 question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "return 400 if the user sends an invalid value for the registered before 98 question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("hacking!"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "keep the selected option in the registered before 98 question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("true"), carUnavailableVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#registeredBefore98-true").attr("checked") shouldBe "checked"
@@ -358,14 +358,14 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 200 if the user selects an option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), engineCapacityVal = None, co2NoFigureVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
 
     "return 400 if the user does not select any option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -375,14 +375,14 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 400 if the user sends an invalid value for the FUEL TYPE question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("hacking!"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "keep the selected option in the FUEL TYPE question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), carUnavailableVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
@@ -391,21 +391,21 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 200 if the user enters a valid integer for the CO2 FIGURE question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"), co2NoFigureVal = Some("false"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
 
     "return 400 if the user sends an invalid value for the CO2 FIGURE question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("hacking!"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "keep the selected option in the CO2 FIGURE question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"), carUnavailableVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#co2Figure").attr("value") shouldBe "123"
@@ -414,21 +414,21 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 200 if the user selects the option for the CO2 NO FIGURE" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("true"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
 
     "return 400 if the user sends an invalid value for the option CO2 NO VALUE" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("hacking!"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "keep the checkbox elected for the CO2 NO VALUE option if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("true"), carUnavailableVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#co2NoFigure").attr("value") shouldBe "true"
@@ -438,21 +438,21 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 200 if the user selects an option for the ENGINE CAPACITY question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
 
     "return 400 if the user sends an invalid value for the ENGINE CAPACITY question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("hacking!"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"), carUnavailableVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
@@ -461,14 +461,14 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 200 if the user selects an option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("again"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
 
     "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       print(contentAsString(result))
       val doc = Jsoup.parse(contentAsString(result))
@@ -478,14 +478,14 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("hacking!"))
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "keep the selected option in the EMPLOYER PAY FUEL question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(taxYear.toString,"05","30"), carUnavailableVal = None)
-      val result = controller.saveAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
@@ -501,7 +501,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
                                 errorId: String,
                                 errorMessage: String) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
         providedFromVal, carUnavailableVal, numberOfDaysUnavailableVal,
         giveBackThisTaxYearVal, providedToVal), 2013, 1)
 
@@ -525,7 +525,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       setupPayeMicroServiceMock()
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
         Some(localDateToTuple(providedFromVal)),
         Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
         Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), 2013, 1)
@@ -540,7 +540,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     def assertFailedListPriceSubmit(listPriceVal : Option[String], errorId: String, errorMessage: String) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal), taxYear, employmentSeqNumber)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal), taxYear, employmentSeqNumber)
 
       assertFailure(result, errorId, errorMessage)
     }
@@ -548,7 +548,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccessfulListPriceSubmit(listPriceVal : Option[Int]) {
       setupPayeMicroServiceMock()
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), taxYear, employmentSeqNumber)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), taxYear, employmentSeqNumber)
 
       val expectedStoredData = CarBenefitDataBuilder(listPrice = listPriceVal)
 
@@ -558,7 +558,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     def assertFailedEmployeeContributionSubmit(employeeContributesVal: Option[String], employeeContributionVal : Option[String], errorId: String, errorMessage: String) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal, employeeContributionVal = employeeContributionVal), 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal, employeeContributionVal = employeeContributionVal), 2013, 1)
 
       assertFailure(result, errorId, errorMessage)
     }
@@ -567,7 +567,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccessfulEmployeeContributionSubmit(employeeContributesVal: Option[Boolean], employeeContributionVal : Option[String], expectedContributionVal : Option[Int]) {
       setupPayeMicroServiceMock()
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal), 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal), 2013, 1)
 
       val expectedStoredData = CarBenefitDataBuilder(employeeContributes = employeeContributesVal, employeeContribution = expectedContributionVal)
 
@@ -576,7 +576,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     def assertFailedEmployerContributionSubmit(employerContributesVal: Option[String], employerContributionVal : Option[String], errorId: String, errorMessage: String) {
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal, employerContributionVal = employerContributionVal), 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal, employerContributionVal = employerContributionVal), 2013, 1)
 
       assertFailure(result, errorId, errorMessage)
     }
@@ -585,7 +585,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccessfulEmployerContributionSubmit(employerContributesVal: Option[Boolean], employerContributionVal : Option[String], expectedContributionVal : Option[Int]) {
       setupPayeMicroServiceMock()
 
-      val result = controller.saveAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal), 2013, 1)
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal), 2013, 1)
 
       val expectedStoredData = CarBenefitDataBuilder(employerContributes = employerContributesVal, employerContribution = expectedContributionVal)
 

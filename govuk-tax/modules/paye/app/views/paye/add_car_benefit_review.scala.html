@@ -1,0 +1,18 @@
+@(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.formatting.Strings._
+@import views.formatting.Dates._
+
+@main(title = "Confirm", user = Some(user)) {
+
+    <p>Date provided: @{formatDate(data.providedFrom)}</p>
+    <p>List price including accessories: @data.listPrice</p>
+    <p>Fuel type: @data.fuelType</p>
+    <p>Emission figure: @data.co2Figure.getOrElse("")</p>
+    <p>Engine capacity: @data.engineCapacity.getOrElse("")</p>
+    <p>Private fuel: @{data.employerPayFuel.getOrElse("") + formatDate(data.dateFuelWithdrawn, "")}</p>
+    <p>Car Benefit Taxable Value: @data.carBenefitValue</p>
+    <p>Fuel Benefit Taxable Value: @data.carFuelBenefitValue.getOrElse("")</p>
+
+}
+
