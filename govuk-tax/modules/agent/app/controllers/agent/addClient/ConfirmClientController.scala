@@ -7,11 +7,11 @@ import play.api.mvc.{Result, Request}
 import views.html.agents.addClient.{preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
-import models.agent.addClient.{PotentialClient, ConfirmClient}
+import models.agent.addClient.{PreferredContact, PotentialClient, ConfirmClient}
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
-import PreferredClientController.preferredContactForm
+import PreferredClientController.emptyUnValidatedPreferredContactForm
 
 class ConfirmClientController extends BaseController
                                  with ActionWrappers
@@ -31,7 +31,7 @@ class ConfirmClientController extends BaseController
             val (confirmation, instanceId) = confirmationWithInstanceId
             keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey,
               potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference)))))
-            Ok(preferred_contact(preferredContactForm(request)))
+            Ok(preferred_contact(emptyUnValidatedPreferredContactForm().fill((PreferredContact.empty, instanceId))))
           }
         )
       }

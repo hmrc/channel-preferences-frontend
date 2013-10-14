@@ -43,32 +43,43 @@ object PreferredClientController {
     private[addClient] val contactEmail = "contactEmail"
     private[addClient] val instanceId = "instanceId"
 
-    private[addClient] val me = "me"
+    val me = "me"
     private[addClient] val other = "other"
     private[addClient] val notUs = "notUs"
   }
 
+  private[addClient] def emptyUnValidatedPreferredContactForm() = Form[(PreferredContact, String)](
+      mapping(
+        FieldIds.pointOfContact -> text,
+        FieldIds.contactName -> text,
+        FieldIds.contactPhone -> text,
+        FieldIds.contactEmail -> text,
+        FieldIds.instanceId -> nonEmptyText
+      )((pointOfContact, contactName, contactPhone, contactEmail, instanceId) => (PreferredContact(pointOfContact, contactName, contactPhone, contactEmail), instanceId))
+        (preferredContactWithInstanceId => Some((preferredContactWithInstanceId._1.pointOfContact, preferredContactWithInstanceId._1.contactName, preferredContactWithInstanceId._1.contactPhone, preferredContactWithInstanceId._1.contactEmail, preferredContactWithInstanceId._2)))
+    )
+
   private[addClient] def preferredContactForm(request: Request[_]) = {
     lazy val unvalidatedForm = unValidatedPreferredContactForm(request).bindFromRequest()(request).get
-    Form[PreferredContact](
+    Form[(PreferredContact, String)](
       mapping(
         FieldIds.pointOfContact -> text,
         FieldIds.contactName -> text.verifying("error.agent.addClient.contact.name", verifyContactName(_, unvalidatedForm)),
         FieldIds.contactPhone -> text.verifying("error.agent.addClient.contact.phone", verifyContactPhone(_, unvalidatedForm)),
-        FieldIds.contactEmail -> text.verifying("error.agent.addClient.contact.email", verifyContactEmail(_, unvalidatedForm))
-      ) (PreferredContact.apply)(PreferredContact.unapply)
+        FieldIds.contactEmail -> text.verifying("error.agent.addClient.contact.email", verifyContactEmail(_, unvalidatedForm)),
+        FieldIds.instanceId -> nonEmptyText
+      )((pointOfContact, contactName, contactPhone, contactEmail, instanceId) => (PreferredContact(pointOfContact, contactName, contactPhone, contactEmail), instanceId))
+        (preferredContactWithInstanceId => Some((preferredContactWithInstanceId._1.pointOfContact, preferredContactWithInstanceId._1.contactName, preferredContactWithInstanceId._1.contactPhone, preferredContactWithInstanceId._1.contactEmail, preferredContactWithInstanceId._2)))
     )
   }
 
-  private val contactMapping = mapping(
-    FieldIds.pointOfContact -> text,
-    FieldIds.contactName -> text,
-    FieldIds.contactPhone -> text,
-    FieldIds.contactEmail -> text
-  )(PreferredContact.apply)(PreferredContact.unapply)
-
   private def unValidatedPreferredContactForm(request: Request[_]) = Form[PreferredContact](
-    contactMapping
+    mapping(
+      FieldIds.pointOfContact -> text,
+      FieldIds.contactName -> text,
+      FieldIds.contactPhone -> text,
+      FieldIds.contactEmail -> text
+    )(PreferredContact.apply)(PreferredContact.unapply)
   )
 
   private[addClient] def verifyContactName(name: String, preferredContact:PreferredContact) = {

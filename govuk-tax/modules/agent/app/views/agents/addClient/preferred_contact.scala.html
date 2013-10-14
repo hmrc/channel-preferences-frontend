@@ -1,4 +1,4 @@
-@(preferredContactForm: Form[models.agent.addClient.PreferredContact])
+@(preferredContactForm: Form[(models.agent.addClient.PreferredContact, String)])
 @import models.agent.addClient.PreferredContact
 
 @main(title = "Add a new client") {
@@ -45,6 +45,7 @@
             I am not the preferred point of contact
         </label>
         </p>
+        <input type="hidden" value="@{preferredContactForm("instanceId").value}" id="instanceId" name="instanceId" />
         <p>
             <input type="submit" value="Submit" />
         </p>

@@ -68,6 +68,30 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       elements.get(0).getElementsByAttribute("value") is ("me")
     }
 
+    "have the passed in instanceId in the page" in new WithApplication(FakeApplication()) {
+      val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
+      val confirmation = Some(ConfirmClient(true, true, Some("reference")))
+      when(confirmController.keyStoreMicroService.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+        .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
+
+      val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(s"input#${FieldIds.instanceId}").attr("value") should equal (instanceId)
+    }
+
+    "not show any errors" in new WithApplication(FakeApplication()) {
+      val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
+      val confirmation = Some(ConfirmClient(true, true, Some("reference")))
+      when(confirmController.keyStoreMicroService.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+        .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
+
+      val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error") should be ('empty)
+    }
+
     def executeConfirmActionPostWithValues(correctClient: String, authorised: String, internalClientReference: String, instanceId: String) = {
       val request = FakeRequest().withFormUrlEncodedBody(
         (ConfirmClientController.FieldIds.correctClient, correctClient),

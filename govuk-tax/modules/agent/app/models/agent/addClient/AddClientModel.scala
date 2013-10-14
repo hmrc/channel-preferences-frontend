@@ -1,6 +1,7 @@
 package models.agent.addClient
 
 import org.joda.time.LocalDate
+import controllers.agent.addClient.PreferredClientController
 
 case class PotentialClient(clientSearch: Option[ClientSearch],
                            confirmation: Option[ConfirmClient],
@@ -13,3 +14,4 @@ case class ConfirmClient(correctClient:Boolean, authorised: Boolean, internalCli
 object ConfirmClient { val empty = ConfirmClient(false, false, None) }
 
 case class PreferredContact(pointOfContact: String, contactName: String, contactPhone:String, contactEmail: String)
+object PreferredContact { val empty = PreferredContact(PreferredClientController.FieldIds.me, "", "", "") }
