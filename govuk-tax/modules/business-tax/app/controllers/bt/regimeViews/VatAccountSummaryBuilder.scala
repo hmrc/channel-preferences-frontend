@@ -26,24 +26,28 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountS
       amount <- accountBalance.amount
     } yield amount
 
-    val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
-    val links = Seq[RenderableMessage](
-      LinkMessage(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
-      LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
-      LinkMessage(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage)
-    )
     accountValueOption match {
       case Some(accountValue) => {
-        val messages = Seq(Msg(vatRegistrationNumberMessage,Seq(vatRoot.identifier.vrn)), Msg(vatAccountBalanceMessage,Seq(MoneyPounds(accountValue))))
+        val links = successLinks(buildPortalUrl)
+        val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatAccountBalanceMessage, Seq(MoneyPounds(accountValue))))
         AccountSummary(vatRegimeNameMessage, messages, links, SummaryStatus.success)
       }
       case _ => {
         val messages = Seq(Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
           Msg(vatSummaryUnavailableErrorMessage3),
-          Msg(vatSummaryUnavailableErrorMessage4,Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
+          Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
         AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
       }
     }
+  }
+
+  private def successLinks(buildPortalUrl: (String) => String): Seq[RenderableMessage] = {
+    val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
+    Seq[RenderableMessage](
+      LinkMessage(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
+      LinkMessage(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage)
+    )
   }
 
   override protected val defaultRegimeNameMessageKey = vatRegimeNameMessage

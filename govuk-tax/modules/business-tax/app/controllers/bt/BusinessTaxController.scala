@@ -18,7 +18,7 @@ class BusinessTaxController(accountSummaryFactory : AccountSummariesFactory) ext
     this(new AccountSummariesFactory(new SaConnector, new VatConnector, new CtConnector, new EpayeConnector))
   }
 
-  def home = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
+  def home  = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction() {
     implicit user: User =>
       implicit request =>
 

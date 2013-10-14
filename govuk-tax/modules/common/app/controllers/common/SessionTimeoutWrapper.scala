@@ -3,6 +3,7 @@ package controllers.common
 import config.DateTimeProvider
 import scala.Some
 import org.joda.time.DateTime
+import play.api.Logger
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
   object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(now)
@@ -28,6 +29,7 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
       val result = if (hasValidTimestamp(request.session)) {
         action(request)
       } else {
+        Logger.debug(s"request refused as the session had timed out in ${request.path}")
         errorResult(request).withNewSession
       }
       addTimestamp(request, result)
