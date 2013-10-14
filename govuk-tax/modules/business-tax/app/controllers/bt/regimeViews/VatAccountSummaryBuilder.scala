@@ -42,7 +42,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountS
   }
 
   private def successLinks(buildPortalUrl: (String) => String): Seq[RenderableMessage] = {
-    val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
+    val makeAPaymentUri = routes.VatController.makeAPayment().url
     Seq[RenderableMessage](
       LinkMessage(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
       LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
