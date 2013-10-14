@@ -10,6 +10,7 @@ import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
 import scala.Some
 import controllers.bt.{VatController, MicroServiceMocks}
+import uk.gov.hmrc.common.microservice.domain.User
 
 abstract class WithVatApplication extends WithApplication(FakeApplication()) with MicroServiceMocks with MockitoSugar with CookieEncryption {
 
@@ -36,7 +37,7 @@ abstract class WithVatApplication extends WithApplication(FakeApplication()) wit
   val vatController = new VatController with MockedMicroServices {
     override def now: () => DateTime = () => currentTime
 
-    override private[bt] def makeAPaymentPage: Html = {
+    override private[bt] def makeAPaymentPage(vatUrl: String)(implicit user: User): Html = {
       Logger.debug("RENDERING makeAPayment")
       Html(expectations.makeAPayment)
     }
