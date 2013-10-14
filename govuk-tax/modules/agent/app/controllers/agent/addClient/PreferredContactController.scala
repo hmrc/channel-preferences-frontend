@@ -21,9 +21,9 @@ class PreferredContactController extends BaseController
   def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
-    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
+    val form = preferredContactForm(request).bindFromRequest()(request)
+    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
       case Some(PotentialClient(Some(_), Some(_), _ )) => {
-        val form = preferredContactForm(request).bindFromRequest()(request)
         //FIXME we should trim contact details before saving them here
         form.fold (
           errors => BadRequest(preferred_contact(form)),
@@ -41,6 +41,8 @@ object PreferredClientController {
     private[addClient] val contactName = "contactName"
     private[addClient] val contactPhone = "contactPhone"
     private[addClient] val contactEmail = "contactEmail"
+    private[addClient] val instanceId = "instanceId"
+
     private[addClient] val me = "me"
     private[addClient] val other = "other"
     private[addClient] val notUs = "notUs"

@@ -76,7 +76,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
         agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
           case Some(result @ MatchingPerson(_, _, _, _, false)) => {
             val restrictedResult = restricted(result)
-            keyStore.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))
+            keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))
             Ok(search_client_result(restrictedResult, confirmClientForm().fill(ConfirmClient.empty, instanceId)))
           }
           case Some(result @ MatchingPerson(_, _, _, _, true)) =>
@@ -129,7 +129,7 @@ object SearchClientController {
 
   private[addClient] object KeyStoreKeys {
     val serviceSourceKey = "agentFrontEnd"
-    def keystoreId(id: String) = s"AddClient:$id"
+    def keystoreId(userId: String, instanceId: String) = s"AddClient:$userId:$instanceId"
     val addClientKey = "addClient"
   }
 

@@ -210,9 +210,9 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val clientSearch = ClientSearch("AB123456C", Some("firstName"), Some("lastName"), Some(new LocalDate(1990, 1, 1)))
       givenTheAgentServiceReturnsAMatch()
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
-        (clientSearch.dob.get.getDayOfMonth.toString,clientSearch.dob.get.getMonthOfYear.toString, clientSearch.dob.get.getYear.toString))
+        (clientSearch.dob.get.getDayOfMonth.toString,clientSearch.dob.get.getMonthOfYear.toString, clientSearch.dob.get.getYear.toString), "12637868")
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),Some(new LocalDate(1991, 1, 1)))), None, None))
     }
 
@@ -220,9 +220,9 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val clientSearch = ClientSearch("AB123456C", Some("firstName"), Some("lastName"), Some(new LocalDate(1990, 1, 1)))
       givenTheAgentServiceReturnsAMatch()
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
-        ("", "", ""))
+        ("", "", ""), "12637868")
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),None)), None, None))
     }
 

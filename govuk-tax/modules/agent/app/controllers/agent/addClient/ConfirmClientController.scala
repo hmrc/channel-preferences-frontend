@@ -22,14 +22,14 @@ class ConfirmClientController extends BaseController
   def confirm = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { confirmAction } }
 
   private[agent] def confirmAction(user: User)(request: Request[_]): Result = {
-    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid), serviceSourceKey, addClientKey) match {
+    val form = confirmClientForm().bindFromRequest()(request)
+    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
       case Some(potentialClient @ PotentialClient(Some(searchedClient), _ , _ )) => {
-        val form = confirmClientForm().bindFromRequest()(request)
         form.fold (
           errors => BadRequest(search_client_result(searchedClient, form)),
           confirmationWithInstanceId => {
-            val (confirmation, _) = confirmationWithInstanceId
-            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey,
+            val (confirmation, instanceId) = confirmationWithInstanceId
+            keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey,
               potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference)))))
             Ok(preferred_contact(preferredContactForm(request)))
           }
