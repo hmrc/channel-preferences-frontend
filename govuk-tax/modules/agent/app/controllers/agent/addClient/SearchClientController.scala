@@ -43,10 +43,12 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
       errors => BadRequest(search_client(validDobRange, errors)),
       searchWithInstanceId => {
         val (search, instanceId) = searchWithInstanceId
-        def restricted(person: MatchingPerson) = ClientSearch(person.nino,
-                                                              search.firstName.flatMap(_ => person.firstName),
-                                                              search.lastName.flatMap(_ => person.lastName),
-                                                              search.dob.flatMap(_ => person.dobAsLocalDate))
+        def restricted(result: MatchingPerson) = ClientSearch(result.nino,
+                                                              search.firstName.flatMap(_ => result.firstName),
+                                                              search.lastName.flatMap(_ => result.lastName),
+                                                              for (sDob <- search.dob;
+                                                                   rDob <- result.dobAsLocalDate
+                                                                   if sDob.isEqual(rDob)) yield rDob)
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
           case Some(result @ MatchingPerson(_, _, _, _, false)) => {
