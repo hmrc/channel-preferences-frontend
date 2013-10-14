@@ -15,7 +15,7 @@ object AgentRegime extends TaxRegime {
   override def unauthorisedLandingPage: String = routes.LoginController.login().url
 }
 
-case class AgentRoot(uar: Uar)
+case class AgentRoot(uar: Uar, clients: Map[String, String])
 
 case class AgentRegistrationRequest(legalEntity: String,
   agentType: String,
@@ -51,7 +51,7 @@ case class ContactDetails(title: String,
   middleName: Option[String] = None)
 
 
-case class MatchingPerson(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String], alreadyClient: Boolean) {
+case class MatchingPerson(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String]) {
   lazy val dobAsLocalDate = dateOfBirth.map(DateConverter.parseToLocalDate)
 }
 case class SearchRequest(nino: String, firstName: Option[String], lastName: Option[String], dateOfBirth: Option[String])

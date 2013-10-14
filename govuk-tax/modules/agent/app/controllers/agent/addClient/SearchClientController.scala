@@ -51,13 +51,16 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
                                                                    if sDob.isEqual(rDob)) yield rDob)
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
-          case Some(result @ MatchingPerson(_, _, _, _, false)) => {
-            val restrictedResult = restricted(result)
-            keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))
-            Ok(search_client_result(restrictedResult, confirmClientForm().fill(ConfirmClient.empty, instanceId)))
+          case Some(matchingPerson) => {
+            user.regimes.agent.get.get.clients.find(_._1 == search.nino) match {
+              case Some((k, v)) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))
+              case _ => {
+                val restrictedResult = restricted(matchingPerson)
+                keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))
+                Ok(search_client_result(restrictedResult, confirmClientForm().fill(ConfirmClient.empty, instanceId)))
+              }
+            }
           }
-          case Some(result @ MatchingPerson(_, _, _, _, true)) =>
-            Ok(search_client_result(restricted(result), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))
           case None => NotFound(search_client(validDobRange, form.withGlobalError("No match found")))
         }
       }

@@ -15,9 +15,10 @@ import org.mockito.Matchers._
 import org.scalatest.BeforeAndAfter
 import models.agent.addClient.{PotentialClient, ClientSearch}
 import scala.util.Success
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroService}
+import uk.gov.hmrc.common.microservice.agent.{AgentRoot, MatchingPerson, SearchRequest, AgentMicroService}
 import SearchClientController.KeyStoreKeys
 import SearchClientController.FieldIds
+import uk.gov.hmrc.domain.Uar
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -29,7 +30,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
   val authority = s"/auth/oid/$id"
   val uri = "/personal/paye/blah"
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
-  val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
+  val agent = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot(Uar("SomeUAR"), Map.empty)))), None, None)
+  val agentWithClients = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot(Uar("SomeUAR"), Map("AB123456C" -> "/some/link"))))), None, None)
 
   before {
     keyStore = mock[KeyStoreMicroService]
@@ -41,7 +43,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
   "The search client page" should {
     "generate an identifier when the page is visited" in new WithApplication(FakeApplication()) {
-      val result = controller.homeAction(user)(FakeRequest())
+      val result = controller.homeAction(agent)(FakeRequest())
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -50,7 +52,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "have a generated identifier which is different each time the page is visited" in new WithApplication(FakeApplication()) {
       def visitPage =  {
-        val result = controller.homeAction(user)(FakeRequest())
+        val result = controller.homeAction(agent)(FakeRequest())
         Jsoup.parse(contentAsString(result))
       }
       visitPage.select(s"input#${FieldIds.instanceId}").attr("value") should not equal (visitPage.select(s"input#instanceId").attr("value"))
@@ -174,7 +176,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
-      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"), false)))
+      when(agentService.searchClient(any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
       val result = executeSearchActionWith(nino="AB123456C", firstName="étåtø", lastName="étåtœ", dob=("1","1", "1991"))
 
       status(result) shouldBe 200
@@ -203,7 +205,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     "display an error when the client has already been added to the agent and not allow the user to proceed" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch(alreadyClient = true)
 
-      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"))
+      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"), "12637868", agentWithClients)
 
       status(result) shouldBe 200
 
@@ -226,7 +228,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         (clientSearch.dob.get.getDayOfMonth.toString,clientSearch.dob.get.getMonthOfYear.toString, clientSearch.dob.get.getYear.toString), "12637868")
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(agent.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),Some(new LocalDate(1991, 1, 1)))), None, None))
     }
 
@@ -236,7 +238,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         ("", "", ""), "12637868")
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(user.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(agent.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C",Some("resFirstName"),Some("resLastName"),None)), None, None))
     }
 
@@ -251,7 +253,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(".error #globalErrors") should not be 'empty
     }
 
-    def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String), instanceId: String = "12637868") = {
+    def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String), instanceId: String = "12637868", agent: User = agent) = {
       val request = FakeRequest().withFormUrlEncodedBody(
         (FieldIds.nino, nino),
         (FieldIds.firstName, firstName),
@@ -260,13 +262,14 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
         (FieldIds.dob+".month", dob._2),
         (FieldIds.dob+".year", dob._3),
         (FieldIds.instanceId, instanceId))
-      controller.searchAction(user)(request)
+      controller.searchAction(agent)(request)
     }
 
     def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[SearchRequest])).thenReturn(None)
     def givenTheAgentServiceReturnsAMatch(alreadyClient: Boolean = false) =
       when(agentService.searchClient(any[SearchRequest]))
-      .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"), alreadyClient)))
-  }
+      .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"))))
+    
+    }
 
 }

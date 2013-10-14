@@ -15,6 +15,7 @@ class AgentMicroService(override val serviceUrl: String = MicroServiceConfig.age
   }
 
   def searchClient(searchRequest: SearchRequest): Option[MatchingPerson] = httpPost[MatchingPerson](s"/agent/search", Json.parse(toRequestBody(searchRequest)))
+
 }
 
 trait AgentMicroServices {
