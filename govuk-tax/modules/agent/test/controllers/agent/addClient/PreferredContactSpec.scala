@@ -11,22 +11,26 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import models.agent.addClient.{ConfirmClient, PotentialClient, ClientSearch}
 import scala.util.Success
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentMicroService}
+import uk.gov.hmrc.common.microservice.agent._
 import SearchClientController.KeyStoreKeys
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.util.Success
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
-import uk.gov.hmrc.common.microservice.agent.AgentMicroService
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.agent.addClient.SearchClientController.KeyStoreKeys._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.agent.MatchingPerson
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.util.Success
 import play.api.test.FakeApplication
 import controllers.agent.addClient.PreferredClientController.FieldIds
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import models.agent.addClient.PotentialClient
+import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
+import scala.util.Success
+import play.api.test.FakeApplication
 
 class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -40,7 +44,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   val authority = s"/auth/oid/$id"
   val uri = "/personal/paye/blah"
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
-  val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
+  val user = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot("SomeUAR", Map.empty, Map("search" -> "/agent/search", "addClient" -> "agent/addClient"))))), None, None)
 
   before {
     controller = new PreferredContactController with MockMicroServicesForTests

@@ -17,6 +17,11 @@ object AgentRegime extends TaxRegime {
 
 case class AgentRoot(uar: String, clients: Map[String, String], actions: Map[String, String])
 
+case class Client(nino: String, internalReferenceNumber: Option[String], preferredContact: PreferredContact)
+case class PreferredContact(isUs: Boolean, preferredContactForUs: Option[Contact])
+case class Contact(altName:String, altEmail:String, altPhone:String)
+
+
 case class AgentRegistrationRequest(legalEntity: String,
   agentType: String,
   daytimeNumber: String,
