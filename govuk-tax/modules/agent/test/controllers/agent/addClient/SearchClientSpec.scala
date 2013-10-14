@@ -62,6 +62,20 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       doc.select(s"input#${FieldIds.instanceId}").attr("value") should equal ("blahblah")
     }
 
+    "maintain the same generated identifier when the form is submitted successfully and the results shown" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch()
+      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"), instanceId="blahblah")
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(s"input#${FieldIds.instanceId}").attr("value") should equal ("blahblah")
+    }
+
+    "not show any errors when the form is submitted successfully and the results shown" in new WithApplication(FakeApplication()) {
+      givenTheAgentServiceReturnsAMatch()
+      val result = executeSearchActionWith(nino="AB123456C", firstName="firstName", lastName="lastName", dob=("1","1", "1990"), instanceId="blahblah")
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error") should be ('empty)
+    }
+
     "show errors on the form when we make a submission with no values" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="", firstName="", lastName="", dob=("", "", ""))
 

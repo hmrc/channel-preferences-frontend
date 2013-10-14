@@ -1,4 +1,4 @@
-@(matchingPerson: models.agent.addClient.ClientSearch, addClient: Form[models.agent.addClient.ConfirmClient])
+@(matchingPerson: models.agent.addClient.ClientSearch, form: Form[(models.agent.addClient.ConfirmClient, String)])
 
 @main(title = "Add a new client") {
 
@@ -9,8 +9,8 @@
     <p>HMRC has found the following tax payer</p>
 
     <div name="clientSearchResults" id="clientSearchResults">
-        <div class="@if(addClient.hasGlobalErrors){error}">
-            <span name="globalErrors" id="globalErrors" class="error-notification">@addClient.globalError.map(_.message).getOrElse("")</span>
+        <div class="@if(form.hasGlobalErrors){error}">
+            <span name="globalErrors" id="globalErrors" class="error-notification">@form.globalError.map(_.message).getOrElse("")</span>
         </div>
         <p name="name" id="name">
             Name:
@@ -24,12 +24,13 @@
 
     @helper.form(action = controllers.agent.addClient.routes.ConfirmClientController.confirm()) {
 
-        @helpers.singleCheckbox(addClient("correctClient"), '_label -> "This is the client I am looking for")
-        @helpers.singleCheckbox(addClient("authorised"), '_label -> "I have authorisation from the client to act on their behalf for {regime} with {authority level}")
-        @helpers.input(addClient("internalClientReference"), '_label -> "Your internal client reference number")
+        @helpers.singleCheckbox(form("correctClient"), '_label -> "This is the client I am looking for")
+        @helpers.singleCheckbox(form("authorised"), '_label -> "I have authorisation from the client to act on their behalf for {regime} with {authority level}")
+        @helpers.input(form("internalClientReference"), '_label -> "Your internal client reference number")
 
+        <input type="hidden" value="@{form("instanceId").value}" id="instanceId" name="instanceId" />
         <p>
-            <input type="submit" value="Next" id="submit" @if(addClient.hasGlobalErrors){disabled="disabled"} />
+            <input type="submit" value="Next" id="submit" @if(form.hasGlobalErrors){disabled="disabled"} />
         </p>
     }
 

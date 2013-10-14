@@ -27,7 +27,8 @@ class ConfirmClientController extends BaseController
         val form = confirmClientForm().bindFromRequest()(request)
         form.fold (
           errors => BadRequest(search_client_result(searchedClient, form)),
-          confirmation => {
+          confirmationWithInstanceId => {
+            val (confirmation, _) = confirmationWithInstanceId
             keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid), serviceSourceKey, addClientKey,
               potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference)))))
             Ok(preferred_contact(preferredContactForm(request)))
@@ -40,19 +41,21 @@ class ConfirmClientController extends BaseController
 }
 object ConfirmClientController {
 
-  private[addClient] def confirmClientForm() = {
-    Form[ConfirmClient](
+  private[addClient] def confirmClientForm() = Form (
       mapping(
         FieldIds.correctClient -> checked("error.agent.addClient.confirmClient.correctClient"),
         FieldIds.authorised -> checked("error.agent.addClient.confirmClient.authorised"),
-        FieldIds.internalClientRef -> optional(nonEmptyText)
-      )(ConfirmClient.apply)(ConfirmClient.unapply)
+        FieldIds.internalClientRef -> optional(nonEmptyText),
+        FieldIds.instanceId -> nonEmptyText
+      )((correctClient, authorised, internalClientRef, instanceId) => (ConfirmClient(correctClient,authorised,internalClientRef), instanceId))
+       (confirmClientWithInstanceId => Some((confirmClientWithInstanceId._1.correctClient, confirmClientWithInstanceId._1.authorised, confirmClientWithInstanceId._1.internalClientReference, confirmClientWithInstanceId._2)))
     )
-  }
+
   object FieldIds {
     val correctClient = "correctClient"
     val authorised = "authorised"
     val internalClientRef = "internalClientReference"
+    val instanceId = "instanceId"
   }
 
   def trimmed(original: Option[String]): Option[String] = original.filter(!_.trim().isEmpty)

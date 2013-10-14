@@ -96,7 +96,8 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (correctClient, "true"),
         (authorised, "true"),
-        (internalClientRef, "")))
+        (internalClientRef, ""),
+        (instanceId, "sampleInstanceId")))
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, None)), None))
@@ -110,7 +111,8 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (correctClient, "true"),
         (authorised, "true"),
-        (internalClientRef, "1234567")))
+        (internalClientRef, "1234567"),
+        (instanceId, "sampleInstanceId")))
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, Some("1234567"))), None))
@@ -124,7 +126,8 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (correctClient, "true"),
         (authorised, "true"),
-        (internalClientRef, "      ")))
+        (internalClientRef, "      "),
+        (instanceId, "sampleInstanceId")))
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, None)), None))

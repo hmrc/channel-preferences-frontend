@@ -47,11 +47,12 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     confirmController = new ConfirmClientController with MockMicroServicesForTests
   }
 
-  def executeAddActionPostWithValues(correctClient: String, authorised: String, internalClientReference: String) = {
+  def executeConfirmActionPostWithValues(correctClient: String, authorised: String, internalClientReference: String, instanceId: String) = {
     val request = FakeRequest().withFormUrlEncodedBody(
       (ConfirmClientController.FieldIds.correctClient, correctClient),
       (ConfirmClientController.FieldIds.authorised, authorised),
-      (ConfirmClientController.FieldIds.internalClientRef, internalClientReference))
+      (ConfirmClientController.FieldIds.internalClientRef, internalClientReference),
+      (ConfirmClientController.FieldIds.instanceId, instanceId))
     confirmController.confirmAction(user)(request)
   }
 
@@ -67,7 +68,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
 
   "When navigating to the preferred contact controller via the add action controller the controller" should {
     "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
-      val result = executeAddActionPostWithValues("true", "true", "FOO")
+      val result = executeConfirmActionPostWithValues("true", "true", "FOO", "instID")
       status(result) shouldBe 303
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
     }
@@ -87,7 +88,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       when(confirmController.keyStoreMicroService.getEntry[PotentialClient](keystoreId(id), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
 
-      val result = executeAddActionPostWithValues("true", "true", "FOO")
+      val result = executeConfirmActionPostWithValues("true", "true", "FOO", "instID")
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       val elements = doc.select("input[checked]")
