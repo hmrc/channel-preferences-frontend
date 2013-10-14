@@ -29,6 +29,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val saUtr = SaUtr("123456789")
   private val userAuthorityWithSa = UserAuthority("123", Regimes(), None, Some(saUtr))
   private val buildPortalUrl: (String) => String = (value: String) => value
+  private val utrMessage = Msg("sa.message.utr", Seq(saUtr.utr))
 
 
   "Sa Account SummaryView Builder builds correct Account Summary model " should {
@@ -140,9 +141,10 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       when(mockUser.regimes).thenReturn(mockRegimeRoots)
       when(mockRegimeRoots.sa).thenReturn(Some(Success(mockSaRoot)))
       when(mockSaRoot.accountSummary(mockSaConnector)).thenReturn(None)
+      when(mockSaRoot.identifier).thenReturn(saUtr)
 
       val expectedMessages =
-        Seq(
+        utrMessage +: Seq(
           Msg(saSummaryUnavailableErrorMessage1),
           Msg(saSummaryUnavailableErrorMessage2),
           Msg(saSummaryUnavailableErrorMessage3),
@@ -163,7 +165,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe saRegimeName
-      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage, Seq.empty))
       accountSummary.addenda shouldBe Seq.empty
       accountSummary.status shouldBe SummaryStatus.oops
       verifyZeroInteractions(mockSaConnector)
@@ -179,7 +181,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe saRegimeName
-      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage, Seq.empty))
       accountSummary.addenda shouldBe Seq.empty
       accountSummary.status shouldBe SummaryStatus.oops
     }
@@ -203,6 +205,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
     when(mockRegimeRoots.sa).thenReturn(Some(Success(mockSaRoot)))
     when(mockSaRoot.accountSummary(mockSaConnector)).thenReturn(Some(accountSummary))
+    when(mockSaRoot.identifier).thenReturn(saUtr)
 
     when(mockPortalUrlBuilder.build(saHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl)
@@ -210,8 +213,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build, mockUser).get
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName
-
-    actualAccountSummary.messages shouldBe expectedMessages
+    actualAccountSummary.messages shouldBe utrMessage +: expectedMessages
 
     val expectedLinks = Seq(
       RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, Some("portalLink"))),

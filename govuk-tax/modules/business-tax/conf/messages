@@ -25,7 +25,7 @@ ct.message.summaryUnavailable.4= If you do not this either of the above reasons 
 
 
 sa.regimeName=Self-Assessment
-
+sa.message.utr=Unique Taxpayer Reference (UTR): {0}
 sa.message.nothingToPay=You have nothing to pay.
 sa.message.amountDueForPayment={0} is now due for payment.
 sa.message.interestApplicable=Interest may be charged on late payments of amounts due now.

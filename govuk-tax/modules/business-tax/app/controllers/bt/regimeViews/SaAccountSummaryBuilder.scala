@@ -13,6 +13,11 @@ import uk.gov.hmrc.domain.SaUtr
 
 case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
 
+
+  private def utrMessage(utr: SaUtr) : Msg = {
+    Msg(saUtrMessage, Seq(utr.utr))
+  }
+
   def rootForRegime(user: User): Option[Try[SaRoot]] = user.regimes.sa
 
   def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String): AccountSummary = {
@@ -20,7 +25,7 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
       case Some(saAccountSummary) => {
         AccountSummary(
           saRegimeName,
-          SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
+          utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
           Seq(
             LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, Some("portalLink")),
             LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
@@ -31,7 +36,7 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
       case _ =>
         AccountSummary(
           saRegimeName,
-          Seq(
+          utrMessage(saRoot.identifier) +: Seq(
             Msg(saSummaryUnavailableErrorMessage1),
             Msg(saSummaryUnavailableErrorMessage2),
             Msg(saSummaryUnavailableErrorMessage3),
@@ -124,6 +129,7 @@ object SaMessageKeys {
 
   val saRegimeName = "sa.regimeName"
 
+  val saUtrMessage = "sa.message.utr"
   val saNothingToPayMessage = "sa.message.nothingToPay"
   val saAmountDueForPaymentMessage = "sa.message.amountDueForPayment"
   val saInterestApplicableMessage = "sa.message.interestApplicable"
