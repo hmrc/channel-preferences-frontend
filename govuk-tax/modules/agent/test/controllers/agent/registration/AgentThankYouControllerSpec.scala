@@ -11,13 +11,15 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import scala.Some
-import uk.gov.hmrc.common.microservice.agent.Agent
+import uk.gov.hmrc.common.microservice.agent.{AgentRoot, AgentRegistrationRequest}
 import scala.util.Success
+import uk.gov.hmrc.domain.Uar
 
 class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
   val mockKeyStore = mock[KeyStore[Map[String,String]]]
-  val mockAgent = mock[Agent]
+  val agentRegistrationRequest = mock[AgentRegistrationRequest]
+  val agentRoot = mock[AgentRoot]
 
   val id = "wshakespeare"
 
@@ -31,7 +33,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
   private val controller = new AgentThankYouController with MockMicroServicesForTests {
 
     override def toAgent(implicit keyStore: KeyStore[Map[String,String]]) = {
-      mockAgent
+      agentRegistrationRequest
     }
 
   }
@@ -40,14 +42,14 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
     "get the keystore, save the agent, delete the keystore and go to the thank you page" in new WithApplication(FakeApplication()) {
 
       when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(Some(mockKeyStore))
-      when(controller.agentMicroService.create("CE927349E", mockAgent)).thenReturn(Some(mockAgent))
-      when(mockAgent.uar).thenReturn(Some("12345"))
+      when(controller.agentMicroService.create("CE927349E", agentRegistrationRequest)).thenReturn(Uar("12345"))
+      when(agentRoot.uar).thenReturn(Uar("12345"))
 
       val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 200
 
       verify(controller.keyStoreMicroService).getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)
-      verify(controller.agentMicroService).create("CE927349E", mockAgent)
+      verify(controller.agentMicroService).create("CE927349E", agentRegistrationRequest)
       verify(controller.keyStoreMicroService).deleteKeyStore(controller.registrationId(user), controller.agent)
 
     }

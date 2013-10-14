@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import play.api.Logger
 import org.apache.commons.lang.exception.ExceptionUtils
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots.RegimeRootBuilder
-import uk.gov.hmrc.common.microservice.agent.Agent
+import uk.gov.hmrc.common.microservice.agent.AgentRoot
 
 abstract class TaxRegime {
 
@@ -38,14 +38,14 @@ class RegimeRoots(payeBuilder: Option[RegimeRootBuilder[PayeRoot]],
                   vatBuilder: Option[RegimeRootBuilder[VatRoot]],
                   epayeBuilder: Option[RegimeRootBuilder[EpayeRoot]],
                   ctBuilder: Option[RegimeRootBuilder[CtRoot]],
-                  agentBuilder: Option[RegimeRootBuilder[Agent]]) {
+                  agentBuilder: Option[RegimeRootBuilder[AgentRoot]]) {
 
   lazy val paye: Option[Try[PayeRoot]] = payeBuilder.map(_())
   lazy val sa: Option[Try[SaRoot]] = saBuilder.map(_())
   lazy val vat: Option[Try[VatRoot]] = vatBuilder.map(_())
   lazy val epaye: Option[Try[EpayeRoot]] = epayeBuilder.map(_())
   lazy val ct: Option[Try[CtRoot]] = ctBuilder.map(_())
-  lazy val agent: Option[Try[Agent]] = agentBuilder.map(_())
+  lazy val agent: Option[Try[AgentRoot]] = agentBuilder.map(_())
 
   lazy val hasBusinessTaxRegime: Boolean = sa.isDefined || vat.isDefined || epaye.isDefined || ct.isDefined
 
@@ -63,7 +63,7 @@ object RegimeRoots {
 
   def apply(paye: Option[Try[PayeRoot]] = None, sa: Option[Try[SaRoot]] = None,
             vat: Option[Try[VatRoot]] = None, epaye: Option[Try[EpayeRoot]] = None,
-            ct: Option[Try[CtRoot]] = None, agent: Option[Try[Agent]] = None): RegimeRoots = {
+            ct: Option[Try[CtRoot]] = None, agent: Option[Try[AgentRoot]] = None): RegimeRoots = {
 
     val payeBuilder = paye.map(tryPayeRoot => new RegimeRootBuilder(() => tryPayeRoot.get))
     val saBuilder = sa.map(trySaRoot => new RegimeRootBuilder(() => trySaRoot.get))

@@ -13,7 +13,6 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
-import uk.gov.hmrc.common.microservice.agent.Agent
 import play.api.test.FakeApplication
 import scala.Some
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
@@ -28,7 +27,6 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
   val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
 
-  val mockAgent = mock[Agent]
   val mockKeyStore = mock[KeyStore[String]]
 
   private val controller = new AgentProfessionalBodyMembershipController with MockMicroServicesForTests

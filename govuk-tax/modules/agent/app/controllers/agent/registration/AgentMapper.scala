@@ -7,15 +7,11 @@ import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields.
 import controllers.agent.registration.FormNames._
 import controllers.common.validators.AddressFields._
 import uk.gov.hmrc.utils.DateConverter
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.common.microservice.agent.ProfessionalBodyMembership
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
 import uk.gov.hmrc.common.microservice.agent.ContactDetails
-import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.agent.CompanyDetails
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.agent.Agent
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.common.microservice.agent.AgentRegistrationRequest
 import uk.gov.hmrc.common.microservice.domain.Address
 
 trait AgentMapper extends DateConverter {
@@ -32,7 +28,7 @@ trait AgentMapper extends DateConverter {
     val companyDetails = CompanyDetails(
       companyName = companyData(companyName),
       emailAddress = companyData(email),
-      saUtr = SaUtr(companyData(saUtr)),
+      saUtr = companyData(saUtr),
       registeredWithHMRC = companyData(registeredOnHMRC).toBoolean,
       mainAddress = companyAddressData(mainAddress),
       communicationAddress = companyAddressData(communicationAddress),
@@ -40,8 +36,8 @@ trait AgentMapper extends DateConverter {
       tradingName = optionalCompanyData(tradingName),
       numbers = phNumbers,
       websiteURLs = websiteUrls,
-      ctUTR = optionalCompanyData(ctUtr) map(utr => CtUtr(utr)),
-      vatVRN = optionalCompanyData(vatVrn) map(vrn => Vrn(vrn)),
+      ctUTR = optionalCompanyData(ctUtr),
+      vatVRN = optionalCompanyData(vatVrn),
       payeEmpRef = optionalCompanyData(payeEmpRef),
       companyHouseNumber = optionalCompanyData(companyHouseNumber)
     )
@@ -50,11 +46,11 @@ trait AgentMapper extends DateConverter {
       title = contactDetailsData(title),
       firstName = contactDetailsData(firstName),
       lastName = contactDetailsData(lastName),
-      dob = parseToLong(contactDetailsData(dateOfBirth)),
-      nino = Nino(contactDetailsData(nino))
+      dob = contactDetailsData(dateOfBirth),
+      nino = contactDetailsData(nino)
     )
 
-    Agent(
+    AgentRegistrationRequest(
       legalEntity = agentTypeData(legalEntity),
       agentType = agentTypeData(agentType),
       daytimeNumber = contactDetailsData(daytimePhoneNumber),
@@ -62,9 +58,7 @@ trait AgentMapper extends DateConverter {
       emailAddress = contactDetailsData(emailAddress),
       contactDetails = contactDetails,
       companyDetails = companyDetails,
-      professionalBodyMembership = professionalBodyData,
-      createdAt = None,
-      uar = None
+      professionalBodyMembership = professionalBodyData
     )
   }
 

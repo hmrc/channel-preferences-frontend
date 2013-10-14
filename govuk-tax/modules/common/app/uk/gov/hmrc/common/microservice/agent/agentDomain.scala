@@ -1,11 +1,10 @@
 package uk.gov.hmrc.common.microservice.agent
 
-import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, Address}
-import uk.gov.hmrc.domain.{CtUtr, SaUtr, Vrn, Nino}
+import uk.gov.hmrc.domain.{Uar, SaUtr}
 import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import controllers.common.{routes, FrontEndRedirect}
+import controllers.common.routes
 
 
 object AgentRegime extends TaxRegime {
@@ -16,20 +15,20 @@ object AgentRegime extends TaxRegime {
   override def unauthorisedLandingPage: String = routes.LoginController.login().url
 }
 
-case class Agent(legalEntity: String,
+case class AgentRoot(uar: Uar)
+
+case class AgentRegistrationRequest(legalEntity: String,
   agentType: String,
   daytimeNumber: String,
   mobileNumber: String,
   emailAddress: String,
   contactDetails: ContactDetails,
   companyDetails: CompanyDetails,
-  professionalBodyMembership: Option[ProfessionalBodyMembership],
-  createdAt: Option[DateTime],
-  uar: Option[String])
+  professionalBodyMembership: Option[ProfessionalBodyMembership])
 
 case class CompanyDetails(companyName: String,
   emailAddress: String,
-  saUtr: SaUtr,
+  saUtr: String,
   registeredWithHMRC: Boolean,
   mainAddress: Address,
   communicationAddress: Address,
@@ -37,8 +36,8 @@ case class CompanyDetails(companyName: String,
   tradingName: Option[String] = None,
   numbers: Map[String, String] = Map.empty,
   websiteURLs: List[String] = List.empty,
-  ctUTR: Option[CtUtr] = None,
-  vatVRN: Option[Vrn] = None,
+  ctUTR: Option[String] = None,
+  vatVRN: Option[String] = None,
   payeEmpRef: Option[String] = None,
   companyHouseNumber: Option[String] = None)
 
@@ -47,8 +46,8 @@ case class ProfessionalBodyMembership(professionalBody: String, membershipNumber
 case class ContactDetails(title: String,
   firstName: String,
   lastName: String,
-  dob: Long,
-  nino: Nino,
+  dob: String,
+  nino: String,
   middleName: Option[String] = None)
 
 

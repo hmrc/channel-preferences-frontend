@@ -17,7 +17,7 @@ import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import org.scalatest.TestData
 import java.util.UUID
-import uk.gov.hmrc.common.microservice.agent.{Agent, AgentMicroService, AgentRegime}
+import uk.gov.hmrc.common.microservice.agent.{AgentRoot, AgentMicroService, AgentRegime}
 import uk.gov.hmrc.domain.Uar
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
@@ -75,8 +75,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       implicit user =>
         implicit request =>
           val userAgentRegimeRoot = user.regimes.agent.get.get
-          val uar = userAgentRegimeRoot.uar
-          Ok(uar.get)
+          Ok(userAgentRegimeRoot.uar.uar)
     }
 
     def testAuthorisationWithRedirectCommand = AuthorisedForIdaAction(redirectToOrigin = true) {
@@ -146,8 +145,8 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       when(mockAuthMicroService.authority("/auth/oid/goeff")).thenReturn(
         Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))), None)))
 
-      val agent = mock[Agent]
-      when(agent.uar).thenReturn(Some("uar-for-goeff"))
+      val agent = mock[AgentRoot]
+      when(agent.uar).thenReturn(Uar("uar-for-goeff"))
       when(mockAgentMicroService.root("/agent/uar-for-goeff")).thenReturn(agent)
       val result = TestController.testAgentAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/goeff"))))
       status(result) should equal(200)
