@@ -16,6 +16,7 @@ import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, Age
 import uk.gov.hmrc.utils.DateConverter
 import ConfirmClientController.confirmClientForm
 import org.bson.types.ObjectId
+import uk.gov.hmrc.domain.Nino
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
                                                                 with ActionWrappers
@@ -133,16 +134,7 @@ object SearchClientController {
       count >= 2 && validateNino(clientSearchNonValidated.nino)
     }
 
-    def validateNino(s: String):Boolean =  {
-      if (s == null)
-        return false
-
-      val startsWithNaughtyCharacters = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ").foldLeft(false) {
-        ((found,stringVal) => found || s.startsWith(stringVal))
-      }
-      def validNinoFormat = s.matches("[[A-Z]&&[^DFIQUV]][[A-Z]&&[^DFIQUVO]] ?\\d{2} ?\\d{2} ?\\d{2} ?[A-Z]{1}")
-      !startsWithNaughtyCharacters && validNinoFormat
-    }
+    def validateNino(s: String):Boolean = Nino.isValid(s)
   }
 
   private[addClient] object KeyStoreKeys {
