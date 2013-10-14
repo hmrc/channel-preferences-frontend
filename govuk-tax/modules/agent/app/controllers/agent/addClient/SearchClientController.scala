@@ -26,11 +26,15 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
   def this() = this(MicroServices.keyStoreMicroService)
 
   def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { homeAction } }
+  def restart = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { restartAction } }
   def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { searchAction } }
 
-  private[agent] def homeAction(user: User)(request: Request[_]): Result = {
-    Ok(search_client(validDobRange, searchForm(request).fill((ClientSearch.empty, ObjectId.get().toString))))
-  }
+  private[agent] def homeAction(user: User)(request: Request[_]) = startViewWith(searchForm(request))
+  private[agent] def restartAction(user: User)(request: Request[_]) =
+    startViewWith(searchForm(request).withGlobalError("Your saved progress has timed out. Please restart your search"))
+
+  private def startViewWith(form: Form[(ClientSearch, String)]) =
+    Ok(search_client(validDobRange, form.fill((ClientSearch.empty, ObjectId.get().toString))))
 
   private def validDobRange = {
     val thisYear = LocalDate.now().getYear
@@ -53,7 +57,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
         agentMicroService.searchClient(SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
           case Some(matchingPerson) => {
             user.regimes.agent.get.get.clients.find(_._1 == search.nino) match {
-              case Some((k, v)) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))
+              case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
                 keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))

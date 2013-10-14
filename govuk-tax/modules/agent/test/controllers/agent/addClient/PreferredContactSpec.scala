@@ -51,7 +51,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
       val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
       status(result) shouldBe 303
-      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
+      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.restart().url)
     }
 
     "have the default radio button selected" in new WithApplication(FakeApplication()) {

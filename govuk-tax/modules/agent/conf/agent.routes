@@ -19,6 +19,7 @@ POST        /professional-body-membership        @controllers.agent.registration
 GET         /thank-you                           @controllers.agent.registration.AgentThankYouController.thankYou
 
 GET         /add-client                          @controllers.agent.addClient.SearchClientController.start
+GET         /add-client/restart                  @controllers.agent.addClient.SearchClientController.restart
 POST        /add-client/search                   @controllers.agent.addClient.SearchClientController.search
 POST        /add-client/confirm                  @controllers.agent.addClient.ConfirmClientController.confirm
 POST        /add-client/preferred-contact        @controllers.agent.addClient.PreferredContactController.preferredContact

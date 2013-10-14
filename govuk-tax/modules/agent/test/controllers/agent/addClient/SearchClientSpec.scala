@@ -41,7 +41,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
   }
 
-  "The search client page" should {
+  "The home action" should {
     "generate an identifier when the page is visited" in new WithApplication(FakeApplication()) {
       val result = controller.homeAction(agent)(FakeRequest())
       status(result) shouldBe 200
@@ -57,7 +57,20 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       }
       visitPage.select(s"input#${FieldIds.instanceId}").attr("value") should not equal (visitPage.select(s"input#instanceId").attr("value"))
     }
+  }
 
+
+  "The restart action" should {
+    "show an error" in new WithApplication(FakeApplication()) {
+      val result = controller.restartAction(agent)(FakeRequest())
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error #globalErrors") should not be 'empty
+    }
+  }
+
+  "The search action" should {
     "maintain the same generated identifier when the form is submitted with errors" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino="", firstName="", lastName="", dob=("", "", ""), instanceId="blahblah")
       val doc = Jsoup.parse(contentAsString(result))

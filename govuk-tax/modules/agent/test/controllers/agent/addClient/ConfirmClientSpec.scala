@@ -78,7 +78,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
         (FieldIds.internalClientRef, "1234")))
 
       status(result) should be (303)
-      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
+      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.restart().url)
     }
 
     "redirect the user to the search client page if they do not have a search result in their potential client"  in new WithApplication(FakeApplication()) {
@@ -89,7 +89,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
         (FieldIds.internalClientRef, "1234")))
 
       status(result) should be (303)
-      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.start().url)
+      redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.restart().url)
     }
 
     "save the succesful acknoledgement to the keystore and show the prefered contact view"  in new WithApplication(FakeApplication()) {

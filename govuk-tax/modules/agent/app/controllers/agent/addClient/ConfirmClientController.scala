@@ -35,7 +35,7 @@ class ConfirmClientController extends BaseController
           }
         )
       }
-      case _ => Redirect(routes.SearchClientController.start())
+      case _ => Redirect(routes.SearchClientController.restart())
     }
   }
 }
