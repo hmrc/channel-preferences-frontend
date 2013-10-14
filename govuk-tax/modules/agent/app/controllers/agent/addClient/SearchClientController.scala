@@ -19,11 +19,9 @@ import org.bson.types.ObjectId
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
                                                                 with ActionWrappers
-                                                                with SessionTimeoutWrapper
-                                                                with Validators {
-  import SearchClientController.Validation._
+                                                                with SessionTimeoutWrapper {
+  import SearchClientController._
   import SearchClientController.KeyStoreKeys._
-  import SearchClientController.FieldIds._
 
   def this() = this(MicroServices.keyStoreMicroService)
 
@@ -34,30 +32,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
     Ok(search_client(validDobRange, searchForm(request).fill((ClientSearch.empty, ObjectId.get().toString))))
   }
 
-  private def unValidatedSearchForm = Form[ClientSearch](
-    mapping(
-      nino -> text,
-      firstName -> optional(text),
-      lastName -> optional(text),
-      dob -> dateTuple
-    )(ClientSearch.apply)(ClientSearch.unapply)
-  )
-
-  private def searchForm(request: Request[_]) = Form (
-    mapping(
-      nino -> text.verifying("error.agent.addClient.search.nino", validateNino _),
-      firstName -> optional(text).verifying("error.agent.addClient.search.firstname", validateName _),
-      lastName -> optional(text).verifying("error.agent.addClient.search.lastname", validateName _),
-      dob -> dateTuple.verifying("error.agent.addClient.search.dob", validateDob),
-      instanceId -> nonEmptyText
-    )
-    ((nino, firstName, lastName, dob, instanceId) => (ClientSearch(nino, firstName, lastName, dob), instanceId))
-    ((c: (ClientSearch, String)) => Some(c._1.nino, c._1.firstName, c._1.lastName, c._1.dob, c._2))
-    .verifying("Nino and at least two others must be filled in",
-      _ => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
-  )
-
-  val validDobRange = {
+  private def validDobRange = {
     val thisYear = LocalDate.now().getYear
     (thisYear - 110) to (thisYear - 16)
   }
@@ -89,6 +64,38 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 }
 
 object SearchClientController {
+
+  private def searchForm(request: Request[_]) = {
+    import Validators._
+    import SearchClientController.Validation._
+    import SearchClientController.FieldIds._
+    Form (
+      mapping(
+        nino -> text.verifying("error.agent.addClient.search.nino", validateNino _),
+        firstName -> optional(text).verifying("error.agent.addClient.search.firstname", validateName _),
+        lastName -> optional(text).verifying("error.agent.addClient.search.lastname", validateName _),
+        dob -> dateTuple.verifying("error.agent.addClient.search.dob", validateDob),
+        instanceId -> nonEmptyText
+      )
+        ((nino, firstName, lastName, dob, instanceId) => (ClientSearch(nino, firstName, lastName, dob), instanceId))
+        ((c: (ClientSearch, String)) => Some(c._1.nino, c._1.firstName, c._1.lastName, c._1.dob, c._2))
+        .verifying("Nino and at least two others must be filled in",
+        _ => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
+    )
+  }
+
+  private def unValidatedSearchForm = {
+    import Validators._
+    import SearchClientController.FieldIds._
+    Form[ClientSearch](
+      mapping(
+        nino -> text,
+        firstName -> optional(text),
+        lastName -> optional(text),
+        dob -> dateTuple
+      )(ClientSearch.apply)(ClientSearch.unapply)
+    )
+  }
 
   private[addClient] object Validation {
     val nameRegex = """^[\p{L}\s'.-[0-9]]*"""
