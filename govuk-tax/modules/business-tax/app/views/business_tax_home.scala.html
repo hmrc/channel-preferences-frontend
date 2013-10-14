@@ -9,18 +9,18 @@
     <h1><span class="pre-heading">service</span> Your tax account</h1>
 
     @for(ac <- accountSummaries.regimes) {
+        <div id="@ac.regimeName" class="account-summary">
+            <h2>@Messages(ac.regimeName)</h2>
 
-    <h2>@Messages(ac.regimeName)</h2>
-
-	@for(message <- ac.messages) {
-	    <p>@Html(Messages(message.messageKey, message.params.map(_.render):_*))</p>
-	}
-
-	<p>
-	    @for(addendum <- ac.addenda) {
-		 @addendum.render<br />
-	    }
-	</p>
+            @for(message <- ac.messages) {
+                <p class="@message.messageKey">@Html(Messages(message.messageKey, message.params.map(_.render):_*))</p>
+            }
+                <p>
+                @for(addendum <- ac.addenda) {
+                 @addendum.render<br />
+                }
+            </p>
+        </div>
     }
 
     <h2>Why can't I see my tax account details:</h2>
