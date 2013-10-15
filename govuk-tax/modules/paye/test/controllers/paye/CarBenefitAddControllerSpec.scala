@@ -595,8 +595,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccess(result: Result, collectedData: CarBenefitData)  {
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
-      verify(mockPayeMicroService).addBenefit(s"/paye/${johnDensmore.regimes.paye.get.get.nino}/benefits/${taxYear}/${employmentSeqNumber}/add",
-                          AddBenefitCalculationData(collectedData.registeredBefore98.get, collectedData.fuelType.get, None, Some(defaultEngineCapacity), None, 0,None,None,None,None, "",None))
+      verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation",
+                          NewBenefitCalculationData(collectedData.registeredBefore98.get, collectedData.fuelType.get, None, Some(defaultEngineCapacity), None, 0,None,None,None,None, "",None))
       Mockito.reset(mockKeyStoreService)
       Mockito.reset(mockPayeMicroService)
     }
@@ -623,7 +623,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
   }
 
   private def setupPayeMicroServiceMock() {
-    when(mockPayeMicroService.addBenefit(Matchers.anyString(), Matchers.any[AddBenefitCalculationData])).thenReturn(Some(AddBenefitResponse(None,None)))
+    when(mockPayeMicroService.calculateBenefitValue(Matchers.anyString(), Matchers.any[NewBenefitCalculationData])).thenReturn(Some(NewBenefitCalculationResponse(None,None)))
   }
 
   private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] = Some(localDateToTuple(Some(defaultProvidedFrom))),

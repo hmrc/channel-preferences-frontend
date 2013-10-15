@@ -27,7 +27,7 @@ class PayeBaseSpec extends BaseSpec {
     "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}",
     "findByOid" -> "/txqueue/oid/{oid}")
 
-  def defaultActions(nino: String) = Map("addBenefit" -> s"/paye/${nino}/benefits/{year}/{employment}/add")
+  def defaultActions(nino: String) = Map("calculateBenefitValue" -> "/calculation/paye/benefit/new/value-calculation")
 
   protected def setupUser(id: String, nino: String, name: String): User = {
     setupUser(id, nino, name, defaultTxLinks(nino), defaultActions(nino))

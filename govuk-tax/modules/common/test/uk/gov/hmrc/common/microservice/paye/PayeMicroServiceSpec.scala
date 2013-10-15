@@ -12,7 +12,7 @@ import org.mockito.ArgumentCaptor
 import controllers.common.domain.Transform
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResult
+import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
@@ -54,18 +54,18 @@ class PayeMicroServiceSpec extends BaseSpec {
       val service = new HttpMockedPayeMicroService
       val uri: String = "/paye/AB123456C/benefits/2013/1/add"
 
-      val benefitData =  AddBenefitCalculationData(carRegisteredBefore98 = false, fuelType = "diesel", co2Emission = Some(200), engineCapacity = Some(1200),
+      val benefitData =  NewBenefitCalculationData(carRegisteredBefore98 = false, fuelType = "diesel", co2Emission = Some(200), engineCapacity = Some(1200),
         userContributingAmount =  Some(9000), listPrice = 25000, carBenefitStartDate = Some(new LocalDate(2013, 7, 1)), carBenefitStopDate = Some(new LocalDate(2014, 2, 1)),
         numDaysCarUnavailable = None, employeePayments = Some(250), employerPayFuel = "true", fuelBenefitStopDate = None)
 
-      when(service.httpWrapper.post[AddBenefitResponse](Matchers.eq(uri), any[JsValue], any[Map[String, String]])).thenReturn(Some(AddBenefitResponse(Some(123), Some(456))))
+      when(service.httpWrapper.post[NewBenefitCalculationResponse](Matchers.eq(uri), any[JsValue], any[Map[String, String]])).thenReturn(Some(NewBenefitCalculationResponse(Some(123), Some(456))))
 
-      val response = service.addBenefit(uri, benefitData)
+      val response = service.calculateBenefitValue(uri, benefitData)
 
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
       verify(service.httpWrapper).post(Matchers.eq(uri), capturedBody.capture, any[Map[String, String]])
 
-      val capturedAddedBenefit = Transform.fromResponse[AddBenefitCalculationData](capturedBody.getValue.toString())
+      val capturedAddedBenefit = Transform.fromResponse[NewBenefitCalculationData](capturedBody.getValue.toString())
       capturedAddedBenefit shouldBe benefitData
 
       response.get.carBenefitValue shouldBe Some(123)
@@ -78,8 +78,8 @@ class PayeMicroServiceSpec extends BaseSpec {
     "return a value when a request for to Calculate Withdraw Benefit is made" in new WithApplication(FakeApplication()) {
       val service = new HttpMockedPayeMicroService
 
-      val stubbedCalculationResult = Option(new RemoveBenefitCalculationResult(Map("2013" -> BigDecimal(1234.56), "2014" -> BigDecimal(0))))
-      when(service.httpWrapper.get[RemoveBenefitCalculationResult]("someUrl/2013-07-18")).thenReturn(stubbedCalculationResult)
+      val stubbedCalculationResult = Option(new RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(1234.56), "2014" -> BigDecimal(0))))
+      when(service.httpWrapper.get[RemoveBenefitCalculationResponse]("someUrl/2013-07-18")).thenReturn(stubbedCalculationResult)
 
       val calculationResult = service.calculateWithdrawBenefit(carBenefit, new LocalDate(2013, 7, 18))
       calculationResult.result.get("2013") shouldBe Some(BigDecimal(1234.56))

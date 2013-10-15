@@ -3,9 +3,9 @@ package uk.gov.hmrc.common.microservice.paye.domain
 import org.joda.time.LocalDate
 
 
-case class RemoveBenefitCalculationResult(result: Map[String, BigDecimal])
+case class RemoveBenefitCalculationResponse(result: Map[String, BigDecimal])
 
-case class AddBenefitCalculationData(carRegisteredBefore98: Boolean,
+case class NewBenefitCalculationData(carRegisteredBefore98: Boolean,
                                   fuelType: String,
                                   co2Emission: Option[Int],
                                   engineCapacity: Option[Int],
@@ -19,6 +19,6 @@ case class AddBenefitCalculationData(carRegisteredBefore98: Boolean,
                                   fuelBenefitStopDate: Option[LocalDate]
                                    )
 
-case class AddBenefitResponse(carBenefitValue:Option[Int], fuelBenefitValue:Option[Int])
+case class NewBenefitCalculationResponse(carBenefitValue:Option[Int], fuelBenefitValue:Option[Int])
 
 

@@ -48,7 +48,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
         dateOfBirth = "1976-01-02",
         links = Map.empty,
         transactionLinks = Map.empty,
-        actions = Map("addBenefit" -> "/paye/AB123456C/benefits/{year}/{employment}/add")
+        actions = Map("calculateBenefitValue" -> "/calculation/paye/benefit/new/value-calculation")
       )
     )
     when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
