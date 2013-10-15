@@ -18,7 +18,12 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaPerson
 import controllers.sa.{ routes => saRoutes }
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 
-class SaController extends BaseController with ActionWrappers with SessionTimeoutWrapper with DateTimeProvider with Validators {
+class SaController
+  extends BaseController
+  with ActionWrappers
+  with SessionTimeoutWrapper
+  with DateTimeProvider
+  with Validators {
 
   def details = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
     implicit user: User =>

@@ -1,21 +1,20 @@
 package controllers.common
 
-import play.Logger
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import views.html._
 
-class HomeController extends BaseController with ActionWrappers with SessionTimeoutWrapper {
+class HomeController
+  extends BaseController
+  with ActionWrappers {
 
-  def landing = UnauthorisedAction { implicit request =>
-    Redirect(routes.LoginController.login()).withNewSession
+  def landing = UnauthorisedAction {
+    implicit request =>
+      Redirect(routes.LoginController.login()).withNewSession
   }
 
-  def home = WithSessionTimeoutValidation(AuthorisedForIdaAction() {
-    user =>
+  def home = AuthorisedForIdaAction() {
+    implicit user =>
       implicit request =>
-
-        Logger.debug("Choosing home for $user")
-
         user.regimes match {
           case RegimeRoots(Some(paye), None, None, None, None) => FrontEndRedirect.forSession(session)
           case RegimeRoots(None, Some(sa), _, _, _) => FrontEndRedirect.toBusinessTax
@@ -24,7 +23,6 @@ class HomeController extends BaseController with ActionWrappers with SessionTime
           case RegimeRoots(None, _, _, _, Some(ct)) => FrontEndRedirect.toBusinessTax
           case _ => Unauthorized(login.render())
         }
-
-  })
+  }
 
 }

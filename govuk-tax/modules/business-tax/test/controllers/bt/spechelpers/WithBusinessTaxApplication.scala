@@ -15,20 +15,18 @@ import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import controllers.bt.regimeViews.AccountSummaries
 
-abstract class WithBusinessTaxApplication extends WithApplication(FakeApplication()) with MicroServiceMocks with MockitoSugar with CookieEncryption {
+abstract class WithBusinessTaxApplication
+  extends WithApplication(FakeApplication())
+  with MicroServiceMocks
+  with MockitoSugar
+  with CookieEncryption {
 
   val currentTime = new DateTime(2013, 9, 27, 15, 7, 22, 232, DateTimeZone.UTC)
-
-  val lastRequestTimestamp: DateTime = currentTime.minus(Duration.standardMinutes(1))
-
+  val lastRequestTimestamp = currentTime.minus(Duration.standardMinutes(1))
   val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-
   val userId: Option[String] = None
-
   val affinityGroup: Option[String] = None
-
   val nameFromGovernmentGateway: Option[String] = None
-
   val governmentGatewayToken: Option[String] = None
 
   trait Expectations {

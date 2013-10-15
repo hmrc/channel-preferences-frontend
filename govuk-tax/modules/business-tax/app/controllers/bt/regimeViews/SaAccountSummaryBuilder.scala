@@ -24,26 +24,26 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
     saRoot.accountSummary(saConnector) match {
       case Some(saAccountSummary) => {
         AccountSummary(
-          saRegimeName,
-          utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
-          Seq(
+          regimeName = saRegimeName,
+          messages = utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
+          addenda = Seq(
             LinkMessage(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, Some("portalLink")),
             LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
             LinkMessage(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage)),
-          SummaryStatus.success
+          status = SummaryStatus.success
         )
       }
       case _ =>
         AccountSummary(
-          saRegimeName,
-          utrMessage(saRoot.identifier) +: Seq(
+          regimeName = saRegimeName,
+          messages = utrMessage(saRoot.identifier) +: Seq(
             Msg(saSummaryUnavailableErrorMessage1),
             Msg(saSummaryUnavailableErrorMessage2),
             Msg(saSummaryUnavailableErrorMessage3),
             Msg(saSummaryUnavailableErrorMessage4)
           ),
-          Seq.empty,
-          SummaryStatus.default
+          addenda = Seq.empty,
+          status = SummaryStatus.default
         )
     }
   }
@@ -59,9 +59,10 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
 
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
 
-        addLiabilityMessageIfApplicable(accountSummary.nextPayment,
-          Seq(Msg(saYouHaveOverpaidMessage), Msg(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))
-          ), None)
+        addLiabilityMessageIfApplicable(
+          liability = accountSummary.nextPayment,
+          msgs = Seq(Msg(saYouHaveOverpaidMessage), Msg(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))),
+          alternativeMsg = None)
       }
       case _ => {
         accountSummary.totalAmountDueToHmrc match {

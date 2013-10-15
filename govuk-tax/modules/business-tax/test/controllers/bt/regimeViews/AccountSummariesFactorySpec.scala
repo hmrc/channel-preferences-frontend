@@ -17,25 +17,26 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
   def mockVatRegimeAccountSummaryViewBuilder = mock[VatAccountSummaryBuilder]
   def mockCtRegimeAccountSummaryViewBuilder = mock[CtAccountSummaryBuilder]
   def mockEpayeRegimeAccountSummaryViewBuilder = mock[EpayeAccountSummaryBuilder]
+
   def mockUser = mock[User]
 
-      def factory() = new AccountSummariesFactory(mock[SaConnector], mock[VatConnector],mock[CtConnector], mock[EpayeConnector]) {
-        override val saRegimeAccountSummaryViewBuilder = mockSaRegimeAccountSummaryViewBuilder
-        override val vatRegimeAccountSummaryViewBuilder = mockVatRegimeAccountSummaryViewBuilder
-        override val ctRegimeAccountSummaryViewBuilder = mockCtRegimeAccountSummaryViewBuilder
-        override val epayeRegimeAccountSummaryViewBuilder = mockEpayeRegimeAccountSummaryViewBuilder
-      }
+  def factory() = new AccountSummariesFactory(null, null, null, null) {
+    override val saRegimeAccountSummaryViewBuilder = mockSaRegimeAccountSummaryViewBuilder
+    override val vatRegimeAccountSummaryViewBuilder = mockVatRegimeAccountSummaryViewBuilder
+    override val ctRegimeAccountSummaryViewBuilder = mockCtRegimeAccountSummaryViewBuilder
+    override val epayeRegimeAccountSummaryViewBuilder = mockEpayeRegimeAccountSummaryViewBuilder
+  }
 
   "Account Summary Factory when constructor " should {
     "construct an AccountSummaries model using the AccountSummary regimes factories that return None" in {
       val factoryUnderTest = factory()
       val userUnderTest = mockUser
-      val portalBuilder : (String => String) = (value) => value
+      val portalBuilder: (String => String) = (value) => value
+
       when(factoryUnderTest.saRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
       when(factoryUnderTest.vatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
       when(factoryUnderTest.ctRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
       when(factoryUnderTest.epayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
-
 
       val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest)
       actualAccountSummaries.regimes shouldBe Seq.empty
@@ -49,12 +50,11 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
 
       val factoryUnderTest = factory()
       val userUnderTest = mockUser
-      val portalBuilder : (String => String) = (value) => value
+      val portalBuilder: (String => String) = (value) => value
       when(factoryUnderTest.saRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(saAccountSummary))
       when(factoryUnderTest.vatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(vatAccountSummary))
       when(factoryUnderTest.ctRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(ctAccountSummary))
       when(factoryUnderTest.epayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(epayeAccountSummary))
-
 
       val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest)
       actualAccountSummaries.regimes shouldBe Seq(saAccountSummary, vatAccountSummary, ctAccountSummary, epayeAccountSummary)
