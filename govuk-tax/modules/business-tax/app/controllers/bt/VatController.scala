@@ -12,11 +12,11 @@ class VatController extends BaseController with ActionWrappers with SessionTimeo
   def makeAPayment: Action[AnyContent] = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(VatRegime)) {
     implicit user =>
       implicit request =>
-        val vatOnlineAccountHref: String = buildPortalUrl("vatOnlineAccount")
-        Results.Ok(makeAPaymentPage(vatOnlineAccountHref))
+        Results.Ok(makeAPaymentPage(buildPortalUrl))
   })
 
-  private[bt] def makeAPaymentPage(vatOnlineAccountHref: String)(implicit user: User): Html = {
+  private[bt] def makeAPaymentPage(buildPortalUrl: String => String)(implicit user: User): Html = {
+    val vatOnlineAccountHref: String = buildPortalUrl("vatOnlineAccount")
     views.html.make_a_vat_payment(vatOnlineAccountHref)
   }
 }

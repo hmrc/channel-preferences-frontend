@@ -37,7 +37,7 @@ abstract class WithVatApplication extends WithApplication(FakeApplication()) wit
   val vatController = new VatController with MockedMicroServices {
     override def now: () => DateTime = () => currentTime
 
-    override private[bt] def makeAPaymentPage(vatUrl: String)(implicit user: User): Html = {
+    override private[bt] def makeAPaymentPage(buildPortalUrl: String => String)(implicit user: User): Html = {
       Logger.debug("RENDERING makeAPayment")
       Html(expectations.makeAPayment)
     }
