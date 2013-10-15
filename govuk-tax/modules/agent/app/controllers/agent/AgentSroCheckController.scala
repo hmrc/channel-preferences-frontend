@@ -6,9 +6,8 @@ import controllers.common._
 import play.api.Logger
 
 class AgentSroCheckController
-    extends BaseController
-    with SessionTimeoutWrapper
-    with ActionWrappers {
+  extends BaseController
+  with ActionWrappers {
 
   def reasonForApplication() = UnauthorisedAction {
     implicit request =>
@@ -30,9 +29,8 @@ class AgentSroCheckController
   def submitAgreement = UnauthorisedAction {
     implicit request =>
       userForm.bindFromRequest.fold(
-        errors => {
-          BadRequest(views.html.agents.sro_check(errors))
-        },
+        errors =>
+          BadRequest(views.html.agents.sro_check(errors)),
         _ => {
           Logger.debug(s"Redirecting to contact details. Session is $session")
           import controllers.agent.registration.routes

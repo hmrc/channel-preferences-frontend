@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
+import controllers.common.{ActionWrappers, BaseController}
 import controllers.common.validators.Validators
 import play.api.mvc.{Result, Request}
 import views.html.agents.addClient.{client_successfully_added, preferred_contact}
@@ -15,17 +15,20 @@ import Validators.validateMandatoryPhoneNumber
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.common.microservice.agent.{Contact, PreferredContact, Client}
 
-class PreferredContactController extends BaseController
-                                 with ActionWrappers
-                                 with SessionTimeoutWrapper {
-  def preferredContact = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(PayeRegime)) { preferredContactAction } }
+class PreferredContactController
+  extends BaseController
+  with ActionWrappers {
+
+  def preferredContact = AuthorisedForIdaAction(Some(PayeRegime)) {
+    preferredContactAction
+  }
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
     val form = preferredContactForm(request).bindFromRequest()(request)
     keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
-      case Some(pc @ PotentialClient(Some(_), Some(_), _ )) => {
+      case Some(pc@PotentialClient(Some(_), Some(_), _)) => {
         //FIXME we should trim contact details before saving them here
-        form.fold (
+        form.fold(
           errors => BadRequest(preferred_contact(form)),
           search => {
             val addClientUri = user.regimes.agent.get.get.actions.get("addClient").getOrElse(throw new IllegalArgumentException("No addClient action uri found"))
@@ -48,6 +51,7 @@ class PreferredContactController extends BaseController
     }
   }
 }
+
 object PreferredClientController {
 
   object FieldIds {
@@ -63,15 +67,15 @@ object PreferredClientController {
   }
 
   private[addClient] def emptyUnValidatedPreferredContactForm() = Form[(PreferredContactData, String)](
-      mapping(
-        FieldIds.pointOfContact -> text,
-        FieldIds.contactName -> text,
-        FieldIds.contactPhone -> text,
-        FieldIds.contactEmail -> text,
-        FieldIds.instanceId -> nonEmptyText
-      )((pointOfContact, contactName, contactPhone, contactEmail, instanceId) => (PreferredContactData(pointOfContact, contactName, contactPhone, contactEmail), instanceId))
-        (preferredContactWithInstanceId => Some((preferredContactWithInstanceId._1.pointOfContact, preferredContactWithInstanceId._1.contactName, preferredContactWithInstanceId._1.contactPhone, preferredContactWithInstanceId._1.contactEmail, preferredContactWithInstanceId._2)))
-    )
+    mapping(
+      FieldIds.pointOfContact -> text,
+      FieldIds.contactName -> text,
+      FieldIds.contactPhone -> text,
+      FieldIds.contactEmail -> text,
+      FieldIds.instanceId -> nonEmptyText
+    )((pointOfContact, contactName, contactPhone, contactEmail, instanceId) => (PreferredContactData(pointOfContact, contactName, contactPhone, contactEmail), instanceId))
+      (preferredContactWithInstanceId => Some((preferredContactWithInstanceId._1.pointOfContact, preferredContactWithInstanceId._1.contactName, preferredContactWithInstanceId._1.contactPhone, preferredContactWithInstanceId._1.contactEmail, preferredContactWithInstanceId._2)))
+  )
 
   private[addClient] def preferredContactForm(request: Request[_]) = {
     lazy val unvalidatedForm = unValidatedPreferredContactForm(request).bindFromRequest()(request).get
@@ -96,7 +100,7 @@ object PreferredClientController {
     )(PreferredContactData.apply)(PreferredContactData.unapply)
   )
 
-  private[addClient] def verifyContactName(name: String, preferredContact:PreferredContactData) = {
+  private[addClient] def verifyContactName(name: String, preferredContact: PreferredContactData) = {
     preferredContact.pointOfContact match {
       case FieldIds.me => true
       case FieldIds.other => name != null && !name.trim.isEmpty && SearchClientController.Validation.validateName(Some(name))
@@ -105,7 +109,7 @@ object PreferredClientController {
     }
   }
 
-  private[addClient] def verifyContactPhone(phone:String, preferredContact:PreferredContactData) = {
+  private[addClient] def verifyContactPhone(phone: String, preferredContact: PreferredContactData) = {
     preferredContact.pointOfContact match {
       case FieldIds.me => true
       case FieldIds.other => validateMandatoryPhoneNumber(phone)
@@ -114,7 +118,7 @@ object PreferredClientController {
     }
   }
 
-  private[addClient] def verifyContactEmail(email:String, preferredContact:PreferredContactData) = {
+  private[addClient] def verifyContactEmail(email: String, preferredContact: PreferredContactData) = {
     preferredContact.pointOfContact match {
       case FieldIds.me => true
       case FieldIds.other => SearchClientController.Validation.validateEmail(Some(email))

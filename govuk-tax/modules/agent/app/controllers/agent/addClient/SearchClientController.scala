@@ -1,8 +1,8 @@
 package controllers.agent.addClient
 
-import play.api.mvc.{ Result, Request }
+import play.api.mvc.{Result, Request}
 import views.html.agents.addClient._
-import controllers.common.{ SessionTimeoutWrapper, ActionWrappers, BaseController }
+import controllers.common.{ActionWrappers, BaseController}
 import play.api.data.{Form, Forms}
 import Forms._
 import org.joda.time.LocalDate
@@ -18,19 +18,29 @@ import ConfirmClientController.confirmClientForm
 import org.bson.types.ObjectId
 import uk.gov.hmrc.domain.Nino
 
-class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController
-                                                                with ActionWrappers
-                                                                with SessionTimeoutWrapper {
+class SearchClientController(keyStore: KeyStoreMicroService)
+  extends BaseController
+  with ActionWrappers {
+
   import SearchClientController._
   import SearchClientController.KeyStoreKeys._
 
   def this() = this(MicroServices.keyStoreMicroService)
 
-  def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime), redirectToOrigin = true) { homeAction } }
-  def restart = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { restartAction } }
-  def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { searchAction } }
+  def start = AuthorisedForIdaAction(Some(AgentRegime), redirectToOrigin = true) {
+    homeAction
+  }
+
+  def restart = AuthorisedForIdaAction(Some(AgentRegime)) {
+    restartAction
+  }
+
+  def search = AuthorisedForIdaAction(Some(AgentRegime)) {
+    searchAction
+  }
 
   private[agent] def homeAction(user: User)(request: Request[_]) = startViewWith(searchForm(request))
+
   private[agent] def restartAction(user: User)(request: Request[_]) =
     startViewWith(searchForm(request).withGlobalError("Your saved progress has timed out. Please restart your search"))
 
@@ -49,11 +59,11 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
       searchWithInstanceId => {
         val (search, instanceId) = searchWithInstanceId
         def restricted(result: MatchingPerson) = ClientSearch(result.nino,
-                                                              search.firstName.flatMap(_ => result.firstName),
-                                                              search.lastName.flatMap(_ => result.lastName),
-                                                              for (sDob <- search.dob;
-                                                                   rDob <- result.dobAsLocalDate
-                                                                   if sDob.isEqual(rDob)) yield rDob)
+          search.firstName.flatMap(_ => result.firstName),
+          search.lastName.flatMap(_ => result.lastName),
+          for (sDob <- search.dob;
+               rDob <- result.dobAsLocalDate
+               if sDob.isEqual(rDob)) yield rDob)
         val agentRoot = user.regimes.agent.get.get
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         val searchUri: String = agentRoot.actions.get("search").getOrElse(throw new IllegalArgumentException(s"No search action uri found"))
@@ -63,7 +73,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
-                keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult),None, None))
+                keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
                 Ok(search_client_result(restrictedResult, confirmClientForm().fill(ConfirmClient.empty, instanceId)))
               }
             }
@@ -81,7 +91,7 @@ object SearchClientController {
     import Validators._
     import SearchClientController.Validation._
     import SearchClientController.FieldIds._
-    Form (
+    Form(
       mapping(
         nino -> text.verifying("error.agent.addClient.search.nino", validateNino _),
         firstName -> optional(text).verifying("error.agent.addClient.search.firstname", validateName _),
@@ -127,19 +137,21 @@ object SearchClientController {
 
     private[addClient] def atLeastTwoOptionalAndAllMandatory(clientSearchNonValidated: ClientSearch) = {
       val items = List(clientSearchNonValidated.firstName.getOrElse("").trim.length > 0,
-          clientSearchNonValidated.lastName.getOrElse("").trim.length > 0,
-          clientSearchNonValidated.dob.isDefined)
+        clientSearchNonValidated.lastName.getOrElse("").trim.length > 0,
+        clientSearchNonValidated.dob.isDefined)
 
       val count = items.foldLeft(0)((sum, valid) => if (valid) sum + 1 else sum)
       count >= 2 && validateNino(clientSearchNonValidated.nino)
     }
 
-    def validateNino(s: String):Boolean = Nino.isValid(s)
+    def validateNino(s: String): Boolean = Nino.isValid(s)
   }
 
   private[addClient] object KeyStoreKeys {
     val serviceSourceKey = "agentFrontEnd"
+
     def keystoreId(userId: String, instanceId: String) = s"AddClient:$userId:$instanceId"
+
     val addClientKey = "addClient"
   }
 
@@ -150,5 +162,6 @@ object SearchClientController {
     val dob = "dob";
     val instanceId = "instanceId";
   }
+
 }
 
