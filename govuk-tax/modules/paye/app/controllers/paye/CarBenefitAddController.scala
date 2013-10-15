@@ -14,12 +14,9 @@ import CarBenefitFormFields._
 import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.domain.User
-import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import views.html.paye.{add_car_benefit_review, remove_benefit_confirm}
-import controllers.paye.CarBenefitData
+import views.html.paye.add_car_benefit_review
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
@@ -46,16 +43,17 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
     }
 
   private def providedFromDefaultValue = startOfCurrentTaxYear
+
   private def providedToDefaultValue = endOfCurrentTaxYear
 
-  private def findPrimaryEmployment(user: User) : Option[Employment] =
+  private def findPrimaryEmployment(user: User) : Option[Employment] = 
     user.regimes.paye.get.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
 
   private def findEmployment(user: User, taxYear: Int, employmentSequenceNumber: Int) = {
     user.regimes.paye.get.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber)
   }
 
-  private def getCarBenefitDates(request:Request[_]):CarBenefitValues = {
+  private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
     datesForm(providedFromDefaultValue, providedToDefaultValue).bindFromRequest()(request).value.get
   }
 
@@ -117,13 +115,14 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val uri = payeRoot.get.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
 
-              val response = payeService.calculateBenefitValue(uri, addBenefitPayload)
+              val benefitCalculations = payeService.calculateBenefitValue(uri, addBenefitPayload).get
+              val carBenefitValue = benefitCalculations.carBenefitValue.map(BenefitValue(_))
+              val carFuelBenefitValue = benefitCalculations.fuelBenefitValue.map(BenefitValue(_))
 
-              val confirmationData =  AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
-              addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-              addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, 100, Some(200))
+              val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
+                addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
+                addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, carFuelBenefitValue)
               Ok(add_car_benefit_review(confirmationData)(user))
-              //Ok("Calculated percentage: " + response.get.percentage.toString)
             }
           )
         }
@@ -139,10 +138,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   object WithValidatedRequest {
     def apply(action: (Request[_], User, Int, Int) => Result): (User, Request[_], Int, Int) => Result = {
       (user, request, taxYear, employmentSequenceNumber) => {
-        if (TaxYearResolver.currentTaxYear != taxYear) {
+        if(TaxYearResolver.currentTaxYear != taxYear ) {
           Logger.error("Adding car benefit is only allowed for the current tax year")
           BadRequest
-        } else if (employmentSequenceNumber != findPrimaryEmployment(user).get.sequenceNumber) {
+        } else if (employmentSequenceNumber != findPrimaryEmployment(user).get.sequenceNumber){
           Logger.error("Adding car benefit is only allowed for the primary employment")
           BadRequest
         } else {

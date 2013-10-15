@@ -15,5 +15,12 @@ case class AddCarBenefitConfirmationData(employerName: Option[String],
                                          engineCapacity: Option[String],
                                          employerPayFuel: Option[String],
                                          dateFuelWithdrawn: Option[LocalDate],
-                                         carBenefitValue: Int,
-                                         carFuelBenefitValue: Option[Int])
+                                         carBenefitValue: Option[BenefitValue],
+                                         carFuelBenefitValue: Option[BenefitValue])
+
+case class BenefitValue(taxableValue: Int) {
+  val basicRateValue = (taxableValue * 0.2).toInt
+  val higherRateValue = (taxableValue * 0.4).toInt
+}
+
+
