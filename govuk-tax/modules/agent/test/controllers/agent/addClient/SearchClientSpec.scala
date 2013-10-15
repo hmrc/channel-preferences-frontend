@@ -224,8 +224,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       verifyZeroInteractions(keyStore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error #globalErrors") should not be 'empty
-      doc.select("#submit").hasAttr("disabled") shouldBe true
+      doc.select("input") should be (empty)
     }
 
     "not save anything to keystore when we make a submission with errors" in new WithApplication(FakeApplication()) {

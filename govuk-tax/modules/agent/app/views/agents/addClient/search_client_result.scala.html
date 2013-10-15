@@ -22,19 +22,26 @@
     @if(matchingPerson.dob.isDefined){ <p name="dob" id="dob"> Date of birth @views.formatting.Dates.formatDate(matchingPerson.dob.get) </p>  }
 
 
-    @helper.form(action = controllers.agent.addClient.routes.ConfirmClientController.confirm()) {
+    @if(!form.hasGlobalErrors) {
+        @helper.form(action = controllers.agent.addClient.routes.ConfirmClientController.confirm()) {
 
-        @helpers.singleCheckbox(form("correctClient"), '_label -> "This is the client I am looking for")
-        @helpers.singleCheckbox(form("authorised"), '_label -> "I have authorisation from the client to act on their behalf for {regime} with {authority level}")
-        @helpers.input(form("internalClientReference"), '_label -> "Your internal client reference number")
+            @helpers.singleCheckbox(form("correctClient"), '_label -> "This is the client I am looking for")
+            @helpers.singleCheckbox(form("authorised"), '_label -> "I have authorisation from the client to act on their behalf for {regime} with {authority level}")
+            @helpers.input(form("internalClientReference"), '_label -> "Your internal client reference number")
 
-        <input type="hidden" value="@{form("instanceId").value}" id="instanceId" name="instanceId" />
-        <p>
-            <input type="submit" value="Next" id="submit" @if(form.hasGlobalErrors){disabled="disabled"} />
-        </p>
+            <input type="hidden" value="@{form("instanceId").value}" id="instanceId" name="instanceId" />
+            <p>
+                <input type="submit" value="Next" id="submit" />
+            </p>
+        }
     }
 
-    <a id="goBack" name="goBack" href="../add-client">This is not the client I am searching for - return to search</a>
+    <a id="goBack" name="goBack" href="../add-client">
+        @{ form.hasGlobalErrors match {
+            case false => "This is not the client I am searching for - return to search"
+            case true => "Return to search"
+        }}
+    </a>
 
     </div>
 }
