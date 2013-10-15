@@ -2,6 +2,7 @@ package uk.gov.hmrc.common.microservice.paye
 
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers._
+import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.common.microservice.paye.domain._
@@ -10,11 +11,13 @@ import play.api.test.WithApplication
 import org.mockito.ArgumentCaptor
 import controllers.common.domain.Transform
 import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResult
 import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 
 class PayeMicroServiceSpec extends BaseSpec {
 
@@ -44,14 +47,39 @@ class PayeMicroServiceSpec extends BaseSpec {
     }
 
   }
+  
+  "Add a benefit" should {
+    
+    "Accept the correct payload for car and fuel benefits" in {
+      val service = new HttpMockedPayeMicroService
+      val uri: String = "/paye/AB123456C/benefits/2013/1/add"
+
+      val benefitData =  AddBenefitCalculationData(carRegisteredBefore98 = false, fuelType = "diesel", co2Emission = Some(200), engineCapacity = Some(1200),
+        userContributingAmount =  Some(9000), listPrice = 25000, carBenefitStartDate = Some(new LocalDate(2013, 7, 1)), carBenefitStopDate = Some(new LocalDate(2014, 2, 1)),
+        numDaysCarUnavailable = None, employeePayments = Some(250), employerPayFuel = "true", fuelBenefitStopDate = None)
+
+      when(service.httpWrapper.post[AddBenefitResponse](Matchers.eq(uri), any[JsValue], any[Map[String, String]])).thenReturn(Some(AddBenefitResponse(Some(123), Some(456))))
+
+      val response = service.addBenefit(uri, benefitData)
+
+      val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
+      verify(service.httpWrapper).post(Matchers.eq(uri), capturedBody.capture, any[Map[String, String]])
+
+      val capturedAddedBenefit = Transform.fromResponse[AddBenefitCalculationData](capturedBody.getValue.toString())
+      capturedAddedBenefit shouldBe benefitData
+
+      response.get.carBenefitValue shouldBe Some(123)
+      response.get.fuelBenefitValue shouldBe Some(456)
+    }
+  }
 
   "Calculations" should {
 
     "return a value when a request for to Calculate Withdraw Benefit is made" in new WithApplication(FakeApplication()) {
       val service = new HttpMockedPayeMicroService
 
-      val stubbedCalculationResult = Option(new CalculationResult(Map("2013" -> BigDecimal(1234.56), "2014" -> BigDecimal(0))))
-      when(service.httpWrapper.get[CalculationResult]("someUrl/2013-07-18")).thenReturn(stubbedCalculationResult)
+      val stubbedCalculationResult = Option(new RemoveBenefitCalculationResult(Map("2013" -> BigDecimal(1234.56), "2014" -> BigDecimal(0))))
+      when(service.httpWrapper.get[RemoveBenefitCalculationResult]("someUrl/2013-07-18")).thenReturn(stubbedCalculationResult)
 
       val calculationResult = service.calculateWithdrawBenefit(carBenefit, new LocalDate(2013, 7, 18))
       calculationResult.result.get("2013") shouldBe Some(BigDecimal(1234.56))

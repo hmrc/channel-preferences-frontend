@@ -2,7 +2,7 @@ package controllers.paye
 
 import controllers.common.BaseController
 import play.api.mvc.{Result, Request}
-import uk.gov.hmrc.common.microservice.paye.domain.{AddCarBenefitConfirmationData, AddCarBenefit, Employment, PayeRegime}
+import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
 import play.api.Logger
@@ -19,6 +19,11 @@ import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import views.html.paye.{add_car_benefit_review, remove_benefit_confirm}
+import controllers.paye.CarBenefitData
+import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
+import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
+import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 
 class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
   extends BaseController
@@ -107,12 +112,13 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
 
-              val addCarBenefitPayload = AddCarBenefit(addCarBenefitData.registeredBefore98.get, addCarBenefitData.fuelType.get, emission , addCarBenefitData.engineCapacity.map(_.toInt))
+              val addBenefitPayload = AddBenefitCalculationData(addCarBenefitData.registeredBefore98.get, addCarBenefitData.fuelType.get, emission , addCarBenefitData.engineCapacity.map(_.toInt),
+                                                                None,0,None,None,None,None,"",None)
 
               val uri = payeRoot.get.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
                 .replace("{year}", taxYear.toString).replace("{employment}", employmentSequenceNumber.toString)
 
-              val response = payeService.addBenefit(uri, payeRoot.get.nino, addCarBenefitPayload)
+              val response = payeService.addBenefit(uri, addBenefitPayload)
 
               val confirmationData =  AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
               addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
