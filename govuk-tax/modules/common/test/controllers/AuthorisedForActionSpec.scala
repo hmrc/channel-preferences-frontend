@@ -6,10 +6,9 @@ import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.mockito.Mockito.when
 import org.mockito.Mockito.reset
-import uk.gov.hmrc.common.microservice.auth.domain.{ Regimes, UserAuthority }
-import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
+import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
-import uk.gov.hmrc.common.microservice.paye.domain.{ PayeRegime, PayeRoot }
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import java.net.URI
 import org.slf4j.MDC
 import uk.gov.hmrc.common.BaseSpec
@@ -17,8 +16,15 @@ import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import org.scalatest.TestData
 import java.util.UUID
-import uk.gov.hmrc.common.microservice.agent.{AgentRoot, AgentMicroService, AgentRegime}
-import uk.gov.hmrc.domain.Uar
+import uk.gov.hmrc.common.microservice.agent.{AgentMicroService, AgentRegime}
+import controllers.common.SessionTimeoutWrapper._
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import scala.Some
+import uk.gov.hmrc.common.microservice.agent.AgentRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import play.api.test.FakeApplication
+import uk.gov.hmrc.utils.DateTimeUtils.now
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -101,7 +107,11 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
   "basic homepage test" should {
     "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
-      val result = TestController.test(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")),("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.test(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/jdensmore"))
+      )
 
       status(result) should equal(200)
       contentAsString(result) should include("John Densmore")
@@ -112,12 +122,22 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(None)
 
-      val result = TestController.test(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.test(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/jdensmore"))
+      )
+
       status(result) should equal(401)
     }
 
     "return internal server error page if the Action throws an exception" in new WithApplication(FakeApplication()) {
-      val result = TestController.testThrowsException(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.testThrowsException(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/jdensmore"))
+      )
+
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
     }
@@ -125,13 +145,23 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     "return internal server error page if the AuthMicroService throws an exception" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
 
-      val result = TestController.test(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.test(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/jdensmore"))
+      )
+
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
     "include the authorisation and request ids in the MDC" in new WithApplication(FakeApplication()) {
-      val result = TestController.testMdc(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/jdensmore"))))
+      val result = TestController.testMdc(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/jdensmore"))
+      )
+
       status(result) should equal(200)
       val strings = contentAsString(result).split(" ")
       strings(0) should equal("/auth/oid/jdensmore")
@@ -141,14 +171,19 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
     "return 200 in case the agent is successfuly authorised" in new WithApplication(FakeApplication()) {
 
-
       when(mockAuthMicroService.authority("/auth/oid/goeff")).thenReturn(
         Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))), None)))
 
       val agent = mock[AgentRoot]
       when(agent.uar).thenReturn("uar-for-goeff")
       when(mockAgentMicroService.root("/agent/uar-for-goeff")).thenReturn(agent)
-      val result = TestController.testAgentAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), ("userId", encrypt("/auth/oid/goeff"))))
+
+      val result = TestController.testAgentAuthorisation(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/goeff"))
+      )
+
       status(result) should equal(200)
       contentAsString(result) shouldBe "uar-for-goeff"
     }
@@ -156,7 +191,12 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
-      val result = TestController.testAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), "userId" -> encrypt("/auth/oid/john")))
+      val result = TestController.testAuthorisation(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/john"))
+      )
+
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/login"
     }
@@ -164,27 +204,45 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     "redirect to the Tax Regime landing page if the agent is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
       when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
-      val result = TestController.testAgentAuthorisation(FakeRequest().withSession(("sessionId", encrypt(s"session-${UUID.randomUUID().toString}")), "userId" -> encrypt("/auth/oid/john")))
+      val result = TestController.testAgentAuthorisation(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/john"))
+      )
+
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/login"
     }
 
     "redirect to the login page when the userId is not found in the session " in new WithApplication(FakeApplication()) {
-      val result = TestController.testAuthorisation(FakeRequest())
+      val result = TestController.testAuthorisation(FakeRequest().withSession(
+        lastRequestTimestampKey -> now.getMillis.toString
+      ))
+
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/samllogin"
     }
 
     "redirect to the login page when the userId is found but a gateway token is present" in new WithApplication(FakeApplication()) {
-      val result = TestController.testAuthorisation(FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/john"), "token" -> encrypt("a-government-gateway-token")))
+      val result = TestController.testAuthorisation(FakeRequest().withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "userId" -> encrypt("/auth/oid/john"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "token" -> encrypt("a-government-gateway-token")))
+
+
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/samllogin"
     }
 
     "add redirect information to the session when required" in new WithApplication(FakeApplication()) {
       val result = TestController.testAuthorisationWithRedirectCommand(
-        FakeRequest("GET", "/some/path")
-          .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/john"), "token" -> encrypt("a-government-gateway-token"))
+        FakeRequest("GET", "/some/path").withSession(
+          "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+          "userId" -> encrypt("/auth/oid/john"),
+          lastRequestTimestampKey -> now.getMillis.toString,
+          "token" -> encrypt("a-government-gateway-token")
+        )
       )
       status(result) should equal(303)
       session(result).get(FrontEndRedirect.redirectSessionKey) shouldBe Some("/some/path")

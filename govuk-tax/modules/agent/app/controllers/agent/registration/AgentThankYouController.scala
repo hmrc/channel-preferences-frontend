@@ -1,19 +1,22 @@
 package controllers.agent.registration
 
-import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
+import controllers.common.{ActionWrappers, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{ Result, Request }
+import play.api.mvc.{Result, Request}
 import controllers.agent.registration.FormNames._
 import controllers.common.actions.MultiFormWrapper
 
-class AgentThankYouController extends BaseController with SessionTimeoutWrapper with ActionWrappers with AgentController with MultiFormWrapper with AgentMapper {
+class AgentThankYouController
+  extends BaseController
+  with ActionWrappers
+  with AgentController
+  with MultiFormWrapper
+  with AgentMapper {
 
-  def thankYou = WithSessionTimeoutValidation {
-    AuthorisedForIdaAction(Some(PayeRegime)) {
-      MultiFormAction(multiFormConfig) {
-        user => request => thankYouAction(user, request)
-      }
+  def thankYou = AuthorisedForIdaAction(Some(PayeRegime)) {
+    MultiFormAction(multiFormConfig) {
+      user => request => thankYouAction(user, request)
     }
   }
 

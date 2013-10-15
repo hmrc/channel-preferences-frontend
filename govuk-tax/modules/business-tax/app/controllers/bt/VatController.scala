@@ -1,23 +1,22 @@
 package controllers.bt
 
-import play.api.mvc.{AnyContent, Results, Action}
-import play.api.templates.Html
-import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
+import play.api.mvc.Results
+import controllers.common.{ActionWrappers, BaseController}
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.PortalDestinationUrlBuilder
 
+class VatController
+  extends BaseController
+  with ActionWrappers
+  with PortalDestinationUrlBuilder {
 
-class VatController extends BaseController with ActionWrappers with SessionTimeoutWrapper with PortalDestinationUrlBuilder {
-  def makeAPayment: Action[AnyContent] = WithSessionTimeoutValidation(AuthorisedForGovernmentGatewayAction(Some(VatRegime)) {
+  def makeAPayment = AuthorisedForGovernmentGatewayAction(Some(VatRegime)) {
     implicit user =>
       implicit request =>
-        val vatOnlineAccountHref = buildPortalUrl("vatOnlineAccount")
-        Results.Ok(makeAPaymentPage(vatOnlineAccountHref))
-  })
-
-  private[bt] def makeAPaymentPage(vatOnlineAccountHref: String)(implicit user: User): Html = {
-    views.html.make_a_vat_payment(vatOnlineAccountHref)
+        Results.Ok(makeAPaymentPage(buildPortalUrl("vatOnlineAccount")))
   }
 
+  private[bt] def makeAPaymentPage(vatOnlineAccountHref: String)(implicit user: User) =
+    views.html.make_a_vat_payment(vatOnlineAccountHref = vatOnlineAccountHref)
 }

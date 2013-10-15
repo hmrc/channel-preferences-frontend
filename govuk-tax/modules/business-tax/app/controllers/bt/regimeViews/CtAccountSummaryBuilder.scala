@@ -39,22 +39,33 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
   override protected def rootForRegime(user: User): Option[Try[CtRoot]] = user.regimes.ct
 
   private def defaultAccountSummary(ctRoot: CtRoot): AccountSummary = {
-    val messages: Seq[Msg] = Seq(Msg(ctUtrMessage, Seq(ctRoot.identifier.utr)),
+    val messages= Seq(
+      Msg(ctUtrMessage, Seq(ctRoot.identifier.utr)),
       Msg(ctSummaryUnavailableErrorMessage1),
       Msg(ctSummaryUnavailableErrorMessage2),
       Msg(ctSummaryUnavailableErrorMessage3),
       Msg(ctSummaryUnavailableErrorMessage4))
-    AccountSummary(ctRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
+
+    AccountSummary(
+      regimeName = ctRegimeNameMessage,
+      messages = messages,
+      addenda = Seq.empty,
+      status = SummaryStatus.default)
   }
 
   private def accountSummaryWithDetails(buildPortalUrl: (String) => String, ctRoot: CtRoot, accountValue: BigDecimal, dateOfBalance: String): AccountSummary = {
     val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
+
     val links = Seq[RenderableMessage](
       LinkMessage(buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
       LinkMessage(makeAPaymentUri, makeAPaymentLinkMessage),
       LinkMessage(buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage)
     )
-    val messages = Seq(Msg(ctUtrMessage, Seq(ctRoot.identifier.utr)), Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))))
+
+    val messages = Seq(
+      Msg(ctUtrMessage, Seq(ctRoot.identifier.utr)),
+      Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))))
+
     AccountSummary(ctRegimeNameMessage, messages, links, SummaryStatus.success)
   }
 

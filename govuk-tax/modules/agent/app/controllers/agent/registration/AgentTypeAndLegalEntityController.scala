@@ -1,25 +1,24 @@
 package controllers.agent.registration
 
-import controllers.common.{ ActionWrappers, SessionTimeoutWrapper, BaseController }
+import controllers.common.{ActionWrappers, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{ Result, Request }
+import play.api.mvc.{Result, Request}
 import controllers.common.service.MicroServices
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
 
 class AgentTypeAndLegalEntityController
-    extends MicroServices
-    with BaseController
-    with SessionTimeoutWrapper
-    with ActionWrappers
-    with AgentController
-    with Validators
-    with MultiFormWrapper {
+  extends MicroServices
+  with BaseController
+  with ActionWrappers
+  with AgentController
+  with Validators
+  with MultiFormWrapper {
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
@@ -44,11 +43,9 @@ class AgentTypeAndLegalEntityController
     Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
-  def postAgentType = WithSessionTimeoutValidation {
-    AuthorisedForIdaAction(Some(PayeRegime)) {
-      MultiFormAction(multiFormConfig) {
-        user => request => postAgentTypeAction(user, request)
-      }
+  def postAgentType = AuthorisedForIdaAction(Some(PayeRegime)) {
+    MultiFormAction(multiFormConfig) {
+      user => request => postAgentTypeAction(user, request)
     }
   }
 

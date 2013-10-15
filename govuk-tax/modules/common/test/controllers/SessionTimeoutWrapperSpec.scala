@@ -1,9 +1,9 @@
 package controllers
 
-import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
+import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import play.api.mvc._
 import play.api.mvc.Results._
-import org.joda.time.{ DateTimeZone, DateTime }
+import org.joda.time.{DateTimeZone, DateTime}
 import play.api.test.Helpers._
 import controllers.common._
 import SessionTimeoutWrapper._
@@ -41,11 +41,11 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
         Ok("").withSession("userId" -> "Tim")
     })
 
-    def testWithSessionTimeoutValidationWithCustomErrorBehaviour[T] (errorResponse : SimpleResult[T]) = WithSessionTimeoutValidation(Action(errorResponse), Action {
-      request =>
-        Ok("").withSession("userId" -> "Tim")
-    })
-
+    def testWithSessionTimeoutValidationWithCustomErrorBehaviour[T](errorResponse: SimpleResult[T]) =
+      WithSessionTimeoutValidation(Action(errorResponse), Action {
+        request =>
+          Ok("").withSession("userId" -> "Tim")
+      })
   }
 
   "WithNewSessionTimeout" should {
