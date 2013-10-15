@@ -596,7 +596,10 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation",
-                          NewBenefitCalculationData(collectedData.registeredBefore98.get, collectedData.fuelType.get, None, Some(defaultEngineCapacity), None, 0,None,None,None,None, "",None))
+                          NewBenefitCalculationData(collectedData.registeredBefore98.get, collectedData.fuelType.get, None,
+                          Some(defaultEngineCapacity), collectedData.employeeContribution, collectedData.listPrice.get,
+                          collectedData.providedFrom, collectedData.providedTo, collectedData.numberOfDaysUnavailable,
+                          collectedData.employerContribution, collectedData.employerPayFuel.get, collectedData.dateFuelWithdrawn))
       Mockito.reset(mockKeyStoreService)
       Mockito.reset(mockPayeMicroService)
     }
