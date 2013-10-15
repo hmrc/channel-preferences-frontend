@@ -110,8 +110,9 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
 
-              val addBenefitPayload = NewBenefitCalculationData(addCarBenefitData.registeredBefore98.get, addCarBenefitData.fuelType.get, emission , addCarBenefitData.engineCapacity.map(_.toInt),
-                                                                None,0,None,None,None,None,"",None)
+              val addBenefitPayload = NewBenefitCalculationData(addCarBenefitData.registeredBefore98.get, addCarBenefitData.fuelType.get, emission, addCarBenefitData.engineCapacity.map(_.toInt),
+                addCarBenefitData.employeeContribution, addCarBenefitData.listPrice.get, addCarBenefitData.providedFrom, addCarBenefitData.providedTo, addCarBenefitData.numberOfDaysUnavailable,
+                addCarBenefitData.employerContribution, addCarBenefitData.employerPayFuel.get, addCarBenefitData.dateFuelWithdrawn) //TODO check if employerPayFuel can be None
 
               val uri = payeRoot.get.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
 
