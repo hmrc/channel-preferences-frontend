@@ -26,7 +26,7 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
 
   def this() = this(MicroServices.keyStoreMicroService)
 
-  def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { homeAction } }
+  def start = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime), redirectToOrigin = true) { homeAction } }
   def restart = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { restartAction } }
   def search = WithSessionTimeoutValidation { AuthorisedForIdaAction(Some(AgentRegime)) { searchAction } }
 

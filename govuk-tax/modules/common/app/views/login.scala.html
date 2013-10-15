@@ -2,11 +2,25 @@
 
     <h2>Login to your tax</h2>
 
-    <p>Login <a data-regime="paye" href="/samllogin">here</a></p>
 
-    <p><a data-regime="tfmb" href="@common.routes.LoginController.businessTaxLogin">Login via Government Gateway to access the Business Tax homepage</a></p>
 
-    <p><a data-regime="agents" href="@common.FrontEndRedirect.agentRegistration">Apply for a Unique Agent Reference</a></p>
 
-    <p><a data-regime="paye" href="@common.FrontEndRedirect.carBenefit">Tell us about your company car</a></p>
+    <h3>Paye</h3>
+    <p style="margin-top: 0;">
+        <a data-regime="paye" href="/samllogin">Login here</a><br>
+        <a data-regime="paye" href="@common.FrontEndRedirect.carBenefit">Tell us about your company car</a>
+    </p>
+
+
+    <h3>Business Tax</h3>
+    <p style="margin-top: 0;">
+        <a data-regime="tfmb" href="@common.routes.LoginController.businessTaxLogin">Login via Government Gateway</a>
+    </p>
+
+    <h3>Agents</h3>
+    <p style="margin-top: 0;">
+        <a data-regime="agents" href="@common.FrontEndRedirect.agentRegistration">Apply for a Unique Agent Reference</a><br>
+        <a data-regime="agents" href="@common.FrontEndRedirect.agentAddClient">Add a client</a>
+    </p>
+
 }
