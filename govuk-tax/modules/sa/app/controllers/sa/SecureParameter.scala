@@ -10,11 +10,8 @@ case class SecureParameter(value: String, timestamp: DateTime) {
 
   import SecureParameter.encryption
 
-  def encrypt: String = {
-    val json = Json.stringify(Json.obj(("value", value), ("timestamp", timestamp.getMillis)))
-
-    encryption.encrypt(json)
-  }
+  def encrypt: String =
+    encryption.encrypt(Json.stringify(Json.obj(("value", value), ("timestamp", timestamp.getMillis))))
 }
 
 object SecureParameter {
