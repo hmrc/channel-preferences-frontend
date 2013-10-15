@@ -28,26 +28,35 @@
                         @defining(field.field.name + (if(inputType.key != ""){"-"+ inputType.key} else ""))  { inputId =>
                         <div class='@inputType.divClass.getOrElse("")'>
                             <label for="@inputId" class='@inputType.labelClass.getOrElse("")'>
-                                @if(inputType.label.isDefined) {@inputType.label}
-                                @if(!valueAfter) { @inputType.value }
-                                <input type="@inputType.inputType"
-                                        id="@inputId"
-                                        class="@inputType.inputClass"
-                                        name="@field.field.name"
-                                        value="@{inputType.inputType match {
-                                           case "radio" => inputType.key
-                                           case "checkbox" => "true"
-                                           case _ => currentValue
-                                            }}"
 
-                                        @if(inputType.inputType == "radio") {
-                                            @if(currentValue==inputType.key){checked="checked"}
-                                        }
-                                        @if(inputType.inputType == "checkbox"){
-                                            @if(currentValue=="true"){checked="checked"}
-                                        }
-                                />
-                                @if(valueAfter) { @inputType.value }
+                                    @if(inputType.label.isDefined) {@inputType.label}
+                                    @if(!valueAfter) {
+                                        <span class= "label__text">
+                                            @inputType.value
+                                        </span>
+                                    }
+                                    <input type="@inputType.inputType"
+                                            id="@inputId"
+                                            class="@inputType.inputClass"
+                                            name="@field.field.name"
+                                            value="@{inputType.inputType match {
+                                               case "radio" => inputType.key
+                                               case "checkbox" => "true"
+                                               case _ => currentValue
+                                                }}"
+
+                                            @if(inputType.inputType == "radio") {
+                                                @if(currentValue==inputType.key){checked="checked"}
+                                            }
+                                            @if(inputType.inputType == "checkbox"){
+                                                @if(currentValue=="true"){checked="checked"}
+                                            }
+                                    />
+                                    @if(valueAfter) {
+                                        <span class= "label__text">
+                                            @inputType.value
+                                        </span>
+                                    }
                             </label>
                         </div>
                         }}
