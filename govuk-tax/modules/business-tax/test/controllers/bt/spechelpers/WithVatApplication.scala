@@ -11,6 +11,7 @@ import controllers.common.SessionTimeoutWrapper._
 import scala.Some
 import controllers.bt.{VatController, MicroServiceMocks}
 import uk.gov.hmrc.common.microservice.domain.User
+import play.api.mvc.Request
 
 abstract class WithVatApplication extends WithApplication(FakeApplication()) with MicroServiceMocks with MockitoSugar with CookieEncryption {
 
@@ -28,7 +29,7 @@ abstract class WithVatApplication extends WithApplication(FakeApplication()) wit
 
   trait Expectations {
 
-    def makeAPayment: String
+    def makeAPayment(vatOnlineAccount: String): String
 
   }
 
@@ -37,10 +38,12 @@ abstract class WithVatApplication extends WithApplication(FakeApplication()) wit
   val vatController = new VatController with MockedMicroServices {
     override def now: () => DateTime = () => currentTime
 
-    override private[bt] def makeAPaymentPage(buildPortalUrl: String => String)(implicit user: User): Html = {
+    override private[bt] def makeAPaymentPage(vatOnlineAccount: String)(implicit user: User): Html = {
       Logger.debug("RENDERING makeAPayment")
-      Html(expectations.makeAPayment)
+      Html(expectations.makeAPayment(vatOnlineAccount))
     }
+
+   override def buildPortalUrl(destinationPathKey: String)(implicit request: Request[AnyRef], user: User): String = destinationPathKey
   }
 
   implicit lazy val request = {
