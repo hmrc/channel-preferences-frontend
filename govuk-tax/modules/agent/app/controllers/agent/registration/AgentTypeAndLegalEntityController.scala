@@ -1,6 +1,6 @@
 package controllers.agent.registration
 
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.data.Form
 import play.api.data.Forms._
@@ -13,9 +13,8 @@ import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
 
 class AgentTypeAndLegalEntityController
-  extends MicroServices
-  with BaseController
-  with ActionWrappers
+  extends BaseController
+  with MicroServices
   with AgentController
   with Validators
   with MultiFormWrapper {
@@ -31,11 +30,9 @@ class AgentTypeAndLegalEntityController
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
-  def agentType = WithSessionTimeoutValidation {
-    AuthorisedForIdaAction(Some(PayeRegime)) {
-      MultiFormAction(multiFormConfig) {
-        user => request => agentTypeAction(user, request)
-      }
+  def agentType = AuthorisedForIdaAction(Some(PayeRegime)) {
+    MultiFormAction(multiFormConfig) {
+      user => request => agentTypeAction(user, request)
     }
   }
 

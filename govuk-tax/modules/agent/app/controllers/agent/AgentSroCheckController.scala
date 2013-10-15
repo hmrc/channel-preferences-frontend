@@ -6,8 +6,7 @@ import controllers.common._
 import play.api.Logger
 
 class AgentSroCheckController
-  extends BaseController
-  with ActionWrappers {
+  extends BaseController {
 
   def reasonForApplication() = UnauthorisedAction {
     implicit request =>

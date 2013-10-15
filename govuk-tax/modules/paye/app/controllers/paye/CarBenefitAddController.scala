@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.{SessionTimeoutWrapper, BaseController}
+import controllers.common.BaseController
 import play.api.mvc.{Result, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.{AddCarBenefit, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
@@ -19,29 +19,33 @@ import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 
-class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService) extends BaseController with SessionTimeoutWrapper with Benefits with Validators with TaxYearSupport {
+class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
+  extends BaseController
+  with Benefits
+  with Validators
+  with TaxYearSupport {
 
   def this() = this(() => DateTimeUtils.now, MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
 
-  def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation {
+  def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
-      user => request => startAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
+      user =>
+        request =>
+          startAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
-  }
 
-  def saveAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = WithSessionTimeoutValidation {
+  def saveAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedForIdaAction(taxRegime = Some(PayeRegime)) {
-      user => request => saveAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
+      user =>
+        request =>
+          saveAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
-  }
 
-  private def findPrimaryEmployment(user: User) : Option[Employment] = {
+  private def findPrimaryEmployment(user: User): Option[Employment] =
     user.regimes.paye.get.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
-  }
 
-  private def getCarBenefitDates(request:Request[_]):CarBenefitValues = {
+  private def getCarBenefitDates(request: Request[_]): CarBenefitValues =
     datesForm(startOfCurrentTaxYear, endOfCurrentTaxYear).bindFromRequest()(request).value.get
-  }
 
   private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
     mapping(
@@ -96,7 +100,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val emission = if (removeBenefitData.co2NoFigure.getOrElse(false)) None else removeBenefitData.co2Figure
 
-              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98.get, removeBenefitData.fuelType.get, emission , removeBenefitData.engineCapacity.map(_.toInt))
+              val addCarBenefitPayload = AddCarBenefit(removeBenefitData.registeredBefore98.get, removeBenefitData.fuelType.get, emission, removeBenefitData.engineCapacity.map(_.toInt))
 
               val uri = payeRoot.get.actions.getOrElse("addBenefit", throw new IllegalArgumentException(s"No addBenefit action uri found"))
                 .replace("{year}", taxYear.toString).replace("{employment}", employmentSequenceNumber.toString)
@@ -118,10 +122,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   object WithValidatedRequest {
     def apply(action: (Request[_], User, Int, Int) => Result): (User, Request[_], Int, Int) => Result = {
       (user, request, taxYear, employmentSequenceNumber) => {
-        if(TaxYearResolver.currentTaxYear != taxYear ) {
+        if (TaxYearResolver.currentTaxYear != taxYear) {
           Logger.error("Adding car benefit is only allowed for the current tax year")
           BadRequest
-        } else if (employmentSequenceNumber != findPrimaryEmployment(user).get.sequenceNumber){
+        } else if (employmentSequenceNumber != findPrimaryEmployment(user).get.sequenceNumber) {
           Logger.error("Adding car benefit is only allowed for the primary employment")
           BadRequest
         } else {
@@ -133,8 +137,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
         }
       }
     }
+
     private val redirectToCarBenefitHome: (Request[_], User) => Result = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome())
   }
+
 }
 
 case class CarBenefitData(providedFrom: Option[LocalDate],

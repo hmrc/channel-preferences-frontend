@@ -3,7 +3,7 @@ package controllers.common
 import play.api.mvc._
 import play.api.http.MimeTypes
 
-trait BaseController extends Controller {
+abstract class BaseController extends Controller with ActionWrappers {
 
   override def JSON(implicit codec: Codec) = s"${MimeTypes.JSON};charset=utf-8"
 

@@ -1,9 +1,9 @@
 package controllers.common
 
 import play.Logger
-import play.api.mvc.Session
+import play.api.mvc.{Controller, Session}
 
-object FrontEndRedirect extends BaseController {
+object FrontEndRedirect extends Controller {
 
   val payeHome = "/paye/home"
   val saHome = "/sa/home"
@@ -16,13 +16,13 @@ object FrontEndRedirect extends BaseController {
   val redirectSessionKey = "login_redirect"
 
   def forSession(session: Session) = {
-     (session.data.get(redirectSessionKey) match {
+    (session.data.get(redirectSessionKey) match {
       case Some(redirectUrl) => Redirect(redirectUrl)
       case None => toPaye //todo what is the default destination?
     }).withSession(session - redirectSessionKey)
   }
 
-  def buildSessionForRedirect(session: Session, redirectTo : Option[String]) = {
+  def buildSessionForRedirect(session: Session, redirectTo: Option[String]) = {
     redirectTo match {
       case Some(redirectUrl) => session + (redirectSessionKey -> redirectUrl)
       case None => session

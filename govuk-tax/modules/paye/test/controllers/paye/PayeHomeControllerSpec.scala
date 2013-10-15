@@ -3,7 +3,7 @@ package controllers.paye
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-import play.api.test.{ FakeRequest, WithApplication }
+import play.api.test.{FakeRequest, WithApplication}
 import views.formatting.Dates
 import play.api.test.Helpers._
 import org.mockito.Mockito._
@@ -20,8 +20,12 @@ class PayeHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieE
 
   private lazy val controller = new PayeHomeController with MockMicroServicesForTests
 
-  private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
-    acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
+  private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode],
+                                        employments: Seq[Employment],
+                                        benefits: Seq[Benefit],
+                                        acceptedTransactions: List[TxQueueTransaction],
+                                        completedTransactions: List[TxQueueTransaction]) {
+
     when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
     when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
@@ -115,3 +119,5 @@ class PayeHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieE
     }
   }
 }
+
+

@@ -84,7 +84,7 @@ trait ActionWrappers
                     val redirectUrl = if (redirectToOrigin) Some(request.uri) else None
                     toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
                   } else {
-                    act(decrypt(encryptedUserId.get), None, request, taxRegime, action)
+                    act(userId = decrypt(encryptedUserId.get), token = None, request = request, taxRegime = taxRegime, action = action)
                   }
               }
             }
