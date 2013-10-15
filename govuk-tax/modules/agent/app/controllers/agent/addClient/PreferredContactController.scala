@@ -44,6 +44,7 @@ class PreferredContactController
 
             val client: Client = Client(pc.clientSearch.get.nino, pc.confirmation.get.internalClientReference, contact)
             agentMicroService.saveOrUpdateClient(addClientUri, client)
+            keyStoreMicroService.deleteKeyStore(ksId, serviceSourceKey)
             Ok(client_successfully_added(client))
           }
         )
