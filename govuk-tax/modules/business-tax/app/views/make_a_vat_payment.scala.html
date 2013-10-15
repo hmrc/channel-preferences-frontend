@@ -2,15 +2,78 @@
 
 @main(title = "Make a VAT payment") {
 
-<h2 xmlns="http://www.w3.org/1999/html">Make a VAT payment page</h2>
-<div id="make-a-vat-payment">
+<h1>Your tax account</h1>
 
-    <p>
-        ONLINE VAT ACCOUNT HREF: @vatOnlineAccountHref <br>
+<p>Pay your VAT bill by Direct Debit, online with a debit or credit card or through your bank.</p>
+<p>It’s your responsibility to make sure payments reach HMRC on time. Use the <a href="http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm">payment deadline
+    calculator</a> to make sure you pay on time - you may be charged a <a href="https://www.gov.uk/vat-returns/surcharges-and-penalties">penalty</a> if your payment is late.</p>
 
-        TODO: Some links to be added here<br>
-        TODO: Some links to be added here <br>
-    </p>
+<h2>Direct Debit</h2>
+
+<p>Use your <a href="@vatOnlineAccountHref">VAT online account</a> to set up a Direct Debit at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday).</p>
+<p>HMRC will tell you when the Direct Debit has been set up. The <a href="http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm">payment deadline calculator</a> tells you when the payment leaves your account. If you need to make changes to your Direct Debit, do this through your bank.</p>
+
+<div class="application-notice help-notice">
+    <p>You must pay by another method until the Direct Debit is set up.</p>
 </div>
+
+<h2>Annual Accounting Scheme</h2>
+
+<p>If you use the <a href="https://www.gov.uk/vat-annual-accounting-scheme">Annual Accounting Scheme</a>, you can only set up automatic Direct Debit online for balancing payments. You can set up a Direct Debit for regular payments using form VAT623.</p>
+<p><a href="http://www.hmrc.gov.uk/forms/vat623.pdf">Download ‘Form VAT623, Direct Debit Instruction’ (PDF, 336KB)</a></p>
+
+<h2>Online with a debit or credit card</h2>
+
+<p>You can <a href="https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp">pay online</a> - you’ll need your VAT registration number @user.userAuthority.vrn.</p>
+
+<p>You must use a card from a UK card issuer - not American Express or Diners Club. Allow 3 working days for payments to reach HMRC.</p>
+
+<div class="application-notice help-notice">
+    <p>There’s a 1.4% fee if you pay by credit card.</p>
+</div>
+
+<h2>Online or telephone banking, Bacs, CHAPS or standing order</h2>
+
+<div class="application-notice help-notice">
+    <p>Check your bank’s transaction limits and processing times.</p>
+</div>
+
+<p>You need HMRC’s bank details or you can use the <a href="http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm">CHAPS form</a> or
+    <a href="http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028">standing order form</a>. Use your VAT registration number as the payment reference @user.userAuthority.vrn.</p>
+
+<table>
+    <thead><tr>
+	<th>Sort code</th>
+	<th>Account number</th>
+	<th>Account name</th>
+    </tr></thead>
+    <tbody><tr>
+	<td>08 32 00</td>
+	<td>11963155</td>
+	<td>
+	    <abbr title="HM Revenue &amp; Customs">HMRC</abbr> <abbr title="Value Added Tax">VAT</abbr>
+	</td>
+    </tr></tbody>
+</table>
+
+<h3>Overseas accounts</h3>
+
+<table>
+    <thead><tr>
+	<th>Account number (<abbr title="International Bank Account Number">IBAN</abbr>)</th>
+	<th><abbr title="SWIFT Bank Identifier Code">BIC</abbr></th>
+	<th>Account name</th>
+    </tr></thead>
+    <tbody><tr>
+	<td>GB25CITI08320011963155</td>
+	<td>CITIGB2L</td>
+	<td>
+	    <abbr title="HM Revenue &amp; Customs">HMRC</abbr> <abbr title="Value Added Tax">VAT</abbr>
+	</td>
+    </tr></tbody>
+</table>
+
+<p>If asked for the IBAN, you must also give the BIC.</p>
+<p>HMRC’s banking address is Citi, Citigroup Centre, Canada Square, Canary Wharf, London E14 5LB.</p>
 
 }
