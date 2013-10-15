@@ -54,3 +54,16 @@ your.employer=Your employer
 
 
 paye.add_car_benefit.question1=When did {0} provide your new company car?
+paye.add_car_benefit.fuel_type.diesel=Diesel
+paye.add_car_benefit.fuel_type.electricity=electricity only, or other zero emission technology
+paye.add_car_benefit.fuel_type.other=any other fuel, including petrol and hybrids
+paye.add_car_benefit.engine_capacity.1400=1400cc or less
+paye.add_car_benefit.engine_capacity.2000=1401cc to 2000cc
+paye.add_car_benefit.engine_capacity.9999=2001cc or greater
+paye.add_car_benefit.employer_pay_fuel.label={0} pays for fuel for your private travel.
+paye.add_car_benefit.employer_pay_fuel.false=No
+paye.add_car_benefit.employer_pay_fuel.true=Yes, private fuel is available when you use the car
+paye.add_car_benefit.employer_pay_fuel.again={0} stopped providing fuel for private use after 5 April but has now started again
+paye.add_car_benefit.employer_pay_fuel.date={0} did pay for fuel for private travel, but stopped paying on
+
+

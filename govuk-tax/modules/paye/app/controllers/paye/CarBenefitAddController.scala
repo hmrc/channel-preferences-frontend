@@ -46,6 +46,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   private def findPrimaryEmployment(user: User) : Option[Employment] =
     user.regimes.paye.get.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
 
+  private def findEmployment(user: User, taxYear: Int, employmentSequenceNumber: Int) = {
+    user.regimes.paye.get.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber)
+  }
+
   private def getCarBenefitDates(request:Request[_]):CarBenefitValues = {
     datesForm(providedFromDefaultValue, providedToDefaultValue).bindFromRequest()(request).value.get
   }
@@ -75,7 +79,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber) => {
       val dates = getCarBenefitDates(request)
-      user.regimes.paye.get.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
+      findEmployment(user, taxYear, employmentSequenceNumber) match {
         case Some(employment) => {
           Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
         }
@@ -89,7 +93,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
   private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber) => {
-      user.regimes.paye.get.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber) match {
+      findEmployment(user, taxYear, employmentSequenceNumber) match {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)
           val payeRoot = user.regimes.paye.get
@@ -110,7 +114,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val response = payeService.addBenefit(uri, payeRoot.get.nino, addCarBenefitPayload)
 
-              val confirmationData =  AddCarBenefitConfirmationData(addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
+              val confirmationData =  AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
               addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
               addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, 100, Some(200))
               Ok(add_car_benefit_review(confirmationData)(user))
@@ -124,6 +128,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
         }
       }
     }
+
   }
 
   object WithValidatedRequest {
