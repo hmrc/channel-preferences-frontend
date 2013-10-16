@@ -4,27 +4,80 @@
 @import views.formatting.Dates._
 
 @main(title = "Confirm", user = Some(user)) {
+    <h1 id="main-heading"><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+    <h2>Check your company car details before submitting them</h2>
     @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>
+        <table>
+            <tbody>
+            <tr><td>Date provided</td><td>@{formatDate(data.providedFrom)}</td></tr>
+            <tr><td>List price including accessories</td><td>£@data.listPrice</td></tr>
+            <tr><td>Fuel type</td><td>@{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</td></tr>
+            @if(data.co2Figure.isDefined) {
+             <tr><td>Emission figure</td><td>@data.co2Figure.get g/km</td></tr>
+            }
+            @if(data.engineCapacity.isDefined){
+            <tr><td>Engine capacity</td> <td> @Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td></tr>
+            }
+            @if(data.employerPayFuel.isDefined){
+            <tr>
+                <td>Private fuel</td><td> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}
+            </td></tr>
+            }
+            @if(data.carBenefitValue.isDefined){
+            <tr>
+                <td>Car benefit taxable value</td><td>@data.carBenefitValue.get.taxableValue</td>
+            </tr>
+            }
+            @if(data.carFuelBenefitValue.isDefined){
+            <tr>
+                <td>Fuel benefit taxable value</td><td>@data.carFuelBenefitValue.get.taxableValue</td>
+            </tr>
+            }
 
-        <p>Date provided: @{formatDate(data.providedFrom)}</p>
-        <p>List price including accessories: @data.listPrice</p>
-        <p>Fuel type: @{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</p>
-        <p>Emission figure: @data.co2Figure.getOrElse("")</p>
-        @if(data.engineCapacity.isDefined){
-            <p>Engine capacity:  @Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</p>
-        }
-        @if(data.employerPayFuel.isDefined){
-            <p>
-                Private fuel: @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}
-            </p>
-        }
+            </tbody>
+        </table>
 
-        @if(data.carBenefitValue.isDefined){
-            <p>Car Benefit Taxable Value: @data.carBenefitValue.get.taxableValue @data.carBenefitValue.get.basicRateValue @data.carBenefitValue.get.higherRateValue</p>
-        }
+        <a href="#">This information is wrong</a>
         @if(data.carFuelBenefitValue.isDefined){
-            <p>Fuel Benefit Taxable Value: @data.carFuelBenefitValue.get.taxableValue @data.carFuelBenefitValue.get.basicRateValue @data.carFuelBenefitValue.get.higherRateValue</p>
+            <p>Based on the information your company car benefit value is £@data.carBenefitValue.get.taxableValue and your private fuel benefit value is £@data.carFuelBenefitValue.get.taxableValue. </p>
+            <p>In order to calculate the actual tax you will pay on these benefits, we need to add them to your other income and tax information, and recalculate your tax code.</p>
+         } else {
+            <p>Based on the information your company car benefit value is £@data.carBenefitValue.get.taxableValue.</p>
+            <p>In order to calculate the actual tax you will pay on this benefit, we need to add it to your other income and tax information, and recalculate your tax code.</p>
         }
+         <p>However the following provides an indication of the tax you will pay if you are a basic rate (20%) or higher rate (40%) tax payer:</p>
+
+         <table>
+            <thead>
+            <tr>
+                <th>2013/2014</th>
+                <th>20%</th>
+                <th>40%</th>
+             </tr>
+            </thead>
+
+             <tbody>
+
+             @if(data.carBenefitValue.isDefined){
+             <tr>
+                 <td>Company car benefit tax</td>
+                 <td>@data.carBenefitValue.get.basicRateValue</td>
+                 <td>@data.carBenefitValue.get.higherRateValue</td>
+             </tr>
+             }
+             @if(data.carFuelBenefitValue.isDefined){
+             <tr>
+                 <td>Private fuel tax</td>
+                 <td>@data.carFuelBenefitValue.get.basicRateValue</td>
+                 <td>@data.carFuelBenefitValue.get.higherRateValue</td>
+             </tr>
+             }
+             </tbody>
+         </table>
+
+
     }
+    <button type="submit">Submit</button>
 }
+
 
