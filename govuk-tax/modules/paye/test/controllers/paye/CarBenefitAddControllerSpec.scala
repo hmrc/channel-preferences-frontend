@@ -626,7 +626,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
   }
 
   private def setupPayeMicroServiceMock() {
-    when(mockPayeMicroService.calculateBenefitValue(Matchers.anyString(), Matchers.any[NewBenefitCalculationData])).thenReturn(Some(NewBenefitCalculationResponse(None,None)))
+    when(mockPayeMicroService.calculateBenefitValue(Matchers.anyString(), Matchers.any[NewBenefitCalculationData])).thenReturn(Some(NewBenefitCalculationResponse(Some(1000),None)))
   }
 
   private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] = Some(localDateToTuple(Some(defaultProvidedFrom))),
