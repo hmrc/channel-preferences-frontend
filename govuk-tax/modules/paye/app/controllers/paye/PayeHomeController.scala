@@ -17,7 +17,7 @@ class PayeHomeController extends BaseController {
   }
 
   private[paye] def homeAction(request: Request[_])(implicit user: User): Result = {
-    val payeData = user.regimes.paye.get
+    val payeData = user.getPaye
     val userAuthority = user.userAuthority
     val taxYear = TaxYearResolver.currentTaxYear
     val benefits = payeData.get.benefits(taxYear)
@@ -29,13 +29,15 @@ class PayeHomeController extends BaseController {
           name = payeData.get.name,
           lastLogin = userAuthority.previouslyLoggedInAt,
           nino = payeData.get.nino,
-          employmentViews = EmploymentViews(
-            employments = employments,
-            taxCodes = payeData.get.taxCodes(taxYear),
-            taxYear = taxYear,
-            acceptedTransactions = payeData.get.recentAcceptedTransactions(),
-            completedTransactions = payeData.get.recentCompletedTransactions()),
-          hasBenefits = !benefits.isEmpty)
+          hasBenefits = !benefits.isEmpty,
+          employmentViews =
+            EmploymentViews(
+              employments = employments,
+              taxCodes = payeData.get.taxCodes(taxYear),
+              taxYear = taxYear,
+              acceptedTransactions = payeData.get.recentAcceptedTransactions(),
+              completedTransactions = payeData.get.recentCompletedTransactions())
+        )
       )
     )
   }

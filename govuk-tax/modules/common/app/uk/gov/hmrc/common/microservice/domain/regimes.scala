@@ -29,7 +29,17 @@ case class User(userId: String,
                 nameFromGovernmentGateway: Option[String] = None,
                 decryptedToken: Option[String]) {
 
-  def oid: String = userId.substring(userId.lastIndexOf("/") + 1)
+  def oid = userId.substring(userId.lastIndexOf("/") + 1)
+
+  def getPaye = regimes.paye.get
+
+  def getSa = regimes.sa.get
+
+  def getCt = regimes.ct.get
+
+  def getVat = regimes.vat.get
+
+  def getEPaye = regimes.epaye.get
 
 }
 
@@ -86,6 +96,7 @@ object RegimeRoots {
       result
     }
   }
+
 }
 
 

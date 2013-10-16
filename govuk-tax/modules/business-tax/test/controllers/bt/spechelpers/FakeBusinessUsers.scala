@@ -66,13 +66,15 @@ trait GeoffFisherExpectations {
   def geoffFisherCtJsonRoot = CtJsonRoot(Map("something" -> s"$geoffFisherCtUtr/dsffds"))
   def geoffFisherCtRoot = CtRoot(geoffFisherCtUtr, geoffFisherCtJsonRoot)
 
-
-
   implicit val geoffFisherUser = User(
     userId = geoffFisherAuthId,
     userAuthority = geoffFisherAuthority,
-    regimes = RegimeRoots(paye = None, sa = Some(Success(geoffFisherSaRoot)), vat = Some(Success(geoffFisherVatRoot)),
-      epaye = Some(Success(geoffFisherEpayeRoot)), ct = Some(Success(geoffFisherCtRoot))),
+    regimes = RegimeRoots(
+      paye = None,
+      sa = Some(Success(geoffFisherSaRoot)),
+      vat = Some(Success(geoffFisherVatRoot)),
+      epaye = Some(Success(geoffFisherEpayeRoot)),
+      ct = Some(Success(geoffFisherCtRoot))),
     nameFromGovernmentGateway = nameFromGovernmentGateway,
     decryptedToken = governmentGatewayToken
   )
