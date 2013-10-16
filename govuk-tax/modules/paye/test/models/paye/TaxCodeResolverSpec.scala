@@ -28,11 +28,9 @@ class TaxCodeResolverSpec extends BaseSpec with MockitoSugar{
     }
 
     "return N/A (non defined tax code) when list of tax codes does not contain any tax codes for the employment selected" in {
-
       val taxCode1 = TaxCode(1, Some(1), 2013, "1T", List.empty)
       val taxCode2 = TaxCode(1, Some(2), 2013, "2T", List.empty)
       val taxCodes = Seq(taxCode1, taxCode2)
-
       val taxCodeEmployment2 = TaxCodeResolver.currentTaxCode(taxCodes, 2)
 
       taxCodeEmployment2 shouldBe TaxCodeResolver.NON_DEFINED_TAXCODE

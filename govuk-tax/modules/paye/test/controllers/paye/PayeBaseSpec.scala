@@ -3,7 +3,7 @@ package controllers.paye
 import uk.gov.hmrc.common.BaseSpec
 import java.net.URI
 import uk.gov.hmrc.common.microservice.paye.domain._
-import org.joda.time.{ DateTime, LocalDate }
+import org.joda.time.{DateTime, LocalDate}
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.microservice.txqueue.{ Status, TxQueueTransaction }
+import uk.gov.hmrc.microservice.txqueue.{Status, TxQueueTransaction}
 import org.joda.time.format.DateTimeFormat
 import scala.util.Success
 
@@ -54,7 +54,13 @@ class PayeBaseSpec extends BaseSpec {
       actions = actions
     )
 
-    User(id, ua, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
+    User(
+      userId = id,
+      userAuthority = ua,
+      regimes = RegimeRoots(paye = Some(Success(payeRoot))),
+      nameFromGovernmentGateway = None,
+      decryptedToken = None
+    )
   }
 
   val johnDensmore = setupUser("/auth/oid/jdensmore", "AB123456C", "John Densmore")
@@ -63,7 +69,7 @@ class PayeBaseSpec extends BaseSpec {
 
   val johnDensmoresTaxCodes = Seq(TaxCode(1, Some(1), 2013, "430L", List(Allowance(1000, 2000, 11))))
 
-  def johnDensmoresOneEmployment(sequenceNumberVal:Int = 1) = Seq(
+  def johnDensmoresOneEmployment(sequenceNumberVal: Int = 1) = Seq(
     Employment(sequenceNumber = sequenceNumberVal, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), primaryEmploymentType))
 
   val johnDensmoresEmployments = Seq(
@@ -96,7 +102,7 @@ class PayeBaseSpec extends BaseSpec {
     Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 3, null, null, null, null, null, null, car = None, actions("RC123456B", 2013, 1), Map.empty),
     removedCarBenefit))
 
-  def transactionWithTags(tags: List[String], properties: Map[String, String] = Map.empty, employmentSequenceNumber:Int = 1) =
+  def transactionWithTags(tags: List[String], properties: Map[String, String] = Map.empty, employmentSequenceNumber: Int = 1) =
     TxQueueTransaction(URI.create("http://tax.com"),
       "paye",
       URI.create("http://tax.com"),
@@ -109,8 +115,8 @@ class PayeBaseSpec extends BaseSpec {
 
   val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31"))
   val otherTransaction = transactionWithTags(List("paye", "test"))
-  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29") )
-  val removedFuelEmployment2Transaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29") , 2)
+  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29"))
+  val removedFuelEmployment2Transaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29"), 2)
   val multiBenefitTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
 
   val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction)

@@ -80,7 +80,7 @@ trait ActionWrappers
                   val token = request.session.get("token")
 
                   if (encryptedUserId.isEmpty || token.isDefined) {
-                    Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
+                    Logger.info(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
                     val redirectUrl = if (redirectToOrigin) Some(request.uri) else None
                     toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
                   } else {

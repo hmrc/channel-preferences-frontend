@@ -2,7 +2,6 @@ package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{FakeRequest, WithApplication}
 import views.formatting.Dates
 import play.api.test.Helpers._
@@ -11,19 +10,20 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import org.mockito.Matchers
 import org.jsoup.Jsoup
-import controllers.actionwrappers.IdaLoginTestHelpers
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
+import controllers.actionwrappers.PayeTest
+
 
 class PayeHomeControllerSpec
   extends PayeBaseSpec
-  with IdaLoginTestHelpers
   with MockitoSugar
   with CookieEncryption {
 
-  private val controller = new PayeHomeController with MockMicroServicesForTests
+  private implicit val controller = new PayeHomeController with MockMicroServicesForTests
 
   before {
     setupMocksForJohnDensmore(
@@ -36,11 +36,18 @@ class PayeHomeControllerSpec
 
   "The home method" should {
 
-    // MAT: This is the syntax that I'm working on for the tests.
-//    "display the name for John Densmore" in new PayeTest(controller.home) {
+//    "display the name for John Densmore" in new PayeTest(user = johnDensmore) {
+//      println("User is " + johnDensmore)
+//
+//      johnDensmore.getPaye should not be (null)
+//      johnDensmore.getPaye.get should not be(null)
+//
+//      val result = controller.home(request)
+//
 //      status(result) should be(200)
-//      content should include("John Densmore")
+//      contentAsString(result) should include("John Densmore")
 //    }
+
 
     "display the name for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHomeAction

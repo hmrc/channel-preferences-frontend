@@ -27,7 +27,16 @@ trait MockMicroServicesForTests extends MicroServices with MockitoSugar {
   override lazy val agentMicroServiceRoot = mock[AgentMicroServiceRoot]
   override lazy val vatConnector = mock[VatConnector]
 
-  private val mocks = List(authMicroService, payeMicroService, samlMicroService, saConnector, governmentGatewayMicroService, txQueueMicroService, auditMicroService, keyStoreMicroService, agentMicroServiceRoot)
+  private val mocks = List(
+    authMicroService,
+    payeMicroService,
+    samlMicroService,
+    saConnector,
+    governmentGatewayMicroService,
+    txQueueMicroService,
+    auditMicroService,
+    keyStoreMicroService,
+    agentMicroServiceRoot)
 
   def resetAll() {
     Mockito.reset(mocks: _*)

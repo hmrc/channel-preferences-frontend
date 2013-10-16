@@ -71,9 +71,12 @@ class RegimeRoots(payeBuilder: Option[RegimeRootBuilder[PayeRoot]],
 
 object RegimeRoots {
 
-  def apply(paye: Option[Try[PayeRoot]] = None, sa: Option[Try[SaRoot]] = None,
-            vat: Option[Try[VatRoot]] = None, epaye: Option[Try[EpayeRoot]] = None,
-            ct: Option[Try[CtRoot]] = None, agent: Option[Try[AgentRoot]] = None): RegimeRoots = {
+  def apply(paye: Option[Try[PayeRoot]] = None,
+            sa: Option[Try[SaRoot]] = None,
+            vat: Option[Try[VatRoot]] = None,
+            epaye: Option[Try[EpayeRoot]] = None,
+            ct: Option[Try[CtRoot]] = None,
+            agent: Option[Try[AgentRoot]] = None): RegimeRoots = {
 
     val payeBuilder = paye.map(tryPayeRoot => new RegimeRootBuilder(() => tryPayeRoot.get))
     val saBuilder = sa.map(trySaRoot => new RegimeRootBuilder(() => trySaRoot.get))
