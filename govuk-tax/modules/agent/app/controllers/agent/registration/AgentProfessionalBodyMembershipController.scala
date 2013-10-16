@@ -7,18 +7,12 @@ import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.service.MicroServices
 import controllers.common.{ActionWrappers, BaseController}
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
 
-class AgentProfessionalBodyMembershipController
-  extends BaseController
-  with ActionWrappers
-  with AgentController
-  with MicroServices
-  with Validators
-  with MultiFormWrapper {
+class AgentProfessionalBodyMembershipController extends BaseController with ActionWrappers with AgentController
+  with Validators with MultiFormWrapper {
 
   private val professionalBodyMembershipForm = Form[AgentProfessionalBodyMembership](
     mapping(

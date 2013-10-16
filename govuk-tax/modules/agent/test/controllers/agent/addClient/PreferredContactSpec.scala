@@ -9,21 +9,9 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import models.agent.addClient.{ConfirmClient, PotentialClient, ClientSearch}
-import scala.util.Success
+import models.agent.addClient.{ConfirmClient, ClientSearch}
 import uk.gov.hmrc.common.microservice.agent._
-import SearchClientController.KeyStoreKeys
-import uk.gov.hmrc.common.microservice.domain.User
-import scala.util.Success
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import scala.Some
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.agent.addClient.SearchClientController.KeyStoreKeys._
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import scala.Some
-import uk.gov.hmrc.common.microservice.domain.User
-import scala.util.Success
-import play.api.test.FakeApplication
 import controllers.agent.addClient.PreferredClientController.FieldIds
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import models.agent.addClient.PotentialClient
@@ -31,6 +19,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.util.Success
 import play.api.test.FakeApplication
+import service.agent.AgentMicroService
 
 class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -47,8 +36,13 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   val user = User(id, null, RegimeRoots(paye = Some(Success(payeRoot)), agent = Some(Success(AgentRoot("SomeUAR", Map.empty, Map("search" -> "/agent/search", "addClient" -> "agent/addClient"))))), None, None)
 
   before {
-    controller = new PreferredContactController with MockMicroServicesForTests
-    confirmController = new ConfirmClientController with MockMicroServicesForTests
+    controller = new PreferredContactController {
+      override lazy val agentMicroService = mock[AgentMicroService]
+      override lazy val keyStoreMicroService = mock[KeyStoreMicroService]
+    }
+    confirmController = new ConfirmClientController {
+      override lazy val keyStoreMicroService = mock[KeyStoreMicroService]
+    }
   }
 
   "When navigating to the preferred contact controller via the add action controller the controller" should {

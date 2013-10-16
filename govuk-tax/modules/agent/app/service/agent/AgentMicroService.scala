@@ -1,14 +1,14 @@
-package uk.gov.hmrc.common.microservice.agent
+package service.agent
 
-import uk.gov.hmrc.microservice._
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.domain.Uar
 import play.api.libs.ws.Response
+import uk.gov.hmrc.microservice.MicroServiceException
+import uk.gov.hmrc.common.microservice.agent.AgentMicroServiceRoot
+import models.agent.{Client, MatchingPerson, SearchRequest, AgentRegistrationRequest}
 
-class AgentMicroService(override val serviceUrl: String = MicroServiceConfig.agentServiceUrl) extends MicroService {
-
-  def root(uri: String) = httpGet[AgentRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Agent root not found at URI '$uri'"))
+class AgentMicroService extends AgentMicroServiceRoot {
 
   def create(nino: String, newAgent: AgentRegistrationRequest): Uar = {
     val uar = httpPost[Uar](s"/agent/register/nino/$nino", Json.parse(toRequestBody(newAgent)))
@@ -25,6 +25,7 @@ class AgentMicroService(override val serviceUrl: String = MicroServiceConfig.age
     }
   }
 }
+
 
 trait AgentMicroServices {
 

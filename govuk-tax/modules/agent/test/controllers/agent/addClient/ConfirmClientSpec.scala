@@ -5,7 +5,6 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.BeforeAndAfter
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, AgentMicroService}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import scala.util.Success
@@ -13,11 +12,11 @@ import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import ConfirmClientController.FieldIds
 import SearchClientController.KeyStoreKeys._
-import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.jsoup.Jsoup
 import models.agent.addClient.{ClientSearch, PotentialClient, ConfirmClient}
 import org.joda.time.LocalDate
+import service.agent.AgentMicroService
 
 class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -32,7 +31,10 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
   val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
 
   before {
-    controller = new ConfirmClientController with MockMicroServicesForTests
+    controller = new ConfirmClientController {
+      override lazy val keyStoreMicroService = mock[KeyStoreMicroService]
+
+    }
   }
 
   "The confirm client page" should {

@@ -12,15 +12,16 @@ import models.agent.addClient.{ConfirmClient, PotentialClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.agent.{MatchingPerson, SearchRequest, AgentRegime}
+import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import uk.gov.hmrc.utils.DateConverter
 import ConfirmClientController.confirmClientForm
 import org.bson.types.ObjectId
 import uk.gov.hmrc.domain.Nino
+import models.agent.{SearchRequest, MatchingPerson}
+import service.agent.AgentMicroServices
 
-class SearchClientController(keyStore: KeyStoreMicroService)
-  extends BaseController
-  with ActionWrappers {
+class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController with ActionWrappers
+  with AgentMicroServices {
 
   import SearchClientController._
   import SearchClientController.KeyStoreKeys._

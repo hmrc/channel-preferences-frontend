@@ -153,7 +153,7 @@ trait ActionWrappers
         uri => RegimeRootBuilder(() => CtRoot(authority.ctUtr.get, ctConnector.root(uri.toString)))
       },
       agentBuilder = regimes.agent.map {
-        uri => RegimeRootBuilder(() => agentMicroService.root(uri.toString))
+        uri => RegimeRootBuilder(() => agentMicroServiceRoot.root(uri.toString))
       }
     )
   }

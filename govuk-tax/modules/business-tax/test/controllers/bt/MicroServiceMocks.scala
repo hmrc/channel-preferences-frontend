@@ -9,7 +9,7 @@ import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.agent.AgentMicroServiceRoot
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
@@ -24,7 +24,7 @@ private[bt] trait MicroServiceMocks extends MockitoSugar {
   val mockTxQueueMicroService = mock[TxQueueMicroService]
   val mockAuditMicroService = mock[AuditMicroService]
   val mockKeyStoreMicroService = mock[KeyStoreMicroService]
-  val mockAgentMicroService = mock[AgentMicroService]
+  val mockAgentMicroService = mock[AgentMicroServiceRoot]
   val mockVatConnector = mock[VatConnector]
   val mockCtConnector = mock[CtConnector]
   val mockEpayeConnector = mock[EpayeConnector]
@@ -38,7 +38,7 @@ private[bt] trait MicroServiceMocks extends MockitoSugar {
     override lazy val txQueueMicroService = mockTxQueueMicroService
     override lazy val auditMicroService = mockAuditMicroService
     override lazy val keyStoreMicroService = mockKeyStoreMicroService
-    override lazy val agentMicroService = mockAgentMicroService
+    override lazy val agentMicroServiceRoot = mockAgentMicroService
     override lazy val vatConnector = mockVatConnector
     override lazy val ctConnector = mockCtConnector
     override lazy val epayeConnector = mockEpayeConnector

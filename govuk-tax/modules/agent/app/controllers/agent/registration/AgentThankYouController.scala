@@ -6,13 +6,10 @@ import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{Result, Request}
 import controllers.agent.registration.FormNames._
 import controllers.common.actions.MultiFormWrapper
+import service.agent.AgentMicroServices
 
-class AgentThankYouController
-  extends BaseController
-  with ActionWrappers
-  with AgentController
-  with MultiFormWrapper
-  with AgentMapper {
+class AgentThankYouController extends BaseController with ActionWrappers with AgentController
+  with MultiFormWrapper with AgentMapper with AgentMicroServices {
 
   def thankYou = AuthorisedForIdaAction(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {

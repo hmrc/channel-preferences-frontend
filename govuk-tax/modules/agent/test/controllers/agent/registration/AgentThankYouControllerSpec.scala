@@ -2,18 +2,19 @@ package controllers.agent.registration
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.Mockito._
 import play.api.test.{WithApplication, FakeApplication, FakeRequest}
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.keystore.KeyStore
+import uk.gov.hmrc.common.microservice.keystore.{KeyStoreMicroService, KeyStore}
 import scala.Some
-import uk.gov.hmrc.common.microservice.agent.{AgentRoot, AgentRegistrationRequest}
+import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import scala.util.Success
 import uk.gov.hmrc.domain.Uar
+import models.agent.AgentRegistrationRequest
+import service.agent.AgentMicroService
 
 class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -30,7 +31,10 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
   val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
 
-  private val controller = new AgentThankYouController with MockMicroServicesForTests {
+  private val controller = new AgentThankYouController {
+
+    override lazy val agentMicroService = mock[AgentMicroService]
+    override lazy val keyStoreMicroService = mock[KeyStoreMicroService]
 
     override def toAgent(implicit keyStore: KeyStore[Map[String,String]]) = {
       agentRegistrationRequest

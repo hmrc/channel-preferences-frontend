@@ -16,7 +16,7 @@ import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import org.scalatest.TestData
 import java.util.UUID
-import uk.gov.hmrc.common.microservice.agent.{AgentMicroService, AgentRegime}
+import uk.gov.hmrc.common.microservice.agent.{AgentMicroServiceRoot, AgentRegime}
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
@@ -30,7 +30,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
   private lazy val mockAuthMicroService = mock[AuthMicroService]
   private lazy val mockPayeMicroService = mock[PayeMicroService]
-  private lazy val mockAgentMicroService = mock[AgentMicroService]
+  private lazy val mockAgentMicroService = mock[AgentMicroServiceRoot]
 
   override protected def beforeEach(testData: TestData) {
     reset(mockAuthMicroService)
@@ -59,7 +59,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
     override lazy val authMicroService = mockAuthMicroService
     override lazy val payeMicroService = mockPayeMicroService
-    override lazy val agentMicroService = mockAgentMicroService
+    override lazy val agentMicroServiceRoot = mockAgentMicroService
 
     def test = AuthorisedForIdaAction(Some(PayeRegime)) {
       implicit user =>

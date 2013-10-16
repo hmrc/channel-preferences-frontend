@@ -15,9 +15,11 @@ import org.mockito.Matchers._
 import org.scalatest.BeforeAndAfter
 import models.agent.addClient.{PotentialClient, ClientSearch}
 import scala.util.Success
-import uk.gov.hmrc.common.microservice.agent.{AgentRoot, MatchingPerson, SearchRequest, AgentMicroService}
+import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import SearchClientController.KeyStoreKeys
 import SearchClientController.FieldIds
+import service.agent.AgentMicroService
+import models.agent.{MatchingPerson, SearchRequest}
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 

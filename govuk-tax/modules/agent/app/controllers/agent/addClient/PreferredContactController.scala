@@ -13,11 +13,12 @@ import models.agent.addClient.{PotentialClient, PreferredContactData}
 import scala.Some
 import Validators.validateMandatoryPhoneNumber
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import uk.gov.hmrc.common.microservice.agent.{Contact, PreferredContact, Client}
+import models.agent.{Client, Contact, PreferredContact}
+import service.agent.{AgentMicroServices, AgentMicroService}
 
 class PreferredContactController
   extends BaseController
-  with ActionWrappers {
+  with ActionWrappers with AgentMicroServices {
 
   def preferredContact = AuthorisedForIdaAction(Some(PayeRegime)) {
     preferredContactAction

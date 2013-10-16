@@ -1,15 +1,21 @@
-package uk.gov.hmrc.common.microservice.agent
+package service.agent
 
 import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.JsValue
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{FakeApplication, WithApplication}
-import play.api.libs.ws.Response
+import play.api.test.WithApplication
 import controllers.service.ResponseStub
-import uk.gov.hmrc.microservice.MicroServiceException
-import play.api.libs.ws.WS.WSRequestHolder
 import org.slf4j.MDC
 import scala.collection.JavaConversions._
+import models.agent._
+import models.agent.Client
+import play.api.libs.ws.Response
+import models.agent.PreferredContact
+import models.agent.SearchRequest
+import models.agent.MatchingPerson
+import play.api.test.FakeApplication
+import scala.Some
+import uk.gov.hmrc.microservice.MicroServiceException
 
 class AgentMicroServiceSpec extends WordSpec with Matchers with MockitoSugar {
 
@@ -56,6 +62,6 @@ class AgentMicroServiceSpec extends WordSpec with Matchers with MockitoSugar {
         service.saveOrUpdateClient("", request)
       }
 
-      }
+    }
   }
 }

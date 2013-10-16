@@ -7,7 +7,7 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.Helpers._
 import org.mockito.Mockito._
-import org.mockito.{ ArgumentCaptor, Matchers }
+import org.mockito.{Mockito, ArgumentCaptor, Matchers}
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -16,6 +16,9 @@ import play.api.test.FakeApplication
 import scala.Some
 import controllers.agent.registration.AgentContactDetailsFormFields._
 import scala.util.Success
+import service.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import org.scalatest.{TestData, BeforeAndAfterEach}
 
 class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -26,7 +29,15 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
   val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
 
-  private val controller = new AgentContactDetailsController with MockMicroServicesForTests
+  private val controller = new AgentContactDetailsController {
+    override lazy val keyStoreMicroService = mock[KeyStoreMicroService]
+  }
+
+
+  override protected def beforeEach(testData: TestData): Unit = {
+    super.beforeEach(testData)
+    Mockito.reset(controller.keyStoreMicroService)
+  }
 
   "The contact details page" should {
     "display known agent info" in new WithApplication(FakeApplication()) {
@@ -42,7 +53,6 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not go to the next step if phone number is missing" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("", "07777777777", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
@@ -50,7 +60,6 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not go to the next step if mobile number is missing" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
@@ -58,7 +67,6 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not go to the next step if phone number is not a number" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("a", "07777777777", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
@@ -66,7 +74,6 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not go to the next step if mobile number is not a number" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "a", "email@company.com"))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
@@ -74,7 +81,6 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not go to the next step if email address is missing" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", ""))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
@@ -82,7 +88,6 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not go to the next step if email address is invalid" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "a@"))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
@@ -90,7 +95,6 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "go to the agent type page if valid email address and phone numbers are entered and store result in keystore, including the contact details" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a"))
       status(result) shouldBe 303

@@ -7,12 +7,9 @@ import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields.
 import controllers.agent.registration.FormNames._
 import controllers.common.validators.AddressFields._
 import uk.gov.hmrc.utils.DateConverter
-import uk.gov.hmrc.common.microservice.agent.ProfessionalBodyMembership
 import uk.gov.hmrc.common.microservice.keystore.KeyStore
-import uk.gov.hmrc.common.microservice.agent.ContactDetails
-import uk.gov.hmrc.common.microservice.agent.CompanyDetails
-import uk.gov.hmrc.common.microservice.agent.AgentRegistrationRequest
 import uk.gov.hmrc.common.microservice.domain.Address
+import models.agent.{ProfessionalBodyMembership, AgentRegistrationRequest, ContactDetails, CompanyDetails}
 
 trait AgentMapper extends DateConverter {
 

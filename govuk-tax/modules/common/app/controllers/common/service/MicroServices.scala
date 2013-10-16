@@ -8,7 +8,7 @@ trait MicroServices {
   import uk.gov.hmrc.common.microservice.paye.PayeMicroService
   import uk.gov.hmrc.common.microservice.audit.AuditMicroService
   import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-  import uk.gov.hmrc.common.microservice.agent.AgentMicroService
+  import uk.gov.hmrc.common.microservice.agent.AgentMicroServiceRoot
   import uk.gov.hmrc.common.microservice.vat.VatConnector
   import uk.gov.hmrc.common.microservice.saml.SamlMicroService
   import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
@@ -25,7 +25,7 @@ trait MicroServices {
   implicit lazy val txQueueMicroService = new TxQueueMicroService()
   implicit lazy val auditMicroService = new AuditMicroService()
   implicit lazy val keyStoreMicroService = new KeyStoreMicroService()
-  implicit lazy val agentMicroService = new AgentMicroService()
+  implicit lazy val agentMicroServiceRoot = new AgentMicroServiceRoot()
   implicit lazy val vatConnector = new VatConnector()
   implicit lazy val ctConnector = new CtConnector()
   implicit lazy val epayeConnector = new EpayeConnector()
