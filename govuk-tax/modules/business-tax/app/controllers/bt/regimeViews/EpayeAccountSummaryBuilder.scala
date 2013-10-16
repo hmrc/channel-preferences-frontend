@@ -31,7 +31,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends Ac
     AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
   }
 
-  override def rootForRegime(user: User): Option[Try[EpayeRoot]] = user.regimes.epaye
+  override def rootForRegime(user: User): Option[EpayeRoot] = user.regimes.epaye
 
 
   private def regimeName(accountSummary: Option[EpayeAccountSummary]): String = {

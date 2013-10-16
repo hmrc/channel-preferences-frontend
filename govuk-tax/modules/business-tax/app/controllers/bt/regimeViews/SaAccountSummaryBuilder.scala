@@ -18,7 +18,7 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSumm
     Msg(saUtrMessage, Seq(utr.utr))
   }
 
-  def rootForRegime(user: User): Option[Try[SaRoot]] = user.regimes.sa
+  def rootForRegime(user: User): Option[SaRoot] = user.regimes.sa
 
   def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String): AccountSummary = {
     saRoot.accountSummary(saConnector) match {

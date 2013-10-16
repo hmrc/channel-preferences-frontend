@@ -20,23 +20,23 @@ class PayeHomeController extends BaseController {
     val payeData = user.getPaye
     val userAuthority = user.userAuthority
     val taxYear = TaxYearResolver.currentTaxYear
-    val benefits = payeData.get.benefits(taxYear)
-    val employments = payeData.get.employments(taxYear)
+    val benefits = payeData.benefits(taxYear)
+    val employments = payeData.employments(taxYear)
 
     Ok(
       paye_home(
         PayeOverview(
-          name = payeData.get.name,
+          name = payeData.name,
           lastLogin = userAuthority.previouslyLoggedInAt,
-          nino = payeData.get.nino,
+          nino = payeData.nino,
           hasBenefits = !benefits.isEmpty,
           employmentViews =
             EmploymentViews(
               employments = employments,
-              taxCodes = payeData.get.taxCodes(taxYear),
+              taxCodes = payeData.taxCodes(taxYear),
               taxYear = taxYear,
-              acceptedTransactions = payeData.get.recentAcceptedTransactions(),
-              completedTransactions = payeData.get.recentCompletedTransactions())
+              acceptedTransactions = payeData.recentAcceptedTransactions(),
+              completedTransactions = payeData.recentCompletedTransactions())
         )
       )
     )

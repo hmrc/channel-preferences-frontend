@@ -138,22 +138,22 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Success(None), expectedMessages, expectedNonRtiLinks)
     }
 
-    "return the oops summary if there is an exception when requesting the root" in {
-      val empRef = EmpRef("ABC", "12345")
-      val userAuthorityWithEmpRef = UserAuthority("123", Regimes(), empRef = Some(empRef))
-      val regimeRoots = RegimeRoots(epaye = Some(Failure(new NumberFormatException)))
-      val user = User("tim", userAuthorityWithEmpRef, regimeRoots, None, None)
-      val mockEpayeConnector = mock[EpayeConnector]
-      val builder = new EpayeAccountSummaryBuilder(mockEpayeConnector)
-      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
-      accountSummaryOption should not be None
-      val accountSummary = accountSummaryOption.get
-      accountSummary.regimeName shouldBe epayeUnknownRegimeName
-      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
-      accountSummary.addenda shouldBe Seq.empty
-      accountSummary.status shouldBe SummaryStatus.oops
-      verifyZeroInteractions(mockEpayeConnector)
-    }
+//    "return the oops summary if there is an exception when requesting the root" in {
+//      val empRef = EmpRef("ABC", "12345")
+//      val userAuthorityWithEmpRef = UserAuthority("123", Regimes(), empRef = Some(empRef))
+//      val regimeRoots = RegimeRoots(epaye = Some(new NumberFormatException)))
+//      val user = User("tim", userAuthorityWithEmpRef, regimeRoots, None, None)
+//      val mockEpayeConnector = mock[EpayeConnector]
+//      val builder = new EpayeAccountSummaryBuilder(mockEpayeConnector)
+//      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
+//      accountSummaryOption should not be None
+//      val accountSummary = accountSummaryOption.get
+//      accountSummary.regimeName shouldBe epayeUnknownRegimeName
+//      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+//      accountSummary.addenda shouldBe Seq.empty
+//      accountSummary.status shouldBe SummaryStatus.oops
+//      verifyZeroInteractions(mockEpayeConnector)
+//    }
 
     "return the oops summary if there is an exception when requesting the account summary" in {
       val expectedMessages = Seq(Msg(oopsMessage, Seq.empty))
@@ -172,7 +172,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
     when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-    when(mockRegimeRoots.epaye).thenReturn(Some(Success(mockEpayeRoot)))
+    when(mockRegimeRoots.epaye).thenReturn(Some(mockEpayeRoot))
     when(mockEpayeRoot.identifier).thenReturn(dummyEmpRef)
     accountSummary match {
       case Success(aSummary) => when(mockEpayeRoot.accountSummary(mockEpayeConnector)).thenReturn(aSummary)

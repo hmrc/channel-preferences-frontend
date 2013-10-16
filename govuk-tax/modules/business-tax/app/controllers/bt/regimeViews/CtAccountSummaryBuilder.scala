@@ -36,7 +36,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
 
   override protected def defaultRegimeNameMessageKey = ctRegimeNameMessage
 
-  override protected def rootForRegime(user: User): Option[Try[CtRoot]] = user.regimes.ct
+  override protected def rootForRegime(user: User): Option[CtRoot] = user.regimes.ct
 
   private def defaultAccountSummary(ctRoot: CtRoot): AccountSummary = {
     val messages= Seq(
@@ -53,7 +53,10 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSumm
       status = SummaryStatus.default)
   }
 
-  private def accountSummaryWithDetails(buildPortalUrl: (String) => String, ctRoot: CtRoot, accountValue: BigDecimal, dateOfBalance: String): AccountSummary = {
+  private def accountSummaryWithDetails(buildPortalUrl: (String) => String,
+                                        ctRoot: CtRoot,
+                                        accountValue: BigDecimal,
+                                        dateOfBalance: String): AccountSummary = {
     val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
 
     val links = Seq[RenderableMessage](

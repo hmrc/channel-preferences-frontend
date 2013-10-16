@@ -149,7 +149,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
     (request, user, displayBenefit) => {
-      val payeRoot = user.regimes.paye.get.get
+      val payeRoot = user.regimes.paye.get
       if (carRemovalMissesFuelRemoval(user, displayBenefit)) {
         BadRequest
       } else {
@@ -174,13 +174,13 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
     play.api.mvc.Result = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) =>
-    if (txQueueMicroService.transaction(oid, user.regimes.paye.get.get).isEmpty) {
+    if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
       keyStoreService.deleteKeyStore(user.oid, "paye_ui")
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
-        val removalData = RemoveBenefitConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get.get, employmentSequenceNumber, year),
+        val removalData = RemoveBenefitConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year),
           newTaxCode, personalAllowance, Dates.formatDate(startOfCurrentTaxYear), Dates.formatDate(endOfCurrentTaxYear))
         Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
       } else {
@@ -282,12 +282,12 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
     private def getBenefitMatching(kind: Int, user: User, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
       val taxYear = currentTaxYear
-      val benefit = user.regimes.paye.get.get.benefits(taxYear).find(
+      val benefit = user.regimes.paye.get.benefits(taxYear).find(
         b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
 
-      val transactions = user.regimes.paye.get.get.recentCompletedTransactions
+      val transactions = user.regimes.paye.get.recentCompletedTransactions
 
-      val matchedBenefits = DisplayBenefits(benefit.toList, user.regimes.paye.get.get.employments(taxYear), transactions)
+      val matchedBenefits = DisplayBenefits(benefit.toList, user.regimes.paye.get.employments(taxYear), transactions)
 
       if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
     }

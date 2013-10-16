@@ -21,7 +21,7 @@ import models.agent.{SearchRequest, MatchingPerson}
 import service.agent.AgentMicroServices
 
 class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController with ActionWrappers
-  with AgentMicroServices {
+with AgentMicroServices {
 
   import SearchClientController._
   import SearchClientController.KeyStoreKeys._
@@ -65,12 +65,12 @@ class SearchClientController(keyStore: KeyStoreMicroService) extends BaseControl
           for (sDob <- search.dob;
                rDob <- result.dobAsLocalDate
                if sDob.isEqual(rDob)) yield rDob)
-        val agentRoot = user.regimes.agent.get.get
+        val agentRoot = user.regimes.agent.get
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         val searchUri: String = agentRoot.actions.get("search").getOrElse(throw new IllegalArgumentException(s"No search action uri found"))
         agentMicroService.searchClient(searchUri, SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
           case Some(matchingPerson) => {
-            user.regimes.agent.get.get.clients.find(_._1 == search.nino) match {
+            user.regimes.agent.get.clients.find(_._1 == search.nino) match {
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)

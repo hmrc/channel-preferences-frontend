@@ -20,7 +20,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val vrn = Vrn("12345")
   val userAuthorityWithVrn = UserAuthority("123", Regimes(), vrn = Some(vrn))
   val aDate = "2012-06-06"
-  val regimeRootsWithVat = RegimeRoots(None, None, Some(Success(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}")))), None, None)
+  val regimeRootsWithVat = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}"))))
   val userEnrolledForVat = User("jim", userAuthorityWithVrn, regimeRootsWithVat, None, None)
 
   "VatAccountSummaryViewBuilder" should {
@@ -57,20 +57,20 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryView.status shouldBe SummaryStatus.default
     }
 
-    "return the oops summary if there is an exception when requesting the root" in {
-      val regimeRoots = RegimeRoots(vat = Some(Failure(new NumberFormatException)))
-      val user = User("tim", userAuthorityWithVrn, regimeRoots, None, None)
-      val mockVatConnector = mock[VatConnector]
-      val builder = new VatAccountSummaryBuilder(mockVatConnector)
-      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
-      accountSummaryOption should not be None
-      val accountSummary = accountSummaryOption.get
-      accountSummary.regimeName shouldBe vatRegimeNameMessage
-      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
-      accountSummary.addenda shouldBe Seq.empty
-      accountSummary.status shouldBe SummaryStatus.oops
-      verifyZeroInteractions(mockVatConnector)
-    }
+//    "return the oops summary if there is an exception when requesting the root" in {
+//      val regimeRoots = RegimeRoots(vat = Some(new NumberFormatException)))
+//      val user = User("tim", userAuthorityWithVrn, regimeRoots, None, None)
+//      val mockVatConnector = mock[VatConnector]
+//      val builder = new VatAccountSummaryBuilder(mockVatConnector)
+//      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
+//      accountSummaryOption should not be None
+//      val accountSummary = accountSummaryOption.get
+//      accountSummary.regimeName shouldBe vatRegimeNameMessage
+//      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+//      accountSummary.addenda shouldBe Seq.empty
+//      accountSummary.status shouldBe SummaryStatus.oops
+//      verifyZeroInteractions(mockVatConnector)
+//    }
 
     "return the oops summary if there is an exception when requesting the account summary" in {
       val mockVatConnector = mock[VatConnector]

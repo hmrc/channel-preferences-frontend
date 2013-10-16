@@ -32,7 +32,7 @@ class PreferredContactController
         form.fold(
           errors => BadRequest(preferred_contact(form)),
           search => {
-            val addClientUri = user.regimes.agent.get.get.actions.get("addClient").getOrElse(throw new IllegalArgumentException("No addClient action uri found"))
+            val addClientUri = user.regimes.agent.get.actions.get("addClient").getOrElse(throw new IllegalArgumentException("No addClient action uri found"))
             val prefContact = search._1
 
             val contact: PreferredContact = prefContact.pointOfContact match {

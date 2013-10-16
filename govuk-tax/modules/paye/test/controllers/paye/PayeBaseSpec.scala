@@ -57,7 +57,7 @@ class PayeBaseSpec extends BaseSpec {
     User(
       userId = id,
       userAuthority = ua,
-      regimes = RegimeRoots(paye = Some(Success(payeRoot))),
+      regimes = RegimeRoots(paye = Some(payeRoot)),
       nameFromGovernmentGateway = None,
       decryptedToken = None
     )

@@ -28,9 +28,13 @@ trait GeoffFisherExpectations {
   self: WithBusinessTaxApplication =>
 
   def geoffFisherAuthId = "/auth/oid/geoff"
+
   def geoffFisherSaUtr = SaUtr("/sa/individual/123456789012")
+
   def geoffFisherCtUtr = CtUtr("/ct/6666644444")
+
   def geoffFisherEmpRef = EmpRef("342", "sdfdsf")
+
   def geoffFisherVrn = Vrn("456345576")
 
   override val userId: Option[String] = Some(geoffFisherAuthId)
@@ -55,15 +59,19 @@ trait GeoffFisherExpectations {
     empRef = Some(geoffFisherEmpRef))
 
   def geoffFisherSaJsonRoot = SaJsonRoot(links = Map("something" -> s"$geoffFisherSaUtr/stuff"))
+
   def geoffFisherSaRoot = SaRoot(geoffFisherSaUtr, geoffFisherSaJsonRoot)
 
   def geoffFisherVatJsonRoot = VatJsonRoot(links = Map("something" -> s"$geoffFisherVrn/stuff"))
+
   def geoffFisherVatRoot = VatRoot(vrn = geoffFisherVrn, links = Map("something" -> s"$geoffFisherVrn/stuff"))
 
-  def geoffFisherEpayeJsonRoot = EpayeJsonRoot(EpayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah") ) )
+  def geoffFisherEpayeJsonRoot = EpayeJsonRoot(EpayeLinks(accountSummary = Some(s"$geoffFisherEmpRef/blah")))
+
   def geoffFisherEpayeRoot = EpayeRoot(geoffFisherEmpRef, geoffFisherEpayeJsonRoot)
 
   def geoffFisherCtJsonRoot = CtJsonRoot(Map("something" -> s"$geoffFisherCtUtr/dsffds"))
+
   def geoffFisherCtRoot = CtRoot(geoffFisherCtUtr, geoffFisherCtJsonRoot)
 
   implicit val geoffFisherUser = User(
@@ -71,10 +79,10 @@ trait GeoffFisherExpectations {
     userAuthority = geoffFisherAuthority,
     regimes = RegimeRoots(
       paye = None,
-      sa = Some(Success(geoffFisherSaRoot)),
-      vat = Some(Success(geoffFisherVatRoot)),
-      epaye = Some(Success(geoffFisherEpayeRoot)),
-      ct = Some(Success(geoffFisherCtRoot))),
+      sa = Some(geoffFisherSaRoot),
+      vat = Some(geoffFisherVatRoot),
+      epaye = Some(geoffFisherEpayeRoot),
+      ct = Some(geoffFisherCtRoot)),
     nameFromGovernmentGateway = nameFromGovernmentGateway,
     decryptedToken = governmentGatewayToken
   )
@@ -106,7 +114,7 @@ trait NonBusinessUserExpectations {
   val johnDensmoreUser = User(
     userId = johnDensmoreAuthId,
     userAuthority = johnDensmoreAuthority,
-    regimes = RegimeRoots(paye = Some(Success(johnDensmorePayeRoot)), sa = None, vat = None, epaye = None, ct = None),
+    regimes = RegimeRoots(paye = Some(johnDensmorePayeRoot)),
     nameFromGovernmentGateway = None,
     decryptedToken = None
   )

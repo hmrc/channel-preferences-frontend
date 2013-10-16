@@ -24,7 +24,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   val uri = "/personal/paye/blah"
 
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
-  val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
+  val user = User(id, null, RegimeRoots(paye = Some(payeRoot)), None, None)
 
   val mockKeyStore = mock[KeyStore[String]]
 
