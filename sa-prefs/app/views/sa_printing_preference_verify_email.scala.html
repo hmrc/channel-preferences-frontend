@@ -1,0 +1,17 @@
+@(redirectUrl: String)
+
+@main(title = "Your email address is verified") {
+
+<h2>Turn off paper</h2>
+<div id="print-prefs">
+    <p>
+        <b>Thanks.</b><br>
+        Your email address has already been verified.<br>
+        HMRC will let you know when Self Assessment reminders will start being sent by email.
+    </p>
+
+    <p><a class="button" href="@redirectUrl">Log in to Self Assessment</a></p>
+
+</div>
+
+}
