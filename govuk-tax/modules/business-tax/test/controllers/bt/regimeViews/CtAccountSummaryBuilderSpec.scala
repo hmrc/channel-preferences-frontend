@@ -3,7 +3,7 @@ package controllers.bt.regimeViews
 import uk.gov.hmrc.domain.{Vrn, CtUtr}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import scala.util.{Failure, Success}
+import scala.util.Failure
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -27,12 +27,12 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   private val userAuthorityWithCt = UserAuthority("123", Regimes(ct = Some(new URI(s"/ct/${ctUtr.utr}"))), ctUtr = Some(ctUtr))
 
-  private val regimeRootsWithCt = RegimeRoots(ct = Some(Success(CtRoot(ctUtr, Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary")))))
+  private val regimeRootsWithCt = RegimeRoots(ct = Some(CtRoot(ctUtr, Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary"))))
   private val userEnrolledForCt = User("tim", userAuthorityWithCt, regimeRootsWithCt, None, None)
 
   private val vrn = Vrn("123")
   private val userAuthorityWithoutCt = UserAuthority("123", Regimes(), vrn = Some(vrn))
-  private val regimeRootsWithoutCt = RegimeRoots(None, None, Some(Success(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}")))), None, None)
+  private val regimeRootsWithoutCt = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}"))))
   private val userNotEnrolledForCt = User("jim", userAuthorityWithoutCt, regimeRootsWithoutCt, None, None)
 
   "The CtAccountSummaryBuilder build method" should {
@@ -46,7 +46,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe ctRegimeNameMessage
-      accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage, Seq("12347")), Msg(ctAmountAsOfDateMessage ,Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC))))
+      accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage, Seq("12347")), Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC))))
       accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage(ctAccountDetailsPortalUrl, viewAccountDetailsLinkMessage),
         LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage),
         LinkMessage(ctFileAReturnPortalUrl, fileAReturnLinkMessage))
@@ -55,33 +55,33 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     "return the default summary if the account summary link is missing" in {
-      val regimeRootsWithNoCtAccountSummary = RegimeRoots(ct = Some(Success(CtRoot(ctUtr, Map[String, String]()))))
+      val regimeRootsWithNoCtAccountSummary = RegimeRoots(ct = Some(CtRoot(ctUtr, Map[String, String]())))
       val userEnrolledForCtWithNoAccountSummary = User("tim", userAuthorityWithCt, regimeRootsWithNoCtAccountSummary, None, None)
       val mockCtConnector = mock[CtConnector]
       val builder = new CtAccountSummaryBuilder(mockCtConnector)
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCtWithNoAccountSummary)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
-      accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage , Seq(ctUtr.utr)), Msg(ctSummaryUnavailableErrorMessage1),
-        Msg(ctSummaryUnavailableErrorMessage2),Msg (ctSummaryUnavailableErrorMessage3), Msg(ctSummaryUnavailableErrorMessage4))
+      accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage, Seq(ctUtr.utr)), Msg(ctSummaryUnavailableErrorMessage1),
+        Msg(ctSummaryUnavailableErrorMessage2), Msg(ctSummaryUnavailableErrorMessage3), Msg(ctSummaryUnavailableErrorMessage4))
       accountSummary.addenda shouldBe Seq.empty
       accountSummary.status shouldBe default
     }
 
-    "return the oops summary if there is an exception when requesting the root" in {
-      val regimeRoots = RegimeRoots(ct = Some(Failure(new NumberFormatException)))
-      val user = User("tim", userAuthorityWithCt, regimeRoots, None, None)
-      val mockCtConnector = mock[CtConnector]
-      val builder = new CtAccountSummaryBuilder(mockCtConnector)
-      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
-      accountSummaryOption should not be None
-      val accountSummary = accountSummaryOption.get
-      accountSummary.regimeName shouldBe ctRegimeNameMessage
-      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
-      accountSummary.addenda shouldBe Seq.empty
-      accountSummary.status shouldBe oops
-      verifyZeroInteractions(mockCtConnector)
-    }
+//    "return the oops summary if there is an exception when requesting the root" in {
+//      val regimeRoots = RegimeRoots(ct = Some((new NumberFormatException)))
+//      val user = User("tim", userAuthorityWithCt, regimeRoots, None, None)
+//      val mockCtConnector = mock[CtConnector]
+//      val builder = new CtAccountSummaryBuilder(mockCtConnector)
+//      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, user)
+//      accountSummaryOption should not be None
+//      val accountSummary = accountSummaryOption.get
+//      accountSummary.regimeName shouldBe ctRegimeNameMessage
+//      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage, Seq.empty))
+//      accountSummary.addenda shouldBe Seq.empty
+//      accountSummary.status shouldBe oops
+//      verifyZeroInteractions(mockCtConnector)
+//    }
 
     "return the oops summary if there is an exception when requesting the account summary" in {
       val mockCtConnector = mock[CtConnector]
@@ -91,7 +91,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe ctRegimeNameMessage
-      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage , Seq.empty))
+      accountSummary.messages shouldBe Seq[Msg](Msg(oopsMessage, Seq.empty))
       accountSummary.addenda shouldBe Seq.empty
       accountSummary.status shouldBe oops
     }

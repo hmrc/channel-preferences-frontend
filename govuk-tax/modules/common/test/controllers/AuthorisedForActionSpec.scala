@@ -64,7 +64,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     def test = AuthorisedForIdaAction(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
-          val userPayeRegimeRoot = user.regimes.paye.get.get
+          val userPayeRegimeRoot = user.regimes.paye.get
           val userName = userPayeRegimeRoot.name
           Ok(userName)
     }
@@ -72,7 +72,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     def testAuthorisation = AuthorisedForIdaAction(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
-          val userPayeRegimeRoot = user.regimes.paye.get.get
+          val userPayeRegimeRoot = user.regimes.paye.get
           val userName = userPayeRegimeRoot.name
           Ok(userName)
     }
@@ -80,14 +80,14 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     def testAgentAuthorisation = AuthorisedForIdaAction(Some(AgentRegime)) {
       implicit user =>
         implicit request =>
-          val userAgentRegimeRoot = user.regimes.agent.get.get
+          val userAgentRegimeRoot = user.regimes.agent.get
           Ok(userAgentRegimeRoot.uar)
     }
 
     def testAuthorisationWithRedirectCommand = AuthorisedForIdaAction(redirectToOrigin = true) {
       implicit user =>
         implicit request =>
-          val userPayeRegimeRoot = user.regimes.paye.get.get
+          val userPayeRegimeRoot = user.regimes.paye.get
           val userName = userPayeRegimeRoot.name
           Ok(userName)
     }

@@ -10,11 +10,10 @@ import play.api.mvc.Result
 import play.api.Logger
 import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper}
 import controllers.common.FrontEndRedirect._
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots.RegimeRootBuilder
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -80,7 +79,7 @@ trait ActionWrappers
                   val token = request.session.get("token")
 
                   if (encryptedUserId.isEmpty || token.isDefined) {
-                    Logger.debug(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
+                    Logger.info(s"No identity cookie found or wrong user type - redirecting to login. user : ${decrypt(encryptedUserId.getOrElse(""))} tokenDefined : ${token.isDefined}")
                     val redirectUrl = if (redirectToOrigin) Some(request.uri) else None
                     toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
                   } else {
@@ -136,24 +135,24 @@ trait ActionWrappers
 
   private[common] def getRegimeRootsObject(authority: UserAuthority): RegimeRoots = {
     val regimes = authority.regimes
-    new RegimeRoots(
-      payeBuilder = regimes.paye map {
-        uri => RegimeRootBuilder(() => payeMicroService.root(uri.toString))
+    RegimeRoots(
+      paye = regimes.paye map {
+        uri => payeMicroService.root(uri.toString)
       },
-      saBuilder = regimes.sa map {
-        uri => RegimeRootBuilder(() => SaRoot(authority.saUtr.get, saConnector.root(uri.toString)))
+      sa = regimes.sa map {
+        uri => SaRoot(authority.saUtr.get, saConnector.root(uri.toString))
       },
-      vatBuilder = regimes.vat map {
-        uri => RegimeRootBuilder(() => VatRoot(authority.vrn.get, vatConnector.root(uri.toString)))
+      vat = regimes.vat map {
+        uri => VatRoot(authority.vrn.get, vatConnector.root(uri.toString))
       },
-      epayeBuilder = regimes.epaye.map {
-        uri => RegimeRootBuilder(() => EpayeRoot(authority.empRef.get, epayeConnector.root(uri.toString)))
+      epaye = regimes.epaye.map {
+        uri => EpayeRoot(authority.empRef.get, epayeConnector.root(uri.toString))
       },
-      ctBuilder = regimes.ct.map {
-        uri => RegimeRootBuilder(() => CtRoot(authority.ctUtr.get, ctConnector.root(uri.toString)))
+      ct = regimes.ct.map {
+        uri => CtRoot(authority.ctUtr.get, ctConnector.root(uri.toString))
       },
-      agentBuilder = regimes.agent.map {
-        uri => RegimeRootBuilder(() => agentMicroServiceRoot.root(uri.toString))
+      agent = regimes.agent.map {
+        uri => agentMicroServiceRoot.root(uri.toString)
       }
     )
   }

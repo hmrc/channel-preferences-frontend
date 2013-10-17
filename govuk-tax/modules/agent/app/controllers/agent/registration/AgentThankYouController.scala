@@ -20,7 +20,7 @@ class AgentThankYouController extends BaseController with ActionWrappers with Ag
   private[registration] val thankYouAction: ((User, Request[_]) => Result) = (user, request) => {
     keyStoreMicroService.getKeyStore[Map[String, String]](registrationId(user), agent) match {
       case Some(x) => {
-        val agentId = agentMicroService.create(user.regimes.paye.get.get.nino, toAgent(x)).uar
+        val agentId = agentMicroService.create(user.regimes.paye.get.nino, toAgent(x)).uar
 
         keyStoreMicroService.deleteKeyStore(registrationId(user), agent)
         Ok(views.html.agents.registration.thank_you_page(agentId))

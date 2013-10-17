@@ -46,11 +46,11 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
   private def providedToDefaultValue = endOfCurrentTaxYear
 
-  private def findPrimaryEmployment(user: User) : Option[Employment] = 
-    user.regimes.paye.get.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
+  private def findPrimaryEmployment(user: User): Option[Employment] =
+    user.regimes.paye.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
 
   private def findEmployment(user: User, taxYear: Int, employmentSequenceNumber: Int) = {
-    user.regimes.paye.get.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber)
+    user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber)
   }
 
   private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
@@ -110,11 +110,21 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
               val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
 
-              val addBenefitPayload = NewBenefitCalculationData(addCarBenefitData.registeredBefore98.get, addCarBenefitData.fuelType.get, emission, addCarBenefitData.engineCapacity.map(_.toInt),
-                addCarBenefitData.employeeContribution, addCarBenefitData.listPrice.get, addCarBenefitData.providedFrom, addCarBenefitData.providedTo, addCarBenefitData.numberOfDaysUnavailable,
-                addCarBenefitData.employerContribution, addCarBenefitData.employerPayFuel.get, addCarBenefitData.dateFuelWithdrawn) //TODO check if employerPayFuel can be None
+              val addBenefitPayload = NewBenefitCalculationData(
+                carRegisteredBefore98 = addCarBenefitData.registeredBefore98.get,
+                fuelType = addCarBenefitData.fuelType.get,
+                co2Emission = emission,
+                engineCapacity = addCarBenefitData.engineCapacity.map(_.toInt),
+                userContributingAmount = addCarBenefitData.employeeContribution,
+                listPrice = addCarBenefitData.listPrice.get,
+                carBenefitStartDate = addCarBenefitData.providedFrom,
+                carBenefitStopDate = addCarBenefitData.providedTo,
+                numDaysCarUnavailable = addCarBenefitData.numberOfDaysUnavailable,
+                employeePayments = addCarBenefitData.employerContribution,
+                employerPayFuel = addCarBenefitData.employerPayFuel.get,
+                fuelBenefitStopDate = addCarBenefitData.dateFuelWithdrawn) //TODO check if employerPayFuel can be None
 
-              val uri = payeRoot.get.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
+              val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
 
               val benefitCalculations = payeService.calculateBenefitValue(uri, addBenefitPayload).get
               val carBenefitValue = benefitCalculations.carBenefitValue.map(BenefitValue(_))
@@ -139,10 +149,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   object WithValidatedRequest {
     def apply(action: (Request[_], User, Int, Int) => Result): (User, Request[_], Int, Int) => Result = {
       (user, request, taxYear, employmentSequenceNumber) => {
-        if(TaxYearResolver.currentTaxYear != taxYear ) {
+        if (TaxYearResolver.currentTaxYear != taxYear) {
           Logger.error("Adding car benefit is only allowed for the current tax year")
           BadRequest
-        } else if (employmentSequenceNumber != findPrimaryEmployment(user).get.sequenceNumber){
+        } else if (employmentSequenceNumber != findPrimaryEmployment(user).get.sequenceNumber) {
           Logger.error("Adding car benefit is only allowed for the primary employment")
           BadRequest
         } else {

@@ -71,8 +71,12 @@ trait GeoffFisherVatExpectations {
   implicit val geoffFisherUser = User(
     userId = geoffFisherAuthId,
     userAuthority = geoffFisherAuthority,
-    regimes = RegimeRoots(paye = None, sa = Some(Success(geoffFisherSaRoot)), vat = Some(Success(geoffFisherVatRoot)),
-      epaye = Some(Success(geoffFisherEpayeRoot)), ct = Some(Success(geoffFisherCtRoot))),
+    regimes = RegimeRoots(
+      paye = None,
+      sa = Some(geoffFisherSaRoot),
+      vat = Some(geoffFisherVatRoot),
+      epaye = Some(geoffFisherEpayeRoot),
+      ct = Some(geoffFisherCtRoot)),
     nameFromGovernmentGateway = nameFromGovernmentGateway,
     decryptedToken = governmentGatewayToken
   )
@@ -104,7 +108,7 @@ trait NonBusinessUserVatExpectations {
   val johnDensmoreUser = User(
     userId = johnDensmoreAuthId,
     userAuthority = johnDensmoreAuthority,
-    regimes = RegimeRoots(paye = Some(Success(johnDensmorePayeRoot)), sa = None, vat = None, epaye = None, ct = None),
+    regimes = RegimeRoots(paye = Some(johnDensmorePayeRoot)),
     nameFromGovernmentGateway = None,
     decryptedToken = None
   )

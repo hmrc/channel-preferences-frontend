@@ -40,6 +40,6 @@ class CarBenefitHomeController
   }
 
   private def findPrimaryEmployment(user: User): Option[Employment] = {
-    user.regimes.paye.get.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
+    user.regimes.paye.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
   }
 }

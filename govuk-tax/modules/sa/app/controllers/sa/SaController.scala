@@ -58,7 +58,7 @@ class SaController
   }
 
   private[sa] def detailsAction(implicit user: User, request: Request[_]): Result = {
-    val userData = user.regimes.sa.get.get
+    val userData = user.regimes.sa.get
 
     userData.personalDetails match {
       case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
@@ -117,7 +117,7 @@ class SaController
       errors =>
         BadRequest(sa_personal_details_update(errors)),
       formData =>
-        user.regimes.sa.get.get.updateIndividualMainAddress(formData.toUpdateAddress) match {
+        user.regimes.sa.get.updateIndividualMainAddress(formData.toUpdateAddress) match {
           case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptParameter(errorMessage)))
           case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(encryptParameter(transactionId.oid)))
         }

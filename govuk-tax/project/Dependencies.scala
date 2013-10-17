@@ -4,13 +4,13 @@ import scala.Some
 
 object Version {
   val thisApp = "0.0.1-SNAPSHOT"
-  val scala = "2.10.2"
+  val scala = "2.10.3"
 }
 
 object Dependencies {
 
   object Compile {
-    val nscalaTime = "com.github.nscala-time" %% "nscala-time" % "0.4.2"
+    val nscalaTime = "com.github.nscala-time" %% "nscala-time" % "0.6.0"
     val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.4"
     val json4sExt = "org.json4s" %% "json4s-ext" % "3.2.4"
     val commonsLang = "commons-lang" % "commons-lang" % "2.6"
@@ -25,7 +25,7 @@ object Dependencies {
   sealed abstract class Test(scope: String) {
 
     val junit = "junit" % "junit" % "4.11" % "test"
-    val scalaTest = "org.scalatest" %% "scalatest" % "2.0.M6" % "test"
+    val scalaTest = "org.scalatest" %% "scalatest" % "2.0.RC2" % "test"
     val mockito = "org.mockito" % "mockito-all" % "1.9.5" % "test"
     val jsoup = "org.jsoup" % "jsoup" % "1.7.2"% "test"
   }

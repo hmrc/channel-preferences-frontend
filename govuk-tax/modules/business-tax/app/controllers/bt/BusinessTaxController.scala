@@ -37,5 +37,5 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
   private[bt] def businessTaxHomepage(portalHref: String, accountSummaries: AccountSummaries)(implicit user: User) =
     views.html.business_tax_home(portalHref = portalHref, accountSummaries = accountSummaries)
 
-  def this() = this(new AccountSummariesFactory(new SaConnector, new VatConnector, new CtConnector, new EpayeConnector))
+  def this() = this(new AccountSummariesFactory(new SaConnector, new VatConnector, new CtConnector, new EpayeConnector)())
 }

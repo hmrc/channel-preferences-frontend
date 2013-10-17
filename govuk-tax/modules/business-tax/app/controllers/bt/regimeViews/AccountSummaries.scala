@@ -8,7 +8,6 @@ object SummaryStatus extends Enumeration {
   val success, default, oops = Value
 }
 
-
 case class AccountSummaries(regimes: Seq[AccountSummary])
 
 case class AccountSummary(regimeName: String, messages: Seq[Msg], addenda: Seq[RenderableMessage], status: SummaryStatus)

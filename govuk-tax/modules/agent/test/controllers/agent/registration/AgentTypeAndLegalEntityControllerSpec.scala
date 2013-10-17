@@ -2,7 +2,7 @@ package controllers.agent.registration
 
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-import play.api.test.{ FakeRequest, WithApplication }
+import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
@@ -11,9 +11,8 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import play.api.test.FakeApplication
 import scala.Some
 import org.mockito.Mockito._
-import org.mockito.{ ArgumentCaptor, Matchers }
+import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
-import scala.util.Success
 
 class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
 
@@ -22,7 +21,7 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec {
   val uri = "/personal/paye/blah"
 
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
-  val user = User(id, null, RegimeRoots(Some(Success(payeRoot)), None, None, None, None), None, None)
+  val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
   private val controller = new AgentTypeAndLegalEntityController with MockMicroServicesForTests
 
