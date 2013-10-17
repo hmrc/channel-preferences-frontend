@@ -53,9 +53,7 @@ object Common {
       ),
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
-      testOptions in Test <+= (target in Test) map {
-        t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
-      }
+      testOptions in Test += Tests.Argument("-u", "target/test-reports")
     ) ++
     Repositories.publishingSettings
 
