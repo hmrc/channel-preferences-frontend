@@ -1,0 +1,21 @@
+@(otherServicesEnrolment : controllers.bt.otherServices.OtherServicesEnrolment)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "Your tax home", nav = true, user= Some(user)) {
+
+    <h1><span class="pre-heading">service</span> Other Services </h1>
+     <div>
+         <h2>Manage your other taxes</h2>
+     </div>
+     <div>
+         <h2>Enrol to use a new online service</h2>
+         <p>
+             If you are already registered for a tax that isn't shown above or on your homepage,
+             you can enrol to use the relevant online service @{otherServicesEnrolment.linkToPortal.render}.
+         </p>
+     </div>
+     <div>
+         <h2>Register for new business taxes</h2>
+     </div>
+
+
+}

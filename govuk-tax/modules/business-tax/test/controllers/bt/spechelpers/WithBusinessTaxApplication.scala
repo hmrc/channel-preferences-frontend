@@ -14,6 +14,8 @@ import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import controllers.bt.regimeViews.AccountSummaries
+import views.helpers.LinkMessage
+import controllers.bt.otherServices.OtherServicesEnrolment
 
 abstract class WithBusinessTaxApplication
   extends WithApplication(FakeApplication())
@@ -35,6 +37,8 @@ abstract class WithBusinessTaxApplication
 
     def businessTaxHomepage(user: User, portalHref: String, accountSummaries: AccountSummaries): String
 
+    def otherServicesPage(user: User, otherServicesEnrolment : OtherServicesEnrolment): String
+
     def buildPortalUrl(user: User, request: Request[AnyRef], base: String): String
   }
 
@@ -52,6 +56,11 @@ abstract class WithBusinessTaxApplication
     override private[bt] def businessTaxHomepage(portalHref: String, accountSummaries: AccountSummaries)(implicit user: User): Html = {
       Logger.debug("RENDERING businessTaxHomePage")
       Html(expectations.businessTaxHomepage(user, portalHref, accountSummaries))
+    }
+
+    override private[bt] def otherServicesPage(otherServicesEnrolment : OtherServicesEnrolment)(implicit user: User): Html = {
+      Logger.debug("RENDERING otherServices")
+      Html(expectations.otherServicesPage(user, otherServicesEnrolment))
     }
 
     override def buildPortalUrl(base: String)(implicit request: Request[AnyRef], user: User): String = {
