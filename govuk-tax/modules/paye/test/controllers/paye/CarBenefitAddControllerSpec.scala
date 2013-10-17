@@ -614,15 +614,84 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
   }
 
+  "the review add car benefit page" should {
+     "render car benefit only when the user has no fuel benefit" in new WithApplication(FakeApplication()) {
+
+       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty, false)
+
+       val registeredBefore98 = false
+       val fuelType = "electricity"
+       val userContribution = 100
+       val listPrice = 9999
+
+       val sentBenefitData = NewBenefitCalculationData(registeredBefore98, fuelType, None, None, Some(userContribution), listPrice, None, None, None, None, "false", None)
+       when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), None))
+
+       val result = controller.reviewAddCarBenefitAction(johnDensmore,
+         newRequestForSaveAddCarBenefit(registeredBefore98Val = Some(registeredBefore98.toString),
+         providedFromVal = None,
+         providedToVal = None,
+         fuelTypeVal = Some(fuelType),
+         engineCapacityVal = None,
+         co2NoFigureVal = None,
+         employeeContributesVal = Some("true"),
+         employeeContributionVal = Some(userContribution.toString),
+         listPriceVal = Some(listPrice.toString))
+         , 2013, 1)
+
+       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)
+
+       status(result) shouldBe 200
+       val doc = Jsoup.parse(contentAsString(result))
+       doc.select("#carBenefitTaxableValue").text shouldBe "999"
+       doc.select("#fuelBenefitTaxableValue").isEmpty shouldBe true
+     }
+
+    "render car and fuel benefits when the user has both, car and fuel benefits" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty, false)
+
+      val registeredBefore98 = false
+      val fuelType = "diesel"
+      val userContribution = 100
+      val listPrice = 9999
+      val engineCapacity = 1400
+      val co2Emission = 50
+
+      val sentBenefitData = NewBenefitCalculationData(registeredBefore98, fuelType, Some(co2Emission), Some(engineCapacity), Some(userContribution), listPrice, None, None, None, None, "false", None)
+      when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444)))
+
+      val result = controller.reviewAddCarBenefitAction(johnDensmore,
+        newRequestForSaveAddCarBenefit(registeredBefore98Val = Some(registeredBefore98.toString),
+          providedFromVal = None,
+          providedToVal = None,
+          fuelTypeVal = Some(fuelType),
+          engineCapacityVal = Some(engineCapacity.toString),
+          co2NoFigureVal = None,
+          co2FigureVal = Some(co2Emission.toString),
+          employeeContributesVal = Some("true"),
+          employeeContributionVal = Some(userContribution.toString),
+          listPriceVal = Some(listPrice.toString))
+        , 2013, 1)
+
+      status(result) shouldBe 200
+
+      verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#carBenefitTaxableValue").text shouldBe "999"
+      doc.select("#fuelBenefitTaxableValue").text shouldBe "444"
+    }
+  }
+
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
-                                        acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
+                                        acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction], setPayeMocks: Boolean = true) {
     when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
     when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
     when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
-    setupPayeMicroServiceMock()
+    if(setPayeMocks) setupPayeMicroServiceMock()
   }
 
   private def setupPayeMicroServiceMock() {
