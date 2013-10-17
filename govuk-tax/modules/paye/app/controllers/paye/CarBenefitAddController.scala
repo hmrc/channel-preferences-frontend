@@ -47,10 +47,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   private def providedToDefaultValue = endOfCurrentTaxYear
 
   private def findPrimaryEmployment(user: User): Option[Employment] =
-    user.regimes.paye.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
+    user.regimes.paye.get.fetchEmployments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
 
   private def findEmployment(user: User, taxYear: Int, employmentSequenceNumber: Int) = {
-    user.regimes.paye.get.employments(taxYear).find(_.sequenceNumber == employmentSequenceNumber)
+    user.regimes.paye.get.fetchEmployments(taxYear).find(_.sequenceNumber == employmentSequenceNumber)
   }
 
   private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {

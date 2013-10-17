@@ -9,7 +9,7 @@ object TaxCodeResolver {
   val NON_DEFINED_TAXCODE = "N/A"
 
   def currentTaxCode(payeRoot: PayeRoot, employmentSequenceNumber: Int, taxYear: Int)(implicit microservice: PayeMicroService) : String = {
-    currentTaxCode(payeRoot.taxCodes(taxYear), employmentSequenceNumber )
+    currentTaxCode(payeRoot.fetchTaxCodes(taxYear), employmentSequenceNumber )
   }
 
   def currentTaxCode(taxCodes: Seq[TaxCode], employmentSequenceNumber: Int): String = {

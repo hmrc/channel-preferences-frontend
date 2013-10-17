@@ -282,12 +282,12 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
     private def getBenefitMatching(kind: Int, user: User, employmentSequenceNumber: Int): Option[DisplayBenefit] = {
       val taxYear = currentTaxYear
-      val benefit = user.regimes.paye.get.benefits(taxYear).find(
+      val benefit = user.regimes.paye.get.fetchBenefits(taxYear).find(
         b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
 
-      val transactions = user.regimes.paye.get.recentCompletedTransactions
+      val transactions = user.regimes.paye.get.fetchRecentCompletedTransactions
 
-      val matchedBenefits = DisplayBenefits(benefit.toList, user.regimes.paye.get.employments(taxYear), transactions)
+      val matchedBenefits = DisplayBenefits(benefit.toList, user.regimes.paye.get.fetchEmployments(taxYear), transactions)
 
       if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
     }

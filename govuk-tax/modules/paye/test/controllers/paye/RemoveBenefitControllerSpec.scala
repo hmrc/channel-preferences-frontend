@@ -940,11 +940,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val car = Car(None, Some(new LocalDate(2012, 12, 12)), None, BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
-        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
+        override def fetchEmployments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
           Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None, primaryEmploymentType))
         }
 
-        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
+        override def fetchBenefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
           Seq(Benefit(31, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]()))
         }
       }
@@ -967,11 +967,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val car = Car(None, None, Some(new LocalDate()), BigDecimal(10), 1, 1, 1, "12000", BigDecimal("1432"))
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
-        override def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
+        override def fetchEmployments(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Employment] = {
           Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys"), primaryEmploymentType))
         }
 
-        override def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
+        override def fetchBenefits(taxYear: Int)(implicit payeMicroService: PayeMicroService): Seq[Benefit] = {
           Seq(Benefit(31, 2013, BigDecimal("3"), 1, BigDecimal("4"), BigDecimal("5"), BigDecimal("6"), BigDecimal("7"), BigDecimal("8"), "payment", Some(car), Map[String, String](), Map[String, String]()))
         }
       }

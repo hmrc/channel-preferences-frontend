@@ -11,7 +11,7 @@ trait Benefits extends ActionWrappers {
 
   def findExistingBenefit(user: User, employmentNumber: Int, benefitType: Int): Option[Benefit] = {
     val taxYear = TaxYearResolver.currentTaxYear
-    val benefits = user.regimes.paye.get.benefits(taxYear)
+    val benefits = user.regimes.paye.get.fetchBenefits(taxYear)
 
     benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {
       case Some(benef) if (thereAreNoExistingTransactionsMatching(user, benefitType, employmentNumber, taxYear)) => Some(benef)
@@ -21,8 +21,8 @@ trait Benefits extends ActionWrappers {
 
 
   private[paye] def thereAreNoExistingTransactionsMatching(user: User, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
-    val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
-      user.regimes.paye.get.recentCompletedTransactions
+    val transactions = user.regimes.paye.get.fetchRecentAcceptedTransactions ++
+      user.regimes.paye.get.fetchRecentCompletedTransactions
     transactions.find(matchesBenefit(_, kind, employmentSequenceNumber, year)).isEmpty
   }
 
