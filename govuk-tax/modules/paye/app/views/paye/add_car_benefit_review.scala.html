@@ -25,12 +25,12 @@
             }
             @if(data.carBenefitValue.isDefined){
             <tr>
-                <td>Car benefit taxable value</td><td><span id="carBenefitTaxableValue">@data.carBenefitValue.get.taxableValue</span></td>
+                <td>Car benefit taxable value</td><td>£<span id="carBenefitTaxableValue">@data.carBenefitValue.get.taxableValue</span></td>
             </tr>
             }
             @if(data.carFuelBenefitValue.isDefined){
             <tr>
-                <td>Fuel benefit taxable value</td><td><span id="fuelBenefitTaxableValue">@data.carFuelBenefitValue.get.taxableValue</span></td>
+                <td>Fuel benefit taxable value</td><td>£<span id="fuelBenefitTaxableValue">@data.carFuelBenefitValue.get.taxableValue</span></td>
             </tr>
             }
 
@@ -62,17 +62,17 @@
              @if(data.carBenefitValue.isDefined){
              <tr>
                  <td>Company car benefit tax</td>
-                 <td>@data.carBenefitValue.get.basicRateValue</td>
-                 <td>@data.carBenefitValue.get.higherRateValue</td>
-                 <td>@data.carBenefitValue.get.additionalRateValue</td>
+                 <td>£@data.carBenefitValue.get.basicRateValue</td>
+                 <td>£@data.carBenefitValue.get.higherRateValue</td>
+                 <td>£@data.carBenefitValue.get.additionalRateValue</td>
              </tr>
              }
              @if(data.carFuelBenefitValue.isDefined){
              <tr>
                  <td>Private fuel tax</td>
-                 <td>@data.carFuelBenefitValue.get.basicRateValue</td>
-                 <td>@data.carFuelBenefitValue.get.higherRateValue</td>
-                 <td>@data.carFuelBenefitValue.get.additionalRateValue</td>
+                 <td>£@data.carFuelBenefitValue.get.basicRateValue</td>
+                 <td>£@data.carFuelBenefitValue.get.higherRateValue</td>
+                 <td>£@data.carFuelBenefitValue.get.additionalRateValue</td>
              </tr>
              }
              </tbody>
