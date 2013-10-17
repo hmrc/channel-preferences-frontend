@@ -9,12 +9,11 @@ import uk.gov.hmrc.common.microservice.ct.CtConnector
 class AccountSummariesFactory(saConnector: SaConnector,
                               vatConnector: VatConnector,
                               ctConnector: CtConnector,
-                              epayeConnector: EpayeConnector) {
-
-  val saRegimeAccountSummaryViewBuilder = SaAccountSummaryBuilder(saConnector)
-  val vatRegimeAccountSummaryViewBuilder = VatAccountSummaryBuilder(vatConnector)
-  val ctRegimeAccountSummaryViewBuilder = CtAccountSummaryBuilder(ctConnector)
-  val epayeRegimeAccountSummaryViewBuilder = EpayeAccountSummaryBuilder(epayeConnector)
+                              epayeConnector: EpayeConnector)
+                             (saRegimeAccountSummaryViewBuilder : SaAccountSummaryBuilder = SaAccountSummaryBuilder(saConnector),
+                              vatRegimeAccountSummaryViewBuilder : VatAccountSummaryBuilder = VatAccountSummaryBuilder(vatConnector),
+                              ctRegimeAccountSummaryViewBuilder : CtAccountSummaryBuilder = CtAccountSummaryBuilder(ctConnector),
+                              epayeRegimeAccountSummaryViewBuilder : EpayeAccountSummaryBuilder = EpayeAccountSummaryBuilder(epayeConnector)) {
 
   def create(buildPortalUrl: (String) => String)(implicit user: User): AccountSummaries = {
     val saRegime = saRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)

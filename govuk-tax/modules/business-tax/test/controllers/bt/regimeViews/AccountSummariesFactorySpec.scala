@@ -1,30 +1,34 @@
 package controllers.bt.regimeViews
 
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MockUtils, BaseSpec}
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.vat.VatConnector
-import uk.gov.hmrc.common.microservice.sa.SaConnector
-import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import scala.Predef._
 import uk.gov.hmrc.common.microservice.domain.User
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 
 class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
 
-  def mockSaRegimeAccountSummaryViewBuilder = mock[SaAccountSummaryBuilder]
-  def mockVatRegimeAccountSummaryViewBuilder = mock[VatAccountSummaryBuilder]
-  def mockCtRegimeAccountSummaryViewBuilder = mock[CtAccountSummaryBuilder]
-  def mockEpayeRegimeAccountSummaryViewBuilder = mock[EpayeAccountSummaryBuilder]
+  val mockSaRegimeAccountSummaryViewBuilder = mock[SaAccountSummaryBuilder]
 
-  def mockUser = mock[User]
+  val mockVatRegimeAccountSummaryViewBuilder = mock[VatAccountSummaryBuilder]
 
-  def factory() = new AccountSummariesFactory(null, null, null, null) {
-    override val saRegimeAccountSummaryViewBuilder = mockSaRegimeAccountSummaryViewBuilder
-    override val vatRegimeAccountSummaryViewBuilder = mockVatRegimeAccountSummaryViewBuilder
-    override val ctRegimeAccountSummaryViewBuilder = mockCtRegimeAccountSummaryViewBuilder
-    override val epayeRegimeAccountSummaryViewBuilder = mockEpayeRegimeAccountSummaryViewBuilder
+  val mockCtRegimeAccountSummaryViewBuilder = mock[CtAccountSummaryBuilder]
+
+  val mockEpayeRegimeAccountSummaryViewBuilder = mock[EpayeAccountSummaryBuilder]
+
+  val mockUser = mock[User]
+
+  def factory() = new AccountSummariesFactory(null, null, null, null)(mockSaRegimeAccountSummaryViewBuilder,
+                            mockVatRegimeAccountSummaryViewBuilder,
+                            mockCtRegimeAccountSummaryViewBuilder,
+                            mockEpayeRegimeAccountSummaryViewBuilder)
+
+  before {
+    MockUtils.resetAll(mockSaRegimeAccountSummaryViewBuilder,
+      mockVatRegimeAccountSummaryViewBuilder,
+      mockCtRegimeAccountSummaryViewBuilder,
+      mockEpayeRegimeAccountSummaryViewBuilder)
   }
 
   "Account Summary Factory when constructor " should {
@@ -33,10 +37,10 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       val userUnderTest = mockUser
       val portalBuilder: (String => String) = (value) => value
 
-      when(factoryUnderTest.saRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
-      when(factoryUnderTest.vatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
-      when(factoryUnderTest.ctRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
-      when(factoryUnderTest.epayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
+      when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
+      when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
+      when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
+      when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
 
       val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest)
       actualAccountSummaries.regimes shouldBe Seq.empty
@@ -51,10 +55,11 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       val factoryUnderTest = factory()
       val userUnderTest = mockUser
       val portalBuilder: (String => String) = (value) => value
-      when(factoryUnderTest.saRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(saAccountSummary))
-      when(factoryUnderTest.vatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(vatAccountSummary))
-      when(factoryUnderTest.ctRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(ctAccountSummary))
-      when(factoryUnderTest.epayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(epayeAccountSummary))
+
+      when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(saAccountSummary))
+      when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(vatAccountSummary))
+      when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(ctAccountSummary))
+      when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(epayeAccountSummary))
 
       val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest)
       actualAccountSummaries.regimes shouldBe Seq(saAccountSummary, vatAccountSummary, ctAccountSummary, epayeAccountSummary)
