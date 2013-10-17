@@ -17,7 +17,6 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import views.html.paye.add_car_benefit_review
-import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
@@ -46,11 +45,11 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
 
   private def providedToDefaultValue = endOfCurrentTaxYear
 
-  private def findPrimaryEmployment(user: User): Option[Employment] =
-    user.regimes.paye.get.fetchEmployments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
+  private def findPrimaryEmployment(payeRootData: PayeRootData): Option[Employment] =
+    payeRootData.currentTaxYearEmployments.find(_.employmentType == primaryEmploymentType)
 
-  private def findEmployment(user: User, taxYear: Int, employmentSequenceNumber: Int) = {
-    user.regimes.paye.get.fetchEmployments(taxYear).find(_.sequenceNumber == employmentSequenceNumber)
+  private def findEmployment(employmentSequenceNumber: Int, payeRootData: PayeRootData) = {
+    payeRootData.currentTaxYearEmployments.find(_.sequenceNumber == employmentSequenceNumber)
   }
 
   private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
@@ -80,9 +79,9 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   )
 
   private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
-    (request, user, taxYear, employmentSequenceNumber) => {
+    (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       val dates = getCarBenefitDates(request)
-      findEmployment(user, taxYear, employmentSequenceNumber) match {
+      findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
           Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
         }
@@ -95,8 +94,8 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   }
 
   private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
-    (request, user, taxYear, employmentSequenceNumber) => {
-      findEmployment(user, taxYear, employmentSequenceNumber) match {
+    (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
+      findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)
           val payeRoot = user.regimes.paye.get
@@ -147,19 +146,27 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   }
 
   object WithValidatedRequest {
-    def apply(action: (Request[_], User, Int, Int) => Result): (User, Request[_], Int, Int) => Result = {
+    def apply(action: (Request[_], User, Int, Int, PayeRootData) => Result): (User, Request[_], Int, Int) => Result = {
       (user, request, taxYear, employmentSequenceNumber) => {
         if (TaxYearResolver.currentTaxYear != taxYear) {
           Logger.error("Adding car benefit is only allowed for the current tax year")
           BadRequest
-        } else if (employmentSequenceNumber != findPrimaryEmployment(user).get.sequenceNumber) {
-          Logger.error("Adding car benefit is only allowed for the primary employment")
-          BadRequest
         } else {
-          if (findExistingBenefit(user, employmentSequenceNumber, BenefitTypes.CAR).isDefined) {
-            redirectToCarBenefitHome(request, user)
+          val payeRootData = PayeRootData(
+            user.regimes.paye.get.fetchRecentAcceptedTransactions,
+            user.regimes.paye.get.fetchRecentCompletedTransactions,
+            user.regimes.paye.get.fetchBenefits(currentTaxYear),
+            user.regimes.paye.get.fetchEmployments(currentTaxYear))
+
+          if (employmentSequenceNumber != findPrimaryEmployment(payeRootData).get.sequenceNumber) {
+            Logger.error("Adding car benefit is only allowed for the primary employment")
+            BadRequest
           } else {
-            action(request, user, taxYear, employmentSequenceNumber)
+            if (findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR, payeRootData).isDefined) {
+              redirectToCarBenefitHome(request, user)
+            } else {
+              action(request, user, taxYear, employmentSequenceNumber, payeRootData)
+            }
           }
         }
       }
