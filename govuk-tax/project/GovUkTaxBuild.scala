@@ -86,16 +86,14 @@ object Common {
         "-unchecked",
         "-deprecation",
         "-Xlint",
-	"-Xmax-classfile-name", "100",
+	      "-Xmax-classfile-name", "100",
         "-language:_",
         "-target:jvm-1.7",
         "-encoding", "UTF-8"
       ),
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
-      testOptions in Test <+= (target in Test) map {
-        t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
-      }
+      testOptions in Test += Tests.Argument("-u", "target/test-reports")
     ) ++
     Repositories.publishingSettings
 
