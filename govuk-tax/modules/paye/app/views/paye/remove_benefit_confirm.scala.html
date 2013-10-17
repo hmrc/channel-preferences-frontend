@@ -20,7 +20,7 @@
     , means that you will pay a proportion of the benefit for the time you had the company @{benefitsTitle}.</p>
 
     @for(key <- keys){
-    <p>For the period <span id="start-date-@{key}">@{benefitsInfo(key).startDate.getOrElse("")}</span> to @{benefitsInfo(key).withdrawDate.getOrElse("")}, the change will be
+    <p>For the period <span id="start-date-@{key}">@{benefitsInfo(key).startDate.getOrElse("")}</span> to @{benefitsInfo(key).withdrawDate.getOrElse("")}, the charge will be
         <span id="apportioned-value-@{key}">£@{benefitsInfo(key).apportionedValue.getOrElse("")}</span> for the company @Messages(s"benefitType.${key}.title").</p>
     }
 
