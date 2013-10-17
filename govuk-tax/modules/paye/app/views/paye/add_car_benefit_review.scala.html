@@ -1,4 +1,4 @@
-@(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData, currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
 @import views.formatting.Dates._
@@ -45,14 +45,15 @@
             <p>Based on the information your company car benefit value is £@data.carBenefitValue.get.taxableValue.</p>
             <p>In order to calculate the actual tax you will pay on this benefit, we need to add it to your other income and tax information, and recalculate your tax code.</p>
         }
-         <p>However the following provides an indication of the tax you will pay if you are a basic rate (20%) or higher rate (40%) tax payer:</p>
+        <p>However the following provides an indication of the tax you will pay if you are a basic rate (20%), higher rate (40%) or additional rate (45%) taxpayer:</p>
 
          <table>
             <thead>
             <tr>
-                <th>2013/2014</th>
+                <th>@{s"${currentTaxYearYearsRange(0)}/${currentTaxYearYearsRange(1)}"}</th>
                 <th>20%</th>
                 <th>40%</th>
+                <th>45%</th>
              </tr>
             </thead>
 
@@ -63,6 +64,7 @@
                  <td>Company car benefit tax</td>
                  <td>@data.carBenefitValue.get.basicRateValue</td>
                  <td>@data.carBenefitValue.get.higherRateValue</td>
+                 <td>@data.carBenefitValue.get.additionalRateValue</td>
              </tr>
              }
              @if(data.carFuelBenefitValue.isDefined){
@@ -70,6 +72,7 @@
                  <td>Private fuel tax</td>
                  <td>@data.carFuelBenefitValue.get.basicRateValue</td>
                  <td>@data.carFuelBenefitValue.get.higherRateValue</td>
+                 <td>@data.carFuelBenefitValue.get.additionalRateValue</td>
              </tr>
              }
              </tbody>

@@ -133,7 +133,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
               val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
                 addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                 addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, carFuelBenefitValue)
-              Ok(add_car_benefit_review(confirmationData)(user))
+              Ok(add_car_benefit_review(confirmationData, TaxYearResolver.currentTaxYearYearsRange)(user))
             }
           )
         }
