@@ -26,7 +26,8 @@ class PreferredContactController
 
   private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
     val form = preferredContactForm(request).bindFromRequest()(request)
-    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
+    val ksId = keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound"))
+    keyStoreMicroService.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) match {
       case Some(pc@PotentialClient(Some(_), Some(_), _)) => {
         //FIXME we should trim contact details before saving them here
         form.fold(
