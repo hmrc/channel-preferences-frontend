@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.ct.domain.CtDomain
 import uk.gov.hmrc.domain.CtUtr
 
 
-case class CtAccountSummaryBuilder(ctConnector: CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
+case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
 
   import CommonBusinessMessageKeys._
   import CtMessageKeys._

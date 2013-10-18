@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import uk.gov.hmrc.domain.SaUtr
 
-case class SaAccountSummaryBuilder(saConnector: SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
+case class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
 
 
   private def utrMessage(utr: SaUtr) : Msg = {

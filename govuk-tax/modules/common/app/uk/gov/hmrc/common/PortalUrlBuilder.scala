@@ -7,7 +7,7 @@ import play.api.Logger
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.TaxYearResolver
 
-trait PortalDestinationUrlBuilder extends CookieEncryption {
+trait PortalUrlBuilder extends CookieEncryption {
 
   def buildPortalUrl(destinationPathKey: String)(implicit request: Request[AnyRef], user: User): String = {
     val currentTaxYear = TaxYearResolver.currentTaxYear

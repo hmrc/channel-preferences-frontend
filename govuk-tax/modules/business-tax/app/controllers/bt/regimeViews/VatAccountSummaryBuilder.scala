@@ -7,7 +7,7 @@ import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.Vrn
 
-case class VatAccountSummaryBuilder(vatConnector: VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
+case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 
   import CommonBusinessMessageKeys._
   import VatMessageKeys._

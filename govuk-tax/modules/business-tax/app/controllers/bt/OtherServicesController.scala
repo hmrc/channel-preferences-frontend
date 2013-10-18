@@ -2,14 +2,14 @@ package controllers.bt
 
 import controllers.bt.otherServices.OtherServicesSummary
 import controllers.common.{ActionWrappers, BaseController}
-import uk.gov.hmrc.common.PortalDestinationUrlBuilder
+import uk.gov.hmrc.common.{PortalUrlBuilder, PortalDestinationUrlBuilder}
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.bt.otherServicesViews.OtherServicesFactory
 
 
 class OtherServicesController(otherServicesFactory: OtherServicesFactory) extends BaseController
 with ActionWrappers
-with PortalDestinationUrlBuilder {
+with PortalUrlBuilder {
 
   def this() = this(new OtherServicesFactory)
 

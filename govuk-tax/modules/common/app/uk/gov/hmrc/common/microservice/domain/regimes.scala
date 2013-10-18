@@ -23,7 +23,7 @@ case class User(userId: String,
                 userAuthority: UserAuthority,
                 regimes: RegimeRoots,
                 nameFromGovernmentGateway: Option[String] = None,
-                decryptedToken: Option[String]) {
+                decryptedToken: Option[String] = None) {
 
   def oid = userId.substring(userId.lastIndexOf("/") + 1)
 

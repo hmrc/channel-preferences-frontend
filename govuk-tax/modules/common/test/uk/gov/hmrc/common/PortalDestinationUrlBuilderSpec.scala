@@ -11,7 +11,7 @@ import uk.gov.hmrc.domain.{CtUtr, Vrn, SaUtr}
 
 class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
-  val portalUrlBuilder = new PortalDestinationUrlBuilder {}
+  val portalUrlBuilder = new PortalUrlBuilder {}
   
   val mockConfigValues = Map("govuk-tax.Test.portal.destinationPath.someDestinationPathKey" -> "/utr/<utr>/year/<year>",
     "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "/utr/<utr>/affinitygroup/<affinitygroup>/year/<year>",
