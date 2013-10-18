@@ -45,13 +45,13 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
     "display John s benefits" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      requestBenefitsAction(johnDensmore) should include("&pound;135.33")
+      requestBenefitsAction(johnDensmore) should include("&pound;135")
     }
 
     "not display a benefits without a corresponding employment" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresOneEmployment(), johnDensmoresBenefits, List.empty, List.empty)
 
-      requestBenefitsAction(johnDensmore) should not include "22.22"
+      requestBenefitsAction(johnDensmore) should not include "22"
     }
 
     "display car details" in new WithApplication(FakeApplication()) {
@@ -63,7 +63,7 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
       requestBenefitsAction(johnDensmore) should include("Engine size: 0-1400 cc")
       requestBenefitsAction(johnDensmore) should include("Fuel type: Bi-Fuel")
       requestBenefitsAction(johnDensmore) should include("Date car registered: December 12, 2012")
-      requestBenefitsAction(johnDensmore) should include("&pound;321.42")
+      requestBenefitsAction(johnDensmore) should include("&pound;321")
     }
 
     "display a remove link for car benefits" in new WithApplication(FakeApplication()) {

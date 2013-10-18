@@ -12,8 +12,8 @@
 
     @if( carBenefit.isDefined ) {
 
-	<p><span id="company-name">@optionalValue(employerName, "your.employer")</span> told us that they have provided you with a <span id="car-benefit-engine">@engineSizeFor(carBenefit.get.car.get.engineSize)</span> <span id="car-benefit-fuel-type">@fuelTypeFor(carBenefit.get.car.get.fuelType)</span> company car since <span id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</span>. It has a benefit value of <span id="car-benefit-amount">@pounds(carBenefit.get.grossAmount, 2)</span>.
-	    @if(fuelBenefit.isDefined) { You also receive a car fuel benefit worth <span id="fuel-benefit-amount">@pounds(fuelBenefit.get.grossAmount, 2)</span>. }</p>
+	<p><span id="company-name">@optionalValue(employerName, "your.employer")</span> told us that they have provided you with a <span id="car-benefit-engine">@engineSizeFor(carBenefit.get.car.get.engineSize)</span> <span id="car-benefit-fuel-type">@fuelTypeFor(carBenefit.get.car.get.fuelType)</span> company car since <span id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</span>. It has a benefit value of <span id="car-benefit-amount">@pounds(carBenefit.get.grossAmount)</span>.
+	    @if(fuelBenefit.isDefined) { You also receive a car fuel benefit worth <span id="fuel-benefit-amount">@pounds(fuelBenefit.get.grossAmount)</span>. }</p>
 	<p>Would you like to tell HMRC that:</p>
 	<ul>
 	    <li><a id="rmCarLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)">you no longer have this company car</a></li>

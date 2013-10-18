@@ -22,7 +22,7 @@ class MoneyPoundsSpec extends BaseSpec {
     }
 
     "return the formatted value (with grouping separators) and 2 decimal places" in {
-      MoneyPounds(9657876.93456, 2).quantity shouldBe "9,657,876.93"
+      MoneyPounds(9657876.93756, 2).quantity shouldBe "9,657,876.93"
       MoneyPounds(1008, 2).quantity shouldBe "1,008.00"
     }
 
