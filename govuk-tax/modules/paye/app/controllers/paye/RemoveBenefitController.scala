@@ -221,17 +221,6 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     datesForm.bindFromRequest()(request).value
   }
 
-  private def findStartDate(thisBenefit: Benefit, allBenefits: Seq[Benefit]): Option[LocalDate] = {
-    thisBenefit.benefitType match {
-      case CAR => thisBenefit.car.get.dateCarMadeAvailable
-      case FUEL => {
-        val carBenefit = Benefit.findByTypeAndEmploymentNumber(allBenefits, thisBenefit.employmentSequenceNumber, CAR)
-        carBenefit.flatMap(_.car.get.dateCarMadeAvailable)
-      }
-      case _ => None
-    }
-  }
-
   private def calculateRevisedAmount(benefit: Benefit, withdrawDate: LocalDate): BigDecimal = {
     val calculationResult = payeService.calculateWithdrawBenefit(benefit, withdrawDate)
     calculationResult.result(benefit.taxYear.toString)
