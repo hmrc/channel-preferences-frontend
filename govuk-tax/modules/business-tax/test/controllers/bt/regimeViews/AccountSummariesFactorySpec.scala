@@ -19,17 +19,19 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
 
   val mockUser = mock[User]
 
-  def factory() = new AccountSummariesFactory(null, null, null, null)(mockSaRegimeAccountSummaryViewBuilder,
-                            mockVatRegimeAccountSummaryViewBuilder,
-                            mockCtRegimeAccountSummaryViewBuilder,
-                            mockEpayeRegimeAccountSummaryViewBuilder)
-
   before {
     MockUtils.resetAll(mockSaRegimeAccountSummaryViewBuilder,
       mockVatRegimeAccountSummaryViewBuilder,
       mockCtRegimeAccountSummaryViewBuilder,
-      mockEpayeRegimeAccountSummaryViewBuilder)
+      mockEpayeRegimeAccountSummaryViewBuilder,
+      mockUser)
   }
+
+  def factory() = new AccountSummariesFactory(
+    mockSaRegimeAccountSummaryViewBuilder, 
+    mockVatRegimeAccountSummaryViewBuilder, 
+    mockCtRegimeAccountSummaryViewBuilder, 
+    mockEpayeRegimeAccountSummaryViewBuilder)
 
   "Account Summary Factory when constructor " should {
     "construct an AccountSummaries model using the AccountSummary regimes factories that return None" in {
