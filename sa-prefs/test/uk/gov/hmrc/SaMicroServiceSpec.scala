@@ -14,8 +14,8 @@ class TestSaMicroservice extends SaMicroService with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
-    httpWrapper.httpPut(uri, body)
+  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
+    httpWrapper.post(uri, body, headers)
   }
 
   override protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = {
@@ -49,7 +49,7 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       saMicroService.savePreferences(utr, true, Some(email))
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(saMicroService.httpWrapper).httpPut(Matchers.eq(s"/preferences/sa/utr/$utr/preferences"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(saMicroService.httpWrapper).post(Matchers.eq(s"/preferences/sa/utr/$utr/preferences"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe (true)
@@ -61,7 +61,7 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       saMicroService.savePreferences(utr, false)
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(saMicroService.httpWrapper).httpPut(Matchers.eq(s"/preferences/sa/utr/$utr/preferences"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(saMicroService.httpWrapper).post(Matchers.eq(s"/preferences/sa/utr/$utr/preferences"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe (false)
