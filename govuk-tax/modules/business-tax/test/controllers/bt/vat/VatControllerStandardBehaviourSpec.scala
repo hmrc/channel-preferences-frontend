@@ -1,23 +1,25 @@
-package controllers.bt
+package controllers.bt.vat
 
 import uk.gov.hmrc.common.BaseSpec
 import play.api.mvc.{Result, AnyContent, Action}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import org.joda.time.Duration
-import controllers.bt.vat._
 import scala.Some
+import controllers.bt.mixins.request.{NonBusinessTaxRequest, BusinessTaxRequest, EmptySessionRequest, NoSessionRequest}
+import controllers.bt.mixins.fixtures.{JohnDensmoreTestFixture, GeoffFisherTestFixture}
+import controllers.bt.VatController
 
 trait VatControllerBehaviours extends BaseSpec {
 
   def aVatBusinessUserSessionValidatingMethod(method: VatController => Action[AnyContent]) {
 
-    "redirect if there is no session" in new VatControllerForTest with RequestWithoutSession {
+    "redirect if there is no session" in new VatControllerForTest with NoSessionRequest {
       val result: Result = method(vatControllerUnderTest)(FakeRequest())
       status(result) shouldBe 303
     }
 
-    "redirect if there is no logged in user" in new VatControllerForTest with RequestWithEmptySession {
+    "redirect if there is no logged in user" in new VatControllerForTest with EmptySessionRequest {
       val result: Result = method(vatControllerUnderTest)(request)
       status(result) shouldBe 303
     }
