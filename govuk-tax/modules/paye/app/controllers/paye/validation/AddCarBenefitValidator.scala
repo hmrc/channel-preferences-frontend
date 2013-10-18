@@ -10,6 +10,7 @@ import controllers.common.validators.Validators
 
 object AddCarBenefitValidator extends Validators {
 
+  private val carRegistrationDateCutoff = LocalDate.parse("1998-01-01")
   private val engineCapacityOptions = Seq("1400", "2000", "9999")
   private val fuelTypeElectric = "electricity"
   private val fuelTypeOptions = Seq("diesel", fuelTypeElectric, "other")
@@ -21,7 +22,7 @@ object AddCarBenefitValidator extends Validators {
                                      numberOfDaysUnavailableVal:  Option[String],
                                      giveBackThisTaxYearVal:  Option[String],
                                      providedToVal: Option[LocalDate],
-                                     registeredBefore98: Option[String],
+                                     carRegistrationDate: Option[LocalDate],
                                      employeeContributes: Option[String],
                                      employerContributes: Option[String],
                                      fuelType: Option[String],
@@ -36,7 +37,7 @@ object AddCarBenefitValidator extends Validators {
       numberOfDaysUnavailable -> optional(text),
       giveBackThisTaxYear -> optional(text),
       providedTo -> dateTuple(false, Some(providedToDefaultValue)),
-      registeredBefore98 -> optional(text),
+      carRegistrationDate -> dateTuple(false, None),
       employeeContributes -> optional(text),
       employerContributes -> optional(text),
       fuelType -> optional(text),
@@ -61,8 +62,11 @@ object AddCarBenefitValidator extends Validators {
 
   private[paye] def validateFuelType(values: CarBenefitValues): Mapping[Option[String]] =
      optional(text.verifying("error.paye.fuel_type_correct_option" , data => isValidValue(fuelTypeOptions, data))
-     .verifying("error.paye.fuel_type_electricity_must_be_registered_after_98", data => if(values.registeredBefore98.getOrElse("") == "true") {!isFuelTypeElectric(Some(data)) } else true)
+     .verifying("error.paye.fuel_type_electricity_must_be_registered_after_98", data => if(isRegisteredBeforeCutoff(values.carRegistrationDate)) {!isFuelTypeElectric(Some(data)) } else true)
      ).verifying("error.paye.answer_mandatory", data => data.isDefined)
+
+
+  private def isRegisteredBeforeCutoff(carRegistrationDate: Option[LocalDate]): Boolean = carRegistrationDate.map(_.isBefore(carRegistrationDateCutoff)).getOrElse(false)
 
   private[paye] def validateEmployeeContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
     values.employeeContributes.map(_.toBoolean) match {
@@ -85,10 +89,10 @@ object AddCarBenefitValidator extends Validators {
   private[paye] def validateGiveBackThisTaxYear(values: CarBenefitValues) : Mapping[Option[Boolean]] =
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
-  private[paye] def validateRegisteredBefore98(values: CarBenefitValues) : Mapping[Option[Boolean]] =
-    optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
+  private[paye] def validateCarRegistrationDate(values: CarBenefitValues) : Mapping[Option[LocalDate]] =
+    dateTuple.verifying("error.paye.answer_mandatory", data => data.isDefined)
 
-  private[paye] def validateProvidedTo(values: CarBenefitValues) : Mapping[Option[LocalDate]] = values.giveBackThisTaxYearVal.map(_.toBoolean) match {
+  private[paye] def validateProvidedTo(values: CarBenefitValues) : Mapping[Option[LocalDate]] = values.giveBackThisTaxYearVal.map(_.toBoolean) match { 
     case Some(true) => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => values.providedFromVal.get.isBefore(values.providedToVal.get))
       .verifying("error.paye.add_car_benefit.missing_car_return_date", data => !data.isEmpty)
     case _ => ignored(None)

@@ -14,6 +14,7 @@ import controllers.DateFieldsHelper
 import scala.Some
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import play.api.test.FakeApplication
+import org.joda.time.LocalDate.now
 
 class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -182,12 +183,12 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
   "AddCarBenefitValidator for fields REGISTERED BEFORE 98, FUEL TYPE, CO2 FIGUREs and ENGINE CAPACITY  " should {
 
-    case class FiguresDummyModel(registeredBefore98: Option[Boolean], fuelType: Option[String], co2Figure: Option[Int], co2NoFigure: Option[Boolean], engineCapacity: Option[String])
+    case class FiguresDummyModel(carRegistrationDate: Option[LocalDate], fuelType: Option[String], co2Figure: Option[Int], co2NoFigure: Option[Boolean], engineCapacity: Option[String])
 
     def dummyForm(values: CarBenefitValues) = {
       Form[FiguresDummyModel](
         mapping(
-          registeredBefore98 -> validateRegisteredBefore98(values),
+          carRegistrationDate -> validateCarRegistrationDate(values),
           fuelType -> validateFuelType(values),
           co2Figure -> validateCo2Figure(values),
           co2NoFigure -> validateNoCo2Figure(values),
@@ -196,13 +197,13 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject registered before 98 if it is blank" in new WithApplication(FakeApplication()) {
-      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> ""))
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> ""))
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, registeredBefore98, "Please answer this question.")
+      assertHasThisErrorMessage(form, carRegistrationDate, "Please answer this question.")
     }
 
     "reject fuel type is electricity if registered before 98 is true" in new WithApplication(FakeApplication()) {
-      val form = dummyForm(getValues(registeredBefore98Val = Some("true"), fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> "true", fuelType -> "electricity"))
+      val form = dummyForm(getValues(carRegistrationDateVal = Some(now.withYear(1996)), fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> "true", fuelType -> "electricity"))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, fuelType, "Fuel type cannot be electric or zero emissions if your car was first registered with the DVLA before 1998.")
     }
@@ -245,7 +246,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject engine capacity blank if fuel type is not electricity" in new WithApplication(FakeApplication()) {
-      val form = dummyForm(getValues(registeredBefore98Val = Some("true"), fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registeredBefore98 -> "true", engineCapacity -> ""))
+      val form = dummyForm(getValues(carRegistrationDateVal = Some(now.withYear(1996)), fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> "true", engineCapacity -> ""))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is not electric or zero emissions, then you must select an engine capacity. No engine size does not apply to non-electric vehicles.")
 
@@ -261,12 +262,12 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
   }
 
   def getValues(fuelTypeVal: Option[String] = None, co2NoFigureVal: Option[String] = None, co2FigureVal: Option[String] = None,
-                registeredBefore98Val: Option[String] = None, numberOfDaysUnavailableVal: Option[String] = None, employerPayFuelVal: Option[String] = None) = new CarBenefitValues(providedFromVal = None,
+                carRegistrationDateVal: Option[LocalDate] = None, numberOfDaysUnavailableVal: Option[String] = None, employerPayFuelVal: Option[String] = None) = new CarBenefitValues(providedFromVal = None,
     carUnavailableVal = None,
     numberOfDaysUnavailableVal = numberOfDaysUnavailableVal,
     giveBackThisTaxYearVal = None,
     providedToVal = None,
-    registeredBefore98 = registeredBefore98Val,
+    carRegistrationDate = carRegistrationDateVal,
     employeeContributes = None,
     employerContributes = None,
     fuelType = fuelTypeVal,

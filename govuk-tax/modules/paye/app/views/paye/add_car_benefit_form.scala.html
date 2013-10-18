@@ -58,11 +58,9 @@
                 @helpers.fieldGroup(
                     carBenefitForm,
                     Seq(
-                    FormField(carBenefitForm(registeredBefore98), Seq(
-                        RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio-right")),
-                        RadioButton("true", "Yes", Some("form-field"), Some("label--inlineRadio-right"))))
+                        FormField(carBenefitForm(carRegistrationDate), Seq(DateControl((2013 to 2014))))
                     ),
-                    '_label -> "Was the car first registered with DVLA before 1 January 1998?",
+                    '_label -> "When was the car first registered with the DVLA?",
                     '_groupDivClass -> "form-field",
                     '_valueAfter -> true
                 )
