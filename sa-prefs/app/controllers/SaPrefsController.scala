@@ -5,14 +5,14 @@ import play.api.mvc.Results._
 import play.mvc._
 import play.api.data.Forms._
 import play.api.mvc.{ AnyContent, Request, Action }
-import uk.gov.hmrc.{ TokenExpiredException, SaMicroService, TokenEncryption }
+import uk.gov.hmrc.{ TokenExpiredException, PreferencesMicroService, TokenEncryption }
 import play.api.{ Logger, Play }
 import java.net.URLDecoder
 import controllers.service.{ RedirectWhiteListService, FrontEndConfig }
 
 class SaPrefsController extends Controller {
 
-  implicit lazy val saMicroService = new SaMicroService()
+  implicit lazy val preferencesMicroService = new PreferencesMicroService()
 
   private[controllers] val redirectWhiteListService = new RedirectWhiteListService(FrontEndConfig.redirectDomainWhiteList)
 
@@ -47,7 +47,7 @@ class SaPrefsController extends Controller {
     utr =>
       Action {
         implicit request =>
-          saMicroService.getPreferences(utr) match {
+          preferencesMicroService.getPreferences(utr) match {
             case Some(saPreference) => Redirect(return_url)
             case _ => Ok(views.html.sa_printing_preference(emailForm, token, return_url))
           }
@@ -72,10 +72,10 @@ class SaPrefsController extends Controller {
             errors => BadRequest(views.html.sa_printing_preference(errors, token, return_url)),
             email => {
 
-              saMicroService.getPreferences(utr) match {
+              preferencesMicroService.getPreferences(utr) match {
                 case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
                 case None => {
-                  saMicroService.savePreferences(utr, true, Some(email))
+                  preferencesMicroService.savePreferences(utr, true, Some(email))
                   //Play redirect is encoding query params, we need to decode the url to avoid double encoding
                   Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
                 }
@@ -90,10 +90,10 @@ class SaPrefsController extends Controller {
     utr =>
       Action {
         request =>
-          saMicroService.getPreferences(utr) match {
+          preferencesMicroService.getPreferences(utr) match {
             case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
             case None => {
-              saMicroService.savePreferences(utr, false)
+              preferencesMicroService.savePreferences(utr, false)
               Redirect(return_url)
             }
           }

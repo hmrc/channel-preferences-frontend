@@ -10,7 +10,7 @@ import play.api.libs.ws.WS.WSRequestHolder
 import play.api.libs.ws.Response
 import org.specs2.specification.{ AfterEach, BeforeAfterEach }
 
-class TestSaMicroservice extends SaMicroService with MockitoSugar {
+class TestPreferencesMicroservice extends PreferencesMicroService with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
@@ -37,7 +37,7 @@ class TestSaMicroservice extends SaMicroService with MockitoSugar {
 class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach {
   //
 
-  lazy val saMicroService: TestSaMicroservice = new TestSaMicroservice
+  lazy val saMicroService: TestPreferencesMicroservice = new TestPreferencesMicroservice
 
   override def afterEach = reset(saMicroService.httpWrapper)
 
