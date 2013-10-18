@@ -109,7 +109,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
               val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
 
               val addBenefitPayload = NewBenefitCalculationData(
-                registeredBefore98 = isRegisteredBeforeCutoff(addCarBenefitData.carRegistrationDate),
+                carRegisteredBefore98 = isRegisteredBeforeCutoff(addCarBenefitData.carRegistrationDate),
                 fuelType = addCarBenefitData.fuelType.get,
                 co2Emission = emission,
                 engineCapacity = addCarBenefitData.engineCapacity.map(_.toInt),

@@ -54,7 +54,7 @@ class PayeMicroServiceSpec extends BaseSpec {
       val service = new HttpMockedPayeMicroService
       val uri: String = "/paye/AB123456C/benefits/2013/1/add"
 
-      val benefitData =  NewBenefitCalculationData(carRegistrationDate = Some(LocalDate.now.minusYears(2)), fuelType = "diesel", co2Emission = Some(200), engineCapacity = Some(1200),
+      val benefitData =  NewBenefitCalculationData(carRegisteredBefore98 = false, fuelType = "diesel", co2Emission = Some(200), engineCapacity = Some(1200),
         userContributingAmount =  Some(9000), listPrice = 25000, carBenefitStartDate = Some(new LocalDate(2013, 7, 1)), carBenefitStopDate = Some(new LocalDate(2014, 2, 1)),
         numDaysCarUnavailable = None, employeePayments = Some(250), employerPayFuel = "true", fuelBenefitStopDate = None)
 
