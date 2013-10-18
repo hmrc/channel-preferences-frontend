@@ -129,7 +129,7 @@ class SaMicroService extends MicroService {
   override val serviceUrl = MicroServiceConfig.preferenceServiceUrl
 
   def savePreferences(utr: String, digital: Boolean, email: Option[String] = None) {
-    httpPutNoResponse(s"/preferences/sa/utr/$utr/preferences", Json.parse(toRequestBody(SaPreference(digital, email))))
+    httpPostAndForget(s"/preferences/sa/utr/$utr/preferences", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 
   def getPreferences(utr: String): Option[SaPreference] = {
