@@ -9,7 +9,7 @@ import play.api.mvc.{ Session, Request }
 import controllers.common.CookieEncryption
 import uk.gov.hmrc.domain.{CtUtr, Vrn, SaUtr}
 
-class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   val portalUrlBuilder = new PortalUrlBuilder {}
   
@@ -21,7 +21,7 @@ class PortalDestinationUrlBuilderSpec extends BaseSpec with MockitoSugar with Co
     "cookie.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ=="
   )
   
-  "PortalDestinationUrlBuilder " should {
+  "PortalUrlBuilder " should {
 
     "return a resolved dynamic full URL with parameters year, saUtr and affinity group resolved using a request and user object" in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
       implicit val mockRequest= mock[Request[AnyRef]]

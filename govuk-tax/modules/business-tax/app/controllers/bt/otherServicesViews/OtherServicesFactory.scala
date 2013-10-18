@@ -2,11 +2,11 @@ package controllers.bt.otherServicesViews
 
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import controllers.bt.otherServices.{BusinessTaxesRegistration, OnlineServicesEnrolment, OtherServicesSummary}
-import uk.gov.hmrc.common.PortalDestinationUrlBuilder
+import uk.gov.hmrc.common.PortalUrlBuilder
 import views.helpers.{LinkMessage, RenderableLinkMessage}
 import play.api.mvc.Request
 
-class OtherServicesFactory extends PortalDestinationUrlBuilder {
+class OtherServicesFactory extends PortalUrlBuilder {
 
   private val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"
   private val hmrcWebsiteLinkText = "HMRC website"
