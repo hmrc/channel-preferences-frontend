@@ -18,7 +18,6 @@ import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import views.html.paye.add_car_benefit_review
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 
 class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
@@ -110,7 +109,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
               val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
 
               val addBenefitPayload = NewBenefitCalculationData(
-                carRegistrationDate = addCarBenefitData.carRegistrationDate,
+                registeredBefore98 = isRegisteredBeforeCutoff(addCarBenefitData.carRegistrationDate),
                 fuelType = addCarBenefitData.fuelType.get,
                 co2Emission = emission,
                 engineCapacity = addCarBenefitData.engineCapacity.map(_.toInt),

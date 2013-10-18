@@ -66,7 +66,7 @@ object AddCarBenefitValidator extends Validators {
      ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
 
-  private def isRegisteredBeforeCutoff(carRegistrationDate: Option[LocalDate]): Boolean = carRegistrationDate.map(_.isBefore(carRegistrationDateCutoff)).getOrElse(false)
+  private[paye] def isRegisteredBeforeCutoff(carRegistrationDate: Option[LocalDate]): Boolean = carRegistrationDate.map(_.isBefore(carRegistrationDateCutoff)).getOrElse(false)
 
   private[paye] def validateEmployeeContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
     values.employeeContributes.map(_.toBoolean) match {
