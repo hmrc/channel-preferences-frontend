@@ -2,7 +2,7 @@ package controllers.paye
 
 import controllers.common.BaseController
 import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.common.microservice.paye.domain.{Employment, PayeRegime}
+import uk.gov.hmrc.common.microservice.paye.domain.{PayeRootData, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
 import play.api.Logger
@@ -24,11 +24,7 @@ class CarBenefitHomeController
   }
 
   private[paye] def carBenefitHomeAction(implicit user: User, request: Request[_]): Result = {
-    val payeRootData = PayeRootData(
-      user.regimes.paye.get.fetchRecentAcceptedTransactions,
-      user.regimes.paye.get.fetchRecentCompletedTransactions,
-      user.regimes.paye.get.fetchBenefits(currentTaxYear),
-      user.regimes.paye.get.fetchEmployments(currentTaxYear))  //TODO could this be in apply method and used everywhere?
+    val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
 
     findPrimaryEmployment(payeRootData) match {
       case Some(employment) => {
@@ -46,6 +42,6 @@ class CarBenefitHomeController
   }
 
   private def findPrimaryEmployment(payeRootData: PayeRootData): Option[Employment] = {
-    payeRootData.currentTaxYearEmployments.find(_.employmentType == primaryEmploymentType)
+    payeRootData.taxYearEmployments.find(_.employmentType == primaryEmploymentType)
   }
 }

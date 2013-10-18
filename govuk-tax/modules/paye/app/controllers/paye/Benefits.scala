@@ -1,6 +1,6 @@
 package controllers.paye
 
-import uk.gov.hmrc.common.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.paye.domain.{PayeRootData, Benefit}
 import models.paye.matchers.transactions._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
@@ -12,7 +12,7 @@ trait Benefits extends ActionWrappers {
 
   def findExistingBenefit(employmentNumber: Int, benefitType: Int, payeRootData: PayeRootData): Option[Benefit] = {
     val taxYear = TaxYearResolver.currentTaxYear
-    payeRootData.currentTaxYearBenefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {
+    payeRootData.taxYearBenefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {
       case Some(benef) if (thereAreNoExistingTransactionsMatching(benefitType, employmentNumber, taxYear, payeRootData)) => Some(benef)
       case _ => None
     }

@@ -46,10 +46,10 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
   private def providedToDefaultValue = endOfCurrentTaxYear
 
   private def findPrimaryEmployment(payeRootData: PayeRootData): Option[Employment] =
-    payeRootData.currentTaxYearEmployments.find(_.employmentType == primaryEmploymentType)
+    payeRootData.taxYearEmployments.find(_.employmentType == primaryEmploymentType)
 
   private def findEmployment(employmentSequenceNumber: Int, payeRootData: PayeRootData) = {
-    payeRootData.currentTaxYearEmployments.find(_.sequenceNumber == employmentSequenceNumber)
+    payeRootData.taxYearEmployments.find(_.sequenceNumber == employmentSequenceNumber)
   }
 
   private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
@@ -152,11 +152,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
           Logger.error("Adding car benefit is only allowed for the current tax year")
           BadRequest
         } else {
-          val payeRootData = PayeRootData(
-            user.regimes.paye.get.fetchRecentAcceptedTransactions,
-            user.regimes.paye.get.fetchRecentCompletedTransactions,
-            user.regimes.paye.get.fetchBenefits(currentTaxYear),
-            user.regimes.paye.get.fetchEmployments(currentTaxYear))
+          val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
 
           if (employmentSequenceNumber != findPrimaryEmployment(payeRootData).get.sequenceNumber) {
             Logger.error("Adding car benefit is only allowed for the primary employment")

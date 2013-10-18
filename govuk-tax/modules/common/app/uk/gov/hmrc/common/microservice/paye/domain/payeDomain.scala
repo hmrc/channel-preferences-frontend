@@ -34,6 +34,12 @@ case class PayeRoot(nino: String,
 
   def currentDate = new DateTime(DateTimeZone.UTC)
 
+  def fetchTaxYearData(taxYear: Int)(implicit payeMicroService: PayeMicroService, txQueueMicroservice: TxQueueMicroService) = PayeRootData(
+    fetchRecentAcceptedTransactions,
+    fetchRecentCompletedTransactions,
+    fetchBenefits(taxYear),
+    fetchEmployments(taxYear))
+
   def fetchTaxCodes(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
@@ -70,6 +76,10 @@ case class PayeRoot(nino: String,
   private def resourceFor[T](uri: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] =
     payeMicroService.linkedResource[T](uri)
 }
+
+case class PayeRootData(acceptedTransactions: Seq[TxQueueTransaction], completedTransactions: Seq[TxQueueTransaction],
+                        taxYearBenefits: Seq[Benefit], taxYearEmployments: Seq[Employment])
+
 
 case class TaxCode(employmentSequenceNumber: Int,
                    codingSequenceNumber: Option[Int],

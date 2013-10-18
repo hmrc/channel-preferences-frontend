@@ -1,6 +1,6 @@
 package controllers.paye
 
-import uk.gov.hmrc.common.microservice.paye.domain.{Employment, RevisedBenefit, Benefit, PayeRegime}
+import uk.gov.hmrc.common.microservice.paye.domain._
 import play.api.mvc.{Result, Request}
 import views.html.paye._
 import views.formatting.Dates._
@@ -12,15 +12,18 @@ import models.paye.BenefitTypes._
 import controllers.common.{SessionTimeoutWrapper, BaseController}
 import scala.collection.mutable
 import controllers.paye.validation.RemoveBenefitValidator._
-import uk.gov.hmrc.common.microservice.domain.User
-import models.paye.RemoveBenefitFormData
 import org.joda.time.format.DateTimeFormat
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import controllers.common.service.MicroServices
 import play.api.Logger
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import models.paye.RemoveBenefitConfirmationData
+import models.paye.BenefitInfo
+import uk.gov.hmrc.common.microservice.domain.User
+import models.paye.CarFuelBenefitDates
+import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
+import models.paye.RemoveBenefitFormData
 
 class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
   extends BaseController
@@ -249,11 +252,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
   object WithValidatedRequest {
     def apply(action: (Request[_], User, DisplayBenefit, PayeRootData) => Result): (User, Request[_], String, Int, Int) => Result = {
       (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
-        val payeRootData = PayeRootData(
-          user.regimes.paye.get.fetchRecentAcceptedTransactions,
-          user.regimes.paye.get.fetchRecentCompletedTransactions,
-          user.regimes.paye.get.fetchBenefits(currentTaxYear),
-          user.regimes.paye.get.fetchEmployments(currentTaxYear))
+        val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
 
         val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
         val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
@@ -289,10 +288,10 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
 
     private def getBenefitMatching(kind: Int, employmentSequenceNumber: Int, payeRootData: PayeRootData): Option[DisplayBenefit] = {
 
-      val benefit = payeRootData.currentTaxYearBenefits.find(
+      val benefit = payeRootData.taxYearBenefits.find(
         b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
 
-      val matchedBenefits = DisplayBenefits(benefit.toList, payeRootData.currentTaxYearEmployments, payeRootData.completedTransactions)
+      val matchedBenefits = DisplayBenefits(benefit.toList, payeRootData.taxYearEmployments, payeRootData.completedTransactions)
 
       if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
     }
