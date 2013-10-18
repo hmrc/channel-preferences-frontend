@@ -15,7 +15,7 @@ object BenefitTypes {
 
 }
 
-case class BenefitInfo(startDate:Option[String], withdrawDate:Option[String], apportionedValue:Option[BigDecimal])
+case class BenefitInfo(startDate:String, withdrawDate:String, apportionedValue:BigDecimal)
 
 
 case class DisplayBenefit(employment: Employment,

@@ -75,7 +75,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
       doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
       doc.select("#car-benefit-date-available").text shouldBe "December 12, 2012"
-      doc.select("#car-benefit-amount").text shouldBe "£321.42"
+      doc.select("#car-benefit-amount").text shouldBe "£321"
       doc.select("#fuel-benefit-amount").text shouldBe ""
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
@@ -92,8 +92,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
       doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
       doc.select("#car-benefit-date-available").text shouldBe "December 12, 2012"
-      doc.select("#car-benefit-amount").text shouldBe "£321.42"
-      doc.select("#fuel-benefit-amount").text shouldBe "£22.22"
+      doc.select("#car-benefit-amount").text shouldBe "£321"
+      doc.select("#fuel-benefit-amount").text shouldBe "£22"
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
@@ -113,8 +113,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
       doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
       doc.select("#car-benefit-date-available").text shouldBe "December 12, 2012"
-      doc.select("#car-benefit-amount").text shouldBe "£321.42"
-      doc.select("#fuel-benefit-amount").text shouldBe "£22.22"
+      doc.select("#car-benefit-amount").text shouldBe "£321"
+      doc.select("#fuel-benefit-amount").text shouldBe "£22"
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
