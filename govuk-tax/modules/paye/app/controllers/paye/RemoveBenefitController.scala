@@ -106,9 +106,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
           })
 
           val apportionedValues = finalAndRevisedAmounts._2.toMap
-          val secondWithdrawDate = if (removeBenefitData.fuelWithdrawDate.isDefined) removeBenefitData.fuelWithdrawDate else Some(removeBenefitData.withdrawDate)
+          val secondWithdrawDate = removeBenefitData.fuelWithdrawDate.getOrElse(removeBenefitData.withdrawDate)
 
-          val benefitsInfo: Map[String, BenefitInfo] = mapBenefitsInfo(benefit.benefits(0), Some(removeBenefitData.withdrawDate), apportionedValues) ++
+          val benefitsInfo: Map[String, BenefitInfo] = mapBenefitsInfo(benefit.benefits(0), removeBenefitData.withdrawDate, apportionedValues) ++
             secondBenefit.map(mapBenefitsInfo(_, secondWithdrawDate, apportionedValues)).getOrElse(Nil)
 
           keyStoreService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues))
@@ -125,29 +125,26 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     }
   }
 
-  private def mapBenefitsInfo(benefit: Benefit, withdrawDate: Option[LocalDate], values: Map[String, BigDecimal]): Map[String, BenefitInfo] = {
+  private def mapBenefitsInfo(benefit: Benefit, withdrawDate: LocalDate, values: Map[String, BigDecimal]): Map[String, BenefitInfo] = {
     val benefitType = benefit.benefitType.toString
-    Map(benefitType -> getBenefitInfo(benefit, withdrawDate, values.get(benefitType)))
+    Map(benefitType -> getBenefitInfo(benefit, withdrawDate, values(benefitType)))
   }
 
-  private def getBenefitInfo(benefit: Benefit, withdrawDate: Option[LocalDate], apportionedValue: Option[BigDecimal]) = {
-    BenefitInfo(getStartDate(benefit).map(formatDate(_)), withdrawDate.map(formatDate(_)), apportionedValue)
+  private def getBenefitInfo(benefit: Benefit, withdrawDate: LocalDate, apportionedValue: BigDecimal) = {
+    BenefitInfo(formatDate(getStartDate(benefit)), formatDate(withdrawDate), apportionedValue)
   }
 
   private final val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
   private final val dateRegex = """(\d\d\d\d-\d\d-\d\d)""".r
 
-  private def getStartDate(benefit: Benefit): Option[LocalDate] = {
+  private def getStartDate(benefit: Benefit): LocalDate = {
     val pathIncludingStartDate = benefit.calculations.get(payeService.calculationWithdrawKey).getOrElse("")
 
-    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) match {
-      case Some(date) => Some(dateFormat.parseLocalDate(date))
-      case _ => None
-    }
+    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) map {dateFormat.parseLocalDate(_)}
 
     benefitStartDate match {
-      case Some(date) if date.isAfter(startOfCurrentTaxYear) => benefitStartDate
-      case _ => Some(startOfCurrentTaxYear)
+      case Some(date) if date.isAfter(startOfCurrentTaxYear) => date
+      case _ => startOfCurrentTaxYear
     }
   }
 
@@ -198,15 +195,15 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     displayBenefit.benefits.exists(_.benefitType == CAR) && !displayBenefit.benefits.exists(_.benefitType == FUEL) && hasUnremovedFuelBenefit(payeRootData, displayBenefit.benefit.employmentSequenceNumber)
   }
 
-  private def updateBenefitForm(benefitStartDate: Option[LocalDate],
+  private def updateBenefitForm(benefitStartDate: LocalDate,
                                 carBenefitWithUnremovedFuelBenefit: Boolean,
                                 dates: Option[CarFuelBenefitDates]) = Form[RemoveBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping(benefitStartDate),
+      "withdrawDate" -> localDateMapping(Some(benefitStartDate)),
       "agreement" -> checked("error.paye.remove.benefit.accept.agreement"),
       "removeCar" -> boolean,
       "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
-      "fuelWithdrawDate" -> validateFuelDate(dates, benefitStartDate)
+      "fuelWithdrawDate" -> validateFuelDate(dates, Some(benefitStartDate))
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 

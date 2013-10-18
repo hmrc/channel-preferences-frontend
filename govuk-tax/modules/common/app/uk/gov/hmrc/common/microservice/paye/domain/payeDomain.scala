@@ -103,7 +103,6 @@ case class Benefit(benefitType: Int,
                    actions: Map[String, String],
                    calculations: Map[String, String]) {
 
-  def grossAmountToString(format: String = "%.2f") = format.format(grossAmount)
 }
 
 object Benefit {

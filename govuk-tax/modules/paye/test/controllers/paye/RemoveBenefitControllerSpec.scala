@@ -214,9 +214,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#start-date-31").text shouldBe  "May 30, 2013"
       doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(withdrawDate)
       doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(withdrawDate)
-      doc.select("#apportioned-value-29").text shouldBe "£20.01"
-      doc.select("#apportioned-value-31").text shouldBe "£123.46"
-      doc.select("#allowance-increase").text shouldBe "£200.17"
+      doc.select("#apportioned-value-29").text shouldBe "£20"
+      doc.select("#apportioned-value-31").text shouldBe "£123"
+      doc.select("#allowance-increase").text shouldBe "£200"
     }
   }
 
@@ -246,9 +246,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#start-date-31") shouldBe  empty
       doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(fuelWithdrawDate)
       doc.select("#withdraw-date-31") shouldBe empty
-      doc.select("#apportioned-value-29").text shouldBe "£3.46"
+      doc.select("#apportioned-value-29").text shouldBe "£3"
       doc.select("#apportioned-value-31") shouldBe empty
-      doc.select("#allowance-increase").text shouldBe "£18.76"
+      doc.select("#allowance-increase").text shouldBe "£18"
     }
 
     "allow the user to remove car benefit when fuel is already removed without showing error" in new WithApplication(FakeApplication())  {
@@ -265,7 +265,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".title").text should include("car")
       doc.select(".title").text should not include ("fuel")
-      doc.select(".amount").text shouldBe "£197.96"
+      doc.select(".amount").text shouldBe "£197"
     }
   }
 
@@ -315,7 +315,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".title").text should include("car and fuel")
-      doc.select(".amount").text shouldBe "£210.17"
+      doc.select(".amount").text shouldBe "£210"
     }
 
     "in step 1, display error message if user choose different date but dont select a fuel date" in new WithApplication(FakeApplication()) {
@@ -413,7 +413,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".title").text should include("car and fuel")
-      doc.select(".amount").text shouldBe "£210.17"
+      doc.select(".amount").text shouldBe "£210"
     }
 
     "in step 1, display error message if user choose a fuel date before benefit started" in new WithApplication(FakeApplication()) {
@@ -486,9 +486,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#start-date-29").text shouldBe  "September 10, 2013"
       doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(carWithdrawDate)
       doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(fuelWithdrawDate)
-      doc.select("#apportioned-value-31").text shouldBe "£123.46"
-      doc.select("#apportioned-value-29").text shouldBe "£20.01"
-      doc.select("#allowance-increase").text shouldBe "£200.17"
+      doc.select("#apportioned-value-31").text shouldBe "£123"
+      doc.select("#apportioned-value-29").text shouldBe "£20"
+      doc.select("#allowance-increase").text shouldBe "£200"
     }
   }
 
@@ -565,9 +565,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#start-date-29").text shouldBe  "September 10, 2013"
       doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(withdrawDate)
       doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(withdrawDate)
-      doc.select("#apportioned-value-31").text shouldBe "£123.46"
-      doc.select("#apportioned-value-29").text shouldBe "£10.01"
-      doc.select("#allowance-increase").text shouldBe "£210.17"
+      doc.select("#apportioned-value-31").text shouldBe "£123"
+      doc.select("#apportioned-value-29").text shouldBe "£10"
+      doc.select("#allowance-increase").text shouldBe "£210"
     }
 
     "in step 2, display the calculated value for removing car benefit only if the user do not have fuel benefit for the same employment" in new WithApplication(FakeApplication()) {
@@ -587,9 +587,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#start-date-29") shouldBe empty
       doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(withdrawDate)
       doc.select("#withdraw-date-29") shouldBe empty
-      doc.select("#apportioned-value-31").text shouldBe "£123.46"
+      doc.select("#apportioned-value-31").text shouldBe "£123"
       doc.select("#apportioned-value-29") shouldBe empty
-      doc.select("#allowance-increase").text shouldBe "£197.96"
+      doc.select("#allowance-increase").text shouldBe "£197"
     }
 
     "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
@@ -685,7 +685,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#benefit-type").text should include("car and fuel")
       doc.select("#old-tax-code").text should include("430L")
       doc.select("#new-tax-code").text should include("newTaxCode")
-      doc.select("#personal-allowance").text should include("9988")
+      doc.select("#personal-allowance").text should include("£9,988")
     }
 
     "in step 3, do not display information about new tax code nor personal allowance if they are not available" in new WithApplication(FakeApplication()) {
@@ -737,7 +737,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
       doc.select(".date-registered").text should include("December 12, 2012")
-      doc.select(".amount").text should include("£321.42")
+      doc.select(".amount").text should include("£321")
     }
 
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
@@ -752,7 +752,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
       doc.select(".date-registered").text should include("December 12, 2012")
-      doc.select(".amount").text should include("£321.42")
+      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be greater than 7 days from today")
     }
 
@@ -768,7 +768,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
       doc.select(".date-registered").text should include("December 12, 2012")
-      doc.select(".amount").text should include("£321.42")
+      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in previous tax years")
     }
 
@@ -783,7 +783,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
       doc.select(".date-registered").text should include("December 12, 2012")
-      doc.select(".amount").text should include("£321.42")
+      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in next tax years")
     }
 
@@ -796,7 +796,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
       doc.select(".date-registered").text should include("December 12, 2012")
-      doc.select(".amount").text should include("£321.42")
+      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Please enter a date")
     }
 
@@ -825,7 +825,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".amount").text should include("£197.96")
+      doc.select(".amount").text should include("£197")
     }
 
     "in step 2 save the withdrawDate to the keystore" in new WithApplication(FakeApplication()) {
@@ -877,7 +877,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val response = Jsoup.parse(contentAsString(result))
       response.select(".title").text should include("fuel and car benefit")
-      response.select(".amount").text shouldBe "£210.17"
+      response.select(".amount").text shouldBe "£210"
     }
 
     "When posting the benefit removal form, don t remove car benefit if not requested" in new WithApplication(FakeApplication()) {
@@ -892,7 +892,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val response = Jsoup.parse(contentAsString(result))
       response.select(".title").text should include("company fuel benefit")
-      response.select(".amount").text shouldBe "£12.21"
+      response.select(".amount").text shouldBe "£12"
     }
 
     "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {

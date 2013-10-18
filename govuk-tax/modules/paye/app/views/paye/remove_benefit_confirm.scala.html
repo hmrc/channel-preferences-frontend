@@ -1,6 +1,7 @@
 @(amount: BigDecimal, displayBenefit: models.paye.DisplayBenefit)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
+@import views.formatting.Money._
 
 @main(title = "Confirm", user = Some(user)) {
 
@@ -14,19 +15,19 @@
 
     <p id="first-section">Removing your company
     @for(key <- keys){
-        @Messages(s"benefitType.${key}.title") benefit from <span id="withdraw-date-@{key}">@{benefitsInfo(key).withdrawDate.getOrElse("")}</span>
+        @Messages(s"benefitType.${key}.title") benefit from <span id="withdraw-date-@{key}">@benefitsInfo(key).withdrawDate</span>
         @if(keys.length > 1 && keys.indexOf(key) < 1){ and }
     }
-    , means that you will pay a proportion of the benefit for the time you had the company @{benefitsTitle}.</p>
+    , means that you will pay a proportion of the benefit for the time you had the company @benefitsTitle.</p>
 
     @for(key <- keys){
-    <p>For the period <span id="start-date-@{key}">@{benefitsInfo(key).startDate.getOrElse("")}</span> to @{benefitsInfo(key).withdrawDate.getOrElse("")}, the charge will be
-        <span id="apportioned-value-@{key}">£@{benefitsInfo(key).apportionedValue.getOrElse("")}</span> for the company @Messages(s"benefitType.${key}.title").</p>
+    <p>For the period <span id="start-date-@{key}">@benefitsInfo(key).startDate</span> to @benefitsInfo(key).withdrawDate, the charge will be
+        <span id="apportioned-value-@{key}">@pounds(benefitsInfo(key).apportionedValue)</span> for the company @Messages(s"benefitType.${key}.title").</p>
     }
 
 }}
 
-<p>This means your tax-free allowance will increase by <span id="allowance-increase" class="amount">£@{amount}</span>. This means we will need to issue you with a new tax code.</p>
+<p>This means your tax-free allowance will increase by <span id="allowance-increase" class="amount">@pounds(amount)</span>. This means we will need to issue you with a new tax code.</p>
 }
 
 @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {

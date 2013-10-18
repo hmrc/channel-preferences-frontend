@@ -2,6 +2,7 @@
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
+@import views.formatting.Money._
 @import config.RefData._
 
 @main(title = "Your tax home", user = Some(user)) {
@@ -35,7 +36,7 @@
         }
         </td>
 
-		<td class="benefit-amount" align="right" >£@displayBenefit.benefit.grossAmountToString()</td>
+		<td class="benefit-amount" align="right" >@pounds(displayBenefit.benefit.grossAmount, 2)</td>
         <td>
         @displayBenefit.benefit.benefitType match {
             case 31 | 29 => {

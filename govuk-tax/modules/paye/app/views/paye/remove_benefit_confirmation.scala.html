@@ -1,6 +1,7 @@
 @(benefitTypes: Seq[Int], removalData: models.paye.RemoveBenefitConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
+@import views.formatting.Money._
 @import config.RefData._
 
 @main(title = "Benefit removed", user = Some(user)) {
@@ -17,7 +18,7 @@
       </p>
 
       @if(removalData.personalAllowance.isDefined){
-        <p>This means that you will pay tax on anything you earn above <span id="personal-allowance">£@{removalData.personalAllowance}</span> between @{removalData.taxYearStart} and @{removalData.taxYearEnd}.</p>
+        <p>This means that you will pay tax on anything you earn above <span id="personal-allowance">@pounds(removalData.personalAllowance.get)</span> between @{removalData.taxYearStart} and @{removalData.taxYearEnd}.</p>
       }
 
       <p>HMRC will send you a confirmation by post within a week.</p>
