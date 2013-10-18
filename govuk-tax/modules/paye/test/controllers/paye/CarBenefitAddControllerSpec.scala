@@ -85,8 +85,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#employerContributes-true")  should not be empty
       doc.select("#employerContribution")  should not be empty
 
-      doc.select("#registeredBefore98-true")  should not be empty
-      doc.select("#registeredBefore98-false")  should not be empty
+      doc.select("[id~=carRegistrationDate]").select("[id~=day]") should not be empty
       doc.select("#fuelType-diesel")  should not be empty
       doc.select("#fuelType-electricity")  should not be empty
       doc.select("#fuelType-other")  should not be empty
@@ -172,8 +171,9 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
       val now = Some(new LocalDate)
+      val registrationDate = new LocalDate().withYear(1995)
       val request = newRequestForSaveAddCarBenefit(
-        registeredBefore98Val = Some("true"),
+        carRegistrationDateVal = Some(localDateToTuple(Some(registrationDate))),
         fuelTypeVal = Some("diesel"),
         co2FigureVal = Some("20"),
         co2NoFigureVal = Some("false"),
@@ -194,7 +194,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         keyStoreDataCaptor.capture()) (Matchers.any())
 
         val data = keyStoreDataCaptor.getValue
-        data.registeredBefore98 shouldBe Some(true)
+        data.carRegistrationDate shouldBe Some(registrationDate)
         data.fuelType shouldBe Some("diesel")
         data.co2Figure shouldBe Some(20)
         data.co2NoFigure shouldBe Some(false)
@@ -327,32 +327,36 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("true"))
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(LocalDate.now.withYear(1996)))))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 200
     }
 
     "return 400 if the user does not select any option for the registered before 98 question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = None)
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
     "return 400 if the user sends an invalid value for the registered before 98 question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("hacking!"))
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some("hacking!", "garbage", "Hotdogs!"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
     }
 
-    "keep the selected option in the registered before 98 question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
+    "keep the selected option in the car registered date question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(registeredBefore98Val = Some("true"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(taxYear.toString,"5","29"), carUnavailableVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#registeredBefore98-true").attr("checked") shouldBe "checked"
+      println(contentAsString(result))
+      doc.select("[id~=carRegistrationDate]").select("[id~=day-29]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select("[id~=month-5]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
+
     }
 
     "return 200 if the user selects an option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
@@ -596,7 +600,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation",
-                          NewBenefitCalculationData(collectedData.registeredBefore98.get, collectedData.fuelType.get, None,
+                          NewBenefitCalculationData(collectedData.carRegistrationDate, collectedData.fuelType.get, None,
                           Some(defaultEngineCapacity), collectedData.employeeContribution, collectedData.listPrice.get,
                           collectedData.providedFrom, collectedData.providedTo, collectedData.numberOfDaysUnavailable,
                           collectedData.employerContribution, collectedData.employerPayFuel.get, collectedData.dateFuelWithdrawn))
@@ -619,16 +623,16 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
        setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty, false)
 
-       val registeredBefore98 = false
+       val carRegistrationDate = now.minusYears(2)
        val fuelType = "electricity"
        val userContribution = 100
        val listPrice = 9999
 
-       val sentBenefitData = NewBenefitCalculationData(registeredBefore98, fuelType, None, None, Some(userContribution), listPrice, None, None, None, None, "false", None)
+       val sentBenefitData = NewBenefitCalculationData(Some(carRegistrationDate), fuelType, None, None, Some(userContribution), listPrice, None, None, None, None, "false", None)
        when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), None))
 
        val result = controller.reviewAddCarBenefitAction(johnDensmore,
-         newRequestForSaveAddCarBenefit(registeredBefore98Val = Some(registeredBefore98.toString),
+         newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
          providedFromVal = None,
          providedToVal = None,
          fuelTypeVal = Some(fuelType),
@@ -651,18 +655,18 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty, false)
 
-      val registeredBefore98 = false
+      val carRegistrationDate = new LocalDate().minusYears(2)
       val fuelType = "diesel"
       val userContribution = 100
       val listPrice = 9999
       val engineCapacity = 1400
       val co2Emission = 50
 
-      val sentBenefitData = NewBenefitCalculationData(registeredBefore98, fuelType, Some(co2Emission), Some(engineCapacity), Some(userContribution), listPrice, None, None, None, None, "false", None)
+      val sentBenefitData = NewBenefitCalculationData(Some(carRegistrationDate), fuelType, Some(co2Emission), Some(engineCapacity), Some(userContribution), listPrice, None, None, None, None, "false", None)
       when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444)))
 
       val result = controller.reviewAddCarBenefitAction(johnDensmore,
-        newRequestForSaveAddCarBenefit(registeredBefore98Val = Some(registeredBefore98.toString),
+        newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
           providedFromVal = None,
           providedToVal = None,
           fuelTypeVal = Some(fuelType),
@@ -708,7 +712,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
                                              employeeContributionVal : Option[String] = defaultEmployeeContribution,
                                              employerContributesVal: Option[String] = Some(defaultEmployerContributes.toString),
                                              employerContributionVal : Option[String] = defaultEmployerContribution,
-                                             registeredBefore98Val: Option[String] = Some(defaultRegisteredBefore98.toString),
+                                             carRegistrationDateVal: Option[(String, String, String)] =  Some(localDateToTuple(Some(defaultCarRegistrationDate))),
                                              fuelTypeVal:Option[String]= Some(defaultFuelType.toString),
                                              co2FigureVal: Option[String] = defaultCo2Figure,
                                              co2NoFigureVal: Option[String] = Some(defaultCo2NoFigure.toString),
@@ -717,10 +721,9 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
                                              dateFuelWithdrawnVal: Option[(String, String, String)] = Some(localDateToTuple(defaultDateFuelWithdrawn))) = {
 
     FakeRequest().withFormUrlEncodedBody(Seq(
-      carUnavailable -> carUnavailableVal.getOrElse("").toString,
+      carUnavailable -> carUnavailableVal.getOrElse(""),
       numberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse(""),
-      giveBackThisTaxYear -> giveBackThisTaxYearVal.getOrElse("").toString,
-      registeredBefore98 -> registeredBefore98Val.getOrElse("").toString,
+      giveBackThisTaxYear -> giveBackThisTaxYearVal.getOrElse(""),
       listPrice -> listPriceVal.getOrElse(""),
       employeeContributes -> employeeContributesVal.getOrElse(""),
       employeeContribution -> employeeContributionVal.getOrElse(""),
@@ -733,7 +736,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       employerPayFuel -> employerPayFuelVal.getOrElse(""))
       ++ buildDateFormField(providedFrom, providedFromVal)
       ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal)
-      ++ buildDateFormField(providedTo, providedToVal) : _*)
+      ++ buildDateFormField(providedTo, providedToVal)
+      ++ buildDateFormField(carRegistrationDate, carRegistrationDateVal) : _*)
   }
 }
 
@@ -751,10 +755,10 @@ object CarBenefitDataBuilder {
   val defaultCarUnavailable = false
   val defaultNumberOfDaysUnavailable = None
   val defaultGiveBackThisTaxYear = false
-  val defaultRegisteredBefore98 = false
   val defaultFuelType = "diesel"
   val defaultProvidedTo = None
   val defaultProvidedFrom = now.plusDays(2)
+  val defaultCarRegistrationDate = now.minusYears(1)
   val defaultCo2Figure = None
   val defaultCo2NoFigure = true
   val defaultEngineCapacity = 1400
@@ -765,7 +769,7 @@ object CarBenefitDataBuilder {
             carUnavailable: Option[Boolean] = Some(defaultCarUnavailable),
             numberOfDaysUnavailable: Option[Int] = defaultNumberOfDaysUnavailable,
             giveBackThisTaxYear: Option[Boolean] = Some(defaultGiveBackThisTaxYear),
-            registeredBefore98: Option[Boolean] = Some(defaultRegisteredBefore98),
+            carRegistrationDate: Option[LocalDate] = Some(defaultCarRegistrationDate),
             providedTo: Option[LocalDate] = defaultProvidedTo,
             listPrice: Option[Int] = Some(defaultListPrice),
             employeeContributes: Option[Boolean] = Some(defaultEmployeeContributes),
@@ -783,7 +787,7 @@ object CarBenefitDataBuilder {
       carUnavailable = carUnavailable,
       numberOfDaysUnavailable = numberOfDaysUnavailable,
       giveBackThisTaxYear = giveBackThisTaxYear,
-      registeredBefore98 = registeredBefore98,
+      carRegistrationDate = carRegistrationDate,
       providedTo = providedTo,
       listPrice = listPrice,
       employeeContributes = employeeContributes,

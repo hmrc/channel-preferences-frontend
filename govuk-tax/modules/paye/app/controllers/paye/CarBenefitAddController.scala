@@ -62,7 +62,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
       carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues),
       giveBackThisTaxYear -> validateGiveBackThisTaxYear(carBenefitValues),
-      registeredBefore98 -> validateRegisteredBefore98(carBenefitValues),
+      carRegistrationDate -> validateCarRegistrationDate(carBenefitValues),
       providedTo -> validateProvidedTo(carBenefitValues),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
@@ -110,7 +110,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
               val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
 
               val addBenefitPayload = NewBenefitCalculationData(
-                carRegisteredBefore98 = addCarBenefitData.registeredBefore98.get,
+                carRegistrationDate = addCarBenefitData.carRegistrationDate,
                 fuelType = addCarBenefitData.fuelType.get,
                 co2Emission = emission,
                 engineCapacity = addCarBenefitData.engineCapacity.map(_.toInt),
@@ -177,7 +177,7 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
                           carUnavailable: Option[Boolean],
                           numberOfDaysUnavailable: Option[Int],
                           giveBackThisTaxYear: Option[Boolean],
-                          registeredBefore98: Option[Boolean],
+                          carRegistrationDate: Option[LocalDate],
                           providedTo: Option[LocalDate],
                           listPrice: Option[Int],
                           employeeContributes: Option[Boolean],
@@ -197,7 +197,7 @@ object CarBenefitFormFields {
   val numberOfDaysUnavailable = "numberOfDaysUnavailable"
   val giveCarBack = "giveCarBack"
   val giveBackThisTaxYear = "giveBackThisTaxYear"
-  val registeredBefore98 = "registeredBefore98"
+  val carRegistrationDate = "carRegistrationDate"
   val providedTo = "providedTo"
   val listPrice = "listPrice"
   val employeeContributes = "employeeContributes"
