@@ -22,6 +22,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
+import controllers.paye.validation.AddCarBenefitValidator._
 
 class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -600,7 +601,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
       verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation",
-                          NewBenefitCalculationData(collectedData.carRegistrationDate, collectedData.fuelType.get, None,
+                          NewBenefitCalculationData(isRegisteredBeforeCutoff(collectedData.carRegistrationDate), collectedData.fuelType.get, None,
                           Some(defaultEngineCapacity), collectedData.employeeContribution, collectedData.listPrice.get,
                           collectedData.providedFrom, collectedData.providedTo, collectedData.numberOfDaysUnavailable,
                           collectedData.employerContribution, collectedData.employerPayFuel.get, collectedData.dateFuelWithdrawn))
@@ -628,7 +629,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
        val userContribution = 100
        val listPrice = 9999
 
-       val sentBenefitData = NewBenefitCalculationData(Some(carRegistrationDate), fuelType, None, None, Some(userContribution), listPrice, None, None, None, None, "false", None)
+       val sentBenefitData = NewBenefitCalculationData(false, fuelType, None, None, Some(userContribution), listPrice, None, None, None, None, "false", None)
        when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), None))
 
        val result = controller.reviewAddCarBenefitAction(johnDensmore,
@@ -662,7 +663,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val engineCapacity = 1400
       val co2Emission = 50
 
-      val sentBenefitData = NewBenefitCalculationData(Some(carRegistrationDate), fuelType, Some(co2Emission), Some(engineCapacity), Some(userContribution), listPrice, None, None, None, None, "false", None)
+      val sentBenefitData = NewBenefitCalculationData(false, fuelType, Some(co2Emission), Some(engineCapacity), Some(userContribution), listPrice, None, None, None, None, "false", None)
       when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444)))
 
       val result = controller.reviewAddCarBenefitAction(johnDensmore,
