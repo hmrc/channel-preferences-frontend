@@ -7,9 +7,9 @@ import controllers.common.domain.accountSummaryDateFormatter
 
 
 case class LinkMessage(href: String, text: String, id: Option[String] = None)
-case class MoneyPounds(value: BigDecimal)  {
+case class MoneyPounds(value: BigDecimal, decimalPlaces: Int = 2)  {
   def isNegative = value < 0
-  def quantity = value.abs.toString()
+  def quantity = value.setScale(decimalPlaces, BigDecimal.RoundingMode.HALF_DOWN).abs.toString()
 }
 
 

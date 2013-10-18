@@ -643,7 +643,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
        status(result) shouldBe 200
        val doc = Jsoup.parse(contentAsString(result))
-       doc.select("#carBenefitTaxableValue").text shouldBe "999"
+       doc.select("#carBenefitTaxableValue").text shouldBe "£999"
        doc.select("#fuelBenefitTaxableValue").isEmpty shouldBe true
      }
 
@@ -678,8 +678,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#carBenefitTaxableValue").text shouldBe "999"
-      doc.select("#fuelBenefitTaxableValue").text shouldBe "444"
+      doc.select("#carBenefitTaxableValue").text shouldBe "£999"
+      doc.select("#fuelBenefitTaxableValue").text shouldBe "£444"
     }
   }
 
