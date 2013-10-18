@@ -9,7 +9,7 @@ import controllers.bt.regimeViews.AccountSummaries
 import org.mockito.Matchers
 import controllers.bt.spechelpers.{GeoffFisherExpectations, WithBusinessTaxApplication}
 import views.helpers.{RenderableLinkMessage, LinkMessage}
-import controllers.bt.otherServices.OtherServicesEnrolment
+import controllers.bt.otherServices.{BusinessTaxesRegistration, OnlineServicesEnrolment}
 
 class BusinessTaxControllerSpec extends BaseSpec with CookieEncryption {
 
@@ -22,22 +22,6 @@ class BusinessTaxControllerSpec extends BaseSpec with CookieEncryption {
       when (expectations.makeAPaymentLandingPage(geoffFisherUser)).thenReturn(expectedHtml)
 
       val result: Result = businessTaxController.makeAPaymentLanding(request)
-
-      status(result) shouldBe 200
-      contentAsString(result) shouldBe expectedHtml
-    }
-  }
-
-  "Calling otherServices with a valid logged in business user" should {
-    "render the Other Services template including the Enrol to use a new online service section" in new WithBusinessTaxApplication with GeoffFisherExpectations {
-
-      val expectedHtml = "<html>some html for other services page</html>"
-
-      when (expectations.buildPortalUrl(geoffFisherUser, request, "otherServicesEnrolment")).thenReturn("otherServicesEnrolmentURL")
-
-      when(expectations.otherServicesPage(geoffFisherUser, OtherServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))))).thenReturn(expectedHtml)
-
-      val result = businessTaxController.otherServices(request)
 
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml

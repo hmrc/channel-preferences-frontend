@@ -1,7 +1,7 @@
 package controllers.bt.spechelpers
 
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
-import controllers.bt.{BusinessTaxController, MicroServiceMocks}
+import controllers.bt.{OtherServicesController, BusinessTaxController, MicroServiceMocks}
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
 import org.joda.time.{Duration, DateTimeZone, DateTime}
@@ -15,7 +15,8 @@ import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import controllers.bt.regimeViews.AccountSummaries
 import views.helpers.LinkMessage
-import controllers.bt.otherServices.OtherServicesEnrolment
+import controllers.bt.otherServices.{OtherServicesSummary, BusinessTaxesRegistration, OnlineServicesEnrolment}
+import controllers.bt.otherServicesViews.OtherServicesFactory
 
 abstract class WithBusinessTaxApplication
   extends WithApplication(FakeApplication())
@@ -26,6 +27,7 @@ abstract class WithBusinessTaxApplication
   val currentTime = new DateTime(2013, 9, 27, 15, 7, 22, 232, DateTimeZone.UTC)
   val lastRequestTimestamp = currentTime.minus(Duration.standardMinutes(1))
   val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+  val mockOtherServicesFactory = mock[OtherServicesFactory]
   val userId: Option[String] = None
   val affinityGroup: Option[String] = None
   val nameFromGovernmentGateway: Option[String] = None
@@ -37,7 +39,7 @@ abstract class WithBusinessTaxApplication
 
     def businessTaxHomepage(user: User, portalHref: String, accountSummaries: AccountSummaries): String
 
-    def otherServicesPage(user: User, otherServicesEnrolment : OtherServicesEnrolment): String
+    def otherServicesPage(user: User, otherServicesSummary : OtherServicesSummary): String
 
     def buildPortalUrl(user: User, request: Request[AnyRef], base: String): String
   }
@@ -58,13 +60,18 @@ abstract class WithBusinessTaxApplication
       Html(expectations.businessTaxHomepage(user, portalHref, accountSummaries))
     }
 
-    override private[bt] def otherServicesPage(otherServicesEnrolment : OtherServicesEnrolment)(implicit user: User): Html = {
-      Logger.debug("RENDERING otherServices")
-      Html(expectations.otherServicesPage(user, otherServicesEnrolment))
-    }
-
     override def buildPortalUrl(base: String)(implicit request: Request[AnyRef], user: User): String = {
       expectations.buildPortalUrl(user, request, base)
+    }
+  }
+
+  val otherServicesController  = new OtherServicesController(mockOtherServicesFactory) with MockedMicroServices {
+
+    override def now: () => DateTime = () => currentTime
+
+    override private[bt] def otherServicesPage(otherServicesSummary : OtherServicesSummary)(implicit user: User): Html = {
+      Logger.debug("RENDERING otherServices")
+      Html(expectations.otherServicesPage(user, otherServicesSummary))
     }
   }
 

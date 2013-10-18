@@ -7,7 +7,6 @@ import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain
-import scala.util.Try
 import uk.gov.hmrc.domain.CtUtr
 
 

@@ -1,21 +1,41 @@
-@(otherServicesEnrolment : controllers.bt.otherServices.OtherServicesEnrolment)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(otherServicesSummary : controllers.bt.otherServices.OtherServicesSummary)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @main(title = "Your tax home", nav = true, user= Some(user)) {
 
-    <h1><span class="pre-heading">service</span> Other Services </h1>
-     <div>
-         <h2>Manage your other taxes</h2>
-     </div>
-     <div>
-         <h2>Enrol to use a new online service</h2>
-         <p>
-             If you are already registered for a tax that isn't shown above or on your homepage,
-             you can enrol to use the relevant online service @{otherServicesEnrolment.linkToPortal.render}.
-         </p>
-     </div>
-     <div>
-         <h2>Register for new business taxes</h2>
-     </div>
+<h1><span class="pre-heading">service</span> Other Services </h1>
+<div>
+    <h2>Manage your other taxes</h2>
+</div>
+<div>
+    <h2>Enrol to use a new online service</h2>
+
+    <p>
+        If you are already registered for a tax that isn't shown above or on your homepage,
+        you can enrol to use the relevant online service <span id="onlineServicesEnrolmentLink">@{otherServicesSummary.onlineServicesEnrolment.linkToPortal.render}</span>.
+    </p>
+</div>
+<div>
+    <h2>Register for new business taxes</h2>
+
+    @if(otherServicesSummary.businessTaxesRegistration.registrationLink.isDefined){
+
+        <p id="businessTaxesRegistrationLink">@{otherServicesSummary.businessTaxesRegistration.registrationLink.get.render}</p>
+
+        <p>
+            You can't use this service if you're setting up a limited liability partnership or you're not the 'nominated
+            partner'
+            in a self-employed business partnership. There are also a few other situations when you'll need to register a
+            different way.
+
+    }else{
+        <p>
+    }
+            Find out more about registering for HMRC taxes on the <span id="hmrcWebsiteLink">@{otherServicesSummary.businessTaxesRegistration.hmrcWebsiteLink.render}</span>.
+        </p>
+
+
+    </p>
+</div>
 
 
 }

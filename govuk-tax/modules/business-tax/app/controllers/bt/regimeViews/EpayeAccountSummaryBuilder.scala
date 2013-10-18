@@ -12,7 +12,6 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
 import uk.gov.hmrc.domain.EmpRef
-import scala.util.Try
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
 
