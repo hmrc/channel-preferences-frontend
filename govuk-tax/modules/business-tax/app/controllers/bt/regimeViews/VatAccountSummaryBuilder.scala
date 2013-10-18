@@ -32,7 +32,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
         AccountSummary(vatRegimeNameMessage, messages, links, SummaryStatus.success)
       }
       case _ => {
-        val messages = Seq(Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
+        val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
           Msg(vatSummaryUnavailableErrorMessage3),
           Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage))))
         AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
