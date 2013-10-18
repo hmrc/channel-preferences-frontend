@@ -19,7 +19,7 @@ import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
 import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.agent.AgentMicroServiceRoot
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
@@ -33,7 +33,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
-import scala.util.Success
 import config.DateTimeProvider
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeLinks
@@ -48,6 +47,8 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtJsonRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatJsonRoot
+import org.mockito.Mockito
+import org.mockito.Matchers.any
 
 class VatControllerSpec extends BaseSpec {
 
@@ -115,7 +116,7 @@ trait PortalUrlBuilderMock extends MockitoSugar {
 
 }
 
-trait MicroServiceMocks extends MockitoSugar {
+trait MicroServiceMocks extends MockitoSugar with MicroServices {
 
   val mockAuthMicroService = mock[AuthMicroService]
   val mockPayeMicroService = mock[PayeMicroService]
@@ -125,7 +126,7 @@ trait MicroServiceMocks extends MockitoSugar {
   val mockTxQueueMicroService = mock[TxQueueMicroService]
   val mockAuditMicroService = mock[AuditMicroService]
   val mockKeyStoreMicroService = mock[KeyStoreMicroService]
-  val mockAgentMicroService = mock[AgentMicroService]
+  val mockAgentMicroServiceRoot = mock[AgentMicroServiceRoot]
   val mockVatConnector = mock[VatConnector]
   val mockCtConnector = mock[CtConnector]
   val mockEpayeConnector = mock[EpayeConnector]
@@ -142,7 +143,7 @@ trait MicroServiceMocks extends MockitoSugar {
     override lazy val txQueueMicroService = mockTxQueueMicroService
     override lazy val auditMicroService = mockAuditMicroService
     override lazy val keyStoreMicroService = mockKeyStoreMicroService
-    override lazy val agentMicroService = mockAgentMicroService
+    override lazy val agentMicroServiceRoot = mockAgentMicroServiceRoot
     override lazy val vatConnector = mockVatConnector
     override lazy val ctConnector = mockCtConnector
     override lazy val epayeConnector = mockEpayeConnector
@@ -230,11 +231,6 @@ trait BusinessTaxRequest extends RequestWithBusinessUserSession {
   private def ctJsonRoot = vatRoot.map(root => CtJsonRoot(root.links))
   private def epayeJsonRoot = epayeRoot.map(root => EpayeJsonRoot(root.links))
 
-  private def saRootSuccess = saRoot.map(Success(_))
-  private def ctRootSuccess = ctRoot.map(Success(_))
-  private def vatRootSuccess = vatRoot.map(Success(_))
-  private def epayeRootSuccess = epayeRoot.map(Success(_))
-
   private def userAuthority = UserAuthority(
     id = userId,
     regimes = Regimes(
@@ -250,20 +246,20 @@ trait BusinessTaxRequest extends RequestWithBusinessUserSession {
 
   when(mockAuthMicroService.authority(userId)).thenReturn(Some(userAuthority))
 
-  if (saJsonRoot.isDefined) when(mockSaConnector.root(saUtrOpt.toString)).thenReturn(saJsonRoot.get)
-  if (vatJsonRoot.isDefined) when(mockVatConnector.root(vrnOpt.toString)).thenReturn(vatJsonRoot.get)
-  if (epayeJsonRoot.isDefined) when(mockEpayeConnector.root(empRefOpt.toString)).thenReturn(epayeJsonRoot.get)
-  if (ctJsonRoot.isDefined) when(mockCtConnector.root(ctUtrOpt.toString)).thenReturn(ctJsonRoot.get)
+  saRootLink.map(link => when(mockSaConnector.root(link.toString)).thenReturn(saJsonRoot.get))
+  vatRootLink.map(link => when(mockVatConnector.root(link.toString)).thenReturn(vatJsonRoot.get))
+  epayeRootLink.map(link => when(mockEpayeConnector.root(link.toString)).thenReturn(epayeJsonRoot.get))
+  ctRootLink.map(link => when(mockCtConnector.root(link.toString)).thenReturn(ctJsonRoot.get))
 
   implicit lazy val user = User(
     userId = userAuthority.id,
     userAuthority = userAuthority,
     regimes = RegimeRoots(
       paye = None,
-      sa = saRootSuccess,
-      vat = vatRootSuccess,
-      epaye = epayeRootSuccess,
-      ct = ctRootSuccess),
+      sa = saRoot,
+      vat = vatRoot,
+      epaye = epayeRoot,
+      ct = ctRoot),
     nameFromGovernmentGateway = nameFromGovernmentGateway,
     decryptedToken = governmentGatewayToken
   )
