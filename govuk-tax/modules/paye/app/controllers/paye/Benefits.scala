@@ -6,23 +6,22 @@ import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import controllers.common.ActionWrappers
 import uk.gov.hmrc.utils.TaxYearResolver
+import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 
 trait Benefits extends ActionWrappers {
 
-  def findExistingBenefit(user: User, employmentNumber: Int, benefitType: Int): Option[Benefit] = {
+  def findExistingBenefit(employmentNumber: Int, benefitType: Int, payeRootData: PayeRootData): Option[Benefit] = {
     val taxYear = TaxYearResolver.currentTaxYear
-    val benefits = user.regimes.paye.get.benefits(taxYear)
-
-    benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {
-      case Some(benef) if (thereAreNoExistingTransactionsMatching(user, benefitType, employmentNumber, taxYear)) => Some(benef)
+    payeRootData.currentTaxYearBenefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber) match {
+      case Some(benef) if (thereAreNoExistingTransactionsMatching(benefitType, employmentNumber, taxYear, payeRootData)) => Some(benef)
       case _ => None
     }
   }
 
 
-  private[paye] def thereAreNoExistingTransactionsMatching(user: User, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
-    val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
-      user.regimes.paye.get.recentCompletedTransactions
+  private[paye] def thereAreNoExistingTransactionsMatching(kind: Int, employmentSequenceNumber: Int, year: Int,
+                                                           payeRootData: PayeRootData): Boolean = {
+    val transactions = payeRootData.completedTransactions ++ payeRootData.acceptedTransactions
     transactions.find(matchesBenefit(_, kind, employmentSequenceNumber, year)).isEmpty
   }
 

@@ -21,10 +21,10 @@ class BenefitHomeController(payeService: PayeMicroService) extends BaseControlle
 
   private[paye] def listBenefitsAction(implicit user: User, request: Request[_]): Result = {
     val taxYear = TaxYearResolver.currentTaxYear
-    val benefits = user.regimes.paye.get.benefits(taxYear)
-    val employments = user.regimes.paye.get.employments(taxYear)
-    val transactions = user.regimes.paye.get.recentAcceptedTransactions ++
-      user.regimes.paye.get.recentCompletedTransactions()
+    val benefits = user.regimes.paye.get.fetchBenefits(taxYear)
+    val employments = user.regimes.paye.get.fetchEmployments(taxYear)
+    val transactions = user.regimes.paye.get.fetchRecentAcceptedTransactions ++
+      user.regimes.paye.get.fetchRecentCompletedTransactions()
 
     Ok(paye_benefit_home(DisplayBenefits(benefits, employments, transactions)))
   }

@@ -8,7 +8,6 @@ import models.paye.BenefitTypes
 import play.api.Logger
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
-import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 
 class CarBenefitHomeController
@@ -25,10 +24,17 @@ class CarBenefitHomeController
   }
 
   private[paye] def carBenefitHomeAction(implicit user: User, request: Request[_]): Result = {
-    findPrimaryEmployment(user) match {
+    val payeRootData = PayeRootData(
+      user.regimes.paye.get.fetchRecentAcceptedTransactions,
+      user.regimes.paye.get.fetchRecentCompletedTransactions,
+      user.regimes.paye.get.fetchBenefits(currentTaxYear),
+      user.regimes.paye.get.fetchEmployments(currentTaxYear))  //TODO could this be in apply method and used everywhere?
+
+    findPrimaryEmployment(payeRootData) match {
       case Some(employment) => {
-        val carBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.CAR)
-        val fuelBenefit = findExistingBenefit(user, employment.sequenceNumber, BenefitTypes.FUEL)
+
+        val carBenefit = findExistingBenefit(employment.sequenceNumber, BenefitTypes.CAR, payeRootData)
+        val fuelBenefit = findExistingBenefit(employment.sequenceNumber, BenefitTypes.FUEL, payeRootData)
 
         Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employment.employerName, employment.sequenceNumber, currentTaxYear))
       }
@@ -39,7 +45,7 @@ class CarBenefitHomeController
     }
   }
 
-  private def findPrimaryEmployment(user: User): Option[Employment] = {
-    user.regimes.paye.get.employments(currentTaxYear).find(_.employmentType == primaryEmploymentType)
+  private def findPrimaryEmployment(payeRootData: PayeRootData): Option[Employment] = {
+    payeRootData.currentTaxYearEmployments.find(_.employmentType == primaryEmploymentType)
   }
 }

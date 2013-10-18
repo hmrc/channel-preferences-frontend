@@ -34,20 +34,20 @@ case class PayeRoot(nino: String,
 
   def currentDate = new DateTime(DateTimeZone.UTC)
 
-  def taxCodes(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
+  def fetchTaxCodes(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-  def benefits(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
+  def fetchBenefits(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
     valuesForTaxYear[Benefit](resource = "benefits", taxYear = taxYear)
 
-  def employments(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
+  def fetchEmployments(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
-  def recentAcceptedTransactions()(implicit txQueueMicroService: TxQueueMicroService) = {
+  def fetchRecentAcceptedTransactions()(implicit txQueueMicroService: TxQueueMicroService) = {
     transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
   }
 
-  def recentCompletedTransactions()(implicit txQueueMicroService: TxQueueMicroService) = {
+  def fetchRecentCompletedTransactions()(implicit txQueueMicroService: TxQueueMicroService) = {
     transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
   }
 
