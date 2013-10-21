@@ -1,4 +1,4 @@
-@(dateRange: Range, form: Form[(models.agent.addClient.ClientSearch, String)])
+@(form: Form[(models.agent.addClient.ClientSearch, String)])
 
 @main(title = "Add a new client") {
 
@@ -23,7 +23,6 @@
         <p>@helpers.dateFieldsFreeYear(form,
             "dob",
             "Date Of Birth",
-            dateRange,
             '_groupDivClass -> "form-field")
         </p>
             <input type="hidden" value="@{form("instanceId").value}" id="instanceId" name="instanceId" />

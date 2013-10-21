@@ -46,17 +46,12 @@ with AgentMicroServices {
     startViewWith(searchForm(request).withGlobalError("Your saved progress has timed out. Please restart your search"))
 
   private def startViewWith(form: Form[(ClientSearch, String)]) =
-    Ok(search_client(validDobRange, form.fill((ClientSearch.empty, ObjectId.get().toString))))
-
-  private def validDobRange = {
-    val thisYear = LocalDate.now().getYear
-    (thisYear - 110) to (thisYear - 16)
-  }
+    Ok(search_client(form.fill((ClientSearch.empty, ObjectId.get().toString))))
 
   private[agent] def searchAction(user: User)(request: Request[_]): Result = {
     val form = searchForm(request).bindFromRequest()(request)
     form.fold(
-      errors => BadRequest(search_client(validDobRange, errors)),
+      errors => BadRequest(search_client(errors)),
       searchWithInstanceId => {
         val (search, instanceId) = searchWithInstanceId
         def restricted(result: MatchingPerson) = ClientSearch(result.nino,
@@ -79,7 +74,7 @@ with AgentMicroServices {
               }
             }
           }
-          case None => NotFound(search_client(validDobRange, form.withGlobalError("No match found")))
+          case None => NotFound(search_client(form.withGlobalError("No match found")))
         }
       }
     )
