@@ -1,4 +1,4 @@
-package controllers.bt.otherServices
+package controllers.bt.otherservices
 
 import views.helpers.RenderableMessage
 

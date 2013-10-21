@@ -5,8 +5,8 @@ import org.mockito.Mockito._
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.templates.Html
-import controllers.bt.mixins.fixtures.GeoffFisherTestFixture
-import controllers.bt.mixins.request.BusinessTaxRequest
+import controllers.bt.testframework.fixtures.GeoffFisherTestFixture
+import controllers.bt.testframework.request.BusinessTaxRequest
 
 class VatControllerSpec extends BaseSpec {
 
@@ -16,7 +16,7 @@ class VatControllerSpec extends BaseSpec {
       val expectedHtml = "<html>happy Canadian thanksgiving</html>"
       when(mockPortalUrlBuilder.buildPortalUrl("vatOnlineAccount")).thenReturn("vatOnlineAccountUrl")
       when(mockVatPages.makeAPaymentPage("vatOnlineAccountUrl")).thenReturn(Html(expectedHtml))
-      val result: Result = vatControllerUnderTest.makeAPayment(request)
+      val result: Result = controllerUnderTest.makeAPayment(request)
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml
     }

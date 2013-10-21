@@ -2,7 +2,7 @@ package controllers.bt
 
 import controllers.common._
 import uk.gov.hmrc.common.PortalUrlBuilder
-import controllers.bt.regimeViews._
+import controllers.bt.accountsummary._
 import uk.gov.hmrc.common.microservice.domain.User
 
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)

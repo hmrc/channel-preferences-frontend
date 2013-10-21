@@ -1,26 +1,25 @@
 package controllers.bt
 
-import controllers.bt.otherServices.OtherServicesSummary
+import controllers.bt.otherservices.{OtherServicesFactory, OtherServicesSummary}
 import controllers.common.{ActionWrappers, BaseController}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.bt.otherServicesViews.OtherServicesFactory
+import play.api.templates.Html
 
 
-class OtherServicesController(otherServicesFactory: OtherServicesFactory) extends BaseController
-with ActionWrappers
-with PortalUrlBuilder {
+class OtherServicesController(otherServicesFactory: OtherServicesFactory)
+  extends BaseController
+  with ActionWrappers
+  with PortalUrlBuilder {
 
   def this() = this(new OtherServicesFactory)
 
   def otherServices = AuthorisedForGovernmentGatewayAction() {
     implicit user =>
       implicit request =>
-        Ok(otherServicesPage(otherServicesFactory.create(user)))
+        Ok(otherServicesPage(otherServicesFactory.create))
   }
 
-  private[bt] def otherServicesPage(otherServicesSummary : OtherServicesSummary)(implicit user: User) =
+  private[bt] def otherServicesPage(otherServicesSummary: OtherServicesSummary)(implicit user: User): Html =
     views.html.other_services(otherServicesSummary)
-
-
 }
