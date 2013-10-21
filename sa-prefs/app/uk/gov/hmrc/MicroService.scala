@@ -124,7 +124,7 @@ object MicroServiceConfig {
 
 }
 
-class SaMicroService extends MicroService {
+class PreferencesMicroService extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.preferenceServiceUrl
 
@@ -143,6 +143,13 @@ class SaMicroService extends MicroService {
       case otherException: Exception => throw otherException
     }
   }
+
+  def updateEmailValidationStatus(token : String) : Boolean = {
+    val response = httpPostSynchronous("/preferences/sa/verifyEmailAndSuppressPrint", Json.parse(toRequestBody(ValidateEmail(token))))
+    return response.status < 300 && response.status >= 200
+  }
 }
+
+case class ValidateEmail(token: String)
 case class SaPreference(digital: Boolean, email: Option[String] = None)
 
