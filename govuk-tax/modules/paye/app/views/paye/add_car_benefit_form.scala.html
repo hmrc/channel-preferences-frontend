@@ -159,6 +159,7 @@
                 carBenefitForm,
                 Seq(
                 FormField(carBenefitForm(engineCapacity), Seq(
+                    RadioButton("no-capacity", Messages("paye.add_car_benefit.engine_capacity.none"), Some("form-field"), Some("label--inlineRadio-right")),
                     RadioButton("1400", Messages("paye.add_car_benefit.engine_capacity.1400"), Some("form-field"), Some("label--inlineRadio-right")),
                     RadioButton("2000", Messages("paye.add_car_benefit.engine_capacity.2000"), Some("form-field"), Some("label--inlineRadio-right")),
                     RadioButton("9999", Messages("paye.add_car_benefit.engine_capacity.9999"), Some("form-field"), Some("label--inlineRadio-right"))))

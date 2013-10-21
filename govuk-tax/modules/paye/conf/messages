@@ -57,6 +57,7 @@ paye.add_car_benefit.question1=When did {0} provide your new company car?
 paye.add_car_benefit.fuel_type.diesel=Diesel
 paye.add_car_benefit.fuel_type.electricity=electricity only, or other zero emission technology
 paye.add_car_benefit.fuel_type.other=any other fuel, including petrol and hybrids
+paye.add_car_benefit.engine_capacity.none=Not applicable
 paye.add_car_benefit.engine_capacity.1400=1,400cc or less
 paye.add_car_benefit.engine_capacity.2000=1,401cc to 2,000cc
 paye.add_car_benefit.engine_capacity.9999=2,001cc or greater

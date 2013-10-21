@@ -19,6 +19,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import views.html.paye.add_car_benefit_review
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
+import controllers.paye.validation.EngineCapacity
 
 class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
   extends BaseController
@@ -112,7 +113,7 @@ class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeySt
                 carRegisteredBefore98 = isRegisteredBeforeCutoff(addCarBenefitData.carRegistrationDate),
                 fuelType = addCarBenefitData.fuelType.get,
                 co2Emission = emission,
-                engineCapacity = addCarBenefitData.engineCapacity.map(_.toInt),
+                engineCapacity = EngineCapacity.mapEngineCapacityToInt(addCarBenefitData.engineCapacity),
                 userContributingAmount = addCarBenefitData.employeeContribution,
                 listPrice = addCarBenefitData.listPrice.get,
                 carBenefitStartDate = addCarBenefitData.providedFrom,

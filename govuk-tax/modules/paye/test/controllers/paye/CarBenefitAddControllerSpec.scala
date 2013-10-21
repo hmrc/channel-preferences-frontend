@@ -90,6 +90,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#fuelType-diesel")  should not be empty
       doc.select("#fuelType-electricity")  should not be empty
       doc.select("#fuelType-other")  should not be empty
+      doc.select("#engineCapacity-no-capacity")  should not be empty
       doc.select("#engineCapacity-1400")  should not be empty
       doc.select("#engineCapacity-2000")  should not be empty
       doc.select("#engineCapacity-9999")  should not be empty
@@ -202,6 +203,43 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         data.engineCapacity shouldBe Some("1400")
         data.employerPayFuel shouldBe Some("date")
         data.dateFuelWithdrawn shouldBe now
+    }
+
+    "return 200 for a successful combination of fields including engine capacity is not available" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val now = Some(new LocalDate)
+      val registrationDate = new LocalDate().withYear(2000)
+      val request = newRequestForSaveAddCarBenefit(
+        carRegistrationDateVal = Some(localDateToTuple(Some(registrationDate))),
+        fuelTypeVal = Some("electricity"),
+        co2FigureVal = None,
+        co2NoFigureVal = None,
+        engineCapacityVal= Some("no-capacity"),
+        employerPayFuelVal = Some("date"),
+        dateFuelWithdrawnVal = Some(localDateToTuple(now))
+      )
+
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[CarBenefitData])
+
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 200
+
+      verify(mockKeyStoreService).addKeyStoreEntry(
+        Matchers.any,
+        Matchers.any,
+        Matchers.any,
+        keyStoreDataCaptor.capture()) (Matchers.any())
+
+      val data = keyStoreDataCaptor.getValue
+      data.carRegistrationDate shouldBe Some(registrationDate)
+      data.fuelType shouldBe Some("electricity")
+      data.co2Figure shouldBe None
+      data.co2NoFigure shouldBe None
+      data.engineCapacity shouldBe Some("no-capacity")
+      data.employerPayFuel shouldBe Some("date")
+      data.dateFuelWithdrawn shouldBe now
     }
 
     "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
@@ -456,11 +494,11 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("no-capacity"), carUnavailableVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-no-capacity").attr("checked") shouldBe "checked"
     }
 
     "return 200 if the user selects an option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){

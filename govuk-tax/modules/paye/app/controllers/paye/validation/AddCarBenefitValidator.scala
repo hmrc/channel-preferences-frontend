@@ -7,11 +7,11 @@ import uk.gov.hmrc.utils.{DateTimeUtils, TaxYearResolver}
 import org.joda.time.{DateTime, DateTimeZone, LocalDate}
 import controllers.paye.CarBenefitFormFields._
 import controllers.common.validators.Validators
+import EngineCapacity._
 
 object AddCarBenefitValidator extends Validators {
 
   private val carRegistrationDateCutoff = LocalDate.parse("1998-01-01")
-  private val engineCapacityOptions = Seq("1400", "2000", "9999")
   private val fuelTypeElectric = "electricity"
   private val fuelTypeOptions = Seq("diesel", fuelTypeElectric, "other")
   private val employerPayeFuelDateOption = "date"
@@ -78,8 +78,8 @@ object AddCarBenefitValidator extends Validators {
 
   private[paye] def validateEngineCapacity(values: CarBenefitValues) : Mapping[Option[String]] = optional(text
     .verifying("error.paye.non_valid_option" , data => isValidValue(engineCapacityOptions, data))
-    .verifying("error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity" , data => !isFuelTypeElectric(values.fuelType))
-  ).verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(data.isEmpty) {isFuelTypeElectric(values.fuelType)} else true)
+    .verifying("error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity" , data => engineCapacityEmpty(data) || !isFuelTypeElectric(values.fuelType))
+  ).verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(engineCapacityEmpty(data)) {isFuelTypeElectric(values.fuelType)} else true)
 
   private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[Option[String]] = optional(text
     .verifying("error.paye.non_valid_option" , data => isValidValue(employerPayFuelOptions, data))
