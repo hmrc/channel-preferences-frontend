@@ -22,3 +22,5 @@ GET     /ssoout                         @controllers.common.SsoOutController.enc
 
 GET     /home                           @controllers.common.HomeController.home
 GET     /                               @controllers.common.HomeController.landing
+
+GET     /admin/healthcheck              @controllers.common.HealthCheckController.check
