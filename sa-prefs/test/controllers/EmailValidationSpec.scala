@@ -25,12 +25,14 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       verify(controller.preferencesMicroService).updateEmailValidationStatus(token)
     }
 
-    "return 500 when the sa micro service fails to update a users email verification status" in {
-     val controller = createController
+    "display an error when the sa micro service fails to update a users email verification status" in {
+      val controller = createController
       val token = "someToken"
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(false)
       val response = controller.verify(token)(FakeRequest())
-      status(response) shouldBe 500
+      contentAsString(response) should include("Ooops")
+      status(response) shouldBe 400
+      verify(controller.preferencesMicroService).updateEmailValidationStatus(token)
     }
   }
 }

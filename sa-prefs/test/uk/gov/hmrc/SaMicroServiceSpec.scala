@@ -97,7 +97,6 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       verify(mockPlayResponse).status
       verify(saMicroService.httpWrapper).get[SaPreference](s"/preferences/sa/utr/$utr/preferences")
     }
-
   }
 
 }
