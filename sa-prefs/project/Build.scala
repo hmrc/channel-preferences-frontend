@@ -52,7 +52,5 @@ object Common {
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
       testOptions in Test += Tests.Argument("-u", "target/test-reports")
-    ) ++
-    Repositories.publishingSettings
-
+    ) ++ playScalaSettings ++ Repositories.publishingSettings
 }

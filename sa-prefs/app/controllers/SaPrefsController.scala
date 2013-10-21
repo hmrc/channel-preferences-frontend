@@ -9,6 +9,8 @@ import uk.gov.hmrc.{ TokenExpiredException, SaMicroService, TokenEncryption }
 import play.api.{ Logger, Play }
 import java.net.URLDecoder
 import controllers.service.{ RedirectWhiteListService, FrontEndConfig }
+import concurrent.{Future, Await}
+import concurrent.duration.Duration
 
 class SaPrefsController extends Controller {
 
@@ -18,18 +20,18 @@ class SaPrefsController extends Controller {
 
   object WithValidReturnUrl {
     def apply(return_url: String)(action: (Action[AnyContent])) =
-      Action {
+      Action.async {
         request: Request[AnyContent] =>
           redirectWhiteListService.check(return_url) match {
             case true => action(request)
-            case false => InternalServerError
+            case false => Future.successful(InternalServerError)
           }
       }
   }
 
   object WithValidToken {
     def apply(token: String, return_url: String)(action: String => (Action[AnyContent])) =
-      Action {
+      Action.async {
         request: Request[AnyContent] =>
           try {
             implicit val utr = SsoPayloadEncryptor.decryptToken(token, FrontEndConfig.tokenTimeout)
@@ -37,7 +39,7 @@ class SaPrefsController extends Controller {
           } catch {
             case e: TokenExpiredException => {
               Logger.error("Unable to validate token", e)
-              Redirect(return_url)
+              Future.successful(Redirect(return_url))
             }
           }
       }
