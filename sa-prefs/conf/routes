@@ -15,3 +15,5 @@ GET     /sa/print-preferences/not-requested/:token              @controllers.Ema
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /sa/print-preferences/assets/*file                      controllers.Assets.at(path="/public", file)
+
+GET     /admin/healthcheck                                      @controllers.HealthCheckController.check
