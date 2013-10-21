@@ -126,6 +126,21 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       result shouldBe true
     }
 
+    "return true if updateEmailValidationStatus returns 204" in {
+      val token = "someGoodToken"
+      val expected = ValidateEmail(token)
+      val response = mock[Response]
+
+      when(response.status).thenReturn(204)
+      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verifyEmailAndSuppressPrint"),
+                                                                  Matchers.eq(Json.parse(toRequestBody(expected))),
+                                                                  Matchers.any[Map[String, String]])).thenReturn(response)
+
+      val result = preferenceMicroService.updateEmailValidationStatus(token)
+
+      result shouldBe true
+    }
+
     "return false if updateEmailValidationStatus returns 400" in {
       val token = "someGoodToken"
       val expected = ValidateEmail(token)
