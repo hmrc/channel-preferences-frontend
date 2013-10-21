@@ -145,7 +145,7 @@ class PreferencesMicroService extends MicroService {
   }
 
   def updateEmailValidationStatus(token : String) : Boolean = {
-    val response = httpPostSynchronous(s"/preferences/sa/verifyEmailAndSuppressPrint", Json.parse(toRequestBody(ValidateEmail(token))))
+    val response = httpPostSynchronous("/preferences/sa/verifyEmailAndSuppressPrint", Json.parse(toRequestBody(ValidateEmail(token))))
     return response.status == 200
   }
 }

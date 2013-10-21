@@ -117,7 +117,7 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(200)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq(s"/preferences/sa/verifyEmailAndSuppressPrint"),
+      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verifyEmailAndSuppressPrint"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
@@ -132,7 +132,7 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(400)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq(s"/preferences/sa/verifyEmailAndSuppressPrint"),
+      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verifyEmailAndSuppressPrint"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
@@ -147,7 +147,7 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(404)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq(s"/preferences/sa/verifyEmailAndSuppressPrint"),
+      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verifyEmailAndSuppressPrint"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
@@ -162,7 +162,7 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(500)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq(s"/preferences/sa/verifyEmailAndSuppressPrint"),
+      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verifyEmailAndSuppressPrint"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
@@ -171,6 +171,4 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       result shouldBe false
     }
   }
-
 }
-
