@@ -61,7 +61,7 @@ object AddCarBenefitValidator extends Validators {
     }
 
   private[paye] def validateFuelType(values: CarBenefitValues): Mapping[Option[String]] =
-     optional(text.verifying("error.paye.fuel_type_correct_option" , data => isValidValue(fuelTypeOptions, data))
+     optional(text.verifying("error.paye.fuel_type_correct_option" , data => fuelTypeOptions.contains(data))
      .verifying("error.paye.fuel_type_electricity_must_be_registered_after_98", data => if(isRegisteredBeforeCutoff(values.carRegistrationDate)) {!isFuelTypeElectric(Some(data)) } else true)
      ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
@@ -77,12 +77,12 @@ object AddCarBenefitValidator extends Validators {
   }
 
   private[paye] def validateEngineCapacity(values: CarBenefitValues) : Mapping[Option[String]] = optional(text
-    .verifying("error.paye.non_valid_option" , data => isValidValue(engineCapacityOptions, data))
+    .verifying("error.paye.non_valid_option" , data => engineCapacityOptions.contains(data))
     .verifying("error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity" , data => engineCapacityEmpty(data) || !isFuelTypeElectric(values.fuelType))
   ).verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(engineCapacityEmpty(data)) {isFuelTypeElectric(values.fuelType)} else true)
 
   private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[Option[String]] = optional(text
-    .verifying("error.paye.non_valid_option" , data => isValidValue(employerPayFuelOptions, data))
+    .verifying("error.paye.non_valid_option" , data => employerPayFuelOptions.contains(data))
     .verifying("error.paye.employer_pay_fuel_must_not_have_days_unavailable" , data => isValidCompareTo(data, values.numberOfDaysUnavailableVal))
   ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
@@ -120,9 +120,8 @@ object AddCarBenefitValidator extends Validators {
     .verifying("error.paye.co2_figure_and_co2_no_figure_cannot_be_both_present", data => (carBenefitValues.co2NoFigure.getOrElse("") != "true"))
   )
 
-  private def isFuelTypeElectric(fuelType:Option[String]) = {
-    fuelType.getOrElse("") == fuelTypeElectric
-  }
+  private def isFuelTypeElectric(fuelType:Option[String]) = fuelType.getOrElse("") == fuelTypeElectric
+
   private val dateInCurrentTaxYear = dateTuple.verifying(
     "error.paye.date_not_in_current_tax_year",
     data =>  data match {
@@ -138,13 +137,15 @@ object AddCarBenefitValidator extends Validators {
     }
   }
 
-  private[paye] def validateDateFuelWithdrawn(values: CarBenefitValues): Mapping[Option[LocalDate]] = values.employerPayFuel match {
-    case Some(value) if value == employerPayeFuelDateOption => dateInCurrentTaxYear
+  private[paye] def validateDateFuelWithdrawn(values: CarBenefitValues , timeSource: () => LocalDate): Mapping[Option[LocalDate]] = values.employerPayFuel match {
+    case Some(employerPayeFuelDateOption) => validateNotMoreThan7DaysFromNow(timeSource, dateInCurrentTaxYear)
                 .verifying("error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date", data => !data.isEmpty)
+                .verifying("error.paye.fuel_withdraw_date_must_be_after_car_start_date", data => data.isEmpty || values.providedFromVal.isEmpty || data.get.isAfter(values.providedFromVal.get))
+                .verifying("error.paye.fuel_withdraw_date_must_be_before_car_end_date", data => data.isEmpty || values.providedToVal.isEmpty || isEqualOrAfter(data.get,values.providedToVal.get))
     case _ => ignored(None)
   }
 
-  private def isValidValue(options: Seq[String], value: String): Boolean = {options.contains(value)}
+  private def isEqualOrAfter(date:LocalDate, laterDate:LocalDate):Boolean = date.isEqual(laterDate) || date.isBefore(laterDate)
 
   private def isValidCompareTo(employerPayFuel:String , daysCarUnavailable:Option[String]) = {
     daysCarUnavailable match {
@@ -153,12 +154,16 @@ object AddCarBenefitValidator extends Validators {
     }
   }
 
-  private[paye] def validateProvidedFrom(timeSource: () => DateTime) = {
+  private[paye] def validateProvidedFrom(timeSource: () => LocalDate) = {
+    validateNotMoreThan7DaysFromNow(timeSource, dateInCurrentTaxYear)
+  }
+
+
+  def validateNotMoreThan7DaysFromNow(timeSource: () => LocalDate, dateInCurrentTaxYear:Mapping[Option[LocalDate]]): Mapping[Option[LocalDate]] = {
     dateInCurrentTaxYear.verifying("error.paye.date_within_7_days",
       data => data match {
-        case Some(d) => DateTimeUtils.daysBetween(timeSource().toLocalDate, d)  <= 7
+        case Some(d) => DateTimeUtils.daysBetween(timeSource(), d) <= 7
         case None => true
       })
   }
-
 }

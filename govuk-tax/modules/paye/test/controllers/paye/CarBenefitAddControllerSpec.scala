@@ -4,7 +4,7 @@ import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
-import org.joda.time.{DateTimeZone, LocalDate}
+import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
@@ -29,7 +29,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
   val mockKeyStoreService = mock[KeyStoreMicroService]
   val mockPayeMicroService = mock[PayeMicroService]
 
-  private lazy val controller = new CarBenefitAddController(timeSource = () => now.toDateTimeAtCurrentTime(DateTimeZone.UTC), mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests with MockedTaxYearSupport
+  private lazy val controller = new CarBenefitAddController(timeSource = () => now, mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests with MockedTaxYearSupport
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)

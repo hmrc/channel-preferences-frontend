@@ -34,6 +34,9 @@ error.paye.co2_figures_not_blank=You must provide a CO2 emissions figure, or sel
 error.paye.engine_capacity_must_not_be_blank_for_registered_before_98=If your car was registered with the DVLA before 1998, then you must provide an engine capacity.
 error.paye.employer_pay_fuel_must_not_have_days_unavailable=Unable to calculate fuel benefit when there is an interruption in car availability.Please contact call centre.
 error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date=Please specify when your employer stopped paying for fuel.
+error.paye.fuel_withdraw_date_must_be_after_car_start_date=Your fuel cannot end before you get the car.
+error.paye.fuel_withdraw_date_must_be_before_car_end_date=Your fuel cannot end after you gave back the car.
+
 error.paye.non_valid_option=Value not accepted. Please select one of the options.
 error.boolean=Please use a boolean value.
 error.number=Please use whole numbers only, not decimals or other characters.
