@@ -9,8 +9,7 @@ import uk.gov.hmrc.{ TokenExpiredException, PreferencesMicroService, TokenEncryp
 import play.api.{ Logger, Play }
 import java.net.URLDecoder
 import controllers.service.{ RedirectWhiteListService, FrontEndConfig }
-import concurrent.{Future, Await}
-import concurrent.duration.Duration
+import concurrent.Future
 
 class SaPrefsController extends Controller {
 
