@@ -3,9 +3,16 @@
 @main(title = "Your tax home", nav = true, user= Some(user)) {
 
 <h1><span class="pre-heading">service</span> Other Services </h1>
+
+@if(otherServicesSummary.manageYourTaxes.isDefined){
 <div>
     <h2>Manage your other taxes</h2>
+    @for(link <- otherServicesSummary.manageYourTaxes.get.links){
+        @link.render
+    }
 </div>
+}
+
 <div>
     <h2>Enrol to use a new online service</h2>
 

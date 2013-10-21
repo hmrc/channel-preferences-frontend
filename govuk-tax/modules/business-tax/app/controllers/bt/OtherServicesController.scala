@@ -17,7 +17,7 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory)
   def otherServices = AuthorisedForGovernmentGatewayAction() {
     implicit user =>
       implicit request =>
-        Ok(otherServicesPage(otherServicesFactory.create))
+        Ok(otherServicesPage(otherServicesFactory.create(user)))
   }
 
   private[bt] def otherServicesPage(otherServicesSummary: OtherServicesSummary)(implicit user: User): Html =
