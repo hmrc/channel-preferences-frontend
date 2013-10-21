@@ -69,7 +69,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(controller.saMicroService.getPreferences(validUtr)).thenReturn(None)
 
       val page = controller.index(validToken, validReturnUrl)(FakeRequest())
-      contentAsString(page) should include("No thanks. Keep sending me reminders by letter")
+      contentAsString(page) should include("No thanks, I don’t want to switch to email")
       verify(controller.saMicroService, times(1)).getPreferences(validUtr)
     }
 
