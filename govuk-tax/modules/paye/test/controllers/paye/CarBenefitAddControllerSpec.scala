@@ -90,7 +90,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#fuelType-diesel")  should not be empty
       doc.select("#fuelType-electricity")  should not be empty
       doc.select("#fuelType-other")  should not be empty
-      doc.select("#engineCapacity-no-capacity")  should not be empty
+      doc.select("#engineCapacity-none")  should not be empty
       doc.select("#engineCapacity-1400")  should not be empty
       doc.select("#engineCapacity-2000")  should not be empty
       doc.select("#engineCapacity-9999")  should not be empty
@@ -216,7 +216,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         fuelTypeVal = Some("electricity"),
         co2FigureVal = None,
         co2NoFigureVal = None,
-        engineCapacityVal= Some("no-capacity"),
+        engineCapacityVal= Some("none"),
         employerPayFuelVal = Some("date"),
         dateFuelWithdrawnVal = Some(localDateToTuple(now))
       )
@@ -237,7 +237,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       data.fuelType shouldBe Some("electricity")
       data.co2Figure shouldBe None
       data.co2NoFigure shouldBe None
-      data.engineCapacity shouldBe Some("no-capacity")
+      data.engineCapacity shouldBe Some("none")
       data.employerPayFuel shouldBe Some("date")
       data.dateFuelWithdrawn shouldBe now
     }
@@ -494,11 +494,11 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("no-capacity"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("none"), carUnavailableVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#engineCapacity-no-capacity").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-none").attr("checked") shouldBe "checked"
     }
 
     "return 200 if the user selects an option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
