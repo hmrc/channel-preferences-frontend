@@ -94,7 +94,7 @@ trait SessionTimeout {
     result.withSession(newSessionData: _*)
   }
 
-  private def sessionFromResultOrRequest(request: Request[AnyContent], result: PlainResult): Session = {
+  private def sessionFromResultOrRequest(request: Request[AnyContent], result: SimpleResult): Session = {
     result.header.headers.get(SET_COOKIE) match {
       case None => request.session
       case cookieHeader => Session.decodeFromCookie(Cookies(cookieHeader).get(Session.COOKIE_NAME))

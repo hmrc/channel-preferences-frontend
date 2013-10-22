@@ -36,7 +36,7 @@ trait ActionWrappers
                                   token: Option[String],
                                   request: Request[AnyContent],
                                   taxRegime: Option[TaxRegime],
-                                  action: (User) => (Request[AnyContent]) => Result): Result = {
+                                  action: (User) => (Request[AnyContent]) => SimpleResult): SimpleResult = {
     val userAuthority = authMicroService.authority(userId)
     Logger.debug(s"Received user authority: $userAuthority")
 
@@ -93,7 +93,7 @@ trait ActionWrappers
 
   object AuthorisedForGovernmentGatewayAction {
 
-    def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
+    def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
           WithSessionTimeoutValidation {
@@ -119,7 +119,7 @@ trait ActionWrappers
 
   object UnauthorisedAction {
 
-    def apply[A <: TaxRegime](action: (Request[AnyContent] => Result)): Action[AnyContent] =
+    def apply[A <: TaxRegime](action: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
           WithRequestAuditing {

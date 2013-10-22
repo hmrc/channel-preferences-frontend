@@ -2,7 +2,6 @@ package controllers
 
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication }
-import play.api.mvc.Result
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import controllers.common._
