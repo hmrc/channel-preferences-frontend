@@ -2,15 +2,13 @@ package controllers.paye.validation
 
 import play.api.data.{Mapping, Form}
 import play.api.data.Forms._
-import scala.Some
-import uk.gov.hmrc.utils.{DateTimeUtils, TaxYearResolver}
-import org.joda.time.{DateTime, DateTimeZone, LocalDate}
+import uk.gov.hmrc.utils.DateTimeUtils._
+import uk.gov.hmrc.utils.TaxYearResolver
+import org.joda.time.{DateTimeZone, LocalDate}
 import controllers.paye.CarBenefitFormFields._
-import controllers.common.validators.Validators
+import controllers.common.validators.{StopOnFirstFail, Validators}
 import EngineCapacity._
-import scala.collection.mutable
-import play.api.data.validation._
-import scala.Some
+import StopOnFirstFail._
 
 object AddCarBenefitValidator extends Validators {
 
@@ -51,15 +49,15 @@ object AddCarBenefitValidator extends Validators {
   )
 
   private[paye] val validateListPrice = optional(number.verifying("error.paye.list_price_less_than_1000", e => e >= 1000)
-                            .verifying("error.paye.list_price_greater_than_99999", e => e <= 99999))
-                            .verifying("error.paye.list_price_mandatory", e => {e.isDefined})
+                            .verifying("error.paye.list_price_greater_than_99999", e => e <= 99999)
+                            ).verifying("error.paye.list_price_mandatory", e => e.isDefined)
 
   private[paye] def validateEmployerContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
     values.employerContributes.map(_.toBoolean) match {
       case Some(true) => optional(number
         .verifying("error.paye.employer_contribution_greater_than_99999", e => e <= 99999)
-        .verifying("error.paye.employer_contribution_less_than_0", e => e > 0 ))
-        .verifying("error.paye.add_car_benefit.missing_employer_contribution", e => e.isDefined )
+        .verifying("error.paye.employer_contribution_less_than_0", e => e > 0 )
+        ).verifying("error.paye.add_car_benefit.missing_employer_contribution", e => e.isDefined)
       case _ => ignored(None)
     }
 
@@ -106,7 +104,7 @@ object AddCarBenefitValidator extends Validators {
       optional(positiveInteger)
         .verifying("error.paye.number_max_3_chars", n => n.getOrElse(0) <= 999 )
         .verifying("error.paye.add_car_benefit.car_unavailable_too_long", e =>
-          {values.numberOfDaysUnavailableVal.map(_.toInt).getOrElse(0) < DateTimeUtils.daysBetween(values.providedFromVal.get, values.providedToVal.get)})
+          {values.numberOfDaysUnavailableVal.map(_.toInt).getOrElse(0) < daysBetween(values.providedFromVal.get, values.providedToVal.get)})
         .verifying("error.paye.add_car_benefit.missing_days_unavailable", data => !(values.carUnavailableVal.map(_.toBoolean).getOrElse(false) && data.isEmpty))
     }
     case _ => ignored(None)
@@ -136,19 +134,8 @@ object AddCarBenefitValidator extends Validators {
     }
   }
 
-  private def stopOnFirstFail(constraints: Constraint[Option[LocalDate]]*) = Constraint { field: Option[LocalDate] =>
-    constraints.toList dropWhile (_(field) == Valid) match {
-      case Nil => Valid
-      case constraint :: _ => constraint(field)
-    }
-  }
-
-  private def constraint(message: String, validator: (Option[LocalDate]) => Boolean) = {
-    Constraint((data:Option[LocalDate]) => if(validator(data)) Valid else Invalid(Seq(ValidationError(message))))
-  }
-
   private[paye] def validateDateFuelWithdrawn(values: CarBenefitValues): Mapping[Option[LocalDate]] = values.employerPayFuel match {
-    case Some(employerPayeFuel) if employerPayeFuel == employerPayeFuelDateOption => dateTuple verifying stopOnFirstFail(
+    case Some(employerPayeFuel) if employerPayeFuel == employerPayeFuelDateOption => dateTuple verifying StopOnFirstFail[Option[LocalDate]](
       constraint("error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date", (data) => data.isDefined),
       constraint("error.paye.date_not_in_current_tax_year", isInCurrentTaxYear),
       constraint("error.paye.fuel_withdraw_date_must_be_after_car_start_date", (data) => values.providedFromVal.isEmpty || data.get.isAfter(values.providedFromVal.get)),
@@ -161,8 +148,6 @@ object AddCarBenefitValidator extends Validators {
     case Some(d) => TaxYearResolver.taxYearInterval.contains(d.toDateTimeAtStartOfDay(DateTimeZone.UTC))
     case _ => true
   }
-
-  private def isEqualOrAfter(date:LocalDate, laterDate:LocalDate):Boolean = date.isEqual(laterDate) || date.isBefore(laterDate)
 
   private def isValidCompareTo(employerPayFuel:String , daysCarUnavailable:Option[String]) = {
     daysCarUnavailable match {
@@ -179,7 +164,7 @@ object AddCarBenefitValidator extends Validators {
   def validateNotMoreThan7DaysFromNow(timeSource: () => LocalDate, dateInCurrentTaxYear:Mapping[Option[LocalDate]]): Mapping[Option[LocalDate]] = {
     dateInCurrentTaxYear.verifying("error.paye.date_within_7_days",
       data => data match {
-        case Some(d) => DateTimeUtils.daysBetween(timeSource(), d) <= 7
+        case Some(d) => daysBetween(timeSource(), d) <= 7
         case None => true
       })
   }
