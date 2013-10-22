@@ -198,7 +198,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
           RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, hmrcWebsiteLinkText)))
       )
 
-      factory.create shouldBe expected
+      factory.create(user) shouldBe expected
 
     }
   }

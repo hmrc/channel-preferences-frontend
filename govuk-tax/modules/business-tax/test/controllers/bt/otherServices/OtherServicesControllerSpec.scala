@@ -19,13 +19,14 @@ class OtherServicesControllerSpec extends BaseSpec with CookieEncryption {
       val expectedHtml = "<html>some html for other services page</html>"
 
       val expectedOtherServicesSummary = OtherServicesSummary(
+        None,
         OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))),
         BusinessTaxesRegistration(
           Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
           RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website")))
       )
 
-      when(mockOtherServicesFactory.create).thenReturn(expectedOtherServicesSummary)
+      when(mockOtherServicesFactory.create(user)).thenReturn(expectedOtherServicesSummary)
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentURL")
 
       val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here")))
