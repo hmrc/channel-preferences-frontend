@@ -138,7 +138,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "keep the previously entered date when redirected to the form for a car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody(buildDateFormField("withdrawDate", Some("2013","9","1")) : _*), CAR.toString, 2013, 2))
+      val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody(buildDateFormField("withdrawDate", Some(("2013","9","1"))) : _*), CAR.toString, 2013, 2))
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -152,7 +152,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "keep the previously entered date when redirected to the form for any benefit except car" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody(buildDateFormField("withdrawDate", Some("2013","9","1")) : _*), FUEL.toString, 2013, 2))
+      val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody(buildDateFormField("withdrawDate", Some(("2013","9","1"))) : _*), FUEL.toString, 2013, 2))
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))

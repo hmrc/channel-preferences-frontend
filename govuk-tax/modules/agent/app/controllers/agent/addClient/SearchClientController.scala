@@ -66,11 +66,11 @@ with AgentMicroServices {
         agentMicroService.searchClient(searchUri, SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
           case Some(matchingPerson) => {
             user.regimes.agent.get.clients.find(_._1 == search.nino) match {
-              case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill(ConfirmClient.empty, instanceId).withGlobalError("This person is already your client")))
+              case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
                 keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
-                Ok(search_client_result(restrictedResult, confirmClientForm().fill(ConfirmClient.empty, instanceId)))
+                Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
               }
             }
           }
@@ -96,7 +96,7 @@ object SearchClientController {
         instanceId -> nonEmptyText
       )
         ((nino, firstName, lastName, dob, instanceId) => (ClientSearch(nino, firstName, lastName, dob), instanceId))
-        ((c: (ClientSearch, String)) => Some(c._1.nino, c._1.firstName, c._1.lastName, c._1.dob, c._2))
+        ((c: (ClientSearch, String)) => Some((c._1.nino, c._1.firstName, c._1.lastName, c._1.dob, c._2)))
         .verifying("Nino and at least two others must be filled in",
         _ => atLeastTwoOptionalAndAllMandatory(unValidatedSearchForm.bindFromRequest()(request).get))
     )

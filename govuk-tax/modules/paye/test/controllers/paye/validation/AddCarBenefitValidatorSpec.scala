@@ -75,28 +75,28 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject if date fuel withdrawn is not a valid date" in new WithApplication(FakeApplication()) {
-      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some("a", "f", ""))
+      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some(("a", "f", "")))
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(wrongDate: _*))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a valid date")
     }
 
     "reject if date fuel withdrawn is incomplete" in new WithApplication(FakeApplication()) {
-      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "6", "f"))
+      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear.toString, "6", "f")))
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(wrongDate: _*))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a valid date")
     }
 
     "reject fuel withdrawn if it is formed of numbers but not a valid date" in new WithApplication(FakeApplication()) {
-      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "2", "31"))
+      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear.toString, "2", "31")))
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(wrongDate: _*))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a valid date")
     }
 
     "accept if date fuel withdrawn is a valid date" in new WithApplication(FakeApplication()) {
-      val paramsWithDate = buildDateFormField(dateFuelWithdrawn, Some(localDateToTuple(Some(new LocalDate())))) ++ Seq(employerPayFuel -> "again")
+      val paramsWithDate = buildDateFormField(dateFuelWithdrawn, Some((localDateToTuple(Some(new LocalDate()))))) ++ Seq(employerPayFuel -> "again")
       val form = dummyForm(values).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(paramsWithDate: _*))
       form.hasErrors shouldBe false
     }
@@ -116,7 +116,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
 <<<<<<< HEAD
     "reject fuel withdrawn date if it is in previous tax year" in new WithApplication(FakeApplication()) {
-      val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear-1).toString, "11", "2"))
+      val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some(((currentTaxYear-1).toString, "11", "2")))
 
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
       form.hasErrors shouldBe true
@@ -126,7 +126,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject fuel withdrawn date if it is in next tax year" in new WithApplication(FakeApplication()) {
-      val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear+1).toString, "11", "2"))
+      val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some(((currentTaxYear+1).toString, "11", "2")))
 
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"), providedToVal= Some(endOfTaxYear))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
       form.hasErrors shouldBe true
@@ -137,7 +137,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject fuel withdrawn date if it is before the car benefit was made available" in new WithApplication(FakeApplication()) {
-      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(now.getYear.toString, "6", "11"))
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((now.getYear.toString, "6", "11")))
       val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
       val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
 
@@ -149,7 +149,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject fuel withdrawn date if it is after the date when the car benefit was removed"  in new WithApplication(FakeApplication()) {
-      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "8", "5"))
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear.toString, "8", "5")))
       val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
       val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
 
@@ -161,7 +161,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "accept fuel withdrawn date if it is the same date than when the car benefit was removed"  in new WithApplication(FakeApplication()) {
-      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "8", "4"))
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear.toString, "8", "4")))
       val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
       val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
 
@@ -172,7 +172,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject fuel withdrawn date if it is the same date the car benefit is provided from"  in new WithApplication(FakeApplication()) {
-      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "6", "12"))
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear.toString, "6", "12")))
       val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
       val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
 

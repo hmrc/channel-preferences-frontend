@@ -250,15 +250,15 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      assertFailedDatesSubmit(Some(("2013", "9", "18")), Some("true"), Some("150"), Some("true"), Some("2013","12","31"), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
-      assertFailedDatesSubmit(Some("2012","1","1"), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), Some("2013","4","5"), "error_q_3", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(None, Some("false"), None, Some("true"),  Some("2014","4","6"), "error_q_3", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(Some(("2013", "9", "18")), Some("true"), Some("150"), Some("true"), Some(("2013","12","31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some(("2012","1","1")), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), Some(("2013","4","5")), "error_q_3", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(None, Some("false"), None, Some("true"),  Some(("2014","4","6")), "error_q_3", "You must specify a date within the current tax year.")
       assertFailedDatesSubmit(None, Some("false"), None, Some("true"), None, "error_q_3", "You must specify when you will be returning your company car.")
       assertFailedDatesSubmit(Some(localDateToTuple(Some(now.plusDays(8)))), Some("false"), None, Some("false"),  None, "error_q_1", "You must specify a date, which is not more than 7 days in future from today.")
-      assertFailedDatesSubmit(Some("2013","9","18"), Some("true"), Some("250"), Some("false"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
-      assertFailedDatesSubmit(Some("2013","9","18"), Some("true"), None, Some("true"), Some("2013","9","17"), "error_q_3", "You cannot return your car before you get it.")
-      assertFailedDatesSubmit(None, Some("true"), Some("300"), Some("true"), Some("2013","12","31"), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some(("2013","9","18")), Some("true"), Some("250"), Some("false"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some(("2013","9","18")), Some("true"), None, Some("true"), Some(("2013","9","17")), "error_q_3", "You cannot return your car before you get it.")
+      assertFailedDatesSubmit(None, Some("true"), Some("300"), Some("true"), Some(("2013","12","31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
       assertFailedDatesSubmit(None, Some("true"), Some("367"), Some("true"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
       assertFailedDatesSubmit(None, Some("true"), None, Some("false"), None, "error_q_2", "You must specify the number of consecutive days the car has been unavailable.")
 
@@ -269,19 +269,19 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       assertFailedDatesSubmit(Some(("2012","1","1")), None, None, Some("false"), None, "error_q_2", "Please answer this question.")
       assertFailedDatesSubmit(Some(("2012","1","1")), Some("false"), None, None, None, "error_q_3", "Please answer this question.")
 
-      assertFailedDatesSubmit(Some(("2013","5", "")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","","1")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("","5","1")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","32")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","13","1")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2asd","","")), Some("true"), None, Some("true"), Some("2013","10","17"), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","5", "")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","","1")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("","5","1")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","32")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","13","1")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2asd","","")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
 
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","10",""), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","","22"), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("","22","10"), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","13","2"), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("2013","12","32"), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some("adssda","",""), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","10","")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","","22")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("","22","10")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","13","2")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","12","32")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("adssda","","")), "error_q_3", "You must specify a valid date")
     }
 
     "return 200 when listPrice form data validates successfully" in new WithApplication(FakeApplication()) {
@@ -379,7 +379,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 400 if the user sends an invalid value for the registered before 98 question" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some("hacking!", "garbage", "Hotdogs!"))
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some(("hacking!", "garbage", "Hotdogs!")))
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
       status(result) shouldBe 400
     }
@@ -393,7 +393,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "keep the selected option in the car registered date question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(taxYear.toString,"5","29"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some((taxYear.toString,"5","29")), carUnavailableVal = None)
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -536,7 +536,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "keep the selected option in the EMPLOYER PAY FUEL question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(taxYear.toString,"05","30"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some((taxYear.toString,"05","30")), carUnavailableVal = None)
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
