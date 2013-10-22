@@ -4,20 +4,22 @@ import controllers.paye.PayeBaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.test.{FakeApplication, WithApplication, FakeRequest}
+import play.api.test.{WithApplication, FakeRequest}
 import AddCarBenefitValidator._
 import play.api.i18n.Messages
 import controllers.paye.CarBenefitFormFields._
 import org.joda.time.LocalDate
-import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
+import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
 import scala.Some
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import play.api.test.FakeApplication
-import org.joda.time.LocalDate.now
 
 class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
+   val currentTaxYear:Int = 2013
+   val now = new LocalDate(currentTaxYear, 10, 2)
+   val endOfTaxYear = new LocalDate(currentTaxYear, 4, 5)
 
   "AddCarBenefitValidator for field ENGINE CAPACITY " should {
 
@@ -81,14 +83,14 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
 
     "reject if date fuel withdrawn is incomplete" in new WithApplication(FakeApplication()) {
-      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some("13", "f", "2013"))
+      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "6", "f"))
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(wrongDate: _*))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a valid date")
     }
 
     "reject fuel withdrawn if it is formed of numbers but not a valid date" in new WithApplication(FakeApplication()) {
-      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some("31", "2", TaxYearResolver.currentTaxYear.toString))
+      val wrongDate = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "2", "31"))
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(wrongDate: _*))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a valid date")
@@ -103,6 +105,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     "reject the date value for employer pays fuel if the date withdrawn field is empty" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(employerPayFuel -> "date", dateFuelWithdrawn -> ""))
       form.hasErrors shouldBe true
+      form.errors(dateFuelWithdrawn).size shouldBe 1
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "Please specify when your employer stopped paying for fuel.")
     }
 
@@ -112,12 +115,72 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, employerPayFuel, "Unable to calculate fuel benefit when there is an interruption in car availability.Please contact call centre.")
     }
 
-    "reject fuel withdrawn date if not in this tax year" in new WithApplication(FakeApplication()) {
-      pending
+    "reject fuel withdrawn date if it is in previous tax year" in new WithApplication(FakeApplication()) {
+      val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear-1).toString, "11", "2"))
+
+      val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
+      form.hasErrors shouldBe true
+
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a date within the current tax year.")
+
     }
 
-    "reject fuel withdrawn date if more than 7 days in future" in new WithApplication(FakeApplication()) {
-      pending
+    "reject fuel withdrawn date if it is in next tax year" in new WithApplication(FakeApplication()) {
+      val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear+1).toString, "11", "2"))
+
+      val form = dummyForm(getValues(employerPayFuelVal = Some("date"), providedToVal= Some(endOfTaxYear))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
+      form.hasErrors shouldBe true
+
+      form.errors(dateFuelWithdrawn).size shouldBe 1
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a date within the current tax year.")
+
+    }
+
+    "reject fuel withdrawn date if it is before the car benefit was made available" in new WithApplication(FakeApplication()) {
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(now.getYear.toString, "6", "11"))
+      val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
+      val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
+
+      val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
+      val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end before you get the car.")
+
+    }
+
+    "reject fuel withdrawn date if it is after the date when the car benefit was removed"  in new WithApplication(FakeApplication()) {
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "8", "5"))
+      val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
+      val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
+
+      val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
+      val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
+      form.hasErrors shouldBe true
+
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end after you gave back the car.")
+    }
+
+    "accept fuel withdrawn date if it is the same date than when the car benefit was removed"  in new WithApplication(FakeApplication()) {
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "8", "4"))
+      val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
+      val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
+
+      val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
+      val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
+
+      form.errors(dateFuelWithdrawn).size shouldBe 0
+    }
+
+    "reject fuel withdrawn date if it is the same date the car benefit is provided from"  in new WithApplication(FakeApplication()) {
+      val fuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some(currentTaxYear.toString, "6", "12"))
+      val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
+      val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
+
+      val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
+      val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
+      form.hasErrors shouldBe true
+
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end before you get the car.")
     }
   }
 
@@ -262,16 +325,19 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
   }
 
   def getValues(fuelTypeVal: Option[String] = None, co2NoFigureVal: Option[String] = None, co2FigureVal: Option[String] = None,
-                carRegistrationDateVal: Option[LocalDate] = None, numberOfDaysUnavailableVal: Option[String] = None, employerPayFuelVal: Option[String] = None) = new CarBenefitValues(providedFromVal = None,
-    carUnavailableVal = None,
-    numberOfDaysUnavailableVal = numberOfDaysUnavailableVal,
-    giveBackThisTaxYearVal = None,
-    providedToVal = None,
-    carRegistrationDate = carRegistrationDateVal,
-    employeeContributes = None,
-    employerContributes = None,
-    fuelType = fuelTypeVal,
-    co2Figure = co2FigureVal,
-    co2NoFigure = co2NoFigureVal,
-    employerPayFuel = employerPayFuelVal)
+                carRegistrationDateVal: Option[LocalDate] = None, numberOfDaysUnavailableVal: Option[String] = None, employerPayFuelVal: Option[String] = None,
+                providedFromVal: Option[LocalDate] = None, providedToVal: Option[LocalDate] = None) =
+    new CarBenefitValues(
+        providedFromVal = providedFromVal,
+        carUnavailableVal = None,
+        numberOfDaysUnavailableVal = numberOfDaysUnavailableVal,
+        giveBackThisTaxYearVal = None,
+        providedToVal = providedToVal,
+        carRegistrationDate = carRegistrationDateVal,
+        employeeContributes = None,
+        employerContributes = None,
+        fuelType = fuelTypeVal,
+        co2Figure = co2FigureVal,
+        co2NoFigure = co2NoFigureVal,
+        employerPayFuel = employerPayFuelVal)
 }

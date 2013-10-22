@@ -3,15 +3,27 @@ package controllers
 import play.api.mvc.Results._
 import play.api.mvc.Action
 import play.mvc.Controller
+import uk.gov.hmrc.PreferencesMicroService
+import controllers.service.FrontEndConfig
 
 class EmailValidation extends Controller {
 
-def verify(token: String) = Action {
-    Ok(views.html.sa_printing_preference_verify_email("http://localhost:8080/portal/login"))
-  }
+  implicit lazy val preferencesMicroService = new PreferencesMicroService()
 
-  def notRequested(token: String) = Action {
-    Ok(views.html.sa_printing_preference_email_not_requested("http://localhost:8080/portal/login"))
-  }
+  val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 
+  def verify(token: String) = Action {
+    token match  {
+      case regex(t) => {
+        val response = preferencesMicroService.updateEmailValidationStatus(token)
+        if(response) {
+          Ok(views.html.sa_printing_preference_verify_email(FrontEndConfig.portalHome))
+        }
+        else {
+          BadRequest(views.html.sa_printing_preference_verify_email_failed(FrontEndConfig.portalHome))
+        }
+      }
+      case _ => BadRequest(views.html.sa_printing_preference_verify_email_failed(FrontEndConfig.portalHome))
+    }
+  }
 }

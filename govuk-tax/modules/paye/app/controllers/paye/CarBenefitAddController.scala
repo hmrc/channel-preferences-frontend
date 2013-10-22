@@ -21,13 +21,13 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import controllers.paye.validation.EngineCapacity
 
-class CarBenefitAddController(timeSource: () => DateTime, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
+class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
   extends BaseController
   with Benefits
   with Validators
   with TaxYearSupport {
 
-  def this() = this(() => DateTimeUtils.now, MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
+  def this() = this(() => new LocalDate(DateTimeZone.UTC), MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
 
   def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {

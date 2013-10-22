@@ -11,7 +11,7 @@ import controllers.bt.testframework.fixtures.GeoffFisherTestFixture
 import play.api.templates.Html
 
 
-class OtherServicesControllerSpec extends BaseSpec with CookieEncryption {
+class OtherServicesControllerSpec extends BaseSpec {
 
   "Calling otherservices with a valid logged in business user" should {
     "render the Other Services template including the Enrol to use a new online service section" in new OtherServicesControllerForTest with GeoffFisherTestFixture with BusinessTaxRequest {
@@ -19,13 +19,17 @@ class OtherServicesControllerSpec extends BaseSpec with CookieEncryption {
       val expectedHtml = "<html>some html for other services page</html>"
 
       val expectedOtherServicesSummary = OtherServicesSummary(
+        None,
         OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))),
         BusinessTaxesRegistration(
           Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
           RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website")))
       )
 
-      when(mockOtherServicesFactory.create).thenReturn(expectedOtherServicesSummary)
+      when(mockOtherServicesFactory.createManageYourTaxes).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
+      when(mockOtherServicesFactory.createOnlineServicesEnrolment).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
+      when(mockOtherServicesFactory.createBusinessTaxesRegistration).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
+
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentURL")
 
       val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here")))
