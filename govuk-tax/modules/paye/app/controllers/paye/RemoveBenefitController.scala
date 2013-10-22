@@ -1,7 +1,7 @@
 package controllers.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain._
-import play.api.mvc.{SimpleResult, Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import views.html.paye._
 import views.formatting.Dates._
 import play.api.data.Form

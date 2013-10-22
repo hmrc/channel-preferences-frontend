@@ -80,19 +80,13 @@ trait SessionTimeout {
   import org.joda.time.DateTime
   import scala.concurrent.ExecutionContext
   import ExecutionContext.Implicits.global
-  import play.api.mvc.AsyncResult
   import SessionTimeoutWrapper._
   import play.api.http.HeaderNames.SET_COOKIE
 
   val now : () => DateTime
 
-  protected def addTimestamp(request: Request[AnyContent], result: Future[SimpleResult]): Future[SimpleResult] = {
+  protected def addTimestamp(request: Request[AnyContent], result: Future[SimpleResult]): Future[SimpleResult] =
     result.map(insertTimestampNow(request))
-//    match {
-//      case plain: PlainResult => insertTimestampNow(request, plain)
-//      case async: AsyncResult => async.transform(insertTimestampNow(request, _))
-//    }
-  }
 
   private def insertTimestampNow(request: Request[AnyContent])(result: SimpleResult): SimpleResult = {
     val sessionData = sessionFromResultOrRequest(request, result).data.toSeq

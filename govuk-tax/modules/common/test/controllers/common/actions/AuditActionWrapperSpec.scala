@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import play.api.mvc.{ AsyncResult, Action, Controller }
+import play.api.mvc.{ Action, Controller }
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
@@ -11,10 +11,8 @@ import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
 import org.slf4j.MDC
 import controllers.common.HeaderNames
-import scala.concurrent.{ Await, Future, ExecutionContext }
-import scala.concurrent.duration.Duration
+import scala.concurrent.{ Future, ExecutionContext }
 import uk.gov.hmrc.common.BaseSpec
-import play.api.Play
 import org.scalatest.concurrent.ScalaFutures
 
 class AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {

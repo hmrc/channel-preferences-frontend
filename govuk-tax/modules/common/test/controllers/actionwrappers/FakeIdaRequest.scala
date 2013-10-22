@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.Mockito
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import play.api.mvc.Controller
+import play.api.mvc.{SimpleResult, Controller}
 
 
 /**

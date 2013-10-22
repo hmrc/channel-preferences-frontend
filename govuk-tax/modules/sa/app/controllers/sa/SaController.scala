@@ -8,7 +8,7 @@ import play.api.data.Forms._
 import controllers.common._
 import config.DateTimeProvider
 
-import play.api.mvc.{SimpleResult, Request, Result}
+import play.api.mvc.{SimpleResult, Request}
 import controllers.common.validators.{characterValidator, Validators}
 import scala.util.{Success, Try, Left}
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
