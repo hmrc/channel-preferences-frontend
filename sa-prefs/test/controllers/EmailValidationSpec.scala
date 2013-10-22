@@ -18,6 +18,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
    }
 
   val wellFormattedToken: String = "12345678-abcd-4abc-abcd-123456789012"
+  val tokenWithSomeExtraStuff: String = "12345678-abcd-4abc-abcd-123456789012423"
 
   "verify" should {
 
@@ -44,6 +45,16 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "display an error if the token is not in a valid uuid format without calling the service" in {
       val controller = createController
       val token = "badToken"
+      when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(false)
+      val response = controller.verify(token)(FakeRequest())
+      contentAsString(response) should include("portalHomeLink/home")
+      status(response) shouldBe 400
+      verify(controller.preferencesMicroService, never()).updateEmailValidationStatus(token)
+    }
+
+    "display an error if the token is not in a valid uuid format (extra characters) without calling the service" in {
+      val controller = createController
+      val token = tokenWithSomeExtraStuff
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(false)
       val response = controller.verify(token)(FakeRequest())
       contentAsString(response) should include("portalHomeLink/home")
