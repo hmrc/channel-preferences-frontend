@@ -9,28 +9,78 @@
 
 
     <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
-
+    <h2>Your company Car</h2>
     @if( carBenefit.isDefined ) {
+          <table>
+              <tbody>
+              <tr>
+                  <th>Company Car provided by @optionalValue(employerName, "your.employer")</th>
+                  <th></th>
+              </tr>
+              <tr>
+                  <td>Date Provided</td>
+                  <td>@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
+              </tr>
+              <tr>
+                  <td>List Price including accessories</td>
+                  <td>@pounds(carBenefit.get.car.get.carValue)</td>
+              </tr>
+              <tr>
+                  <td>Fuel type</td>
 
-	<p><span id="company-name">@optionalValue(employerName, "your.employer")</span> told us that they have provided you with a <span id="car-benefit-engine">@engineSizeFor(carBenefit.get.car.get.engineSize)</span> <span id="car-benefit-fuel-type">@fuelTypeFor(carBenefit.get.car.get.fuelType)</span> company car since <span id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</span>. It has a benefit value of <span id="car-benefit-amount">@pounds(carBenefit.get.grossAmount)</span>.
-	    @if(fuelBenefit.isDefined) { You also receive a car fuel benefit worth <span id="fuel-benefit-amount">@pounds(fuelBenefit.get.grossAmount)</span>. }</p>
-	<p>Would you like to tell HMRC that:</p>
+                  <td>@{Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.get.car.get.fuelType}")}</td>
+              </tr>
+              <tr>
+                  <td>Emission figure</td>
+                  <td>@{carBenefit.get.car.get.co2Emissions} g/km</td>
+              </tr>
+              <tr>
+                  <td>Engine capacity</td>
+                  <td>@engineSizeFor(carBenefit.get.car.get.engineSize)</td>
+              </tr>
+              <tr>
+                  <td>Car benefit taxable value</td>
+                  <td>@pounds(carBenefit.get.grossAmount)</td>
+              </tr>
+              <tr>
+                  <td>Private Fuel</td>
+                  <td>private fuel?</td>
+              </tr>
+              @if(fuelBenefit.isDefined) {
+              <tr>
+                  <td>Fuel benefit taxable value</td>
+                  <td>@pounds(fuelBenefit.get.grossAmount)</td>
+              </tr>
+              }
+              </tbody>
+
+          </table>
+    } else {
+         <p>You do not have an existing company car benefit.</p>
+    }
+	<h2>Make Changes</h2>
+    <p>
+        You can make the following changes to the information HMRC has about your company car
+	</p>
+    @if( carBenefit.isDefined ) {
 	<ul>
-	    <li><a id="rmCarLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)">you no longer have this company car</a></li>
+	    <li><a id="rmCarLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)">remove your company car</a></li>
 	    @if( fuelBenefit.isDefined ) {
-		<li><a id="rmFuelLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)">you need to change or remove the car fuel benefit</a></li>
-	    }
+		    <li><a id="rmFuelLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)">remove your car fuel benefit</a></li>
+	    } else {
+
+            <li><a id="addFuelLink" href="@controllers.paye.routes.CarBenefitAddController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a car fuel benefit</a></li>
+
+        }
 	</ul>
     } else {
         <div id="no-car-benefit-container">
-            <p>You do not have a company car.</p>
-            <p>Would you like to tell HMRC that:</p>
             <ul>
-                <li><a id="addCarLink" href="@controllers.paye.routes.CarBenefitAddController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">you would like to add a company car</a></li>
+                <li><a id="addCarLink" href="@controllers.paye.routes.CarBenefitAddController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a company car (including any fuel benefit you may have)</a></li>
             </ul>
         </div>
     }
 
-    <p>If your company car information is still correct, you can <a href="@common.routes.LoginController.logout">log out from your account</a>.</p>
+    <p>If you do not need to make any changes you can <a href="@common.routes.LoginController.logout">log out from your account</a>.</p>
 
 }
