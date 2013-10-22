@@ -18,6 +18,11 @@ logs
 .DS_Store
 **/*.DS_Store
 
+*/**/lib_managed/*
+**/lib_managed/*
+lib_managed
+
+*/**/target/*
 **/target/*
 target
 
@@ -34,3 +39,4 @@ target
 .ensime*
 
 **/codekit-config.json
+
