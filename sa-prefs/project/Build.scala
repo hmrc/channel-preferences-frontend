@@ -30,7 +30,9 @@ object ApplicationBuild extends Build {
   val main = play.Project(appName,
     Version.thisApp, appDependencies,
     settings = Common.commonSettings ++ SassPlugin.sassSettings
-  ).settings(publishArtifact := true)
+  ).settings(
+//    version <<= version in ThisBuild
+  )
 
 }
 

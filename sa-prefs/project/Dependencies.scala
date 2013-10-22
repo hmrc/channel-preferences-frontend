@@ -53,10 +53,30 @@ object Repositories {
     Opts.resolver.sonatypeSnapshots
   )
 
-  val publishingSettings = Seq(
+  lazy val dist = com.typesafe.sbt.SbtNativePackager.NativePackagerKeys.dist
+
+  val publishDist = TaskKey[sbt.File]("publish-dist", "publish the dist artifact")
+
+  lazy val publishingSettings = sbtrelease.ReleasePlugin.releaseSettings ++ Seq(
+
     credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
-    publishArtifact := true,
-    publishArtifact in Test := true,
+
+    publishArtifact in (Compile, packageDoc) := false,
+    publishArtifact in (Compile, packageSrc) := false,
+    publishArtifact in (Compile, packageBin) := false,
+
+    publish <<= publish dependsOn dist,
+    publishLocal <<= publishLocal dependsOn dist,
+
+    artifact in publishDist ~= {
+      (art: Artifact) => art.copy(`type` = "zip", extension = "zip")
+    },
+
+    publishDist <<= (target, normalizedName, version) map { (targetDir, id, version) =>
+      val packageName = "%s-%s" format(id, version)
+      targetDir / "universal" / (packageName + ".zip")
+    },
+
     publishTo <<= version {
       (v: String) =>
         if (v.trim.endsWith("SNAPSHOT"))
@@ -64,6 +84,8 @@ object Repositories {
         else
           Some(hmrcNexusReleases)
     }
-  )
+
+  ) ++ addArtifact(artifact in publishDist, publishDist)
+
 }
  

@@ -8,4 +8,4 @@ fi
 
 cd sa-prefs
 
-./sbt clean test dist
+./sbt clean test dist publish
