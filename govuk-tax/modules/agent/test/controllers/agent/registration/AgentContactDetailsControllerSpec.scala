@@ -19,6 +19,7 @@ import scala.util.Success
 import service.agent.AgentMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.scalatest.{TestData, BeforeAndAfterEach}
+import concurrent.Future
 
 class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -41,7 +42,7 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
   "The contact details page" should {
     "display known agent info" in new WithApplication(FakeApplication()) {
-      val result = controller.contactDetailsAction(user, null)
+      val result = Future.successful(controller.contactDetailsAction(user, null))
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#title").first().`val` should be("Mr")
@@ -53,42 +54,42 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "not go to the next step if phone number is missing" in new WithApplication(FakeApplication()) {
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("", "07777777777", "email@company.com"))
+      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("", "07777777777", "email@company.com")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if mobile number is missing" in new WithApplication(FakeApplication()) {
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "", "email@company.com"))
+      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "", "email@company.com")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if phone number is not a number" in new WithApplication(FakeApplication()) {
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("a", "07777777777", "email@company.com"))
+      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("a", "07777777777", "email@company.com")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if mobile number is not a number" in new WithApplication(FakeApplication()) {
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "a", "email@company.com"))
+      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "a", "email@company.com")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if email address is missing" in new WithApplication(FakeApplication()) {
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", ""))
+      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "")))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
       verifyZeroInteractions(controller.keyStoreMicroService)
     }
 
     "not go to the next step if email address is invalid" in new WithApplication(FakeApplication()) {
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "a@"))
+      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777777", "a@")))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
       verifyZeroInteractions(controller.keyStoreMicroService)
@@ -96,9 +97,9 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "go to the agent type page if valid email address and phone numbers are entered and store result in keystore, including the contact details" in new WithApplication(FakeApplication()) {
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
-      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a"))
+      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a")))
       status(result) shouldBe 303
-      headers(result)("Location") should be("/agent-type")
+      headers(result).get("Location") should contain("/agent-type")
       verify(controller.keyStoreMicroService).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())(Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(title) should be(payeRoot.title)

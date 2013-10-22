@@ -8,6 +8,7 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
+import concurrent.Future
 
 class MultiFormController extends Controller with MultiFormWrapper with MockMicroServicesForTests {
 
@@ -68,9 +69,9 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(None)
       when(controller.call1.url).thenReturn("/step1")
 
-      val result = controller.testJumpAhead()(user)(FakeRequest())
+      val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
       status(result) should be(303)
-      headers(result)("Location") should be("/step1")
+      headers(result).get("Location") should contain("/step1")
     }
 
     "allow access to step1 when user tries to access it for the first time and key store does not exist" in new WithApplication(FakeApplication()) {
@@ -78,7 +79,7 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       val controller = new MultiFormController
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(None)
 
-      val result = controller.testHomePage()(user)(FakeRequest())
+      val result = Future.successful(controller.testHomePage()(user)(FakeRequest()))
       status(result) should be(200)
       contentAsString(result) should be("You are in home page")
     }
@@ -90,9 +91,9 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set.empty[String]))
       when(controller.call1.url).thenReturn("/step1")
 
-      val result = controller.testJumpAhead()(user)(FakeRequest())
+      val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
       status(result) should be(303)
-      headers(result)("Location") should be("/step1")
+      headers(result).get("Location") should contain("/step1")
     }
 
     "go to step3 when keystore exists and the previous steps were completed" in new WithApplication(FakeApplication()) {
@@ -101,7 +102,7 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       val controller = new MultiFormController
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set("step1", "step2")))
 
-      val result = controller.testJumpAhead()(user)(FakeRequest())
+      val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
       status(result) should be(200)
       contentAsString(result) should be("You are in step 3!")
     }
@@ -113,9 +114,9 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       when(controller.keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set("step1")))
       when(controller.call2.url).thenReturn("/step2")
 
-      val result = controller.testJumpAhead()(user)(FakeRequest())
+      val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
       status(result) should be(303)
-      headers(result)("Location") should be("/step2")
+      headers(result).get("Location") should contain("/step2")
     }
 
   }

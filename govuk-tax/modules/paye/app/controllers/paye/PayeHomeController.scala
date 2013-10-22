@@ -2,7 +2,7 @@ package controllers.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import models.paye.{EmploymentViews, PayeOverview}
 import views.html.paye.paye_home
 import controllers.common.BaseController
@@ -16,7 +16,7 @@ class PayeHomeController extends BaseController {
         homeAction(request)(user)
   }
 
-  private[paye] def homeAction(request: Request[_])(implicit user: User): Result = {
+  private[paye] def homeAction(request: Request[_])(implicit user: User): SimpleResult = {
     val payeData = user.getPaye
     val userAuthority = user.userAuthority
     val taxYear = TaxYearResolver.currentTaxYear

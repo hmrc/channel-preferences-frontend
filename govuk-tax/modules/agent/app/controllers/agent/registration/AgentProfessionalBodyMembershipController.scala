@@ -3,7 +3,7 @@ package controllers.agent.registration
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
@@ -37,7 +37,7 @@ class AgentProfessionalBodyMembershipController extends BaseController with Acti
     }
   }
 
-  private[registration] val professionalBodyMembershipAction: (User, Request[_]) => Result = (user, request) => {
+  private[registration] val professionalBodyMembershipAction: (User, Request[_]) => SimpleResult = (user, request) => {
     val form = professionalBodyMembershipForm.fill(AgentProfessionalBodyMembership())
     Ok(views.html.agents.registration.professional_body_membership(form, Configuration.config.professionalBodyOptions))
   }
@@ -48,7 +48,7 @@ class AgentProfessionalBodyMembershipController extends BaseController with Acti
     }
   }
 
-  private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => Result) = (user, request) => {
+  private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
     professionalBodyMembershipForm.bindFromRequest()(request).fold(
       errors => {
         BadRequest(views.html.agents.registration.professional_body_membership(errors, Configuration.config.professionalBodyOptions))

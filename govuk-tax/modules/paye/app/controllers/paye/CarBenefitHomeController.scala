@@ -1,7 +1,7 @@
 package controllers.paye
 
 import controllers.common.BaseController
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.{PayeRootData, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
@@ -23,7 +23,7 @@ class CarBenefitHomeController
         carBenefitHomeAction
   }
 
-  private[paye] def carBenefitHomeAction(implicit user: User, request: Request[_]): Result = {
+  private[paye] def carBenefitHomeAction(implicit user: User, request: Request[_]): SimpleResult = {
     val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
 
     findPrimaryEmployment(payeRootData) match {

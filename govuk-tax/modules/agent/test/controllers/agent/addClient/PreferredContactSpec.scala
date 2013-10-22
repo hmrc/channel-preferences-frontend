@@ -19,6 +19,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.FakeApplication
 import service.agent.AgentMicroService
+import concurrent.Future
 
 class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -105,7 +106,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
         (ConfirmClientController.FieldIds.authorised, authorised),
         (ConfirmClientController.FieldIds.internalClientRef, internalClientReference),
         (ConfirmClientController.FieldIds.instanceId, instanceId))
-      confirmController.confirmAction(user)(request)
+      Future.successful(confirmController.confirmAction(user)(request))
     }
   }
 
@@ -193,7 +194,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
         (FieldIds.contactEmail, email),
         (FieldIds.instanceId, instanceId)
       )
-      controller.preferredContactAction(user)(request)
+      Future.successful(controller.preferredContactAction(user)(request))
     }
   }
 

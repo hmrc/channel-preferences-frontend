@@ -8,7 +8,7 @@ import play.api.data.Forms._
 import controllers.common._
 import config.DateTimeProvider
 
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{SimpleResult, Request, Result}
 import controllers.common.validators.{characterValidator, Validators}
 import scala.util.{Success, Try, Left}
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
@@ -57,7 +57,7 @@ class SaController
         changeAddressCompleteAction(id)
   }
 
-  private[sa] def detailsAction(implicit user: User, request: Request[_]): Result = {
+  private[sa] def detailsAction(implicit user: User, request: Request[_]): SimpleResult = {
     val userData = user.regimes.sa.get
 
     userData.personalDetails match {
@@ -96,13 +96,13 @@ class SaController
     }
   )
 
-  private[sa] def changeAddressAction(implicit user: User, request: Request[_]): Result =
+  private[sa] def changeAddressAction(implicit user: User, request: Request[_]): SimpleResult =
     Ok(sa_personal_details_update(changeAddressForm = changeAddressForm))
 
-  private[sa] def redisplayChangeAddressAction(implicit user: User, request: Request[_]): Result =
+  private[sa] def redisplayChangeAddressAction(implicit user: User, request: Request[_]): SimpleResult =
     Ok(sa_personal_details_update(changeAddressForm = changeAddressForm.bindFromRequest()(request)))
 
-  private[sa] def submitChangeAddressAction(implicit user: User, request: Request[_]): Result =
+  private[sa] def submitChangeAddressAction(implicit user: User, request: Request[_]): SimpleResult =
     changeAddressForm.bindFromRequest()(request).fold(
       errors =>
         BadRequest(sa_personal_details_update(errors)),
@@ -112,7 +112,7 @@ class SaController
           changeAddressFormData = formData))
     )
 
-  private[sa] def confirmChangeAddressAction(implicit user: User, request: Request[_]): Result =
+  private[sa] def confirmChangeAddressAction(implicit user: User, request: Request[_]): SimpleResult =
     changeAddressForm.bindFromRequest()(request).fold(
       errors =>
         BadRequest(sa_personal_details_update(errors)),
@@ -127,7 +127,7 @@ class SaController
 
   private def decryptParameter(value: String): Try[SecureParameter] = SecureParameter.decrypt(value)
 
-  private[sa] def changeAddressCompleteAction(id: String)(implicit user: User, request: Request[_]): Result =
+  private[sa] def changeAddressCompleteAction(id: String)(implicit user: User, request: Request[_]): SimpleResult =
     decryptParameter(id) match {
       case Success(SecureParameter(transactionId, _)) => Ok(sa_personal_details_confirmation_receipt(TransactionId(transactionId)))
       case _ => NotFound
@@ -137,7 +137,7 @@ class SaController
     implicit user => implicit request => changeAddressFailedAction(id)
   }
 
-  private[sa] def changeAddressFailedAction(id: String)(implicit user: User, request: Request[_]): Result =
+  private[sa] def changeAddressFailedAction(id: String)(implicit user: User, request: Request[_]): SimpleResult =
     decryptParameter(id) match {
       case Success(SecureParameter(errorMessage, _)) => Ok(sa_personal_details_update_failed(errorMessage))
       case _ => NotFound

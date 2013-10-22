@@ -3,9 +3,9 @@ resolvers ++= Seq("Typesafe repository" at "http://repo.typesafe.com/typesafe/re
 				"Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/")
 
 
-addSbtPlugin("play" % "sbt-plugin" % "2.1.5")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
 
-addSbtPlugin("net.litola" % "play-sass" % "0.2.0")
+addSbtPlugin("net.litola" % "play-sass" % "0.3.0")
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
 

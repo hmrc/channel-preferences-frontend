@@ -17,8 +17,9 @@ import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.governmentgateway.SsoLoginRequest
 import play.api.mvc.SimpleResult
+import org.scalatest.concurrent.ScalaFutures
 
-class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption with ScalaFutures {
 
   private lazy val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
   private val mockSsoWhiteListService = mock[SsoWhiteListService]
@@ -55,7 +56,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
       val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com").withFormUrlEncodedBody("payload" -> encryptedPayload))
       result match {
-        case SimpleResult(header, _) => {
+        case SimpleResult(header, _,_) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
           header.headers("Set-Cookie") should include(sessionEntry("userId", john.userId))
@@ -80,7 +81,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken))
 
       result match {
-        case SimpleResult(header, _) => {
+        case SimpleResult(header, _, _) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
           header.headers("Set-Cookie") should include(sessionEntry("userId", bob.userId))
@@ -103,7 +104,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
       result match {
-        case SimpleResult(header, _) => {
+        case SimpleResult(header, _, _) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe "/"
           header.headers("Set-Cookie") should not include "userId"
@@ -126,7 +127,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken))
 
       result match {
-        case SimpleResult(header, _) => {
+        case SimpleResult(header, _, _) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe "/"
           header.headers("Set-Cookie") should not include "userId"
@@ -142,7 +143,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val invalidUrl = "invalid_url"
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$invalidUrl"}""")
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+      val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
@@ -155,7 +156,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+      val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken))
 
@@ -165,7 +166,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "return 400 if the dest field is missing" in new WithApplication(FakeApplication()) {
       val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}}""")
 
-      val result: Result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+      val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken))
 
@@ -176,10 +177,10 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "The Single Sign-on logout page" should {
       " logout a logged-in user and redirect to the Portal loggedout page" in new WithApplication(FakeApplication()) {
 
-        val result: Result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
+        val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
-        result match {
-          case SimpleResult(header, _) => {
+        whenReady(result) {
+          case SimpleResult(header, _, _) => {
             header.status shouldBe 303
             header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
             header.headers("Set-Cookie") should not include "userId"
@@ -194,10 +195,10 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       " logout a not logged-in user and redirect to the Portal loggedout page" in new WithApplication(FakeApplication()) {
 
-        val result: Result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("somePortalData" -> "somedata"))
+        val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("somePortalData" -> "somedata"))
 
-        result match {
-          case SimpleResult(header, _) => {
+        whenReady(result) {
+          case SimpleResult(header, _, _) => {
             header.status shouldBe 303
             header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
             header.headers("Set-Cookie") should not include "userId"

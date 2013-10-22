@@ -1,7 +1,7 @@
 package controllers.paye
 
 import controllers.common.BaseController
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
@@ -78,7 +78,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
-  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
+  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       val dates = getCarBenefitDates(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
@@ -93,7 +93,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
     }
   }
 
-  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Result = WithValidatedRequest {
+  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
@@ -146,7 +146,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
   }
 
   object WithValidatedRequest {
-    def apply(action: (Request[_], User, Int, Int, PayeRootData) => Result): (User, Request[_], Int, Int) => Result = {
+    def apply(action: (Request[_], User, Int, Int, PayeRootData) => SimpleResult): (User, Request[_], Int, Int) => SimpleResult = {
       (user, request, taxYear, employmentSequenceNumber) => {
         if (TaxYearResolver.currentTaxYear != taxYear) {
           Logger.error("Adding car benefit is only allowed for the current tax year")
@@ -168,7 +168,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       }
     }
 
-    private val redirectToCarBenefitHome: (Request[_], User) => Result = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome())
+    private val redirectToCarBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome())
   }
 
 }

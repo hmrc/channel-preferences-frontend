@@ -15,6 +15,7 @@ import scala.util.Success
 import uk.gov.hmrc.domain.Uar
 import models.agent.AgentRegistrationRequest
 import service.agent.AgentMicroService
+import concurrent.Future
 
 class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -49,7 +50,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
       when(controller.agentMicroService.create("CE927349E", agentRegistrationRequest)).thenReturn(Uar("12345"))
       when(agentRoot.uar).thenReturn("12345")
 
-      val result = controller.thankYouAction(user, FakeRequest())
+      val result = Future.successful(controller.thankYouAction(user, FakeRequest()))
       status(result) shouldBe 200
 
       verify(controller.keyStoreMicroService).getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)
@@ -62,9 +63,9 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
       when(controller.keyStoreMicroService.getKeyStore[Map[String,String]](controller.registrationId(user), controller.agent)).thenReturn(None)
 
-      val result = controller.thankYouAction(user, FakeRequest())
+      val result = Future.successful(controller.thankYouAction(user, FakeRequest()))
       status(result) shouldBe 303
-      headers(result)("Location") should be("/home")
+      headers(result).get("Location") should contain("/home")
       verifyZeroInteractions(controller.agentMicroService)
 
     }

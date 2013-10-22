@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient._
 import controllers.common.{ActionWrappers, BaseController}
 import play.api.data.{Form, Forms}
@@ -48,7 +48,7 @@ with AgentMicroServices {
   private def startViewWith(form: Form[(ClientSearch, String)]) =
     Ok(search_client(form.fill((ClientSearch.empty, ObjectId.get().toString))))
 
-  private[agent] def searchAction(user: User)(request: Request[_]): Result = {
+  private[agent] def searchAction(user: User)(request: Request[_]): SimpleResult = {
     val form = searchForm(request).bindFromRequest()(request)
     form.fold(
       errors => BadRequest(search_client(errors)),

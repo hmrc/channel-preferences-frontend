@@ -2,7 +2,7 @@ package controllers.agent.registration
 
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{SimpleResult, Request}
 import controllers.agent.registration.FormNames._
 import AgentCompanyDetailsFormFields._
 import play.api.data.Forms._
@@ -101,7 +101,7 @@ class AgentCompanyDetailsController
       }
     }
 
-  private[registration] val companyDetailsAction: ((User, Request[_]) => Result) = (user, request) =>
+  private[registration] val companyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) =>
     Ok(views.html.agents.registration.company_details(companyDetailsForm.fill(AgentCompanyDetails())))
 
   def postCompanyDetails = AuthorisedForIdaAction(Some(PayeRegime)) {
@@ -110,7 +110,7 @@ class AgentCompanyDetailsController
       }
     }
 
-  private[registration] val postCompanyDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
+  private[registration] val postCompanyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
     companyDetailsForm.bindFromRequest()(request).fold(
       errors => {
         BadRequest(views.html.agents.registration.company_details(errors))

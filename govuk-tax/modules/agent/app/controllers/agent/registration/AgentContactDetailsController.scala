@@ -3,7 +3,7 @@ package controllers.agent.registration
 import play.api.data._
 import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
@@ -35,7 +35,7 @@ class AgentContactDetailsController
     }
   }
 
-  private[registration] val contactDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
+  private[registration] val contactDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
     val paye: PayeRoot = user.regimes.paye.get
     val form = contactForm.fill(AgentContactDetails())
     Ok(views.html.agents.registration.contact_details(form, paye))
@@ -47,7 +47,7 @@ class AgentContactDetailsController
     }
   }
 
-  private[registration] val postContactDetailsAction: ((User, Request[_]) => Result) = (user, request) => {
+  private[registration] val postContactDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
     contactForm.bindFromRequest()(request).fold(
       errors => {
         BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get))

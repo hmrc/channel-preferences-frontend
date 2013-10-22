@@ -17,6 +17,7 @@ import org.jsoup.Jsoup
 import models.agent.addClient.{ClientSearch, PotentialClient, ConfirmClient}
 import org.joda.time.LocalDate
 import service.agent.AgentMicroService
+import concurrent.Future
 
 class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -42,11 +43,11 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
       when(keyStore.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
-      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+      val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (FieldIds.correctClient, ""),
         (FieldIds.authorised, "true"),
         (FieldIds.internalClientRef, "1234"),
-        (FieldIds.instanceId, instanceId)))
+        (FieldIds.instanceId, instanceId))))
       status(result) should be (400)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -59,11 +60,11 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
       when(keyStore.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
-      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+      val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (FieldIds.correctClient, "true"),
         (FieldIds.authorised, ""),
         (FieldIds.internalClientRef, "1234"),
-        (FieldIds.instanceId, instanceId)))
+        (FieldIds.instanceId, instanceId))))
       status(result) should be (400)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -74,10 +75,10 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "redirect the user to the search client page if they do not have any potential client stored"  in new WithApplication(FakeApplication()) {
       when(keyStore.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey)).thenReturn(None)
-      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+      val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (FieldIds.correctClient, "true"),
         (FieldIds.authorised, "true"),
-        (FieldIds.internalClientRef, "1234")))
+        (FieldIds.internalClientRef, "1234"))))
 
       status(result) should be (303)
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.restart().url)
@@ -85,10 +86,10 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "redirect the user to the search client page if they do not have a search result in their potential client"  in new WithApplication(FakeApplication()) {
       when(keyStore.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey)).thenReturn(Some(PotentialClient(None, None, None)))
-      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+      val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (FieldIds.correctClient, "true"),
         (FieldIds.authorised, "true"),
-        (FieldIds.internalClientRef, "1234")))
+        (FieldIds.internalClientRef, "1234"))))
 
       status(result) should be (303)
       redirectLocation(result) should contain (controllers.agent.addClient.routes.SearchClientController.restart().url)
@@ -98,11 +99,11 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
       when(keyStore.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
-      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+      val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (FieldIds.correctClient, "true"),
         (FieldIds.authorised, "true"),
         (FieldIds.internalClientRef, ""),
-        (FieldIds.instanceId, instanceId)))
+        (FieldIds.instanceId, instanceId))))
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id, instanceId), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, None)), None))
@@ -113,11 +114,11 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
       when(keyStore.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
-      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+      val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (FieldIds.correctClient, "true"),
         (FieldIds.authorised, "true"),
         (FieldIds.internalClientRef, "1234567"),
-        (FieldIds.instanceId, instanceId)))
+        (FieldIds.instanceId, instanceId))))
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id, instanceId), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, Some("1234567"))), None))
@@ -128,11 +129,12 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
       when(keyStore.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
-      val result = controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
+      val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
         (FieldIds.correctClient, "true"),
         (FieldIds.authorised, "true"),
         (FieldIds.internalClientRef, "      "),
-        (FieldIds.instanceId, instanceId)))
+        (FieldIds.instanceId, instanceId))))
+      val s = contentAsString(result)
       status(result) should be (200)
       verify(keyStore).addKeyStoreEntry(keystoreId(id, instanceId), serviceSourceKey, addClientKey,
         PotentialClient(Some(clientSearch), Some(ConfirmClient(true, true, None)), None))

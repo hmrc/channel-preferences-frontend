@@ -19,6 +19,7 @@ import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction}
 import controllers.DateFieldsHelper
 import java.net.URI
 import uk.gov.hmrc.microservice.txqueue
+import concurrent.Future
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -58,7 +59,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, employments, Seq.empty, List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(500)
     }
@@ -66,7 +67,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "show car details for user with a company car and no fuel" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
 
@@ -83,7 +84,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "show car details for user with a company car and fuel benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
 
@@ -104,7 +105,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmploymentsWithoutName, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
 
@@ -122,7 +123,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
 
@@ -141,7 +142,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
@@ -151,7 +152,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "show a remove car link and not show a remove fuel link for a user who has a car without a fuel benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
@@ -162,7 +163,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "show a remove car and remove fuel link for a user who has a car and fuel benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
@@ -173,7 +174,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "show an add car link for a user who has 2 employments and a car on the non primary employment" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefit), List.empty, List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
@@ -183,7 +184,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "show an add Car link for a user with a company car who has an accepted car removal transaction" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List(generateTransactionData(31, false)), List.empty)
 
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
@@ -211,7 +212,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val completedTransactions = if (isCompleted) List(generateTransactionData(removeTransactionBenefitType , true)) else List.empty
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1, fuelBenefitEmployer1), acceptedTransactions, completedTransactions)
-      val result = controller.carBenefitHomeAction(johnDensmore, FakeRequest())
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))

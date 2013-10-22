@@ -28,10 +28,8 @@ class AuditTestController extends Controller with AuditActionWrapper with MockMi
   import ExecutionContext.Implicits.global
 
   def asyncTest() = WithRequestAuditing {
-    Action {
-      Async {
+    Action.async {
         Future(Ok("Hello"))
-      }
     }
   }
 }

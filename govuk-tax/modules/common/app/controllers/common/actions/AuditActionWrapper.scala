@@ -6,7 +6,7 @@ import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
-import scala.concurrent.ExecutionContext
+import concurrent.{Future, ExecutionContext}
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
 
@@ -45,22 +45,18 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
 
   lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
 
-  def apply(action: Action[AnyContent]) = Action {
+  def apply(action: Action[AnyContent]) = Action.async {
     request =>
       if (traceRequests) {
         val context = fromMDC
 
-        def audit(result: PlainResult): Result = {
-          auditEvent("Response", context ++ Map("statusCode" -> result.header.status.toString))
-          result
-        }
-
         auditEvent("Request", context ++ Map("path" -> request.path))
 
-        action(request) match {
-          case plain: PlainResult => audit(plain)
-          case async: AsyncResult => async.transform(audit)
-        }
+        val response = action(request)
+        response.onSuccess({
+          case result => auditEvent("Response", context ++ Map("statusCode" -> result.header.status.toString))
+        })
+        response
       } else {
         action(request)
       }

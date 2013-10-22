@@ -6,7 +6,6 @@ import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import views.html.login
 import com.google.common.net.HttpHeaders
-import play.api.mvc.Result
 import play.api.Logger
 import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper}
 import controllers.common.FrontEndRedirect._
@@ -68,7 +67,7 @@ trait ActionWrappers
 
   object AuthorisedForIdaAction {
 
-    def apply(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => Result))): Action[AnyContent] =
+    def apply(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
           WithSessionTimeoutValidation {

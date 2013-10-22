@@ -2,7 +2,7 @@ package controllers.agent.addClient
 
 import controllers.common.{ActionWrappers, BaseController}
 import controllers.common.validators.Validators
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient.{client_successfully_added, preferred_contact}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
@@ -14,7 +14,7 @@ import scala.Some
 import Validators.validateMandatoryPhoneNumber
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import models.agent.{Client, Contact, PreferredContact}
-import service.agent.{AgentMicroServices, AgentMicroService}
+import service.agent.AgentMicroServices
 
 class PreferredContactController
   extends BaseController
@@ -24,7 +24,7 @@ class PreferredContactController
     preferredContactAction
   }
 
-  private[agent] def preferredContactAction(user: User)(request: Request[_]): Result = {
+  private[agent] def preferredContactAction(user: User)(request: Request[_]): SimpleResult = {
     val form = preferredContactForm(request).bindFromRequest()(request)
     val ksId = keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound"))
     keyStoreMicroService.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) match {

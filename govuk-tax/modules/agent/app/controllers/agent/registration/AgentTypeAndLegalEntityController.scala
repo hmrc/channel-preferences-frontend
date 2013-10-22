@@ -7,7 +7,7 @@ import play.api.data.Forms._
 import scala.Some
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import controllers.common.service.MicroServices
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
@@ -36,7 +36,7 @@ class AgentTypeAndLegalEntityController
     }
   }
 
-  private[registration] val agentTypeAction: (User, Request[_]) => Result = (user, request) => {
+  private[registration] val agentTypeAction: (User, Request[_]) => SimpleResult = (user, request) => {
     Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
@@ -46,7 +46,7 @@ class AgentTypeAndLegalEntityController
     }
   }
 
-  private[registration] val postAgentTypeAction: ((User, Request[_]) => Result) = (user, request) => {
+  private[registration] val postAgentTypeAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
     agentTypeAndLegalEntityForm.bindFromRequest()(request).fold(
       errors => {
         BadRequest(views.html.agents.registration.agent_type_and_legal_entity(errors, Configuration.config))

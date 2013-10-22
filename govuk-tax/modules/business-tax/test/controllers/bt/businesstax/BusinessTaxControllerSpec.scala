@@ -2,7 +2,6 @@ package controllers.bt.businesstax
 
 import uk.gov.hmrc.common.BaseSpec
 import org.mockito.Mockito._
-import play.api.mvc.Result
 import play.api.test.Helpers._
 import controllers.bt.accountsummary.AccountSummaries
 import controllers.bt.testframework.fixtures.GeoffFisherTestFixture
@@ -20,7 +19,7 @@ class BusinessTaxControllerSpec extends BaseSpec {
 
       when (mockBusinessTaxPages.makeAPaymentLandingPage()).thenReturn(Html(expectedHtml))
 
-      val result: Result = controllerUnderTest.makeAPaymentLanding(request)
+      val result = controllerUnderTest.makeAPaymentLanding(request)
 
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml
@@ -38,7 +37,7 @@ class BusinessTaxControllerSpec extends BaseSpec {
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(geoffFisherSummaries)
       when(mockBusinessTaxPages.businessTaxHomepage("homeURL", geoffFisherSummaries)).thenReturn(Html(expectedHtml))
 
-      val result: Result = controllerUnderTest.home(request)
+      val result = controllerUnderTest.home(request)
 
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml

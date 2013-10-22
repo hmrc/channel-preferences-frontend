@@ -4,6 +4,7 @@ import config.DateTimeProvider
 import scala.Some
 import org.joda.time.DateTime
 import play.api.Logger
+import concurrent.Future
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
   object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(now)
@@ -20,17 +21,18 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
   import play.api.mvc._
   import org.joda.time.{Duration, DateTimeZone, DateTime}
   import SessionTimeoutWrapper._
+  import play.api.libs.concurrent.Execution.Implicits._
 
   val defaultErrorAction: Action[AnyContent] = Action(Results.Redirect(routes.HomeController.landing()))
 
-  def apply(errorResult: Action[AnyContent], action: Action[AnyContent]): Action[AnyContent] = Action {
+  def apply(errorResult: Action[AnyContent], action: Action[AnyContent]): Action[AnyContent] = Action.async {
     request: Request[AnyContent] => {
 
       val result = if (hasValidTimestamp(request.session)) {
         action(request)
       } else {
         Logger.debug(s"request refused as the session had timed out in ${request.path}")
-        errorResult(request).withNewSession
+        errorResult(request).map(_.withNewSession)
       }
       addTimestamp(request, result)
     }
@@ -62,7 +64,7 @@ class WithNewSessionTimeout(val now: () => DateTime) extends SessionTimeout {
 
   import play.api.mvc._
 
-  def apply(action: Action[AnyContent]) = Action {
+  def apply(action: Action[AnyContent]) = Action.async {
     request: Request[AnyContent] => {
 
       val result = action(request)
@@ -84,14 +86,15 @@ trait SessionTimeout {
 
   val now : () => DateTime
 
-  protected def addTimestamp(request: Request[AnyContent], result: Result) = {
-    result match {
-      case plain: PlainResult => insertTimestampNow(request, plain)
-      case async: AsyncResult => async.transform(insertTimestampNow(request, _))
-    }
+  protected def addTimestamp(request: Request[AnyContent], result: Future[SimpleResult]): Future[SimpleResult] = {
+    result.map(insertTimestampNow(request))
+//    match {
+//      case plain: PlainResult => insertTimestampNow(request, plain)
+//      case async: AsyncResult => async.transform(insertTimestampNow(request, _))
+//    }
   }
 
-  private def insertTimestampNow(request: Request[AnyContent], result: PlainResult): Result = {
+  private def insertTimestampNow(request: Request[AnyContent])(result: SimpleResult): SimpleResult = {
     val sessionData = sessionFromResultOrRequest(request, result).data.toSeq
     val newSessionData = sessionData :+ (lastRequestTimestampKey -> now().getMillis.toString)
     result.withSession(newSessionData: _*)

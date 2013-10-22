@@ -3,7 +3,7 @@ package controllers.agent.addClient
 import controllers.common.{ActionWrappers, BaseController}
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient.{preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
@@ -25,7 +25,7 @@ class ConfirmClientController
       confirmAction
     }
 
-  private[agent] def confirmAction(user: User)(request: Request[_]): Result = {
+  private[agent] def confirmAction(user: User)(request: Request[_]): SimpleResult = {
     val form = confirmClientForm().bindFromRequest()(request)
     keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
       case Some(potentialClient@PotentialClient(Some(searchedClient), _, _)) => {
@@ -56,7 +56,7 @@ object ConfirmClientController {
     mapping(
       FieldIds.correctClient -> checked("error.agent.addClient.confirmClient.correctClient"),
       FieldIds.authorised -> checked("error.agent.addClient.confirmClient.authorised"),
-      FieldIds.internalClientRef -> optional(nonEmptyText),
+      FieldIds.internalClientRef -> optional(text),
       FieldIds.instanceId -> nonEmptyText
     )((correctClient, authorised, internalClientRef, instanceId) => (ConfirmClient(correctClient, authorised, internalClientRef), instanceId))
       (confirmClientWithInstanceId => Some((confirmClientWithInstanceId._1.correctClient, confirmClientWithInstanceId._1.authorised, confirmClientWithInstanceId._1.internalClientReference, confirmClientWithInstanceId._2)))

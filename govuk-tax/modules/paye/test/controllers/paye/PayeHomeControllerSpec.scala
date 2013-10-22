@@ -14,6 +14,11 @@ import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
+<<<<<<< HEAD
+=======
+import controllers.actionwrappers.PayeTest
+import concurrent.Future
+>>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
 
 
 class PayeHomeControllerSpec
@@ -92,7 +97,7 @@ class PayeHomeControllerSpec
     }
 
     def requestHomeAction: String = {
-      val result = controller.homeAction(FakeRequest())(johnDensmore)
+      val result = Future.successful(controller.homeAction(FakeRequest())(johnDensmore))
       status(result) should be(200)
       contentAsString(result)
     }

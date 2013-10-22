@@ -16,6 +16,7 @@ import scala.Some
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.scalatest.TestData
+import concurrent.Future
 
 class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
@@ -93,7 +94,7 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
     }
 
     def requestBenefitsAction(user: User) = {
-      val result = controller.listBenefitsAction(user, FakeRequest())
+      val result = Future.successful(controller.listBenefitsAction(user, FakeRequest()))
       status(result) shouldBe 200
       contentAsString(result)
     }

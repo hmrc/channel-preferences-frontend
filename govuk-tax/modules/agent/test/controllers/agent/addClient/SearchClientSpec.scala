@@ -19,6 +19,7 @@ import SearchClientController.KeyStoreKeys
 import SearchClientController.FieldIds
 import service.agent.AgentMicroService
 import models.agent.{MatchingPerson, SearchRequest}
+import concurrent.Future
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -43,7 +44,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
   "The home action" should {
     "generate an identifier when the page is visited" in new WithApplication(FakeApplication()) {
-      val result = controller.homeAction(agent)(FakeRequest())
+      val result = Future.successful(controller.homeAction(agent)(FakeRequest()))
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -52,7 +53,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "have a generated identifier which is different each time the page is visited" in new WithApplication(FakeApplication()) {
       def visitPage = {
-        val result = controller.homeAction(agent)(FakeRequest())
+        val result = Future.successful(controller.homeAction(agent)(FakeRequest()))
         Jsoup.parse(contentAsString(result))
       }
 
@@ -63,7 +64,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
   "The restart action" should {
     "show an error" in new WithApplication(FakeApplication()) {
-      val result = controller.restartAction(agent)(FakeRequest())
+      val result = Future.successful(controller.restartAction(agent)(FakeRequest()))
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -275,7 +276,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
         (FieldIds.dob + ".month", dob._2),
         (FieldIds.dob + ".year", dob._3),
         (FieldIds.instanceId, instanceId))
-      controller.searchAction(agent)(request)
+      Future.successful(controller.searchAction(agent)(request))
     }
 
     def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[String], any[SearchRequest])).thenReturn(None)

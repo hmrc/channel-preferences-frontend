@@ -1,7 +1,7 @@
 package controllers.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Request}
 import views.html.paye._
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
@@ -19,7 +19,7 @@ class BenefitHomeController(payeService: PayeMicroService) extends BaseControlle
     implicit user: User => implicit request => listBenefitsAction(user, request)
   })
 
-  private[paye] def listBenefitsAction(implicit user: User, request: Request[_]): Result = {
+  private[paye] def listBenefitsAction(implicit user: User, request: Request[_]): SimpleResult = {
     val taxYear = TaxYearResolver.currentTaxYear
     val benefits = user.regimes.paye.get.fetchBenefits(taxYear)
     val employments = user.regimes.paye.get.fetchEmployments(taxYear)

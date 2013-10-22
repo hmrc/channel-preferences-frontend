@@ -3,6 +3,8 @@ package controllers.common.actions
 import controllers.common.service.MicroServices
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import concurrent.Future
+
 
 trait MultiFormWrapper extends MicroServices{
   object MultiFormAction extends MultiFormAction(keyStoreMicroService)
@@ -16,7 +18,7 @@ class MultiFormAction(keyStore: KeyStoreMicroService = MicroServices.keyStoreMic
 
   import uk.gov.hmrc.common.microservice.domain.User
 
-  def apply(config: User => MultiFormConfiguration)(action: (User => Request[AnyContent] => Result)): (User => Request[AnyContent] => Result) = {
+  def apply(config: User => MultiFormConfiguration)(action: (User => Request[AnyContent] => SimpleResult)): (User => Request[AnyContent] => SimpleResult) = {
     implicit user =>
       implicit request =>
         val conf = config(user)

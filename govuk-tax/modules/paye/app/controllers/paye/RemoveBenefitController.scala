@@ -1,7 +1,7 @@
 package controllers.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain._
-import play.api.mvc.{Result, Request}
+import play.api.mvc.{SimpleResult, Result, Request}
 import views.html.paye._
 import views.formatting.Dates._
 import play.api.data.Form
@@ -52,7 +52,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
       user => request => benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance)
     }
 
-  private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
+  private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, benefit, payeRootData) => {
       val benefitStartDate = getStartDate(benefit.benefit)
       val dates = getCarFuelBenefitDates(request)
@@ -76,7 +76,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     }
   }
 
-  private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
+  private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, benefit, payeRootData) => {
       val benefitStartDate = getStartDate(benefit.benefit)
       val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
@@ -150,7 +150,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     }
   }
 
-  private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Result = WithValidatedRequest {
+  private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, displayBenefit, payeRootData) => {
       val payeRoot = user.regimes.paye.get
       if (carRemovalMissesFuelRemoval(payeRootData, displayBenefit)) {
@@ -176,7 +176,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
   }
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
-    play.api.mvc.Result = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) =>
+    play.api.mvc.SimpleResult = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) =>
     if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
@@ -238,7 +238,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
   }
 
   object WithValidatedRequest {
-    def apply(action: (Request[_], User, DisplayBenefit, PayeRootData) => Result): (User, Request[_], String, Int, Int) => Result = {
+    def apply(action: (Request[_], User, DisplayBenefit, PayeRootData) => SimpleResult): (User, Request[_], String, Int, Int) => SimpleResult = {
       (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
         val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
 
@@ -302,7 +302,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
     }
 
 
-    private val redirectToBenefitHome: (Request[_], User) => Result = (r, u) => Redirect(routes.BenefitHomeController.listBenefits())
+    private val redirectToBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.BenefitHomeController.listBenefits())
   }
 
 }

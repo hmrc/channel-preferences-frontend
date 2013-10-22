@@ -21,7 +21,6 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
         )
   }
 
-
   def makeAPaymentLanding = AuthorisedForGovernmentGatewayAction() {
     implicit user =>
       implicit request =>

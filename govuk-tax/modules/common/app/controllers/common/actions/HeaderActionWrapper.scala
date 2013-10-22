@@ -2,6 +2,7 @@ package controllers.common.actions
 
 import controllers.common.CookieEncryption
 import play.api.mvc.Results
+import concurrent.Future
 
 trait HeaderActionWrapper {
   object WithHeaders extends WithHeaders
@@ -18,7 +19,7 @@ class WithHeaders extends Results with CookieEncryption {
   import uk.gov.hmrc.microservice.HasResponse
   import controllers.common.HeaderNames._
 
-  def apply(action: Action[AnyContent]): Action[AnyContent] = Action {
+  def apply(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     request =>
       request.session.get("userId").foreach(userId => MDC.put(authorisation, decrypt(userId)))
       request.session.get("token").foreach(token => MDC.put("token", token))
@@ -34,16 +35,16 @@ class WithHeaders extends Results with CookieEncryption {
       }
   }
 
-  private def internalServerError(request: Request[AnyContent], t: Throwable): Result = {
+  private def internalServerError(request: Request[AnyContent], t: Throwable): Future[SimpleResult] = {
     logThrowable(t)
 
     import play.api.Play.current
 
-    Play.application.mode match {
+    Future.successful(Play.application.mode match {
       // different pages for prod and dev/test
       case Mode.Dev | Mode.Test => InternalServerError(server_error(t, request, MDC.get(requestId)))
       case Mode.Prod => InternalServerError(server_error(t, request, MDC.get(requestId)))
-    }
+    })
   }
 
   private def logThrowable(t: Throwable) {
