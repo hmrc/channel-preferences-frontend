@@ -139,7 +139,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
     "return a BusinessTaxRegistration object containing registration link for ct and epaye if sa and vat are defined" in {
 
-      val regimes = RegimeRoots(sa = saRoot, vat=vatRoot)
+      val regimes = RegimeRoots(sa = saRoot, vat = vatRoot)
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
@@ -148,7 +148,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
     "return a BusinessTaxRegistration object containing registration link for ct and vat if sa and epaye are defined" in {
 
-      val regimes = RegimeRoots(sa = saRoot, epaye=epayeRoot)
+      val regimes = RegimeRoots(sa = saRoot, epaye = epayeRoot)
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
@@ -157,7 +157,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
     "return a BusinessTaxRegistration object containing registration link for employers paye and vat if sa and ct are defined" in {
 
-      val regimes = RegimeRoots(sa = saRoot, ct=ctRoot)
+      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot)
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
@@ -166,7 +166,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
     "return a BusinessTaxRegistration object containing registration link for employers paye  if sa, ct and vat are defined" in {
 
-      val regimes = RegimeRoots(sa = saRoot, ct=ctRoot, vat=vatRoot)
+      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
@@ -175,31 +175,11 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
     "return a BusinessTaxRegistration object containing registration link for vat  if sa, ct and epaye are defined" in {
 
-      val regimes = RegimeRoots(sa = saRoot, ct=ctRoot, epaye=epayeRoot)
+      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, epaye = epayeRoot)
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       assertCorrectBusinessTaxRegistration("Register for VAT")
-    }
-  }
-
-  "the create function" should {
-    "return an OtherServiceSummary" in {
-
-      val regimes = RegimeRoots(sa = saRoot, ct=ctRoot, epaye=epayeRoot)
-      implicit val mockRequest = mock[Request[AnyRef]]
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
-
-      val expected = OtherServicesSummary(
-        None,
-        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolment", "here"))),
-        BusinessTaxesRegistration(
-          Some(RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, "Register for VAT"))),
-          RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, hmrcWebsiteLinkText)))
-      )
-
-      factory.create(user) shouldBe expected
-
     }
   }
 
