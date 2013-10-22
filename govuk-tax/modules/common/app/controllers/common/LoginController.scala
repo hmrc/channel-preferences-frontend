@@ -68,7 +68,7 @@ class LoginController extends BaseController with ActionWrappers with CookieEncr
       samlResponse => {
         val validationResult = samlMicroService.validate(samlResponse.response)
         if (validationResult.valid) {
-          authMicroService.authority(s"/auth/pid/${validationResult.hashPid.get}") match {
+          authMicroService.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get) match {
             case Some(authority) => {
               val target = FrontEndRedirect.forSession(session)
               target.withSession("userId"-> encrypt(authority.id), "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"))
