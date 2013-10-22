@@ -14,28 +14,25 @@
 }
 
 <div>
-    <h2>Enrol to use a new online service</h2>
+    <h2 id="enrollmentHeading">Enrol to use a new online service</h2>
 
-    <p>
-        If you are already registered for a tax that isn't shown above or on your homepage,
-        you can enrol to use the relevant online service <span id="onlineServicesEnrolmentLink">@{otherServicesSummary.onlineServicesEnrolment.linkToPortal.render}</span>.
-    </p>
+    <p id="enrollmentMessage">If you are already registered for a tax that isn't shown above or on your homepage, you can enrol to use the relevant online service <span id="onlineServicesEnrolmentLink">@{otherServicesSummary.onlineServicesEnrolment.linkToPortal.render}</span>.</p>
 </div>
 <div>
-    <h2>Register for new business taxes</h2>
+    <h2 id="registrationHeading">Register for new business taxes</h2>
 
     @if(otherServicesSummary.businessTaxesRegistration.registrationLink.isDefined){
 
         <p id="businessTaxesRegistrationLink">@{otherServicesSummary.businessTaxesRegistration.registrationLink.get.render}</p>
 
-        <p>
+        <p id="registrationMessage">
             You can't use this service if you're setting up a limited liability partnership or you're not the 'nominated
             partner'
             in a self-employed business partnership. There are also a few other situations when you'll need to register a
             different way.
 
     }else{
-        <p>
+        <p id="registrationGenericMessage">
     }
             Find out more about registering for HMRC taxes on the <span id="hmrcWebsiteLink">@{otherServicesSummary.businessTaxesRegistration.hmrcWebsiteLink.render}</span>.
         </p>
