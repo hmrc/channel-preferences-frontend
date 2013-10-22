@@ -4,22 +4,22 @@ import controllers.paye.PayeBaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.test.{FakeApplication, WithApplication, FakeRequest}
+import play.api.test.{WithApplication, FakeRequest}
 import AddCarBenefitValidator._
 import play.api.i18n.Messages
 import controllers.paye.CarBenefitFormFields._
 import org.joda.time.LocalDate
-import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
+import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
 import scala.Some
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import play.api.test.FakeApplication
-import org.joda.time.LocalDate.now
 
 class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
    val currentTaxYear:Int = 2013
    val now = new LocalDate(currentTaxYear, 10, 2)
+   val endOfTaxYear = new LocalDate(currentTaxYear, 4, 5)
 
   "AddCarBenefitValidator for field ENGINE CAPACITY " should {
 
@@ -53,7 +53,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       Form(
         mapping(
           employerPayFuel -> validateEmployerPayFuel(values),
-          dateFuelWithdrawn -> validateDateFuelWithdrawn(values, {() => now})
+          dateFuelWithdrawn -> validateDateFuelWithdrawn(values)
         )(DummyModel.apply)(DummyModel.unapply))
     }
 
@@ -115,22 +115,25 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, employerPayFuel, "Unable to calculate fuel benefit when there is an interruption in car availability.Please contact call centre.")
     }
 
-    "reject fuel withdrawn date if not in this tax year" in new WithApplication(FakeApplication()) {
+    "reject fuel withdrawn date if it is in previous tax year" in new WithApplication(FakeApplication()) {
       val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear-1).toString, "11", "2"))
 
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
       form.hasErrors shouldBe true
+
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a date within the current tax year.")
 
     }
 
-    "reject fuel withdrawn date if more than 7 days in future" in new WithApplication(FakeApplication()) {
-      val nowPlus8Days = now.plusDays(8)
-      val dateInfuture = buildDateFormField(dateFuelWithdrawn, Some(nowPlus8Days.getYear.toString, nowPlus8Days.getMonthOfYear.toString, nowPlus8Days.getDayOfMonth.toString))
+    "reject fuel withdrawn date if it is in next tax year" in new WithApplication(FakeApplication()) {
+      val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some((currentTaxYear+1).toString, "11", "2"))
 
-      val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInfuture: _*))
+      val form = dummyForm(getValues(employerPayFuelVal = Some("date"), providedToVal= Some(endOfTaxYear))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a date, which is not more than 7 days in future from today.")
+
+      form.errors(dateFuelWithdrawn).size shouldBe 1
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a date within the current tax year.")
+
     }
 
     "reject fuel withdrawn date if it is before the car benefit was made available" in new WithApplication(FakeApplication()) {

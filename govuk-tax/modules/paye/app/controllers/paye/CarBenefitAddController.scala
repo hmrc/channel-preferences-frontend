@@ -74,7 +74,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       co2NoFigure -> validateNoCo2Figure(carBenefitValues),
       engineCapacity -> validateEngineCapacity(carBenefitValues),
       employerPayFuel -> validateEmployerPayFuel(carBenefitValues),
-      dateFuelWithdrawn -> validateDateFuelWithdrawn(carBenefitValues, timeSource)
+      dateFuelWithdrawn -> validateDateFuelWithdrawn(carBenefitValues)
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 

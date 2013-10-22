@@ -8,6 +8,9 @@ import org.joda.time.{DateTime, DateTimeZone, LocalDate}
 import controllers.paye.CarBenefitFormFields._
 import controllers.common.validators.Validators
 import EngineCapacity._
+import scala.collection.mutable
+import play.api.data.validation._
+import scala.Some
 
 object AddCarBenefitValidator extends Validators {
 
@@ -122,12 +125,8 @@ object AddCarBenefitValidator extends Validators {
 
   private def isFuelTypeElectric(fuelType:Option[String]) = fuelType.getOrElse("") == fuelTypeElectric
 
-  private val dateInCurrentTaxYear = dateTuple.verifying(
-    "error.paye.date_not_in_current_tax_year",
-    data =>  data match {
-      case Some(d) => TaxYearResolver.taxYearInterval.contains(d.toDateTimeAtStartOfDay(DateTimeZone.UTC))
-      case _ => true
-    }
+  private val dateInCurrentTaxYear: Mapping[Option[LocalDate]] = dateTuple.verifying(
+    "error.paye.date_not_in_current_tax_year", data => isInCurrentTaxYear(data)
   )
 
   private def co2FiguresNotBlank(co2Figure:Option[_], co2NoFigure:Option[_]) = {
@@ -137,12 +136,30 @@ object AddCarBenefitValidator extends Validators {
     }
   }
 
-  private[paye] def validateDateFuelWithdrawn(values: CarBenefitValues , timeSource: () => LocalDate): Mapping[Option[LocalDate]] = values.employerPayFuel match {
-    case Some(employerPayeFuelDateOption) => validateNotMoreThan7DaysFromNow(timeSource, dateInCurrentTaxYear)
-                .verifying("error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date", data => !data.isEmpty)
-                .verifying("error.paye.fuel_withdraw_date_must_be_after_car_start_date", data => data.isEmpty || values.providedFromVal.isEmpty || data.get.isAfter(values.providedFromVal.get))
-                .verifying("error.paye.fuel_withdraw_date_must_be_before_car_end_date", data => data.isEmpty || values.providedToVal.isEmpty || isEqualOrAfter(data.get,values.providedToVal.get))
+  private def stopOnFirstFail(constraints: Constraint[Option[LocalDate]]*) = Constraint { field: Option[LocalDate] =>
+    constraints.toList dropWhile (_(field) == Valid) match {
+      case Nil => Valid
+      case constraint :: _ => constraint(field)
+    }
+  }
+
+  private def constraint(message: String, validator: (Option[LocalDate]) => Boolean) = {
+    Constraint((data:Option[LocalDate]) => if(validator(data)) Valid else Invalid(Seq(ValidationError(message))))
+  }
+
+  private[paye] def validateDateFuelWithdrawn(values: CarBenefitValues): Mapping[Option[LocalDate]] = values.employerPayFuel match {
+    case Some(employerPayeFuel) if employerPayeFuel == employerPayeFuelDateOption => dateTuple verifying stopOnFirstFail(
+      constraint("error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date", (data) => data.isDefined),
+      constraint("error.paye.date_not_in_current_tax_year", isInCurrentTaxYear),
+      constraint("error.paye.fuel_withdraw_date_must_be_after_car_start_date", (data) => values.providedFromVal.isEmpty || data.get.isAfter(values.providedFromVal.get)),
+      constraint("error.paye.fuel_withdraw_date_must_be_before_car_end_date", (data) => values.providedToVal.isEmpty || isEqualOrAfter(data.get,values.providedToVal.get))
+    )
     case _ => ignored(None)
+  }
+
+  private def isInCurrentTaxYear = (data:Option[LocalDate]) =>  data match {
+    case Some(d) => TaxYearResolver.taxYearInterval.contains(d.toDateTimeAtStartOfDay(DateTimeZone.UTC))
+    case _ => true
   }
 
   private def isEqualOrAfter(date:LocalDate, laterDate:LocalDate):Boolean = date.isEqual(laterDate) || date.isBefore(laterDate)
