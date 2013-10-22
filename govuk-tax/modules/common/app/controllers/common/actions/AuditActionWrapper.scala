@@ -9,6 +9,7 @@ import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
 import concurrent.{Future, ExecutionContext}
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
+import util.Success
 
 trait AuditActionWrapper extends MicroServices with HeaderNames {
   object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
@@ -52,11 +53,10 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
 
         auditEvent("Request", context ++ Map("path" -> request.path))
 
-        val response = action(request)
-        response.onSuccess({
-          case result => auditEvent("Response", context ++ Map("statusCode" -> result.header.status.toString))
+        action(request).map(result => {
+          auditEvent("Response", context ++ Map("statusCode" -> result.header.status.toString))
+          result
         })
-        response
       } else {
         action(request)
       }

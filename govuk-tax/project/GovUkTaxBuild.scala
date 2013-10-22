@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import play.Project._
 import net.litola.SassPlugin
+import scala._
 
 object GovUkTaxBuild extends Build {
 
@@ -15,7 +16,7 @@ object GovUkTaxBuild extends Build {
     Dependencies.Compile.guava,
     Dependencies.Compile.commonsLang,
     Dependencies.Compile.commonsIo,
-    Dependencies.Compile.playMetrics,
+//    Dependencies.Compile.playMetrics,
     Dependencies.Compile.metricsGraphite,
     Dependencies.Compile.secureUtils,
     Dependencies.Compile.taxCore,
@@ -32,12 +33,15 @@ object GovUkTaxBuild extends Build {
 
   lazy val TemplateTest = config("tt") extend(Test)
 
+  val configPath = "-Dconfig.file=../../conf/application.conf"
+
   val common = play.Project(
     appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
     settings = Common.commonSettings ++ SassPlugin.sassSettings
   ).configs(TemplateTest)
    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+   .settings(javaOptions in Test += configPath)
 
   val paye = play.Project(
     appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
@@ -45,6 +49,7 @@ object GovUkTaxBuild extends Build {
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
 
   val agent = play.Project(
     appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent"), settings = Common.commonSettings
@@ -52,6 +57,7 @@ object GovUkTaxBuild extends Build {
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
 
 
   val bt = play.Project(
@@ -60,6 +66,7 @@ object GovUkTaxBuild extends Build {
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
 
   val sa = play.Project(
     appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.commonSettings
@@ -67,6 +74,7 @@ object GovUkTaxBuild extends Build {
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
 
   lazy val govukTax = play.Project(
     appName,
