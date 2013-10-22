@@ -29,7 +29,7 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncry
 
 
   "HeaderActionWrapper" should {
-    "add parameters from the session and the headers to the MDC " in new WithApplication(FakeApplication(additionalConfiguration = mockConfigValues)) {
+    "add parameters from the session and the headers to the MDC " in new WithApplication(FakeApplication()) {
       val headers = Seq((forwardedFor, "192.168.1.1"))
       val sessionParams = Seq(("sessionId", encrypt("012345")), ("userId", encrypt("john")), ("token", "12345"))
       val request = FakeRequest().withHeaders(headers: _*).withSession(sessionParams: _*)
