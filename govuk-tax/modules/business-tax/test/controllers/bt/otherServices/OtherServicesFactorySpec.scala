@@ -191,6 +191,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       val expected = OtherServicesSummary(
+        None,
         OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolment", "here"))),
         BusinessTaxesRegistration(
           Some(RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, "Register for VAT"))),

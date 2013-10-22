@@ -11,11 +11,11 @@ class OtherServicesFactory extends PortalUrlBuilder {
   private val hmrcWebsiteLinkText = "HMRC website"
 
   def create(user: User)(implicit request: Request[AnyRef]): OtherServicesSummary = {
-    OtherServicesSummary(createManageYourTaxes(user), createOnlineServicesEnrolment, createBusinessTaxesRegistration(user))
+    OtherServicesSummary(createManageYourTaxes(user), createOnlineServicesEnrolment(user, request), createBusinessTaxesRegistration(user))
   }
 
   //TODO implement this method
-  private[otherServicesViews] def createManageYourTaxes(user: User)(implicit request: Request[AnyRef]): Option[ManageYourTaxes] =
+  private[otherservices] def createManageYourTaxes(user: User)(implicit request: Request[AnyRef]): Option[ManageYourTaxes] =
     None
 
   // TODO: Avoid direct testing of private methods, remove package from the private declaration
