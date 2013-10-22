@@ -11,7 +11,6 @@ import controllers.paye.CarBenefitFormFields._
 import org.joda.time.LocalDate
 import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
-import scala.Some
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import play.api.test.FakeApplication
 
@@ -182,6 +181,14 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end before you get the car.")
     }
+
+    "reject fuel benefit if fuel type is electricity" in new WithApplication(FakeApplication()) {
+      def haveErrors = have ('hasErrors (true))
+      val form = dummyForm(getValues(fuelTypeVal = Some("electricity"), employerPayFuelVal = Some("Yes"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", employerPayFuel -> "true"))
+      form should haveErrors
+      assertHasThisErrorMessage(form, employerPayFuel, "Fuel benefits cannot be claimed for electric or zero emission cars.")
+    }
+
   }
 
   "AddCarBenefitValidator for field CO2 FIGURE & CO2 NO FIGURE " should {
@@ -321,7 +328,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
   }
 
   def assertHasThisErrorMessage[T](form: Form[T], field: String, expectedErrorMessage: String) = {
-    Messages(form.errors(field).head.message) shouldBe expectedErrorMessage
+    form.errors(field).map(err => Messages(err.message)) should contain (expectedErrorMessage)
   }
 
   def getValues(fuelTypeVal: Option[String] = None, co2NoFigureVal: Option[String] = None, co2FigureVal: Option[String] = None,
