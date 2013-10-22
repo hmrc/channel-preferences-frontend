@@ -94,9 +94,11 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
+      when(mockAuthMicroService.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
+
+      verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
 
       status(result) should be(303)
       redirectLocation(result).get should be("/paye/home")
@@ -109,9 +111,11 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(Some(UserAuthority(id, Regimes(), None)))
+      when(mockAuthMicroService.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("login_redirect" -> "/agent/home"))
+
+      verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
 
       status(result) should be(303)
 
@@ -150,9 +154,11 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-      when(mockAuthMicroService.authority(s"/auth/pid/$hashPid")).thenReturn(None)
+      when(mockAuthMicroService.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(None)
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
+
+      verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
 
       status(result) should be(401)
       contentAsString(result) should include("Login error")

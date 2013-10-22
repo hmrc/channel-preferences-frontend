@@ -14,12 +14,12 @@
           <table>
               <tbody>
               <tr>
-                  <th>Company Car provided by @optionalValue(employerName, "your.employer")</th>
+                  <th id="company-name">Company car provided by @optionalValue(employerName, "your.employer")</th>
                   <th></th>
               </tr>
               <tr>
                   <td>Date Provided</td>
-                  <td>@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
+                  <td id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
               </tr>
               <tr>
                   <td>List Price including accessories</td>
@@ -28,19 +28,21 @@
               <tr>
                   <td>Fuel type</td>
 
-                  <td>@{Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.get.car.get.fuelType}")}</td>
+                  <td id="car-benefit-fuel-type">@fuelTypeFor(carBenefit.get.car.get.fuelType)</td>
               </tr>
+              if(carBenefit.get.car.get.co2Emissions.isDefined) {
               <tr>
                   <td>Emission figure</td>
                   <td>@{carBenefit.get.car.get.co2Emissions} g/km</td>
               </tr>
+              }
               <tr>
                   <td>Engine capacity</td>
-                  <td>@engineSizeFor(carBenefit.get.car.get.engineSize)</td>
+                      <td id="car-benefit-engine">@engineSizeFor(carBenefit.get.car.get.engineSize)</td>
               </tr>
               <tr>
                   <td>Car benefit taxable value</td>
-                  <td>@pounds(carBenefit.get.grossAmount)</td>
+                  <td id="car-benefit-amount">@pounds(carBenefit.get.grossAmount)</td>
               </tr>
               <tr>
                   <td>Private Fuel</td>
@@ -49,7 +51,7 @@
               @if(fuelBenefit.isDefined) {
               <tr>
                   <td>Fuel benefit taxable value</td>
-                  <td>@pounds(fuelBenefit.get.grossAmount)</td>
+                  <td id="fuel-benefit-amount">@pounds(fuelBenefit.get.grossAmount)</td>
               </tr>
               }
               </tbody>

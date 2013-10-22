@@ -71,7 +71,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       status(result) should be(200)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
+      doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
       doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
       doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
       doc.select("#car-benefit-date-available").text shouldBe "December 12, 2012"
@@ -88,7 +88,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       status(result) should be(200)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
+      doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
       doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
       doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
       doc.select("#car-benefit-date-available").text shouldBe "December 12, 2012"
@@ -109,7 +109,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       status(result) should be(200)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "Your employer"
+      doc.select("#company-name").text shouldBe "Company car provided by Your employer"
       doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
       doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
       doc.select("#car-benefit-date-available").text shouldBe "December 12, 2012"
