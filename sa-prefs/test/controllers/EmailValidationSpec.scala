@@ -17,11 +17,13 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
      override lazy val preferencesMicroService = mock[PreferencesMicroService]
    }
 
+  val wellFormattedToken: String = "12345678-abcd-4abc-abcd-123456789012"
+
   "verify" should {
 
     "call the sa micro service and update the email verification status of the user" in new WithApplication(FakeApplication(additionalConfiguration = additionalConfig)) {
       val controller = createController
-      val token = "someToken"
+      val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(true)
       val response = controller.verify(token)(FakeRequest())
       contentAsString(response) should include("portalHomeLink/home")
@@ -31,12 +33,23 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
 
     "display an error when the sa micro service fails to update a users email verification status" in new WithApplication(FakeApplication(additionalConfiguration = additionalConfig)) {
       val controller = createController
-      val token = "someToken"
+      val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(false)
       val response = controller.verify(token)(FakeRequest())
       contentAsString(response) should include("portalHomeLink/home")
       status(response) shouldBe 400
       verify(controller.preferencesMicroService).updateEmailValidationStatus(token)
     }
+
+    "display an error if the token is not in a valid uuid format without calling the service" in {
+      val controller = createController
+      val token = "badToken"
+      when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(false)
+      val response = controller.verify(token)(FakeRequest())
+      contentAsString(response) should include("portalHomeLink/home")
+      status(response) shouldBe 400
+      verify(controller.preferencesMicroService, never()).updateEmailValidationStatus(token)
+    }
+
   }
 }

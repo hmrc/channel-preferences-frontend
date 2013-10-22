@@ -10,14 +10,20 @@ class EmailValidation extends Controller {
 
   implicit lazy val preferencesMicroService = new PreferencesMicroService()
 
-  def verify(token: String) = Action {
-    val response = preferencesMicroService.updateEmailValidationStatus(token)
-    if(response) {
-      Ok(views.html.sa_printing_preference_verify_email(FrontEndConfig.portalHome))
-    }
-    else {
-      BadRequest(views.html.sa_printing_preference_verify_email_failed(FrontEndConfig.portalHome))
-    }
+  val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 
+  def verify(token: String) = Action {
+    token match  {
+      case regex(t) => {
+        val response = preferencesMicroService.updateEmailValidationStatus(token)
+        if(response) {
+          Ok(views.html.sa_printing_preference_verify_email(FrontEndConfig.portalHome))
+        }
+        else {
+          BadRequest(views.html.sa_printing_preference_verify_email_failed(FrontEndConfig.portalHome))
+        }
+      }
+      case _ => BadRequest(views.html.sa_printing_preference_verify_email_failed(FrontEndConfig.portalHome))
+    }
   }
 }
