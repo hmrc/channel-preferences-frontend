@@ -60,9 +60,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
       benefit.benefit.benefitType match {
         case CAR => {
           val carWithUnremovedFuel = hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
-          Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel, updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), currentTaxYearYearRange)(user))
+          Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel, updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), currentTaxYearYearsRange)(user))
         }
-        case _ => Ok(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), currentTaxYearYearRange)(user))
+        case _ => Ok(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), currentTaxYearYearsRange)(user))
       }
     }
   }
@@ -83,8 +83,8 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
       updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
-            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearRange)(user))
-            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearRange)(user))
+            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
+            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
             case _ => Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to benefit list"); Redirect(routes.BenefitHomeController.listBenefits())
           }
         },

@@ -703,6 +703,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val listPrice = 9999
       val engineCapacity = 1400
       val co2Emission = 50
+      val employmentSequenceNumber = johnDensmoresEmployments(0).sequenceNumber
+      val taxYear = controller.currentTaxYear
 
       val sentBenefitData = NewBenefitCalculationData(false, fuelType, Some(co2Emission), Some(engineCapacity), Some(userContribution), listPrice, None, None, None, None, "false", None)
       when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444)))
@@ -718,7 +720,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
           employeeContributesVal = Some("true"),
           employeeContributionVal = Some(userContribution.toString),
           listPriceVal = Some(listPrice.toString))
-        , 2013, 1)
+        , taxYear, employmentSequenceNumber)
 
       status(result) shouldBe 200
 
@@ -726,6 +728,12 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#carBenefitTaxableValue").text shouldBe "£999"
       doc.select("#fuelBenefitTaxableValue").text shouldBe "£444"
+      doc.select("#edit-data").text shouldBe "This information is wrong"
+      doc.select("#edit-data").attr("href") shouldBe "./add"
+    }
+
+    "should allow the user to edit the add car benefit form data"  in new WithApplication(FakeApplication()) {
+     pending
     }
   }
 

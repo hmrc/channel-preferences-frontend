@@ -7,7 +7,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
 import play.api.Logger
 import org.joda.time._
-import uk.gov.hmrc.utils.{TaxYearResolver, DateTimeUtils}
 import play.api.data.Form
 import play.api.data.Forms._
 import CarBenefitFormFields._
@@ -83,7 +82,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       val dates = getCarBenefitDates(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
-          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
+          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
         }
         case None => {
           Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
@@ -101,7 +100,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
           val payeRoot = user.regimes.paye.get
           carBenefitForm(dates).bindFromRequest()(request).fold(
             errors => {
-              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, TaxYearResolver.currentTaxYearYearsRange)(user))
+              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
             },
             addCarBenefitData => {
 
@@ -132,7 +131,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
               val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
                 addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                 addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, carFuelBenefitValue)
-              Ok(add_car_benefit_review(confirmationData, TaxYearResolver.currentTaxYearYearsRange)(user))
+              Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange)(user))
             }
           )
         }
@@ -148,7 +147,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
   object WithValidatedRequest {
     def apply(action: (Request[_], User, Int, Int, PayeRootData) => Result): (User, Request[_], Int, Int) => Result = {
       (user, request, taxYear, employmentSequenceNumber) => {
-        if (TaxYearResolver.currentTaxYear != taxYear) {
+        if (currentTaxYear != taxYear) {
           Logger.error("Adding car benefit is only allowed for the current tax year")
           BadRequest
         } else {
