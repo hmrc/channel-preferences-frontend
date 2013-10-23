@@ -3,7 +3,6 @@
 @import views.formatting.Dates._
 @import views.formatting.Strings._
 @import views.formatting.Money._
-@import config.RefData._
 
 @main(title = "Your tax home", user = Some(user)) {
 
@@ -21,25 +20,30 @@
                   <td>Date Provided</td>
                   <td id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
               </tr>
+              @if(carBenefit.get.car.get.carValue.isDefined) {
               <tr>
                   <td>List Price including accessories</td>
-                  <td>@pounds(carBenefit.get.car.get.carValue)</td>
-              </tr>
-              <tr>
-                  <td>Fuel type</td>
-
-                  <td id="car-benefit-fuel-type">@fuelTypeFor(carBenefit.get.car.get.fuelType)</td>
-              </tr>
-              @if(carBenefit.get.car.get.co2Emissions > 0) {
-              <tr>
-                  <td>Emission figure</td>
-                  <td>@{carBenefit.get.car.get.co2Emissions} g/km</td>
+                  <td>@pounds(carBenefit.get.car.get.carValue.get)</td>
               </tr>
               }
+              @if(carBenefit.get.car.get.fuelType.isDefined) {
+              <tr>
+                  <td>Fuel type</td>
+                  <td id="car-benefit-fuel-type">@Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.get.car.get.fuelType.get}")</td>
+              </tr>
+              }
+              @if(carBenefit.get.car.get.co2Emissions.isDefined) {
+              <tr>
+                  <td>Emission figure</td>
+                  <td>@{carBenefit.get.car.get.co2Emissions.get} g/km</td>
+              </tr>
+              }
+              @if(carBenefit.get.car.get.engineSize.isDefined) {
               <tr>
                   <td>Engine capacity</td>
-                      <td id="car-benefit-engine">@engineSizeFor(carBenefit.get.car.get.engineSize)</td>
+                      <td id="car-benefit-engine">@Messages(s"paye.add_car_benefit.engine_capacity.${carBenefit.get.car.get.engineSize.get}")</td>
               </tr>
+              }
               <tr>
                   <td>Car benefit taxable value</td>
                   <td id="car-benefit-amount">@pounds(carBenefit.get.grossAmount)</td>

@@ -36,11 +36,11 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
   val removeCarLinkId = "rmCarLink"
   val addCarLinkId = "addCarLink"
 
-  val carBenefitEmployer1 = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 1, null, null, null, null, null, null,
-    car = Some(Car(Some(new LocalDate(2012, 12, 12)), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1), Map.empty)
+  val carBenefitEmployer1 = Benefit(31, 2013, 321.42, 1, null, null, null, null, null, null,
+    Some(Car(Some(new LocalDate(2012, 12, 12)), None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some(BigDecimal("12343.21")))), actions("AB123456C", 2013, 1), Map.empty)
 
-  val fuelBenefitEmployer1 = Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 1, null, null, null, null, null, null,
-    car = None, actions("AB123456C", 2013, 1), Map.empty)
+  val fuelBenefitEmployer1 = Benefit(29, 2013, 22.22, 1, null, null, null, null, null, null,
+    None, actions("AB123456C", 2013, 1), Map.empty)
 
   val johnDensmoresBenefitsForEmployer1 = Seq(
     carBenefitEmployer1,
@@ -53,8 +53,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
     "return 500 if we cannot find a primary employment for the customer" in {
       val employments = Seq(
-        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), 2),
-        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, 2))
+        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = 2),
+        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 2))
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, employments, Seq.empty, List.empty, List.empty)
 
@@ -72,8 +72,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
-      doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
+      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
+      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
       doc.select("#car-benefit-amount").text shouldBe "£321"
       doc.select("#fuel-benefit-amount").text shouldBe ""
@@ -89,8 +89,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
-      doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
+      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
+      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
       doc.select("#car-benefit-amount").text shouldBe "£321"
       doc.select("#fuel-benefit-amount").text shouldBe "£22"
@@ -99,8 +99,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
     "show car details for user with a company car an no employer name" in new WithApplication(FakeApplication()) {
       val johnDensmoresEmploymentsWithoutName = Seq(
-        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType),
-        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, 1))
+        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, employmentType = Employment.primaryEmploymentType),
+        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 1))
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmploymentsWithoutName, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
 
@@ -110,8 +110,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Your employer"
-      doc.select("#car-benefit-engine").text shouldBe "0-1400 cc"
-      doc.select("#car-benefit-fuel-type").text shouldBe "Bi-Fuel"
+      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
+      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
       doc.select("#car-benefit-amount").text shouldBe "£321"
       doc.select("#fuel-benefit-amount").text shouldBe "£22"

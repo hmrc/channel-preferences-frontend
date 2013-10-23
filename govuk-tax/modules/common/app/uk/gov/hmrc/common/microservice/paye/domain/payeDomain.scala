@@ -114,12 +114,11 @@ object Benefit {
 case class Car(dateCarMadeAvailable: Option[LocalDate],
                dateCarWithdrawn: Option[LocalDate],
                dateCarRegistered: Option[LocalDate],
-               employeeCapitalContribution: BigDecimal,
-               fuelType: Int,
-               co2Emissions: Int,
-               engineSize: Int,
-               mileageBand: String,
-               carValue: BigDecimal)
+               employeeCapitalContribution: Option[BigDecimal],
+               fuelType: Option[String],
+               co2Emissions: Option[Int],
+               engineSize: Option[Int],
+               carValue: Option[BigDecimal])
 
 case class RevisedBenefit(benefit: Benefit, revisedAmount: BigDecimal)
 

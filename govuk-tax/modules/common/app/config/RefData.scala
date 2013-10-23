@@ -16,14 +16,6 @@ object RefData {
       .mapValues(value => Map[Int, String]() ++ value.map(_._2))
   }
 
-  def engineSizeFor(code: Int) = {
-    dataFor("ENGNSIZE", code)
-  }
-
-  def fuelTypeFor(code: Int) = {
-    dataFor("FUELTYPE", code)
-  }
-
   def iabdTypeFor(code: Int) = {
     dataFor("IABDTYPE", code)
   }

@@ -39,11 +39,11 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     Mockito.reset(mockPayeMicroService)
   }
 
-  val carBenefitEmployer1 = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 321.42, employmentSequenceNumber = 1, null, null, null, null, null, null,
-    car = Some(Car(Some(new LocalDate(2012, 12, 12)), None, Some(new LocalDate(2012, 12, 12)), 0, 2, 124, 1, "B", BigDecimal("12343.21"))), actions("AB123456C", 2013, 1), Map.empty)
+  val carBenefitEmployer1 = Benefit(31, 2013, 321.42, 1, null, null, null, null, null, null,
+    Some(Car(Some(new LocalDate(2012, 12, 12)), None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some(BigDecimal("12343.21")))), actions("AB123456C", 2013, 1), Map.empty)
 
-  val fuelBenefitEmployer1 = Benefit(benefitType = 29, taxYear = 2013, grossAmount = 22.22, employmentSequenceNumber = 1, null, null, null, null, null, null,
-    car = None, actions("AB123456C", 2013, 1), Map.empty)
+  val fuelBenefitEmployer1 = Benefit(29, 2013, 22.22, 1, null, null, null, null, null, null,
+    None, actions("AB123456C", 2013, 1), Map.empty)
 
   val johnDensmoresBenefitsForEmployer1 = Seq(
     carBenefitEmployer1,
