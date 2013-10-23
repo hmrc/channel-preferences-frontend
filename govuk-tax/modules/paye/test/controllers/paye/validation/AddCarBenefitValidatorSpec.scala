@@ -258,7 +258,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     def dummyForm(values: CarBenefitValues) = {
       Form[FiguresDummyModel](
         mapping(
-          carRegistrationDate -> validateCarRegistrationDate(values),
+          carRegistrationDate -> validateCarRegistrationDate(values, (() => now)),
           fuelType -> validateFuelType(values),
           co2Figure -> validateCo2Figure(values),
           co2NoFigure -> validateNoCo2Figure(values),
@@ -270,6 +270,23 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val goodRegistrationDate = buildDateFormField(carRegistrationDate, Some("1900", "1", "1"))
 
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(goodRegistrationDate:_*))
+      form.errors(carRegistrationDate).size shouldBe 0
+    }
+
+    "reject the car registration date if it more than 7 days after today" in new WithApplication(FakeApplication()) {
+      val tooLateDate = now.plusDays(8)
+      val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some(tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString))
+
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
+      form.errors(carRegistrationDate).size shouldBe 1
+      assertHasThisErrorMessage(form, carRegistrationDate, "You must specify a date, which is not more than 7 days in future from today.")
+    }
+
+    "accept the car registration date if it in 7 days after today" in new WithApplication(FakeApplication()) {
+      val tooLateDate = now.plusDays(7)
+      val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some(tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString))
+
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
       form.errors(carRegistrationDate).size shouldBe 0
     }
 

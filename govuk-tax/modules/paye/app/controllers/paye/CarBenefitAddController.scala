@@ -62,7 +62,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues),
       giveBackThisTaxYear -> validateGiveBackThisTaxYear(carBenefitValues),
-      carRegistrationDate -> validateCarRegistrationDate(carBenefitValues),
+      carRegistrationDate -> validateCarRegistrationDate(carBenefitValues, timeSource),
       providedTo -> validateProvidedTo(carBenefitValues),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),

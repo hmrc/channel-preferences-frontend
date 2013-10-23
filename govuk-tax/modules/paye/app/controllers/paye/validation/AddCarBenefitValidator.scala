@@ -92,8 +92,9 @@ object AddCarBenefitValidator extends Validators {
   private[paye] def validateGiveBackThisTaxYear(values: CarBenefitValues) : Mapping[Option[Boolean]] =
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
-  private[paye] def validateCarRegistrationDate(values: CarBenefitValues) : Mapping[Option[LocalDate]] =
-    dateTuple.verifying("error.paye.answer_mandatory", data => data.isDefined)
+  private[paye] def validateCarRegistrationDate(values: CarBenefitValues, timeSource: () => LocalDate) : Mapping[Option[LocalDate]] =
+    validateNotMoreThan7DaysFromNow(timeSource, dateTuple).verifying("error.paye.answer_mandatory", data => data.isDefined)
+
 
   private[paye] def validateProvidedTo(values: CarBenefitValues) : Mapping[Option[LocalDate]] = values.giveBackThisTaxYearVal.map(_.toBoolean) match { 
     case Some(true) => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => values.providedFromVal.get.isBefore(values.providedToVal.get))
