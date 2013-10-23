@@ -217,8 +217,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         co2FigureVal = None,
         co2NoFigureVal = None,
         engineCapacityVal= Some("none"),
-        employerPayFuelVal = Some("date"),
-        dateFuelWithdrawnVal = Some(localDateToTuple(now))
+        employerPayFuelVal = Some("false")
       )
 
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[CarBenefitData])
@@ -238,8 +237,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       data.co2Figure shouldBe None
       data.co2NoFigure shouldBe None
       data.engineCapacity shouldBe Some("none")
-      data.employerPayFuel shouldBe Some("date")
-      data.dateFuelWithdrawn shouldBe now
+      data.employerPayFuel shouldBe Some("false")
     }
 
     "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {

@@ -85,7 +85,7 @@ object AddCarBenefitValidator extends Validators {
   private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[Option[String]] = optional(text
     .verifying("error.paye.non_valid_option" , data => employerPayFuelOptions.contains(data))
     .verifying("error.paye.employer_pay_fuel_must_not_have_days_unavailable" , data => isValidCompareTo(data, values.numberOfDaysUnavailableVal))
-    .verifying("error.paye.employer_cannot_pay_fuel_on_electric_cars", data => !isFuelTypeElectric(values.fuelType) || data == "No")
+    .verifying("error.paye.employer_cannot_pay_fuel_on_electric_cars", data => !isFuelTypeElectric(values.fuelType) || data == "false")
   ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
 
