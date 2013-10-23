@@ -93,7 +93,9 @@ object AddCarBenefitValidator extends Validators {
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateCarRegistrationDate(values: CarBenefitValues, timeSource: () => LocalDate) : Mapping[Option[LocalDate]] =
-    validateNotMoreThan7DaysFromNow(timeSource, dateTuple).verifying("error.paye.answer_mandatory", data => data.isDefined)
+    validateNotMoreThan7DaysFromNow(timeSource, dateTuple)
+      .verifying("error.paye.date_must_be_after_1900", data => if(data.isDefined) data.get.getYear>=1900 else true )
+      .verifying("error.paye.answer_mandatory", data => data.isDefined)
 
 
   private[paye] def validateProvidedTo(values: CarBenefitValues) : Mapping[Option[LocalDate]] = values.giveBackThisTaxYearVal.map(_.toBoolean) match { 
@@ -164,7 +166,7 @@ object AddCarBenefitValidator extends Validators {
   }
 
 
-  def validateNotMoreThan7DaysFromNow(timeSource: () => LocalDate, dateInCurrentTaxYear:Mapping[Option[LocalDate]]): Mapping[Option[LocalDate]] = {
+  private def validateNotMoreThan7DaysFromNow(timeSource: () => LocalDate, dateInCurrentTaxYear:Mapping[Option[LocalDate]]): Mapping[Option[LocalDate]] = {
     dateInCurrentTaxYear.verifying("error.paye.date_within_7_days",
       data => data match {
         case Some(d) => daysBetween(timeSource(), d) <= 7

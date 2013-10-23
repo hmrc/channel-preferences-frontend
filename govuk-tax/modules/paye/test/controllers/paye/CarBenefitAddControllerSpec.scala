@@ -383,6 +383,13 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 400
     }
 
+    "return 400 if the user sends a car registered date before 1900" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some("1899", "7", "1"))
+      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      status(result) shouldBe 400
+    }
+
     "keep the selected option in the car registered date question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(taxYear.toString,"5","29"), carUnavailableVal = None)

@@ -38,6 +38,7 @@ error.paye.fuel_withdraw_date_must_be_after_car_start_date=Your fuel cannot end 
 error.paye.fuel_withdraw_date_must_be_before_car_end_date=Your fuel cannot end after you gave back the car.
 error.paye.employer_cannot_pay_fuel_on_electric_cars=Fuel benefits cannot be claimed for electric or zero emission cars.
 error.paye.non_valid_option=Value not accepted. Please select one of the options.
+error.paye.date_must_be_after_1900=You must specify a valid date.
 error.boolean=Please use a boolean value.
 error.number=Please use whole numbers only, not decimals or other characters.
 

@@ -28,8 +28,8 @@ trait Validators {
       case (None, None, None) => true
       case (year, month, day) => {
         try {
-          val date = new LocalDate(year.getOrElse(throw new Exception("Year missing")).toInt, month.getOrElse(throw new Exception("Month missing")).toInt, day.getOrElse(throw new Exception("Day missing")).toInt)
-          if (date.getYear < 1900) false else true
+          new LocalDate(year.getOrElse(throw new Exception("Year missing")).toInt, month.getOrElse(throw new Exception("Month missing")).toInt, day.getOrElse(throw new Exception("Day missing")).toInt)
+          true
         } catch {
           case _ => if (validate) {
             false

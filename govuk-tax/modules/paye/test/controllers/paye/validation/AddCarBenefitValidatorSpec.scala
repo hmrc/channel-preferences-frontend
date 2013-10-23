@@ -302,7 +302,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registartionDateBefore1900:_*))
       form.hasErrors shouldBe true
       form.errors(carRegistrationDate).size shouldBe 1
-      assertHasThisErrorMessage(form, carRegistrationDate, "You must specify a valid date")
+      assertHasThisErrorMessage(form, carRegistrationDate, "You must specify a valid date.")
     }
 
     "reject fuel type is electricity if registered before 98 is true" in new WithApplication(FakeApplication()) {
