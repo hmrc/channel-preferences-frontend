@@ -8,4 +8,4 @@ fi
 
 cd govuk-tax
 
-./sbt clean test dist
+./sbt clean test dist publish
