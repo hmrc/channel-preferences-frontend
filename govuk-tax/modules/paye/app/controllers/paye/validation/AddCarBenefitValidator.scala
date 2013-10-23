@@ -88,7 +88,6 @@ object AddCarBenefitValidator extends Validators {
     .verifying("error.paye.employer_cannot_pay_fuel_on_electric_cars", data => !isFuelTypeElectric(values.fuelType) || data == "false")
   ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
-
   private[paye] def validateGiveBackThisTaxYear(values: CarBenefitValues) : Mapping[Option[Boolean]] =
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
@@ -96,7 +95,6 @@ object AddCarBenefitValidator extends Validators {
     validateNotMoreThan7DaysFromNow(timeSource, dateTuple)
       .verifying("error.paye.date_must_be_after_1900", data => if(data.isDefined) data.get.getYear>=1900 else true )
       .verifying("error.paye.answer_mandatory", data => data.isDefined)
-
 
   private[paye] def validateProvidedTo(values: CarBenefitValues) : Mapping[Option[LocalDate]] = values.giveBackThisTaxYearVal.map(_.toBoolean) match { 
     case Some(true) => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => values.providedFromVal.get.isBefore(values.providedToVal.get))

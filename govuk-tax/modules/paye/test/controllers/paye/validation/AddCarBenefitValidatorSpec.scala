@@ -114,7 +114,6 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, employerPayFuel, "Unable to calculate fuel benefit when there is an interruption in car availability.Please contact call centre.")
     }
 
-<<<<<<< HEAD
     "reject fuel withdrawn date if it is in previous tax year" in new WithApplication(FakeApplication()) {
       val dateInLastTaxYear = buildDateFormField(dateFuelWithdrawn, Some(((currentTaxYear-1).toString, "11", "2")))
 
@@ -190,16 +189,6 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, employerPayFuel, "Fuel benefits cannot be claimed for electric or zero emission cars.")
     }
 
-=======
-    //todo to fix pending
-//    "reject fuel withdrawn date if not in this tax year" in new WithApplication(FakeApplication()) {
-//      pending
-//    }
-//
-//    "reject fuel withdrawn date if more than 7 days in future" in new WithApplication(FakeApplication()) {
-//      pending
-//    }
->>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
   }
 
   "AddCarBenefitValidator for field CO2 FIGURE & CO2 NO FIGURE " should {

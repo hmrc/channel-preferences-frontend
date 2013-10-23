@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Keys._
 import scala.Some
-import play.Project._
+
 object Version {
   val thisApp = "0.0.1-SNAPSHOT"
   val scala = "2.10.3"
@@ -54,26 +54,28 @@ object Repositories {
     Opts.resolver.sonatypeSnapshots
   )
 
+  lazy val dist = com.typesafe.sbt.SbtNativePackager.NativePackagerKeys.dist
+
   val publishDist = TaskKey[sbt.File]("publish-dist", "publish the dist artifact")
 
-  lazy val publishingSettings = Seq(
+  lazy val publishingSettings = sbtrelease.ReleasePlugin.releaseSettings ++ Seq(
 
     credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
 
     publishArtifact in (Compile, packageDoc) := false,
     publishArtifact in (Compile, packageSrc) := false,
-    publishArtifact in (Compile, packageBin) := true,
-//
-//    publish <<= publish dependsOn dist,
-//    publishLocal <<= publishLocal dependsOn dist,
+    publishArtifact in (Compile, packageBin) := false,
+
+ //   publish <<= publish dependsOn dist,
+ //   publishLocal <<= publishLocal dependsOn dist,
 
     artifact in publishDist ~= {
       (art: Artifact) => art.copy(`type` = "zip", extension = "zip")
     },
 
-    publishDist <<= (distDirectory, normalizedName, version) map { (distDirectory, id, version) =>
+    publishDist <<= (target, normalizedName, version) map { (targetDir, id, version) =>
       val packageName = "%s-%s" format(id, version)
-      distDirectory / (packageName + ".zip")
+      targetDir / "universal" / (packageName + ".zip")
     },
 
     publishTo <<= version {
