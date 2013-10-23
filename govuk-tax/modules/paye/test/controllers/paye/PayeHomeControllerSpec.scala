@@ -3,7 +3,6 @@ package controllers.paye
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
 import play.api.test.{FakeRequest, WithApplication}
-import views.formatting.Dates
 import play.api.test.Helpers._
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
@@ -15,7 +14,6 @@ import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-import controllers.actionwrappers.PayeTest
 
 
 class PayeHomeControllerSpec
@@ -36,19 +34,6 @@ class PayeHomeControllerSpec
 
   "The home method" should {
 
-//    "display the name for John Densmore" in new PayeTest(user = johnDensmore) {
-//      println("User is " + johnDensmore)
-//
-//      johnDensmore.getPaye should not be (null)
-//      johnDensmore.getPaye.get should not be(null)
-//
-//      val result = controller.home(request)
-//
-//      status(result) should be(200)
-//      contentAsString(result) should include("John Densmore")
-//    }
-
-
     "display the name for John Densmore" in new WithApplication(FakeApplication()) {
       val content = requestHomeAction
       content should include("John Densmore")
@@ -64,8 +49,8 @@ class PayeHomeControllerSpec
       content should include("Weyland-Yutani Corp")
       content should include("899")
       content should include("1212121")
-      content should include("July 2, 2013 to October 8, 2013")
-      content should include("October 14, 2013 to present")
+      content should include("2 July 2013 to 8 October 2013")
+      content should include("14 October 2013 to present")
     }
 
     "display employer ref when the employer name is missing" in new WithApplication(FakeApplication()) {
@@ -78,11 +63,11 @@ class PayeHomeControllerSpec
 
       val doc = Jsoup.parse(requestHomeAction)
       val recentChanges = doc.select(".overview__actions__done").text
-      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
 
-      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On ${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
 
       doc.select(".no_actions") shouldBe empty
     }
@@ -91,8 +76,8 @@ class PayeHomeControllerSpec
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, multiBenefitTransactions, multiBenefitTransactions)
 
       val doc = Jsoup.parse(requestHomeAction)
-      doc.select(".overview__actions__done").text should include(s"${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
-      doc.select(".overview__actions__done").text should include(s"${Dates.formatDate(currentTestDate.toLocalDate)}, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      doc.select(".overview__actions__done").text should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
+      doc.select(".overview__actions__done").text should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
     }
 
     "display a message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) {

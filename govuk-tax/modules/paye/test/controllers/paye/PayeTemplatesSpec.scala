@@ -1,13 +1,12 @@
 package controllers.paye
 
-import uk.gov.hmrc.common.BaseSpec
 import views.PageSugar
 import org.joda.time.{ LocalDate, DateTime }
 import views.html.paye.{ paye_benefit_home, paye_home }
 import play.api.templates.Html
 import uk.gov.hmrc.common.microservice.paye.domain.{ Benefit, Employment }
-import models.paye.{ DisplayBenefit, RecentChange, EmploymentView, PayeOverview }
-import play.api.test.{FakeApplication, WithApplication}
+import models.paye.DisplayBenefit
+import play.api.test.WithApplication
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.EmploymentView
 import models.paye.PayeOverview

@@ -6,7 +6,6 @@ import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.{DateTime, LocalDate}
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
@@ -14,13 +13,10 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.txqueue.{Status, TxQueueTransaction}
-import org.joda.time.format.DateTimeFormat
-import scala.util.Success
 
 class PayeBaseSpec extends BaseSpec {
 
-  val currentTestDate = new DateTime()
-  val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
+  val currentTestDate = new DateTime(2012, 12, 2, 12, 1)
 
   def defaultTxLinks(nino: String) = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
     "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",

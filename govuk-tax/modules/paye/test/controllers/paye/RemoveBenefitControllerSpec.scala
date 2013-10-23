@@ -3,7 +3,7 @@ package controllers.paye
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
 import org.scalatest.TestData
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
 import play.api.test.{WithApplication, FakeRequest}
 import views.formatting.Dates
 import play.api.test.Helpers._
@@ -38,7 +38,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   val mockKeyStoreService = mock[KeyStoreMicroService]
   val mockPayeMicroService = mock[PayeMicroService]
 
-  private lazy val controller = new RemoveBenefitController(mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests with MockedTaxYearSupport
+  private lazy val controller = new RemoveBenefitController(mockKeyStoreService, mockPayeMicroService) with MockMicroServicesForTests with MockedTaxYearSupport {
+    override def now = () => dateToday
+  }
+
+  private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30)
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
@@ -195,7 +199,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 2 allow the user to remove fuel and car together" in  new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val withdrawDate = new LocalDate()
+      val withdrawDate = new LocalDate(2013, 12, 8)
 
       val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(carBenefit, withdrawDate)).thenReturn(carCalculationResult)
@@ -209,10 +213,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".title").text should include("fuel and car")
-      doc.select("#start-date-29").text shouldBe  "September 10, 2013"
-      doc.select("#start-date-31").text shouldBe  "May 30, 2013"
-      doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(withdrawDate)
-      doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(withdrawDate)
+      doc.select("#start-date-29").text shouldBe  "10 September 2013"
+      doc.select("#start-date-31").text shouldBe  "30 May 2013"
+      doc.select("#withdraw-date-29").text shouldBe "8 December 2013"
+      doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
       doc.select("#apportioned-value-29").text shouldBe "£20"
       doc.select("#apportioned-value-31").text shouldBe "£123"
       doc.select("#allowance-increase").text shouldBe "£200"
@@ -229,7 +233,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "allow the user to remove fuel first without showing error" in new WithApplication(FakeApplication())  {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val fuelWithdrawDate = new LocalDate()
+      val fuelWithdrawDate = new LocalDate(2013, 12, 8)
       val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(3.46), "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(fuelBenefit, fuelWithdrawDate)).thenReturn(fuelCalculationResult)
 
@@ -241,9 +245,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val error =  doc.select(".error-notification").text
       doc.select(".title").text should include("fuel")
       doc.select(".title").text should not include ("car")
-      doc.select("#start-date-29").text shouldBe  "September 10, 2013"
+      doc.select("#start-date-29").text shouldBe  "10 September 2013"
       doc.select("#start-date-31") shouldBe  empty
-      doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(fuelWithdrawDate)
+      doc.select("#withdraw-date-29").text shouldBe "8 December 2013"
       doc.select("#withdraw-date-31") shouldBe empty
       doc.select("#apportioned-value-29").text shouldBe "£3"
       doc.select("#apportioned-value-31") shouldBe empty
@@ -466,7 +470,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 2, display the calculated value for removing fuel and car benefit on different correct values" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val carWithdrawDate = new LocalDate()
+      val carWithdrawDate = new LocalDate(2013, 12, 8)
       val fuelWithdrawDate = carWithdrawDate.minusDays(1)
 
       val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
@@ -481,10 +485,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".title").text should include("car and fuel")
-      doc.select("#start-date-31").text shouldBe  "May 30, 2013"
-      doc.select("#start-date-29").text shouldBe  "September 10, 2013"
-      doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(carWithdrawDate)
-      doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(fuelWithdrawDate)
+      doc.select("#start-date-31").text shouldBe  "30 May 2013"
+      doc.select("#start-date-29").text shouldBe  "10 September 2013"
+      doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
+      doc.select("#withdraw-date-29").text shouldBe "7 December 2013"
       doc.select("#apportioned-value-31").text shouldBe "£123"
       doc.select("#apportioned-value-29").text shouldBe "£20"
       doc.select("#allowance-increase").text shouldBe "£200"
@@ -552,7 +556,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(29)), Matchers.any[LocalDate]())).thenReturn(fuelCalculationResult)
 
-      val withdrawDate = new LocalDate()
+      val withdrawDate = new LocalDate(2013, 12, 8)
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("sameDateFuel")), "31", 2013, 2)
 
       status(result) shouldBe 200
@@ -560,10 +564,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#main-heading").text should include("car and fuel")
       doc.select(".title").text should include("car and fuel").and(include(employment(0).employerName.get))
       doc.select("#first-section").text should include("your company car benefit from").and(include("and fuel benefit from"))
-      doc.select("#start-date-31").text shouldBe  "May 30, 2013"
-      doc.select("#start-date-29").text shouldBe  "September 10, 2013"
-      doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(withdrawDate)
-      doc.select("#withdraw-date-29").text shouldBe Dates.formatDate(withdrawDate)
+      doc.select("#start-date-31").text shouldBe  "30 May 2013"
+      doc.select("#start-date-29").text shouldBe  "10 September 2013"
+      doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
+      doc.select("#withdraw-date-29").text shouldBe "8 December 2013"
       doc.select("#apportioned-value-31").text shouldBe "£123"
       doc.select("#apportioned-value-29").text shouldBe "£10"
       doc.select("#allowance-increase").text shouldBe "£210"
@@ -575,16 +579,16 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(31)), Matchers.any[LocalDate]())).thenReturn(carCalculationResult)
 
-      val withdrawDate = new LocalDate()
+      val withdrawDate = dateToday.toLocalDate
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("sameDateFuel")), "31", 2013, 2)
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".title").text should include("car")
       doc.select(".title").text should not include ("fuel")
-      doc.select("#start-date-31").text shouldBe  "May 30, 2013"
+      doc.select("#start-date-31").text shouldBe  "30 May 2013"
       doc.select("#start-date-29") shouldBe empty
-      doc.select("#withdraw-date-31").text shouldBe Dates.formatDate(withdrawDate)
+      doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
       doc.select("#withdraw-date-29") shouldBe empty
       doc.select("#apportioned-value-31").text shouldBe "£123"
       doc.select("#apportioned-value-29") shouldBe empty
@@ -735,14 +739,14 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".date-registered").text should include("12 December 2012")
       doc.select(".amount").text should include("£321")
     }
 
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val invalidWithdrawDate = new LocalDate().plusDays(36)
+      val invalidWithdrawDate = dateToday.toLocalDate.plusDays(36)
       val result = controller.requestBenefitRemovalAction(johnDensmore,
         requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true), "31", 2013, 2)
 
@@ -750,7 +754,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".date-registered").text should include("12 December 2012")
       doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be greater than 7 days from today")
     }
@@ -766,7 +770,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".date-registered").text should include("12 December 2012")
       doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in previous tax years")
     }
@@ -781,7 +785,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".date-registered").text should include("12 December 2012")
       doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in next tax years")
     }
@@ -794,7 +798,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("December 12, 2012")
+      doc.select(".date-registered").text should include("12 December 2012")
       doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Please enter a date")
     }

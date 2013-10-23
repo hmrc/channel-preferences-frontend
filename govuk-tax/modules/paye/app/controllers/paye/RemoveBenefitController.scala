@@ -24,12 +24,14 @@ import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.CarFuelBenefitDates
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import models.paye.RemoveBenefitFormData
+import config.DateTimeProvider
 
 class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
   extends BaseController
   with SessionTimeoutWrapper
   with Benefits
-  with TaxYearSupport {
+  with TaxYearSupport
+  with DateTimeProvider {
 
   def this() = this(MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
 
@@ -199,7 +201,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, payeService
                                 carBenefitWithUnremovedFuelBenefit: Boolean,
                                 dates: Option[CarFuelBenefitDates]) = Form[RemoveBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping(Some(benefitStartDate)),
+      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now().toLocalDate()),
       "agreement" -> checked("error.paye.remove.benefit.accept.agreement"),
       "removeCar" -> boolean,
       "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),

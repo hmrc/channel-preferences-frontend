@@ -2,10 +2,8 @@ package controllers.paye.validation
 
 import play.api.data.Forms._
 import org.joda.time.LocalDate
-import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
 import models.paye.CarFuelBenefitDates
-import scala.Some
 import uk.gov.hmrc.utils.TaxYearResolver
 import play.api.data.Mapping
 
@@ -16,9 +14,9 @@ object RemoveBenefitValidator extends Validators {
   private[paye] def validateFuelDateChoice(carBenefitWithUnremoved:Boolean) = optional(text)
     .verifying("error.paye.benefit.choice.mandatory", fuelDateChoice => verifyFuelDate(fuelDateChoice, carBenefitWithUnremoved))
 
-  private[paye] def localDateMapping(benefitStartDate:Option[LocalDate]) = mandatoryDateTuple("error.paye.benefit.date.mandatory")
+  private[paye] def localDateMapping(benefitStartDate:Option[LocalDate], today: LocalDate) = mandatoryDateTuple("error.paye.benefit.date.mandatory")
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(TaxYearResolver.endOfCurrentTaxYear))
-    .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(new LocalDate()))
+    .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(today))
     .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(TaxYearResolver.startOfCurrentTaxYear.minusDays(1)))
     .verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
 
@@ -38,9 +36,9 @@ object RemoveBenefitValidator extends Validators {
     }
   }
 
-  private def isAfterIfDefined(dateOne:Option[LocalDate], dateTwo:Option[LocalDate]):Boolean = {
-    dateOne match {
-      case Some(date) => isAfter(date, dateTwo)
+  private def isAfterIfDefined(left:Option[LocalDate], right:Option[LocalDate]):Boolean = {
+    left match {
+      case Some(aDate) => isAfter(aDate, right)
       case _ => true
     }
   }
@@ -53,7 +51,7 @@ object RemoveBenefitValidator extends Validators {
 
   private def isAfter(withdrawDate:LocalDate, startDate:Option[LocalDate]) : Boolean = {
     startDate match {
-      case Some(startDate) => withdrawDate.isAfter(startDate)
+      case Some(dateOfStart) => withdrawDate.isAfter(dateOfStart)
       case _ => true
     }
   }
