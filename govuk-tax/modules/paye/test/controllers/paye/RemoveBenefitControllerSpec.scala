@@ -824,7 +824,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 1 display an error message when return date and agreement response is misformed" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-      val requestBenefitRemovalForm = FakeRequest().withFormUrlEncodedBody(buildDateFormField("withdrawDate", Some("A", "b", "2013")) : _*)
+      val requestBenefitRemovalForm = FakeRequest().withFormUrlEncodedBody(buildDateFormField("withdrawDate", Some(("A", "b", "2013"))) : _*)
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalForm, "29", 2013, 2))
 
       status(result) shouldBe 400
