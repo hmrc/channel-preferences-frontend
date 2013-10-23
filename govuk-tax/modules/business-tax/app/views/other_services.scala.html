@@ -7,8 +7,12 @@
 @if(otherServicesSummary.manageYourTaxes.isDefined){
 <div>
     <h2>Manage your other taxes</h2>
-    @for(link <- otherServicesSummary.manageYourTaxes.get.links){
-        @link.render
+    @if(otherServicesSummary.manageYourTaxes.get.links.isEmpty) {
+        <p>There are no other services associated with this Government Gateway account.</p>
+    }else{
+        @for(link <- otherServicesSummary.manageYourTaxes.get.links){
+            @link.render
+        }
     }
 </div>
 }
@@ -22,7 +26,6 @@
     <h2 id="registrationHeading">Register for new business taxes</h2>
 
     @if(otherServicesSummary.businessTaxesRegistration.registrationLink.isDefined){
-
         <p id="businessTaxesRegistrationLink">@{otherServicesSummary.businessTaxesRegistration.registrationLink.get.render}</p>
 
         <p id="registrationMessage">
@@ -30,7 +33,6 @@
             partner'
             in a self-employed business partnership. There are also a few other situations when you'll need to register a
             different way.
-
     }else{
         <p id="registrationGenericMessage">
     }
