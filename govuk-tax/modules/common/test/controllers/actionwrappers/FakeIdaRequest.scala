@@ -65,9 +65,6 @@ protected trait ActionWrapperTestHelper
 
   protected def setupActionWrapperMocks() {
     Mockito.reset(authMicroService)
-
-    println(s"int ${authMicroService}")
-
     Mockito.when(authMicroService.authority(u.userId)).thenReturn(Some(u.userAuthority))
   }
 

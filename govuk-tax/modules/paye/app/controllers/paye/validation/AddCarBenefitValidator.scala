@@ -149,6 +149,8 @@ object AddCarBenefitValidator extends Validators {
     case _ => ignored(None)
   }
 
+  private def isEqualOrAfter(date:LocalDate, laterDate:LocalDate):Boolean = date.isEqual(laterDate) || date.isBefore(laterDate)
+
   private def isInCurrentTaxYear = (data:Option[LocalDate]) =>  data match {
     case Some(d) => TaxYearResolver.taxYearInterval.contains(d.toDateTimeAtStartOfDay(DateTimeZone.UTC))
     case _ => true

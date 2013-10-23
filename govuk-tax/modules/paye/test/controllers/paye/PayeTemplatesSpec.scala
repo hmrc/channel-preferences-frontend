@@ -66,8 +66,6 @@ class PayeTemplatesSpec extends PayeBaseSpec with PageSugar {
         List(EmploymentView("Sainsbury's", new LocalDate(2010, 2, 22), None, "277T", List(RecentChange("something", new LocalDate(2013, 2, 22)))), EmploymentView("Bla Bla", new LocalDate(2009, 4, 11), Some(new LocalDate(2010, 2, 21)), "BR", List())), true)
       val payeHome: Html = paye_home(overview)(johnDensmore)
 
-      println(payeHome(".overview__contacts p").last().html())
-
       payeHome(".overview__contacts p").last().html() should include("href")
 
     }
@@ -85,7 +83,6 @@ class PayeTemplatesSpec extends PayeBaseSpec with PageSugar {
       )
 
       val page = paye_benefit_home(Seq(displayBenefit))(johnDensmore)
-      println(page)
       page("tr#car-fuel-benefit").size should be(1)
     }
   }

@@ -35,7 +35,6 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncry
 
       val result = HeaderTestController.test()(request)
       val fields = contentAsString(result) split (":")
-      println(fields.toList)
       fields(0) should be("012345")
       fields(1) should be("john")
       fields(2) should be("12345")

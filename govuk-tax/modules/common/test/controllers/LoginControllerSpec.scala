@@ -75,7 +75,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   "LoginController " should {
     "encrypt cookie value" in new WithSetup {
       val enc = loginController.encrypt("/auth/oid/9875928746298467209348650298847235")
-      println("Encrypted cookie:" + enc)
+      enc should not include("/auth/oid/9875928746298467209348650298847235")
     }
   }
 

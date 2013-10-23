@@ -396,7 +396,6 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      println(contentAsString(result))
       doc.select("[id~=carRegistrationDate]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=month-5]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select(s"[id~=year").attr("value") shouldBe taxYear.toString
@@ -518,7 +517,6 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
       status(result) shouldBe 400
-      print(contentAsString(result))
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text should be(Messages("error.paye.answer_mandatory"))
     }

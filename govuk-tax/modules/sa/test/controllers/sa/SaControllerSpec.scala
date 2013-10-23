@@ -127,7 +127,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(missingErrorMessageForPostcode)
     }
 
@@ -139,7 +138,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(missingErrorMessageForPostcode)
     }
 
@@ -151,7 +149,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(expectedInvalidCharacterErrorMessageForPostcode)
     }
 
@@ -163,7 +160,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(expectedInvalidCharacterErrorMessageForPostcode)
     }
 
@@ -175,7 +171,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(invalidMessageForPostcode)
     }
 
@@ -205,7 +200,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(invalidMessageForPostcode)
     }
   }
@@ -220,7 +214,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include("Address Line 1 is required")
     }
 
@@ -232,7 +225,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include("This address line field must not be greater than 28 characters")
     }
 
@@ -244,7 +236,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include("This address line field must not be greater than 28 characters")
     }
 
@@ -256,7 +247,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include("This address line field must not be greater than 18 characters")
     }
 
@@ -268,7 +258,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include("This address line field must not be greater than 18 characters")
     }
 
@@ -280,7 +269,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include("Address Line 2 is required")
     }
 
@@ -292,7 +280,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include("Address Line 3 is required when using Address Line 4")
     }
 
@@ -304,7 +291,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(expectedInvalidCharacterErrorMessageForAddress)
     }
 
@@ -316,7 +302,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(expectedInvalidCharacterErrorMessageForAddress)
     }
 
@@ -328,7 +313,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(expectedInvalidCharacterErrorMessageForAddress)
     }
 
@@ -341,7 +325,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 400
       val changeAddressSource = contentAsString(result)
-      println(changeAddressSource)
       changeAddressSource should include(expectedInvalidCharacterErrorMessageForAddress)
     }
 

@@ -208,7 +208,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      print(contentAsString(result))
       doc.select(".title").text should include("fuel and car")
       doc.select("#start-date-29").text shouldBe  "September 10, 2013"
       doc.select("#start-date-31").text shouldBe  "May 30, 2013"
