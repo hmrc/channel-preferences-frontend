@@ -147,7 +147,8 @@ $(document).ready(function() {
             $form.on('click', '*[data-iselectric]', function() {
                 if ( $(this).attr('id') === 'fuelType-electricity') {
                     $defaultOptions.prop("checked", true).parents('li').addClass('visuallyhidden');
-                    $form.find('#co2Figure').val('');
+                    $form.find('#co2Figure').val('')
+                        .end().find('#co2NoFigure').prop("checked", false);
                 }
                 else {
                     $defaultOptions.prop("checked", false).parents('li').removeClass('visuallyhidden');
