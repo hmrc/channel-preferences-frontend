@@ -14,7 +14,7 @@
 
     <p>We need some information about the company car provided by <span id="company-name">@employerNameLowercaseString</span>.</p>
 
-    @helper.form(action = controllers.paye.routes.CarBenefitAddController.reviewAddCarBenefit(taxYear, employmentSequenceNumber)) {
+    @helper.form(action = controllers.paye.routes.CarBenefitAddController.reviewAddCarBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-car-benefit") {
 
     <fieldset>
         <h2>How long you have had the new company car</h2>
@@ -117,9 +117,9 @@
                     FormField(
                         carBenefitForm(fuelType),
                         Seq(
-                            RadioButton("diesel", Messages("paye.add_car_benefit.fuel_type.diesel"), Some("form-field"), Some("label--inlineRadio-right")),
-                            RadioButton("electricity", Messages("paye.add_car_benefit.fuel_type.electricity"), Some("form-field"), Some("label--inlineRadio-right")),
-                            RadioButton("other", Messages("paye.add_car_benefit.fuel_type.other"), Some("form-field"), Some("label--inlineRadio-right"))
+                            RadioButton("diesel", Messages("paye.add_car_benefit.fuel_type.diesel"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false")),
+                            RadioButton("electricity", Messages("paye.add_car_benefit.fuel_type.electricity"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=true")),
+                            RadioButton("other", Messages("paye.add_car_benefit.fuel_type.other"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false"))
                         )
                     )
                 ),
@@ -141,7 +141,7 @@
                     FormField(
                         carBenefitForm(co2NoFigure),
                         Seq(
-                            InputType("checkbox", "", "The DVLA does not have an emission figure for your car", Some("form-field--inline"), Some(""), Some("input--small"))
+                            InputType("checkbox", "", "The DVLA does not have an emission figure for your car", Some("form-field--inline"), Some(""), Some("input--small"), Some("data-default"))
                         )
                     )
                 ),
@@ -155,7 +155,7 @@
                 carBenefitForm,
                 Seq(
                 FormField(carBenefitForm(engineCapacity), Seq(
-                    RadioButton("none", Messages("paye.add_car_benefit.engine_capacity.none"), Some("form-field"), Some("label--inlineRadio-right")),
+                    RadioButton("none", Messages("paye.add_car_benefit.engine_capacity.none"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default")),
                     RadioButton("1400", Messages("paye.add_car_benefit.engine_capacity.1400"), Some("form-field"), Some("label--inlineRadio-right")),
                     RadioButton("2000", Messages("paye.add_car_benefit.engine_capacity.2000"), Some("form-field"), Some("label--inlineRadio-right")),
                     RadioButton("9999", Messages("paye.add_car_benefit.engine_capacity.9999"), Some("form-field"), Some("label--inlineRadio-right"))))
@@ -173,7 +173,7 @@
                     FormField(
                         carBenefitForm(employerPayFuel),
                         Seq(
-                            RadioButton("false", Messages("paye.add_car_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio-right")),
+                            RadioButton("false", Messages("paye.add_car_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default")),
                             RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right")),
                             RadioButton("date", Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"))
                         )

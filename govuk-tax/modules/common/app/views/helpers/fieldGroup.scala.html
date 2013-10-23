@@ -39,6 +39,7 @@
                                             id="@inputId"
                                             class="@inputType.inputClass"
                                             name="@field.field.name"
+                                            @inputType.dataAtrribute
                                             value="@{inputType.inputType match {
                                                case "radio" => inputType.key
                                                case "checkbox" => "true"

@@ -138,5 +138,21 @@ $(document).ready(function() {
   // if(window.GOVUK && GOVUK.userSatisfaction){
   //   GOVUK.userSatisfaction.randomlyShowSurveyBar();
   // }
+
+  if ($("#form-add-car-benefit").length) {
+  			//toggle fuel quesitons depending on if user has selected zero emissions
+              var $form            = $("#form-add-car-benefit"),
+                  $defaultOptions  = $form.find('*[data-default]');
+
+            $form.on('click', '*[data-iselectric]', function() {
+                if ( $(this).attr('id') === 'fuelType-electricity') {
+                    $defaultOptions.prop("checked", true).parents('li').addClass('visuallyhidden');
+                    $form.find('#co2Figure').val('');
+                }
+                else {
+                    $defaultOptions.prop("checked", false).parents('li').removeClass('visuallyhidden');
+                }
+            });
+  }
 });
 
