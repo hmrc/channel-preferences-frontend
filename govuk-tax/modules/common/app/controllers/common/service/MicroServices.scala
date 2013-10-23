@@ -15,7 +15,7 @@ trait MicroServices {
   import uk.gov.hmrc.common.microservice.ct.CtConnector
   import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
   import uk.gov.hmrc.common.microservice.sa.SaConnector
-  import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
+  import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
 
   implicit lazy val authMicroService = new AuthMicroService()
   implicit lazy val payeMicroService = new PayeMicroService()

@@ -2,7 +2,7 @@ package controllers.common
 
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.hmrc.microservice.governmentgateway.SsoLoginRequest
+import uk.gov.hmrc.common.microservice.governmentgateway.SsoLoginRequest
 import service.{ FrontEndConfig, SsoWhiteListService, MicroServices }
 import play.api.Logger
 import play.api.libs.json.Json

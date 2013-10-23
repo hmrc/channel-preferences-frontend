@@ -1,8 +1,8 @@
-package uk.gov.hmrc.microservice.governmentgateway
+package uk.gov.hmrc.common.microservice.governmentgateway
 
 import play.api.libs.json._
 import scala.collection.Seq
-import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
+import uk.gov.hmrc.microservice.{MicroService, MicroServiceConfig}
 
 class GovernmentGatewayMicroService extends MicroService {
 
@@ -33,16 +33,46 @@ class GovernmentGatewayMicroService extends MicroService {
 
     ssoResponse.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
   }
+
+  def profile(userId: String) = {
+    val response = httpGet[JsonProfileResponse](s"/profile/$userId")
+    response match {
+      case Some(profile) => Some(ProfileResponse(profile))
+      case _ => None
+    }
+  }
 }
 
 case class Credentials(userId: String,
-  password: String)
+                       password: String)
 
 case class SsoLoginRequest(token: String,
-  timestamp: Long)
+                           timestamp: Long)
 
 case class GovernmentGatewayResponse(authId: String,
-  name: String,
-  affinityGroup: String,
-  encodedGovernmentGatewayToken: String)
+                                     name: String,
+                                     affinityGroup: String,
+                                     encodedGovernmentGatewayToken: String)
 
+
+case class AffinityGroup(identifier: String)
+
+case class Enrolment(key: String)
+
+case class ProfileResponse(affinityGroup: AffinityGroup, activeEnrolments: Set[Enrolment])
+
+object ProfileResponse {
+
+  def apply(jsonProfileResponse: JsonProfileResponse): ProfileResponse = {
+    ProfileResponse(AffinityGroup(jsonProfileResponse.affinityGroup.toLowerCase), jsonProfileResponse.activeEnrolments.map(enrolment => Enrolment(enrolment)))
+  }
+
+}
+
+private[governmentgateway] case class JsonProfileResponse(affinityGroup: String, activeEnrolments: Set[String])
+
+object AffinityGroupValue {
+  val INDIVIDUAL = "individual"
+  val ORGANISATION = "organisation"
+  val AGENT = "agent"
+}
