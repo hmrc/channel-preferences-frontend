@@ -30,7 +30,7 @@
 
                   <td id="car-benefit-fuel-type">@fuelTypeFor(carBenefit.get.car.get.fuelType)</td>
               </tr>
-              if(carBenefit.get.car.get.co2Emissions.isDefined) {
+              @if(carBenefit.get.car.get.co2Emissions > 0) {
               <tr>
                   <td>Emission figure</td>
                   <td>@{carBenefit.get.car.get.co2Emissions} g/km</td>
