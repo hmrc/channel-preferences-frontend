@@ -102,11 +102,5 @@ object Common {
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
       testOptions in Test += Tests.Argument("-u", "target/test-reports")
-<<<<<<< HEAD
-    ) ++
-    Repositories.publishingSettings
-=======
     ) ++ playScalaSettings ++ Repositories.publishingSettings
-
->>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
 }

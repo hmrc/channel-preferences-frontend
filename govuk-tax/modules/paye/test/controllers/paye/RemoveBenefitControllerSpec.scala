@@ -557,13 +557,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(29)), Matchers.any[LocalDate]())).thenReturn(fuelCalculationResult)
 
-<<<<<<< HEAD
       val withdrawDate = new LocalDate(2013, 12, 8)
-      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("sameDateFuel")), "31", 2013, 2)
-=======
-      val withdrawDate = new LocalDate()
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("sameDateFuel")), "31", 2013, 2))
->>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -585,13 +580,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
       when(mockPayeMicroService.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(31)), Matchers.any[LocalDate]())).thenReturn(carCalculationResult)
 
-<<<<<<< HEAD
       val withdrawDate = dateToday.toLocalDate
-      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("sameDateFuel")), "31", 2013, 2)
-=======
-      val withdrawDate = new LocalDate()
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("sameDateFuel")), "31", 2013, 2))
->>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -757,15 +747,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
-<<<<<<< HEAD
       val invalidWithdrawDate = dateToday.toLocalDate.plusDays(36)
-      val result = controller.requestBenefitRemovalAction(johnDensmore,
-        requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true), "31", 2013, 2)
-=======
-      val invalidWithdrawDate = new LocalDate().plusDays(36)
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore,
         requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true), "31", 2013, 2))
->>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
 
       status(result) shouldBe 400
 

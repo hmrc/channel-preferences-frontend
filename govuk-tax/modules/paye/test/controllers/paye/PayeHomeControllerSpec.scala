@@ -14,12 +14,7 @@ import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-<<<<<<< HEAD
-=======
-import controllers.actionwrappers.PayeTest
 import concurrent.Future
->>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
-
 
 class PayeHomeControllerSpec
   extends PayeBaseSpec

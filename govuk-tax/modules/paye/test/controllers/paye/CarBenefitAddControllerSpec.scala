@@ -386,8 +386,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 400 if the user sends a car registered date before 1900" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some("1899", "7", "1"))
-      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some(("1899", "7", "1")))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
       status(result) shouldBe 400
     }
 
@@ -499,13 +499,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-<<<<<<< HEAD
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("none"), carUnavailableVal = None)
-      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1)
-=======
-      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("no-capacity"), carUnavailableVal = None)
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
->>>>>>> Alvaro & Howy - 1766 - Migrating code to version 2.2
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#engineCapacity-none").attr("checked") shouldBe "checked"
