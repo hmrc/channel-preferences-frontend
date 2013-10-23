@@ -1,6 +1,6 @@
 @(vatOnlineAccountHref: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@main(title = "Make a VAT payment") {
+@main(title = "Make a VAT payment", nav = true, user= Some(user)) {
 
 <h1>Your tax account</h1>
 

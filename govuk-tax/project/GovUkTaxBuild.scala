@@ -77,7 +77,7 @@ object GovUkTaxBuild extends Build {
 }
 
 object Common {
-  val commonSettings = Defaults.defaultSettings ++
+  val commonSettings = Defaults.defaultSettings  ++
     Seq(
       organization := "uk.gov.hmrc",
       version := Version.thisApp,
@@ -96,5 +96,4 @@ object Common {
       testOptions in Test += Tests.Argument("-u", "target/test-reports")
     ) ++
     Repositories.publishingSettings
-
 }

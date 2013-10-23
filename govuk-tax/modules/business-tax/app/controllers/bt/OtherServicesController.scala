@@ -5,6 +5,7 @@ import controllers.common.{ActionWrappers, BaseController}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.templates.Html
+import controllers.common.service.MicroServices
 
 
 class OtherServicesController(otherServicesFactory: OtherServicesFactory)
@@ -12,7 +13,7 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory)
   with ActionWrappers
   with PortalUrlBuilder {
 
-  def this() = this(new OtherServicesFactory)
+  def this() = this(new OtherServicesFactory(MicroServices.governmentGatewayMicroService))
 
   def otherServices = AuthorisedForGovernmentGatewayAction() {
     implicit user =>

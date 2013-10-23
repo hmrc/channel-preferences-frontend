@@ -5,24 +5,22 @@ import uk.gov.hmrc.common.microservice.saml.SamlMicroService
 import org.mockito.Mockito._
 import play.api.test.{ WithApplication, FakeRequest }
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
 import play.api.http._
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
-import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayResponse
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayResponse
 import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import play.api.libs.ws.Response
 import scala.Some
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.governmentgateway.Credentials
+import uk.gov.hmrc.common.microservice.governmentgateway.Credentials
 import play.api.test.FakeApplication
-import play.api.data.Form
 import play.api.templates.Html
-import org.mockito.Matchers
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 

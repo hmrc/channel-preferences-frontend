@@ -251,14 +251,14 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
   }
 
-  "AddCarBenefitValidator for fields REGISTERED BEFORE 98, FUEL TYPE, CO2 FIGUREs and ENGINE CAPACITY  " should {
+  "AddCarBenefitValidator for fields CAR REGISTRATION DATE, FUEL TYPE, CO2 FIGUREs and ENGINE CAPACITY  " should {
 
     case class FiguresDummyModel(carRegistrationDate: Option[LocalDate], fuelType: Option[String], co2Figure: Option[Int], co2NoFigure: Option[Boolean], engineCapacity: Option[String])
 
     def dummyForm(values: CarBenefitValues) = {
       Form[FiguresDummyModel](
         mapping(
-          carRegistrationDate -> validateCarRegistrationDate(values),
+          carRegistrationDate -> validateCarRegistrationDate(values, (() => now)),
           fuelType -> validateFuelType(values),
           co2Figure -> validateCo2Figure(values),
           co2NoFigure -> validateNoCo2Figure(values),
@@ -266,10 +266,43 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
         )(FiguresDummyModel.apply)(FiguresDummyModel.unapply))
     }
 
+    "accept the car registration date if it in 1900" in new WithApplication(FakeApplication()) {
+      val goodRegistrationDate = buildDateFormField(carRegistrationDate, Some("1900", "1", "1"))
+
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(goodRegistrationDate:_*))
+      form.errors(carRegistrationDate).size shouldBe 0
+    }
+
+    "reject the car registration date if it more than 7 days after today" in new WithApplication(FakeApplication()) {
+      val tooLateDate = now.plusDays(8)
+      val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some(tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString))
+
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
+      form.errors(carRegistrationDate).size shouldBe 1
+      assertHasThisErrorMessage(form, carRegistrationDate, "You must specify a date, which is not more than 7 days in future from today.")
+    }
+
+    "accept the car registration date if it in 7 days after today" in new WithApplication(FakeApplication()) {
+      val tooLateDate = now.plusDays(7)
+      val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some(tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString))
+
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
+      form.errors(carRegistrationDate).size shouldBe 0
+    }
+
     "reject registered before 98 if it is blank" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> ""))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, carRegistrationDate, "Please answer this question.")
+    }
+
+    "reject car registered date if it is before 1900" in new WithApplication(FakeApplication()) {
+      val registartionDateBefore1900 = buildDateFormField(carRegistrationDate, Some("1899", "12", "31"))
+
+      val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registartionDateBefore1900:_*))
+      form.hasErrors shouldBe true
+      form.errors(carRegistrationDate).size shouldBe 1
+      assertHasThisErrorMessage(form, carRegistrationDate, "You must specify a valid date")
     }
 
     "reject fuel type is electricity if registered before 98 is true" in new WithApplication(FakeApplication()) {

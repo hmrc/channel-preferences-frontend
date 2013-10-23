@@ -4,18 +4,18 @@ import common.service.SsoWhiteListService
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
-import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayMicroService
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
 import org.mockito.Mockito._
 import play.api.mvc.Result
 import java.net.{ URI, URLEncoder }
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.governmentgateway.GovernmentGatewayResponse
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayResponse
 import uk.gov.hmrc.microservice.UnauthorizedException
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.governmentgateway.SsoLoginRequest
+import uk.gov.hmrc.common.microservice.governmentgateway.SsoLoginRequest
 import play.api.mvc.SimpleResult
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {

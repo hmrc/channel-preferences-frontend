@@ -1,8 +1,8 @@
-@(formWithErrors:Form[uk.gov.hmrc.microservice.governmentgateway.Credentials] = Form(
+@(formWithErrors:Form[uk.gov.hmrc.common.microservice.governmentgateway.Credentials] = Form(
         Forms.mapping(
             "userId" -> Forms.of[String](play.api.data.format.Formats.stringFormat),
             "password" -> Forms.of[String](play.api.data.format.Formats.stringFormat)
-        )(uk.gov.hmrc.microservice.governmentgateway.Credentials.apply)(uk.gov.hmrc.microservice.governmentgateway.Credentials.unapply)
+        )(uk.gov.hmrc.common.microservice.governmentgateway.Credentials.apply)(uk.gov.hmrc.common.microservice.governmentgateway.Credentials.unapply)
     )
 )
 

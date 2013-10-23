@@ -4,7 +4,7 @@ import play.api.mvc.{ AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-import uk.gov.hmrc.microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
+import uk.gov.hmrc.common.microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
 import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import controllers.common.service.FrontEndConfig
 import java.util.UUID

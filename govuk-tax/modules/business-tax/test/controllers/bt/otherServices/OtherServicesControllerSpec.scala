@@ -14,7 +14,8 @@ import play.api.templates.Html
 class OtherServicesControllerSpec extends BaseSpec {
 
   "Calling otherservices with a valid logged in business user" should {
-    "render the Other Services template including the Enrol to use a new online service section" in new OtherServicesControllerForTest with GeoffFisherTestFixture with BusinessTaxRequest {
+
+    "render the Other Services template without the Manage your taxes section if the related summary is None" in new OtherServicesControllerForTest with GeoffFisherTestFixture with BusinessTaxRequest {
 
       val expectedHtml = "<html>some html for other services page</html>"
 
@@ -46,5 +47,71 @@ class OtherServicesControllerSpec extends BaseSpec {
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml
     }
+
+    "render the Other Services template including the three sections if all the summaries are available " in new OtherServicesControllerForTest with GeoffFisherTestFixture with BusinessTaxRequest {
+
+      val expectedHtml = "<html>some html for other services page</html>"
+
+      val expectedOtherServicesSummary = OtherServicesSummary(
+        Some(ManageYourTaxes(Seq(RenderableLinkMessage(LinkMessage("http://www.online.hmrc.gov.uk/home/services", "Duty Deferment Electronic Statements (DDES) Service"))))),
+        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))),
+        BusinessTaxesRegistration(
+          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
+          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website")))
+      )
+
+      when(mockOtherServicesFactory.createManageYourTaxes).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
+      when(mockOtherServicesFactory.createOnlineServicesEnrolment).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
+      when(mockOtherServicesFactory.createBusinessTaxesRegistration).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentURL")
+
+      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here")))
+
+      val businessTaxesRegistration = BusinessTaxesRegistration(
+        Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
+        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website"))
+      )
+
+      when(mockOtherServicesPages.otherServicesPage(expectedOtherServicesSummary)).thenReturn(Html(expectedHtml))
+
+      val result = controllerUnderTest.otherServices(request)
+
+      status(result) shouldBe 200
+      contentAsString(result) shouldBe expectedHtml
+    }
+
+    "render the Other Services template without the Manage your taxes section if the related summary is empty" in new OtherServicesControllerForTest with GeoffFisherTestFixture with BusinessTaxRequest {
+      val expectedHtml = "<html>some html for other services page</html>"
+
+      val expectedOtherServicesSummary = OtherServicesSummary(
+        Some(ManageYourTaxes(Seq.empty)),
+        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))),
+        BusinessTaxesRegistration(
+          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
+          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website")))
+      )
+
+      when(mockOtherServicesFactory.createManageYourTaxes).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
+      when(mockOtherServicesFactory.createOnlineServicesEnrolment).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
+      when(mockOtherServicesFactory.createBusinessTaxesRegistration).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentURL")
+
+      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here")))
+
+      val businessTaxesRegistration = BusinessTaxesRegistration(
+        Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
+        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website"))
+      )
+
+      when(mockOtherServicesPages.otherServicesPage(expectedOtherServicesSummary)).thenReturn(Html(expectedHtml))
+
+      val result = controllerUnderTest.otherServices(request)
+
+      status(result) shouldBe 200
+      contentAsString(result) shouldBe expectedHtml
+    }
+
   }
 }
