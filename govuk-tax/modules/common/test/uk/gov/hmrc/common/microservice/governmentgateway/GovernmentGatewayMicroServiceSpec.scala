@@ -37,7 +37,7 @@ class GovernmentGatewayMicroServiceSpec extends BaseSpec with MockitoSugar {
           Enrolment("HMCE-EBTI-ORG"),
           Enrolment("HMRC-EMCS-ORG"))))
 
-      when(service.httpWrapper.get[JsonProfileResponse](s"/profile/$userId")).thenReturn(expectedResponse)
+      when(service.httpWrapper.get[JsonProfileResponse](s"/profile$userId")).thenReturn(expectedResponse)
       val result = service.profile(userId)
       result shouldBe expectedResult
     }
@@ -47,7 +47,7 @@ class GovernmentGatewayMicroServiceSpec extends BaseSpec with MockitoSugar {
       val userId = "/auth/oid/missingUser"
       val expectedResponse = None
 
-      when(service.httpWrapper.get[JsonProfileResponse](s"/profile/$userId")).thenReturn(expectedResponse)
+      when(service.httpWrapper.get[JsonProfileResponse](s"/profile$userId")).thenReturn(expectedResponse)
       val result = service.profile(userId)
       result shouldBe expectedResponse
     }
