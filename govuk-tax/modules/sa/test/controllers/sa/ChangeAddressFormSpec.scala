@@ -1,7 +1,6 @@
 package controllers.sa
 
 import uk.gov.hmrc.common.BaseSpec
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 

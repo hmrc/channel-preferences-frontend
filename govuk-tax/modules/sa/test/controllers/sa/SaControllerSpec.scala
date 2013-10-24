@@ -18,7 +18,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddress
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.SaUtr
 import java.util.UUID
-import scala.util.Success
 import concurrent.Future
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
