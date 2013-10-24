@@ -11,6 +11,7 @@ import play.api.i18n.Messages
 class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicroService) extends PortalUrlBuilder {
 
   private val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"
+  val linkToHmrcOnlineRegistration = "https://online.hmrc.gov.uk/registration/newbusiness/business-allowed"
   private val hmrcWebsiteLinkText = "HMRC website"
 
   //TODO waiting for links confirmation
@@ -56,7 +57,7 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
         Some(s"Register for ${appendInactiveRegimes(inactiveRegimes)}")
       }
     }
-    val link = linkText.map(text => RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, text)))
+    val link = linkText.map(text => RenderableLinkMessage(LinkMessage(linkToHmrcOnlineRegistration, text)))
     BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, hmrcWebsiteLinkText)))
   }
 }

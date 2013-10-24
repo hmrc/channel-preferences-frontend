@@ -32,6 +32,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
   }
 
   val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"
+  val linkToHmrcOnlineRegistration = "https://online.hmrc.gov.uk/registration/newbusiness/business-allowed"
   val hmrcWebsiteLinkText = "HMRC website"
 
   "createOnlineServicesEnrolment " should {
@@ -55,7 +56,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration(hmrcWebsiteLinkText)
+      assertCorrectBusinessTaxRegistration(linkToHmrcWebsite, hmrcWebsiteLinkText)
     }
 
     "return a BusinessTaxRegistration object containing only the link to the hmrc website if epaye, vat and ct are defined" in {
@@ -64,7 +65,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration(hmrcWebsiteLinkText)
+      assertCorrectBusinessTaxRegistration(linkToHmrcWebsite, hmrcWebsiteLinkText)
     }
 
     "return a BusinessTaxRegistration object containing only the link to the hmrc website if epaye, vat, sa and ct are defined" in {
@@ -73,7 +74,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration(hmrcWebsiteLinkText)
+      assertCorrectBusinessTaxRegistration(linkToHmrcWebsite, hmrcWebsiteLinkText)
     }
 
     "return a BusinessTaxRegistration object containing registration link for all the regimes if none of the regimes are defined" in {
@@ -82,7 +83,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for SA, CT, employers PAYE, or VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, CT, employers PAYE, or VAT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for sa, ct and epaye regimes if only vat is defined" in {
@@ -91,7 +92,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for SA, CT, or employers PAYE")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, CT, or employers PAYE")
     }
 
     "return a BusinessTaxRegistration object containing registration link for sa, ct and vat regimes if only epaye is defined" in {
@@ -100,7 +101,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for SA, CT, or VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, CT, or VAT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for sa and ct regimes if epaye and vat are defined" in {
@@ -109,7 +110,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for SA, or CT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, or CT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for sa, epaye and vat if only ct is defined" in {
@@ -118,7 +119,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for SA, employers PAYE, or VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, employers PAYE, or VAT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for sa and epaye if ct and vat are defined" in {
@@ -127,7 +128,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for SA, or employers PAYE")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, or employers PAYE")
     }
 
     "return a BusinessTaxRegistration object containing registration link for sa and vat if ct and epaye are defined" in {
@@ -136,7 +137,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for SA, or VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, or VAT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for ct, epaye and vat if only sa is defined" in {
@@ -145,7 +146,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for CT, employers PAYE, or VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for CT, employers PAYE, or VAT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for ct and epaye if sa and vat are defined" in {
@@ -154,7 +155,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for CT, or employers PAYE")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for CT, or employers PAYE")
     }
 
     "return a BusinessTaxRegistration object containing registration link for ct and vat if sa and epaye are defined" in {
@@ -163,7 +164,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for CT, or VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for CT, or VAT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for employers paye and vat if sa and ct are defined" in {
@@ -172,7 +173,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for employers PAYE, or VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for employers PAYE, or VAT")
     }
 
     "return a BusinessTaxRegistration object containing registration link for employers paye  if sa, ct and vat are defined" in {
@@ -181,7 +182,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for employers PAYE")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for employers PAYE")
     }
 
     "return a BusinessTaxRegistration object containing registration link for vat  if sa, ct and epaye are defined" in {
@@ -190,7 +191,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest = mock[Request[AnyRef]]
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
-      assertCorrectBusinessTaxRegistration("Register for VAT")
+      assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for VAT")
     }
   }
 
@@ -288,8 +289,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
   }
 
-  private def assertCorrectBusinessTaxRegistration(linkMessage: String)(implicit user: User) {
-    def linkObj = Some(RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, linkMessage)))
+  private def assertCorrectBusinessTaxRegistration(expectedLink: String, linkMessage: String)(implicit user: User) {
+    def linkObj = Some(RenderableLinkMessage(LinkMessage(expectedLink, linkMessage)))
     val link = if (linkMessage != hmrcWebsiteLinkText) linkObj else None
     val expected = BusinessTaxesRegistration(
       link,
