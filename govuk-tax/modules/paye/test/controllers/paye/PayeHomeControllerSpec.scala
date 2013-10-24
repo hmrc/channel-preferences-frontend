@@ -18,6 +18,7 @@ import concurrent.Future
 import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.domain.User
 import org.jsoup.nodes.Document
+import org.joda.time.chrono.ISOChronology
 
 class PayeHomeControllerSpec
   extends PayeBaseSpec
@@ -100,12 +101,12 @@ class PayeHomeControllerSpec
     }
 
     "show the last login time message " in new WithApplication(FakeApplication()) {
-      val previousLoginTime = new DateTime(2013, 10, 23, 9, 34, 45)
+      val previousLoginTime = new DateTime(2013, 10, 23, 9, 34, 45, ISOChronology.getInstanceUTC)
       val johnDensmoreWithPreviousLoginTime = johnDensmore.copy(userAuthority = johnDensmore.userAuthority.copy(previouslyLoggedInAt = Some(previousLoginTime)))
       val content = requestHomeAction(johnDensmoreWithPreviousLoginTime)
       private val jsoupedPage: Document = Jsoup.parse(content)
-      jsoupedPage.select("#lastlogin").text shouldBe "John Densmore, you last accessed your account on Wednesday 23 October, 2013 at 9:34AM"
-      jsoupedPage.select(".overview__last-login").text() shouldBe "Your last login was on Wednesday 23 October, 2013 at 9:34AM."
+      jsoupedPage.select("#lastlogin").text shouldBe "John Densmore, you last accessed your account on Wednesday 23 October, 2013 at 10:34AM"
+      jsoupedPage.select(".overview__last-login").text() shouldBe "Your last login was on Wednesday 23 October, 2013 at 10:34AM."
     }
 
 
