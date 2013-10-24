@@ -23,20 +23,22 @@ trait HeaderNames {
 
 object HeaderNames extends HeaderNames
 
-trait ActionWrappers
-  extends MicroServices
-  with Results
+@deprecated("please use Actions", "24.10.13")
+trait ActionWrappers extends Actions with MicroServices
+
+
+trait Actions
+  extends Results
   with CookieEncryption
   with HeaderActionWrapper
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with LoggingActionWrapper {
 
-  private[ActionWrappers] def act(userId: String,
-                                  token: Option[String],
-                                  request: Request[AnyContent],
-                                  taxRegime: Option[TaxRegime],
-                                  action: (User) => (Request[AnyContent]) => SimpleResult): SimpleResult = {
+  def act(userId: String, token: Option[String],
+          request: Request[AnyContent],
+          taxRegime: Option[TaxRegime],
+          action: (User) => (Request[AnyContent]) => SimpleResult): SimpleResult = {
     val userAuthority = authMicroService.authority(userId)
     Logger.debug(s"Received user authority: $userAuthority")
 
