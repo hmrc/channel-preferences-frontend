@@ -13,10 +13,11 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.microservice.txqueue.{Status, TxQueueTransaction}
+import org.joda.time.chrono.ISOChronology
 
 class PayeBaseSpec extends BaseSpec {
 
-  val currentTestDate = new DateTime(2012, 12, 2, 12, 1)
+  val currentTestDate = new DateTime(2012, 12, 2, 12, 1, ISOChronology.getInstanceUTC)
 
   def defaultTxLinks(nino: String) = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
     "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
