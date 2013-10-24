@@ -31,6 +31,7 @@ import scala.util.Success
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.joda.time.format.DateTimeFormat
 import concurrent.Future
+import org.joda.time.chrono.ISOChronology
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper {
 
@@ -43,7 +44,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     override def now = () => dateToday
   }
 
-  private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30)
+  private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
