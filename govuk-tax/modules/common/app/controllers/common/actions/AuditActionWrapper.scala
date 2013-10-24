@@ -6,13 +6,15 @@ import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
-import concurrent.{Future, ExecutionContext}
+import concurrent.ExecutionContext
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
-import util.Success
 
-trait AuditActionWrapper extends MicroServices with HeaderNames {
-  object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
+trait AuditActionWrapper extends HeaderNames {
+
+  import MicroServices.auditMicroService
+
+  object WithRequestAuditing extends WithRequestAuditing
 
   def auditRequest(user: User, request: Request[AnyContent]) {
     if (auditMicroService.enabled) {
@@ -40,7 +42,7 @@ trait AuditActionWrapper extends MicroServices with HeaderNames {
   }
 }
 
-class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.auditMicroService) extends MdcHelper {
+class WithRequestAuditing(auditMicroService: AuditMicroService = MicroServices.auditMicroService) extends MdcHelper {
 
   import ExecutionContext.Implicits.global
 
