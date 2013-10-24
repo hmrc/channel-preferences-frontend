@@ -10,11 +10,8 @@ import concurrent.ExecutionContext
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
 
-trait AuditActionWrapper extends HeaderNames {
-
-  import MicroServices.auditMicroService
-
-  object WithRequestAuditing extends WithRequestAuditing
+trait AuditActionWrapper extends MicroServices with HeaderNames {
+  object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
 
   def auditRequest(user: User, request: Request[AnyContent]) {
     if (auditMicroService.enabled) {
@@ -42,7 +39,7 @@ trait AuditActionWrapper extends HeaderNames {
   }
 }
 
-class WithRequestAuditing(auditMicroService: AuditMicroService = MicroServices.auditMicroService) extends MdcHelper {
+class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.auditMicroService) extends MdcHelper {
 
   import ExecutionContext.Implicits.global
 
