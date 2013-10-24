@@ -23,14 +23,6 @@ class AuditTestController extends Controller with AuditActionWrapper with MockMi
         Ok("")
     }
   }
-
-  import ExecutionContext.Implicits.global
-
-  def asyncTest() = WithRequestAuditing {
-    Action.async {
-        Future(Ok("Hello"))
-    }
-  }
 }
 
 class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures {
@@ -75,39 +67,6 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
           responseAudit.tags should contain(forwardedFor -> "192.168.1.1")
           responseAudit.tags should contain("statusCode" -> "200")
         }
-      } finally {
-        MDC.clear
-      }
-    }
-
-    "audit an async response with values from the MDC" in new WithApplication(
-      FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> true))) {
-      val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
-
-      MDC.put(authorisation, "/auth/oid/34343434")
-      MDC.put(forwardedFor, "192.168.1.2")
-
-      val controller = new AuditTestController()
-
-      try {
-        val response = controller.asyncTest()(FakeRequest())
-        whenReady(response) { result =>
-          verify(controller.auditMicroService, times(2)).audit(auditEventCaptor.capture())
-
-          val auditEvents = auditEventCaptor.getAllValues
-          auditEvents.size should be(2)
-
-          val responseAudit = auditEvents.get(1)
-
-          responseAudit.auditSource should be("frontend")
-          responseAudit.auditType should be("Response")
-
-          responseAudit.tags.size should be(3)
-          responseAudit.tags should contain(authorisation -> "/auth/oid/34343434")
-          responseAudit.tags should contain(forwardedFor -> "192.168.1.2")
-          responseAudit.tags should contain("statusCode" -> "200")
-        }
-
       } finally {
         MDC.clear
       }
