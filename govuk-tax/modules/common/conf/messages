@@ -20,3 +20,4 @@ date.fields.month=Month
 date.fields.year=Year
 
 common.firstlogin={0}, this is the first time you have logged in
+common.previousLoginTime={0}, you last accessed your account on {1}
