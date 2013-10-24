@@ -18,20 +18,16 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
   def createManageYourTaxes(implicit request: Request[AnyRef], user: User): Option[ManageYourTaxes] = {
     import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
     import ManageYourTaxesConf._
-    
-    def buildPortalLinks(link: String, messages: Seq[String]): Seq[RenderableLinkMessage] = {
-      messages.map(text => RenderableLinkMessage(LinkMessage(buildPortalUrl(link), Messages(text))))
-    }
-    
+
     val profile = governmentGatewayMicroService.profile(user.userId).getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
     profile.affinityGroup.identifier match {
       case INDIVIDUAL | ORGANISATION => {
         val linkMessages = getLinksAndMessages(profile.activeEnrolments.toList.map(_.key.toLowerCase)).flatMap {
-          case (link, messages) => buildPortalLinks(link, messages)
+          case link => link.buildPortalLinks
         }.toList
         Some(ManageYourTaxes(linkMessages))
       }
-      case _  => None
+      case _ => None
     }
   }
 
@@ -63,23 +59,50 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
 }
 
 object ManageYourTaxesConf {
-  
-  def getLinksAndMessages(keys: Seq[String]) = keys.sorted flatMap config.get
-  
+
+  def getLinksAndMessages(keys: Seq[String]): Seq[ManageTaxesLink] = keys.sorted flatMap config.get
+
   private val config = Map(
-    "hmce-ddes" ->("destinationPath.managedtaxes.servicesHome", Seq("otherservices.managetaxes.link.hmceddes")),
-    "hmce-ebti-org" ->("destinationPath.managedtaxes.servicesHome", Seq("otherservices.managetaxes.link.hmceebtiorg")),
-    "hmrc-emcs-org" ->("destinationPath.managedtaxes.emcs", Seq("otherservices.managetaxes.link.hmrcemcsorg")),
-    "hmrc-ics-org" ->("destinationPath.managedtaxes.ics", Seq("otherservices.managetaxes.link.hmrcicsorg")),
-    "hmrc-mgd-org" ->("destinationPath.managedtaxes.machinegames", Seq("otherservices.managetaxes.link.hmrcmgdorg")),
-    "hmce-ncts-org" ->("destinationPath.managedtaxes.ncts", Seq("otherservices.managetaxes.link.hmcenctsorg")),
-    "hmce-nes" ->("destinationPath.managedtaxes.servicesHome", Seq("otherservices.managetaxes.link.hmcenes")),
-    "hmrc-nova-org" ->("destinationPath.managedtaxes.nova", Seq("otherservices.managetaxes.link.hmrcnovaorg")),
-    "hmce-ro" ->("destinationPath.managedtaxes.servicesHome", Seq("otherservices.managetaxes.link.hmcero1", "otherservices.managetaxes.link.hmcero2", "otherservices.managetaxes.link.hmcero3")),
-    "hmrc-ecw-ind" ->("destinationPath.managedtaxes.er1", Seq("otherservices.managetaxes.link.hmrcecwind")),
-    "hmce-to" ->("destinationPath.managedtaxes.servicesHome", Seq("otherservices.managetaxes.link.hmceto")),
-    "hmce-ecsl-org" ->("destinationPath.managedtaxes.ecsl", Seq("otherservices.managetaxes.link.hmceecslorg")),
-    "hmrc-eu-ref-org" ->("destinationPath.managedtaxes.euvat", Seq("otherservices.managetaxes.link.hmrceureforg")),
-    "hmrc-vatrsl-org" ->("destinationPath.managedtaxes.rcsl", Seq("otherservices.managetaxes.link.hmrcvatrslorg"))
+    "hmce-ddes" -> ManageTaxesLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceddes"), false),
+    "hmce-ebti-org" -> ManageTaxesLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceebtiorg"), false),
+    "hmrc-emcs-org" -> ManageTaxesLink("destinationPath.manageTaxes.emcs", Seq("otherservices.manageTaxes.link.hmrcemcsorg"), true),
+    "hmrc-ics-org" -> ManageTaxesLink("destinationPath.manageTaxes.ics", Seq("otherservices.manageTaxes.link.hmrcicsorg"), true),
+    "hmrc-mgd-org" -> ManageTaxesLink("destinationPath.manageTaxes.machinegames", Seq("otherservices.manageTaxes.link.hmrcmgdorg"), true),
+    "hmce-ncts-org" -> ManageTaxesLink("destinationPath.manageTaxes.ncts", Seq("otherservices.manageTaxes.link.hmcenctsorg"), true),
+    "hmce-nes" -> ManageTaxesLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcenes"), false),
+    "hmrc-nova-org" -> ManageTaxesLink("destinationPath.manageTaxes.nova", Seq("otherservices.manageTaxes.link.hmrcnovaorg"), true),
+    "hmce-ro" -> ManageTaxesLink("destinationPath.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcero1", "otherservices.manageTaxes.link.hmcero2", "otherservices.manageTaxes.link.hmcero3"), false),
+    "hmrc-ecw-ind" -> ManageTaxesLink("destinationPath.manageTaxes.er1", Seq("otherservices.manageTaxes.link.hmrcecwind"), true),
+    "hmce-to" -> ManageTaxesLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceto"), false),
+    "hmce-ecsl-org" -> ManageTaxesLink("destinationPath.manageTaxes.ecsl", Seq("otherservices.manageTaxes.link.hmceecslorg"), true),
+    "hmrc-eu-ref-org" -> ManageTaxesLink("destinationPath.manageTaxes.euvat", Seq("otherservices.manageTaxes.link.hmrceureforg"), true),
+    "hmrc-vatrsl-org" -> ManageTaxesLink("destinationPath.manageTaxes.rcsl", Seq("otherservices.manageTaxes.link.hmrcvatrslorg"), true)
   )
+
+}
+
+class ManageTaxesLink(keyToLink: String, keysToLinkText: Seq[String], isSso: Boolean) extends PortalUrlBuilder {
+
+
+  def buildPortalLinks(implicit request: Request[AnyRef], user: User): Seq[RenderableLinkMessage] = {
+
+    keysToLinkText.map(text => {
+      if (isSso) {
+        RenderableLinkMessage(LinkMessage(
+          href = buildPortalUrl(keyToLink),
+          text = text))
+      } else {
+        RenderableLinkMessage(LinkMessage.externalLink(
+          hrefKey = keyToLink,
+          text = text,
+          postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")))
+      }
+    })
+  }
+}
+
+object ManageTaxesLink {
+  def apply(keyToLink: String, keysToLinkText: Seq[String], isSso: Boolean) = {
+    new ManageTaxesLink(keyToLink, keysToLinkText, isSso)
+  }
 }

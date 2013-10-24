@@ -62,22 +62,24 @@ common.link.message.accountSummary.fileAReturn=File a return
 common.message.oops=Oops, something went wrong, we can't display your details.
 
 
-otherservices.managetaxes.link.hmceddes=Duty Deferment Electronic Statements (DDES) Service
-otherservices.managetaxes.link.hmceebtiorg=Electronic Binding Tariff Information (eBTI)
-otherservices.managetaxes.link.hmrcemcsorg=Excise Movement and Control System (EMCS)
-otherservices.managetaxes.link.hmrcicsorg=Import Control System (ICS)
-otherservices.managetaxes.link.hmrcmgdorg=Machine Games Duty
-otherservices.managetaxes.link.hmcenctsorg=New Computerised Transit System (NCTS)
-otherservices.managetaxes.link.hmcenes=New Exprot System (NES)
-otherservices.managetaxes.link.hmrcnovaorg=Notification of Vehicle Arrivals (NOVA)
-otherservices.managetaxes.link.hmcero1=Rebated Oils Enquiry Service
-otherservices.managetaxes.link.hmcero2=Rebated Oils Returns Internet Upload Service
-otherservices.managetaxes.link.hmcero3=Registered Dealers in Controlled Oils (RDCO)
-otherservices.managetaxes.link.hmrcecwind=Shared Workspace
-otherservices.managetaxes.link.hmceto=Tied Oil Enquiry Service
-otherservices.managetaxes.link.hmceecslorg=VAT EC Sales List (ECSL) Service
-otherservices.managetaxes.link.hmrceureforg=VAT EC Sales List (ECSL) Service
-otherservices.managetaxes.link.hmrcvatrslorg=VAT Reverse Charge Sales List (RCSL)
+otherservices.manageTaxes.postLink.additionalLoginRequired=- you will be required to enter your separate log-in details to access this service
+
+otherservices.manageTaxes.link.hmceddes=Duty Deferment Electronic Statements (DDES) Service
+otherservices.manageTaxes.link.hmceebtiorg=Electronic Binding Tariff Information (eBTI)
+otherservices.manageTaxes.link.hmrcemcsorg=Excise Movement and Control System (EMCS)
+otherservices.manageTaxes.link.hmrcicsorg=Import Control System (ICS)
+otherservices.manageTaxes.link.hmrcmgdorg=Machine Games Duty
+otherservices.manageTaxes.link.hmcenctsorg=New Computerised Transit System (NCTS)
+otherservices.manageTaxes.link.hmcenes=New Exprot System (NES)
+otherservices.manageTaxes.link.hmrcnovaorg=Notification of Vehicle Arrivals (NOVA)
+otherservices.manageTaxes.link.hmcero1=Rebated Oils Enquiry Service
+otherservices.manageTaxes.link.hmcero2=Rebated Oils Returns Internet Upload Service
+otherservices.manageTaxes.link.hmcero3=Registered Dealers in Controlled Oils (RDCO)
+otherservices.manageTaxes.link.hmrcecwind=Shared Workspace
+otherservices.manageTaxes.link.hmceto=Tied Oil Enquiry Service
+otherservices.manageTaxes.link.hmceecslorg=VAT EC Sales List (ECSL) Service
+otherservices.manageTaxes.link.hmrceureforg=VAT EC Sales List (ECSL) Service
+otherservices.manageTaxes.link.hmrcvatrslorg=VAT Reverse Charge Sales List (RCSL)
 
 
 

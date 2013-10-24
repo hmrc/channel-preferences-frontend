@@ -6,7 +6,23 @@ import org.joda.time.LocalDate
 import controllers.common.domain.accountSummaryDateFormatter
 
 
-case class LinkMessage(href: String, text: String, id: Option[String] = None)
+
+case class LinkMessage(href: String, text: String, id: Option[String] = None,
+                       newWindow: Boolean = false, postLinkText: Option[String] = None)
+
+object LinkMessage {
+
+  def externalLink(hrefKey: String, text: String, id: Option[String] = None, postLinkText: Option[String]) =
+    LinkMessage(getPath(hrefKey), text, id, newWindow = true, postLinkText = postLinkText)
+
+  private def getPath(pathKey: String): String = {
+    import play.api.Play
+    import play.api.Play.current
+    lazy val env = Play.mode
+    s"${Play.configuration.getString(s"govuk-tax.$env.externalLinks.$pathKey").getOrElse("")}"
+  }
+}
+
 case class MoneyPounds(value: BigDecimal, decimalPlaces: Int = 2, roundUp : Boolean = false)  {
 
   def isNegative = value < 0

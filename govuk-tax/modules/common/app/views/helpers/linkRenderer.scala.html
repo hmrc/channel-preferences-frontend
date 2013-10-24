@@ -4,11 +4,29 @@
 @import views.html.helper._
 @import views.helpers._
 
-@link.id match {
-    case Some(e) => {
-        <A href="@link.href" id="@link.id">@Messages(link.text)</A>
+@link match {
+    case link if (link.id.isDefined && link.postLinkText.isDefined && link.newWindow) => {
+        <A href="@link.href" id="@link.id.get" target="_blank">@Messages(link.text)</A> @Messages(link.postLinkText.get)
     }
-    case None => {
-        <A href="@link.href" >@Messages(link.text)</A>
+    case link if (link.id.isDefined && link.postLinkText.isDefined) => {
+        <A href="@link.href" id="@link.id.get">@Messages(link.text)</A> @Messages(link.postLinkText.get)
+    }
+    case link if (link.id.isDefined && link.newWindow) => {
+        <A href="@link.href" id="@link.id.get" target="_blank">@Messages(link.text)</A>
+    }
+    case link if (link.id.isDefined) => {
+        <A href="@link.href" id="@link.id.get">@Messages(link.text)</A>
+    }
+    case link if (link.newWindow && link.postLinkText.isDefined) => {
+        <A href="@link.href" target="_blank">@Messages(link.text)</A> @Messages(link.postLinkText.get)
+    }
+    case link if (link.postLinkText.isDefined) => {
+        <A href="@link.href">@Messages(link.text)</A> @Messages(link.postLinkText.get)
+    }
+    case link if (link.newWindow) => {
+        <A href="@link.href" target="_blank">@Messages(link.text)</A>
+    }
+    case link => {
+        <A href="@link.href">@Messages(link.text)</A>
     }
 }
