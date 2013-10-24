@@ -35,7 +35,7 @@ class GovernmentGatewayMicroService extends MicroService {
   }
 
   def profile(userId: String) = {
-    val response = httpGet[JsonProfileResponse](s"/profile/$userId")
+    val response = httpGet[JsonProfileResponse](s"/profile$userId")
     response match {
       case Some(profile) => Some(ProfileResponse(profile))
       case _ => None
