@@ -28,8 +28,12 @@
 
         <td id="benefit-description">
         @if(displayBenefit.car.isDefined) {
-            Engine size: @engineSizeFor(displayBenefit.car.get.engineSize)<br>
-            Fuel type: @fuelTypeFor(displayBenefit.car.get.fuelType)<br>
+            @if(displayBenefit.car.get.engineSize.isDefined) {
+                Engine size: @Messages(s"paye.add_car_benefit.engine_capacity.${displayBenefit.car.get.engineSize.get}")<br>
+            }
+            @if(displayBenefit.car.get.fuelType.isDefined) {
+                Fuel type: @Messages(s"paye.add_car_benefit.fuel_type.${displayBenefit.car.get.fuelType.get}")<br>
+            }
             @if(displayBenefit.car.get.dateCarRegistered.isDefined){Date car registered: @formatDate(displayBenefit.car.get.dateCarRegistered.get)<br>}
         } else {
             @iabdTypeFor(displayBenefit.benefit.benefitType)

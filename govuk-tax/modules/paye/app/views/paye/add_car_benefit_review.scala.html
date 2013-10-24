@@ -38,7 +38,7 @@
             </tbody>
         </table>
 
-        <a href="#">This information is wrong</a>
+        <a id="edit-data" href="./add">This information is wrong</a>
         @if(data.carFuelBenefitValue.isDefined){
             <p>Based on the information your company car benefit value is @pounds(data.carBenefitValue.get.taxableValue) and your private fuel benefit value is @pounds(data.carFuelBenefitValue.get.taxableValue).</p>
             <p>In order to calculate the actual tax you will pay on these benefits, we need to add them to your other income and tax information, and recalculate your tax code.</p>

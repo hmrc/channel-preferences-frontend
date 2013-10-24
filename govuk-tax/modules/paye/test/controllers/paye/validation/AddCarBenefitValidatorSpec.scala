@@ -311,6 +311,11 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, fuelType, "Fuel type cannot be electric or zero emissions if your car was first registered with the DVLA before 1998.")
     }
 
+    "accept fuel type is electricity if registered the first of january 98" in new WithApplication(FakeApplication()) {
+      val form = dummyForm(getValues(carRegistrationDateVal = Some(new LocalDate(1998, 1, 1)), fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> "true", fuelType -> "electricity"))
+      form.errors(fuelType).size shouldBe 0
+    }
+
     "reject co2 figure value if fuel type is electricity and co2 figure is not blank" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", co2Figure -> "123"))
       form.hasErrors shouldBe true

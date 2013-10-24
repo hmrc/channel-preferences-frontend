@@ -122,16 +122,3 @@ IABDTYPE|121|Starting Rate Adjustment (LRA)
 IABDTYPE|122|Starting Rate Band Adjustment (ELR)
 IABDTYPE|123|Employment and Support Allowance
 IABDTYPE|124|Child Benefit
-ENGNSIZE|1|0-1400 cc
-ENGNSIZE|2|1401 - 2000 cc
-ENGNSIZE|3|2000+ cc
-FUELTYPE|1|None
-FUELTYPE|2|Bi-Fuel
-FUELTYPE|3|Combination
-FUELTYPE|4|Diesel
-FUELTYPE|5|Electric
-FUELTYPE|6|Hybrid Electric
-FUELTYPE|7|Low Emission Diesel
-FUELTYPE|8|Petrol
-FUELTYPE|9|E85 Bio-Ethanol
-FUELTYPE|10|All Other

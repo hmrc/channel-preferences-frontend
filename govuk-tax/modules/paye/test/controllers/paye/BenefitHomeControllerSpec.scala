@@ -61,8 +61,8 @@ class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with Cook
       requestBenefitsAction(johnDensmore) should include("Medical Insurance")
       requestBenefitsAction(johnDensmore) should include("Car Benefit")
       requestBenefitsAction(johnDensmore) should include("899/1212121")
-      requestBenefitsAction(johnDensmore) should include("Engine size: 0-1400 cc")
-      requestBenefitsAction(johnDensmore) should include("Fuel type: Bi-Fuel")
+      requestBenefitsAction(johnDensmore) should include("Engine size: 1,400cc or less")
+      requestBenefitsAction(johnDensmore) should include("Fuel type: Diesel")
       requestBenefitsAction(johnDensmore) should include("Date car registered: 12 December 2012")
       requestBenefitsAction(johnDensmore) should include("&pound;321")
     }

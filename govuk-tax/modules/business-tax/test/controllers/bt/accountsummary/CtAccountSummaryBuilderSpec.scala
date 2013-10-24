@@ -48,7 +48,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummary.regimeName shouldBe ctRegimeNameMessage
       accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage, Seq("12347")), Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC))))
       accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage(ctAccountDetailsPortalUrl, viewAccountDetailsLinkMessage),
-        LinkMessage("/makeAPaymentLanding", makeAPaymentLinkMessage),
+        LinkMessage("/ct/makeAPayment", makeAPaymentLinkMessage),
         LinkMessage(ctFileAReturnPortalUrl, fileAReturnLinkMessage))
       accountSummary.status shouldBe success
 

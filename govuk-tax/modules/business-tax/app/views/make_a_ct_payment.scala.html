@@ -1,0 +1,123 @@
+@(ctOnlineAccountHref: String, ctDirectDebitsHref: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "Make a CT payment", nav = true, user= Some(user)) {
+
+<h1>Pay your Corporation Tax</h1>
+
+<div id="paymentOptionsSection">
+    <p>Pay Corporation Tax by Direct Debit, online with a debit or credit card or through your bank.</p>
+    <p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on <a id="timeHref" target="_blank" href="https://www.gov.uk/prepare-file-annual-accounts-forlimitedcompany">time</a> -
+       you may be charged interest if you don't
+    </p>
+</div>
+
+<div id="ctPaymentRefNumberSection">
+    <h2>Your Corporation Tax payment reference number</h2>
+    <p>You must use the 17-character Corporation Tax payment reference number specific to the period you're paying. Your payment will be delayed if you don't.</p>
+    <p>
+        You can find the payment reference number
+        <ul>
+        <li>on your payslip</li>
+        <li>through your company's <a id="ctOnlineAccountHref" href="@ctOnlineAccountHref">HMRC online account</a></li>
+        </ul>
+    </p>
+</div>
+
+<div id="directDebitSection">
+    <h2>Direct Debit</h2>
+    <p>Set up a Direct Debit through your company's <a id="ctDirectDebitsHref" href="@ctDirectDebitsHref">HMRC online account</a>.</p>
+    <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it's 3 working days.</p>
+    <p>Payments will appear on your bank statements as "HMRC NDDS". You can make changes to the Direct Debit through your company's HMRC online account.</p>
+</div>
+
+<div id="cardSection">
+    <h2>Online with a debit or credit card</h2>
+    <p>You can <a id="payOnlineHref" target="_blank" href="https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp">pay online</a>. You must have your Corporation Tax payment reference number.</p>
+    <p>Allow 3 working days for payments to reach HMRC.</p>
+    <p>You must use a card issued by a UK card issuer - not American Express or Diners Club.</p>
+</div>
+
+<div id="othersSection">
+    <h2>Online or telephone banking, Bacs, CHAPS or standing order</h2>
+    <div class="application-notice help-notice">
+        <p>Check your bank’s transaction limits and processing times.</p>
+    </div>
+    <p>The back of your payslip tells you which HMRC account to use. If you're not sure, use Cumbernauld. You must use your Corporation Tax payment reference number</p>
+    <p>If you want to pay by CHAPS, you can fill in an instruction to your bank online. CHAPS payments usually reach HMRC the same day if your bank sends them between 9am and 3pm.</p>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th>Account name</th>
+                <th>Sort code</th>
+                <th>Account number</th>
+                <th>CHAPS instruction</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>HMRC Cumbernauld</td>
+                <td>083210</td>
+                <td>12001039</td>
+                <td>
+                    <a id="chapsFormCumbernauldHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/cotaxCumbernauld.htm">CHAPS form - Cumbernauld</a>
+                </td>
+            </tr>
+            <tr>
+                <td>HMRC Shipley</td>
+                <td>083210</td>
+                <td>12001020</td>
+                <td>
+                    <a id="chapsFormChipleyHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/cotaxShipley.htm">CHAPS form - Shipley</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Overseas accounts</h3>
+    <p>If you're paying from an overseas account use the details as below.</p>
+
+
+    <p>If asked for the IBAN, you must also give the BIC.</p>
+    <p>HMRC’s banking address is Citi, Citigroup Centre, Canada Square, Canary Wharf, London E14 5LB.</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Account name</th>
+            <th>IBAN</th>
+            <th>BIC</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>HMRC Cumbernauld</td>
+            <td>GB74CITI08321012001039</td>
+            <td>CITIGB2L</td>
+        </tr>
+        <tr>
+            <td>HMRC Shipley</td>
+            <td>GB05CITI08321012001020</td>
+            <td>CITIGB2L</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p>If asked for the IBAN, you must also give the BIC.</p>
+    <p>HMRC's banking address is Citi, Citigroup Centre, Canada Square, Canary Wharf, London E14 5LB.</p>
+
+    <h2>Multiple CHAPS payments</h2>
+    <p>To make a single payment for multiple Corporation Tax references, contact either the <a id="cumbernauldHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/cumbernauld.htm">Cumbernauld</a> or <a id="shipleyHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/shipley.htm">Shipley</a> accounts office. </p>
+</div>
+
+<div id="nothingToPaySection">
+    <h2>Nothing to pay</h2>
+    <p>You must tell HMRC if you have <a id="nothingToPayHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/ct-nil.htm">nothing to pay</a>. You will need your Corporation Tax payment reference number.</p>
+</div>
+
+<div id="moreThanOneCompanySection">
+    <h2>Payments for more than 1 company</h2>
+    <p>If companies in a group pay under a <a id="groupPaymentsHref" target="_blank" href="http://www.hmrc.gov.uk/ct/managing/pay-repay/group-pay.htm">Group Payment Arrangement<> HMRC will write telling you the correct payment reference.</p>
+</div>
+}

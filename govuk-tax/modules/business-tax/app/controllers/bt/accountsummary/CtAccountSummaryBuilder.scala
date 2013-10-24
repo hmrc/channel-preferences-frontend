@@ -56,7 +56,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
                                         ctRoot: CtRoot,
                                         accountValue: BigDecimal,
                                         dateOfBalance: String): AccountSummary = {
-    val makeAPaymentUri = routes.BusinessTaxController.makeAPaymentLanding().url
+    val makeAPaymentUri = routes.CtController.makeAPayment().url
 
     val links = Seq[RenderableMessage](
       LinkMessage(buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),

@@ -1,10 +1,22 @@
 package uk.gov.hmrc.common.microservice.ct.domain
 
-import uk.gov.hmrc.common.microservice.domain.RegimeRoot
+import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import controllers.common.FrontEndRedirect
 
 object CtDomain {
+
+  object CtRegime extends TaxRegime {
+    override def isAuthorised(regimes: Regimes) = {
+      regimes.ct.isDefined
+    }
+
+    override def unauthorisedLandingPage: String = {
+      FrontEndRedirect.businessTaxHome
+    }
+  }
 
   object CtRoot {
     def apply(utr: CtUtr, root: CtJsonRoot): CtRoot = new CtRoot(utr, root.links)
