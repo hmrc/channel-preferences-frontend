@@ -17,7 +17,7 @@ import org.scalatest.concurrent.ScalaFutures
 
 class AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {
 
-  def test() = WithRequestAuditing {
+  def test() = WithRequestAuditing(None) {
     Action {
       request =>
         Ok("")

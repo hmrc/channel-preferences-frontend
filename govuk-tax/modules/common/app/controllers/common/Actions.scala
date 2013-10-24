@@ -64,7 +64,8 @@ trait Actions
       WithHeaders {
         WithRequestLogging {
           WithSessionTimeoutValidation {
-            WithRequestAuditing {
+            // FIXME - Code should be copied from ActionWrappers
+            WithRequestAuditing(None) {
               Action {
                 request =>
                   val encryptedUserId = request.session.get("userId")
@@ -90,7 +91,8 @@ trait Actions
       WithHeaders {
         WithRequestLogging {
           WithSessionTimeoutValidation {
-            WithRequestAuditing {
+            // FIXME - Code should be copied from ActionWrappers
+            WithRequestAuditing(None) {
               Action {
                 request =>
                   val encryptedUserId = request.session.get("userId")
@@ -115,7 +117,8 @@ trait Actions
     def apply[A <: TaxRegime](action: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
-          WithRequestAuditing {
+          // FIXME - Code should be copied from ActionWrappers
+          WithRequestAuditing(None) {
             Action {
               request =>
                 action(request)

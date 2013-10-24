@@ -45,7 +45,7 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
 
   lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
 
-  def apply(action: Action[AnyContent]) = Action.async {
+  def apply(user: Option[User])(action: Action[AnyContent]) = Action.async {
     request =>
       if (traceRequests) {
         val context = fromMDC
