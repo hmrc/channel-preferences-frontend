@@ -9,10 +9,6 @@ import com.google.common.net.HttpHeaders
 import play.api.Logger
 import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper}
 import controllers.common.FrontEndRedirect._
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -33,7 +29,8 @@ trait Actions
   with HeaderActionWrapper
   with AuditActionWrapper
   with SessionTimeoutWrapper
-  with LoggingActionWrapper {
+  with LoggingActionWrapper 
+  with ServiceRoots {
 
   def act(userId: String, token: Option[String],
           request: Request[AnyContent],
@@ -52,7 +49,7 @@ trait Actions
             val user = User(
               userId = userId,
               userAuthority = ua,
-              regimes = getRegimeRootsObject(ua),
+              regimes = regimeRoots(ua),
               nameFromGovernmentGateway = decrypt(request.session.get("name")),
               decryptedToken = token)
 
@@ -134,7 +131,17 @@ trait Actions
       }
   }
 
-  private[common] def getRegimeRootsObject(authority: UserAuthority): RegimeRoots = {
+}
+
+trait ServiceRoots {
+
+  import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
+  import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
+  import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+  import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
+  import MicroServices._
+  
+  def regimeRoots(authority: UserAuthority): RegimeRoots = {
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map {
