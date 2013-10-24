@@ -9,7 +9,7 @@
 	@if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
 	    @user.get.displayName, you last accessed your account on @formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, "")
         } else {
-	    First ever login
+	    @Messages("common.firstlogin", user.get.displayName.get)
 	}
     </p>
 
