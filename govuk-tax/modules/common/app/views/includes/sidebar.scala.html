@@ -5,10 +5,10 @@
 <div class="service-info">
     <p class="service-info__organisation-logo">HM Revenue<br />&amp; Customs</p>
 
-    <p>
+    <p id="lastlogin">
 	@if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
-	    @user.get.displayName, you last accessed your account on @formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, "")
-        } else {
+	    @Messages("common.previousLoginTime", user.get.displayName.get, formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, ""))
+    } else {
 	    @Messages("common.firstlogin", user.get.displayName.get)
 	}
     </p>

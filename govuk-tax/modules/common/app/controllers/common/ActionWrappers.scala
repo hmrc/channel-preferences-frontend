@@ -9,10 +9,6 @@ import com.google.common.net.HttpHeaders
 import play.api.Logger
 import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper}
 import controllers.common.FrontEndRedirect._
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -23,20 +19,23 @@ trait HeaderNames {
 
 object HeaderNames extends HeaderNames
 
-trait ActionWrappers
-  extends MicroServices
-  with Results
+@deprecated("please use Actions", "24.10.13")
+trait ActionWrappers extends Actions with MicroServices
+
+
+trait Actions
+  extends Results
   with CookieEncryption
   with HeaderActionWrapper
   with AuditActionWrapper
   with SessionTimeoutWrapper
-  with LoggingActionWrapper {
+  with LoggingActionWrapper 
+  with ServiceRoots {
 
-  private[ActionWrappers] def act(userId: String,
-                                  token: Option[String],
-                                  request: Request[AnyContent],
-                                  taxRegime: Option[TaxRegime],
-                                  action: (User) => (Request[AnyContent]) => SimpleResult): SimpleResult = {
+  def act(userId: String, token: Option[String],
+          request: Request[AnyContent],
+          taxRegime: Option[TaxRegime],
+          action: (User) => (Request[AnyContent]) => SimpleResult): SimpleResult = {
     val userAuthority = authMicroService.authority(userId)
     Logger.debug(s"Received user authority: $userAuthority")
 
@@ -50,7 +49,7 @@ trait ActionWrappers
             val user = User(
               userId = userId,
               userAuthority = ua,
-              regimes = getRegimeRootsObject(ua),
+              regimes = regimeRoots(ua),
               nameFromGovernmentGateway = decrypt(request.session.get("name")),
               decryptedToken = token)
 
@@ -132,7 +131,17 @@ trait ActionWrappers
       }
   }
 
-  private[common] def getRegimeRootsObject(authority: UserAuthority): RegimeRoots = {
+}
+
+trait ServiceRoots {
+
+  import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
+  import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
+  import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+  import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
+  import MicroServices._
+  
+  def regimeRoots(authority: UserAuthority): RegimeRoots = {
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map {
