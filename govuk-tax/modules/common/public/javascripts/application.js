@@ -134,7 +134,15 @@ $(document).ready(function() {
       document.getElementsByTagName('head')[0].appendChild($new_styles[0]);
     }
   }());
-
+function toggleDefaultOptions($form, $options, bool) {
+    if(bool) {
+        $options.prop("checked", true).parents('li').addClass('visuallyhidden');
+        $form.find('#co2Figure').val('')
+            .end().find('#co2NoFigure').prop("checked", false);
+    } else {
+        $options.prop("checked", false).parents('li').removeClass('visuallyhidden');
+    }
+}
   // if(window.GOVUK && GOVUK.userSatisfaction){
   //   GOVUK.userSatisfaction.randomlyShowSurveyBar();
   // }
@@ -144,14 +152,18 @@ $(document).ready(function() {
               var $form            = $("#form-add-car-benefit"),
                   $defaultOptions  = $form.find('*[data-default]');
 
-            $form.on('click', '*[data-iselectric]', function() {
-                if ( $(this).attr('id') === 'fuelType-electricity') {
-                    $defaultOptions.prop("checked", true).parents('li').addClass('visuallyhidden');
-                    $form.find('#co2Figure').val('')
-                        .end().find('#co2NoFigure').prop("checked", false);
-                }
-                else {
-                    $defaultOptions.prop("checked", false).parents('li').removeClass('visuallyhidden');
+            /**
+              * if the server side validation returns an error and the user has already selected
+              * an electric car. We need to hide the questions
+             **/
+            if($form.find("#fuelType-electricity").prop("checked")) {
+                toggleDefaultOptions($form, $defaultOptions, true);
+            }
+            $form.on('click', '*[data-iselectric]', function(e) {
+                if ($(this).data("iselectric")) {
+                     toggleDefaultOptions($form, $defaultOptions, true)
+                } else {
+                     toggleDefaultOptions($form, $defaultOptions, false)
                 }
             });
   }
