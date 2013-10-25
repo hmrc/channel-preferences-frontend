@@ -3,6 +3,7 @@ import Keys._
 import play.Project._
 import net.litola.SassPlugin
 import scala._
+import com.gu.SbtJasminePlugin._
 
 object GovUkTaxBuild extends Build {
 
@@ -50,6 +51,7 @@ object GovUkTaxBuild extends Build {
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
+    .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "paye" })
 
   val agent = play.Project(
     appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent"), settings = Common.commonSettings
@@ -99,8 +101,16 @@ object Common {
         "-target:jvm-1.7",
         "-encoding", "UTF-8"
       ),
+
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
       testOptions in Test += Tests.Argument("-u", "target/test-reports")
+    ) ++
+    jasmineSettings ++
+    Seq(
+      appJsDir <+= baseDirectory {dir => dir},
+      appJsLibDir <+= baseDirectory {dir => dir / ".." / "common" / "public" / "javascripts" / "vendor" },
+      jasmineConfFile <+= baseDirectory { src => src / ".." / "common" / "test" / "views" / "test.dependencies.js"},
+      (test in Test) <<= (test in Test) dependsOn (jasmine)
     ) ++ playScalaSettings ++ Repositories.publishingSettings
 }
