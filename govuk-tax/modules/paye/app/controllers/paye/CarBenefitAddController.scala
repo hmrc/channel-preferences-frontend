@@ -40,6 +40,11 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       user => request => reviewAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
+  def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
+    AuthorisedForIdaAction(taxRegime = Some(PayeRegime)) {
+      user => request => confirmAddingBenefitAction(user, request, taxYear, employmentSequenceNumber)
+    }
+
   private def providedFromDefaultValue = startOfCurrentTaxYear
 
   private def providedToDefaultValue = endOfCurrentTaxYear
@@ -99,7 +104,9 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
         val defaultValues = rawForm.fill(rawValuesOf(savedValues)).value.get
         carBenefitForm(defaultValues).fill(savedValues)
       }
-      case None => carBenefitForm(CarBenefitValues())
+      case None => carBenefitForm(CarBenefitValues(
+        providedFromVal = Some(providedFromDefaultValue),
+        providedToVal = Some(providedToDefaultValue)))
     }
   }
 
@@ -119,6 +126,15 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
       employerPayFuel = defaults.employerPayFuel)
 
+
+  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
+    (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
+
+      keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
+
+      Ok(views.html.paye.add_car_benefit_confirmation())
+    }
+  }
 
   private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
@@ -159,7 +175,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
               val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
                 addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                 addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, carFuelBenefitValue)
-              Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri))
+              Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
             }
           )
         }

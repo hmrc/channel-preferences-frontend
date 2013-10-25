@@ -70,43 +70,71 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
     }
 
-    "return 200 and show the add car benefit form with the required fields" in new WithApplication(FakeApplication()) {
+    "return 200 and show the add car benefit form with the required fields and no values filled in" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1))
+      val employmentSequenceNumber = 1
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSequenceNumber))
 
       status(result) shouldBe 200
+
+      verify(mockKeyStoreService).getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm")
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("[id~=providedFrom]").select("[id~=day]") should not be empty
       doc.select("#carUnavailable-true")  should not be empty
+      doc.select("#carUnavailable-true").attr("checked") shouldBe empty
+
       doc.select("#numberOfDaysUnavailable")  should not be empty
+      doc.select("#numberOfDaysUnavailable").attr("value")  shouldBe empty
+
       doc.select("#carUnavailable-false")  should not be empty
       doc.select("#giveBackThisTaxYear-true")  should not be empty
+      doc.select("#giveBackThisTaxYear-true").attr("checked") shouldBe empty
+
       doc.select("#giveBackThisTaxYear-false")  should not be empty
       doc.select("[id~=providedTo]").select("[id~=day]") should not be empty
       doc.select("#listPrice")  should not be empty
+      doc.select("#listPrice").attr("value")  shouldBe empty
+
       doc.select("#employeeContributes-false")  should not be empty
+
       doc.select("#employeeContributes-true")  should not be empty
+      doc.select("#employeeContributes-true").attr("checked") shouldBe empty
+
       doc.select("#employeeContribution")  should not be empty
+      doc.select("#employeeContribution").attr("value")  shouldBe empty
+
       doc.select("#employerContributes-false")  should not be empty
       doc.select("#employerContributes-true")  should not be empty
       doc.select("#employerContribution")  should not be empty
+      doc.select("#employerContribution").attr("value")  shouldBe empty
+
 
       doc.select("[id~=carRegistrationDate]").select("[id~=day]") should not be empty
+      doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe empty
+
       doc.select("#fuelType-diesel")  should not be empty
+      doc.select("#fuelType-diesel").attr("checked") shouldBe empty
+
       doc.select("#fuelType-electricity")  should not be empty
       doc.select("#fuelType-other")  should not be empty
       doc.select("#engineCapacity-none")  should not be empty
       doc.select("#engineCapacity-1400")  should not be empty
+      doc.select("#engineCapacity-1400").attr("checked") shouldBe empty
+
       doc.select("#engineCapacity-2000")  should not be empty
       doc.select("#engineCapacity-9999")  should not be empty
       doc.select("#employerPayFuel-true")  should not be empty
       doc.select("#employerPayFuel-false")  should not be empty
       doc.select("#employerPayFuel-again")  should not be empty
       doc.select("#employerPayFuel-date")  should not be empty
+      doc.select("#employerPayFuel-date").attr("checked") shouldBe empty
+
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=day]") should not be empty
       doc.select("#co2Figure")  should not be empty
       doc.select("#co2NoFigure")  should not be empty
+      doc.select("#co2NoFigure").attr("checked") shouldBe empty
+
     }
 
     "return 200 and show the add car benefit form and show your company if the employer name does not exist " in new WithApplication(FakeApplication()) {
@@ -749,30 +777,34 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#edit-data").attr("href") shouldBe uri
     }
 
-    "allow the user to edit the add car benefit form data"  in new WithApplication(FakeApplication()) {
+    "allow the user to reedit the form and show it with values already filled in" in new WithApplication(FakeApplication()){
+
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
       val employmentSequenceNumber = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = controller.currentTaxYear
       val carBenefitData = new CarBenefitData(providedFrom = Some(new LocalDate(2013, 7, 29)),
-                                              carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-                                              giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = Some(new LocalDate(2013, 8, 30)) , listPrice = Some(1000),
-                                              employeeContributes = Some(true),
-                                              employeeContribution = Some(50),
-                                              employerContributes = Some(true),
-                                              employerContribution = Some(999),
-                                              fuelType = Some("diesel"),
-                                              co2Figure = None,
-                                              co2NoFigure = Some(true),
-                                              engineCapacity = Some("1400"),
-                                              employerPayFuel = Some("date"),
-                                              dateFuelWithdrawn = Some(new LocalDate(2013, 8, 29)))
+        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
+        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = Some(new LocalDate(2013, 8, 30)) , listPrice = Some(1000),
+        employeeContributes = Some(true),
+        employeeContribution = Some(50),
+        employerContributes = Some(true),
+        employerContribution = Some(999),
+        fuelType = Some("diesel"),
+        co2Figure = None,
+        co2NoFigure = Some(true),
+        engineCapacity = Some("1400"),
+        employerPayFuel = Some("date"),
+        dateFuelWithdrawn = Some(new LocalDate(2013, 8, 29)))
 
       when(mockKeyStoreService.getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitData))
 
       val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1))
 
       status(result) shouldBe 200
+
+      verify(mockKeyStoreService).getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm")
+
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
@@ -800,8 +832,50 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=year-2013]").attr("selected") shouldBe "selected"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
+
+    "allow the user to confirm the addition of the car benefit" in  new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty, false)
+
+      val employmentSequenceNumber = 1
+
+      when(mockPayeMicroService.calculateBenefitValue(Matchers.any(), Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(999), Some(444))))
+
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSequenceNumber))
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("form").attr("action") shouldBe s"/car-benefit/$taxYear/$employmentSequenceNumber/add/confirmation"
+
+    }
   }
 
+  "confirm submission of add car benefit" should {
+
+
+    "remove the saved data for the car benefit form values" in new WithApplication(FakeApplication()){
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val employmentSequenceNumber = 1
+      val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSequenceNumber))
+      status(result) shouldBe 200
+
+      verify(mockKeyStoreService).deleteKeyStore(s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye")
+    }
+
+    "show to the user a confimration page"  in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+
+      val employmentSequenceNumber = 1
+      val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSequenceNumber))
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.title should include("Confirmation")
+
+    }
+  }
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
                                         acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction], setPayeMocks: Boolean = true) {
     when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
