@@ -23,7 +23,7 @@ trait BusinessTaxPageMocks extends MockitoSugar {
 
   trait MockableBusinessTaxPages {
     def makeAPaymentLandingPage(): Html
-    def businessTaxHomepage(portalHref: String, accountSummaries: AccountSummaries): Html
+    def businessTaxHomepage(accountSummaries: AccountSummaries): Html
   }
 
   trait MockedBusinessTaxPages {
@@ -32,8 +32,8 @@ trait BusinessTaxPageMocks extends MockitoSugar {
     override private[bt] def makeAPaymentLandingPage()(implicit user: User) =
       mockBusinessTaxPages.makeAPaymentLandingPage()
 
-    override private[bt] def businessTaxHomepage(portalHref: String, accountSummaries: AccountSummaries)(implicit user: User) =
-      mockBusinessTaxPages.businessTaxHomepage(portalHref, accountSummaries)
+    override private[bt] def businessTaxHomepage(accountSummaries: AccountSummaries)(implicit user: User) =
+      mockBusinessTaxPages.businessTaxHomepage(accountSummaries)
   }
 
 }

@@ -33,9 +33,8 @@ class BusinessTaxControllerSpec extends BaseSpec {
       val geoffFisherSummaries = mock[AccountSummaries]
       val expectedHtml = "<html>some html for the Business Tax Homepage</html>"
 
-      when(mockPortalUrlBuilder.buildPortalUrl("home")).thenReturn("homeURL")
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(geoffFisherSummaries)
-      when(mockBusinessTaxPages.businessTaxHomepage("homeURL", geoffFisherSummaries)).thenReturn(Html(expectedHtml))
+      when(mockBusinessTaxPages.businessTaxHomepage(geoffFisherSummaries)).thenReturn(Html(expectedHtml))
 
       val result = controllerUnderTest.home(request)
 

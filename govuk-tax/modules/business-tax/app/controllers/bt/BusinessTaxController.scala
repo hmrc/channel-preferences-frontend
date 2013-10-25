@@ -14,10 +14,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
     implicit user =>
       implicit request =>
         Ok(
-          businessTaxHomepage(
-            portalHref = buildPortalUrl("home"),
-            accountSummaries = accountSummaryFactory.create(buildPortalUrl)
-          )
+          businessTaxHomepage(accountSummaries = accountSummaryFactory.create(buildPortalUrl))
         )
   }
 
@@ -30,8 +27,8 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
    private[bt] def makeAPaymentLandingPage()(implicit user: User) =
     views.html.make_a_payment_landing()
 
-  private[bt] def businessTaxHomepage(portalHref: String, accountSummaries: AccountSummaries)(implicit user: User) =
-    views.html.business_tax_home(portalHref = portalHref, accountSummaries = accountSummaries)
+  private[bt] def businessTaxHomepage(accountSummaries: AccountSummaries)(implicit user: User) =
+    views.html.business_tax_home(accountSummaries)
 
 
   def this() = this(new AccountSummariesFactory())
