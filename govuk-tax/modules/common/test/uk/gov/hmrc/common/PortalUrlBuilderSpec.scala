@@ -13,11 +13,11 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar with CookieEncrypt
 
   val portalUrlBuilder = new PortalUrlBuilder {}
   
-  val mockConfigValues = Map("govuk-tax.Test.portal.destinationPath.someDestinationPathKey" -> "/utr/<utr>/year/<year>",
-    "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "/utr/<utr>/affinitygroup/<affinitygroup>/year/<year>",
-    "govuk-tax.Test.portal.destinationPath.testVatAccountDetails" -> "/vat/trader/<vrn>/account",
-    "govuk-tax.Test.portal.destinationPath.testCtAccountDetails" -> "/corporation-tax/org/<ctutr>/account",
-    "govuk-tax.Test.portal.destinationRoot" -> "http://someserver:8080",
+  val mockConfigValues = Map("govuk-tax.Test.portal.destinationPath.someDestinationPathKey" -> "http://someserver:8080/utr/<utr>/year/<year>",
+    "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "http://someserver:8080/utr/<utr>/affinitygroup/<affinitygroup>/year/<year>",
+    "govuk-tax.Test.portal.destinationPath.testVatAccountDetails" -> "http://someserver:8080/vat/trader/<vrn>/account",
+    "govuk-tax.Test.portal.destinationPath.testCtAccountDetails" -> "http://someserver:8080/corporation-tax/org/<ctutr>/account",
+    "govuk-tax.Test.portal.destinationRoot" -> "http://someOtherserver:8080",
     "cookie.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ=="
   )
   
