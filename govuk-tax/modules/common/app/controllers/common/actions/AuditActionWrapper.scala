@@ -9,6 +9,7 @@ import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
 import concurrent.ExecutionContext
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
+import util.{Failure, Success}
 
 trait AuditActionWrapper extends MicroServices with HeaderNames {
   object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
@@ -22,42 +23,41 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
 
   def apply(user: Option[User])(action: Action[AnyContent]) = Action.async {
     request =>
-      if (traceRequests) {
+      if (traceRequests && auditMicroService.enabled) {
         val context = fromMDC
-        auditEvent(user, request, "Request", context ++ Map("path" -> request.path), context.get(forwardedFor))
-        action(request).map(result => {
-          auditEvent(user, request, "Response", context ++ Map("statusCode" -> result.header.status.toString), context.get(forwardedFor))
-          result
+        val eventCreator = auditEvent(user, request, context) _
+
+        auditMicroService.audit(eventCreator("Request", Map("path" -> request.path)))
+
+        action(request).andThen({
+          case Success(result) => auditMicroService.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString)))
+          case Failure(exception) => // FIXME!!!
         })
       } else {
         action(request)
       }
   }
 
-  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], auditType: String, extraTags: Map[String, String], ipAddress: Option[String]) {
+  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], mdcContext: Map[String, String])(auditType: String, extraTags: Map[String, String]) = {
+    val tags = new collection.mutable.HashMap[String, String]
 
-   if (auditMicroService.enabled) {
-        val tags = new collection.mutable.HashMap[String, String]
+    userLoggedIn foreach { user =>
+      tags.put("authId", user.userAuthority.id)
+      user.userAuthority.nino.foreach(nino => tags.put("nino", nino.toString))
+      user.userAuthority.ctUtr.foreach(utr => tags.put("ctUtr", utr.toString))
+      user.userAuthority.saUtr.foreach(utr => tags.put("saUtr", utr.toString))
+      user.userAuthority.vrn.foreach(vrn => tags.put("vatNo", vrn.toString))
+      user.userAuthority.governmentGatewayCredential.foreach(ggwid => tags.put("governmentGatewayId", ggwid.credentialId))
+      user.userAuthority.idaCredential.foreach(ida => tags.put("idaPid", ida.pids.mkString("[", ",", "]")))
+    }
 
-        userLoggedIn foreach {
-              user =>
-                tags.put("authId", user.userAuthority.id)
-                user.userAuthority.nino.foreach(nino => tags.put("nino", nino.toString))
-                user.userAuthority.ctUtr.foreach(utr => tags.put("ctUtr", utr.toString))
-                user.userAuthority.saUtr.foreach(utr => tags.put("saUtr", utr.toString))
-                user.userAuthority.vrn.foreach(vrn => tags.put("vatNo", vrn.toString))
-                user.userAuthority.governmentGatewayCredential.foreach(ggwid => tags.put("governmentGatewayId", ggwid.credentialId))
-                user.userAuthority.idaCredential.foreach(ida => tags.put("idaPid", ida.pids.mkString("[", ",", "]")))
-           }
+    val details = new collection.mutable.HashMap[String, String]
+    details.put("ipAddress", mdcContext.get(forwardedFor).getOrElse("-"))
+    details.put("url", request.uri)
+    details.put("method", request.method.toUpperCase)
+    details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
+    details.put("referrer", request.headers.get("Referer").getOrElse("-"))
 
-        val details = new collection.mutable.HashMap[String, String]
-        details.put("ipAddress", ipAddress.getOrElse("-"))
-        details.put("url", request.uri)
-        details.put("method", request.method.toUpperCase)
-        details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
-        details.put("referrer", request.headers.get("Referer").getOrElse("-"))
-
-        auditMicroService.audit(AuditEvent("frontend", auditType, tags.toMap ++ extraTags, details.toMap))
-      }
-   }
+    AuditEvent("frontend", auditType, tags.toMap ++ mdcContext ++ extraTags, details.toMap)
+  }
 }
