@@ -6,6 +6,8 @@ trait MdcHelper {
 
   def fromMDC(): Map[String, String] = {
     import collection.JavaConversions._
-    MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
+    Option(MDC.getCopyOfContextMap)
+      .map(_.toMap.asInstanceOf[Map[String, String]])
+      .getOrElse(Map[String, String]())
   }
 }

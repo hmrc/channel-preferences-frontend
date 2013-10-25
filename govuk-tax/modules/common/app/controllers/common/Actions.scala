@@ -47,7 +47,7 @@ trait Actions
               nameFromGovernmentGateway = decrypt(request.session.get("name")),
               decryptedToken = token)
 
-            auditRequest(user, request)
+//            auditRequest(user, request)
             action(user)(request)
         }
       }
