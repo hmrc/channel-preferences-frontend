@@ -544,6 +544,17 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
     }
 
+    "store the values the user has entered" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
+      status(result) shouldBe 200
+
+      val expectedStoredData = CarBenefitDataBuilder(engineCapacity = Some("2000"))
+
+      verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", expectedStoredData)
+    }
+
 
     def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],
                                 carUnavailableVal:  Option[String],
@@ -646,7 +657,6 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     def assertSuccess(result: Future[SimpleResult], collectedData: CarBenefitData)  {
       status(result) shouldBe 200
-      verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", collectedData)
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation",
                           NewBenefitCalculationData(isRegisteredBeforeCutoff(collectedData.carRegistrationDate), collectedData.fuelType.get, None,
                           Some(defaultEngineCapacity), collectedData.employeeContribution, collectedData.listPrice.get,
@@ -739,7 +749,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#edit-data").attr("href") shouldBe uri
     }
 
-    "should allow the user to edit the add car benefit form data"  in new WithApplication(FakeApplication()) {
+    "allow the user to edit the add car benefit form data"  in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
       val employmentSequenceNumber = johnDensmoresEmployments(0).sequenceNumber
@@ -789,10 +799,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=month-8]").attr("selected") shouldBe "selected"
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=year-2013]").attr("selected") shouldBe "selected"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
-
     }
   }
-
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
                                         acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction], setPayeMocks: Boolean = true) {
