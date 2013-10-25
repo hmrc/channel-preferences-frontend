@@ -18,20 +18,20 @@ object AddCarBenefitValidator extends Validators {
   private val employerPayeFuelDateOption = "date"
   private val employerPayFuelOptions = Seq("false", "true", employerPayeFuelDateOption, "again")
 
-  private[paye] case class CarBenefitValues(providedFromVal : Option[LocalDate],
-                                     carUnavailableVal:  Option[String],
-                                     numberOfDaysUnavailableVal:  Option[String],
-                                     giveBackThisTaxYearVal:  Option[String],
-                                     providedToVal: Option[LocalDate],
-                                     carRegistrationDate: Option[LocalDate],
-                                     employeeContributes: Option[String],
-                                     employerContributes: Option[String],
-                                     fuelType: Option[String],
-                                     co2Figure: Option[String],
-                                     co2NoFigure:Option[String],
-                                     employerPayFuel:Option[String])
+  private[paye] case class CarBenefitValues(providedFromVal : Option[LocalDate] = None,
+                                     carUnavailableVal:  Option[String] = None,
+                                     numberOfDaysUnavailableVal:  Option[String] = None,
+                                     giveBackThisTaxYearVal:  Option[String] = None,
+                                     providedToVal: Option[LocalDate] = None,
+                                     carRegistrationDate: Option[LocalDate] = None,
+                                     employeeContributes: Option[String] = None,
+                                     employerContributes: Option[String] = None,
+                                     fuelType: Option[String] = None,
+                                     co2Figure: Option[String] = None,
+                                     co2NoFigure:Option[String] = None,
+                                     employerPayFuel:Option[String] = None)
 
-  private[paye] def datesForm(providedFromDefaultValue: LocalDate, providedToDefaultValue: LocalDate) = Form[CarBenefitValues](
+  private[paye] def validationlessForm(providedFromDefaultValue: LocalDate, providedToDefaultValue: LocalDate) = Form[CarBenefitValues](
     mapping(
       providedFrom -> dateTuple(false, Some(providedFromDefaultValue)),
       carUnavailable -> optional(text),

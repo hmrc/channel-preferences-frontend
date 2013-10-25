@@ -52,7 +52,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
   }
 
   private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
-    datesForm(providedFromDefaultValue, providedToDefaultValue).bindFromRequest()(request).value.get
+    validationlessForm(providedFromDefaultValue, providedToDefaultValue).bindFromRequest()(request).value.get
   }
 
   private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
@@ -79,10 +79,10 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
 
   private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
-      val dates = getCarBenefitDates(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
-          Ok(views.html.paye.add_car_benefit_form(carBenefitForm(dates), employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
+          val benefitFormWithSavedValues = lookupValuesFromKeystoreAndBuildForm(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber")
+          Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
         }
         case None => {
           Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number ${employmentSequenceNumber}")
@@ -91,6 +91,34 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       }
     }
   }
+
+  private def lookupValuesFromKeystoreAndBuildForm(keyStoreId:String) = {
+    savedValuesFromKeyStore(keyStoreId) match {
+      case Some(savedValues) => {
+        val rawForm = validationlessForm(providedFromDefaultValue, providedToDefaultValue)
+        val defaultValues = rawForm.fill(rawValuesOf(savedValues)).value.get
+        carBenefitForm(defaultValues).fill(savedValues)
+      }
+      case None => carBenefitForm(CarBenefitValues())
+    }
+  }
+
+  private def savedValuesFromKeyStore(keyStoreId:String) = keyStoreService.getEntry[CarBenefitData](keyStoreId, "paye", "AddCarBenefitForm")
+
+  private[paye] def rawValuesOf(defaults: CarBenefitData) =
+    CarBenefitValues(providedFromVal = defaults.providedFrom,
+      carUnavailableVal = defaults.carUnavailable.map(_.toString),
+      numberOfDaysUnavailableVal = defaults.numberOfDaysUnavailable.map(_.toString),
+      giveBackThisTaxYearVal = defaults.giveBackThisTaxYear.map(_.toString),
+      providedToVal = defaults.providedTo,
+      carRegistrationDate = defaults.carRegistrationDate,
+      employeeContributes = defaults.employeeContributes.map(_.toString),
+      employerContributes = defaults.employeeContributes.map(_.toString),
+      fuelType = defaults.fuelType,
+      co2Figure = defaults.co2Figure.map(_.toString),
+      co2NoFigure = defaults.co2NoFigure.map(_.toString),
+      employerPayFuel = defaults.employerPayFuel)
+
 
   private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
@@ -131,7 +159,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
               val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
                 addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                 addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, carFuelBenefitValue)
-              Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange)(user))
+              Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri))
             }
           )
         }

@@ -60,7 +60,9 @@ class PayeBaseSpec extends BaseSpec {
     )
   }
 
-  val johnDensmore = setupUser("/auth/oid/jdensmore", "AB123456C", "John Densmore")
+  val johnDensmoreOid = "jdensmore"
+
+  val johnDensmore = setupUser(s"/auth/oid/$johnDensmoreOid", "AB123456C", "John Densmore")
 
   val userWithRemovedCar = setupUser("/auth/oid/removedCar", "RC123456B", "User With Removed Car")
 
