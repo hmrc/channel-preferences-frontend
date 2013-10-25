@@ -20,9 +20,9 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory)
       implicit request =>
         Ok(otherServicesPage(
           OtherServicesSummary(
-            otherServicesFactory.createManageYourTaxes,
-            otherServicesFactory.createOnlineServicesEnrolment,
-            otherServicesFactory.createBusinessTaxesRegistration
+            otherServicesFactory.createManageYourTaxes(buildPortalUrl),
+            otherServicesFactory.createOnlineServicesEnrolment(buildPortalUrl),
+            otherServicesFactory.createBusinessTaxesRegistration(buildPortalUrl)
           )
         ))
   }
