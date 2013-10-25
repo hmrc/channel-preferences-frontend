@@ -118,7 +118,11 @@ case class Car(dateCarMadeAvailable: Option[LocalDate],
                fuelType: Option[String],
                co2Emissions: Option[Int],
                engineSize: Option[Int],
-               carValue: Option[BigDecimal])
+               mileageBand: Option[String],
+               carValue: Option[BigDecimal],
+               employeePayments: Option[BigDecimal],
+               daysUnavailable: Option[Int]
+               )
 
 case class RevisedBenefit(benefit: Benefit, revisedAmount: BigDecimal)
 

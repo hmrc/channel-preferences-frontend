@@ -22,7 +22,7 @@ import play.api.test.FakeApplication
 class PayeMicroServiceSpec extends BaseSpec {
 
   val carBenefit = Benefit(31, 2013, 321.42, 2, null, null, null, null, null, null,
-    Some(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some(BigDecimal("12343.21")))),
+    Some(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some("A"), Some(BigDecimal("12343.21")), None, None)),
     actions("AB123456C", 2013, 1), Map("withdraw" -> "someUrl/{withdrawDate}"))
 
   "Remove a benefit" should {
