@@ -6,7 +6,6 @@ import play.api.test.{WithApplication, FakeApplication}
 import views.helpers.LinkMessage
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.Request
-import java.io.File
 
 class ManageTaxesLinkSpec extends BaseSpec {
 
