@@ -8,12 +8,15 @@ import controllers.common.domain.accountSummaryDateFormatter
 
 
 case class LinkMessage(href: String, text: String, id: Option[String] = None,
-                       newWindow: Boolean = false, postLinkText: Option[String] = None)
+                       newWindow: Boolean = false, postLinkText: Option[String] = None, sso: Boolean = false)
 
 object LinkMessage {
 
-  def externalLink(hrefKey: String, text: String, id: Option[String] = None, postLinkText: Option[String]) =
-    LinkMessage(getPath(hrefKey), text, id, newWindow = true, postLinkText = postLinkText)
+  def externalLink(hrefKey: String, text: String, id: Option[String] = None, postLinkText: Option[String] = None) =
+    LinkMessage(getPath(hrefKey), text, id, newWindow = true, postLinkText = postLinkText, sso = false)
+
+  def portalLink(href: String, text: String, id: Option[String] = None, postLinkText: Option[String] = None) =
+    LinkMessage(href, text, id, newWindow = false, postLinkText = postLinkText, sso = true)
 
   private def getPath(pathKey: String): String = {
     import play.api.Play

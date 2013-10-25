@@ -250,20 +250,20 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
           Seq(
             /* hmceddes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceddes", None, true, postLinkText)),
             /* hmceebtiorg */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceebtiorg", None, true, postLinkText)),
-            /* hmceecslorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ecsl", "otherservices.manageTaxes.link.hmceecslorg")),
-            /* hmcenctsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ncts", "otherservices.manageTaxes.link.hmcenctsorg")),
+            /* hmceecslorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ecsl", "otherservices.manageTaxes.link.hmceecslorg", None, false, None, true)),
+            /* hmcenctsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ncts", "otherservices.manageTaxes.link.hmcenctsorg", None, false, None, true)),
             /* hmcenes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcenes", None, true, postLinkText)),
             /* hmcero1 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero1", None, true, postLinkText)),
             /* hmcero2 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero2", None, true, postLinkText)),
             /* hmcero3 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero3", None, true, postLinkText)),
             /* hmceto */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceto", None, true, postLinkText)),
-            /* hmrcecwind */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.er1", "otherservices.manageTaxes.link.hmrcecwind")),
-            /* hmrcemcsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.emcs", "otherservices.manageTaxes.link.hmrcemcsorg")),
-            /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg")),
-            /* hmrcicsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ics", "otherservices.manageTaxes.link.hmrcicsorg")),
-            /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg")),
-            /* hmrcnovaorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.nova", "otherservices.manageTaxes.link.hmrcnovaorg")),
-            /* hmrcvatrslorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.rcsl", "otherservices.manageTaxes.link.hmrcvatrslorg"))
+            /* hmrcecwind */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.er1", "otherservices.manageTaxes.link.hmrcecwind", None, false, None, true)),
+            /* hmrcemcsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.emcs", "otherservices.manageTaxes.link.hmrcemcsorg", None, false, None, true)),
+            /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg", None, false, None, true)),
+            /* hmrcicsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ics", "otherservices.manageTaxes.link.hmrcicsorg", None, false, None, true)),
+            /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg", None, false, None, true)),
+            /* hmrcnovaorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.nova", "otherservices.manageTaxes.link.hmrcnovaorg", None, false, None, true)),
+            /* hmrcvatrslorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.rcsl", "otherservices.manageTaxes.link.hmrcvatrslorg", None, false, None, true))
           )
         )
       )

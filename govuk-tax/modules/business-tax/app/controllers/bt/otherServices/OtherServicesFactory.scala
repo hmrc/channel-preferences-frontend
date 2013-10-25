@@ -94,7 +94,7 @@ class ManageTaxesLink(buildPortalUrl: String => String, keyToLink: String, keysT
 
     keysToLinkText.map(text => {
       if (isSso) {
-        RenderableLinkMessage(LinkMessage(href = buildPortalUrl(keyToLink), text = text))
+        RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl(keyToLink), text))
       } else {
         RenderableLinkMessage(LinkMessage.externalLink(hrefKey = keyToLink, text = text,
           postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")))

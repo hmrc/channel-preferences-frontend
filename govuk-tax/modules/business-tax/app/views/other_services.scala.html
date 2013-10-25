@@ -10,9 +10,11 @@
     @if(otherServicesSummary.manageYourTaxes.get.links.isEmpty) {
         <p>There are no other services associated with this Government Gateway account.</p>
     }else{
+        <p>
         @for(link <- otherServicesSummary.manageYourTaxes.get.links){
-            @link.render
+            @link.render <br>
         }
+        </p>
     }
 </div>
 }

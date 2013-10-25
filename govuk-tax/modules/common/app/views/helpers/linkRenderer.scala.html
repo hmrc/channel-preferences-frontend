@@ -3,30 +3,19 @@
 @import play.api.i18n._
 @import views.html.helper._
 @import views.helpers._
+@import play.api.templates.HtmlFormat
 
-@link match {
-    case link if (link.id.isDefined && link.postLinkText.isDefined && link.newWindow) => {
-        <A href="@link.href" id="@link.id.get" target="_blank">@Messages(link.text)</A> @Messages(link.postLinkText.get)
-    }
-    case link if (link.id.isDefined && link.postLinkText.isDefined) => {
-        <A href="@link.href" id="@link.id.get">@Messages(link.text)</A> @Messages(link.postLinkText.get)
-    }
-    case link if (link.id.isDefined && link.newWindow) => {
-        <A href="@link.href" id="@link.id.get" target="_blank">@Messages(link.text)</A>
-    }
-    case link if (link.id.isDefined) => {
-        <A href="@link.href" id="@link.id.get">@Messages(link.text)</A>
-    }
-    case link if (link.newWindow && link.postLinkText.isDefined) => {
-        <A href="@link.href" target="_blank">@Messages(link.text)</A> @Messages(link.postLinkText.get)
-    }
-    case link if (link.postLinkText.isDefined) => {
-        <A href="@link.href">@Messages(link.text)</A> @Messages(link.postLinkText.get)
-    }
-    case link if (link.newWindow) => {
-        <A href="@link.href" target="_blank">@Messages(link.text)</A>
-    }
-    case link => {
-        <A href="@link.href">@Messages(link.text)</A>
-    }
+@{
+    def escape(str: String) = HtmlFormat.escape(str).toString
+    def tag(name: String, value: String) = " " + name + "=\"" + escape(value) + "\""
+
+    val href = tag("href", link.href)
+    val id = if (link.id.isDefined) tag("id", link.id.get) else ""
+    val target = if (link.newWindow) tag("target", "_blank") else ""
+    val sso = if (link.sso) tag("data-sso", "true") else ""
+    val text = escape(Messages(link.text))
+    val postLinkText = if (link.postLinkText.isDefined) " " + escape(Messages(link.postLinkText.get)) else ""
+
+    Html("<A" + href + id + target + sso + ">" + text + "</A>" + postLinkText)
 }
+
