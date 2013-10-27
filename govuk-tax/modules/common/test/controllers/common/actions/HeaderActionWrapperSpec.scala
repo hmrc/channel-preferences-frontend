@@ -8,7 +8,9 @@ import org.slf4j.MDC
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
 
-object HeaderTestController extends Controller with CookieEncryption with HeaderNames with HeaderActionWrapper with MockMicroServicesForTests {
+object HeaderTestController extends Controller with CookieEncryption with HeaderNames with MockMicroServicesForTests {
+
+  import controllers.common.actions.WithHeaders
 
   def test() = WithHeaders {
     Action {

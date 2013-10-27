@@ -4,9 +4,10 @@ import controllers.common.CookieEncryption
 import play.api.mvc.Results
 import concurrent.Future
 
-trait HeaderActionWrapper {
-  object WithHeaders extends WithHeaders
-}
+//trait HeaderActionWrapper {
+//}
+
+object WithHeaders extends WithHeaders
 
 class WithHeaders extends Results with CookieEncryption {
 
@@ -41,7 +42,6 @@ class WithHeaders extends Results with CookieEncryption {
     import play.api.Play.current
 
     Future.successful(Play.application.mode match {
-      // different pages for prod and dev/test
       case Mode.Dev | Mode.Test => InternalServerError(server_error(t, request, MDC.get(requestId)))
       case Mode.Prod => InternalServerError(server_error(t, request, MDC.get(requestId)))
     })

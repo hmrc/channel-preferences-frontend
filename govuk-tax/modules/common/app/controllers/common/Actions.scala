@@ -1,7 +1,7 @@
 package controllers.common
 
 import play.api.mvc._
-import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper}
+import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper}
 import uk.gov.hmrc.common.microservice.domain._
 import play.api.Logger
 import views.html.login
@@ -16,7 +16,6 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 trait Actions
   extends Results
   with CookieEncryption
-  with HeaderActionWrapper
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with LoggingActionWrapper
@@ -60,6 +59,8 @@ trait Actions
 
   object AuthorisedForIdaAction {
 
+    import controllers.common.actions.WithHeaders
+
     def apply(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
@@ -87,6 +88,8 @@ trait Actions
 
   object AuthorisedForGovernmentGatewayAction {
 
+    import controllers.common.actions.WithHeaders
+
     def apply(taxRegime: Option[TaxRegime] = None)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
@@ -113,6 +116,8 @@ trait Actions
   }
 
   object UnauthorisedAction {
+
+    import controllers.common.actions.WithHeaders
 
     def apply[A <: TaxRegime](action: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
       WithHeaders {
