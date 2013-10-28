@@ -140,7 +140,13 @@ function toggleDefaultOptions($form, $options, bool) {
         $form.find('#co2Figure').val('')
             .end().find('#co2NoFigure').prop("checked", false);
     } else {
-        $options.prop("checked", false).parents('li').removeClass('visuallyhidden');
+
+           //check if electric has data flagged if true turn it off and reset everything
+           if(typeof $form.data("electricFlagged") !== 'undefined') {
+             $options.prop("checked", false).parents('li').removeClass('visuallyhidden');
+             //remove the electric data
+
+           }
     }
 }
   // if(window.GOVUK && GOVUK.userSatisfaction){
@@ -158,12 +164,18 @@ function toggleDefaultOptions($form, $options, bool) {
              **/
             if($form.find("#fuelType-electricity").prop("checked")) {
                 toggleDefaultOptions($form, $defaultOptions, true);
+                $form.data('electricFlagged', true);
             }
             $form.on('click', '*[data-iselectric]', function(e) {
                 if ($(this).data("iselectric")) {
-                     toggleDefaultOptions($form, $defaultOptions, true)
+                     toggleDefaultOptions($form, $defaultOptions, true) ;
+
+                     $form.data('electricFlagged', true);
                 } else {
-                     toggleDefaultOptions($form, $defaultOptions, false)
+
+                    toggleDefaultOptions($form, $defaultOptions, false);
+                    $form.removeData('electricFlagged');
+
                 }
             });
   }
