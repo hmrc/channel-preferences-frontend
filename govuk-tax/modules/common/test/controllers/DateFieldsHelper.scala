@@ -20,9 +20,9 @@ trait DateFieldsHelper {
     }
 
     def buildDateFormField(fieldName: String, value : Option[(String, String, String)] ) : Seq[(String, String)] = {
-      Seq((fieldName + "." + "day" -> value.map(_._3).getOrElse("")),
-        (fieldName + "." + "month" -> value.map(_._2).getOrElse("")),
-        (fieldName + "." + "year" -> value.map(_._1).getOrElse("")))
+      Seq(fieldName + "." + "day" -> value.map(_._3).getOrElse(""),
+        fieldName + "." + "month" -> value.map(_._2).getOrElse(""),
+        fieldName + "." + "year" -> value.map(_._1).getOrElse(""))
     }
 
 }
