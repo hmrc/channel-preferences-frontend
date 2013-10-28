@@ -10,6 +10,13 @@ import scala.concurrent.{Future, ExecutionContext}
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
 import util.{Failure, Success}
+import org.json4s.jackson.JsonMethods._
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import util.Failure
+import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
+import util.Success
+import org.json4s.Extraction
 
 trait AuditActionWrapper extends MicroServices with HeaderNames {
   object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
@@ -30,17 +37,17 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
         val context = fromMDC
         val eventCreator = auditEvent(user, request, context) _
 
-        auditMicroService.audit(eventCreator("Request", Map("path" -> request.path)))
+        auditMicroService.audit(eventCreator("Request", Map("path" -> request.path), extractFormData(request)))
 
         action(request).andThen({
-          case Success(result) => auditMicroService.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString)))
+          case Success(result) => auditMicroService.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString), Map()))
           case Failure(exception) => // FIXME!!!
         })
       } 
       else action(request)
   }
 
-  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], mdcContext: Map[String, String])(auditType: String, extraTags: Map[String, String]) = {
+  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], mdcContext: Map[String, String])(auditType: String, extraTags: Map[String, String], extraDetails: Map[String, String]) = {
     val tags = new collection.mutable.HashMap[String, String]
 
     userLoggedIn foreach { user =>
@@ -60,6 +67,16 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
     details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
     details.put("referrer", request.headers.get("Referer").getOrElse("-"))
 
-    AuditEvent("frontend", auditType, tags.toMap ++ mdcContext ++ extraTags, details.toMap)
+
+    AuditEvent("frontend", auditType, tags.toMap ++ mdcContext ++ extraTags, details.toMap ++ extraDetails)
+  }
+
+  private def extractFormData(request: Request[AnyContent]) = {
+    request.headers.get("content-type") match {
+      case Some("application/x-www-form-urlencoded") => Map("dataForm" -> request.body.asFormUrlEncoded.map {
+        map => map.foldLeft("") {(s,entry) => s + entry._1 + ":" + entry._2.mkString("[", ",", "],") }
+      }.getOrElse("-"))
+      case None => Map[String,String]().empty
+    }
   }
 }
