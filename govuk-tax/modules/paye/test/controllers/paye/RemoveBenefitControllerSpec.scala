@@ -398,7 +398,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val withdrawDate = new LocalDate()
 
       val requestBenefitRemovalForm = FakeRequest().withFormUrlEncodedBody(Seq("agreement" -> "true", "fuelRadio" -> "differentDateFuel")
-          ++ buildDateFormField("fuelWithdrawDate", Some("aa","bb","cc"))
+          ++ buildDateFormField("fuelWithdrawDate", Some(("aa","bb","cc")))
           ++ buildDateFormField("withdrawDate", Some(localDateToTuple(Some(withdrawDate)))) : _*)
 
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalForm, "31", 2013, 2))
@@ -419,7 +419,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val withdrawDate = new LocalDate()
       val requestBenefitRemovalForm = FakeRequest().withFormUrlEncodedBody(Seq("agreement" -> "true", "fuelRadio" -> "sameDateFuel")
-          ++ buildDateFormField("fuelWithdrawDate", Some("aa","bb","cc"))
+          ++ buildDateFormField("fuelWithdrawDate", Some(("aa","bb","cc")))
           ++ buildDateFormField("withdrawDate", Some(localDateToTuple(Some(withdrawDate)))) : _*)
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalForm, "31", 2013, 2))
 

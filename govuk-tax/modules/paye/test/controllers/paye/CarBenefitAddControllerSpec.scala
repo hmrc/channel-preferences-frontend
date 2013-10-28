@@ -277,7 +277,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      assertSuccessfulDatesSubmitWithTuple(None, false, Some("llama"), false, Some("donkey", "", ""))
+      assertSuccessfulDatesSubmitWithTuple(None, false, Some("llama"), false, Some(("donkey", "", "")))
     }
 
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
