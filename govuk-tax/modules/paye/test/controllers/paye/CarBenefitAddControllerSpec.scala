@@ -45,10 +45,10 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     when(mockKeyStoreService.getEntry[CarBenefitData](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(None)
   }
 
-  val carBenefitEmployer1 = Benefit(31, 2013, 321.42, 1, null, null, null, null, null, null,
+  val carBenefitEmployer1 = Benefit(31, 2013, 321.42, 1, None, None, None, None, None, None, None,
     Some(Car(Some(new LocalDate(2012, 12, 12)), None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", 2013, 1), Map.empty)
 
-  val fuelBenefitEmployer1 = Benefit(29, 2013, 22.22, 1, null, null, null, null, null, null,
+  val fuelBenefitEmployer1 = Benefit(29, 2013, 22.22, 1, None, None, None, None, None, None, None,
     None, actions("AB123456C", 2013, 1), Map.empty)
 
   val johnDensmoresBenefitsForEmployer1 = Seq(
@@ -621,7 +621,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
         Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), 2013, 1))
 
-      val daysUnavailable = try {numberOfDaysUnavailableVal.map(_.toInt)} catch { case _ => None}
+      val daysUnavailable = try {numberOfDaysUnavailableVal.map(_.toInt)} catch { case _:Throwable => None}
 
       val expectedStoredData = CarBenefitDataBuilder(providedFrom = providedFromVal, carUnavailable = Some(carUnavailableVal),
         numberOfDaysUnavailable = daysUnavailable,

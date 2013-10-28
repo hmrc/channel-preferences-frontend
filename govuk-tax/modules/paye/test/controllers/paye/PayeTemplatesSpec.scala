@@ -76,7 +76,7 @@ class PayeTemplatesSpec extends PayeBaseSpec with PageSugar {
     "include the hyphenated benefit type as the table row id" in new WithApplication(FakeApplication()) {
       val displayBenefit = DisplayBenefit(
         Employment(1, LocalDate.now(), None, "123", "934503945834", None, primaryEmploymentType),
-        Seq(Benefit(29, 2013, BigDecimal("100.00"), 1, null, null, null, null, null, "Description", None, Map.empty, Map.empty)),
+        Seq(Benefit(29, 2013, BigDecimal("100.00"), 1, None, None, None, None, None, Some("Description"), None, None, Map.empty, Map.empty)),
         None,
         None
       )
