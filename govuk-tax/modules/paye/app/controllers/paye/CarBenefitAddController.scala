@@ -41,7 +41,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
     }
 
   def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    AuthorisedForIdaAction(taxRegime = Some(PayeRegime)) {
+    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
       user => request => confirmAddingBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
