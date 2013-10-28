@@ -7,7 +7,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import views.html.login
 import com.google.common.net.HttpHeaders
 import play.api.Logger
-import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper}
+import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper}
 import concurrent.Future
 
 trait HeaderNames {
@@ -24,13 +24,15 @@ trait ActionWrappers
   extends MicroServices
   with Results
   with CookieEncryption
-  with HeaderActionWrapper
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with LoggingActionWrapper
   with AuthorisationTypes {
 
   object ActionAuthorisedBy {
+
+    import controllers.common.actions.WithHeaders
+
     def apply(authenticationType: AuthorisationType)(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
       def handleAuthorised(request: Request[AnyContent]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
         case (Some(encryptedUserId), tokenOption) =>
@@ -78,6 +80,8 @@ trait ActionWrappers
   }
 
   object UnauthorisedAction {
+
+    import controllers.common.actions.WithHeaders
 
     def apply[A <: TaxRegime](action: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
       WithHeaders {
