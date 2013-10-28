@@ -228,6 +228,47 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val expectedResponse = Some(ProfileResponse(
         affinityGroup = AffinityGroup(INDIVIDUAL),
         activeEnrolments = Set(
+          Enrolment("HMCE-ECSL-ORG"),
+          Enrolment("HMRC-EU-REF-ORG"),
+          Enrolment("HMRC-VATRSL-ORG")
+        )))
+
+      val postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")
+      val expectedResult = Some(
+        ManageYourTaxes(
+          Seq(
+            /* hmceecslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/ecsl/httpssl/start.do", "otherservices.manageTaxes.link.hmceecslorg", None, true, postLinkText)),
+            /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg", None, false, None, true)),
+            /* hmrcvatrslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/rcsl/httpssl/Home.do", "otherservices.manageTaxes.link.hmrcvatrslorg", None, true, postLinkText))
+          )
+        )
+      )
+
+      when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(expectedResponse)
+
+      val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
+
+      verify(mockGovernmentGatewayMicroService).profile("userId")
+
+      result shouldBe expectedResult
+    }
+
+
+    "return a list with links ordered by key for the user enrolments when the affinity group is organisation" in new OtherServicesFactoryForTest {
+
+      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
+
+      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+
+      when(mockPortalUrlBuilder.buildPortalUrl(org.mockito.Matchers.any[String])).thenAnswer(new Answer[String] {
+        def answer(invocation: InvocationOnMock): String = {
+          "http://" + invocation.getArguments.toSeq.head
+        }
+      })
+
+      val expectedResponse = Some(ProfileResponse(
+        affinityGroup = AffinityGroup(ORGANISATION),
+        activeEnrolments = Set(
           Enrolment("HMCE-DDES"),
           Enrolment("HMCE-EBTI-ORG"),
           Enrolment("HMRC-EMCS-ORG"),
@@ -238,10 +279,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
           Enrolment("HMRC-NOVA-ORG"),
           Enrolment("HMCE-RO"),
           Enrolment("HMRC-ECW-IND"),
-          Enrolment("HMCE-TO"),
-          Enrolment("HMCE-ECSL-ORG"),
-          Enrolment("HMRC-EU-REF-ORG"),
-          Enrolment("HMRC-VATRSL-ORG")
+          Enrolment("HMCE-TO")
         )))
 
       val postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")
@@ -250,20 +288,16 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
           Seq(
             /* hmceddes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceddes", None, true, postLinkText)),
             /* hmceebtiorg */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceebtiorg", None, true, postLinkText)),
-            /* hmceecslorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ecsl", "otherservices.manageTaxes.link.hmceecslorg")),
-            /* hmcenctsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ncts", "otherservices.manageTaxes.link.hmcenctsorg")),
+            /* hmcenctsorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/nctsPortalWebApp/ncts.portal?_nfpb=true&pageLabel=httpssIPageOnlineServicesAppNCTS_Home", "otherservices.manageTaxes.link.hmcenctsorg", None, true, postLinkText)),
             /* hmcenes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcenes", None, true, postLinkText)),
             /* hmcero1 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero1", None, true, postLinkText)),
             /* hmcero2 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero2", None, true, postLinkText)),
             /* hmcero3 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero3", None, true, postLinkText)),
             /* hmceto */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceto", None, true, postLinkText)),
-            /* hmrcecwind */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.er1", "otherservices.manageTaxes.link.hmrcecwind")),
-            /* hmrcemcsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.emcs", "otherservices.manageTaxes.link.hmrcemcsorg")),
-            /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg")),
-            /* hmrcicsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ics", "otherservices.manageTaxes.link.hmrcicsorg")),
-            /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg")),
-            /* hmrcnovaorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.nova", "otherservices.manageTaxes.link.hmrcnovaorg")),
-            /* hmrcvatrslorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.rcsl", "otherservices.manageTaxes.link.hmrcvatrslorg"))
+            /* hmrcemcsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.emcs", "otherservices.manageTaxes.link.hmrcemcsorg", None, false, None, true)),
+            /* hmrcicsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ics", "otherservices.manageTaxes.link.hmrcicsorg", None, false, None, true)),
+            /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg", None, false, None, true)),
+            /* hmrcnovaorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.nova", "otherservices.manageTaxes.link.hmrcnovaorg", None, false, None, true))
           )
         )
       )
@@ -289,7 +323,11 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 }
 
 abstract class OtherServicesFactoryForTest
-  extends WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.externalLinks.businessTax.manageTaxes.servicesHome" -> "https://secure.hmce.gov.uk/ecom/login/index.html")))
+  extends WithApplication(FakeApplication(additionalConfiguration = Map(
+    "govuk-tax.Test.externalLinks.businessTax.manageTaxes.servicesHome" -> "https://secure.hmce.gov.uk/ecom/login/index.html",
+    "govuk-tax.Test.externalLinks.businessTax.manageTaxes.ncts" -> "https://customs.hmrc.gov.uk/nctsPortalWebApp/ncts.portal?_nfpb=true&pageLabel=httpssIPageOnlineServicesAppNCTS_Home",
+    "govuk-tax.Test.externalLinks.businessTax.manageTaxes.rcsl" -> "https://customs.hmrc.gov.uk/rcsl/httpssl/Home.do",
+    "govuk-tax.Test.externalLinks.businessTax.manageTaxes.ecsl" -> "https://customs.hmrc.gov.uk/ecsl/httpssl/start.do")))
   with PortalUrlBuilderMock
   with ConnectorMocks 
   with Matchers {

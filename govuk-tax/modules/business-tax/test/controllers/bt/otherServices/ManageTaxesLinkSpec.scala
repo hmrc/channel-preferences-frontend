@@ -18,7 +18,7 @@ class ManageTaxesLinkSpec extends BaseSpec {
       val link = new ManageTaxesLink(dummyPortalUrlBuilder, ssoLinkKey, ssoLinkMessage, true)
 
       val expectedLink = ssoLinkKey
-      val expectedMessage = LinkMessage(expectedLink, ssoLinkMessage(0), None, false, None)
+      val expectedMessage = LinkMessage(expectedLink, ssoLinkMessage(0), None, false, None, true)
 
       val result = link.buildLinks
 
@@ -32,8 +32,8 @@ class ManageTaxesLinkSpec extends BaseSpec {
       val link = new ManageTaxesLink(dummyPortalUrlBuilder, ssoLinkKey, ssoLinkMessage, true)
 
       val expectedLink = ssoLinkKey
-      val expectedMessage1 = LinkMessage(expectedLink, ssoLinkMessage(0), None, false, None)
-      val expectedMessage2 = LinkMessage(expectedLink, ssoLinkMessage(1), None, false, None)
+      val expectedMessage1 = LinkMessage(expectedLink, ssoLinkMessage(0), None, false, None, true)
+      val expectedMessage2 = LinkMessage(expectedLink, ssoLinkMessage(1), None, false, None, true)
 
       val result = link.buildLinks
 

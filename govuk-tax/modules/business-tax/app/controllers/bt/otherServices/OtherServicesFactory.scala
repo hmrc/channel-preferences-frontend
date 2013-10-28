@@ -18,8 +18,14 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
 
     val profile = governmentGatewayMicroService.profile(user.userId).getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
     profile.affinityGroup.identifier match {
-      case INDIVIDUAL | ORGANISATION => {
-        val linkMessages = getLinksAndMessages(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
+      case INDIVIDUAL => {
+        val linkMessages = getLinksAndMessagesForIndividual(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
+          case link: ManageTaxesLink => link.buildLinks
+        }.toList
+        Some(ManageYourTaxes(linkMessages))
+      }
+      case ORGANISATION => {
+        val linkMessages = getLinksAndMessagesForOrganisation(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
           case link: ManageTaxesLink => link.buildLinks
         }.toList
         Some(ManageYourTaxes(linkMessages))
@@ -57,35 +63,41 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
 
 object ManageYourTaxesConf {
 
-  def getLinksAndMessages(keys: Seq[String], buildPortalUrl: String => String): Seq[ManageTaxesLink] = {
+  def ssoLink(keyToLink: String, keysToLinkText: Seq[String], buildPortalUrl: String => String) = new ManageTaxesLink(buildPortalUrl, keyToLink, keysToLinkText, isSso = true)
 
-    def ssoLink(keyToLink: String, keysToLinkText: Seq[String]) = new ManageTaxesLink(buildPortalUrl, keyToLink, keysToLinkText, isSso = true)
+  def nonSsoLink(keyToLink: String, keysToLinkText: Seq[String], buildPortalUrl: String => String) = new ManageTaxesLink(buildPortalUrl, keyToLink, keysToLinkText, isSso = false)
 
-    def nonSsoLink(keyToLink: String, keysToLinkText: Seq[String]) = new ManageTaxesLink(buildPortalUrl, keyToLink, keysToLinkText, isSso = false)
+  def getLinksAndMessagesForIndividual(keys: Seq[String], buildPortalUrl: String => String): Seq[ManageTaxesLink] = {
 
-    val links = Map(
-      "hmce-ddes" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceddes")),
-      "hmce-ebti-org" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceebtiorg")),
-      "hmrc-emcs-org" -> ssoLink("destinationPath.manageTaxes.emcs", Seq("otherservices.manageTaxes.link.hmrcemcsorg")),
-      "hmrc-ics-org" -> ssoLink("destinationPath.manageTaxes.ics", Seq("otherservices.manageTaxes.link.hmrcicsorg")),
-      "hmrc-mgd-org" -> ssoLink("destinationPath.manageTaxes.machinegames", Seq("otherservices.manageTaxes.link.hmrcmgdorg")),
-      "hmce-ncts-org" -> ssoLink("destinationPath.manageTaxes.ncts", Seq("otherservices.manageTaxes.link.hmcenctsorg")),
-      "hmce-nes" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcenes")),
-      "hmrc-nova-org" -> ssoLink("destinationPath.manageTaxes.nova", Seq("otherservices.manageTaxes.link.hmrcnovaorg")),
 
-      "hmce-ro" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcero1", "otherservices.manageTaxes.link.hmcero2", "otherservices.manageTaxes.link.hmcero3")),
-
-      "hmrc-ecw-ind" -> ssoLink("destinationPath.manageTaxes.er1", Seq("otherservices.manageTaxes.link.hmrcecwind")),
-      "hmce-to" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceto")),
-      "hmce-ecsl-org" -> ssoLink("destinationPath.manageTaxes.ecsl", Seq("otherservices.manageTaxes.link.hmceecslorg")),
-      "hmrc-eu-ref-org" -> ssoLink("destinationPath.manageTaxes.euvat", Seq("otherservices.manageTaxes.link.hmrceureforg")),
-      "hmrc-vatrsl-org" -> ssoLink("destinationPath.manageTaxes.rcsl", Seq("otherservices.manageTaxes.link.hmrcvatrslorg"))
+    val linksForIndividual = Map(
+      "hmce-ecsl-org" -> nonSsoLink("businessTax.manageTaxes.ecsl", Seq("otherservices.manageTaxes.link.hmceecslorg"), buildPortalUrl),
+      "hmrc-eu-ref-org" -> ssoLink("destinationPath.manageTaxes.euvat", Seq("otherservices.manageTaxes.link.hmrceureforg"), buildPortalUrl),
+      "hmrc-vatrsl-org" -> nonSsoLink("businessTax.manageTaxes.rcsl", Seq("otherservices.manageTaxes.link.hmrcvatrslorg"), buildPortalUrl)
     )
 
-    keys.sorted flatMap links.get
+    keys.sorted flatMap linksForIndividual.get
   }
 
 
+  def getLinksAndMessagesForOrganisation(keys: Seq[String], buildPortalUrl: String => String): Seq[ManageTaxesLink] = {
+
+
+    val linksForOrganisation = Map(
+      "hmce-ddes" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceddes"), buildPortalUrl),
+      "hmce-ebti-org" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceebtiorg"), buildPortalUrl),
+      "hmrc-emcs-org" -> ssoLink("destinationPath.manageTaxes.emcs", Seq("otherservices.manageTaxes.link.hmrcemcsorg"), buildPortalUrl),
+      "hmrc-ics-org" -> ssoLink("destinationPath.manageTaxes.ics", Seq("otherservices.manageTaxes.link.hmrcicsorg"), buildPortalUrl),
+      "hmrc-mgd-org" -> ssoLink("destinationPath.manageTaxes.machinegames", Seq("otherservices.manageTaxes.link.hmrcmgdorg"), buildPortalUrl),
+      "hmce-ncts-org" -> nonSsoLink("businessTax.manageTaxes.ncts", Seq("otherservices.manageTaxes.link.hmcenctsorg"), buildPortalUrl),
+      "hmce-nes" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcenes"), buildPortalUrl),
+      "hmrc-nova-org" -> ssoLink("destinationPath.manageTaxes.nova", Seq("otherservices.manageTaxes.link.hmrcnovaorg"), buildPortalUrl),
+      "hmce-ro" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcero1", "otherservices.manageTaxes.link.hmcero2", "otherservices.manageTaxes.link.hmcero3"), buildPortalUrl),
+      "hmce-to" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceto"), buildPortalUrl)
+    )
+
+    keys.sorted flatMap linksForOrganisation.get
+  }
 }
 
 class ManageTaxesLink(buildPortalUrl: String => String, keyToLink: String, keysToLinkText: Seq[String], isSso: Boolean) {
@@ -94,7 +106,7 @@ class ManageTaxesLink(buildPortalUrl: String => String, keyToLink: String, keysT
 
     keysToLinkText.map(text => {
       if (isSso) {
-        RenderableLinkMessage(LinkMessage(href = buildPortalUrl(keyToLink), text = text))
+        RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl(keyToLink), text))
       } else {
         RenderableLinkMessage(LinkMessage.externalLink(hrefKey = keyToLink, text = text,
           postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")))
