@@ -61,8 +61,10 @@ trait Actions
               val handle = authenticationType.handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request)
               val userOrFailureResult: Either[User, SimpleResult] = handle((request.session.get("userId"), request.session.get("token")))
               userOrFailureResult match {
-                case Left(user) => WithRequestAuditing(Some(user))(Action { action(user)(request)})(request)
-                case Right(result) => Future.successful(result)
+                case Left(user) => WithRequestAuditing(user){
+                  user: User => Action(action(user))
+                }(request)
+                case Right(result) => Action(result)(request)
               }
             }
           }
@@ -78,7 +80,7 @@ trait Actions
     def apply[A <: TaxRegime](action: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
-          WithRequestAuditing(None) {
+          WithRequestAuditing {
             Action {
               request =>
                 action(request)

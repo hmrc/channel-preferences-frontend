@@ -31,10 +31,18 @@ import play.api.test.FakeApplication
 
 class AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {
 
-  def test(user: Option[User]) = WithRequestAuditing(user) {
-    Action {
-      request =>
-        Ok("")
+  def test(userOption: Option[User]) = userOption match {
+    case Some(user) => WithRequestAuditing(user) { user: User  =>
+      Action {
+        request =>
+          Ok("")
+      }
+    }
+    case None => WithRequestAuditing {
+      Action {
+        request =>
+          Ok("")
+      }
     }
   }
 

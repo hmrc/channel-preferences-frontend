@@ -6,7 +6,7 @@ import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
-import concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
 import util.{Failure, Success}
@@ -21,7 +21,10 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
 
   lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
 
-  def apply(user: Option[User])(action: Action[AnyContent]) = Action.async {
+  def apply(user: User)(action: User => Action[AnyContent]) = applyAudited(user = Some(user), action = action(user))
+  def apply(action: Action[AnyContent]) = applyAudited(user = None, action = action)
+  
+  private def applyAudited(user: Option[User], action: Action[AnyContent]) = Action.async {
     request =>
       if (traceRequests && auditMicroService.enabled) {
         val context = fromMDC
@@ -33,9 +36,8 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
           case Success(result) => auditMicroService.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString)))
           case Failure(exception) => // FIXME!!!
         })
-      } else {
-        action(request)
-      }
+      } 
+      else action(request)
   }
 
   private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], mdcContext: Map[String, String])(auditType: String, extraTags: Map[String, String]) = {
