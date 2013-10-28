@@ -4,9 +4,6 @@ import controllers.common.CookieEncryption
 import play.api.mvc.Results
 import concurrent.Future
 
-//trait HeaderActionWrapper {
-//}
-
 object WithHeaders extends WithHeaders
 
 class WithHeaders extends Results with CookieEncryption {
