@@ -52,7 +52,7 @@ class ManageTaxesLinkSpec extends BaseSpec {
 
       val expectedLink = "https://secure.hmce.gov.uk/ecom/login/index.html"
       val expectedPostLinkText = "otherservices.manageTaxes.postLink.additionalLoginRequired"
-      val expectedMessage = LinkMessage(expectedLink, nonSsoLinkMessage(0), None, true, Some(expectedPostLinkText))
+      val expectedMessage = LinkMessage(expectedLink, nonSsoLinkMessage(0), None, true, Some(expectedPostLinkText), false)
 
       val result = link.buildLinks
 
@@ -70,8 +70,8 @@ class ManageTaxesLinkSpec extends BaseSpec {
 
       val expectedLink = "https://secure.hmce.gov.uk/ecom/login/index.html"
       val expectedPostLinkText = "otherservices.manageTaxes.postLink.additionalLoginRequired"
-      val expectedMessage1 = LinkMessage(expectedLink, nonSsoLinkMessage(0), None, true, Some(expectedPostLinkText))
-      val expectedMessage2 = LinkMessage(expectedLink, nonSsoLinkMessage(1), None, true, Some(expectedPostLinkText))
+      val expectedMessage1 = LinkMessage(expectedLink, nonSsoLinkMessage(0), None, true, Some(expectedPostLinkText), false)
+      val expectedMessage2 = LinkMessage(expectedLink, nonSsoLinkMessage(1), None, true, Some(expectedPostLinkText), false)
 
       val result = link.buildLinks
 

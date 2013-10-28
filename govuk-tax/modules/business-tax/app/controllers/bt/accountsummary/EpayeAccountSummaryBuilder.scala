@@ -23,9 +23,9 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
     val links = createLinks(buildPortalUrl, accountSummary)
 
       Seq[RenderableMessage](
-      LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
-      LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-      LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
+      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage.internalLink(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
+      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
 
     AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
   }
@@ -51,15 +51,15 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
 
   private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]) : Seq[RenderableMessage] = {
     val expectedRtiLinks = Seq[RenderableMessage](
-      LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
-      LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage)
+      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage.internalLink(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage)
     )
 
 
     val expectedNonRtiLinks = Seq[RenderableMessage](
-      LinkMessage(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
-      LinkMessage(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-      LinkMessage(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
+      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage.internalLink(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
+      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), fileAReturnLinkMessage))
 
 
     accountSummary match {

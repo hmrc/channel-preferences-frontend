@@ -1,7 +1,7 @@
 package controllers.bt.otherservices
 
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import views.helpers.{LinkMessage, RenderableLinkMessage}
+import views.helpers.{HrefKey, LinkMessage, RenderableLinkMessage}
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
 
 
@@ -35,7 +35,7 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
   }
 
   def createOnlineServicesEnrolment(buildPortalUrl: String => String): OnlineServicesEnrolment =
-    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(buildPortalUrl("otherServicesEnrolment"), "here")))
+    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"), "here")))
 
   def createBusinessTaxesRegistration(buildPortalUrl: String => String)(implicit user: User) = {
 
@@ -56,8 +56,8 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
         Some(s"Register for ${appendInactiveRegimes(inactiveRegimes)}")
       }
     }
-    val link = linkText.map(text => RenderableLinkMessage(LinkMessage(linkToHmrcOnlineRegistration, text)))
-    BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage(linkToHmrcWebsite, hmrcWebsiteLinkText)))
+    val link = linkText.map(text => RenderableLinkMessage(LinkMessage.externalLink(linkToHmrcOnlineRegistration, text, None, None)))
+    BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage.externalLink(linkToHmrcWebsite, hmrcWebsiteLinkText, None, None)))
   }
 }
 
@@ -111,8 +111,7 @@ class ManageTaxesLink(buildPortalUrl: String => String, keyToLink: String, keysT
       if (isSso) {
         RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl(keyToLink), text))
       } else {
-        RenderableLinkMessage(LinkMessage.externalLink(hrefKey = keyToLink, text = text,
-          postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")))
+        RenderableLinkMessage(LinkMessage.externalLink(hrefKey = HrefKey(keyToLink), text = text, id = None, postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")))
       }
     })
   }

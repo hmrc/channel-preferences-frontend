@@ -8,12 +8,18 @@ import controllers.common.domain.accountSummaryDateFormatter
 
 
 case class LinkMessage(href: String, text: String, id: Option[String] = None,
-                       newWindow: Boolean = false, postLinkText: Option[String] = None, sso: Boolean = false)
-
+                       newWindow: Boolean = false, postLinkText: Option[String] = None, sso: Boolean)
+case class HrefKey(key: String)
 object LinkMessage {
 
-  def externalLink(hrefKey: String, text: String, id: Option[String] = None, postLinkText: Option[String] = None) =
-    LinkMessage(getPath(hrefKey), text, id, newWindow = true, postLinkText = postLinkText, sso = false)
+  def externalLink(hrefKey: HrefKey, text: String, id: Option[String], postLinkText: Option[String]) =
+    LinkMessage(getPath(hrefKey.key), text, id, newWindow = true, postLinkText = postLinkText, sso = false)
+
+  def externalLink(href: String, text: String, id: Option[String], postLinkText: Option[String]) =
+    LinkMessage(href, text, id, newWindow = true, postLinkText = postLinkText, sso = false)
+
+  def internalLink(href: String, text: String, id: Option[String] = None, postLinkText: Option[String] = None) =
+    LinkMessage(href, text, id, newWindow = false, postLinkText = postLinkText, sso = false)
 
   def portalLink(href: String, text: String, id: Option[String] = None, postLinkText: Option[String] = None) =
     LinkMessage(href, text, id, newWindow = false, postLinkText = postLinkText, sso = true)

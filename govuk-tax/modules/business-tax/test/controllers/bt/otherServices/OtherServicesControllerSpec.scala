@@ -20,10 +20,10 @@ class OtherServicesControllerSpec extends BaseSpec {
 
       val expectedOtherServicesSummary = OtherServicesSummary(
         None,
-        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))),
+        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false))),
         BusinessTaxesRegistration(
-          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
-          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website")))
+          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT", sso = false))),
+          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false)))
       )
 
       when(mockOtherServicesFactory.createManageYourTaxes(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
@@ -32,11 +32,11 @@ class OtherServicesControllerSpec extends BaseSpec {
 
       when(mockOtherServicesFactory.createBusinessTaxesRegistration(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
 
-      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here")))
+      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false)))
 
       val businessTaxesRegistration = BusinessTaxesRegistration(
-        Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
-        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website"))
+        Some(RenderableLinkMessage(LinkMessage(href = "http://www.hmrc.gov.uk/online/nex.htm#2", text = "Register for SA, CT, employers PAYE or VAT", sso = false))),
+        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false))
       )
 
       when(mockOtherServicesPages.otherServicesPage(expectedOtherServicesSummary)).thenReturn(Html(expectedHtml))
@@ -52,22 +52,22 @@ class OtherServicesControllerSpec extends BaseSpec {
       val expectedHtml = "<html>some html for other services page</html>"
 
       val expectedOtherServicesSummary = OtherServicesSummary(
-        Some(ManageYourTaxes(Seq(RenderableLinkMessage(LinkMessage("http://www.online.hmrc.gov.uk/home/services", "Duty Deferment Electronic Statements (DDES) Service"))))),
-        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))),
+        Some(ManageYourTaxes(Seq(RenderableLinkMessage(LinkMessage("http://www.online.hmrc.gov.uk/home/services", "Duty Deferment Electronic Statements (DDES) Service", sso = false))))),
+        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false))),
         BusinessTaxesRegistration(
-          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
-          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website")))
+          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT", sso = false))),
+          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false)))
       )
 
       when(mockOtherServicesFactory.createManageYourTaxes(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
       when(mockOtherServicesFactory.createOnlineServicesEnrolment(any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
       when(mockOtherServicesFactory.createBusinessTaxesRegistration(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
 
-      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here")))
+      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false)))
 
       val businessTaxesRegistration = BusinessTaxesRegistration(
-        Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
-        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website"))
+        Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT", sso = false))),
+        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false))
       )
 
       when(mockOtherServicesPages.otherServicesPage(expectedOtherServicesSummary)).thenReturn(Html(expectedHtml))
@@ -83,21 +83,21 @@ class OtherServicesControllerSpec extends BaseSpec {
 
       val expectedOtherServicesSummary = OtherServicesSummary(
         Some(ManageYourTaxes(Seq.empty)),
-        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here"))),
+        OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false))),
         BusinessTaxesRegistration(
-          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
-          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website")))
+          Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT", sso = false))),
+          RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false)))
       )
 
       when(mockOtherServicesFactory.createManageYourTaxes(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
       when(mockOtherServicesFactory.createOnlineServicesEnrolment(any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
       when(mockOtherServicesFactory.createBusinessTaxesRegistration(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
 
-      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here")))
+      val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false)))
 
       val businessTaxesRegistration = BusinessTaxesRegistration(
-        Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT"))),
-        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website"))
+        Some(RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "Register for SA, CT, employers PAYE or VAT", sso = false))),
+        RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false))
       )
 
       when(mockOtherServicesPages.otherServicesPage(expectedOtherServicesSummary)).thenReturn(Html(expectedHtml))
