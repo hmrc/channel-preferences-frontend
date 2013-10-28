@@ -21,7 +21,7 @@ class ConfirmClientController
   import ConfirmClientController._
 
   def confirm =
-    AuthorisedForIdaAction(Some(AgentRegime)) {
+    ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
       confirmAction
     }
 

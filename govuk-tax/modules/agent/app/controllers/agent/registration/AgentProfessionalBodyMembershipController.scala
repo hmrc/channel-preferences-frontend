@@ -31,7 +31,7 @@ class AgentProfessionalBodyMembershipController extends BaseController with Acti
     }
   )
 
-  def professionalBodyMembership = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def professionalBodyMembership = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {
       user => request => professionalBodyMembershipAction(user, request)
     }
@@ -42,7 +42,7 @@ class AgentProfessionalBodyMembershipController extends BaseController with Acti
     Ok(views.html.agents.registration.professional_body_membership(form, Configuration.config.professionalBodyOptions))
   }
 
-  def postProfessionalBodyMembership = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def postProfessionalBodyMembership = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {
       user => request => postProfessionalBodyMembershipAction(user, request)
     }

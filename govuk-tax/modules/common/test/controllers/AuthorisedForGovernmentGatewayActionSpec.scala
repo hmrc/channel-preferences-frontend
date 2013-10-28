@@ -93,14 +93,14 @@ class AuthorisedForGovernmentGatewayActionSpec
   }
 
 
-  def test = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def test = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         val saUtr = user.regimes.sa.get.utr
         Ok(saUtr.utr)
   }
 
-  def testAuthorisation = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def testAuthorisation = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         val saUtr = user.regimes.sa.get.utr
@@ -108,13 +108,13 @@ class AuthorisedForGovernmentGatewayActionSpec
   }
 
 
-  def testThrowsException = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def testThrowsException = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         throw new RuntimeException("ACTION TEST")
   }
 
-  def testMdc = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def testMdc = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         Ok(s"${MDC.get(authorisation)} ${MDC.get(requestId)}")

@@ -20,7 +20,7 @@ class PreferredContactController
   extends BaseController
   with ActionWrappers with AgentMicroServices {
 
-  def preferredContact = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def preferredContact = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     preferredContactAction
   }
 

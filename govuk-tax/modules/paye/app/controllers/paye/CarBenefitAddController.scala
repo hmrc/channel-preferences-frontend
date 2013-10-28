@@ -29,14 +29,14 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
   def this() = this(() => new LocalDate(DateTimeZone.UTC), MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
 
   def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
+    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
       user =>
         request =>
           startAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
   def reviewAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    AuthorisedForIdaAction(taxRegime = Some(PayeRegime)) {
+    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
       user => request => reviewAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 

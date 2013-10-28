@@ -29,7 +29,7 @@ class AgentContactDetailsController
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )
 
-  def contactDetails = AuthorisedForIdaAction(Some(PayeRegime), redirectToOrigin = true) {
+  def contactDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime), redirectToOrigin = true) {
     MultiFormAction(multiFormConfig) {
       user => request => contactDetailsAction(user, request)
     }
@@ -41,7 +41,7 @@ class AgentContactDetailsController
     Ok(views.html.agents.registration.contact_details(form, paye))
   }
 
-  def postContactDetails = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def postContactDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {
       user => request => postContactDetailsAction(user, request)
     }

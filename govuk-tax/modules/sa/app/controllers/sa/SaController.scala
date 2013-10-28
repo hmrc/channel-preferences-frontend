@@ -23,35 +23,35 @@ class SaController
   with DateTimeProvider
   with Validators {
 
-  def details = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def details = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         detailsAction
   }
 
-  def changeAddress = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def changeAddress = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         changeAddressAction
   }
 
-  def redisplayChangeAddress() = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def redisplayChangeAddress() = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         redisplayChangeAddressAction
   }
 
-  def submitChangeAddress() = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def submitChangeAddress() = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user => implicit request => submitChangeAddressAction
   }
 
-  def confirmChangeAddress = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def confirmChangeAddress = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         confirmChangeAddressAction
   }
 
-  def changeAddressComplete(id: String) = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def changeAddressComplete(id: String) = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
         changeAddressCompleteAction(id)
@@ -133,7 +133,7 @@ class SaController
       case _ => NotFound
     }
 
-  def changeAddressFailed(id: String) = AuthorisedForGovernmentGatewayAction(Some(SaRegime)) {
+  def changeAddressFailed(id: String) = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user => implicit request => changeAddressFailedAction(id)
   }
 

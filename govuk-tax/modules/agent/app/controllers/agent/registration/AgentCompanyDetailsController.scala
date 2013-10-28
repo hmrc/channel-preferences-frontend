@@ -95,7 +95,7 @@ class AgentCompanyDetailsController
     }
   )
 
-  def companyDetails = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def companyDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
       MultiFormAction(multiFormConfig) {
         user => request => companyDetailsAction(user, request)
       }
@@ -104,7 +104,7 @@ class AgentCompanyDetailsController
   private[registration] val companyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) =>
     Ok(views.html.agents.registration.company_details(companyDetailsForm.fill(AgentCompanyDetails())))
 
-  def postCompanyDetails = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def postCompanyDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
       MultiFormAction(multiFormConfig) {
         user => request => postCompanyDetailsAction(user, request)
       }

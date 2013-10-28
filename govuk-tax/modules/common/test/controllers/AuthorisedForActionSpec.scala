@@ -61,7 +61,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     override lazy val payeMicroService = mockPayeMicroService
     override lazy val agentMicroServiceRoot = mockAgentMicroService
 
-    def test = AuthorisedForIdaAction(Some(PayeRegime)) {
+    def test = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
           val userPayeRegimeRoot = user.regimes.paye.get
@@ -69,7 +69,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
           Ok(userName)
     }
 
-    def testAuthorisation = AuthorisedForIdaAction(Some(PayeRegime)) {
+    def testAuthorisation = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
           val userPayeRegimeRoot = user.regimes.paye.get
@@ -77,14 +77,14 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
           Ok(userName)
     }
 
-    def testAgentAuthorisation = AuthorisedForIdaAction(Some(AgentRegime)) {
+    def testAgentAuthorisation = ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
       implicit user =>
         implicit request =>
           val userAgentRegimeRoot = user.regimes.agent.get
           Ok(userAgentRegimeRoot.uar)
     }
 
-    def testAuthorisationWithRedirectCommand = AuthorisedForIdaAction(redirectToOrigin = true) {
+    def testAuthorisationWithRedirectCommand = ActionAuthorisedBy(Ida)(redirectToOrigin = true) {
       implicit user =>
         implicit request =>
           val userPayeRegimeRoot = user.regimes.paye.get
@@ -92,13 +92,13 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
           Ok(userName)
     }
 
-    def testThrowsException = AuthorisedForIdaAction(Some(PayeRegime)) {
+    def testThrowsException = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
           throw new RuntimeException("ACTION TEST")
     }
 
-    def testMdc = AuthorisedForIdaAction(Some(PayeRegime)) {
+    def testMdc = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
       implicit user =>
         implicit request =>
           Ok(s"${MDC.get(authorisation)} ${MDC.get(requestId)}")

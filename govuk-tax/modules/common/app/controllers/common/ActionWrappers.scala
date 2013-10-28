@@ -30,10 +30,12 @@ trait ActionWrappers
   with SessionTimeoutWrapper
   with LoggingActionWrapper {
 
-  trait AuthorisedAction {
+  trait AuthorisationType {
     def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]]
+  }
 
-    def apply(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
+  object ActionAuthorisedBy {
+    def apply(authenticationType: AuthorisationType)(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
       def handleAuthorised(request: Request[AnyContent]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
         case (Some(encryptedUserId), tokenOption) =>
           val userId = decrypt(encryptedUserId)
@@ -66,7 +68,7 @@ trait ActionWrappers
         WithRequestLogging {
           WithSessionTimeoutValidation {
             Action.async { request =>
-              val handle = handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request)
+              val handle = authenticationType.handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request)
               val userOrFailureResult: Either[User, SimpleResult] = handle((request.session.get("userId"), request.session.get("token")))
               userOrFailureResult match {
                 case Left(user) => WithRequestAuditing(Some(user))(Action { action(user)(request)})(request)
@@ -79,7 +81,7 @@ trait ActionWrappers
     }
   }
 
-  object AuthorisedForIdaAction extends AuthorisedAction {
+  object Ida extends AuthorisationType {
     def handleRedirect(request: Request[AnyContent], redirectToOrigin: Boolean): SimpleResult = {
       val redirectUrl = if (redirectToOrigin) Some(request.uri) else None
       toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
@@ -94,7 +96,7 @@ trait ActionWrappers
     }
   }
 
-  object AuthorisedForGovernmentGatewayAction extends AuthorisedAction {
+  object GovernmentGateway extends AuthorisationType {
 
     def handleRedirect(request: Request[AnyContent]): SimpleResult = Redirect(routes.HomeController.landing())
 

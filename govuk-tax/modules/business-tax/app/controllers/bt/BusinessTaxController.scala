@@ -10,7 +10,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
   with ActionWrappers
   with PortalUrlBuilder {
 
-  def home = AuthorisedForGovernmentGatewayAction() {
+  def home = ActionAuthorisedBy(GovernmentGateway)() {
     implicit user =>
       implicit request =>
         Ok(
@@ -18,7 +18,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
         )
   }
 
-  def makeAPaymentLanding = AuthorisedForGovernmentGatewayAction() {
+  def makeAPaymentLanding = ActionAuthorisedBy(GovernmentGateway)() {
     implicit user =>
       implicit request =>
         Ok(makeAPaymentLandingPage())
