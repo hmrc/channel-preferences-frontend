@@ -279,7 +279,10 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
           Enrolment("HMRC-NOVA-ORG"),
           Enrolment("HMCE-RO"),
           Enrolment("HMRC-ECW-IND"),
-          Enrolment("HMCE-TO")
+          Enrolment("HMCE-TO"),
+          Enrolment("HMCE-ECSL-ORG"),
+          Enrolment("HMRC-EU-REF-ORG"),
+          Enrolment("HMRC-VATRSL-ORG")
         )))
 
       val postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")
@@ -288,6 +291,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
           Seq(
             /* hmceddes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceddes", None, true, postLinkText)),
             /* hmceebtiorg */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceebtiorg", None, true, postLinkText)),
+            /* hmceecslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/ecsl/httpssl/start.do", "otherservices.manageTaxes.link.hmceecslorg", None, true, postLinkText)),
             /* hmcenctsorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/nctsPortalWebApp/ncts.portal?_nfpb=true&pageLabel=httpssIPageOnlineServicesAppNCTS_Home", "otherservices.manageTaxes.link.hmcenctsorg", None, true, postLinkText)),
             /* hmcenes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcenes", None, true, postLinkText)),
             /* hmcero1 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero1", None, true, postLinkText)),
@@ -295,9 +299,11 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
             /* hmcero3 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero3", None, true, postLinkText)),
             /* hmceto */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceto", None, true, postLinkText)),
             /* hmrcemcsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.emcs", "otherservices.manageTaxes.link.hmrcemcsorg", None, false, None, true)),
+            /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg", None, false, None, true)),
             /* hmrcicsorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.ics", "otherservices.manageTaxes.link.hmrcicsorg", None, false, None, true)),
             /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg", None, false, None, true)),
-            /* hmrcnovaorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.nova", "otherservices.manageTaxes.link.hmrcnovaorg", None, false, None, true))
+            /* hmrcnovaorg */ RenderableLinkMessage(LinkMessage("http://destinationPath.manageTaxes.nova", "otherservices.manageTaxes.link.hmrcnovaorg", None, false, None, true)),
+            /* hmrcvatrslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/rcsl/httpssl/Home.do", "otherservices.manageTaxes.link.hmrcvatrslorg", None, true, postLinkText))
           )
         )
       )
