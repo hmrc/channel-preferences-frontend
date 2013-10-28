@@ -17,7 +17,7 @@ object GovUkTaxBuild extends Build {
     Dependencies.Compile.guava,
     Dependencies.Compile.commonsLang,
     Dependencies.Compile.commonsIo,
-//    Dependencies.Compile.playMetrics,
+    Dependencies.Compile.playMetrics,
     Dependencies.Compile.metricsGraphite,
     Dependencies.Compile.secureUtils,
     Dependencies.Compile.taxCore,
