@@ -621,7 +621,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
         Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), 2013, 1))
 
-      val daysUnavailable = try {numberOfDaysUnavailableVal.map(_.toInt)} catch { case Throwable => None}
+      val daysUnavailable = try {numberOfDaysUnavailableVal.map(_.toInt)} catch { case _ => None}
 
       val expectedStoredData = CarBenefitDataBuilder(providedFrom = providedFromVal, carUnavailable = Some(carUnavailableVal),
         numberOfDaysUnavailable = daysUnavailable,
