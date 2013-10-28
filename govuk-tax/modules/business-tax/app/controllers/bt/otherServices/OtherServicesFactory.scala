@@ -8,7 +8,6 @@ import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroS
 class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicroService) {
 
   private val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"
-  val linkToHmrcOnlineRegistration = "https://online.hmrc.gov.uk/registration/newbusiness/business-allowed"
   private val hmrcWebsiteLinkText = "HMRC website"
 
   //TODO waiting for links confirmation
@@ -56,7 +55,7 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
         Some(s"Register for ${appendInactiveRegimes(inactiveRegimes)}")
       }
     }
-    val link = linkText.map(text => RenderableLinkMessage(LinkMessage.externalLink(linkToHmrcOnlineRegistration, text, None, None)))
+    val link = linkText.map(text => RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("businessRegistration"), text, None, None)))
     BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage.externalLink(linkToHmrcWebsite, hmrcWebsiteLinkText, None, None)))
   }
 }
