@@ -1,4 +1,4 @@
-package controllers.bt.otherServices
+package controllers.bt.otherservices
 
 import uk.gov.hmrc.common.BaseSpec
 import controllers.bt.otherservices.ManageTaxesLink
