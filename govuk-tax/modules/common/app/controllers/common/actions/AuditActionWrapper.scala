@@ -1,17 +1,17 @@
 package controllers.common.actions
 
 import controllers.common.service.MicroServices
-import org.slf4j.MDC
 import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.HeaderNames
 import util.{Failure, Success}
 
-trait AuditActionWrapper extends MicroServices with HeaderNames {
+trait AuditActionWrapper extends HeaderNames {
+  val auditMicroService : AuditMicroService
   object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
 }
 

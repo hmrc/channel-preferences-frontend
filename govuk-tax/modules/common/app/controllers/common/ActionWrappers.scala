@@ -2,10 +2,10 @@ package controllers.common
 
 import play.api.mvc._
 import controllers.common.service._
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import com.google.common.net.HttpHeaders
-import controllers.common.actions.{UserActionWrapper, AuditActionWrapper}
+import controllers.common.actions.AuditActionWrapper
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
