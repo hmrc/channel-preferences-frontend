@@ -4,12 +4,8 @@ import play.api.mvc._
 import controllers.common.service._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import views.html.login
 import com.google.common.net.HttpHeaders
-import play.api.Logger
-import controllers.common.actions.AuditActionWrapper
 import controllers.common.actions.{UserActionWrapper, AuditActionWrapper}
-import concurrent.Future
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -28,42 +24,7 @@ trait ActionWrappers
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with AuthorisationTypes
-  with UserActionWrapper {
-
-  object ActionAuthorisedBy {
-
-    import controllers.common.actions.{WithRequestLogging, WithHeaders}
-
-    def apply(authenticationType: AuthorisationType)
-             (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
-             (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
-      WithHeaders {
-        WithRequestLogging {
-          WithSessionTimeoutValidation {
-            WithUserAuthorisedBy(authenticationType)(taxRegime, redirectToOrigin) { user =>
-              WithRequestAuditing(user) {
-                user: User => Action(body(user))
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  object UnauthorisedAction {
-
-    import controllers.common.actions.{WithRequestLogging, WithHeaders}
-
-    def apply[A <: TaxRegime](body: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
-      WithHeaders {
-        WithRequestLogging {
-          WithRequestAuditing {
-            Action(body)
-          }
-        }
-      }
-  }
+  with Actions {
 
   override def regimeRoots(authority: UserAuthority): RegimeRoots = {
 

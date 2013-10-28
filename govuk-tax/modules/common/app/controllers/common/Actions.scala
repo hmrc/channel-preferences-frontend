@@ -1,17 +1,13 @@
 package controllers.common
 
 import play.api.mvc._
-import controllers.common.actions.AuditActionWrapper
+import controllers.common.actions.{UserActionWrapper, AuditActionWrapper}
 import uk.gov.hmrc.common.microservice.domain._
-import play.api.Logger
-import views.html.login
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import scala.concurrent.Future
 
 trait Actions
   extends Results
@@ -19,52 +15,22 @@ trait Actions
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with AuthorisationTypes
-  with ServiceRoots {
+  with ServiceRoots
+  with UserActionWrapper {
 
   object ActionAuthorisedBy {
 
     import controllers.common.actions.{WithRequestLogging, WithHeaders}
 
-    def apply(authenticationType: AuthorisationType)(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
-      def handleAuthorised(request: Request[AnyContent]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
-        case (Some(encryptedUserId), tokenOption) =>
-          val userId = decrypt(encryptedUserId)
-          val token = tokenOption.map(decrypt)
-          val userAuthority = authMicroService.authority(userId)
-          Logger.debug(s"Received user authority: $userAuthority")
-
-          userAuthority match {
-            case (Some(ua)) => {
-              taxRegime match {
-                case Some(regime) if !regime.isAuthorised(ua.regimes) =>
-                  Logger.info("user not authorised for " + regime.getClass)
-                  Right(Redirect(regime.unauthorisedLandingPage))
-                case _ =>
-                  Left(User(
-                    userId = userId,
-                    userAuthority = ua,
-                    regimes = regimeRoots(ua),
-                    nameFromGovernmentGateway = decrypt(request.session.get("name")),
-                    decryptedToken = token))
-              }
-            }
-            case _ => {
-              Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-              Right(Unauthorized(login()).withNewSession)
-            }
-          }
-      }
+    def apply(authenticationType: AuthorisationType)
+             (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
+             (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
       WithHeaders {
         WithRequestLogging {
           WithSessionTimeoutValidation {
-            Action.async { request =>
-              val handle = authenticationType.handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request)
-              val userOrFailureResult: Either[User, SimpleResult] = handle((request.session.get("userId"), request.session.get("token")))
-              userOrFailureResult match {
-                case Left(user) => WithRequestAuditing(user){
-                  user: User => Action(action(user))
-                }(request)
-                case Right(result) => Action(result)(request)
+            WithUserAuthorisedBy(authenticationType)(taxRegime, redirectToOrigin) { user =>
+              WithRequestAuditing(user) {
+                user: User => Action(body(user))
               }
             }
           }
@@ -77,14 +43,11 @@ trait Actions
 
     import controllers.common.actions.{WithRequestLogging, WithHeaders}
 
-    def apply[A <: TaxRegime](action: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
+    def apply[A <: TaxRegime](body: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
       WithHeaders {
         WithRequestLogging {
           WithRequestAuditing {
-            Action {
-              request =>
-                action(request)
-            }
+            Action(body)
           }
         }
       }
