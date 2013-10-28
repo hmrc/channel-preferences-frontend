@@ -15,7 +15,7 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory)
 
   def this() = this(new OtherServicesFactory(MicroServices.governmentGatewayMicroService))
 
-  def otherServices = AuthorisedForGovernmentGatewayAction() {
+  def otherServices = ActionAuthorisedBy(GovernmentGateway)() {
     implicit user =>
       implicit request =>
         Ok(otherServicesPage(

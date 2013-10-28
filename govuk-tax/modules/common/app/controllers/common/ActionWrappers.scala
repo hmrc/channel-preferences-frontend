@@ -8,7 +8,6 @@ import views.html.login
 import com.google.common.net.HttpHeaders
 import play.api.Logger
 import controllers.common.actions.{LoggingActionWrapper, AuditActionWrapper, HeaderActionWrapper}
-import controllers.common.FrontEndRedirect._
 import concurrent.Future
 
 trait HeaderNames {
@@ -28,12 +27,11 @@ trait ActionWrappers
   with HeaderActionWrapper
   with AuditActionWrapper
   with SessionTimeoutWrapper
-  with LoggingActionWrapper {
+  with LoggingActionWrapper
+  with AuthorisationTypes {
 
-  trait AuthorisedAction {
-    def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]]
-
-    def apply(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
+  object ActionAuthorisedBy {
+    def apply(authenticationType: AuthorisationType)(taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)(action: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
       def handleAuthorised(request: Request[AnyContent]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
         case (Some(encryptedUserId), tokenOption) =>
           val userId = decrypt(encryptedUserId)
@@ -66,7 +64,7 @@ trait ActionWrappers
         WithRequestLogging {
           WithSessionTimeoutValidation {
             Action.async { request =>
-              val handle = handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request)
+              val handle = authenticationType.handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request)
               val userOrFailureResult: Either[User, SimpleResult] = handle((request.session.get("userId"), request.session.get("token")))
               userOrFailureResult match {
                 case Left(user) => WithRequestAuditing(Some(user))(Action { action(user)(request)})(request)
@@ -76,35 +74,6 @@ trait ActionWrappers
           }
         }
       }
-    }
-  }
-
-  object AuthorisedForIdaAction extends AuthorisedAction {
-    def handleRedirect(request: Request[AnyContent], redirectToOrigin: Boolean): SimpleResult = {
-      val redirectUrl = if (redirectToOrigin) Some(request.uri) else None
-      toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
-    }
-    def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
-      case (None, token @ _) =>
-        Logger.info(s"No identity cookie found - redirecting to login. user: None token : ${token}")
-        Right(handleRedirect(request, redirectToOrigin))
-      case (Some(encryptedUserId), Some(token)) =>
-        Logger.info(s"Wrong user type - redirecting to login. user : ${decrypt(encryptedUserId)} token : ${token}")
-        Right(handleRedirect(request, redirectToOrigin))
-    }
-  }
-
-  object AuthorisedForGovernmentGatewayAction extends AuthorisedAction {
-
-    def handleRedirect(request: Request[AnyContent]): SimpleResult = Redirect(routes.HomeController.landing())
-
-    def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
-      case (None, token @ _) =>
-        Logger.info(s"No identity cookie found - redirecting to login. user: None token : ${token}")
-        Right(handleRedirect(request))
-      case (Some(encryptedUserId), None) =>
-        Logger.info(s"No gateway token - redirecting to login. user : ${decrypt(encryptedUserId)} token : None")
-        Right(handleRedirect(request))
     }
   }
 

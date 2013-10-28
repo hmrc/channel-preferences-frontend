@@ -28,15 +28,15 @@ with AgentMicroServices {
 
   def this() = this(MicroServices.keyStoreMicroService)
 
-  def start = AuthorisedForIdaAction(Some(AgentRegime), redirectToOrigin = true) {
+  def start = ActionAuthorisedBy(Ida)(Some(AgentRegime), redirectToOrigin = true) {
     homeAction
   }
 
-  def restart = AuthorisedForIdaAction(Some(AgentRegime)) {
+  def restart = ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
     restartAction
   }
 
-  def search = AuthorisedForIdaAction(Some(AgentRegime)) {
+  def search = ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
     searchAction
   }
 

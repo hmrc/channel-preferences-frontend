@@ -15,7 +15,7 @@ class BenefitHomeController(payeService: PayeMicroService) extends BaseControlle
 
   def this() = this(MicroServices.payeMicroService)
 
-  def listBenefits = WithSessionTimeoutValidation(AuthorisedForIdaAction(Some(PayeRegime)) {
+  def listBenefits = WithSessionTimeoutValidation(ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     implicit user: User => implicit request => listBenefitsAction(user, request)
   })
 

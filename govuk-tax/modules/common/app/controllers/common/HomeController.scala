@@ -12,7 +12,7 @@ class HomeController
       Redirect(routes.LoginController.login()).withNewSession
   }
 
-  def home = AuthorisedForIdaAction() {
+  def home = ActionAuthorisedBy(Ida)() {
     implicit user =>
       implicit request =>
         user.regimes match {

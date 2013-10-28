@@ -11,7 +11,7 @@ import service.agent.AgentMicroServices
 class AgentThankYouController extends BaseController with ActionWrappers with AgentController
   with MultiFormWrapper with AgentMapper with AgentMicroServices {
 
-  def thankYou = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def thankYou = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {
       user => request => thankYouAction(user, request)
     }

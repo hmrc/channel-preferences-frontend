@@ -11,7 +11,7 @@ class CtController
   with ActionWrappers
   with PortalUrlBuilder {
 
-  def makeAPayment = AuthorisedForGovernmentGatewayAction(Some(CtRegime)) {
+  def makeAPayment = ActionAuthorisedBy(GovernmentGateway)(Some(CtRegime)) {
     implicit user =>
       implicit request =>
         Results.Ok(makeAPaymentPage(buildPortalUrl("ctAccountDetails"), buildPortalUrl("ctDirectDebits")))

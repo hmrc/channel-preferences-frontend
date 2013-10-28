@@ -17,7 +17,7 @@ class CarBenefitHomeController
 
   private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
 
-  def carBenefitHome = AuthorisedForIdaAction(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
+  def carBenefitHome = ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
     implicit user =>
       implicit request =>
         carBenefitHomeAction

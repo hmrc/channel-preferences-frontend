@@ -11,7 +11,7 @@ class VatController
   with ActionWrappers
   with PortalUrlBuilder {
 
-  def makeAPayment = AuthorisedForGovernmentGatewayAction(Some(VatRegime)) {
+  def makeAPayment = ActionAuthorisedBy(GovernmentGateway)(Some(VatRegime)) {
     implicit user =>
       implicit request =>
         Results.Ok(makeAPaymentPage(buildPortalUrl("vatOnlineAccount")))

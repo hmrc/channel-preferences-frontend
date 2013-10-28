@@ -30,7 +30,7 @@ class AgentTypeAndLegalEntityController
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
-  def agentType = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def agentType = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {
       user => request => agentTypeAction(user, request)
     }
@@ -40,7 +40,7 @@ class AgentTypeAndLegalEntityController
     Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
-  def postAgentType = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def postAgentType = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {
       user => request => postAgentTypeAction(user, request)
     }

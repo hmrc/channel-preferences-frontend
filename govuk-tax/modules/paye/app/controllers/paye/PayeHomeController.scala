@@ -10,7 +10,7 @@ import uk.gov.hmrc.utils.TaxYearResolver
 
 class PayeHomeController extends BaseController {
 
-  def home = AuthorisedForIdaAction(Some(PayeRegime)) {
+  def home = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     implicit user =>
       implicit request =>
         homeAction(request)(user)
