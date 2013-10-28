@@ -92,7 +92,7 @@ object AddCarBenefitValidator extends Validators {
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateCarRegistrationDate(values: CarBenefitValues, timeSource: () => LocalDate) : Mapping[Option[LocalDate]] =
-    validateNotMoreThan7DaysFromNow(timeSource, dateTuple)
+     dateTuple.verifying("error.paye.registered_date_not_after_today", data => if (data.isDefined) !data.get.isAfter(timeSource()) else true)
       .verifying("error.paye.date_must_be_after_1900", data => if(data.isDefined) data.get.getYear>=1900 else true )
       .verifying("error.paye.answer_mandatory", data => data.isDefined)
 

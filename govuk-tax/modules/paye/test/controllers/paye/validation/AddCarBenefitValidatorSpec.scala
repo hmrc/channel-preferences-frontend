@@ -273,17 +273,17 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       form.errors(carRegistrationDate).size shouldBe 0
     }
 
-    "reject the car registration date if it more than 7 days after today" in new WithApplication(FakeApplication()) {
-      val tooLateDate = now.plusDays(8)
+    "reject the car registration date if it later than today" in new WithApplication(FakeApplication()) {
+      val tooLateDate = now.plusDays(1)
       val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some((tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString)))
 
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
       form.errors(carRegistrationDate).size shouldBe 1
-      assertHasThisErrorMessage(form, carRegistrationDate, "You must specify a date, which is not more than 7 days in future from today.")
+      assertHasThisErrorMessage(form, carRegistrationDate, "Date first registered with the DVLA cannot be in the future.")
     }
 
-    "accept the car registration date if it in 7 days after today" in new WithApplication(FakeApplication()) {
-      val tooLateDate = now.plusDays(7)
+    "accept the car registration date if it is today" in new WithApplication(FakeApplication()) {
+      val tooLateDate = now
       val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some((tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString)))
 
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
