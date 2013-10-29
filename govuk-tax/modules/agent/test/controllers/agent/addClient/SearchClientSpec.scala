@@ -23,12 +23,10 @@ import concurrent.Future
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
-  val authMicroService = ???
-  val auditMicroService = ???
   val agentMicroService = mock[AgentMicroService]
   val keyStoreMicroService = mock[KeyStoreMicroService]
 
-  val controller: SearchClientController = new SearchClientController(keyStoreMicroService, auditMicroService)(agentMicroService, authMicroService)
+  val controller: SearchClientController = new SearchClientController(keyStoreMicroService, null)(agentMicroService, null)
 
   val id = "wshakespeare"
   val authority = s"/auth/oid/$id"

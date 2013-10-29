@@ -30,14 +30,12 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
   val user = User(id, null, RegimeRoots(paye = Some(payeRoot)), None, None)
 
-  val authMicroService = mock[AuthMicroService]
-  val auditMicroService = mock[AuditMicroService]
   val keyStoreMicroService = mock[KeyStoreMicroService]
 
-  private val controller = new AgentContactDetailsController(auditMicroService, keyStoreMicroService)(authMicroService)
+  private val controller = new AgentContactDetailsController(null, keyStoreMicroService)(null)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    resetAll(auditMicroService, keyStoreMicroService, authMicroService)
+    resetAll(keyStoreMicroService)
   }
 
   "The contact details page" should {

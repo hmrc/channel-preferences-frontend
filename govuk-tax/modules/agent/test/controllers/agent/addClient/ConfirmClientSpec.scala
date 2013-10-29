@@ -21,12 +21,10 @@ import concurrent.Future
 
 class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
-  val authMicroService = ???
-  val auditMicroService = ???
   val agentMicroService = mock[AgentMicroService]
   val keyStoreMicroService = mock[KeyStoreMicroService]
 
-  val controller: ConfirmClientController = new ConfirmClientController(keyStoreMicroService, auditMicroService)(authMicroService)
+  val controller: ConfirmClientController = new ConfirmClientController(keyStoreMicroService, null)(null)
 
   val id = "wshakespeare"
   val instanceId = "exampleInstanceId"

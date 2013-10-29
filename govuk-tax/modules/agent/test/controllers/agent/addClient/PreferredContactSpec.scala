@@ -38,16 +38,14 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     nameFromGovernmentGateway = None,
     decryptedToken = None)
 
-  val authMicroService = ???
-  val auditMicroService = ???
   val agentMicroService = mock[AgentMicroService]
   val keyStoreMicroService = mock[KeyStoreMicroService]
   //TODO: delete this and just use the above mock
   val confirmKeyStoreMicroService = mock[KeyStoreMicroService]
 
-  val contactController: PreferredContactController = new PreferredContactController(keyStoreMicroService, auditMicroService)(agentMicroService, authMicroService)
+  val contactController: PreferredContactController = new PreferredContactController(keyStoreMicroService, null)(agentMicroService, null)
 
-  val confirmController: ConfirmClientController = new ConfirmClientController(confirmKeyStoreMicroService, auditMicroService)(authMicroService)
+  val confirmController: ConfirmClientController = new ConfirmClientController(confirmKeyStoreMicroService, null)(null)
 
   before {
     MockUtils.resetAll(keyStoreMicroService, confirmKeyStoreMicroService, agentMicroService)

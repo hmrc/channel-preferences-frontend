@@ -31,14 +31,12 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
 
   val mockKeyStore = mock[KeyStore[String]]
 
-  val authMicroService = mock[AuthMicroService]
-  val auditMicroService = mock[AuditMicroService]
   val keyStoreMicroService = mock[KeyStoreMicroService]
 
-  private val controller = new AgentProfessionalBodyMembershipController(auditMicroService, keyStoreMicroService)(authMicroService)
+  private val controller = new AgentProfessionalBodyMembershipController(null, keyStoreMicroService)(null)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    MockUtils.resetAll(auditMicroService, keyStoreMicroService, authMicroService)
+    MockUtils.resetAll(keyStoreMicroService)
   }
 
   "AgentProfessionalMembershipController" should {

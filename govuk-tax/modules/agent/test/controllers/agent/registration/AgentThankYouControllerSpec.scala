@@ -34,12 +34,10 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
   val user = User(id, null, RegimeRoots(paye = Some(payeRoot)), None, None)
 
-  val authMicroService = ???
-  val auditMicroService = ???
   val agentMicroService = mock[AgentMicroService]
   val keyStoreMicroService = mock[KeyStoreMicroService]
 
-  private val controller = new AgentThankYouController(auditMicroService, keyStoreMicroService)(agentMicroService, authMicroService) {
+  private val controller = new AgentThankYouController(null, keyStoreMicroService)(agentMicroService, null) {
     override def toAgent(implicit keyStore: KeyStore[Map[String, String]]) = {
       agentRegistrationRequest
     }
