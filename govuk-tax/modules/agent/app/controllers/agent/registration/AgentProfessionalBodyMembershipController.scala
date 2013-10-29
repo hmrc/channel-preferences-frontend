@@ -7,12 +7,24 @@ import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.{BaseController2, Actions}
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import controllers.common.service.MicroServices
 
-class AgentProfessionalBodyMembershipController extends BaseController with ActionWrappers with AgentController
-  with Validators with MultiFormWrapper {
+class AgentProfessionalBodyMembershipController(override val auditMicroService: AuditMicroService,
+                                                override val keyStoreMicroService: KeyStoreMicroService)
+                                               (implicit override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions
+  with AgentController
+  with Validators
+  with MultiFormWrapper {
+
+  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(MicroServices.authMicroService)
 
   private val professionalBodyMembershipForm = Form[AgentProfessionalBodyMembership](
     mapping(

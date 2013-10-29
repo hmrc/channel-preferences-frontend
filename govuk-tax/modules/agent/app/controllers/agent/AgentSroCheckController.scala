@@ -5,8 +5,7 @@ import play.api.data.Forms._
 import controllers.common._
 import play.api.Logger
 
-class AgentSroCheckController
-  extends BaseController {
+class AgentSroCheckController extends BaseController with Actions {
 
   def reasonForApplication() = UnauthorisedAction {
     implicit request =>

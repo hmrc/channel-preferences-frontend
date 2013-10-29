@@ -2,7 +2,7 @@ package controllers.agent.addClient
 
 import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient._
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.{BaseController2, Actions}
 import play.api.data.{Form, Forms}
 import Forms._
 import org.joda.time.LocalDate
@@ -18,15 +18,21 @@ import ConfirmClientController.confirmClientForm
 import org.bson.types.ObjectId
 import uk.gov.hmrc.domain.Nino
 import models.agent.{SearchRequest, MatchingPerson}
-import service.agent.AgentMicroServices
+import service.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 
-class SearchClientController(keyStore: KeyStoreMicroService) extends BaseController with ActionWrappers
-with AgentMicroServices {
+class SearchClientController(val keyStoreMicroService: KeyStoreMicroService,
+                             override val auditMicroService: AuditMicroService)
+                            (implicit agentMicroService: AgentMicroService,
+                             override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions {
 
   import SearchClientController._
   import SearchClientController.KeyStoreKeys._
 
-  def this() = this(MicroServices.keyStoreMicroService)
+  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService)(AgentMicroService(), MicroServices.authMicroService)
 
   def start = ActionAuthorisedBy(Ida)(Some(AgentRegime), redirectToOrigin = true) {
     homeAction
@@ -69,7 +75,7 @@ with AgentMicroServices {
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
-                keyStore.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
+                keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
                 Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
               }
             }
@@ -152,11 +158,11 @@ object SearchClientController {
   }
 
   private[addClient] object FieldIds {
-    val nino = "nino";
-    val firstName = "firstName";
-    val lastName = "lastName";
-    val dob = "dob";
-    val instanceId = "instanceId";
+    val nino = "nino"
+    val firstName = "firstName"
+    val lastName = "lastName"
+    val dob = "dob"
+    val instanceId = "instanceId"
   }
 
 }

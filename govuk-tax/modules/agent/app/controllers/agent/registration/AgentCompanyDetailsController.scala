@@ -10,15 +10,23 @@ import play.api.data._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.{BaseController2, Actions}
 import controllers.common.actions.MultiFormWrapper
+import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 
-class AgentCompanyDetailsController
-  extends BaseController
-  with ActionWrappers
+class AgentCompanyDetailsController(override val auditMicroService: AuditMicroService,
+                                    override val keyStoreMicroService: KeyStoreMicroService)
+                                   (implicit override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions
   with AgentController
   with Validators
   with MultiFormWrapper {
+
+  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(MicroServices.authMicroService)
 
   private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
@@ -96,19 +104,19 @@ class AgentCompanyDetailsController
   )
 
   def companyDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
-      MultiFormAction(multiFormConfig) {
-        user => request => companyDetailsAction(user, request)
-      }
+    MultiFormAction(multiFormConfig) {
+      user => request => companyDetailsAction(user, request)
     }
+  }
 
   private[registration] val companyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) =>
     Ok(views.html.agents.registration.company_details(companyDetailsForm.fill(AgentCompanyDetails())))
 
   def postCompanyDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
-      MultiFormAction(multiFormConfig) {
-        user => request => postCompanyDetailsAction(user, request)
-      }
+    MultiFormAction(multiFormConfig) {
+      user => request => postCompanyDetailsAction(user, request)
     }
+  }
 
   private[registration] val postCompanyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
     companyDetailsForm.bindFromRequest()(request).fold(
