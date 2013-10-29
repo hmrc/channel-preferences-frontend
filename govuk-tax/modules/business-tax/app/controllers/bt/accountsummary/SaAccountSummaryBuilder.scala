@@ -25,9 +25,9 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) e
           regimeName = saRegimeName,
           messages = utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
           addenda = Seq(
-            LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, Some("portalLink")),
+            LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
             LinkMessage.internalLink(routes.BusinessTaxController.makeAPaymentLanding().url, makeAPaymentLinkMessage),
-            LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage)),
+            LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
           status = SummaryStatus.success
         )
       }

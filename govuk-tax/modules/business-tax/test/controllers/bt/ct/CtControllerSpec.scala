@@ -9,6 +9,7 @@ import play.api.mvc.Result
 import play.api.test.Helpers._
 import org.mockito.Matchers
 import concurrent.Future
+import views.helpers.{LinkMessage, RenderableLinkMessage}
 
 class CtControllerSpec extends BaseSpec {
 
@@ -16,7 +17,10 @@ class CtControllerSpec extends BaseSpec {
       val expectedHtml = "<html>happy Italian pasquetta</html>"
       when(mockPortalUrlBuilder.buildPortalUrl("ctAccountDetails")).thenReturn("ctAccountDetailsUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("ctDirectDebits")).thenReturn("ctDirectDebitsUrl")
-      when(mockCtPages.makeAPaymentPage("ctAccountDetailsUrl", "ctDirectDebitsUrl")).thenReturn(Html(expectedHtml))
+
+      val expectedAccountDetailsLink = RenderableLinkMessage(LinkMessage(href="ctAccountDetailsUrl", text="NO LINK TEXT DEFINED", sso = true))
+      val expectedDirectDebitsLink = RenderableLinkMessage(LinkMessage(href="ctDirectDebitsUrl", text="NO LINK TEXT DEFINED", sso = true))
+      when(mockCtPages.makeAPaymentPage(expectedAccountDetailsLink, expectedDirectDebitsLink)).thenReturn(Html(expectedHtml))
       val result = Future.successful(controllerUnderTest.makeAPayment(request))
       status(result) shouldBe 200
       contentAsString(result) shouldBe expectedHtml

@@ -13,7 +13,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
   import VatMessageKeys._
   import VatPortalUrls._
 
-  def rootForRegime(user: User) = user.regimes.vat
+  def rootForRegime(user: User): Option[VatRoot] = user.regimes.vat
 
   def buildAccountSummary(vatRoot: VatRoot, buildPortalUrl: String => String): AccountSummary = {
     val accountSummary: Option[VatAccountSummary] = vatRoot.accountSummary(vatConnector)
@@ -34,8 +34,8 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
       case _ => {
         val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
           Msg(vatSummaryUnavailableErrorMessage3),
-          //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
-          Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage.portalLink(buildPortalUrl(vatHelpDeskPortalUrl), vatHelpDeskLinkMessage))))
+        //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
+          Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage.portalLink(buildPortalUrl(vatHelpDeskPortalUrl), Some(vatHelpDeskLinkMessage)))))
         AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
       }
     }
@@ -44,9 +44,9 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
   private def successLinks(buildPortalUrl: (String) => String): Seq[RenderableMessage] = {
     val makeAPaymentUri = routes.VatController.makeAPayment().url
     Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage),
+      LinkMessage.portalLink(buildPortalUrl(vatAccountDetailsPortalUrl), Some(viewAccountDetailsLinkMessage)),
       LinkMessage.internalLink(makeAPaymentUri, makeAPaymentLinkMessage),
-      LinkMessage.portalLink(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage)
+      LinkMessage.portalLink(buildPortalUrl(vatFileAReturnPortalUrl), Some(fileAReturnLinkMessage))
     )
   }
 

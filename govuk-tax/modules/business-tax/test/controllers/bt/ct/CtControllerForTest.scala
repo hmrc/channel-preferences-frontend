@@ -7,6 +7,7 @@ import controllers.bt.testframework.mocks.{PortalUrlBuilderMock, DateTimeProvide
 import play.api.templates.Html
 import uk.gov.hmrc.common.microservice.domain.User
 import org.scalatest.mock.MockitoSugar
+import views.helpers.RenderableMessage
 
 abstract class CtControllerForTest extends WithApplication(FakeApplication()) with CookieEncryption with PortalUrlBuilderMock with ConnectorMocks with DateTimeProviderMock with CtPageMocks {
 
@@ -19,14 +20,14 @@ trait CtPageMocks extends MockitoSugar {
   val mockCtPages = mock[MockableCtPages]
 
   trait MockableCtPages {
-    def makeAPaymentPage(ctOnlineAccount: String, ctDirectDebits: String): Html
+    def makeAPaymentPage(ctOnlineAccountLink: RenderableMessage, ctDirectDebitsLink: RenderableMessage): Html
   }
 
   trait MockedCtPages {
     self: CtController =>
 
-    private[bt] override def makeAPaymentPage(ctOnlineAccount: String, ctDirectDebits: String)(implicit user: User): Html = {
-      mockCtPages.makeAPaymentPage(ctOnlineAccount, ctDirectDebits)
+    private[bt] override def makeAPaymentPage(ctOnlineAccountLink: RenderableMessage, ctDirectDebitsLink: RenderableMessage)(implicit user: User): Html = {
+      mockCtPages.makeAPaymentPage(ctOnlineAccountLink, ctDirectDebitsLink)
     }
   }
 }

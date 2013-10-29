@@ -7,6 +7,7 @@ import controllers.bt.testframework.mocks.{PortalUrlBuilderMock, DateTimeProvide
 import org.scalatest.mock.MockitoSugar
 import play.api.templates.Html
 import uk.gov.hmrc.common.microservice.domain.User
+import views.helpers.RenderableMessage
 
 abstract class VatControllerForTest extends WithApplication(FakeApplication()) with CookieEncryption with PortalUrlBuilderMock with ConnectorMocks with DateTimeProviderMock with VatPageMocks {
 
@@ -19,14 +20,14 @@ trait VatPageMocks extends MockitoSugar {
   val mockVatPages = mock[MockableVatPages]
 
   trait MockableVatPages {
-    def makeAPaymentPage(vatOnlineAccount: String): Html
+    def makeAPaymentPage(vatOnlineAccountLink: RenderableMessage): Html
   }
 
   trait MockedVatPages {
     self: VatController =>
 
-    private[bt] override def makeAPaymentPage(vatOnlineAccount: String)(implicit user: User): Html = {
-      mockVatPages.makeAPaymentPage(vatOnlineAccount)
+    private[bt] override def makeAPaymentPage(vatOnlineAccountLink: RenderableMessage)(implicit user: User): Html = {
+      mockVatPages.makeAPaymentPage(vatOnlineAccountLink)
     }
   }
 

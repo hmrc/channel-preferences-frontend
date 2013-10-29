@@ -5,6 +5,8 @@ import controllers.common.{GovernmentGateway, ActionWrappers, BaseController}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.ct.domain.CtRegime
+import views.helpers.{LinkMessage, RenderableLinkMessage, RenderableMessage}
+
 
 class CtController
   extends BaseController
@@ -14,11 +16,11 @@ class CtController
   def makeAPayment = ActionAuthorisedBy(GovernmentGateway)(Some(CtRegime)) {
     implicit user =>
       implicit request =>
-        Results.Ok(makeAPaymentPage(buildPortalUrl("ctAccountDetails"), buildPortalUrl("ctDirectDebits")))
+        Results.Ok(makeAPaymentPage(LinkMessage.portalLink(buildPortalUrl("ctAccountDetails")), LinkMessage.portalLink(buildPortalUrl("ctDirectDebits"))))
   }
 
-  private[bt] def makeAPaymentPage(ctOnlineAccountHref: String, ctDirectDebitsHref: String)(implicit user: User) =
-    views.html.make_a_ct_payment(ctOnlineAccountHref = ctOnlineAccountHref, ctDirectDebitsHref = ctDirectDebitsHref)
+  private[bt] def makeAPaymentPage(ctOnlineAccountLink: RenderableMessage, ctDirectDebitsLink: RenderableMessage)(implicit user: User) =
+    views.html.make_a_ct_payment(ctOnlineAccountLink = ctOnlineAccountLink, ctDirectDebitsLink = ctDirectDebitsLink)
 }
 
 

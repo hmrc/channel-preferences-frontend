@@ -2,6 +2,7 @@ package views.helpers
 
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.{FakeApplication, WithApplication}
+import RenderableMessageProperty.Link._
 
 class LinkRendererSpec extends BaseSpec {
 
@@ -106,6 +107,45 @@ class LinkRendererSpec extends BaseSpec {
       result shouldBe "<A href=\"someHref\" id=\"someId\" target=\"_blank\" data-sso=\"true\">someText</A> somePostLinkText"
     }
 
+    "render a link with overridden values " should {
+
+      "render a link and override the text value with the one specified" in new WithApplication(FakeApplication()) {
+        val linkMessage = RenderableLinkMessage(LinkMessage("someHref", "someText", sso = false))
+        val textToUse = "someTextToUseToOverride"
+        val result = linkMessage.set((TEXT, textToUse)).render.toString().trim
+        result shouldBe "<A href=\"someHref\">someTextToUseToOverride</A>"
+      }
+
+      "render a link and override the id value with the one specified" in new WithApplication(FakeApplication()) {
+        val linkMessage = RenderableLinkMessage(LinkMessage("someHref", "someText", id = Some("defaultId"), sso = false))
+        val idToUse = "someIdToUseToOverride"
+        val result = linkMessage.set((ID, idToUse)).render.toString().trim
+        result shouldBe "<A href=\"someHref\" id=\"someIdToUseToOverride\">someText</A>"
+      }
+
+      "render a link and override the id and the text values with the ones specified" in new WithApplication(FakeApplication()) {
+        val linkMessage = RenderableLinkMessage(LinkMessage("someHref", "someText", id = Some("defaultId"), sso = false))
+        val textToUse = "someTextToUseToOverride"
+        val idToUse = "someIdToUseToOverride"
+        val result = linkMessage.set((ID, idToUse)).set((TEXT, textToUse)).render.toString().trim
+        result shouldBe "<A href=\"someHref\" id=\"someIdToUseToOverride\">someTextToUseToOverride</A>"
+      }
+
+      "render a link and override the id value with the one specified also if there is no default id" in new WithApplication(FakeApplication()) {
+        val linkMessage = RenderableLinkMessage(LinkMessage("someHref", "someText", sso = false))
+        val idToUse = "someIdToUseToOverride"
+        val result = linkMessage.set((ID, idToUse)).render.toString().trim
+        result shouldBe "<A href=\"someHref\" id=\"someIdToUseToOverride\">someText</A>"
+      }
+
+      "render a link and override the id and the text values with the ones specified also if there is no default id" in new WithApplication(FakeApplication()) {
+        val linkMessage = RenderableLinkMessage(LinkMessage("someHref", "someText", sso = false))
+        val textToUse = "someTextToUseToOverride"
+        val idToUse = "someIdToUseToOverride"
+        val result = linkMessage.set((ID, "someIdToUseToOverride")).set((TEXT, textToUse)).render.toString().trim
+        result shouldBe "<A href=\"someHref\" id=\"someIdToUseToOverride\">someTextToUseToOverride</A>"
+      }
+    }
   }
 
 }

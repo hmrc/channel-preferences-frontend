@@ -5,6 +5,7 @@ import controllers.common.{GovernmentGateway, ActionWrappers, BaseController}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.vat.domain.VatRegime
+import views.helpers.{LinkMessage, RenderableMessage}
 
 class VatController
   extends BaseController
@@ -14,11 +15,11 @@ class VatController
   def makeAPayment = ActionAuthorisedBy(GovernmentGateway)(Some(VatRegime)) {
     implicit user =>
       implicit request =>
-        Results.Ok(makeAPaymentPage(buildPortalUrl("vatOnlineAccount")))
+        Results.Ok(makeAPaymentPage(LinkMessage.portalLink(buildPortalUrl("vatOnlineAccount"))))
   }
 
-  private[bt] def makeAPaymentPage(vatOnlineAccountHref: String)(implicit user: User) =
-    views.html.make_a_vat_payment(vatOnlineAccountHref = vatOnlineAccountHref)
+  private[bt] def makeAPaymentPage(vatOnlineAccountLink: RenderableMessage)(implicit user: User) =
+    views.html.make_a_vat_payment(vatOnlineAccountLink = vatOnlineAccountLink)
 }
 
 

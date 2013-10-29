@@ -2,14 +2,15 @@
  * Attach a one-time event handler for all global links
  */
 $(document).on('click', 'a', function(e) {
+    
   var $target = $(this),
-      linkHost = this.host,
+      linkHost = ($(this).data('sso') === true) ? true : false,
       a = document.createElement('a');
 
   a.href = ssoUrl;
   ssoHost = a.host;
 
-  if(linkHost === ssoHost) {
+  if(linkHost) {
     var successful = true;
 
     $.ajax({
@@ -180,4 +181,3 @@ function toggleDefaultOptions($form, $options, bool) {
             });
   }
 });
-
