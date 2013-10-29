@@ -1,7 +1,7 @@
 package controllers.agent.registration
 
 import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MockUtils, BaseSpec}
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.Helpers._
@@ -17,6 +17,8 @@ import scala.Some
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
 import scala.util.Success
 import concurrent.Future
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 
 class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -29,12 +31,14 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
 
   val mockKeyStore = mock[KeyStore[String]]
 
-  private val controller = new AgentProfessionalBodyMembershipController {
-    override lazy val keyStoreMicroService = mock[KeyStoreMicroService]
-  }
+  val authMicroService = mock[AuthMicroService]
+  val auditMicroService = mock[AuditMicroService]
+  val keyStoreMicroService = mock[KeyStoreMicroService]
 
-  override protected def beforeEach(testData: TestData) {
-    Mockito.reset(controller.keyStoreMicroService)
+  private val controller = new AgentProfessionalBodyMembershipController(auditMicroService, keyStoreMicroService)(authMicroService)
+
+  override protected def beforeEach(testData: TestData): Unit = {
+    MockUtils.resetAll(auditMicroService, keyStoreMicroService, authMicroService)
   }
 
   "AgentProfessionalMembershipController" should {

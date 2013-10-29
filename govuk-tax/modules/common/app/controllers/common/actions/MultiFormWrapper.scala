@@ -1,12 +1,11 @@
 package controllers.common.actions
 
-import controllers.common.service.MicroServices
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import concurrent.Future
 
 
-trait MultiFormWrapper extends MicroServices{
+trait MultiFormWrapper {
+  val keyStoreMicroService: KeyStoreMicroService
   object MultiFormAction extends MultiFormAction(keyStoreMicroService)
 }
 
@@ -14,7 +13,7 @@ case class MultiFormConfiguration(id: String, source: String, stepsList: List[Mu
 
 case class MultiFormStep(stepName: String, stepCall: Call)
 
-class MultiFormAction(keyStore: KeyStoreMicroService = MicroServices.keyStoreMicroService) extends Results {
+class MultiFormAction(keyStore: KeyStoreMicroService) extends Results {
 
   import uk.gov.hmrc.common.microservice.domain.User
 

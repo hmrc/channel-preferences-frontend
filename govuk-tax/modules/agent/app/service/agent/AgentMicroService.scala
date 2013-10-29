@@ -26,8 +26,11 @@ class AgentMicroService extends AgentMicroServiceRoot {
   }
 }
 
-
-trait AgentMicroServices {
-
-  implicit lazy val agentMicroService = new AgentMicroService()
+object AgentMicroService {
+  def apply() = new AgentMicroService()
 }
+
+//trait AgentMicroServices {
+//
+//  implicit lazy val agentMicroService = new AgentMicroService()
+//}

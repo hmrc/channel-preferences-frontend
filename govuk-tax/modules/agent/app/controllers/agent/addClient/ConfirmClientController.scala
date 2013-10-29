@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.{Actions, BaseController2, ActionWrappers, BaseController}
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import play.api.mvc.{SimpleResult, Request}
@@ -12,11 +12,19 @@ import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import PreferredClientController.emptyUnValidatedPreferredContactForm
+import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 
-class ConfirmClientController
-  extends BaseController
-  with ActionWrappers
+class ConfirmClientController(keyStoreMicroService: KeyStoreMicroService,
+                              override val auditMicroService: AuditMicroService)
+                             (implicit override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions
   with Validators {
+
+  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService)(MicroServices.authMicroService)
 
   import ConfirmClientController._
 

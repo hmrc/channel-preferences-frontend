@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MockUtils, BaseSpec}
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
@@ -23,9 +23,12 @@ import concurrent.Future
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
-  var keyStore: KeyStoreMicroService = _
-  var agentService: AgentMicroService = _
-  var controller: SearchClientController = _
+  val authMicroService = ???
+  val auditMicroService = ???
+  val agentMicroService = mock[AgentMicroService]
+  val keyStoreMicroService = mock[KeyStoreMicroService]
+
+  val controller: SearchClientController = new SearchClientController(keyStoreMicroService, auditMicroService)(agentMicroService, authMicroService)
 
   val id = "wshakespeare"
   val authority = s"/auth/oid/$id"
@@ -35,11 +38,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
   val agentWithClients = User(id, null, RegimeRoots(paye = Some(payeRoot), agent = Some(AgentRoot("SomeUAR", Map("AB123456C" -> "/some/link"), Map("search" -> "/agent/search")))), None, None)
 
   before {
-    keyStore = mock[KeyStoreMicroService]
-    agentService = mock[AgentMicroService]
-    controller = new SearchClientController(keyStore) {
-      override implicit lazy val agentMicroService: AgentMicroService = agentService
-    }
+    MockUtils.resetAll(agentMicroService, keyStoreMicroService)
   }
 
   "The home action" should {
@@ -191,7 +190,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
-      when(agentService.searchClient(any[String], any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
+      when(agentMicroService.searchClient(any[String], any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "étåtø", lastName = "étåtœ", dob = ("1", "1", "1991"))
 
       status(result) shouldBe 200
@@ -224,7 +223,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
       status(result) shouldBe 200
 
-      verifyZeroInteractions(keyStore)
+      verifyZeroInteractions(keyStoreMicroService)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("input") should be(empty)
@@ -233,7 +232,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     "not save anything to keystore when we make a submission with errors" in new WithApplication(FakeApplication()) {
       val result = executeSearchActionWith(nino = "", firstName = "", lastName = "", dob = ("", "", ""))
       status(result) shouldBe 400
-      verifyZeroInteractions(keyStore)
+      verifyZeroInteractions(keyStoreMicroService)
     }
 
     "save the client search results to the keystore when we make a successful submission with all fields" in new WithApplication(FakeApplication()) {
@@ -242,7 +241,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         (clientSearch.dob.get.getDayOfMonth.toString, clientSearch.dob.get.getMonthOfYear.toString, clientSearch.dob.get.getYear.toString), "12637868")
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(agent.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+      verify(keyStoreMicroService).addKeyStoreEntry(KeyStoreKeys.keystoreId(agent.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C", Some("resFirstName"), Some("resLastName"), Some(new LocalDate(1991, 1, 1)))), None, None))
     }
 
@@ -252,7 +251,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         ("", "", ""), "12637868")
       status(result) shouldBe 200
-      verify(keyStore).addKeyStoreEntry(KeyStoreKeys.keystoreId(agent.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
+      verify(keyStoreMicroService).addKeyStoreEntry(KeyStoreKeys.keystoreId(agent.oid, "12637868"), KeyStoreKeys.serviceSourceKey, KeyStoreKeys.addClientKey,
         PotentialClient(Some(ClientSearch("AB123456C", Some("resFirstName"), Some("resLastName"), None)), None, None))
     }
 
@@ -261,7 +260,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "", lastName = "lastName", dob = ("1", "1", "1990"))
 
       status(result) shouldBe 404
-      verifyZeroInteractions(keyStore)
+      verifyZeroInteractions(keyStoreMicroService)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error #globalErrors") should not be 'empty
@@ -279,9 +278,9 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       Future.successful(controller.searchAction(agent)(request))
     }
 
-    def givenTheAgentServiceFindsNoMatch() = when(agentService.searchClient(any[String], any[SearchRequest])).thenReturn(None)
+    def givenTheAgentServiceFindsNoMatch() = when(agentMicroService.searchClient(any[String], any[SearchRequest])).thenReturn(None)
     def givenTheAgentServiceReturnsAMatch(alreadyClient: Boolean = false) =
-      when(agentService.searchClient(any[String], any[SearchRequest]))
+      when(agentMicroService.searchClient(any[String], any[SearchRequest]))
         .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"))))
 
   }

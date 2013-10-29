@@ -1,6 +1,6 @@
 package controllers.agent.registration
 
-import controllers.common.BaseController
+import controllers.common.{BaseController2, Actions}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.data.Form
 import play.api.data.Forms._
@@ -8,16 +8,23 @@ import scala.Some
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
-import controllers.common.service.MicroServices
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
+import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 
-class AgentTypeAndLegalEntityController
-  extends BaseController
-  with MicroServices
+class AgentTypeAndLegalEntityController(override val auditMicroService: AuditMicroService,
+                                        override val keyStoreMicroService: KeyStoreMicroService)
+                                       (implicit override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions
   with AgentController
   with Validators
   with MultiFormWrapper {
+
+  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(MicroServices.authMicroService)
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(

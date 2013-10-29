@@ -1,15 +1,28 @@
 package controllers.agent.registration
 
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.{Actions, BaseController2}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import controllers.agent.registration.FormNames._
 import controllers.common.actions.MultiFormWrapper
-import service.agent.AgentMicroServices
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import service.agent.AgentMicroService
 
-class AgentThankYouController extends BaseController with ActionWrappers with AgentController
-  with MultiFormWrapper with AgentMapper with AgentMicroServices {
+class AgentThankYouController(override val auditMicroService: AuditMicroService,
+                              override val keyStoreMicroService: KeyStoreMicroService)
+                             (implicit agentMicroService : AgentMicroService,
+                              override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions
+  with AgentController
+  with MultiFormWrapper
+  with AgentMapper {
+
+  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(AgentMicroService(), MicroServices.authMicroService)
 
   def thankYou = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {

@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.{BaseController2, Actions, ActionWrappers, BaseController}
 import controllers.common.validators.Validators
 import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient.{client_successfully_added, preferred_contact}
@@ -14,11 +14,20 @@ import scala.Some
 import Validators.validateMandatoryPhoneNumber
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import models.agent.{Client, Contact, PreferredContact}
-import service.agent.AgentMicroServices
+import service.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import controllers.common.service.MicroServices
 
-class PreferredContactController
-  extends BaseController
-  with ActionWrappers with AgentMicroServices {
+class PreferredContactController(keyStoreMicroService: KeyStoreMicroService,
+                                 override val auditMicroService: AuditMicroService)
+                                (implicit agentMicroService : AgentMicroService,
+                                 override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions {
+
+  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService)(AgentMicroService(), MicroServices.authMicroService)
 
   def preferredContact = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     preferredContactAction
