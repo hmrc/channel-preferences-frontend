@@ -14,7 +14,7 @@ import org.mockito.Mockito
 import uk.gov.hmrc.common.microservice.agent.AgentMicroServiceRoot
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 
-@deprecated("Uses Microservices, mock your injected services directly")
+@deprecated("Uses Microservices, mock your injected services directly", "29.10.13")
 trait MockMicroServicesForTests extends MicroServices with MockitoSugar {
 
   override lazy val authMicroService = mock[AuthMicroService]

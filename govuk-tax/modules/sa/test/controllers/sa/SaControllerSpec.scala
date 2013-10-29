@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URI }
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MockUtils, BaseSpec}
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
@@ -19,6 +19,8 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.SaUtr
 import java.util.UUID
 import concurrent.Future
+import uk.gov.hmrc.common.microservice.sa.SaConnector
+import org.scalatest.TestData
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -26,7 +28,9 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
   private val currentTime = new DateTime(2012, 12, 21, 12, 4, 32, DateTimeZone.UTC)
 
-  private lazy val controller = new SaController with MockMicroServicesForTests {
+  val saConnector = mock[SaConnector]
+  
+  private lazy val controller = new SaController(null)(saConnector, null) {
     override def now = () => currentTime
   }
 
@@ -48,11 +52,14 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
   val geoffFisher = setupUser("/auth/oid/gfisher", "123456789012", "Geoff Fisher", nameFromGovernmentGateway)
 
+  override protected def beforeEach(testData: TestData): Unit = {
+    MockUtils.resetAll(saConnector)
+  }
+
   "The details page" should {
     "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
 
-      when(controller.saConnector.person("/sa/individual/123456789012/details")).thenReturn(
+      when(saConnector.person("/sa/individual/123456789012/details")).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           address = SaIndividualAddress(
@@ -85,9 +92,8 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
 
-      when(controller.saConnector.person("/sa/individual/123456789012/details")).thenReturn(None)
+      when(saConnector.person("/sa/individual/123456789012/details")).thenReturn(None)
       val result = Future.successful(controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), lastRequestTimestampKey -> controller.now().getMillis.toString)))
       status(result) should be(404)
     }
@@ -96,7 +102,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
   "Change Address Page " should {
 
     "render a form with address fields to be entered when a user is logged in and authorised for SA" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.changeAddressAction(geoffFisher, FakeRequest("GET", "/prefs?rd=redirest_url").withFormUrlEncodedBody("email" -> "someuser@test.com")))
 
@@ -120,7 +126,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     val invalidMessageForPostcode = """Postcode is incorrect"""
 
     "show the postcode error message if the postcode field is missing" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> "", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -131,7 +137,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the postcode error message if the postcode field is blank" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> "    ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -142,7 +148,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the postcode error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> "Â^GYaaa", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -153,7 +159,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the postcode error message if it contains an invalid character that is accepted in address" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> "sw, 45-", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -164,7 +170,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the postcode error message if it contains more than 7 characters (excluding space)" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> "ABC 12345", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -175,7 +181,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "accept a valid postcode with blank spaces" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> " SW95  8UT ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -184,7 +190,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "accept a valid postcode of minimum length" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> "SW958", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -193,7 +199,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the postcode error message when length below 5" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> " S  8UT ", "addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123")))
@@ -208,7 +214,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
   "Submit Change Address Page " should {
     "show the address line 1 error message if it is missing" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest().withFormUrlEncodedBody("addressLine1" -> "", "addressLine2" -> "addressline2data")))
 
@@ -218,7 +224,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 1 error message if the data is greater than 28 characters" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher,
         FakeRequest().withFormUrlEncodedBody("addressLine1" -> "12345678901234567890123456789", "addressLine2" -> "addressline2data")))
@@ -229,7 +235,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 2 error message if the data is greater than 28 characters" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "12345678901234567890123456789")))
@@ -240,7 +246,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 3 error message if the data is greater than 18 characters" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "1234567890123456789")))
@@ -251,7 +257,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 4 error message if the data is greater than 18 characters" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine3" -> "addressline3data", "optionalAddressLines.addressLine4" -> "1234567890123456789")))
@@ -262,7 +268,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 2 error message if it is missing" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine2" -> "", "addressLine1" -> "addressline1data")))
@@ -273,7 +279,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 3 error message when address line 4 is present" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "addressline1data", "addressLine2" -> "addressline2data", "optionalAddressLines.addressLine4" -> "addressline4data")))
@@ -284,7 +290,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 1 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "address_Line1BadData", "addressLine2" -> "addressLine2Data")))
@@ -295,7 +301,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 2 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2|BadData")))
@@ -306,7 +312,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 3 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data", "optionalAddressLines.addressLine3" -> "addressLine4~Bad")))
@@ -317,7 +323,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "show the address line 4 error message if it contains an invalid character" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "addressLine1Data", "addressLine2" -> "addressLine2Data",
@@ -330,7 +336,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
     "allow all valid characters in address lines" in new WithApplication(FakeApplication()) {
 
-      controller.resetAll()
+      
 
       val result = Future.successful(controller.submitChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("addressLine1" -> "ABCDEFGHIJKLMNOPQRSTUVWXYZab", "addressLine2" -> "cdefghijklmnopqrstuvwxyz0123",
@@ -340,7 +346,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
     }
 
     "take the user to a confirmation page that displays the form values entered" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val addressData1 = "ad1"
       val addressData2 = "ad2"
@@ -383,7 +389,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
   "Submit Change Address Confirmation Page" should {
     // TODO: Post payload validation tests
     "use the post payload to submit the changed address to the SA service" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val add1 = "add1"
       val add2 = "add2"
@@ -396,7 +402,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
-      when(controller.saConnector.updateMainAddress(uri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
+      when(saConnector.updateMainAddress(uri, addressForUpdate)).thenReturn(Right(TransactionId(transactionId)))
 
       val result = Future.successful(controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2)))
@@ -406,11 +412,11 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       status(result) shouldBe 303
       redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressComplete?id=$encodedTransactionId")
 
-      verify(controller.saConnector).updateMainAddress(uri, addressForUpdate)
+      verify(saConnector).updateMainAddress(uri, addressForUpdate)
     }
 
     "redirect to the change address failed page if the address cannot be updated" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val add1 = "add1"
       val add2 = "add2"
@@ -423,7 +429,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
 
       val errorMessage = "some error occurred"
-      when(controller.saConnector.updateMainAddress(uri, addressForUpdate)).thenReturn(Left(errorMessage))
+      when(saConnector.updateMainAddress(uri, addressForUpdate)).thenReturn(Left(errorMessage))
 
       val result = Future.successful(controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
         .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2)))
@@ -432,7 +438,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
       status(result) shouldBe 303
       redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressFailed?id=$encodedErrorMessage")
-      verify(controller.saConnector).updateMainAddress(uri, addressForUpdate)
+      verify(saConnector).updateMainAddress(uri, addressForUpdate)
     }
 
   }
@@ -480,7 +486,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
   "The redisplayChangeAddressAction" should {
 
     "Display the Change Address page with the form fields populated" in new WithApplication(FakeApplication()) {
-      controller.resetAll()
+      
 
       val addressLine1 = "xxx address line 1 xxx"
       val addressLine2 = "xxx address line 2 xxx"

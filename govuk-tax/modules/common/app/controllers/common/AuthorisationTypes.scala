@@ -1,9 +1,7 @@
 package controllers.common
 
-import play.api.mvc._
 import controllers.common.service._
-import play.api.mvc.{SimpleResult, AnyContent, Request}
-import uk.gov.hmrc.common.microservice.domain.User
+import play.api.mvc.{AnyContent, Request}
 import controllers.common.FrontEndRedirect._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
