@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
 import play.api.test._
 import org.slf4j.MDC
 import controllers.common.HeaderNames
@@ -17,7 +17,6 @@ import uk.gov.hmrc.common.microservice.auth.domain._
 import uk.gov.hmrc.domain.{Vrn, CtUtr, Nino, SaUtr}
 import org.scalatest.Inside
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
@@ -29,7 +28,6 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.auth.domain.Pid
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
@@ -40,8 +38,9 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
+import org.scalatest.mock.MockitoSugar
 
-class AuditTestController extends Controller with AuditActionWrapper with MockMicroServicesForTests {
+class AuditTestController(override val auditMicroService: AuditMicroService) extends Controller with AuditActionWrapper {
 
   def test(userOption: Option[User]) = userOption match {
     case Some(user) => WithRequestAuditing(user) { user: User  =>
@@ -60,7 +59,7 @@ class AuditTestController extends Controller with AuditActionWrapper with MockMi
 
 }
 
-class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside {
+class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames with ScalaFutures with Inside {
 
   "AuditActionWrapper with traceRequestsEnabled " should {
     "generate audit events with user details when a user is supplied" in new WithApplication(
@@ -74,14 +73,15 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       MDC.put(requestId, exampleRequestId)
 
 
-      val controller = new AuditTestController()
+      val auditMicroService: AuditMicroService = mock[AuditMicroService]
+      val controller = new AuditTestController(auditMicroService)
 
-      when(controller.auditMicroService.enabled).thenReturn(true)
+      when(auditMicroService.enabled).thenReturn(true)
 
       val response = controller.test(None)(FakeRequest("GET", "/foo"))
 
       whenReady(response) { result =>
-        verify(controller.auditMicroService, times(2)).audit(auditEventCaptor.capture())
+        verify(auditMicroService, times(2)).audit(auditEventCaptor.capture())
 
         val auditEvents = auditEventCaptor.getAllValues
         auditEvents.size should be(2)
@@ -138,9 +138,10 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       MDC.put(forwardedFor, "192.168.1.1")
       MDC.put(requestId, exampleRequestId)
 
-      val controller = new AuditTestController()
+      val auditMicroService: AuditMicroService = mock[AuditMicroService]
+      val controller = new AuditTestController(auditMicroService)
 
-      when(controller.auditMicroService.enabled).thenReturn(true)
+      when(auditMicroService.enabled).thenReturn(true)
 
       val response = controller.test(None)(FakeRequest("POST", "/foo").withFormUrlEncodedBody(
         "key1" -> "value1",
@@ -149,7 +150,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
         "key4" -> ""))
 
       whenReady(response) { result =>
-        verify(controller.auditMicroService, times(2)).audit(auditEventCaptor.capture())
+        verify(auditMicroService, times(2)).audit(auditEventCaptor.capture())
 
         val auditEvents = auditEventCaptor.getAllValues
         auditEvents.size should be(2)
@@ -181,14 +182,15 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
         MDC.put(requestId, exampleRequestId)
         MDC.put(xSessionId, exampleSessionId)
 
-        val controller = new AuditTestController()
+      val auditMicroService: AuditMicroService = mock[AuditMicroService]
+      val controller = new AuditTestController(auditMicroService)
 
-        when(controller.auditMicroService.enabled).thenReturn(true)
+        when(auditMicroService.enabled).thenReturn(true)
 
         val response = controller.test(Some(user))(FakeRequest("GET", "/foo"))
 
         whenReady(response) { result =>
-          verify(controller.auditMicroService, times(2)).audit(auditEventCaptor.capture())
+          verify(auditMicroService, times(2)).audit(auditEventCaptor.capture())
 
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
@@ -244,13 +246,14 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
   "AuditActionWrapper with traceRequests disabled " should {
     "not audit any events" in new WithApplication(FakeApplication()) {
 
-      val controller = new AuditTestController()
+      val auditMicroService: AuditMicroService = mock[AuditMicroService]
+      val controller = new AuditTestController(auditMicroService)
 
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
 
       controller.test(None)(FakeRequest())
-      verify(controller.auditMicroService, never).audit(any(classOf[AuditEvent]))
+      verify(auditMicroService, never).audit(any(classOf[AuditEvent]))
     }
   }
 
