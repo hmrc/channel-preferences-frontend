@@ -64,6 +64,9 @@ trait ServiceRoots {
   import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
   import MicroServices._
 
+  /**
+   * NOTE: THE DEFAULT IMPLEMENTATION WILL BE REMOVED SHORTLY
+   */
   def regimeRoots(authority: UserAuthority): RegimeRoots = {
     val regimes = authority.regimes
     RegimeRoots(
