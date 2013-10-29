@@ -7,10 +7,8 @@ import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroS
 
 class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicroService) {
 
-  private val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"
   private val hmrcWebsiteLinkText = "HMRC website"
 
-  //TODO waiting for links confirmation
   def createManageYourTaxes(buildPortalUrl: String => String)(implicit user: User): Option[ManageYourTaxes] = {
     import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
     import ManageYourTaxesConf._
@@ -56,7 +54,7 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
       }
     }
     val link = linkText.map(text => RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("businessRegistration"), text, None, None)))
-    BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage.externalLink(linkToHmrcWebsite, hmrcWebsiteLinkText, None, None)))
+    BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage.externalLink(HrefKey("businessTax.registration.otherWays"), hmrcWebsiteLinkText, None, None)))
   }
 }
 
