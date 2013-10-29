@@ -2,13 +2,12 @@ package controllers.common.actions
 
 import controllers.common.{ CookieEncryption, HeaderNames }
 import play.api.mvc.{ Action, Controller }
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeApplication, WithApplication, FakeRequest }
 import org.slf4j.MDC
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
 
-object HeaderTestController extends Controller with CookieEncryption with HeaderNames with MockMicroServicesForTests {
+object HeaderTestController extends Controller with HeaderNames {
 
   import controllers.common.actions.WithHeaders
 
@@ -29,7 +28,6 @@ object HeaderTestController extends Controller with CookieEncryption with Header
 
 class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncryption {
 
-
   "HeaderActionWrapper" should {
     "add parameters from the session and the headers to the MDC " in new WithApplication(FakeApplication()) {
       val headers = Seq((forwardedFor, "192.168.1.1"))
@@ -37,11 +35,11 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncry
       val request = FakeRequest().withHeaders(headers: _*).withSession(sessionParams: _*)
 
       val result = HeaderTestController.test()(request)
-      val fields = contentAsString(result) split (":")
-      fields(0) should be("012345")
-      fields(1) should be("john")
-      fields(2) should be("12345")
-      fields(3) should be("192.168.1.1")
+      val fields = contentAsString(result) split ":"
+      fields(0) shouldBe "012345"
+      fields(1) shouldBe "john"
+      fields(2) shouldBe "12345"
+      fields(3) shouldBe "192.168.1.1"
       fields(4) should startWith("govuk-tax-")
       MDC.getCopyOfContextMap should be(null)
 
