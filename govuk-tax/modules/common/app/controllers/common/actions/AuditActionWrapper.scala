@@ -1,22 +1,17 @@
 package controllers.common.actions
 
 import controllers.common.service.MicroServices
-import org.slf4j.MDC
 import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
-import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
-import scala.concurrent.{Future, ExecutionContext}
-import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import scala.concurrent.ExecutionContext
 import controllers.common.HeaderNames
-import util.{Failure, Success}
-import org.json4s.jackson.JsonMethods._
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import util.Failure
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import util.Success
-import org.json4s.Extraction
 
 trait AuditActionWrapper extends MicroServices with HeaderNames {
   object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
@@ -43,7 +38,7 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
           case Success(result) => auditMicroService.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString), Map()))
           case Failure(exception) => // FIXME!!!
         })
-      } 
+      }
       else action(request)
   }
 
@@ -72,11 +67,16 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
   }
 
   private def extractFormData(request: Request[AnyContent]) = {
-    request.headers.get("content-type") match {
-      case Some("application/x-www-form-urlencoded") => Map("dataForm" -> request.body.asFormUrlEncoded.map {
-        map => map.foldLeft("") {(s,entry) => s + entry._1 + ":" + entry._2.mkString("[", ",", "],") }
-      }.getOrElse("-"))
-      case None => Map[String,String]().empty
+    request.body match {
+      case formData: AnyContentAsFormUrlEncoded =>
+        Map("formData" -> formData.data.map(entry => {
+          val (key, values) = entry
+          s"${key}: " + (values match {
+            case Seq() | Seq(null) | Seq("") => "<no values>"
+            case values => s"{${values.mkString(", ")}}"
+          })
+        }).toSeq.sorted.mkString("[", ", ", "]"))
+      case _ => Map[String,String]().empty
     }
   }
 }

@@ -6,7 +6,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
+import play.api.test._
 import org.slf4j.MDC
 import controllers.common.HeaderNames
 import uk.gov.hmrc.common.BaseSpec
@@ -17,6 +17,18 @@ import uk.gov.hmrc.common.microservice.auth.domain._
 import uk.gov.hmrc.domain.{Vrn, CtUtr, Nino, SaUtr}
 import org.scalatest.Inside
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.Pid
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
 import scala.Some
@@ -116,7 +128,39 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       }
     }
 
-    "generate audit events with user details when a user is not supplied" in new WithApplication(
+    "generate audit events with form data when POSTing a form" in new WithApplication(
+      FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> true))) {
+
+      val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
+      val exampleRequestId = ObjectId.get().toString
+
+      MDC.put(authorisation, "/auth/oid/123123123")
+      MDC.put(forwardedFor, "192.168.1.1")
+      MDC.put(requestId, exampleRequestId)
+
+      val controller = new AuditTestController()
+
+      when(controller.auditMicroService.enabled).thenReturn(true)
+
+      val response = controller.test(None)(FakeRequest("POST", "/foo").withFormUrlEncodedBody(
+        "key1" -> "value1",
+        "key2" -> "value2",
+        "key3" -> null,
+        "key4" -> ""))
+
+      whenReady(response) { result =>
+        verify(controller.auditMicroService, times(2)).audit(auditEventCaptor.capture())
+
+        val auditEvents = auditEventCaptor.getAllValues
+        auditEvents.size should be(2)
+
+        inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail) =>
+          detail should contain("formData" -> "[key1: {value1}, key2: {value2}, key3: <no values>, key4: <no values>]")
+        }
+      }
+    }
+
+    "generate audit events with no user details when a user is not supplied" in new WithApplication(
       FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> true))) {
 
       val userAuth = UserAuthority("exAuthId", Regimes(),
