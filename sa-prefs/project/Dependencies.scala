@@ -16,7 +16,7 @@ object Dependencies {
     val commonsLang = "commons-lang" % "commons-lang" % "2.6"
     val commonsIo = "commons-io" % "commons-io" % "2.4"
     val guava = "com.google.guava" % "guava" % "14.0.1"
-    val playMetrics = "com.kenshoo" %% "metrics-play" % "0.1.1"
+    val playMetrics = "com.kenshoo" %% "metrics-play" % "0.1.2"
     val metricsGraphite = "com.codahale.metrics" % "metrics-graphite" % "3.0.0"
     val secureUtils = "uk.gov.hmrc" % "secure-utils" % "0.1.0-SNAPSHOT"
   }

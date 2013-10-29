@@ -13,7 +13,8 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import util.Success
 
-trait AuditActionWrapper extends MicroServices with HeaderNames {
+trait AuditActionWrapper extends HeaderNames {
+  val auditMicroService : AuditMicroService
   object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
 }
 

@@ -737,7 +737,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#fuelBenefitTaxableValue").isEmpty shouldBe true
     }
 
-    "render car and fuel benefits when the user has both, car and fuel benefits" in new WithApplication(FakeApplication()) {
+    "render car and fuel benefits when the user has both, car and fuel benefits and provide link to edit data" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty, false)
       val carRegistrationDate = new LocalDate().minusYears(2)

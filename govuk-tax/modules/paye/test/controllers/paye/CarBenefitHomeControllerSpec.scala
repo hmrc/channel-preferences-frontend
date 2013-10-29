@@ -79,6 +79,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-amount").text shouldBe "£321"
       doc.select("#fuel-benefit-amount").text shouldBe ""
       doc.select("#no-car-benefit-container").text shouldBe ""
+      doc.select("#private-fuel").text shouldBe "No"
     }
 
     "show car details for user with a company car and fuel benefit" in new WithApplication(FakeApplication()) {
@@ -96,6 +97,28 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-amount").text shouldBe "£321"
       doc.select("#fuel-benefit-amount").text shouldBe "£22"
       doc.select("#no-car-benefit-container").text shouldBe ""
+      doc.select("#private-fuel").text shouldBe "Yes, private fuel is available when you use the car"
+    }
+
+    "show car details for user with a company car and fuel benefit that has been withdrawn" in new WithApplication(FakeApplication()) {
+      val benefits = Seq(
+        carBenefitEmployer1,
+        fuelBenefitEmployer1.copy(dateWithdrawn = Some(new LocalDate(2013,6,6))))
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, benefits, List.empty, List.empty)
+
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+
+      status(result) should be(200)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
+      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
+      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
+      doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
+      doc.select("#car-benefit-amount").text shouldBe "£321"
+      doc.select("#fuel-benefit-amount").text shouldBe "£22"
+      doc.select("#no-car-benefit-container").text shouldBe ""
+      doc.select("#private-fuel").text shouldBe "Weyland-Yutani Corp did pay for fuel for private travel, but stopped paying on 6 June 2013"
     }
 
     "show car details for user with a company car an no employer name" in new WithApplication(FakeApplication()) {

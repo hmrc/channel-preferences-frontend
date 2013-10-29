@@ -1,11 +1,9 @@
 package controllers.common
 
-import play.api.mvc._
 import controllers.common.service._
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import com.google.common.net.HttpHeaders
-import controllers.common.actions.{UserActionWrapper, AuditActionWrapper}
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -19,12 +17,7 @@ object HeaderNames extends HeaderNames
 @deprecated("please use Actions", "24.10.13")
 trait ActionWrappers
   extends MicroServices
-  with Results
-  with CookieEncryption
-  with AuditActionWrapper
-  with SessionTimeoutWrapper
-  with AuthorisationTypes
-  with Actions {
+  with Actions  {
 
   override def regimeRoots(authority: UserAuthority): RegimeRoots = {
 

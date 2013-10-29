@@ -69,6 +69,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
+
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, CT, employers PAYE, or VAT")
     }
 
@@ -77,6 +79,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val regimes = RegimeRoots(vat = vatRoot)
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
 
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, CT, or employers PAYE")
     }
@@ -87,6 +91,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
+
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, CT, or VAT")
     }
 
@@ -95,6 +101,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val regimes = RegimeRoots(epaye = epayeRoot, vat = vatRoot)
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
 
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, or CT")
     }
@@ -105,6 +113,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
+
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, employers PAYE, or VAT")
     }
 
@@ -113,6 +123,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val regimes = RegimeRoots(ct = ctRoot, vat = vatRoot)
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
 
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, or employers PAYE")
     }
@@ -123,6 +135,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
+
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for SA, or VAT")
     }
 
@@ -131,6 +145,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val regimes = RegimeRoots(sa = saRoot)
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
 
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for CT, employers PAYE, or VAT")
     }
@@ -141,6 +157,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
+
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for CT, or employers PAYE")
     }
 
@@ -149,6 +167,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val regimes = RegimeRoots(sa = saRoot, epaye = epayeRoot)
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
 
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for CT, or VAT")
     }
@@ -159,6 +179,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
+
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for employers PAYE, or VAT")
     }
 
@@ -168,6 +190,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
+
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for employers PAYE")
     }
 
@@ -175,6 +199,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, epaye = epayeRoot)
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+
+      when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
 
       assertCorrectBusinessTaxRegistration(linkToHmrcOnlineRegistration, "Register for VAT")
     }
@@ -339,13 +365,14 @@ abstract class OtherServicesFactoryForTest
   with Matchers {
 
   val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"
-  val linkToHmrcOnlineRegistration = "https://online.hmrc.gov.uk/registration/newbusiness/business-allowed"
+  val linkToHmrcOnlineRegistration = "http://businessRegistrationLink"
+
   val hmrcWebsiteLinkText = "HMRC website"
 
   val factoryUnderTest = new OtherServicesFactory(mockGovernmentGatewayMicroService)
 
   def assertCorrectBusinessTaxRegistration(expectedLink: String, linkMessage: String)(implicit user: User) {
-    def linkObj = Some(RenderableLinkMessage(LinkMessage(href = expectedLink, text = linkMessage, newWindow = true, sso = false)))
+    def linkObj = Some(RenderableLinkMessage(LinkMessage(href = expectedLink, text = linkMessage, newWindow = false, sso = true)))
     val link = if (linkMessage != hmrcWebsiteLinkText) linkObj else None
     val expected = BusinessTaxesRegistration(
       link,
