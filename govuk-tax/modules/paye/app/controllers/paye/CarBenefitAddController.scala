@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.BaseController
+import controllers.common.{Actions, BaseController2}
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
@@ -12,21 +12,27 @@ import play.api.data.Forms._
 import CarBenefitFormFields._
 import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import views.html.paye.add_car_benefit_review
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import controllers.paye.validation.EngineCapacity
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 
-class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyStoreMicroService, payeService: PayeMicroService)
-  extends BaseController
+class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override val auditMicroService: AuditMicroService, override val authMicroService: AuthMicroService)
+                             (implicit payeMicroService: PayeMicroService, txQueueMicroService: TxQueueMicroService) extends BaseController2
+  with Actions
   with Benefits
   with Validators
   with TaxYearSupport {
 
-  def this() = this(() => new LocalDate(DateTimeZone.UTC), MicroServices.keyStoreMicroService, MicroServices.payeMicroService)
+  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService, MicroServices.authMicroService)(MicroServices.payeMicroService, MicroServices.txQueueMicroService)
+
+  def timeSource() = new LocalDate(DateTimeZone.UTC)
 
   def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
@@ -168,7 +174,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
 
               val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
 
-              val benefitCalculations = payeService.calculateBenefitValue(uri, addBenefitPayload).get
+              val benefitCalculations = payeMicroService.calculateBenefitValue(uri, addBenefitPayload).get
               val carBenefitValue = benefitCalculations.carBenefitValue.map(BenefitValue(_))
               val carFuelBenefitValue = benefitCalculations.fuelBenefitValue.map(BenefitValue(_))
 
@@ -211,7 +217,7 @@ class CarBenefitAddController(timeSource: () => LocalDate, keyStoreService: KeyS
       }
     }
 
-    private val redirectToCarBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome())
+    private val redirectToCarBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome.url)
   }
 
 }

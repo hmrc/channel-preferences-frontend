@@ -1,13 +1,12 @@
 package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import org.mockito.{Mockito, Matchers}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatest.TestData
@@ -15,22 +14,33 @@ import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction}
 import controllers.DateFieldsHelper
 import java.net.URI
 import uk.gov.hmrc.microservice.txqueue
 import concurrent.Future
+import txqueue.{TxQueueTransaction, TxQueueMicroService}
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
-  private lazy val controller = new CarBenefitHomeController with MockMicroServicesForTests {
+  val mockPayeMicroService = mock[PayeMicroService]
+  val mockTxQueueMicroService = mock[TxQueueMicroService]
+  val mockAuditMicroService = mock[AuditMicroService]
+  val mockAuthMicroService = mock[AuthMicroService]
+
+  private lazy val controller = new CarBenefitHomeController(mockAuditMicroService, mockAuthMicroService)(mockPayeMicroService, mockTxQueueMicroService){
     override def currentTaxYear = 2013
   }
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
 
-    controller.resetAll()
+    Mockito.reset(mockPayeMicroService)
+    Mockito.reset(mockTxQueueMicroService)
+    Mockito.reset(mockAuditMicroService)
+    Mockito.reset(mockAuthMicroService)
   }
 
   val removeFuelLinkId = "rmFuelLink"
@@ -248,11 +258,11 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
                                         acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
-    when(controller.payeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
-    when(controller.payeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
-    when(controller.payeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
-    when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
-    when(controller.txQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
+    when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
+    when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
+    when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
+    when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
+    when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
 
   private def generateTransactionData(benefitType : Int, isCompletedTransaction : Boolean) : TxQueueTransaction = {

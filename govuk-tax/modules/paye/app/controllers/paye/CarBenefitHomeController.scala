@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.BaseController
+import controllers.common.{Actions, BaseController2}
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.{PayeRootData, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
@@ -9,13 +9,20 @@ import play.api.Logger
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.User
+import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 
-class CarBenefitHomeController
-  extends BaseController
+class CarBenefitHomeController(override val auditMicroService: AuditMicroService, override val authMicroService: AuthMicroService)(implicit payeService: PayeMicroService, txQueueMicroservice: TxQueueMicroService) extends BaseController2
+  with Actions
   with Benefits
   with Validators {
 
   private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
+
+  def this() = this(MicroServices.auditMicroService, MicroServices.authMicroService)(MicroServices.payeMicroService, MicroServices.txQueueMicroService)
 
   def carBenefitHome = ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
     implicit user =>

@@ -8,7 +8,7 @@ import controllers.common.ActionWrappers
 import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 
-trait Benefits extends ActionWrappers {
+trait Benefits {
 
   def findExistingBenefit(employmentNumber: Int, benefitType: Int, payeRootData: PayeRootData): Option[Benefit] = {
     val taxYear = TaxYearResolver.currentTaxYear
