@@ -5,6 +5,7 @@ import play.api.mvc.Request
 import play.api.Logger
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.TaxYearResolver
+import scala.annotation.tailrec
 
 trait PortalUrlBuilder extends AffinityGroupParser {
 
@@ -25,7 +26,7 @@ trait PortalUrlBuilder extends AffinityGroupParser {
     resolvePlaceHolder(destinationUrl, tagsToBeReplacedWithData)
   }
 
-
+  @tailrec
   private def resolvePlaceHolder(url: String, tagsToBeReplacedWithData: Seq[(String, Option[Any])]): String =
     if (tagsToBeReplacedWithData.isEmpty)
       url
