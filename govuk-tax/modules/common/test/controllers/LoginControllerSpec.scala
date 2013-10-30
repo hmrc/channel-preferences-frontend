@@ -5,21 +5,20 @@ import uk.gov.hmrc.common.microservice.saml.SamlMicroService
 import org.mockito.Mockito._
 import play.api.test.{ WithApplication, FakeRequest }
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
+import uk.gov.hmrc.common.microservice.governmentgateway.{GatewayToken, GovernmentGatewayMicroService, GovernmentGatewayResponse, Credentials}
 import play.api.http._
 import controllers.common._
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
-import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayResponse
 import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import play.api.libs.ws.Response
 import scala.Some
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.governmentgateway.Credentials
 import play.api.test.FakeApplication
 import play.api.templates.Html
+import uk.gov.hmrc.utils.DateTimeUtils
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -167,7 +166,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val nameFromGovernmentGateway = "Geoff G.G.W. Nott-Fisher"
       val userId = "/auth/oid/notGeoff"
       val affinityGroup = "Organisation"
-      val encodedGovernmentGatewayToken = "someencodedtoken"
+      val encodedGovernmentGatewayToken = GatewayToken("someencodedtoken", DateTimeUtils.now, DateTimeUtils.now)
     }
 
     "see the login form asking for his Government Gateway user id and password" in new WithSetup {

@@ -3,6 +3,7 @@ package uk.gov.hmrc.common.microservice.governmentgateway
 import play.api.libs.json._
 import scala.collection.Seq
 import uk.gov.hmrc.microservice.{MicroService, MicroServiceConfig}
+import org.joda.time.DateTime
 
 class GovernmentGatewayMicroService extends MicroService {
 
@@ -52,7 +53,10 @@ case class SsoLoginRequest(token: String,
 case class GovernmentGatewayResponse(authId: String,
                                      name: String,
                                      affinityGroup: String,
-                                     encodedGovernmentGatewayToken: String)
+                                     encodedGovernmentGatewayToken: GatewayToken)
+
+
+case class GatewayToken(encodeBase64: String, created : DateTime, expires: DateTime)
 
 
 case class AffinityGroup(identifier: String)

@@ -42,7 +42,7 @@ class SsoInController(ssoWhiteListService : SsoWhiteListService,
               "userId" -> encrypt(response.authId),
               "name" -> encrypt(response.name),
               "affinityGroup" -> encrypt(response.affinityGroup),
-              "token" -> encrypt(response.encodedGovernmentGatewayToken))
+              "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
           } catch {
             case e: Exception => {
               Logger.info("Failed to validate a token.", e)

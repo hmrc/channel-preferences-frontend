@@ -7,6 +7,7 @@ import play.api.test.WithApplication
 import play.api.test.FakeApplication
 import scala.Some
 import play.api.libs.json._
+import uk.gov.hmrc.utils.DateTimeUtils
 
 class TestGovernmentGatewayMicroService extends GovernmentGatewayMicroService with MockitoSugar {
 
@@ -37,7 +38,7 @@ class GovernmentGatewayMicroServiceSpec extends BaseSpec with MockitoSugar {
 
       val credentials = Credentials("user", "pw")
       val credentialsJson = JsObject(Seq("userId" -> JsString(credentials.userId), "password" -> JsString(credentials.password)))
-      val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", "12343534545454")
+      val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", GatewayToken("12343534545454", DateTimeUtils.now, DateTimeUtils.now))
       when(service.httpWrapper.post[GovernmentGatewayResponse]("/login", credentialsJson, Map.empty)).thenReturn(Some(expectedResponse))
 
       val result = service.login(credentials)
@@ -65,7 +66,7 @@ class GovernmentGatewayMicroServiceSpec extends BaseSpec with MockitoSugar {
       
       val ssoLoginRequest = SsoLoginRequest("3jeih3g3gg3ljkdlh3", 3837636)
       val ssoLoginRequestJson = JsObject(Seq("token" -> JsString(ssoLoginRequest.token), "timestamp" -> JsNumber(ssoLoginRequest.timestamp)))
-      val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", "12343534545454")
+      val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", GatewayToken("12343534545454", DateTimeUtils.now, DateTimeUtils.now))
       when(service.httpWrapper.post[GovernmentGatewayResponse]("/sso-login", ssoLoginRequestJson, Map.empty)).thenReturn(Some(expectedResponse))
 
       val result = service.ssoLogin(ssoLoginRequest)
