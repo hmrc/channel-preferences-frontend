@@ -24,9 +24,9 @@ trait TaxRegimeMicroService[A <: RegimeRoot[_]] extends MicroService {
 trait MicroService extends Status with HeaderNames {
 
   import collection.JavaConversions._
+  import MicroServiceConfig.defaultTimeoutDuration
 
   protected val serviceUrl: String
-  protected val success = Statuses(OK to MULTI_STATUS)
 
   private def headers(): Seq[(String, String)] = {
     val headers = for {
@@ -43,30 +43,28 @@ trait MicroService extends Status with HeaderNames {
     WS.url(s"$serviceUrl$uri").withHeaders(headers(): _*)
   }
 
-  protected case class Statuses(r: Range) {
-    def unapply(i: Int): Boolean = r contains i
-  }
-
   protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+
+  //FIXME: Why is the body a JsValue? Why do we care what type it is
 
   protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
 
   protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
     val wsResource = httpResource(uri)
-    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), defaultTimeoutDuration)
   }
 
   protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
 
   protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
     val wsResource = httpResource(uri)
-    Await.result(wsResource.withHeaders(headers.toSeq: _*).post(body), MicroServiceConfig.defaultTimeoutDuration)
+    Await.result(wsResource.withHeaders(headers.toSeq: _*).post(body), defaultTimeoutDuration)
   }
 
   protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
