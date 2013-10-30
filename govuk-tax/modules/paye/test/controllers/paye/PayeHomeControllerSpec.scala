@@ -13,12 +13,12 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import concurrent.Future
 import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.domain.User
 import org.jsoup.nodes.Document
 import org.joda.time.chrono.ISOChronology
+import controllers.paye.MockMicroServicesForTests
 
 class PayeHomeControllerSpec
   extends PayeBaseSpec

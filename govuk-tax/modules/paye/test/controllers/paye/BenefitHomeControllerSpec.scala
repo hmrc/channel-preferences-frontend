@@ -2,7 +2,6 @@ package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{ FakeRequest, WithApplication }
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.paye.domain._
@@ -17,6 +16,7 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.scalatest.TestData
 import concurrent.Future
+import controllers.paye.MockMicroServicesForTests
 
 class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
