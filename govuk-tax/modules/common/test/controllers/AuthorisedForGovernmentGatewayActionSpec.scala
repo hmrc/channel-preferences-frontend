@@ -31,14 +31,6 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import scala.Some
-import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.domain.CtUtr
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import play.api.test.FakeApplication
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
