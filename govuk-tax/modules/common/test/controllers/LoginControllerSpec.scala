@@ -249,7 +249,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val sess = session(result)
       decrypt(sess("name")) shouldBe geoff.nameFromGovernmentGateway
       decrypt(sess("userId")) shouldBe geoff.userId
-      decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken
+      decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
       decrypt(sess("affinityGroup")) shouldBe geoff.affinityGroup
 
     }
