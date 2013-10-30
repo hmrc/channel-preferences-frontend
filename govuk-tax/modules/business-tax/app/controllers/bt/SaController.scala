@@ -1,11 +1,10 @@
 package controllers.bt
 
-import play.api.mvc.Results
-import controllers.common.{Actions, GovernmentGateway, ActionWrappers, BaseController}
+import play.api.mvc.Request
+import controllers.common.{Actions, GovernmentGateway, BaseController}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.PortalUrlBuilder
-import uk.gov.hmrc.common.microservice.ct.domain.CtRegime
-import views.helpers.{LinkMessage, RenderableMessage}
+import views.helpers.LinkMessage
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 
 
@@ -17,11 +16,14 @@ class SaController
   def makeAPayment = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
-        Results.Ok(makeAPaymentPage(LinkMessage.portalLink(buildPortalUrl("btDirectDebits")), user.getSa.utr.utr))
+        makeAPaymentPage
   }
 
-  private[bt] def makeAPaymentPage(saDirectDebitsLink: RenderableMessage, utr: String)(implicit user: User) =
-    views.html.make_a_sa_payment(saDirectDebitsLink, utr)
+  private[bt] def makeAPaymentPage(implicit user: User, request: Request[AnyRef]) = {
+    val portalLink = LinkMessage.portalLink(buildPortalUrl("btDirectDebits"))
+    val utr = user.getSa.utr.utr
+    Ok(views.html.make_a_sa_payment(portalLink, utr))
+  }
 }
 
 

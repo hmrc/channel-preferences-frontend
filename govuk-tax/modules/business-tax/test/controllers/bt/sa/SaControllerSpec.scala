@@ -2,24 +2,36 @@ package controllers.bt.sa
 
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.BaseSpec
-import controllers.bt.testframework.fixtures.GeoffFisherTestFixture
-import controllers.bt.testframework.request.BusinessTaxRequest
-import play.api.templates.Html
 import play.api.test.Helpers._
 import concurrent.Future
-import views.helpers.{LinkMessage, RenderableLinkMessage}
+import play.api.test.{FakeRequest, WithApplication, FakeApplication}
+import controllers.bt.testframework.mocks.PortalUrlBuilderMock
+import controllers.bt.SaController
+import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
+import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.domain.SaUtr
 
 class SaControllerSpec extends BaseSpec {
 
-    "render the Make a Payment page" in new SaControllerForTest with GeoffFisherTestFixture with BusinessTaxRequest {
-      val expectedHtml = "<html>happy Italian pasquetta</html>"
-      when(mockPortalUrlBuilder.buildPortalUrl("btDirectDebits")).thenReturn("saDirectDebitsUrl")
+  private def saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
 
-      val expectedDirectDebitsLink = RenderableLinkMessage(LinkMessage(href="saDirectDebitsUrl", text="NO LINK TEXT DEFINED", sso = true))
-      when(mockSaPages.makeAPaymentPage(expectedDirectDebitsLink, user.getSa.utr.utr)).thenReturn(Html(expectedHtml))
-      val result = Future.successful(controllerUnderTest.makeAPayment(request))
-      status(result) shouldBe 200
-      contentAsString(result) shouldBe expectedHtml
+  "render the Make a Payment page" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock  {
 
+    val controllerUnderTest = new SaController with MockedPortalUrlBuilder
+
+    implicit val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+    implicit val request = FakeRequest()
+
+    when(mockPortalUrlBuilder.buildPortalUrl("btDirectDebits")).thenReturn("saDirectDebitsUrl")
+
+    val result = Future.successful(controllerUnderTest.makeAPaymentPage(user, request))
+
+    status(result) shouldBe 200
+    verify(mockPortalUrlBuilder).buildPortalUrl("btDirectDebits")
   }
+
+
 }
+
+
