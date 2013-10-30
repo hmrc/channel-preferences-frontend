@@ -5,13 +5,12 @@ import uk.gov.hmrc.common.microservice.sa.SaConnector
 import CommonBusinessMessageKeys._
 import SaMessageKeys._
 import SaPortalUrlKeys._
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.{SaAccountSummary, Liability, SaRoot}
 import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.sa.domain.{Liability, SaAccountSummary, SaRoot}
 
 case class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
-
 
   private def utrMessage(utr: SaUtr) : Msg = {
     Msg(saUtrMessage, Seq(utr.utr))

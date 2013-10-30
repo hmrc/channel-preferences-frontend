@@ -1,13 +1,11 @@
 package uk.gov.hmrc.common.microservice.domain
 
-
 import uk.gov.hmrc.common.BaseSpec
-import scala.util.Success
 import uk.gov.hmrc.domain.{SaUtr, CtUtr, Vrn, EmpRef}
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeLinks, EpayeRoot}
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 
 class RegimeRootsSpec extends BaseSpec {
   def empRef: EmpRef = EmpRef("123", "456")

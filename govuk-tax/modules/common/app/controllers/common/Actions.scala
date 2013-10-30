@@ -9,6 +9,10 @@ import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import controllers.common.actions.{WithRequestLogging, WithHeaders}
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 
 trait Actions
   extends Results
@@ -49,10 +53,6 @@ trait Actions
 
 trait ServiceRoots {
 
-  import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
-  import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-  import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-  import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
   import MicroServices._
 
   /**

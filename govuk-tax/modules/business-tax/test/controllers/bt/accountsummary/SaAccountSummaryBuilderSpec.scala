@@ -9,18 +9,14 @@ import org.joda.time.LocalDate
 import controllers.bt.routes
 import controllers.bt.accountsummary.SaMessageKeys._
 import views.helpers.LinkMessage
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.Liability
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import views.helpers.RenderableLinkMessage
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaAccountSummary
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.AmountDue
 import SaPortalUrlKeys._
-import scala.util.{Failure, Success}
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import uk.gov.hmrc.domain.SaUtr
 import CommonBusinessMessageKeys._
+import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, Liability, AmountDue, SaAccountSummary}
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://home"

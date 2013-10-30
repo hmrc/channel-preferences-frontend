@@ -13,11 +13,9 @@ import controllers.common.validators.{characterValidator, Validators}
 import scala.util.{Success, Try, Left}
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaPerson
 import controllers.sa.{routes => saRoutes}
-import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
+import uk.gov.hmrc.common.microservice.sa.domain.{SaPerson, SaRegime}
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.sa.SaConnector

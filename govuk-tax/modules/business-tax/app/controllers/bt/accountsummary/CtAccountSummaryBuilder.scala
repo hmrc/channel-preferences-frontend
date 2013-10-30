@@ -5,10 +5,8 @@ import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.ct.CtConnector
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountSummary, CtRoot}
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain
+import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.domain.CtUtr
-
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
 
@@ -38,7 +36,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
   override protected def rootForRegime(user: User): Option[CtRoot] = user.regimes.ct
 
   private def defaultAccountSummary(ctRoot: CtRoot): AccountSummary = {
-    val messages= Seq(
+    val messages = Seq(
       Msg(ctUtrMessage, Seq(ctRoot.identifier.utr)),
       Msg(ctSummaryUnavailableErrorMessage1),
       Msg(ctSummaryUnavailableErrorMessage2),
@@ -71,7 +69,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
     AccountSummary(ctRegimeNameMessage, messages, links, SummaryStatus.success)
   }
 
-  private def accountValueIfPresent(accountSummary: Option[CtDomain.CtAccountSummary]): Option[BigDecimal] = {
+  private def accountValueIfPresent(accountSummary: Option[CtAccountSummary]): Option[BigDecimal] = {
     val accountValueOption: Option[BigDecimal] = for {
       accountSummaryValue <- accountSummary
       accountBalance <- accountSummaryValue.accountBalance

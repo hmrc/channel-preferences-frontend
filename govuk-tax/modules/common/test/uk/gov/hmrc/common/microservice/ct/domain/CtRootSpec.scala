@@ -4,7 +4,6 @@ import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.domain.CtUtr
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountBalance, CtAccountSummary, CtRoot}
 import org.mockito.Mockito._
 
 class CtRootSpec extends BaseSpec with MockitoSugar {

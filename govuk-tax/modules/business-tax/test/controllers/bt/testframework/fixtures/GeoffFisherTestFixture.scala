@@ -3,9 +3,9 @@ package controllers.bt.testframework.fixtures
 import org.joda.time.{Duration, DateTimeZone, DateTime}
 import uk.gov.hmrc.domain.{Vrn, EmpRef, CtUtr, SaUtr}
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeRoot, EpayeLinks}
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 
 trait GeoffFisherTestFixture extends BusinessUserFixture {
 

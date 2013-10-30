@@ -2,12 +2,11 @@ package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import scala.util.Failure
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import org.mockito.Mockito._
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 
 class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 

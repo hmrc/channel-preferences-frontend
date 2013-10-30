@@ -3,22 +3,21 @@ package controllers.bt.accountsummary
 import uk.gov.hmrc.domain.{Vrn, CtUtr}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import scala.util.Failure
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import java.net.URI
 import views.helpers.{LinkMessage, MoneyPounds, RenderableMessage}
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
 import org.joda.time.LocalDate
 import org.joda.time.chrono.ISOChronology
 import CommonBusinessMessageKeys._
 import CtMessageKeys._
 import CtPortalUrlKeys._
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.{CtAccountBalance, CtAccountSummary, CtRoot}
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import controllers.bt.accountsummary.SummaryStatus._
+import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountBalance, CtAccountSummary, CtRoot}
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 
 class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 

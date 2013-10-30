@@ -1,7 +1,6 @@
 package uk.gov.hmrc.common.microservice.vat.domain
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountBalance, VatAccountSummary, VatRoot}
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import uk.gov.hmrc.domain.Vrn
@@ -34,7 +33,7 @@ class VatRootSpec extends BaseSpec with MockitoSugar {
       val root = VatRoot(vrn, Map("accountSummary" -> accountSummaryLink))
       when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(None)
 
-      val thrown = evaluating(root.accountSummary(mockConnector) shouldBe Some(accountSummary)) should produce [IllegalStateException]
+      val thrown = evaluating(root.accountSummary(mockConnector) shouldBe Some(accountSummary)) should produce[IllegalStateException]
 
       thrown.getMessage shouldBe s"Expected HOD data not found for link 'accountSummary' with path: $accountSummaryLink"
     }
@@ -44,7 +43,7 @@ class VatRootSpec extends BaseSpec with MockitoSugar {
       val root = VatRoot(vrn, Map("accountSummary" -> accountSummaryLink))
       when(mockConnector.accountSummary(accountSummaryLink)).thenThrow(new NumberFormatException("Not a number"))
 
-      evaluating(root.accountSummary(mockConnector) shouldBe Some(accountSummary)) should produce [NumberFormatException]
+      evaluating(root.accountSummary(mockConnector) shouldBe Some(accountSummary)) should produce[NumberFormatException]
     }
   }
 

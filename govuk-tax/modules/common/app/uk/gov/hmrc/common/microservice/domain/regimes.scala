@@ -1,13 +1,13 @@
 package uk.gov.hmrc.common.microservice.domain
 
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import controllers.common.AuthorisationType
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 
 abstract class TaxRegime {
 

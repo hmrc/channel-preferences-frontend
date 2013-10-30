@@ -2,9 +2,9 @@ package controllers.bt
 
 import play.api.mvc.Results
 import controllers.common.{GovernmentGateway, ActionWrappers, BaseController}
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.PortalUrlBuilder
+import uk.gov.hmrc.common.microservice.vat.domain.VatRegime
 
 class VatController
   extends BaseController

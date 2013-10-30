@@ -5,14 +5,13 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountBalance, VatAccountSummary, VatRoot}
 import org.mockito.Mockito._
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import uk.gov.hmrc.domain.Vrn
 import VatMessageKeys._
 import VatPortalUrls._
-import scala.util.{Failure, Success}
 import CommonBusinessMessageKeys._
+import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatRoot}
 
 class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 

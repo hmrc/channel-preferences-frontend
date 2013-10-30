@@ -3,9 +3,7 @@ package uk.gov.hmrc.common.microservice.vat.domain
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import java.net.URI
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRegime
 import controllers.common.FrontEndRedirect
-
 
 class VatRegimeSpec extends BaseSpec {
 

@@ -1,11 +1,11 @@
 package controllers.bt.accountsummary
 
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatAccountSummary, VatRoot}
 import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatRoot}
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 
@@ -13,7 +13,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
   import VatMessageKeys._
   import VatPortalUrls._
 
-  def rootForRegime(user: User): Option[VatRoot] = user.regimes.vat
+  def rootForRegime(user: User) = user.regimes.vat
 
   def buildAccountSummary(vatRoot: VatRoot, buildPortalUrl: String => String): AccountSummary = {
     val accountSummary: Option[VatAccountSummary] = vatRoot.accountSummary(vatConnector)
@@ -34,7 +34,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
       case _ => {
         val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
           Msg(vatSummaryUnavailableErrorMessage3),
-        //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
+          //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
           Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage.portalLink(buildPortalUrl(vatHelpDeskPortalUrl), vatHelpDeskLinkMessage))))
         AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
       }

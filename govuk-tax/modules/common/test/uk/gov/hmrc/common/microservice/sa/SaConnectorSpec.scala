@@ -2,14 +2,19 @@ package uk.gov.hmrc.common.microservice.sa
 
 import org.scalatest.mock.MockitoSugar
 import play.api.test.WithApplication
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain._
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.common.BaseSpec
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtJsonRoot
-import uk.gov.hmrc.microservice.MicroServiceException
+import uk.gov.hmrc.common.microservice.sa.domain._
+import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import play.api.libs.ws.Response
+import uk.gov.hmrc.common.microservice.sa.domain.SaName
+import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
+import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
+import scala.Some
+import uk.gov.hmrc.microservice.MicroServiceException
 
 class SaConnectorSpec extends BaseSpec {
 

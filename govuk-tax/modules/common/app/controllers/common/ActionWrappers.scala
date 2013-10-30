@@ -4,6 +4,9 @@ import controllers.common.service._
 import com.google.common.net.HttpHeaders
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -21,10 +24,7 @@ trait ActionWrappers
 
   override def regimeRoots(authority: UserAuthority): RegimeRoots = {
 
-    import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
     import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-    import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-    import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 
 
     val regimes = authority.regimes

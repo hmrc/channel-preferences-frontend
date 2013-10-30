@@ -4,11 +4,8 @@ import uk.gov.hmrc.common.BaseSpec
 import views.helpers.{RenderableLinkMessage, LinkMessage}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.domain.{CtUtr, Vrn, EmpRef, SaUtr}
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeLinks, EpayeRoot}
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.scalatest.Matchers
 import uk.gov.hmrc.common.microservice.governmentgateway.{Enrolment, AffinityGroup, ProfileResponse}
@@ -18,6 +15,9 @@ import play.api.test.{FakeRequest, WithApplication, FakeApplication}
 import controllers.bt.testframework.mocks.{AffinityGroupParserMock, ConnectorMocks, PortalUrlBuilderMock}
 import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 
 class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
@@ -37,7 +37,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing only the link to the hmrc website if epaye, vat and sa are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, vat = vatRoot, epaye = epayeRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       assertCorrectBusinessTaxRegistration(linkToHmrcWebsite, hmrcWebsiteLinkText)
@@ -46,7 +46,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing only the link to the hmrc website if epaye, vat and ct are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(ct = ctRoot, vat = vatRoot, epaye = epayeRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       assertCorrectBusinessTaxRegistration(linkToHmrcWebsite, hmrcWebsiteLinkText)
@@ -55,7 +55,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing only the link to the hmrc website if epaye, vat, sa and ct are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot, epaye = epayeRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       assertCorrectBusinessTaxRegistration(linkToHmrcWebsite, hmrcWebsiteLinkText)
@@ -64,7 +64,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for all the regimes if none of the regimes are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots()
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -75,7 +75,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for sa, ct and epaye regimes if only vat is defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(vat = vatRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -86,7 +86,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for sa, ct and vat regimes if only epaye is defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(epaye = epayeRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -97,7 +97,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for sa and ct regimes if epaye and vat are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(epaye = epayeRoot, vat = vatRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -108,7 +108,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for sa, epaye and vat if only ct is defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(ct = ctRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -119,7 +119,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for sa and epaye if ct and vat are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(ct = ctRoot, vat = vatRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -130,7 +130,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for sa and vat if ct and epaye are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(ct = ctRoot, epaye = epayeRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -141,7 +141,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for ct, epaye and vat if only sa is defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -152,7 +152,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for ct and epaye if sa and vat are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, vat = vatRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -163,7 +163,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for ct and vat if sa and epaye are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, epaye = epayeRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -174,7 +174,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for employers paye and vat if sa and ct are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -185,7 +185,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return a BusinessTaxRegistration object containing registration link for employers paye  if sa, ct and vat are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
-      
+
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
 
       when(mockPortalUrlBuilder.buildPortalUrl("businessRegistration")).thenReturn("http://businessRegistrationLink")
@@ -384,7 +384,7 @@ abstract class OtherServicesFactoryForTest
     "govuk-tax.Test.externalLinks.businessTax.registration.otherWays" -> "http://www.hmrc.gov.uk/online/new.htm#2")))
   with PortalUrlBuilderMock
   with AffinityGroupParserMock
-  with ConnectorMocks 
+  with ConnectorMocks
   with Matchers {
 
   val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"

@@ -7,7 +7,6 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import org.mockito.Matchers
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain._
 
 class SaRootSpec extends BaseSpec with MockitoSugar {
 

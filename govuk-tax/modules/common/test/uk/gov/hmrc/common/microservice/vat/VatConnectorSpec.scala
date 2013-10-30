@@ -5,9 +5,9 @@ import org.scalatest.mock.MockitoSugar
 import play.api.test.WithApplication
 import org.mockito.Mockito._
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.{VatJsonRoot, VatAccountBalance, VatAccountSummary}
 import uk.gov.hmrc.microservice.MicroServiceException
 import play.api.libs.ws.Response
+import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatJsonRoot}
 
 class VatConnectorSpec extends BaseSpec {
 
@@ -64,4 +64,5 @@ class VatConnectorApplication extends WithApplication(FakeApplication()) with Mo
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
   }
+
 }

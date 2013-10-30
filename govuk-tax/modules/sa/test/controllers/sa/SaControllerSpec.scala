@@ -1,7 +1,6 @@
 package controllers.sa
 
 import play.api.test._
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URI }
 import controllers.common.SessionTimeoutWrapper._
@@ -9,7 +8,6 @@ import uk.gov.hmrc.common.{MockUtils, BaseSpec}
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain._
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
@@ -21,6 +19,7 @@ import java.util.UUID
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import org.scalatest.TestData
+import uk.gov.hmrc.common.microservice.sa.domain.{SaIndividualAddress, SaPerson, SaName, SaRoot}
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
