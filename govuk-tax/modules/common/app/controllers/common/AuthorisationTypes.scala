@@ -21,10 +21,10 @@ trait AuthorisationTypes extends Encryption {
     }
     def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean) = {
       case (None, token @ _) =>
-        Logger.info(s"No identity cookie found - redirecting to login. user: None token : ${token}")
+        Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
         Right(handleRedirect(request, redirectToOrigin))
       case (Some(encryptedUserId), Some(token)) =>
-        Logger.info(s"Wrong user type - redirecting to login. user : ${decrypt(encryptedUserId)} token : ${token}")
+        Logger.info(s"Wrong user type - redirecting to login. user : ${decrypt(encryptedUserId)} token : $token")
         Right(handleRedirect(request, redirectToOrigin))
     }
   }
@@ -34,7 +34,7 @@ trait AuthorisationTypes extends Encryption {
 
     def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean) = {
       case (None, token @ _) =>
-        Logger.info(s"No identity cookie found - redirecting to login. user: None token : ${token}")
+        Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
         Right(handleRedirect(request))
       case (Some(encryptedUserId), None) =>
         Logger.info(s"No gateway token - redirecting to login. user : ${decrypt(encryptedUserId)} token : None")
