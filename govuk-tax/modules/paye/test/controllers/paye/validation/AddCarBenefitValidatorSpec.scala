@@ -2,7 +2,7 @@ package controllers.paye.validation
 
 import controllers.paye.PayeBaseSpec
 import org.scalatest.mock.MockitoSugar
-import play.api.data.Form
+import play.api.data.{Mapping, Form}
 import play.api.data.Forms._
 import play.api.test.{WithApplication, FakeRequest}
 import AddCarBenefitValidator._
@@ -40,6 +40,51 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val form = bindFormWithValue(dummyForm, engineCapacity, "2000")
       form.hasErrors shouldBe false
       form.value.get.engineCapacity shouldBe Some("2000")
+    }
+  }
+
+  "AddCarBenefitValidator for field NUMBER OF DAYS UNAVAILABLE" should {
+
+    case class DummyModel(daysUnAvailable: Option[Int])
+
+    val values = getValues(carUnavailableVal=Some("true"))
+
+    def dummyForm(values:CarBenefitValues) = {
+      Form(
+        mapping(
+          numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(values)
+        )(DummyModel.apply)(DummyModel.unapply))
+    }
+
+    "reject a value that is more than 999" in new WithApplication(FakeApplication()) {
+      val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "1000")
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Please enter a number of 3 characters or less.")
+    }
+
+    "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
+      val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "-1")
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "This field must be greater than 0.")
+    }
+
+    "accept a correct value" in new WithApplication(FakeApplication()) {
+      val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "32")
+      form.hasErrors shouldBe false
+    }
+
+    "reject when the carUnavailable flag is true, but no value is provided." in new WithApplication(FakeApplication()) {
+      val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "")
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "You must specify the number of consecutive days the car has been unavailable.")
+    }
+
+    "reject when the value is bigger than the providedFrom -> providedTo range." in new WithApplication(FakeApplication()) {
+      val fromDate = Some(new LocalDate(2012, 5, 30))
+      val toDate = Some(new LocalDate(2012, 5, 31))
+      val form = bindFormWithValue(dummyForm(getValues(providedFromVal = fromDate, providedToVal = toDate, carUnavailableVal=Some("true"))), numberOfDaysUnavailable, "3")
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Car cannot be unavailable for longer than the total time you have a company car for.")
     }
   }
 
@@ -258,7 +303,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     def dummyForm(values: CarBenefitValues) = {
       Form[FiguresDummyModel](
         mapping(
-          carRegistrationDate -> validateCarRegistrationDate(values, () => now),
+          carRegistrationDate -> validateCarRegistrationDate(() => now),
           fuelType -> validateFuelType(values),
           co2Figure -> validateCo2Figure(values),
           co2NoFigure -> validateNoCo2Figure(values),
@@ -278,7 +323,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some((tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString)))
 
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
-      form.errors(carRegistrationDate).size shouldBe 1
+      form.errors(carRegistrationDate) should have size 1
       assertHasThisErrorMessage(form, carRegistrationDate, "Date first registered with the DVLA cannot be in the future.")
     }
 
@@ -287,7 +332,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val tooLateRegistrationDate = buildDateFormField(carRegistrationDate, Some((tooLateDate.getYear.toString, tooLateDate.getMonthOfYear.toString, tooLateDate.getDayOfMonth.toString)))
 
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
-      form.errors(carRegistrationDate).size shouldBe 0
+      form.errors(carRegistrationDate) should have size 0
     }
 
     "reject registered before 98 if it is blank" in new WithApplication(FakeApplication()) {
@@ -371,10 +416,10 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
   def getValues(fuelTypeVal: Option[String] = None, co2NoFigureVal: Option[String] = None, co2FigureVal: Option[String] = None,
                 carRegistrationDateVal: Option[LocalDate] = None, numberOfDaysUnavailableVal: Option[String] = None, employerPayFuelVal: Option[String] = None,
-                providedFromVal: Option[LocalDate] = None, providedToVal: Option[LocalDate] = None) =
+                providedFromVal: Option[LocalDate] = None, providedToVal: Option[LocalDate] = None, carUnavailableVal: Option[String] = None) =
     new CarBenefitValues(
         providedFromVal = providedFromVal,
-        carUnavailableVal = None,
+        carUnavailableVal = carUnavailableVal,
         numberOfDaysUnavailableVal = numberOfDaysUnavailableVal,
         giveBackThisTaxYearVal = None,
         providedToVal = providedToVal,

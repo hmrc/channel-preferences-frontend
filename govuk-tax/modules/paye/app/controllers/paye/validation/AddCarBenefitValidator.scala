@@ -31,14 +31,14 @@ object AddCarBenefitValidator extends Validators {
                                      co2NoFigure:Option[String] = None,
                                      employerPayFuel:Option[String] = None)
 
-  private[paye] def validationlessForm(providedFromDefaultValue: LocalDate, providedToDefaultValue: LocalDate) = Form[CarBenefitValues](
+  private[paye] def validationlessForm = Form[CarBenefitValues](
     mapping(
-      providedFrom -> dateTuple(false, Some(providedFromDefaultValue)),
+      providedFrom -> dateTuple(false),
       carUnavailable -> optional(text),
       numberOfDaysUnavailable -> optional(text),
       giveBackThisTaxYear -> optional(text),
-      providedTo -> dateTuple(false, Some(providedToDefaultValue)),
-      carRegistrationDate -> dateTuple(false, None),
+      providedTo -> dateTuple(false),
+      carRegistrationDate -> dateTuple(false),
       employeeContributes -> optional(text),
       employerContributes -> optional(text),
       fuelType -> optional(text),
@@ -88,29 +88,35 @@ object AddCarBenefitValidator extends Validators {
     .verifying("error.paye.employer_cannot_pay_fuel_on_electric_cars", data => !isFuelTypeElectric(values.fuelType) || data == "false")
   ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
-  private[paye] def validateGiveBackThisTaxYear(values: CarBenefitValues) : Mapping[Option[Boolean]] =
+  private[paye] def validateGiveBackThisTaxYear() : Mapping[Option[Boolean]] =
     optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
-  private[paye] def validateCarRegistrationDate(values: CarBenefitValues, timeSource: () => LocalDate) : Mapping[Option[LocalDate]] =
+  private[paye] def validateCarRegistrationDate(timeSource: () => LocalDate) : Mapping[Option[LocalDate]] =
      dateTuple.verifying("error.paye.registered_date_not_after_today", data => if (data.isDefined) !data.get.isAfter(timeSource()) else true)
       .verifying("error.paye.date_must_be_after_1900", data => if(data.isDefined) data.get.getYear>=1900 else true )
       .verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateProvidedTo(values: CarBenefitValues) : Mapping[Option[LocalDate]] = values.giveBackThisTaxYearVal.map(_.toBoolean) match { 
-    case Some(true) => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => values.providedFromVal.get.isBefore(values.providedToVal.get))
+    case Some(true) => dateInCurrentTaxYear.verifying("error.paye.providedTo_after_providedFrom", d => getStartDate(values).isBefore(getEndDate(values)))
       .verifying("error.paye.add_car_benefit.missing_car_return_date", data => !data.isEmpty)
     case _ => ignored(None)
   }
 
+  private def getStartDate(values:CarBenefitValues)  = values.providedFromVal.getOrElse(TaxYearResolver.startOfCurrentTaxYear)
+  private def getEndDate(values:CarBenefitValues)  = values.providedToVal.getOrElse(TaxYearResolver.endOfCurrentTaxYear)
+
   private[paye] def validateNumberOfDaysUnavailable(values: CarBenefitValues) : Mapping[Option[Int]] = values.carUnavailableVal.map(_.toBoolean) match {
     case Some(true) => {
-      optional(positiveInteger)
-        .verifying("error.paye.number_max_3_chars", n => n.getOrElse(0) <= 999 )
-        .verifying("error.paye.add_car_benefit.car_unavailable_too_long", e =>
-          {values.numberOfDaysUnavailableVal.map(_.toInt).getOrElse(0) < daysBetween(values.providedFromVal.get, values.providedToVal.get)})
-        .verifying("error.paye.add_car_benefit.missing_days_unavailable", data => !(values.carUnavailableVal.map(_.toBoolean).getOrElse(false) && data.isEmpty))
+      optional(positiveInteger
+        .verifying("error.paye.number_max_3_chars", n => n <= 999 )
+        .verifying("error.paye.add_car_benefit.car_unavailable_too_long", unavailableDays => acceptableNumberOfDays(unavailableDays, values))
+      ).verifying("error.paye.add_car_benefit.missing_days_unavailable", data => data.isDefined)
     }
     case _ => ignored(None)
+  }
+
+  private def acceptableNumberOfDays(numberOfDays:Int, values:CarBenefitValues):Boolean  = {
+    numberOfDays < daysBetween(getStartDate(values), getEndDate(values))
   }
 
   private[paye] def validateNoCo2Figure(carBenefitValues: CarBenefitValues): Mapping[Option[Boolean]] = optional(boolean
@@ -141,8 +147,8 @@ object AddCarBenefitValidator extends Validators {
     case Some(employerPayeFuel) if employerPayeFuel == employerPayeFuelDateOption => dateTuple verifying StopOnFirstFail[Option[LocalDate]](
       constraint("error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date", (data) => data.isDefined),
       constraint("error.paye.date_not_in_current_tax_year", isInCurrentTaxYear),
-      constraint("error.paye.fuel_withdraw_date_must_be_after_car_start_date", (data) => values.providedFromVal.isEmpty || data.get.isAfter(values.providedFromVal.get)),
-      constraint("error.paye.fuel_withdraw_date_must_be_before_car_end_date", (data) => values.providedToVal.isEmpty || isEqualOrAfter(data.get,values.providedToVal.get))
+      constraint("error.paye.fuel_withdraw_date_must_be_after_car_start_date", (data) => data.get.isAfter(getStartDate(values))),
+      constraint("error.paye.fuel_withdraw_date_must_be_before_car_end_date", (data) => isEqualOrAfter(data.get,getEndDate(values)))
     )
     case _ => ignored(None)
   }

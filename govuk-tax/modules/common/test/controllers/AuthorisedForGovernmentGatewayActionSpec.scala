@@ -2,14 +2,14 @@ package controllers
 
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import org.mockito.Mockito.when
+import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import java.net.URI
 import org.slf4j.MDC
 import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, SaJsonRoot, SaRegime}
 import uk.gov.hmrc.common.microservice.sa.SaConnector
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import org.scalatest.TestData
 import java.util.UUID
@@ -56,7 +56,7 @@ class AuthorisedForGovernmentGatewayActionSpec
   private val lottyRegime_saUtr = SaUtr("aSaUtr")
 
   override protected def beforeEach(testData: TestData) {
-    MockUtils.resetAll(saConnector, epayeConnector, ctConnector, vatConnector, authMicroService)
+    reset(saConnector, epayeConnector, ctConnector, vatConnector, authMicroService)
 
     when(saConnector.root("/sa/detail/3333333333")).thenReturn(
       SaJsonRoot(Map("link1" -> "http://somelink/1"))

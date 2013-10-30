@@ -51,10 +51,6 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
       user => request => confirmAddingBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
-  private def providedFromDefaultValue = startOfCurrentTaxYear
-
-  private def providedToDefaultValue = endOfCurrentTaxYear
-
   private def findPrimaryEmployment(payeRootData: PayeRootData): Option[Employment] =
     payeRootData.taxYearEmployments.find(_.employmentType == primaryEmploymentType)
 
@@ -63,7 +59,7 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
   }
 
   private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
-    validationlessForm(providedFromDefaultValue, providedToDefaultValue).bindFromRequest()(request).value.get
+    validationlessForm.bindFromRequest()(request).value.get
   }
 
   private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
@@ -71,8 +67,8 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
       providedFrom -> validateProvidedFrom(timeSource),
       carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues),
-      giveBackThisTaxYear -> validateGiveBackThisTaxYear(carBenefitValues),
-      carRegistrationDate -> validateCarRegistrationDate(carBenefitValues, timeSource),
+      giveBackThisTaxYear -> validateGiveBackThisTaxYear(),
+      carRegistrationDate -> validateCarRegistrationDate(timeSource),
       providedTo -> validateProvidedTo(carBenefitValues),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
@@ -106,24 +102,22 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
   private def lookupValuesFromKeystoreAndBuildForm(keyStoreId:String) = {
     savedValuesFromKeyStore(keyStoreId) match {
       case Some(savedValues) => {
-        val rawForm = validationlessForm(providedFromDefaultValue, providedToDefaultValue)
-        val defaultValues = rawForm.fill(rawValuesOf(savedValues)).value.get
-        carBenefitForm(defaultValues).fill(savedValues)
+        val rawForm = validationlessForm
+        val valuesForValidation = rawForm.fill(rawValuesOf(savedValues)).value.get
+        carBenefitForm(valuesForValidation).fill(savedValues)
       }
-      case None => carBenefitForm(CarBenefitValues(
-        providedFromVal = Some(providedFromDefaultValue),
-        providedToVal = Some(providedToDefaultValue)))
+      case None => carBenefitForm(CarBenefitValues())
     }
   }
 
   private def savedValuesFromKeyStore(keyStoreId:String) = keyStoreService.getEntry[CarBenefitData](keyStoreId, "paye", "AddCarBenefitForm")
 
   private[paye] def rawValuesOf(defaults: CarBenefitData) =
-    CarBenefitValues(providedFromVal = Option(defaults.providedFrom.getOrElse(providedFromDefaultValue)),
+    CarBenefitValues(providedFromVal = defaults.providedFrom,
       carUnavailableVal = defaults.carUnavailable.map(_.toString),
       numberOfDaysUnavailableVal = defaults.numberOfDaysUnavailable.map(_.toString),
       giveBackThisTaxYearVal = defaults.giveBackThisTaxYear.map(_.toString),
-      providedToVal = Option(defaults.providedTo.getOrElse(providedToDefaultValue)),
+      providedToVal = defaults.providedTo,
       carRegistrationDate = defaults.carRegistrationDate,
       employeeContributes = defaults.employeeContributes.map(_.toString),
       employerContributes = defaults.employeeContributes.map(_.toString),
@@ -177,7 +171,7 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
               val carBenefitValue = benefitCalculations.carBenefitValue.map(BenefitValue(_))
               val carFuelBenefitValue = benefitCalculations.fuelBenefitValue.map(BenefitValue(_))
 
-              val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(providedFromDefaultValue),
+              val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                 addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                 addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, carFuelBenefitValue)
               Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))

@@ -18,7 +18,7 @@ trait Validators {
   val dateTuple: Mapping[Option[LocalDate]] = dateTuple(true)
   def mandatoryDateTuple(error : String): Mapping[LocalDate] = dateTuple.verifying(error, data => data.isDefined).transform(o => o.get, v => if (v == null) None else Some(v))
 
-  def dateTuple(validate: Boolean = true, default: Option[LocalDate] = None) = tuple(
+  def dateTuple(validate: Boolean = true) = tuple(
     year -> optional(text),
     month -> optional(text),
     day -> optional(text)
@@ -50,12 +50,12 @@ trait Validators {
           if (validate) {
             throw e
           } else {
-            default
+            None
           }
         }
       }
     }
-    case (a, b, c) => default
+    case (a, b, c) => None
   },
   (date: Option[LocalDate]) => date match {
     case Some(d) => (Some(d.getYear.toString), Some(d.getMonthOfYear.toString), Some(d.getDayOfMonth.toString))
