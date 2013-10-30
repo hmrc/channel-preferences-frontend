@@ -13,18 +13,15 @@ import views.helpers.RenderableLinkMessage
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import SaPortalUrlKeys._
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import uk.gov.hmrc.domain.SaUtr
 import CommonBusinessMessageKeys._
 import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, Liability, AmountDue, SaAccountSummary}
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://home"
-  private val makeAPaymentUrl = routes.BusinessTaxController.makeAPaymentLanding().url
+  private val makeAPaymentUrl = routes.SaController.makeAPayment().url
   private val liabilityDate = new LocalDate(2014, 1, 15)
   private val saUtr = SaUtr("123456789")
-  private val userAuthorityWithSa = UserAuthority("123", Regimes(), None, Some(saUtr))
-  private val buildPortalUrl: (String) => String = (value: String) => value
   private val utrMessage = Msg("sa.message.utr", Seq(saUtr.utr))
 
 

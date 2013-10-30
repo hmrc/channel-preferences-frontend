@@ -3,4 +3,5 @@ GET     /home                                           @controllers.bt.Business
 GET     /makeAPaymentLanding                            @controllers.bt.BusinessTaxController.makeAPaymentLanding
 GET     /vat/makeAPayment                               @controllers.bt.VatController.makeAPayment
 GET     /ct/makeAPayment                                @controllers.bt.CtController.makeAPayment
+GET     /sa/makeAPayment                                @controllers.bt.SaController.makeAPayment
 GET     /otherServices                                  @controllers.bt.OtherServicesController.otherServices

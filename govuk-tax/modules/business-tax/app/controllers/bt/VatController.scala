@@ -1,7 +1,7 @@
 package controllers.bt
 
 import play.api.mvc.Results
-import controllers.common.{GovernmentGateway, ActionWrappers, BaseController}
+import controllers.common.{Actions, GovernmentGateway, BaseController}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.vat.domain.VatRegime
@@ -9,7 +9,7 @@ import views.helpers.{LinkMessage, RenderableMessage}
 
 class VatController
   extends BaseController
-  with ActionWrappers
+  with Actions
   with PortalUrlBuilder {
 
   def makeAPayment = ActionAuthorisedBy(GovernmentGateway)(Some(VatRegime)) {

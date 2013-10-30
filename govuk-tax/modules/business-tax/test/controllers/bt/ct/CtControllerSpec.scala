@@ -16,10 +16,10 @@ class CtControllerSpec extends BaseSpec {
     "render the Make a Payment page" in new CtControllerForTest with GeoffFisherTestFixture with BusinessTaxRequest {
       val expectedHtml = "<html>happy Italian pasquetta</html>"
       when(mockPortalUrlBuilder.buildPortalUrl("ctAccountDetails")).thenReturn("ctAccountDetailsUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("ctDirectDebits")).thenReturn("ctDirectDebitsUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("btDirectDebits")).thenReturn("btDirectDebitsUrl")
 
       val expectedAccountDetailsLink = RenderableLinkMessage(LinkMessage(href="ctAccountDetailsUrl", text="NO LINK TEXT DEFINED", sso = true))
-      val expectedDirectDebitsLink = RenderableLinkMessage(LinkMessage(href="ctDirectDebitsUrl", text="NO LINK TEXT DEFINED", sso = true))
+      val expectedDirectDebitsLink = RenderableLinkMessage(LinkMessage(href="btDirectDebitsUrl", text="NO LINK TEXT DEFINED", sso = true))
       when(mockCtPages.makeAPaymentPage(expectedAccountDetailsLink, expectedDirectDebitsLink)).thenReturn(Html(expectedHtml))
       val result = Future.successful(controllerUnderTest.makeAPayment(request))
       status(result) shouldBe 200
