@@ -1,7 +1,6 @@
 package controllers.bt.otherservices
 
 import uk.gov.hmrc.common.BaseSpec
-import controllers.bt.otherservices.ManageTaxesLink
 import play.api.test.{WithApplication, FakeApplication}
 import views.helpers.LinkMessage
 

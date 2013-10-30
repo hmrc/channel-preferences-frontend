@@ -3,7 +3,6 @@ package controllers.bt.otherservices
 import uk.gov.hmrc.common.BaseSpec
 import views.helpers.{RenderableLinkMessage, LinkMessage}
 import org.scalatest.mock.MockitoSugar
-import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.domain.{CtUtr, Vrn, EmpRef, SaUtr}
@@ -11,13 +10,12 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeLinks, Epa
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
-import org.scalatest.{Matchers, TestData}
-import uk.gov.hmrc.common.microservice.governmentgateway.{Enrolment, AffinityGroup, ProfileResponse, GovernmentGatewayMicroService}
+import org.scalatest.Matchers
+import uk.gov.hmrc.common.microservice.governmentgateway.{Enrolment, AffinityGroup, ProfileResponse}
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
-import play.api.i18n.Messages
-import play.api.test.{WithApplication, FakeApplication}
-import controllers.bt.testframework.mocks.{ConnectorMocks, PortalUrlBuilderMock}
+import play.api.test.{FakeRequest, WithApplication, FakeApplication}
+import controllers.bt.testframework.mocks.{AffinityGroupParserMock, ConnectorMocks, PortalUrlBuilderMock}
 import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
 
@@ -211,6 +209,8 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return None when the user affinity group is agent" in new OtherServicesFactoryForTest {
 
       implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
+      implicit val request = FakeRequest()
+      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(AGENT)
 
       val expectedResponse = Some(ProfileResponse(
         affinityGroup = AffinityGroup(AGENT),
@@ -228,8 +228,10 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "throw a RuntimeException when the user profile cannot be retrieved from government gateway" in new OtherServicesFactoryForTest {
 
       implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
+      implicit val request = FakeRequest()
 
       when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(None)
+      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(INDIVIDUAL)
 
       intercept[RuntimeException] {
         factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
@@ -244,7 +246,9 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
 
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val request = FakeRequest()
 
+      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(INDIVIDUAL)
       when(mockPortalUrlBuilder.buildPortalUrl(org.mockito.Matchers.any[String])).thenAnswer(new Answer[String] {
         def answer(invocation: InvocationOnMock): String = {
           "http://" + invocation.getArguments.toSeq.head
@@ -279,13 +283,14 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       result shouldBe expectedResult
     }
 
-
     "return a list with links ordered by key for the user enrolments when the affinity group is organisation" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
 
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val request = FakeRequest()
 
+      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(ORGANISATION)
       when(mockPortalUrlBuilder.buildPortalUrl(org.mockito.Matchers.any[String])).thenAnswer(new Answer[String] {
         def answer(invocation: InvocationOnMock): String = {
           "http://" + invocation.getArguments.toSeq.head
@@ -343,6 +348,22 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       result shouldBe expectedResult
     }
 
+    "throw an exception if the affinity group is not found" in new OtherServicesFactoryForTest {
+
+      implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
+      implicit val request = FakeRequest()
+
+      val expectedResponse = Some(ProfileResponse(
+        affinityGroup = AffinityGroup(INDIVIDUAL),
+        activeEnrolments = Set.empty))
+      when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(expectedResponse)
+      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new InternalError)
+
+      intercept[InternalError] {
+        factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
+      }
+    }
+
   }
 
   private def saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
@@ -362,6 +383,7 @@ abstract class OtherServicesFactoryForTest
     "govuk-tax.Test.externalLinks.businessTax.manageTaxes.ecsl" -> "https://customs.hmrc.gov.uk/ecsl/httpssl/start.do",
     "govuk-tax.Test.externalLinks.businessTax.registration.otherWays" -> "http://www.hmrc.gov.uk/online/new.htm#2")))
   with PortalUrlBuilderMock
+  with AffinityGroupParserMock
   with ConnectorMocks 
   with Matchers {
 
@@ -370,7 +392,7 @@ abstract class OtherServicesFactoryForTest
 
   val hmrcWebsiteLinkText = "HMRC website"
 
-  val factoryUnderTest = new OtherServicesFactory(mockGovernmentGatewayMicroService)
+  val factoryUnderTest = new OtherServicesFactory(mockGovernmentGatewayMicroService) with PortalUrlBuilderMock with MockedAffinityGroupParser
 
   def assertCorrectBusinessTaxRegistration(expectedLink: String, linkMessage: String)(implicit user: User) {
     def linkObj = Some(RenderableLinkMessage(LinkMessage(href = expectedLink, text = linkMessage, newWindow = false, sso = true)))

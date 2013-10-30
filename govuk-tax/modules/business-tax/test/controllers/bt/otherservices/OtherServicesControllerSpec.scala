@@ -8,7 +8,7 @@ import views.helpers.RenderableLinkMessage
 import controllers.bt.testframework.request.BusinessTaxRequest
 import controllers.bt.testframework.fixtures.GeoffFisherTestFixture
 import play.api.templates.Html
-import org.mockito.Matchers.any
+import org.mockito.Matchers
 
 class OtherServicesControllerSpec extends BaseSpec {
 
@@ -26,11 +26,11 @@ class OtherServicesControllerSpec extends BaseSpec {
           RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false)))
       )
 
-      when(mockOtherServicesFactory.createManageYourTaxes(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
+      when(mockOtherServicesFactory.createManageYourTaxes(Matchers.any())(Matchers.eq(user), Matchers.any())).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
 
-      when(mockOtherServicesFactory.createOnlineServicesEnrolment(any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
+      when(mockOtherServicesFactory.createOnlineServicesEnrolment(Matchers.any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
 
-      when(mockOtherServicesFactory.createBusinessTaxesRegistration(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
+      when(mockOtherServicesFactory.createBusinessTaxesRegistration(Matchers.any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
 
       val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false)))
 
@@ -59,9 +59,9 @@ class OtherServicesControllerSpec extends BaseSpec {
           RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false)))
       )
 
-      when(mockOtherServicesFactory.createManageYourTaxes(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
-      when(mockOtherServicesFactory.createOnlineServicesEnrolment(any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
-      when(mockOtherServicesFactory.createBusinessTaxesRegistration(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
+      when(mockOtherServicesFactory.createManageYourTaxes(Matchers.any())(Matchers.eq(user), Matchers.any())).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
+      when(mockOtherServicesFactory.createOnlineServicesEnrolment(Matchers.any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
+      when(mockOtherServicesFactory.createBusinessTaxesRegistration(Matchers.any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
 
       val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false)))
 
@@ -89,9 +89,9 @@ class OtherServicesControllerSpec extends BaseSpec {
           RenderableLinkMessage(LinkMessage("http://www.hmrc.gov.uk/online/nex.htm#2", "HMRC website", sso = false)))
       )
 
-      when(mockOtherServicesFactory.createManageYourTaxes(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
-      when(mockOtherServicesFactory.createOnlineServicesEnrolment(any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
-      when(mockOtherServicesFactory.createBusinessTaxesRegistration(any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
+      when(mockOtherServicesFactory.createManageYourTaxes(Matchers.any())(Matchers.eq(user), Matchers.any())).thenReturn(expectedOtherServicesSummary.manageYourTaxes)
+      when(mockOtherServicesFactory.createOnlineServicesEnrolment(Matchers.any())).thenReturn(expectedOtherServicesSummary.onlineServicesEnrolment)
+      when(mockOtherServicesFactory.createBusinessTaxesRegistration(Matchers.any())(org.mockito.Matchers.eq(user))).thenReturn(expectedOtherServicesSummary.businessTaxesRegistration)
 
       val otherServicesEnrolment = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage("otherServicesEnrolmentURL", "here", sso = false)))
 

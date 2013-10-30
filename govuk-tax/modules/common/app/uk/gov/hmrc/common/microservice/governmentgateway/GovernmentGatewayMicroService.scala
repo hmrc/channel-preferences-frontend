@@ -72,7 +72,7 @@ object ProfileResponse {
 private[governmentgateway] case class JsonProfileResponse(affinityGroup: String, activeEnrolments: Set[String])
 
 object AffinityGroupValue {
-  val INDIVIDUAL = "individual"
-  val ORGANISATION = "organisation"
-  val AGENT = "agent"
+  val INDIVIDUAL = "Individual"
+  val ORGANISATION = "Organisation"
+  val AGENT = "Agent"
 }
