@@ -6,7 +6,7 @@ import views.html.paye._
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.DisplayBenefits
-import controllers.common.{SessionTimeoutWrapper, ActionWrappers, BaseController}
+import controllers.common.{Ida, SessionTimeoutWrapper, ActionWrappers, BaseController}
 import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import controllers.common.service.MicroServices

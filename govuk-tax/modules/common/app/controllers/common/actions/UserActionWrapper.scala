@@ -1,31 +1,31 @@
 package controllers.common.actions
 
-
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, User}
 import views.html.login
 import play.api.Logger
-import controllers.common.{ServiceRoots, AuthorisationTypes}
+import controllers.common.{CookieEncryption, AuthorisationType, ServiceRoots}
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 
-trait UserActionWrapper extends AuthorisationTypes
-                           with Results
-                           with ServiceRoots {
+trait UserActionWrapper
+  extends Results
+  with CookieEncryption
+  with ServiceRoots {
 
-  import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-
-  implicit val authMicroService : AuthMicroService
+  implicit val authMicroService: AuthMicroService
 
   object WithUserAuthorisedBy {
     def apply(authenticationType: AuthorisationType)
              (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
              (action: User => Action[AnyContent]): Action[AnyContent] =
-      Action.async { request =>
-        val handle = authenticationType.handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request, taxRegime)
+      Action.async {
+        request =>
+          val handle = authenticationType.handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request, taxRegime)
 
-        handle((request.session.get("userId"), request.session.get("token"))) match {
-          case Left(successfullyFoundUser) => action(successfullyFoundUser)(request)
-          case Right(resultOfFailure) => Action(resultOfFailure)(request)
-        }
+          handle((request.session.get("userId"), request.session.get("token"))) match {
+            case Left(successfullyFoundUser) => action(successfullyFoundUser)(request)
+            case Right(resultOfFailure) => Action(resultOfFailure)(request)
+          }
       }
 
     def handleAuthorised(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
@@ -57,4 +57,5 @@ trait UserActionWrapper extends AuthorisationTypes
         }
     }
   }
+
 }

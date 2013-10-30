@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import controllers.common.{BaseController2, Actions, ActionWrappers, BaseController}
+import controllers.common._
 import controllers.common.validators.Validators
 import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient.{client_successfully_added, preferred_contact}
@@ -14,11 +14,18 @@ import scala.Some
 import Validators.validateMandatoryPhoneNumber
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import models.agent.{Client, Contact, PreferredContact}
-import service.agent.AgentMicroService
+import _root_.service.agent.AgentMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import controllers.common.service.MicroServices
+import models.agent.addClient.PotentialClient
+import scala.Some
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.domain.User
+import models.agent.Client
+import models.agent.PreferredContact
+import models.agent.Contact
 
 class PreferredContactController(keyStoreMicroService: KeyStoreMicroService,
                                  override val auditMicroService: AuditMicroService)

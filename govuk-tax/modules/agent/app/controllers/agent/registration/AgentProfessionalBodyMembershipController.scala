@@ -7,7 +7,7 @@ import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.{BaseController2, Actions}
+import controllers.common.{Ida, BaseController2, Actions}
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService

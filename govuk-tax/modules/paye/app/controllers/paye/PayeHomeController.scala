@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import models.paye.{EmploymentViews, PayeOverview}
 import views.html.paye.paye_home
-import controllers.common.BaseController
+import controllers.common.{Ida, BaseController}
 import uk.gov.hmrc.utils.TaxYearResolver
 
 class PayeHomeController extends BaseController {

@@ -2,20 +2,20 @@ package uk.gov.hmrc.common.microservice.vat.domain
 
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.vat.VatConnector
-import uk.gov.hmrc.domain.{SaUtr, Vrn}
+import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import controllers.common.FrontEndRedirect
+import controllers.common.{GovernmentGateway, FrontEndRedirect}
 
 object VatDomain {
-  object VatRegime extends TaxRegime {
-    override def isAuthorised(regimes: Regimes) = {
-      regimes.vat.isDefined
-    }
 
-    override def unauthorisedLandingPage: String = {
-      FrontEndRedirect.businessTaxHome
-    }
+  object VatRegime extends TaxRegime {
+    def isAuthorised(regimes: Regimes) = regimes.vat.isDefined
+
+    def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
+
+    def authorisationType = GovernmentGateway
   }
+
   object VatRoot {
     def apply(vrn: Vrn, root: VatJsonRoot) = new VatRoot(vrn, root.links)
   }

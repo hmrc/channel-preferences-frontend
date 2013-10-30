@@ -7,12 +7,15 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
 import uk.gov.hmrc.common.microservice.agent.AgentRoot
+import controllers.common.AuthorisationType
 
 abstract class TaxRegime {
 
   def isAuthorised(regimes: Regimes): Boolean
 
   def unauthorisedLandingPage: String
+
+  def authorisationType: AuthorisationType
 }
 
 abstract class RegimeRoot[I] {

@@ -10,7 +10,7 @@ import play.api.data._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.{BaseController2, Actions}
+import controllers.common.{Ida, BaseController2, Actions}
 import controllers.common.actions.MultiFormWrapper
 import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService

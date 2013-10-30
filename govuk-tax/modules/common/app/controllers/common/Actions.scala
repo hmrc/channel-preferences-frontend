@@ -8,51 +8,42 @@ import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import controllers.common.actions.{WithRequestLogging, WithHeaders}
 
 trait Actions
   extends Results
   with CookieEncryption
   with AuditActionWrapper
   with SessionTimeoutWrapper
-  with AuthorisationTypes
   with ServiceRoots
   with UserActionWrapper {
 
-  object ActionAuthorisedBy {
 
-    import controllers.common.actions.{WithRequestLogging, WithHeaders}
-
-    def apply(authenticationType: AuthorisationType)
-             (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
-             (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
-      WithHeaders {
-        WithRequestLogging {
-          WithSessionTimeoutValidation {
-            WithUserAuthorisedBy(authenticationType)(taxRegime, redirectToOrigin) { user =>
+  def ActionAuthorisedBy(authenticationType: AuthorisationType)
+                        (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
+                        (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
+    WithHeaders {
+      WithRequestLogging {
+        WithSessionTimeoutValidation {
+          WithUserAuthorisedBy(authenticationType)(taxRegime, redirectToOrigin) {
+            user =>
               WithRequestAuditing(user) {
-                user: User => Action(body(user))
+                user => Action(body(user))
               }
-            }
           }
         }
       }
     }
   }
 
-  object UnauthorisedAction {
-
-    import controllers.common.actions.{WithRequestLogging, WithHeaders}
-
-    def apply[A <: TaxRegime](body: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
-      WithHeaders {
-        WithRequestLogging {
-          WithRequestAuditing {
-            Action(body)
-          }
+  def UnauthorisedAction(body: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
+    WithHeaders {
+      WithRequestLogging {
+        WithRequestAuditing {
+          Action(body)
         }
       }
-  }
-
+    }
 }
 
 

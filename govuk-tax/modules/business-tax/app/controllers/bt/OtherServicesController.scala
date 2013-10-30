@@ -1,7 +1,7 @@
 package controllers.bt
 
 import controllers.bt.otherservices.{OtherServicesFactory, OtherServicesSummary}
-import controllers.common.{ActionWrappers, BaseController}
+import controllers.common.{GovernmentGateway, ActionWrappers, BaseController}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.templates.Html

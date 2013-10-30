@@ -1,7 +1,7 @@
 package controllers.agent.registration
 
 import play.api.data._
-import controllers.common.{BaseController2, Actions}
+import controllers.common.{Ida, BaseController2, Actions}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{SimpleResult, Request}
 import play.api.data.Forms._

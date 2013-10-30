@@ -2,7 +2,7 @@ package controllers.agent.addClient
 
 import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient._
-import controllers.common.{BaseController2, Actions}
+import controllers.common.{Ida, BaseController2, Actions}
 import play.api.data.{Form, Forms}
 import Forms._
 import org.joda.time.LocalDate

@@ -4,18 +4,16 @@ import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import controllers.common.FrontEndRedirect
+import controllers.common.{GovernmentGateway, FrontEndRedirect}
 
 object CtDomain {
 
   object CtRegime extends TaxRegime {
-    override def isAuthorised(regimes: Regimes) = {
-      regimes.ct.isDefined
-    }
+    def isAuthorised(regimes: Regimes) = regimes.ct.isDefined
 
-    override def unauthorisedLandingPage: String = {
-      FrontEndRedirect.businessTaxHome
-    }
+    def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
+
+    def authorisationType = GovernmentGateway
   }
 
   object CtRoot {
@@ -46,5 +44,6 @@ object CtDomain {
   case class CtAccountSummary(accountBalance: Option[CtAccountBalance], dateOfBalance: Option[String])
 
   case class CtAccountBalance(amount: Option[BigDecimal])
+
 }
 

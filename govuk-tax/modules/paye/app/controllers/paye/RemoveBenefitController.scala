@@ -1,7 +1,7 @@
 package controllers.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain._
-import play.api.mvc.{SimpleResult, Request}
+import play.api.mvc.Request
 import views.html.paye._
 import views.formatting.Dates._
 import play.api.data.Form
@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import org.joda.time.LocalDate
 import models.paye._
 import models.paye.BenefitTypes._
-import controllers.common.{Actions, BaseController2, SessionTimeoutWrapper}
+import controllers.common.{Ida, Actions, BaseController2, SessionTimeoutWrapper}
 import scala.collection.mutable
 import controllers.paye.validation.RemoveBenefitValidator._
 import org.joda.time.format.DateTimeFormat
@@ -18,34 +18,19 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import controllers.common.service.MicroServices
 import play.api.Logger
-import models.paye.RemoveBenefitConfirmationData
-import models.paye.BenefitInfo
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import models.paye.CarFuelBenefitDates
-import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
-import models.paye.RemoveBenefitFormData
 import config.DateTimeProvider
 import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import controllers.common.service.MicroServices._
 import models.paye.RemoveBenefitConfirmationData
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import scala.Some
 import models.paye.BenefitInfo
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRootData
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.paye.RemoveBenefitData
 import models.paye.CarFuelBenefitDates
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import models.paye.RemoveBenefitFormData
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.SaRoot
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
 
 class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override val authMicroService : AuthMicroService, override val auditMicroService : AuditMicroService)(implicit payeMicroService: PayeMicroService, txQueueMicroService : TxQueueMicroService) extends BaseController2
   with Actions

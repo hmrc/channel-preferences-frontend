@@ -1,21 +1,20 @@
 package uk.gov.hmrc.common.microservice.sa.domain
 
-import controllers.common.FrontEndRedirect
+import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.common.microservice.sa.SaConnector
-import uk.gov.hmrc.common.microservice.domain.{ TaxRegime, RegimeRoot }
+import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.SaUtr
 
 object SaRegime extends TaxRegime {
-  override def isAuthorised(regimes: Regimes) = {
-    regimes.sa.isDefined
-  }
 
-  override def unauthorisedLandingPage: String = {
-    FrontEndRedirect.businessTaxHome
-  }
+  def isAuthorised(regimes: Regimes) = regimes.sa.isDefined
+
+  def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
+
+  def authorisationType = GovernmentGateway
 }
 
 object SaDomain {
@@ -65,26 +64,27 @@ object SaDomain {
   case class SaPerson(name: SaName, address: SaIndividualAddress)
 
   case class SaIndividualAddress(
-    addressLine1: String,
-    addressLine2: String,
-    addressLine3: Option[String],
-    addressLine4: Option[String],
-    addressLine5: Option[String],
-    postcode: Option[String],
-    foreignCountry: Option[String],
-    additionalDeliveryInformation: Option[String])
+                                  addressLine1: String,
+                                  addressLine2: String,
+                                  addressLine3: Option[String],
+                                  addressLine4: Option[String],
+                                  addressLine5: Option[String],
+                                  postcode: Option[String],
+                                  foreignCountry: Option[String],
+                                  additionalDeliveryInformation: Option[String])
 
-  case class  SaName(
-     title: String,
-     forename: String,
-     secondForename: Option[String],
-     surname: String,
-     honours: Option[String])
+  case class SaName(
+                     title: String,
+                     forename: String,
+                     secondForename: Option[String],
+                     surname: String,
+                     honours: Option[String])
 
   case class Liability(dueDate: LocalDate, amount: BigDecimal)
 
   case class AmountDue(amount: BigDecimal, requiresPayment: Boolean)
 
   case class SaAccountSummary(totalAmountDueToHmrc: Option[AmountDue], nextPayment: Option[Liability], amountHmrcOwe: Option[BigDecimal])
+
 }
 

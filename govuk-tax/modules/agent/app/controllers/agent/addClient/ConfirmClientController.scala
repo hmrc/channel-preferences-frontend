@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import controllers.common.{Actions, BaseController2, ActionWrappers, BaseController}
+import controllers.common._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import play.api.mvc.{SimpleResult, Request}
@@ -16,6 +16,10 @@ import controllers.common.service.MicroServices
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import models.agent.addClient.PotentialClient
+import scala.Some
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.domain.User
 
 class ConfirmClientController(keyStoreMicroService: KeyStoreMicroService,
                               override val auditMicroService: AuditMicroService)
