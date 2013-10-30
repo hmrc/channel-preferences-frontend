@@ -18,7 +18,6 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.common.microservice.domain.User
 import org.jsoup.nodes.Document
 import org.joda.time.chrono.ISOChronology
-import controllers.paye.MockMicroServicesForTests
 
 class PayeHomeControllerSpec
   extends PayeBaseSpec

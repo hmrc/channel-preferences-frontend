@@ -16,7 +16,6 @@ import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import org.scalatest.TestData
 import concurrent.Future
-import controllers.paye.MockMicroServicesForTests
 
 class BenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption {
 
