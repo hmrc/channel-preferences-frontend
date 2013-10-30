@@ -7,8 +7,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import scala.util.Success
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import ConfirmClientController.FieldIds
 import SearchClientController.KeyStoreKeys._

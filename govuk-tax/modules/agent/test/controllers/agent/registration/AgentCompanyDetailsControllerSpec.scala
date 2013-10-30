@@ -4,9 +4,8 @@ import play.api.test.{ FakeRequest, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import play.api.test.Helpers._
-import org.mockito.{Mockito, ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -15,10 +14,7 @@ import play.api.test.FakeApplication
 import scala.Some
 import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.common.validators.AddressFields._
-import scala.util.Success
 import concurrent.Future
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.scalatest.TestData
 

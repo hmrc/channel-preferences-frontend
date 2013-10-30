@@ -1,7 +1,6 @@
 package controllers.common.actions
 
 import play.api.mvc.{ Action, Controller }
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
@@ -12,20 +11,8 @@ import controllers.common.HeaderNames
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.bson.types.ObjectId
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain._
-import uk.gov.hmrc.domain.{Vrn, CtUtr, Nino, SaUtr}
+import uk.gov.hmrc.domain.Nino
 import org.scalatest.Inside
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
-import scala.Some
-import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.domain.CtUtr
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.auth.domain.Pid
 import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
