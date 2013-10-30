@@ -170,7 +170,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
             val revisedBenefits = displayBenefit.benefits.map(b => RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
               throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
 
-            val removeBenefitResponse = payeMicroService.removeBenefits(uri, payeRoot.nino, payeRoot.version, revisedBenefits, formData.withdrawDate).get
+            val removeBenefitResponse = payeMicroService.removeBenefits(uri, payeRoot.version, revisedBenefits, formData.withdrawDate).get
             Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString,
               displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
               removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
