@@ -4,21 +4,20 @@ import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
-import org.joda.time.{DateTimeZone, LocalDate}
-import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.utils.DateConverter
+import org.joda.time.LocalDate
 import controllers.DateFieldsHelper
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.scalatest.TestData
-import org.mockito.{ArgumentCaptor, Matchers, Mockito}
-import play.api.mvc.SimpleResult
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Mockito._
 import controllers.paye.CarBenefitFormFields._
 import CarBenefitDataBuilder._
 import play.api.i18n.Messages
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import scala._
+import org.scalatest.matchers.{MatchResult, Matcher}
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationData
-import uk.gov.hmrc.common.microservice.paye.domain.Car
+import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationResponse
@@ -27,8 +26,9 @@ import controllers.paye.validation.AddCarBenefitValidator._
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import play.api.mvc.SimpleResult
 
-class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
+class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
   val mockKeyStoreService = mock[KeyStoreMicroService]
   val mockPayeMicroService = mock[PayeMicroService]
@@ -43,49 +43,32 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
 
-    Mockito.reset(mockKeyStoreService)
-    Mockito.reset(mockPayeMicroService)
-    Mockito.reset(mockTxQueueMicroService)
-    Mockito.reset(mockAuthMicroService)
-    Mockito.reset(mockAuditMicroService)
-
-    when(mockKeyStoreService.getEntry[CarBenefitData](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(None)
+    reset(mockKeyStoreService)
+    reset(mockPayeMicroService)
+    reset(mockTxQueueMicroService)
+    reset(mockAuthMicroService)
+    reset(mockAuditMicroService)
   }
-
-  val carBenefitEmployer1 = Benefit(31, 2013, 321.42, 1, None, None, None, None, None, None, None,
-    Some(Car(Some(new LocalDate(2012, 12, 12)), None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", 2013, 1), Map.empty)
-
-  val fuelBenefitEmployer1 = Benefit(29, 2013, 22.22, 1, None, None, None, None, None, None, None,
-    None, actions("AB123456C", 2013, 1), Map.empty)
-
-  val johnDensmoresBenefitsForEmployer1 = Seq(
-    carBenefitEmployer1,
-    fuelBenefitEmployer1)
-
-  val taxYear = 2013
-  val employmentSeqNumber = 1
-
 
   "calling start add car benefit" should {
     "return 200 and show the add car benefit form with the employers name  " in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1))
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
 
-      status(result) shouldBe 200
+      result should haveStatus(200)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
     }
 
     "return 200 and show the add car benefit form with the required fields and no values filled in" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val employmentSequenceNumber = 1
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSequenceNumber))
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
 
-      status(result) shouldBe 200
+      result should haveStatus(200)
 
-      verify(mockKeyStoreService).getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm")
+      verify(mockKeyStoreService).getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("[id~=providedFrom]").select("[id~=day]") should not be empty
       doc.select("#carUnavailable-true")  should not be empty
@@ -146,57 +129,57 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 200 and show the add car benefit form and show your company if the employer name does not exist " in new WithApplication(FakeApplication()) {
       val johnDensmoresNamelessEmployments = Seq(
-        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType))
+        Employment(sequenceNumber = employmentSeqNumberOne, startDate = new LocalDate(taxYear, 7, 2), endDate = Some(new LocalDate(taxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType))
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresNamelessEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore(employments = johnDensmoresNamelessEmployments)
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1))
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
 
-      status(result) shouldBe 200
+      result should haveStatus(200)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "your employer"
     }
     "return 400 when employer for sequence number does not exist" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 5))
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, 5))
 
-      status(result) shouldBe 400
+      result should haveStatus(400)
     }
     "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
+      setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1))
-      status(result) shouldBe 303
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
+      result should haveStatus(303)
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome.url)
     }
     "return 400 if the requested tax year is not the current tax year" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2014, 1))
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear+1, employmentSeqNumberOne))
 
-      status(result) shouldBe 400
+      result should haveStatus(400)
     }
     "return 400 if the employer is not the primary employer" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 2))
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, 2))
 
-      status(result) shouldBe 400
+      result should haveStatus(400)
     }
   }
 
   "submitting add car benefit" should {
 
     "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefitsForEmployer1, List.empty, List.empty)
+      setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumber))
-      status(result) shouldBe 303
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumberOne))
+      result should haveStatus(303)
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome.url)
     }
 
-    "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {
+    "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {      
       assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), false,  None, false,  None)
       assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), true,  Some("15"), false,  None)
       assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), false,  None, true,  Some(endOfTaxYearMinusOne))
@@ -208,7 +191,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 200 for a successful combination of fields" in new WithApplication(FakeApplication()) {
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
       val now = Some(new LocalDate)
       val registrationDate = new LocalDate().withYear(1995)
@@ -224,8 +207,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[CarBenefitData])
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
 
       verify(mockKeyStoreService).addKeyStoreEntry(
         Matchers.any,
@@ -245,7 +228,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     "return 200 for a successful combination of fields including engine capacity is not available" in new WithApplication(FakeApplication()) {
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
       val now = Some(new LocalDate)
       val registrationDate = new LocalDate().withYear(2000)
@@ -260,8 +243,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[CarBenefitData])
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
 
       verify(mockKeyStoreService).addKeyStoreEntry(
         Matchers.any,
@@ -279,23 +262,23 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
       assertSuccessfulDatesSubmitWithTuple(None, false, Some("llama"), false, Some(("donkey", "", "")))
     }
 
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      assertFailedDatesSubmit(Some(("2013", "9", "18")), Some("true"), Some("150"), Some("true"), Some(("2013","12","31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some((s"$taxYear", "9", "18")), Some("true"), Some("150"), Some("true"), Some((s"$taxYear","12","31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
       assertFailedDatesSubmit(Some(("2012","1","1")), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), Some(("2013","4","5")), "error_q_3", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(None, Some("false"), None, Some("true"),  Some(("2014","4","6")), "error_q_3", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), Some((s"$taxYear","4","5")), "error_q_3", "You must specify a date within the current tax year.")
+      assertFailedDatesSubmit(None, Some("false"), None, Some("true"),  Some((s"${taxYear+1}","4","6")), "error_q_3", "You must specify a date within the current tax year.")
       assertFailedDatesSubmit(None, Some("false"), None, Some("true"), None, "error_q_3", "You must specify when you will be returning your company car.")
       assertFailedDatesSubmit(Some(localDateToTuple(Some(now.plusDays(8)))), Some("false"), None, Some("false"),  None, "error_q_1", "You must specify a date, which is not more than 7 days in future from today.")
-      assertFailedDatesSubmit(Some(("2013","9","18")), Some("true"), Some("250"), Some("false"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
-      assertFailedDatesSubmit(Some(("2013","9","18")), Some("true"), None, Some("true"), Some(("2013","9","17")), "error_q_3", "You cannot return your car before you get it.")
-      assertFailedDatesSubmit(None, Some("true"), Some("300"), Some("true"), Some(("2013","12","31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some((s"$taxYear","9","18")), Some("true"), Some("250"), Some("false"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertFailedDatesSubmit(Some((s"$taxYear","9","18")), Some("true"), None, Some("true"), Some((s"$taxYear","9","17")), "error_q_3", "You cannot return your car before you get it.")
+      assertFailedDatesSubmit(None, Some("true"), Some("300"), Some("true"), Some((s"$taxYear","12","31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
       assertFailedDatesSubmit(None, Some("true"), Some("367"), Some("true"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
       assertFailedDatesSubmit(None, Some("true"), None, Some("false"), None, "error_q_2", "You must specify the number of consecutive days the car has been unavailable.")
 
@@ -306,19 +289,19 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       assertFailedDatesSubmit(Some(("2012","1","1")), None, None, Some("false"), None, "error_q_2", "Please answer this question.")
       assertFailedDatesSubmit(Some(("2012","1","1")), Some("false"), None, None, None, "error_q_3", "Please answer this question.")
 
-      assertFailedDatesSubmit(Some(("2013","5", "")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","","1")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("","5","1")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","32")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","13","1")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2asd","","")), Some("true"), None, Some("true"), Some(("2013","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","5", "")), Some("true"), None, Some("true"), Some((s"$taxYear","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","","1")), Some("true"), None, Some("true"), Some((s"$taxYear","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("","5","1")), Some("true"), None, Some("true"), Some((s"$taxYear","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","10","32")), Some("true"), None, Some("true"), Some((s"$taxYear","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","13","1")), Some("true"), None, Some("true"), Some((s"$taxYear","10","17")), "error_q_1", "You must specify a valid date")
+      assertFailedDatesSubmit(Some(("2asd","","")), Some("true"), None, Some("true"), Some((s"$taxYear","10","17")), "error_q_1", "You must specify a valid date")
 
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","10","")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","","22")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("","22","10")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","13","2")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("2013","12","32")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some(("2013","10","18")), Some("true"), None, Some("true"), Some(("adssda","","")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","10","18")), Some("true"), None, Some("true"), Some((s"$taxYear","10","")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","10","18")), Some("true"), None, Some("true"), Some((s"$taxYear","","22")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","10","18")), Some("true"), None, Some("true"), Some(("","22","10")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","10","18")), Some("true"), None, Some("true"), Some((s"$taxYear","13","2")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","10","18")), Some("true"), None, Some("true"), Some((s"$taxYear","12","32")), "error_q_3", "You must specify a valid date")
+      assertFailedDatesSubmit(Some((s"$taxYear","10","18")), Some("true"), None, Some("true"), Some(("adssda","","")), "error_q_3", "You must specify a valid date")
     }
 
     "return 200 when listPrice form data validates successfully" in new WithApplication(FakeApplication()) {
@@ -328,7 +311,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "return 400 and display error when listPrice form data fails validation" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
       assertFailedListPriceSubmit(None, "error_q_5", "You must specify the list price of your company car.")
       assertFailedListPriceSubmit(Some("999"), "error_q_5", "List price must be greater than or equal to £1,000.")
@@ -339,6 +322,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "return 200 when employeeContribution form data validates successfully" in new WithApplication(FakeApplication()) {
+
       assertSuccessfulEmployeeContributionSubmit(Some(false), None, None)
       assertSuccessfulEmployeeContributionSubmit(Some(true), Some("1000"), Some(1000))
       assertSuccessfulEmployeeContributionSubmit(Some(true), Some("9999"), Some(9999))
@@ -347,7 +331,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "return 400 and display error when employeeContribution form data fails validation" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
       assertFailedEmployeeContributionSubmit(Some("true"), None, "error_q_6", "You must specify how much you paid towards the cost of the car.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("100.25"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
@@ -359,6 +343,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "return 200 when employers form data validates successfully" in new WithApplication(FakeApplication()) {
+
       assertSuccessfulEmployerContributionSubmit(Some(false), None, None)
       assertSuccessfulEmployerContributionSubmit(Some(true), Some("1000"), Some(1000))
       assertSuccessfulEmployerContributionSubmit(Some(true), Some("99999"), Some(99999))
@@ -367,7 +352,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "return 400 and display error when employerContribution form data fails validation" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
       assertFailedEmployerContributionSubmit(Some("true"), None, "error_q_7", "You must specify how much you pay your employer towards the cost of the car.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("1000.25"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
@@ -379,54 +364,54 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "return 400 if the submitting is for year that is not the current tax year" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2014, 1))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear+1, employmentSeqNumberOne))
 
-      status(result) shouldBe 400
+      result should haveStatus(400)
     }
 
     "return 400 if the submitting is for employment number that is not the primary employment" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), 2013, 2))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, 2))
 
-      status(result) shouldBe 400
+      result should haveStatus(400)
     }
 
     "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(LocalDate.now.withYear(1996)))))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
     }
 
     "return 400 if the user does not select any option for the registered before 98 question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "return 400 if the user sends an invalid value for the registered before 98 question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some(("hacking!", "garbage", "Hotdogs!")))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "return 400 if the user sends a car registered date before 1900" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal  = Some(("1899", "7", "1")))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "keep the selected option in the car registered date question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some((taxYear.toString,"5","29")), carUnavailableVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("[id~=carRegistrationDate]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=month-5]").attr("selected") shouldBe "selected"
@@ -435,150 +420,150 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "return 200 if the user selects an option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), engineCapacityVal = None, co2NoFigureVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
     }
 
     "return 400 if the user does not select any option for the FUEL TYPE question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text should include(Messages("error.paye.answer_mandatory"))
     }
 
     "return 400 if the user sends an invalid value for the FUEL TYPE question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("hacking!"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "keep the selected option in the FUEL TYPE question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), carUnavailableVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
     }
 
     "return 200 if the user enters a valid integer for the CO2 FIGURE question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"), co2NoFigureVal = Some("false"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
     }
 
     "return 400 if the user sends an invalid value for the CO2 FIGURE question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("hacking!"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "keep the selected option in the CO2 FIGURE question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"), carUnavailableVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#co2Figure").attr("value") shouldBe "123"
     }
 
     "return 200 if the user selects the option for the CO2 NO FIGURE" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("true"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
     }
 
     "return 400 if the user sends an invalid value for the option CO2 NO VALUE" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("hacking!"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "keep the checkbox elected for the CO2 NO VALUE option if the validation fails due to another reason" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("true"), carUnavailableVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#co2NoFigure").attr("value") shouldBe "true"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
 
     "return 200 if the user selects an option for the ENGINE CAPACITY question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
     }
 
     "return 400 if the user sends an invalid value for the ENGINE CAPACITY question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("hacking!"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("none"), carUnavailableVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#engineCapacity-none").attr("checked") shouldBe "checked"
     }
 
     "return 200 if the user selects an option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("again"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
     }
 
     "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text should be(Messages("error.paye.answer_mandatory"))
     }
 
     "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("hacking!"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
     }
 
     "keep the selected option in the EMPLOYER PAY FUEL question if the validation fails due to another reason" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some((taxYear.toString,"05","30")), carUnavailableVal = None)
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 400
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
     }
 
     "store the values the user has entered" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"))
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, 2013, 1))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
 
       val expectedStoredData = CarBenefitDataBuilder(engineCapacity = Some("2000"))
 
-      verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumber", "paye", "AddCarBenefitForm", expectedStoredData)
+      verify(mockKeyStoreService).addKeyStoreEntry(s"AddCarBenefit:${johnDensmore.oid}:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm", expectedStoredData)
     }
 
 
@@ -592,7 +577,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
         providedFromVal, carUnavailableVal, numberOfDaysUnavailableVal,
-        giveBackThisTaxYearVal, providedToVal), 2013, 1))
+        giveBackThisTaxYearVal, providedToVal), taxYear, employmentSeqNumberOne))
 
       assertFailure(result, errorId, errorMessage)
     }
@@ -615,7 +600,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
         Some(localDateToTuple(providedFromVal)),
         Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
-        Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), 2013, 1))
+        Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), taxYear, employmentSeqNumberOne))
 
       val daysUnavailable = try {numberOfDaysUnavailableVal.map(_.toInt)} catch { case _:Throwable => None}
 
@@ -627,7 +612,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     def assertFailedListPriceSubmit(listPriceVal : Option[String], errorId: String, errorMessage: String) {
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal), taxYear, employmentSeqNumber))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal), taxYear, employmentSeqNumberOne))
 
       assertFailure(result, errorId, errorMessage)
     }
@@ -635,7 +620,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccessfulListPriceSubmit(listPriceVal : Option[Int]) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), taxYear, employmentSeqNumber))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(listPriceVal = listPriceVal.map(_.toString)), taxYear, employmentSeqNumberOne))
 
       val expectedStoredData = CarBenefitDataBuilder(listPrice = listPriceVal)
 
@@ -645,7 +630,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     def assertFailedEmployeeContributionSubmit(employeeContributesVal: Option[String], employeeContributionVal : Option[String], errorId: String, errorMessage: String) {
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal, employeeContributionVal = employeeContributionVal), 2013, 1))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal, employeeContributionVal = employeeContributionVal), taxYear, employmentSeqNumberOne))
 
       assertFailure(result, errorId, errorMessage)
     }
@@ -654,7 +639,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccessfulEmployeeContributionSubmit(employeeContributesVal: Option[Boolean], employeeContributionVal : Option[String], expectedContributionVal : Option[Int]) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal), 2013, 1))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employeeContributesVal = employeeContributesVal.map(_.toString), employeeContributionVal = employeeContributionVal), taxYear, employmentSeqNumberOne))
 
       val expectedStoredData = CarBenefitDataBuilder(employeeContributes = employeeContributesVal, employeeContribution = expectedContributionVal)
 
@@ -663,7 +648,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
     def assertFailedEmployerContributionSubmit(employerContributesVal: Option[String], employerContributionVal : Option[String], errorId: String, errorMessage: String) {
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal, employerContributionVal = employerContributionVal), 2013, 1))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal, employerContributionVal = employerContributionVal), taxYear, employmentSeqNumberOne))
 
       assertFailure(result, errorId, errorMessage)
     }
@@ -672,7 +657,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     def assertSuccessfulEmployerContributionSubmit(employerContributesVal: Option[Boolean], employerContributionVal : Option[String], expectedContributionVal : Option[Int]) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal), 2013, 1))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(employerContributesVal = employerContributesVal.map(_.toString), employerContributionVal = employerContributionVal), taxYear, employmentSeqNumberOne))
 
       val expectedStoredData = CarBenefitDataBuilder(employerContributes = employerContributesVal, employerContribution = expectedContributionVal)
 
@@ -680,18 +665,18 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     }
 
     def assertSuccess(result: Future[SimpleResult], collectedData: CarBenefitData)  {
-      status(result) shouldBe 200
+      result should haveStatus(200)
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation",
                           NewBenefitCalculationData(isRegisteredBeforeCutoff(collectedData.carRegistrationDate), collectedData.fuelType.get, None,
                           Some(defaultEngineCapacity), collectedData.employeeContribution, collectedData.listPrice.get,
                           collectedData.providedFrom, collectedData.providedTo, collectedData.numberOfDaysUnavailable,
                           collectedData.employerContribution, collectedData.employerPayFuel.get, collectedData.dateFuelWithdrawn))
-      Mockito.reset(mockKeyStoreService)
-      Mockito.reset(mockPayeMicroService)
+      reset(mockKeyStoreService)
+      reset(mockPayeMicroService)
     }
 
     def assertFailure(result: Future[SimpleResult], errorId: String, errorMessage: String) {
-      status(result) shouldBe 400
+      result should haveStatus(400)
       contentAsString(result) should include(errorMessage)
       verifyZeroInteractions(mockKeyStoreService)
       // TODO: uncomment
@@ -703,7 +688,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
   "the review add car benefit page" should {
     "render car benefit only when the user has no fuel benefit" in new WithApplication(FakeApplication()) {
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
        val carRegistrationDate = now.minusYears(2)
 
       val fuelType = "electricity"
@@ -722,20 +707,19 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
          employeeContributesVal = Some("true"),
          employeeContributionVal = Some(userContribution.toString),
          listPriceVal = Some(listPrice.toString))
-         , 2013, 1))
+         , taxYear, employmentSeqNumberOne))
 
 
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)
 
-      status(result) shouldBe 200
+      result should haveStatus(200)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#carBenefitTaxableValue").text shouldBe "£999"
       doc.select("#fuelBenefitTaxableValue").isEmpty shouldBe true
     }
 
     "render car and fuel benefits when the user has both, car and fuel benefits and provide link to edit data" in new WithApplication(FakeApplication()) {
-
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
       val carRegistrationDate = new LocalDate().minusYears(2)
 
       val fuelType = "diesel"
@@ -743,9 +727,9 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val listPrice = 9999
       val engineCapacity = 1400
       val co2Emission = 50
-      val employmentSequenceNumber = johnDensmoresEmployments(0).sequenceNumber
+      val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = controller.currentTaxYear
-      val uri = s"paye/car-benefit/$taxYear/$employmentSequenceNumber/add"
+      val uri = s"paye/car-benefit/$taxYear/$employmentSeqNumberOne/add"
 
       val sentBenefitData = NewBenefitCalculationData(false, fuelType, Some(co2Emission), Some(engineCapacity), Some(userContribution), listPrice, None, None, None, None, "false", None)
       when(mockPayeMicroService.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444)))
@@ -762,8 +746,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
           employeeContributionVal = Some(userContribution.toString),
           listPriceVal = Some(listPrice.toString),
           path = uri)
-        , taxYear, employmentSequenceNumber))
-      status(result) shouldBe 200
+        , taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
 
       verify(mockPayeMicroService).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", sentBenefitData)
       val doc = Jsoup.parse(contentAsString(result))
@@ -773,15 +757,14 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#edit-data").attr("href") shouldBe uri
     }
 
-    "allow the user to reedit the form and show it with values already filled in" in new WithApplication(FakeApplication()){
+    "handle the case where no provided from or provided to dates are returned from the key store."  in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore()
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-
-      val employmentSequenceNumber = johnDensmoresEmployments(0).sequenceNumber
+      val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = controller.currentTaxYear
-      val carBenefitData = new CarBenefitData(providedFrom = Some(new LocalDate(2013, 7, 29)),
+      val carBenefitData = new CarBenefitData(providedFrom = None,
         carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = Some(new LocalDate(2013, 8, 30)) , listPrice = Some(1000),
+        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None , listPrice = Some(1000),
         employeeContributes = Some(true),
         employeeContribution = Some(50),
         employerContributes = Some(true),
@@ -791,26 +774,55 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         co2NoFigure = Some(true),
         engineCapacity = Some("1400"),
         employerPayFuel = Some("date"),
-        dateFuelWithdrawn = Some(new LocalDate(2013, 8, 29)))
+        dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
 
-      when(mockKeyStoreService.getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitData))
+      when(mockKeyStoreService.getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitData))
 
-      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), 2013, 1))
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
 
-      status(result) shouldBe 200
+      result should haveStatus(200)
 
-      verify(mockKeyStoreService).getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm")
+      verify(mockKeyStoreService).getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")
+    }
+
+    "allow the user to reedit the form and show it with values already filled" in new WithApplication(FakeApplication()){
+
+      setupMocksForJohnDensmore()
+
+      val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
+      val taxYear = controller.currentTaxYear
+      val carBenefitData = new CarBenefitData(providedFrom = Some(new LocalDate(taxYear, 7, 29)),
+        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
+        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = Some(new LocalDate(taxYear, 8, 30)) , listPrice = Some(1000),
+        employeeContributes = Some(true),
+        employeeContribution = Some(50),
+        employerContributes = Some(true),
+        employerContribution = Some(999),
+        fuelType = Some("diesel"),
+        co2Figure = None,
+        co2NoFigure = Some(true),
+        engineCapacity = Some("1400"),
+        employerPayFuel = Some("date"),
+        dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
+
+      when(mockKeyStoreService.getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitData))
+
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
+
+      result should haveStatus(200)
+
+      verify(mockKeyStoreService).getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
-      doc.select("[id~=providedFrom]").select("[id~=year-2013]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedFrom]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
       doc.select("#carUnavailable-true").attr("checked") shouldBe "checked"
       doc.select("#numberOfDaysUnavailable").attr("value")  shouldBe "1"
       doc.select("#giveBackThisTaxYear-true").attr("checked") shouldBe "checked"
       doc.select("[id~=providedTo]").select("[id~=day-30]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedTo]").select("[id~=month-8]").attr("selected") shouldBe "selected"
-      doc.select("[id~=providedTo]").select("[id~=year-2013]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedTo]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
       doc.select("#listPrice").attr("value")  shouldBe "1000"
       doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
       doc.select("#employeeContribution").attr("value")  shouldBe "50"
@@ -825,22 +837,20 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=month-8]").attr("selected") shouldBe "selected"
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=year-2013]").attr("selected") shouldBe "selected"
+      doc.select("[id~=dateFuelWithdrawn]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
 
     "allow the user to confirm the addition of the car benefit" in  new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-
-      val employmentSequenceNumber = 1
+      setupMocksForJohnDensmore()
 
       when(mockPayeMicroService.calculateBenefitValue(Matchers.any(), Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(999), Some(444))))
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSequenceNumber))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumberOne))
 
-      status(result) shouldBe 200
+      result should haveStatus(200)
 
-      val expectedUri = routes.CarBenefitAddController.confirmAddingBenefit(taxYear, employmentSequenceNumber).url
+      val expectedUri = routes.CarBenefitAddController.confirmAddingBenefit(taxYear, employmentSeqNumberOne).url
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("form").attr("action") shouldBe expectedUri
 
@@ -849,38 +859,44 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
   "confirm submission of add car benefit" should {
 
+    "remove the saved data for the car benefit form values" in new WithApplication(FakeApplication()) {
 
-    "remove the saved data for the car benefit form values" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore()
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
 
-      val employmentSequenceNumber = 1
-      val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSequenceNumber))
-      status(result) shouldBe 200
-
-      verify(mockKeyStoreService).deleteKeyStore(s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSequenceNumber", "paye")
+      verify(mockKeyStoreService).deleteKeyStore(s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye")
     }
 
     "show to the user a confimration page"  in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      setupMocksForJohnDensmore()
 
-      val employmentSequenceNumber = 1
-      val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSequenceNumber))
-      status(result) shouldBe 200
+      val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.title should include("Confirmation")
 
     }
   }
-  private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
-                                        acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
-    when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
-    when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
-    when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
-    when(mockPayeMicroService.calculateBenefitValue(Matchers.anyString(), Matchers.any[NewBenefitCalculationData])).thenReturn(Some(NewBenefitCalculationResponse(Some(1000),None)))
+
+  private def haveStatus(expectedStatus:Int) = new Matcher[Future[SimpleResult]]{
+    def apply(response:Future[SimpleResult]) = {
+      val actualStatus = status(response)
+      MatchResult(actualStatus == expectedStatus , s"Expected result with status $expectedStatus but was $actualStatus.", s"Expected result with status other than $expectedStatus, but was actually $actualStatus.")
+    }
+  }
+
+  private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes, employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[Benefit] = Seq.empty,
+                                        acceptedTransactions: List[TxQueueTransaction] = List.empty, completedTransactions: List[TxQueueTransaction] =  List.empty) {
+    when(mockPayeMicroService.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$taxYear")).thenReturn(Some(taxCodes))
+    when(mockPayeMicroService.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$taxYear")).thenReturn(Some(employments))
+    when(mockPayeMicroService.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefits/$taxYear")).thenReturn(Some(benefits))
     when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
     when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
+    when(mockKeyStoreService.getEntry[CarBenefitData](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(None)
+    when(mockPayeMicroService.calculateBenefitValue(Matchers.anyString(), Matchers.any[NewBenefitCalculationData])).thenReturn(Some(NewBenefitCalculationResponse(Some(1000),None)))
   }
 
   private def newRequestForSaveAddCarBenefit(providedFromVal : Option[(String, String, String)] = Some(localDateToTuple(Some(defaultProvidedFrom))),
@@ -924,11 +940,13 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 }
 
 object CarBenefitDataBuilder {
+  val taxYear = 2013
+  val employmentSeqNumberOne = 1
 
-  val now: LocalDate = new LocalDate(2013, 10, 3)
+  val now: LocalDate = new LocalDate(taxYear, 10, 3)
   val inTwoDaysTime = now.plusDays(2)
   val inThreeDaysTime = now.plusDays(3)
-  val endOfTaxYearMinusOne = new LocalDate(2014, 4, 4)
+  val endOfTaxYearMinusOne = new LocalDate(taxYear+1, 4, 4)
   val defaultListPrice = 1000
   val defaultEmployeeContributes = false
   val defaultEmployeeContribution = None

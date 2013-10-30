@@ -4,13 +4,13 @@ import org.scalatest.mock.MockitoSugar
 import play.api.mvc.Controller
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import org.mockito.Mockito.when
+import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import java.net.URI
 import org.slf4j.MDC
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import org.scalatest.TestData
 import java.util.UUID
@@ -36,7 +36,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
   val testController = new TestController(mockPayeMicroService, mockAgentMicroService, null)(mockAuthMicroService)
 
   override protected def beforeEach(testData: TestData) {
-    MockUtils.resetAll(mockAuthMicroService, mockPayeMicroService, mockAgentMicroService)
+    reset(mockAuthMicroService, mockPayeMicroService, mockAgentMicroService)
 
     //FIXME: mocking expectation should not be done in the before callback EVER!
     // It makes refactoring so much harder later on. Move this out and defined for each that requires it

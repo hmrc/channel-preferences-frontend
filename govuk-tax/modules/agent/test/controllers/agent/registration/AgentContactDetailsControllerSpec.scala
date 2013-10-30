@@ -12,9 +12,6 @@ import controllers.agent.registration.AgentContactDetailsFormFields._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import org.scalatest.TestData
 import concurrent.Future
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.MockUtils._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
@@ -35,7 +32,7 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
   private val controller = new AgentContactDetailsController(null, keyStoreMicroService)(null)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    resetAll(keyStoreMicroService)
+    reset(keyStoreMicroService)
   }
 
   "The contact details page" should {

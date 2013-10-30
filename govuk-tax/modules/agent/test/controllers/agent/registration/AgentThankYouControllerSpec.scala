@@ -1,6 +1,6 @@
 package controllers.agent.registration
 
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{WithApplication, FakeApplication, FakeRequest}
@@ -44,7 +44,7 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
   }
 
   override protected def beforeEach(testData: TestData): Unit = {
-    MockUtils.resetAll(agentMicroService, keyStoreMicroService, agentRegistrationRequest, agentRoot, mockKeyStore)
+    reset(agentMicroService, keyStoreMicroService, agentRegistrationRequest, agentRoot, mockKeyStore)
   }
 
   "AgentThankYouController" should {

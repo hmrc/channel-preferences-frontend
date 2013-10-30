@@ -119,11 +119,11 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
   private def savedValuesFromKeyStore(keyStoreId:String) = keyStoreService.getEntry[CarBenefitData](keyStoreId, "paye", "AddCarBenefitForm")
 
   private[paye] def rawValuesOf(defaults: CarBenefitData) =
-    CarBenefitValues(providedFromVal = defaults.providedFrom,
+    CarBenefitValues(providedFromVal = Option(defaults.providedFrom.getOrElse(providedFromDefaultValue)),
       carUnavailableVal = defaults.carUnavailable.map(_.toString),
       numberOfDaysUnavailableVal = defaults.numberOfDaysUnavailable.map(_.toString),
       giveBackThisTaxYearVal = defaults.giveBackThisTaxYear.map(_.toString),
-      providedToVal = defaults.providedTo,
+      providedToVal = Option(defaults.providedTo.getOrElse(providedToDefaultValue)),
       carRegistrationDate = defaults.carRegistrationDate,
       employeeContributes = defaults.employeeContributes.map(_.toString),
       employerContributes = defaults.employeeContributes.map(_.toString),
@@ -131,7 +131,6 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
       co2Figure = defaults.co2Figure.map(_.toString),
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
       employerPayFuel = defaults.employerPayFuel)
-
 
   private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {

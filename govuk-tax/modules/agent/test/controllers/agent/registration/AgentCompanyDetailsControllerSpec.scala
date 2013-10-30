@@ -20,8 +20,6 @@ import org.scalatest.TestData
 
 class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
-  import uk.gov.hmrc.common.MockUtils.resetAll
-
   val id = "wshakespeare"
   val authority = s"/auth/oid/$id"
   val uri = "/personal/paye/blah"
@@ -34,7 +32,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
   private val controller = new AgentCompanyDetailsController(null, keyStoreMicroService)(null)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    resetAll(keyStoreMicroService)
+    reset(keyStoreMicroService)
   }
 
   "The company details page" should {

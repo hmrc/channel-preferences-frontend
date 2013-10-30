@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
@@ -48,7 +48,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   val confirmController: ConfirmClientController = new ConfirmClientController(confirmKeyStoreMicroService, null)(null)
 
   before {
-    MockUtils.resetAll(keyStoreMicroService, confirmKeyStoreMicroService, agentMicroService)
+    reset(keyStoreMicroService, confirmKeyStoreMicroService, agentMicroService)
   }
 
   "When navigating to the preferred contact controller via the add action controller the controller" should {

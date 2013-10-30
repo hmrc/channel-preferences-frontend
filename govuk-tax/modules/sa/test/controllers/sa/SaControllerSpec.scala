@@ -4,7 +4,7 @@ import play.api.test._
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URI }
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
@@ -52,7 +52,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
   val geoffFisher = setupUser("/auth/oid/gfisher", "123456789012", "Geoff Fisher", nameFromGovernmentGateway)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    MockUtils.resetAll(saConnector)
+    reset(saConnector)
   }
 
   "The details page" should {

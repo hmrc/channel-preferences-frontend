@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.BeforeAndAfter
 import play.api.test.Helpers._
@@ -32,7 +32,7 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
   val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
   before {
-    MockUtils.resetAll(keyStoreMicroService, agentMicroService)
+    reset(keyStoreMicroService, agentMicroService)
   }
 
   "The confirm client page" should {

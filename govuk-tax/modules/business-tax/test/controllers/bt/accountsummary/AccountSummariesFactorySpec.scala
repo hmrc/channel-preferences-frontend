@@ -1,6 +1,6 @@
 package controllers.bt.accountsummary
 
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import scala.Predef._
 import uk.gov.hmrc.common.microservice.domain.User
@@ -20,7 +20,7 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
   val mockUser = mock[User]
 
   before {
-    MockUtils.resetAll(mockSaRegimeAccountSummaryViewBuilder,
+    reset(mockSaRegimeAccountSummaryViewBuilder,
       mockVatRegimeAccountSummaryViewBuilder,
       mockCtRegimeAccountSummaryViewBuilder,
       mockEpayeRegimeAccountSummaryViewBuilder,

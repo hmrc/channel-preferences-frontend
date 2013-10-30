@@ -1,6 +1,6 @@
 package controllers.agent.addClient
 
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
@@ -36,7 +36,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
   val agentWithClients = User(id, null, RegimeRoots(paye = Some(payeRoot), agent = Some(AgentRoot("SomeUAR", Map("AB123456C" -> "/some/link"), Map("search" -> "/agent/search")))), None, None)
 
   before {
-    MockUtils.resetAll(agentMicroService, keyStoreMicroService)
+    reset(agentMicroService, keyStoreMicroService)
   }
 
   "The home action" should {

@@ -1,12 +1,12 @@
 package controllers.agent.registration
 
 import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import org.scalatest.TestData
-import org.mockito.{Mockito, ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -15,10 +15,7 @@ import uk.gov.hmrc.common.microservice.keystore.{KeyStoreMicroService, KeyStore}
 import play.api.test.FakeApplication
 import scala.Some
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
-import scala.util.Success
 import concurrent.Future
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 
 class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -36,7 +33,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
   private val controller = new AgentProfessionalBodyMembershipController(null, keyStoreMicroService)(null)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    MockUtils.resetAll(keyStoreMicroService)
+    reset(keyStoreMicroService)
   }
 
   "AgentProfessionalMembershipController" should {

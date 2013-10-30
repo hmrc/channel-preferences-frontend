@@ -6,7 +6,7 @@ import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.hmrc.common.microservice.governmentgateway.{GatewayToken, GovernmentGatewayMicroService, GovernmentGatewayResponse, SsoLoginRequest}
 import org.mockito.Mockito._
 import java.net.{URI, URLEncoder}
-import uk.gov.hmrc.common.{MockUtils, BaseSpec}
+import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import play.api.test.Helpers._
 import uk.gov.hmrc.microservice.UnauthorizedException
@@ -43,7 +43,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   }
 
   override protected def before(fun: => Any): Unit = {
-    MockUtils.resetAll(mockGovernmentGatewayService, mockSsoWhiteListService)
+    reset(mockGovernmentGatewayService, mockSsoWhiteListService)
   }
 
   "The Single Sign-on input page" should {
