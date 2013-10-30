@@ -916,7 +916,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       )
       val benefit = Benefit(benefitType = 31,
         taxYear = taxYear,
-        grossAmount = 12000,
+        grossAmount = 13000,
         employmentSequenceNumber = employmentSeqNumberOne,
         costAmount = Some(2300),
         amountMadeGood = None,
