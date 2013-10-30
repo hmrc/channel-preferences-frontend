@@ -6,11 +6,14 @@ import controllers.common._
 import play.api.Logger
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import controllers.common.service.MicroServices
 
 class AgentSroCheckController(override val auditMicroService: AuditMicroService)
                              (implicit override val authMicroService: AuthMicroService)
   extends BaseController2
   with Actions {
+
+  def this() = this(MicroServices.auditMicroService)(MicroServices.authMicroService)
 
   def reasonForApplication() = UnauthorisedAction {
     implicit request =>
