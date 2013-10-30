@@ -7,11 +7,11 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import play.api.Logger
 
-trait AuthorisationType {
+trait AuthenticationType {
   def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]]
 }
 
-object Ida extends AuthorisationType with CookieEncryption {
+object Ida extends AuthenticationType with CookieEncryption {
   def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
     toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
 
@@ -28,7 +28,7 @@ object Ida extends AuthorisationType with CookieEncryption {
   }
 }
 
-object GovernmentGateway extends AuthorisationType with CookieEncryption {
+object GovernmentGateway extends AuthenticationType with CookieEncryption {
   def handleRedirect(request: Request[AnyContent]) = Redirect(routes.HomeController.landing())
 
   def handleNotAuthorised(request: Request[AnyContent], redirectToOrigin: Boolean) = {

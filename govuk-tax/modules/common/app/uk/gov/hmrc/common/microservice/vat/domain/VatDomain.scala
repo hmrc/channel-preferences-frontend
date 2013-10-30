@@ -12,7 +12,7 @@ object VatRegime extends TaxRegime {
 
   def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
 
-  def authorisationType = GovernmentGateway
+  def authenticationType = GovernmentGateway
 }
 
 object VatRoot {

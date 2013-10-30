@@ -9,7 +9,7 @@ object AgentRegime extends TaxRegime {
 
   def unauthorisedLandingPage = routes.LoginController.login().url
 
-  def authorisationType = GovernmentGateway
+  def authenticationType = GovernmentGateway
 }
 
 case class AgentRoot(uar: String, clients: Map[String, String], actions: Map[String, String])

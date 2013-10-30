@@ -22,8 +22,7 @@ trait Actions
   with ServiceRoots
   with UserActionWrapper {
 
-
-  def ActionAuthorisedBy(authenticationType: AuthorisationType)
+  def ActionAuthorisedBy(authenticationType: AuthenticationType)
                         (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
                         (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
     WithHeaders {

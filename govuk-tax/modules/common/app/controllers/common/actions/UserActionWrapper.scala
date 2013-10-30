@@ -4,7 +4,7 @@ import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, User}
 import views.html.login
 import play.api.Logger
-import controllers.common.{CookieEncryption, AuthorisationType, ServiceRoots}
+import controllers.common.{CookieEncryption, AuthenticationType, ServiceRoots}
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 
 trait UserActionWrapper
@@ -15,7 +15,7 @@ trait UserActionWrapper
   implicit val authMicroService: AuthMicroService
 
   object WithUserAuthorisedBy {
-    def apply(authenticationType: AuthorisationType)
+    def apply(authenticationType: AuthenticationType)
              (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
              (action: User => Action[AnyContent]): Action[AnyContent] =
       Action.async {

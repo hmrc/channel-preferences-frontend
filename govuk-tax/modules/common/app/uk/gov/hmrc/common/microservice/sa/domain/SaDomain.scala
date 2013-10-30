@@ -14,7 +14,7 @@ object SaRegime extends TaxRegime {
 
   def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
 
-  def authorisationType = GovernmentGateway
+  def authenticationType = GovernmentGateway
 }
 
 object SaRoot {
