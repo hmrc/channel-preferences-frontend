@@ -2,12 +2,11 @@ package controllers
 
 import common.service.SsoWhiteListService
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{ FakeRequest, WithApplication }
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
+import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
 import org.mockito.Mockito._
-import java.net.{ URI, URLEncoder }
-import uk.gov.hmrc.common.BaseSpec
+import java.net.{URI, URLEncoder}
+import uk.gov.hmrc.common.{MockUtils, BaseSpec}
 import controllers.common._
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayResponse
@@ -23,6 +22,8 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   private lazy val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
   private val mockSsoWhiteListService = mock[SsoWhiteListService]
   private val redirectUrl = "http://www.redirect-url.co.uk"
+
+  private def controller = new SsoInController(mockSsoWhiteListService, mockGovernmentGatewayService, null)(null)
 
   private object bob {
     val name = "Bob Jones"
@@ -42,9 +43,8 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     val invalidLoginTimestamp = 2222L
   }
 
-  private def controller = new SsoInController with MockMicroServicesForTests {
-    override lazy val governmentGatewayMicroService = mockGovernmentGatewayService
-    override private[controllers] val ssoWhiteListService = mockSsoWhiteListService
+  override protected def before(fun: => Any): Unit = {
+    MockUtils.resetAll(mockGovernmentGatewayService, mockSsoWhiteListService)
   }
 
   "The Single Sign-on input page" should {
@@ -52,16 +52,17 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.encodedToken, john.loginTimestamp))).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.affinityGroup, john.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
       val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com").withFormUrlEncodedBody("payload" -> encryptedPayload))
-      whenReady(response) { result =>
-        val SimpleResult(header, _,_) = result
-        header.status shouldBe 303
-        header.headers("Location") shouldBe redirectUrl
-        header.headers("Set-Cookie") should include(sessionEntry("userId", john.userId))
-        header.headers("Set-Cookie") should include(sessionEntry("name", john.name))
-        header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", john.affinityGroup))
-        header.headers("Set-Cookie") should include(sessionEntry("token", john.encodedToken))
+      whenReady(response) {
+        result =>
+          val SimpleResult(header, _, _) = result
+          header.status shouldBe 303
+          header.headers("Location") shouldBe redirectUrl
+          header.headers("Set-Cookie") should include(sessionEntry("userId", john.userId))
+          header.headers("Set-Cookie") should include(sessionEntry("name", john.name))
+          header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", john.affinityGroup))
+          header.headers("Set-Cookie") should include(sessionEntry("token", john.encodedToken))
       }
 
     }
@@ -71,20 +72,21 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(bob.encodedToken, bob.loginTimestamp))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.affinityGroup, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${bob.encodedToken}", "time": ${bob.loginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${bob.encodedToken}", "time": ${bob.loginTimestamp}, "dest": "$redirectUrl"}""")
 
       val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken))
 
-      whenReady(response) { result =>
-        val SimpleResult(header, _, _) = result
-        header.status shouldBe 303
-        header.headers("Location") shouldBe redirectUrl
-        header.headers("Set-Cookie") should include(sessionEntry("userId", bob.userId))
-        header.headers("Set-Cookie") should include(sessionEntry("name", bob.name))
-        header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", bob.affinityGroup))
-        header.headers("Set-Cookie") should include(sessionEntry("token", bob.encodedToken))
+      whenReady(response) {
+        result =>
+          val SimpleResult(header, _, _) = result
+          header.status shouldBe 303
+          header.headers("Location") shouldBe redirectUrl
+          header.headers("Set-Cookie") should include(sessionEntry("userId", bob.userId))
+          header.headers("Set-Cookie") should include(sessionEntry("name", bob.name))
+          header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", bob.affinityGroup))
+          header.headers("Set-Cookie") should include(sessionEntry("token", bob.encodedToken))
       }
 
     }
@@ -92,19 +94,20 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "invalidate the session if a session already exists but the login is incorrect" in new WithApplication(FakeApplication()) {
       when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.invalidEncodedToken, john.loginTimestamp))).thenThrow(new IllegalStateException("error"))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
 
       val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken))
 
-      whenReady(response) { result =>
-        val SimpleResult(header, _, _) = result
-        header.status shouldBe 303
-        header.headers("Location") shouldBe "/"
-        header.headers("Set-Cookie") should not include "userId"
-        header.headers("Set-Cookie") should not include "name"
-        header.headers("Set-Cookie") should not include "token"
+      whenReady(response) {
+        result =>
+          val SimpleResult(header, _, _) = result
+          header.status shouldBe 303
+          header.headers("Location") shouldBe "/"
+          header.headers("Set-Cookie") should not include "userId"
+          header.headers("Set-Cookie") should not include "name"
+          header.headers("Set-Cookie") should not include "token"
       }
     }
 
@@ -113,26 +116,27 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.encodedToken, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
 
       val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken))
 
-      whenReady(response) { result =>
-         val SimpleResult(header, _, _) = result
-         header.status shouldBe 303
-         header.headers("Location") shouldBe "/"
-         header.headers("Set-Cookie") should not include "userId"
-         header.headers("Set-Cookie") should not include "name"
-         header.headers("Set-Cookie") should not include "affinityGroup"
-         header.headers("Set-Cookie") should not include "token"
+      whenReady(response) {
+        result =>
+          val SimpleResult(header, _, _) = result
+          header.status shouldBe 303
+          header.headers("Location") shouldBe "/"
+          header.headers("Set-Cookie") should not include "userId"
+          header.headers("Set-Cookie") should not include "name"
+          header.headers("Set-Cookie") should not include "affinityGroup"
+          header.headers("Set-Cookie") should not include "token"
       }
     }
 
     "return 400 if the provided dest field is not a valid URL" in new WithApplication(FakeApplication()) {
       val invalidUrl = "invalid_url"
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$invalidUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$invalidUrl"}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -145,7 +149,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "return 400 if the dest field is not allowed by the white list" in new WithApplication(FakeApplication()) {
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(false)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -155,7 +159,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     }
 
     "return 400 if the dest field is missing" in new WithApplication(FakeApplication()) {
-      val encryptedPayload = SsoPayloadEncryptor.encrypt(s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)

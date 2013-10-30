@@ -2,15 +2,23 @@ package controllers.common
 
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.hmrc.common.microservice.governmentgateway.SsoLoginRequest
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayMicroService, SsoLoginRequest}
 import service.{ FrontEndConfig, SsoWhiteListService, MicroServices }
 import play.api.Logger
 import play.api.libs.json.Json
 import java.net.{ MalformedURLException, URISyntaxException, URI }
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 
-class SsoInController extends BaseController with ActionWrappers with MicroServices with SessionTimeoutWrapper {
+class SsoInController(ssoWhiteListService : SsoWhiteListService,
+                      governmentGatewayMicroService : GovernmentGatewayMicroService,
+                      override val auditMicroService: AuditMicroService)
+                     (implicit override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions
+  with SessionTimeoutWrapper {
 
-  private[controllers] val ssoWhiteListService = new SsoWhiteListService(FrontEndConfig.domainWhiteList)
+  def this() = this(new SsoWhiteListService(FrontEndConfig.domainWhiteList), MicroServices.governmentGatewayMicroService, MicroServices.auditMicroService)(MicroServices.authMicroService)
 
   def in = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
