@@ -869,7 +869,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       verify(mockKeyStoreService).deleteKeyStore(s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye")
     }
 
-    "show to the user a confimration page"  in new WithApplication(FakeApplication()){
+    "show to the user a confirmation page"  in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore()
 
       val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
@@ -877,7 +877,59 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.title should include("Confirmation")
+    }
 
+    "call the paye microservice with the information about the new car" in new WithApplication(FakeApplication()) {
+      pending
+      setupMocksForJohnDensmore()
+
+      val carBenefitData = new CarBenefitData(providedFrom = None,
+        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
+        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None , listPrice = Some(1000),
+        employeeContributes = Some(true),
+        employeeContribution = Some(50),
+        employerContributes = Some(true),
+        employerContribution = Some(999),
+        fuelType = Some("diesel"),
+        co2Figure = None,
+        co2NoFigure = Some(true),
+        engineCapacity = Some("1400"),
+        employerPayFuel = Some("date"),
+        dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
+
+      when(mockKeyStoreService.getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitData))
+
+      val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
+
+      val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
+        dateCarWithdrawn = carBenefitData.providedTo,
+        dateCarRegistered = carBenefitData.carRegistrationDate,
+        employeeCapitalContribution = carBenefitData.employerContribution.map(BigDecimal(_)),
+        fuelType = carBenefitData.fuelType,    //verify its the same!
+        co2Emissions = carBenefitData.co2Figure,
+        engineSize = carBenefitData.engineCapacity.map(_.toInt),
+        mileageBand = None,
+        carValue = carBenefitData.listPrice.map(BigDecimal(_)),
+        employeePayments = carBenefitData.employeeContribution.map(BigDecimal(_)),      //exchange?
+        daysUnavailable = carBenefitData.numberOfDaysUnavailable
+      )
+      val benefit = Benefit(benefitType = 31,
+        taxYear = taxYear,
+        grossAmount = 12000,
+        employmentSequenceNumber = employmentSeqNumberOne,
+        costAmount = Some(2300),
+        amountMadeGood = None,
+        cashEquivalent = None,
+        expensesIncurred = None,
+        amountOfRelief = None,
+        paymentOrBenefitDescription = None,
+        dateWithdrawn = None,
+        car = Some(car),
+        actions = Map.empty[String, String],
+        calculations = Map.empty[String, String])
+
+      verify(mockPayeMicroService).addBenefits("uri", 32, Seq(benefit))
     }
   }
 

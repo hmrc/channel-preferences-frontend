@@ -129,8 +129,12 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
   private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
 
-      keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
+      val carBenefitData = savedValuesFromKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber")
 
+
+      payeMicroService.addBenefits("uri", 32, Seq.empty[Benefit])
+
+      keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
       Ok(views.html.paye.add_car_benefit_confirmation())
     }
   }
