@@ -7,7 +7,6 @@ import play.api.test.{ WithApplication, FakeRequest }
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
 import play.api.http._
-import uk.gov.hmrc.common.microservice.MockMicroServicesForTests
 import controllers.common._
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
