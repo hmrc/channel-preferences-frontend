@@ -36,10 +36,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
     )
 
-    lazy val loginController = new LoginController with MockMicroServicesForTests {
-      override lazy val samlMicroService = mockSamlMicroService
-      override lazy val authMicroService = mockAuthMicroService
-      override lazy val governmentGatewayMicroService = mockGovernmentGatewayMicroService
+    lazy val loginController = new LoginController(mockSamlMicroService, mockGovernmentGatewayMicroService, null)(mockAuthMicroService){
 
       override def notOnBusinessTaxWhitelistPage = {
         Html(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage)
@@ -75,7 +72,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   "LoginController " should {
     "encrypt cookie value" in new WithSetup {
       val enc = loginController.encrypt("/auth/oid/9875928746298467209348650298847235")
-      enc should not include("/auth/oid/9875928746298467209348650298847235")
+      enc should not include "/auth/oid/9875928746298467209348650298847235"
     }
   }
 
@@ -98,11 +95,11 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
 
-      status(result) should be(303)
-      redirectLocation(result).get should be("/paye/home")
+      status(result) shouldBe(303)
+      redirectLocation(result).get shouldBe("/paye/home")
 
       val sess = session(result)
-      decrypt(sess("userId")) should be(id)
+      decrypt(sess("userId")) shouldBe(id)
     }
 
     "redirect to the agent contact details if it s registering an agent" in new WithSetup {
@@ -115,10 +112,10 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
 
-      status(result) should be(303)
+      status(result) shouldBe 303
 
       session(result).get("login_redirect") shouldBe None
-      redirectLocation(result).get should be("/agent/home")
+      redirectLocation(result).get shouldBe "/agent/home"
 
     }
 
@@ -126,7 +123,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("Noddy", "BigEars")))
 
-      status(result) should be(401)
+      status(result) shouldBe(401)
       contentAsString(result) should include("Login error")
     }
 
@@ -134,7 +131,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", "")))
 
-      status(result) should be(401)
+      status(result) shouldBe 401
       contentAsString(result) should include("Login error")
     }
 
@@ -144,7 +141,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
-      status(result) should be(401)
+      status(result) shouldBe 401
       contentAsString(result) should include("Login error")
     }
 
@@ -158,7 +155,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
 
-      status(result) should be(401)
+      status(result) shouldBe 401
       contentAsString(result) should include("Login error")
     }
   }
@@ -292,7 +289,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "return the logged out view and clear any session data" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
       val result = loginController.loggedout(FakeRequest().withSession("someKey" -> "someValue"))
 
-      status(result) should be(200)
+      status(result) shouldBe(200)
       contentAsString(result) should include("logged out")
 
       val sess = session(result)

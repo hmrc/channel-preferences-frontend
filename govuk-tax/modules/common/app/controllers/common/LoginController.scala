@@ -4,14 +4,21 @@ import play.api.mvc.{ AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-import uk.gov.hmrc.common.microservice.governmentgateway.{ GovernmentGatewayResponse, Credentials }
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayMicroService, GovernmentGatewayResponse, Credentials}
 import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import controllers.common.service.FrontEndConfig
 import java.util.UUID
-import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.saml.SamlMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 
 
-class LoginController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
+class LoginController(samlMicroService : SamlMicroService,
+                      governmentGatewayMicroService : GovernmentGatewayMicroService,
+                      override val auditMicroService: AuditMicroService)
+                     (implicit override val authMicroService: AuthMicroService)
+  extends BaseController2
+  with Actions {
 
   def login = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     Ok(views.html.login())
