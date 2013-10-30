@@ -11,6 +11,7 @@ import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import controllers.common.service.MicroServices
 
+@deprecated("apparently this is being deleted so don't bother refactoring out BaseController + ActionWrappers", "30.10.13")
 class BenefitHomeController(payeService: PayeMicroService) extends BaseController with ActionWrappers with SessionTimeoutWrapper {
 
   def this() = this(MicroServices.payeMicroService)

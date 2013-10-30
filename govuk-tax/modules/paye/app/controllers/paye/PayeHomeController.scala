@@ -8,6 +8,7 @@ import views.html.paye.paye_home
 import controllers.common.{Ida, BaseController}
 import uk.gov.hmrc.utils.TaxYearResolver
 
+@deprecated("apparently this is being deleted so don't bother refactoring out BaseController", "30.10.13")
 class PayeHomeController extends BaseController {
 
   def home = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
