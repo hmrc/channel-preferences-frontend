@@ -7,7 +7,7 @@ import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import java.net.URI
 import org.slf4j.MDC
-import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
+import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, SaJsonRoot, SaRegime}
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.{MockUtils, BaseSpec}
 import controllers.common._
@@ -18,9 +18,11 @@ import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.domain.EmpRef
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.common.microservice.sa.domain.SaDomain.{SaRoot, SaJsonRoot}
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import controllers.common.service.MicroServices._
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
@@ -29,9 +31,14 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.vat.domain.VatDomain.VatRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtDomain.CtRoot
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
