@@ -2,16 +2,13 @@ package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain._
 import CommonBusinessMessageKeys._
 import EpayeMessageKeys._
 import EpayePortalUrlKeys._
 import views.helpers.{RenderableMessage, LinkMessage, MoneyPounds}
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
 import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSummary, EpayeRoot}
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
 

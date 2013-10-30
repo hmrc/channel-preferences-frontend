@@ -51,9 +51,8 @@ case class SaRoot(utr: SaUtr, links: Map[String, String]) extends RegimeRoot[SaU
   def updateIndividualMainAddress(address: SaAddressForUpdate)(implicit saConnector: SaConnector): Either[String, TransactionId] =
     saConnector.updateMainAddress(uriFor(individualMainAddressKey), address)
 
-  private def uriFor(key: String): String = {
+  private def uriFor(key: String) =
     links.getOrElse(key, throw new IllegalStateException("Missing link for key: " + key))
-  }
 }
 
 case class SaPerson(name: SaName, address: SaIndividualAddress)

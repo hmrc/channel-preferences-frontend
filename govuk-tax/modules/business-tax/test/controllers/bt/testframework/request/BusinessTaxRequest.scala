@@ -10,12 +10,12 @@ import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeJsonRoot
 import play.api.test.FakeRequest
 import controllers.bt.testframework.mocks.{DateTimeProviderMock, ConnectorMocks}
 import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatJsonRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeJsonRoot
 
 trait BusinessTaxRequest extends CookieEncryption {
 

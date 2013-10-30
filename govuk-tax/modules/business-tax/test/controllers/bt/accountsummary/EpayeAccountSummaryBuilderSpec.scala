@@ -5,21 +5,18 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.bt.accountsummary.EpayeMessageKeys._
 import controllers.bt.accountsummary.EpayePortalUrlKeys._
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain._
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
 import views.helpers.LinkMessage
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import views.helpers.RenderableLinkMessage
 import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.RTI
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
-import uk.gov.hmrc.domain.{Vrn, EmpRef}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import scala.util.{Failure, Try, Success}
 import CommonBusinessMessageKeys._
+import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeRoot, NonRTI, EpayeAccountSummary, RTI}
 
 trait DummyPortalUrlBuilder {
   def build(a: String): String
@@ -32,7 +29,6 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://homeUrl"
   private val makeAPaymentUrl = routes.BusinessTaxController.makeAPaymentLanding().url
   private val empRefMessageString: Msg = Msg(epayeEmpRefMessage, Seq(dummyEmpRef.toString))
-  private val buildPortalUrl: (String) => String = (value: String) => value
 
   private val expectedRtiLinks = Seq(
     RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, sso = true)),

@@ -12,7 +12,7 @@ import controllers.common.actions.{WithRequestLogging, WithHeaders}
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 
 trait Actions
   extends Results

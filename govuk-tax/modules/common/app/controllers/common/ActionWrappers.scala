@@ -7,6 +7,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -23,9 +24,6 @@ trait ActionWrappers
   with Actions  {
 
   override def regimeRoots(authority: UserAuthority): RegimeRoots = {
-
-    import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
-
 
     val regimes = authority.regimes
     RegimeRoots(

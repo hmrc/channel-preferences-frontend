@@ -1,10 +1,10 @@
 package controllers.bt.testframework.fixtures
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 
 trait UserFixture {
 

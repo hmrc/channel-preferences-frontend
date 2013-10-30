@@ -4,13 +4,10 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.test.WithApplication
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain._
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeLinks
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.NonRTI
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.EpayeAccountSummary
 import uk.gov.hmrc.microservice.MicroServiceException
 import play.api.libs.ws.Response
+import uk.gov.hmrc.common.microservice.epaye.domain.{NonRTI, EpayeAccountSummary, EpayeJsonRoot, EpayeLinks}
 
 class EpayeConnectorSpec extends BaseSpec {
 

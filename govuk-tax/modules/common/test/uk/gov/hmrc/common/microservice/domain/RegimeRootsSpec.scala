@@ -2,10 +2,10 @@ package uk.gov.hmrc.common.microservice.domain
 
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, CtUtr, Vrn, EmpRef}
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeLinks, EpayeRoot}
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeLinks, EpayeRoot}
 
 class RegimeRootsSpec extends BaseSpec {
   def empRef: EmpRef = EmpRef("123", "456")

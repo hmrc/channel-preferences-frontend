@@ -5,7 +5,6 @@ import views.helpers.{RenderableLinkMessage, LinkMessage}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.domain.{CtUtr, Vrn, EmpRef, SaUtr}
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeLinks, EpayeRoot}
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.scalatest.Matchers
 import uk.gov.hmrc.common.microservice.governmentgateway.{Enrolment, AffinityGroup, ProfileResponse}
@@ -18,6 +17,7 @@ import org.mockito.invocation.InvocationOnMock
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeLinks, EpayeRoot}
 
 class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 

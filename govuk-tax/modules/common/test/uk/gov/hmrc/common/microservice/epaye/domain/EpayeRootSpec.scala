@@ -4,7 +4,6 @@ import uk.gov.hmrc.domain.EmpRef
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeDomain.{EpayeLinks, EpayeRoot, RTI, EpayeAccountSummary}
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 
 class EpayeRootSpec extends BaseSpec with MockitoSugar {
