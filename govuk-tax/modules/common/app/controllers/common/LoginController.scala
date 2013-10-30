@@ -6,7 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayMicroService, GovernmentGatewayResponse, Credentials}
 import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
-import controllers.common.service.FrontEndConfig
+import controllers.common.service.{MicroServices, FrontEndConfig}
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.saml.SamlMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
@@ -23,6 +23,8 @@ class LoginController(samlMicroService : SamlMicroService,
   def login = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     Ok(views.html.login())
   })
+
+  def this() = this(MicroServices.samlMicroService, MicroServices.governmentGatewayMicroService, MicroServices.auditMicroService)(MicroServices.authMicroService)
 
   def samlLogin = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     val authRequestFormData = samlMicroService.create
