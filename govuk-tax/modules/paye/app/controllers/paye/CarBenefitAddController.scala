@@ -22,6 +22,17 @@ import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import scala._
+import controllers.paye.CarBenefitData
+import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationData
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRootData
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.paye.domain.Car
+import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
+import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 
 class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override val auditMicroService: AuditMicroService, override val authMicroService: AuthMicroService)
                              (implicit payeMicroService: PayeMicroService, txQueueMicroService: TxQueueMicroService) extends BaseController2
@@ -129,14 +140,42 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
   private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
 
-      val carBenefitData = savedValuesFromKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber")
+      val carBenefitData = savedValuesFromKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber").getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
-
-      payeMicroService.addBenefits("uri", 32, Seq.empty[Benefit])
+      payeMicroService.addBenefits("uri", 32, Seq(benefitFor(carBenefitData, taxYear, employmentSequenceNumber)))
 
       keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
       Ok(views.html.paye.add_car_benefit_confirmation())
     }
+  }
+
+  private def benefitFor(carBenefitData: CarBenefitData, taxYear:Int, employmentSequenceNumber:Int)  = {
+    val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
+      dateCarWithdrawn = carBenefitData.providedTo,
+      dateCarRegistered = carBenefitData.carRegistrationDate,
+      employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
+      fuelType = carBenefitData.fuelType,
+      co2Emissions = carBenefitData.co2Figure,
+      engineSize = carBenefitData.engineCapacity.map(_.toInt),
+      mileageBand = None,
+      carValue = carBenefitData.listPrice.map(BigDecimal(_)),
+      employeePayments  = carBenefitData.employerContribution.map(BigDecimal(_)),
+      daysUnavailable = carBenefitData.numberOfDaysUnavailable)
+
+    Benefit(benefitType = 31,
+      taxYear = taxYear,
+      grossAmount = 0,
+      employmentSequenceNumber = employmentSequenceNumber,
+      costAmount = None,
+      amountMadeGood = None,
+      cashEquivalent = None,
+      expensesIncurred = None,
+      amountOfRelief = None,
+      paymentOrBenefitDescription = None,
+      dateWithdrawn = carBenefitData.providedTo,
+      car = Option(car),
+      actions = Map.empty[String, String],
+      calculations = Map.empty[String, String])
   }
 
   private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {

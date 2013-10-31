@@ -112,6 +112,8 @@ object Benefit {
   def findByTypeAndEmploymentNumber(benefits: Seq[Benefit], employmentSequenceNumber: Int, benefitType: Int) : Option[Benefit] = {
     benefits.find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == benefitType)
   }
+
+
 }
 
 case class Car(dateCarMadeAvailable: Option[LocalDate],
