@@ -249,18 +249,18 @@ object CarBenefits {
 
     val car = createCar(carBenefitData)
 
-    val carBenefit = createBenefit(31, carBenefitData.providedTo,taxYear,employmentSequenceNumber, Some(car))
+    val carBenefit = createBenefit(31, carBenefitData.providedTo, taxYear, employmentSequenceNumber, Some(car))
 
     val fuelBenefit = carBenefitData.employerPayFuel match {
       case Some(data) if data == "true" || data == "again" => Some(createBenefit(29, carBenefitData.providedTo, taxYear, employmentSequenceNumber))
-      case Some("date") => Some(createBenefit(29,carBenefitData.dateFuelWithdrawn, taxYear, employmentSequenceNumber))
+      case Some("date") => Some(createBenefit(29, carBenefitData.dateFuelWithdrawn, taxYear, employmentSequenceNumber))
       case _ => None
     }
     Seq(Some(carBenefit), fuelBenefit).flatten
   }
 
 
-  private def createCar(carBenefitData: CarBenefitData)  = {
+  private def createCar(carBenefitData: CarBenefitData) = {
     Car(dateCarMadeAvailable = carBenefitData.providedFrom,
       dateCarWithdrawn = carBenefitData.providedTo,
       dateCarRegistered = carBenefitData.carRegistrationDate,
@@ -274,7 +274,7 @@ object CarBenefits {
       daysUnavailable = carBenefitData.numberOfDaysUnavailable)
   }
 
-  private def createBenefit(benefitType:Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car:Option[Car] =None) = {
+  private def createBenefit(benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car] = None) = {
     Benefit(benefitType = benefitType,
       taxYear = taxYear,
       grossAmount = 0,
