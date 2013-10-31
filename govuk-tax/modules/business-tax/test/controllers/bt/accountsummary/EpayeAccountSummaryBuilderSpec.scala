@@ -27,7 +27,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   private val dummyEmpRef = EmpRef("abc", "defg")
   private val homeUrl = "http://homeUrl"
-  private val makeAPaymentUrl = routes.EPayeController.makeAPayment().url
+  private val makeAPaymentUrl = routes.EpayeController.makeAPayment().url
   private val empRefMessageString: Msg = Msg(epayeEmpRefMessage, Seq(dummyEmpRef.toString))
 
   private val expectedRtiLinks = Seq(
