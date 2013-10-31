@@ -1,7 +1,7 @@
 package controllers.paye
 
 import controllers.common.{Ida, Actions, BaseController2}
-import play.api.mvc.{SimpleResult, Request}
+import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.BenefitTypes
@@ -14,32 +14,26 @@ import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
 import controllers.common.service.MicroServices
 import views.html.paye.add_car_benefit_review
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import controllers.paye.validation.EngineCapacity
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
 import uk.gov.hmrc.common.microservice.paye.PayeMicroService
 import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import scala._
-import controllers.paye.CarBenefitData
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationData
-import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRootData
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.paye.domain.Car
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 
 class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override val auditMicroService: AuditMicroService, override val authMicroService: AuthMicroService)
                              (implicit payeMicroService: PayeMicroService, txQueueMicroService: TxQueueMicroService) extends BaseController2
-  with Actions
-  with Benefits
-  with Validators
-  with TaxYearSupport {
+with Actions
+with Benefits
+with Validators
+with TaxYearSupport {
 
   def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService, MicroServices.authMicroService)(MicroServices.payeMicroService, MicroServices.txQueueMicroService)
 
@@ -110,7 +104,7 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
     }
   }
 
-  private def lookupValuesFromKeystoreAndBuildForm(keyStoreId:String) = {
+  private def lookupValuesFromKeystoreAndBuildForm(keyStoreId: String) = {
     savedValuesFromKeyStore(keyStoreId) match {
       case Some(savedValues) => {
         val rawForm = validationlessForm
@@ -121,7 +115,7 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
     }
   }
 
-  private def savedValuesFromKeyStore(keyStoreId:String) = keyStoreService.getEntry[CarBenefitData](keyStoreId, "paye", "AddCarBenefitForm")
+  private def savedValuesFromKeyStore(keyStoreId: String) = keyStoreService.getEntry[CarBenefitData](keyStoreId, "paye", "AddCarBenefitForm")
 
   private[paye] def rawValuesOf(defaults: CarBenefitData) =
     CarBenefitValues(providedFromVal = defaults.providedFrom,
@@ -140,42 +134,15 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
   private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
 
+      val payeRoot = user.getPaye
       val carBenefitData = savedValuesFromKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber").getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
-      payeMicroService.addBenefits("uri", 32, Seq(benefitFor(carBenefitData, taxYear, employmentSequenceNumber)))
-
+      val payeAddBenefitUri = payeRoot.addBenefitLink.getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
+      val addBenefitsResponse = payeMicroService.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, CarBenefits(carBenefitData, taxYear, employmentSequenceNumber))
+      //TODO HAB CP hook in correct response page
       keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
       Ok(views.html.paye.add_car_benefit_confirmation())
     }
-  }
-
-  private def benefitFor(carBenefitData: CarBenefitData, taxYear:Int, employmentSequenceNumber:Int)  = {
-    val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
-      dateCarWithdrawn = carBenefitData.providedTo,
-      dateCarRegistered = carBenefitData.carRegistrationDate,
-      employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
-      fuelType = carBenefitData.fuelType,
-      co2Emissions = carBenefitData.co2Figure,
-      engineSize = carBenefitData.engineCapacity.map(_.toInt),
-      mileageBand = None,
-      carValue = carBenefitData.listPrice.map(BigDecimal(_)),
-      employeePayments  = carBenefitData.employerContribution.map(BigDecimal(_)),
-      daysUnavailable = carBenefitData.numberOfDaysUnavailable)
-
-    Benefit(benefitType = 31,
-      taxYear = taxYear,
-      grossAmount = 0,
-      employmentSequenceNumber = employmentSequenceNumber,
-      costAmount = None,
-      amountMadeGood = None,
-      cashEquivalent = None,
-      expensesIncurred = None,
-      amountOfRelief = None,
-      paymentOrBenefitDescription = None,
-      dateWithdrawn = carBenefitData.providedTo,
-      car = Option(car),
-      actions = Map.empty[String, String],
-      calculations = Map.empty[String, String])
   }
 
   private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
@@ -258,6 +225,7 @@ class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override va
 
 }
 
+
 case class CarBenefitData(providedFrom: Option[LocalDate],
                           carUnavailable: Option[Boolean],
                           numberOfDaysUnavailable: Option[Int],
@@ -275,6 +243,54 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
                           engineCapacity: Option[String],
                           employerPayFuel: Option[String],
                           dateFuelWithdrawn: Option[LocalDate])
+
+object CarBenefits {
+  def apply(carBenefitData: CarBenefitData, taxYear: Int, employmentSequenceNumber: Int): Seq[Benefit] = {
+
+    val car = createCar(carBenefitData)
+
+    val carBenefit = createBenefit(31, carBenefitData.providedTo,taxYear,employmentSequenceNumber, Some(car))
+
+    val fuelBenefit = carBenefitData.employerPayFuel match {
+      case Some(data) if data == "true" || data == "again" => Some(createBenefit(29, carBenefitData.providedTo, taxYear, employmentSequenceNumber))
+      case Some("date") => Some(createBenefit(29,carBenefitData.dateFuelWithdrawn, taxYear, employmentSequenceNumber))
+      case _ => None
+    }
+    Seq(Some(carBenefit), fuelBenefit).flatten
+  }
+
+
+  private def createCar(carBenefitData: CarBenefitData)  = {
+    Car(dateCarMadeAvailable = carBenefitData.providedFrom,
+      dateCarWithdrawn = carBenefitData.providedTo,
+      dateCarRegistered = carBenefitData.carRegistrationDate,
+      employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
+      fuelType = carBenefitData.fuelType,
+      co2Emissions = carBenefitData.co2Figure,
+      engineSize = carBenefitData.engineCapacity.map(_.toInt),
+      mileageBand = None,
+      carValue = carBenefitData.listPrice.map(BigDecimal(_)),
+      employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
+      daysUnavailable = carBenefitData.numberOfDaysUnavailable)
+  }
+
+  private def createBenefit(benefitType:Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car:Option[Car] =None) = {
+    Benefit(benefitType = benefitType,
+      taxYear = taxYear,
+      grossAmount = 0,
+      employmentSequenceNumber = employmentSeqNumber,
+      costAmount = None,
+      amountMadeGood = None,
+      cashEquivalent = None,
+      expensesIncurred = None,
+      amountOfRelief = None,
+      paymentOrBenefitDescription = None,
+      dateWithdrawn = withdrawnDate,
+      car = car,
+      actions = Map.empty[String, String],
+      calculations = Map.empty[String, String])
+  }
+}
 
 object CarBenefitFormFields {
   val providedFrom = "providedFrom"

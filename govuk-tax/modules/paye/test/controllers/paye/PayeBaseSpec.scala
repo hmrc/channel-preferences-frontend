@@ -34,6 +34,7 @@ class PayeBaseSpec extends BaseSpec {
 
     val ua = UserAuthority(s"/personal/paye/$nino", Regimes(paye = Some(URI.create(s"/personal/paye/$nino"))), None)
 
+
     val payeRoot = PayeRoot(
       name = name,
       firstName = "Barney",
@@ -46,7 +47,8 @@ class PayeBaseSpec extends BaseSpec {
       links = Map(
         "taxCode" -> s"/paye/$nino/tax-codes/2013",
         "employments" -> s"/paye/$nino/employments/2013",
-        "benefits" -> s"/paye/$nino/benefits/2013"),
+        "benefits" -> s"/paye/$nino/benefits/2013",
+        "addBenefits" -> s"/paye/$nino/benefits/2013"),
       transactionLinks = transactionLinks,
       actions = actions
     )

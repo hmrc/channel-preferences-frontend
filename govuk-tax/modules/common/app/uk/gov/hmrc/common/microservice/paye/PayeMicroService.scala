@@ -25,8 +25,20 @@ class PayeMicroService extends TaxRegimeMicroService[PayeRoot] {
 
   def addBenefits(uri: String,
     version: Int,
+    employmentSequenceNumber:Int,
     benefits: Seq[Benefit]) = {
 
+    httpPost[AddBenefitResponse](
+      uri,
+      body = Json.parse(
+        toRequestBody(
+          AddBenefit(
+            version = version,
+            employmentSequence = employmentSequenceNumber,
+            benefits = benefits)
+        )
+      )
+    )
   }
 
   def removeBenefits(uri: String,
