@@ -115,4 +115,4 @@ case class RecentChange(messageCode: String, timeOfChange: LocalDate, types:Seq[
 
 case class CarFuelBenefitDates(carDate: Option[LocalDate], fuelDateType: Option[String])
 
-case class RemoveBenefitConfirmationData(oldTaxCode: String, newTaxCode: Option[String], personalAllowance: Option[Int], taxYearStart: String, taxYearEnd: String)
+case class BenefitUpdatedConfirmationData(oldTaxCode: String, newTaxCode: Option[String], personalAllowance: Option[Int], taxYearStart: String, taxYearEnd: String)

@@ -26,7 +26,7 @@ case class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) e
           messages = utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
           addenda = Seq(
             LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
-            LinkMessage.internalLink(routes.SaController.makeAPayment.url, makeAPaymentLinkMessage),
+            LinkMessage.internalLink(routes.PaymentController.makeSaPayment.url, makeAPaymentLinkMessage),
             LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
           status = SummaryStatus.success
         )

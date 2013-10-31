@@ -1,7 +1,27 @@
-@main(title = "Confirmation") {
-    <h1 id="main-heading"><span class="pre-heading">service</span> You successfully submitted you new car benefit</h1>
-    <h2>But we cannot save it yet!</h2>
-    <a href="/paye/home">Back to home page</a>
+@(addedData: models.paye.BenefitUpdatedConfirmationData)
+
+@import views.formatting.Money._
+
+
+@main(title = "Benefits Added") {
+<h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+<h2>Thanks.</h2>
+
+<p>
+    Your tax code has changed from <span id="old-tax-code">@{addedData.oldTaxCode}</span>.
+    @addedData.newTaxCode.map{taxCode =>
+            Your new tax code is <span id="new-tax-code">@taxCode</span>.
+    }
+</p>
+
+@addedData.personalAllowance.map{personalAllowance =>
+<p>This means that you will pay tax on anything you earn above <span id="personal-allowance">@pounds(personalAllowance)</span> between @{addedData.taxYearStart} and @{addedData.taxYearEnd}.</p>
+}
+
+<p>HMRC will send you a confirmation by post within a week.</p>
+
+<p>If you have finished, you can <a href="@common.routes.LoginController.logout">log out of your GOV.UK account.</a></p>
+
 }
 
 

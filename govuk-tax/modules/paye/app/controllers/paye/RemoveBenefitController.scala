@@ -22,7 +22,7 @@ import config.DateTimeProvider
 import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
 import uk.gov.hmrc.common.microservice.auth.AuthMicroService
 import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import models.paye.RemoveBenefitConfirmationData
+import models.paye.BenefitUpdatedConfirmationData
 import scala.Some
 import models.paye.BenefitInfo
 import play.api.mvc.SimpleResult
@@ -189,7 +189,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
       keyStoreService.deleteKeyStore(user.oid, "paye_ui")
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
-        val removalData = RemoveBenefitConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year),
+        val removalData = BenefitUpdatedConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year),
           newTaxCode, personalAllowance, Dates.formatDate(startOfCurrentTaxYear), Dates.formatDate(endOfCurrentTaxYear))
         Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
       } else {
