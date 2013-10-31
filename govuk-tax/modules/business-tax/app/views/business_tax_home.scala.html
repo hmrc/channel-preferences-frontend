@@ -1,5 +1,6 @@
-@(accountSummaries: controllers.bt.accountsummary.AccountSummaries)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(accountSummaries: controllers.bt.accountsummary.AccountSummaries, otherServicesLink: views.helpers.RenderableMessage, enrolServiceLink: views.helpers.RenderableMessage, removeServiceLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
+@import views.helpers.RenderableMessageProperty.Link._
 @import views.formatting.Dates._
 @import config.PortalConfig
 @import uk.gov.hmrc.common.PortalUrlBuilder
@@ -23,13 +24,17 @@
         </div>
     }
 
+    <h2>Other services</h2>
+    <p>Follow this @{otherServicesLink.set(ID, "otherServicesHref").set(TEXT, "link").render} to manage your other taxes, register for new taxes, and enrol for new online services.</p>
+
     <h2>Why can't I see my tax account details:</h2>
 
     <p>The summary of your taxes shown on this page is based on the online services attached to the Government Gateway account that you used to log in. If something is missing, it may be because:</p>
 
     <ul>
-	<li>you have not enrolled this service with this Government Gateway account (see "What do I need to do to see my tax account details")</li>
-	<li>you have only just enrolled this service with this Government Gateway account and there is a short delay before the information is available to view</li>
+        <li>you have not yet enrolled to use this online service. If this is the case, you can enrol for it now by following this @{enrolServiceLink.set(ID, "enrolServiceHref1").set(TEXT, "link").render}</li>
+        <li>you have enrolled this service with a different Government Gateway account (see "What do I need to do to see my tax account details")</li>
+	    <li>you have only just enrolled this service with this Government Gateway account and there is a short delay before the information is available to view</li>
     </ul>
 
     <p>If you do not think either of the above reasons apply, please contact us Online Services Helpdesk.</p>
@@ -42,13 +47,14 @@
 
     <ul class="">
 	<li>
-	    <h3>Step 1</h3>
-	    <p>Log in with the User ID for the online service you want to move, remove (de-enrol) the service(s) then log out of this account.</p>
+	    <h3>Step 1 - remove the services from the Government Gateway account you don't want to use</h3>
+        <p>Log back in with the User ID for the online service you want to move.
+           If you are now logged in with that User ID click @{removeServiceLink.set(ID, "removeServiceHref").set(TEXT, "here").render} to remove (de-enrol) the service(s) then log out of this account
 	</li>
 
 	<li>
-	    <h3>Step 2</h3>
-	    <p>Log in again, this time with the User ID and password you want to use as your main account. On the 'Your HMRC services' page you will see a list of services you can add.</p>
+	    <h3>Step 2 - add the services to the Government Gateway account you do want to use</h3>
+	    <p>Log in again, this time with the User ID and password you want to use as your main account and click @{enrolServiceLink.set(ID, "enrolServiceHref2").set(TEXT, "here").render} to add (enrol) the service(s) you want to use.</p>
 	</li>
 	<li>
 	    <h3>Step 3</h3>

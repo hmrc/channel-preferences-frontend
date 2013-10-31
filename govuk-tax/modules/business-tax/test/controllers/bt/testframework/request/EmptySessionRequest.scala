@@ -8,12 +8,9 @@ import controllers.bt.testframework.mocks.DateTimeProviderMock
 
 trait EmptySessionRequest extends CookieEncryption {
 
-  self: DateTimeProviderMock =>
-
-  implicit lazy val request = {
+  def request = {
     val session = ("sessionId", encrypt(s"session-${UUID.randomUUID().toString}"))
     FakeRequest().withSession(session)
   }
 
-  override def currentTime: DateTime = new DateTime(2013, 2, 11, 11, 55, 22, 555, DateTimeZone.UTC)
 }

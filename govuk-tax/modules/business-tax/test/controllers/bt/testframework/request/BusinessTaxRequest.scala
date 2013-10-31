@@ -11,15 +11,13 @@ import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeRequest
-import controllers.bt.testframework.mocks.{DateTimeProviderMock, ConnectorMocks}
+import controllers.bt.testframework.mocks.ConnectorMocks
 import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatJsonRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeJsonRoot
 
-trait BusinessTaxRequest extends CookieEncryption {
-
-  self: ConnectorMocks with DateTimeProviderMock with BusinessUserFixture =>
+trait BusinessTaxRequest extends CookieEncryption  with BusinessUserFixture with ConnectorMocks {
 
   private def saUtrOpt = saRoot.map(_.utr)
 
@@ -78,7 +76,7 @@ trait BusinessTaxRequest extends CookieEncryption {
     decryptedToken = governmentGatewayToken
   )
 
-  implicit lazy val request = {
+  def request = {
 
     val session: Seq[(String, Option[String])] = Seq(
       "sessionId" -> Some(encrypt(s"session-${UUID.randomUUID().toString}")),

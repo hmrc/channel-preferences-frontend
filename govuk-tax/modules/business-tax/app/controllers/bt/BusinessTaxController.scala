@@ -4,32 +4,27 @@ import controllers.common._
 import uk.gov.hmrc.common.PortalUrlBuilder
 import controllers.bt.accountsummary._
 import uk.gov.hmrc.common.microservice.domain.User
+import views.helpers.{LinkMessage, RenderableMessage}
+import play.api.mvc.{SimpleResult, Request}
 
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
   extends BaseController
-  with ActionWrappers
+  with Actions
   with PortalUrlBuilder {
 
-  def home = ActionAuthorisedBy(GovernmentGateway)() {
-    implicit user =>
-      implicit request =>
-        Ok(
-          businessTaxHomepage(accountSummaries = accountSummaryFactory.create(buildPortalUrl))
-        )
-  }
-
-  def makeAPaymentLanding = ActionAuthorisedBy(GovernmentGateway)() {
-    implicit user =>
-      implicit request =>
-        Ok(makeAPaymentLandingPage())
-  }
-
-   private[bt] def makeAPaymentLandingPage()(implicit user: User) =
-    views.html.make_a_payment_landing()
-
-  private[bt] def businessTaxHomepage(accountSummaries: AccountSummaries)(implicit user: User) =
-    views.html.business_tax_home(accountSummaries)
-
-
   def this() = this(new AccountSummariesFactory())
+
+  def home = ActionAuthorisedBy(GovernmentGateway)() {
+    user => request => businessTaxHomepage(user, request)
+  }
+
+  private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]) = {
+    val accountSummaries = accountSummaryFactory.create(buildPortalUrl)
+    val otherServicesLink = LinkMessage.portalLink(buildPortalUrl("otherServices"))
+    val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"))
+    val removeServiceLink = LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"))
+    Ok(views.html.business_tax_home(accountSummaries, otherServicesLink, enrolServiceLink, removeServiceLink))
+  }
+
+
 }

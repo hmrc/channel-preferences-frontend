@@ -5,12 +5,12 @@
 <h1><span class="pre-heading">service</span> Other Services </h1>
 
 @if(otherServicesSummary.manageYourTaxes.isDefined){
-<div>
+<div id="manageYourTaxesSection">
     <h2>Manage your other taxes</h2>
     @if(otherServicesSummary.manageYourTaxes.get.links.isEmpty) {
-        <p>There are no other services associated with this Government Gateway account.</p>
+        <p id="noOtherServices">There are no other services associated with this Government Gateway account.</p>
     }else{
-        <p>
+        <p id="availableServices">
         @for(link <- otherServicesSummary.manageYourTaxes.get.links){
             @link.render <br>
         }

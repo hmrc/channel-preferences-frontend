@@ -25,8 +25,8 @@ class PaymentControllerSpec extends BaseSpec {
     "return the sa payment page succesfully" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
 
       val controllerUnderTest = new PaymentController with MockedPortalUrlBuilder
-      val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
 
+      val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 

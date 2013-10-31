@@ -11,11 +11,9 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import scala.Some
 import play.api.test.FakeRequest
-import controllers.bt.testframework.mocks.{DateTimeProviderMock, ConnectorMocks}
+import controllers.bt.testframework.mocks.ConnectorMocks
 
-trait NonBusinessTaxRequest extends CookieEncryption {
-
-  self: ConnectorMocks with DateTimeProviderMock with NonBusinessUserFixture =>
+trait NonBusinessTaxRequest extends CookieEncryption with ConnectorMocks with NonBusinessUserFixture  {
 
   private val userAuthority = UserAuthority(
     id = userId,
@@ -29,7 +27,7 @@ trait NonBusinessTaxRequest extends CookieEncryption {
 
   when(mockAuthMicroService.authority(userId)).thenReturn(Some(userAuthority))
 
-  implicit lazy val request = {
+  def request = {
 
     val session: Seq[(String, Option[String])] = Seq(
       "sessionId" -> Some(encrypt(s"session-${UUID.randomUUID().toString}")),
