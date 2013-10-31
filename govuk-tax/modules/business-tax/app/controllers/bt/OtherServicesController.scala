@@ -9,10 +9,12 @@ import controllers.common.service.MicroServices
 import play.api.mvc.Request
 
 
-class OtherServicesController(otherServicesFactory: OtherServicesFactory = new OtherServicesFactory(MicroServices.governmentGatewayMicroService))
+class OtherServicesController(otherServicesFactory: OtherServicesFactory)
   extends BaseController
   with Actions
   with PortalUrlBuilder {
+
+  def this() = this(new OtherServicesFactory(MicroServices.governmentGatewayMicroService))
 
   def otherServices = ActionAuthorisedBy(GovernmentGateway)() {
     user => request => otherServicesPage(user, request)
