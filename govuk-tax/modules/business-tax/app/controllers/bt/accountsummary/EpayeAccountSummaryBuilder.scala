@@ -21,7 +21,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
 
       Seq[RenderableMessage](
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(routes.EpayeController.makeAPayment().url, makeAPaymentLinkMessage),
+      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage),
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(fileAReturnLinkMessage)))
 
     AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
@@ -49,13 +49,13 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]) : Seq[RenderableMessage] = {
     val expectedRtiLinks = Seq[RenderableMessage](
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(routes.EpayeController.makeAPayment().url, makeAPaymentLinkMessage)
+      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage)
     )
 
 
     val expectedNonRtiLinks = Seq[RenderableMessage](
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(routes.EpayeController.makeAPayment().url, makeAPaymentLinkMessage),
+      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage),
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(fileAReturnLinkMessage)))
 
 

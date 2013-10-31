@@ -19,7 +19,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, Liability, AmountDue, 
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://home"
-  private val makeAPaymentUrl = routes.SaController.makeAPayment().url
+  private val makeAPaymentUrl = routes.PaymentController.makeSaPayment().url
   private val liabilityDate = new LocalDate(2014, 1, 15)
   private val saUtr = SaUtr("123456789")
   private val utrMessage = Msg("sa.message.utr", Seq(saUtr.utr))
