@@ -912,7 +912,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         co2Figure = None,
         co2NoFigure = Some(true),
         engineCapacity = Some("1400"),
-        employerPayFuel = Some("date"),
+        employerPayFuel = Some("false"),
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
 
       when(mockKeyStoreService.getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitData))
@@ -947,11 +947,11 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         actions = Map.empty[String, String],
         calculations = Map.empty[String, String])
 
-      verify(mockPayeMicroService).addBenefits("uri", 32, Seq(benefit))
+      verify(mockPayeMicroService).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmore.getPaye.version, employmentSeqNumberOne, Seq(benefit))
     }
 
     "call the paye microservice to add new benefits for both car and fuel" in new WithApplication(FakeApplication()) {
-         pending
+
       setupMocksForJohnDensmore()
 
       val carBenefitData = new CarBenefitData(providedFrom = None,
@@ -985,7 +985,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
         daysUnavailable = carBenefitData.numberOfDaysUnavailable
       )
-      val benefit = Benefit(benefitType = 31,
+      val carBenefit = Benefit(benefitType = 31,
         taxYear = taxYear,
         grossAmount = 0,
         employmentSequenceNumber = employmentSeqNumberOne,
@@ -1000,7 +1000,22 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         actions = Map.empty[String, String],
         calculations = Map.empty[String, String])
 
-      verify(mockPayeMicroService).addBenefits("uri", 32, Seq(benefit))
+      val fuelBenefit = Benefit(benefitType = 29,
+        taxYear = taxYear,
+        grossAmount = 0,
+        employmentSequenceNumber = employmentSeqNumberOne,
+        costAmount = None,
+        amountMadeGood = None,
+        cashEquivalent = None,
+        expensesIncurred = None,
+        amountOfRelief = None,
+        paymentOrBenefitDescription = None,
+        dateWithdrawn = carBenefitData.dateFuelWithdrawn,
+        car = None,
+        actions = Map.empty[String, String],
+        calculations = Map.empty[String, String])
+
+      verify(mockPayeMicroService).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmore.getPaye.version, employmentSeqNumberOne, Seq(carBenefit,fuelBenefit))
     }
 
   }
