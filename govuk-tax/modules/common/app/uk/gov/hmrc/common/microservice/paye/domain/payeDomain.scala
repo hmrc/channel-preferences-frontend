@@ -59,7 +59,7 @@ case class PayeRoot(nino: String,
     transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
   }
 
-  def addBenefitLink : Option[String] = links.get("addBenefits")
+  def addBenefitLink : Option[String] = links.get("benefits")
 
   private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] =
     transactionLinks.get(status) match {
