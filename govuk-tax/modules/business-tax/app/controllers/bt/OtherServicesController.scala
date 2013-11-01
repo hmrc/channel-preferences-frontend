@@ -4,7 +4,6 @@ import controllers.bt.otherservices.{OtherServicesFactory, OtherServicesSummary}
 import controllers.common.{Actions, GovernmentGateway, BaseController}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.templates.Html
 import controllers.common.service.MicroServices
 import play.api.mvc.Request
 
@@ -24,6 +23,7 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory)
     val otherServicesSummary = OtherServicesSummary(
       otherServicesFactory.createManageYourTaxes(buildPortalUrl),
       otherServicesFactory.createOnlineServicesEnrolment(buildPortalUrl),
+      otherServicesFactory.createOnlineServicesDeEnrolment(buildPortalUrl),
       otherServicesFactory.createBusinessTaxesRegistration(buildPortalUrl)
     )
     Ok(views.html.other_services(otherServicesSummary))

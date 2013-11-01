@@ -37,6 +37,9 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
   def createOnlineServicesEnrolment(buildPortalUrl: String => String): OnlineServicesEnrolment =
     OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"), Some("here"))))
 
+  def createOnlineServicesDeEnrolment(buildPortalUrl: String => String): OnlineServicesEnrolment =
+    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"), Some("here"))))
+
   def createBusinessTaxesRegistration(buildPortalUrl: String => String)(implicit user: User) = {
 
     def appendInactiveRegimes(inactiveRegimes: List[String]): String = {

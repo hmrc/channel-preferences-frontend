@@ -8,4 +8,4 @@ case class OnlineServicesEnrolment(linkToPortal: RenderableMessage)
 
 case class BusinessTaxesRegistration(registrationLink: Option[RenderableMessage], hmrcWebsiteLink: RenderableMessage)
 
-case class OtherServicesSummary(manageYourTaxes: Option[ManageYourTaxes], onlineServicesEnrolment: OnlineServicesEnrolment, businessTaxesRegistration: BusinessTaxesRegistration)
+case class OtherServicesSummary(manageYourTaxes: Option[ManageYourTaxes], onlineServicesEnrolment: OnlineServicesEnrolment, onlineServicesDeEnrolment: OnlineServicesEnrolment, businessTaxesRegistration: BusinessTaxesRegistration)

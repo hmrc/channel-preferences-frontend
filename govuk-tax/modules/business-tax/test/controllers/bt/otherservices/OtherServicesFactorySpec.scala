@@ -33,6 +33,18 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     }
   }
 
+  "createOnlineServicesDeEnrolment " should {
+
+    "return an OnlineServicesDeEnrolment object with the SSO link to access the portal" in new OtherServicesFactoryForTest {
+
+      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("http://someLink")
+      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "here", sso = true)))
+      val result = factoryUnderTest.createOnlineServicesDeEnrolment(mockPortalUrlBuilder.buildPortalUrl)
+
+      result shouldBe expected
+    }
+  }
+
   "createBusinessTaxesRegistration" should {
     "return a BusinessTaxRegistration object containing only the link to the hmrc website if epaye, vat and sa are defined" in new OtherServicesFactoryForTest {
 
