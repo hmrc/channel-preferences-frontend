@@ -81,7 +81,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("sa.regimeName") should not be null
       document.getElementById("ct.regimeName") shouldBe null
       document.getElementById("vat.regimeName") shouldBe null
-      document.getElementById("epay.regimeName") shouldBe null
+      document.getElementById("epaye.regimeName") shouldBe null
 
     }
 
@@ -138,7 +138,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("ct.regimeName") should not be null
       document.getElementById("vat.regimeName") shouldBe null
       document.getElementById("sa.regimeName") shouldBe null
-      document.getElementById("epay.regimeName") shouldBe null
+      document.getElementById("epaye.regimeName") shouldBe null
     }
 
     "render the vat widget" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
@@ -165,7 +165,45 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("vat.regimeName") should not be null
       document.getElementById("ct.regimeName") shouldBe null
       document.getElementById("sa.regimeName") shouldBe null
-      document.getElementById("epay.regimeName") shouldBe null
+      document.getElementById("epaye.regimeName") shouldBe null
     }
+
+    "render all the widgets in the right order" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock  {
+      val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
+      val ctAccountSummary = AccountSummary("ct.regimeName", List(Msg(CtMessageKeys.ctUtrMessage)), Seq.empty, SummaryStatus.success)
+      val vatAccountSummary = AccountSummary("vat.regimeName", List(Msg(VatMessageKeys.vatRegimeNameMessage)), Seq.empty, SummaryStatus.success)
+      val epayeAcountSummary = AccountSummary("epaye.regimeName", List(Msg(EpayeMessageKeys.epayeEmpRefMessage)), Seq.empty, SummaryStatus.success)
+
+      val saRegime = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
+      val ctRegime = Some(CtRoot(CtUtr("some ct utr"), Map.empty[String, String]))
+      val vatRegime = Some(VatRoot(Vrn("some vrn"), Map.empty[String, String]))
+      val epayeRegime = Some(EpayeRoot(EmpRef("some emp/ref"), EpayeLinks(Some("link"))))
+
+      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(None, saRegime, vatRegime, epayeRegime, ctRegime), decryptedToken = None)
+
+      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary,epayeAcountSummary)))
+
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
+
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
+
+      status(homepage) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(homepage))
+
+      val elements = document.getElementsByClass("account-summary")
+      elements.size shouldBe 4
+      elements.get(0).attr("id") shouldBe "sa.regimeName"
+      elements.get(1).attr("id") shouldBe "ct.regimeName"
+      elements.get(2).attr("id") shouldBe "vat.regimeName"
+      elements.get(3).attr("id") shouldBe "epaye.regimeName"
+
+    }
+
   }
 }

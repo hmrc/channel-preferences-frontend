@@ -4,8 +4,8 @@ import controllers.common._
 import uk.gov.hmrc.common.PortalUrlBuilder
 import controllers.bt.accountsummary._
 import uk.gov.hmrc.common.microservice.domain.User
-import views.helpers.{LinkMessage, RenderableMessage}
-import play.api.mvc.{SimpleResult, Request}
+import views.helpers.LinkMessage
+import play.api.mvc.Request
 
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
   extends BaseController

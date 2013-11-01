@@ -1,10 +1,6 @@
 package controllers.bt.accountsummary
 
-import uk.gov.hmrc.common.microservice.sa.SaConnector
-import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
-import uk.gov.hmrc.common.microservice.ct.CtConnector
 
 class AccountSummariesFactory(saRegimeAccountSummaryViewBuilder: SaAccountSummaryBuilder = new SaAccountSummaryBuilder,
                               vatRegimeAccountSummaryViewBuilder: VatAccountSummaryBuilder = new VatAccountSummaryBuilder,
@@ -17,6 +13,6 @@ class AccountSummariesFactory(saRegimeAccountSummaryViewBuilder: SaAccountSummar
     val ctRegime = ctRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
     val epayeRegime = epayeRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
 
-    new AccountSummaries(Seq(saRegime, vatRegime, ctRegime, epayeRegime).flatten)
+    new AccountSummaries(List(saRegime, ctRegime, vatRegime, epayeRegime).flatten)
   }
 }

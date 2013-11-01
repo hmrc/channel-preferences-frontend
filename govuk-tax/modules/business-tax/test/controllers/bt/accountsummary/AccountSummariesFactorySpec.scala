@@ -50,9 +50,9 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
 
     "construct an AccountSummaries model using the AccountSummary regimes factories that return models" in {
       val saAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
-      val vatAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
-      val ctAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
-      val epayeAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
+      val vatAccountSummary = AccountSummary("VAT", Seq.empty, Seq.empty, SummaryStatus.success)
+      val ctAccountSummary = AccountSummary("CT", Seq.empty, Seq.empty, SummaryStatus.success)
+      val epayeAccountSummary = AccountSummary("EPAYE", Seq.empty, Seq.empty, SummaryStatus.success)
 
       val factoryUnderTest = factory()
       val userUnderTest = mockUser
@@ -64,7 +64,30 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(epayeAccountSummary))
 
       val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest)
-      actualAccountSummaries.regimes shouldBe Seq(saAccountSummary, vatAccountSummary, ctAccountSummary, epayeAccountSummary)
+      actualAccountSummaries.regimes shouldBe List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAccountSummary)
     }
+
+    "keeps the AccountSummaries in the right order" in {
+
+      val saAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
+      val vatAccountSummary = AccountSummary("VAT", Seq.empty, Seq.empty, SummaryStatus.success)
+      val ctAccountSummary = AccountSummary("CT", Seq.empty, Seq.empty, SummaryStatus.success)
+      val epayeAccountSummary = AccountSummary("EPAYE", Seq.empty, Seq.empty, SummaryStatus.success)
+
+      val factoryUnderTest = factory()
+      val userUnderTest = mockUser
+      val portalBuilder: (String => String) = (value) => value
+
+      when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(saAccountSummary))
+      when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(vatAccountSummary))
+      when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(ctAccountSummary))
+      when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(epayeAccountSummary))
+
+      val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest)
+      val expectedListInOrder = List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAccountSummary)
+      actualAccountSummaries.regimes shouldBe expectedListInOrder
+
+    }
+
   }
 }
