@@ -1039,14 +1039,14 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
 
 
-      when(mockPayeMicroService.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Some(AddBenefitResponse(calculatedTaxCode = Some("bla2"), personalAllowance = Some(123))))
+      when(mockPayeMicroService.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Some(AddBenefitResponse(calculatedTaxCode = Some("aNewTaxCoe"), personalAllowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitData](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitData))
       val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
       result should haveStatus(200)
       print(contentAsString(result))
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#old-tax-code").text shouldBe "bla2"
-      doc.select("#new-tax-code").text shouldBe "bla2"
+      doc.select("#old-tax-code").text shouldBe "430L"
+      doc.select("#new-tax-code").text shouldBe "aNewTaxCoe"
       doc.select("#personal-allowance").text shouldBe "£123"
     }
   }
