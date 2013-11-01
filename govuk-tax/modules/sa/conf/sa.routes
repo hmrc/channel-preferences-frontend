@@ -1,5 +1,7 @@
 
 GET     /home                                           @controllers.sa.SaController.details
+
+# The following is OOS for MVP and will return 404
 GET     /changeAddress                                  @controllers.sa.SaController.changeAddress
 POST    /changeAddress                                  @controllers.sa.SaController.submitChangeAddress
 POST    /confirmChangeAddress                           @controllers.sa.SaController.confirmChangeAddress
