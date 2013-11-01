@@ -59,6 +59,8 @@ case class PayeRoot(nino: String,
     transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
   }
 
+  def addBenefitLink : Option[String] = links.get("addBenefits")
+
   private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] =
     transactionLinks.get(status) match {
       case Some(uri) =>
@@ -91,47 +93,16 @@ case class TaxCode(employmentSequenceNumber: Int,
 
 case class Allowance(sourceAmount: Int, adjustedAmount: Int, `type`: Int)
 
-case class Benefit(benefitType: Int,
-                   taxYear: Int,
-                   grossAmount: BigDecimal,
-                   employmentSequenceNumber: Int,
-                   costAmount: Option[BigDecimal],
-                   amountMadeGood: Option[BigDecimal],
-                   cashEquivalent: Option[BigDecimal],
-                   expensesIncurred: Option[BigDecimal],
-                   amountOfRelief: Option[BigDecimal],
-                   paymentOrBenefitDescription: Option[String],
-                   dateWithdrawn: Option[LocalDate],
-                   car: Option[Car],
-                   actions: Map[String, String],
-                   calculations: Map[String, String]) {
-
-}
-
-object Benefit {
-  def findByTypeAndEmploymentNumber(benefits: Seq[Benefit], employmentSequenceNumber: Int, benefitType: Int) : Option[Benefit] = {
-    benefits.find(b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == benefitType)
-  }
-}
-
-case class Car(dateCarMadeAvailable: Option[LocalDate],
-               dateCarWithdrawn: Option[LocalDate],
-               dateCarRegistered: Option[LocalDate],
-               employeeCapitalContribution: Option[BigDecimal],
-               fuelType: Option[String],
-               co2Emissions: Option[Int],
-               engineSize: Option[Int],
-               mileageBand: Option[String],
-               carValue: Option[BigDecimal],
-               employeePayments: Option[BigDecimal],
-               daysUnavailable: Option[Int]
-               )
 
 case class RevisedBenefit(benefit: Benefit, revisedAmount: BigDecimal)
 
 case class RemoveBenefit(version: Int,
                          benefits: Seq[RevisedBenefit],
                          withdrawDate: LocalDate)
+
+case class AddBenefit(version: Int,
+                      employmentSequence:Int,
+                      benefits: Seq[Benefit])
 
 object Employment {
   val primaryEmploymentType = 1
@@ -158,5 +129,7 @@ case class RecentTransaction(messageCode: String,
                              txTime: LocalDate)
 
 case class RemoveBenefitResponse(transaction: TransactionId, calculatedTaxCode: Option[String], personalAllowance: Option[Int])
+
+case class AddBenefitResponse(calculatedTaxCode: Option[String], personalAllowance: Option[Int])
 
 
