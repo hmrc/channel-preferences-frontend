@@ -33,7 +33,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar {
       val linkMap = Map("nonsenseLink" -> "/a/nonsense/link", "benefits" -> "/addBenefit/link")
       val payeRoot = PayeRoot(nino = "NM439085B", version = 1, title = "Mr", firstName = "John", secondName = None,
         surname = "Densmore", name = "johnnyBoy", dateOfBirth = "1960-12-01", links = linkMap, Map.empty, Map.empty)
-      payeRoot.addBenefitLink shouldBe Some("/addBenefit/link")
+      payeRoot.addBenefitLink(2013) shouldBe Some("/addBenefit/link")
     }
   }
 
