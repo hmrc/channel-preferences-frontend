@@ -126,7 +126,7 @@ with TaxYearSupport {
       providedToVal = defaults.providedTo,
       carRegistrationDate = defaults.carRegistrationDate,
       employeeContributes = defaults.employeeContributes.map(_.toString),
-      employerContributes = defaults.employeeContributes.map(_.toString),
+      employerContributes = defaults.employerContributes.map(_.toString),
       fuelType = defaults.fuelType,
       co2Figure = defaults.co2Figure.map(_.toString),
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
