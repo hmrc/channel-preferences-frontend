@@ -65,7 +65,13 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "-1")
       form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "This field must be greater than 0.")
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Days unavailable must be greater than zero if you have selected yes.")
+    }
+
+    "reject a value that is 0" in new WithApplication(FakeApplication()) {
+      val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "0")
+      form.hasErrors shouldBe true
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Days unavailable must be greater than zero if you have selected yes.")
     }
 
     "accept a correct value" in new WithApplication(FakeApplication()) {
