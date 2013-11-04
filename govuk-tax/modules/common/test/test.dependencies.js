@@ -1,5 +1,6 @@
 // Dependencies for the unit test via Jasmine
 EnvJasmine.loadGlobal(EnvJasmine.libDir + "jquery.js");
+EnvJasmine.loadGlobal(EnvJasmine.libDir + "jasmine-jquery.js");
 //EnvJasmine.loadGlobal(EnvJasmine.libDir + "angular.min.js");
 //EnvJasmine.loadGlobal(EnvJasmine.libDir + "angular-resource.min.js");
 //EnvJasmine.loadGlobal(EnvJasmine.testDir + "config/angular-mocks.js");
