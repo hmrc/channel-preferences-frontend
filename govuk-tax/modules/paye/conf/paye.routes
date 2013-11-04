@@ -1,7 +1,3 @@
-GET         /home                                                               @controllers.paye.PayeHomeController.home
-
-GET         /benefits                                                           @controllers.paye.BenefitHomeController.listBenefits
-
 GET         /benefits/:kinds/:year/:employmentSequenceNumber/remove             @controllers.paye.RemoveBenefitController.benefitRemovalForm(kinds: String, year: Int, employmentSequenceNumber: Int)
 POST        /benefits/:kinds/:year/:employmentSequenceNumber/remove             @controllers.paye.RemoveBenefitController.requestBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
 POST        /benefits/:kinds/:year/:employmentSequenceNumber/confirm            @controllers.paye.RemoveBenefitController.confirmBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)

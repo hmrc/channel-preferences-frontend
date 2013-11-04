@@ -91,7 +91,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
           benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
             case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
-            case _ => Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to benefit list"); Redirect(routes.BenefitHomeController.listBenefits())
+            case _ => Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to the car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
           }
         },
         removeBenefitData => {
@@ -126,7 +126,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
               val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
               Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit)(user))
             }
-            case _ => Logger.error(s"Unsupported type of the main benefit: $mainBenefitType, redirecting to benefit list"); Redirect(routes.BenefitHomeController.listBenefits())
+            case _ => Logger.error(s"Unsupported type of the main benefit: $mainBenefitType, redirecting to car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
           }
         }
       )
@@ -175,7 +175,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
               displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
               removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
           }
-          case _ => Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to benefit list"); Redirect(routes.BenefitHomeController.listBenefits())
+          case _ => Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
         }
       }
     }
@@ -194,7 +194,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
         Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
       } else {
         Logger.error(s"Unsupported type of removed benefits: $kinds, redirecting to benefit list")
-        Redirect(routes.BenefitHomeController.listBenefits())
+        Redirect(routes.CarBenefitHomeController.carBenefitHome())
       }
     }
 
@@ -308,7 +308,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
     }
 
 
-    private val redirectToBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.BenefitHomeController.listBenefits())
+    private val redirectToBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome())
   }
 
 }

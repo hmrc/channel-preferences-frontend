@@ -5,12 +5,12 @@ import play.api.mvc.{Controller, Session}
 
 object FrontEndRedirect extends Controller {
 
-  val payeHome = "/paye/home"
   val saHome = "/sa/home"
   val businessTaxHome = "/business-tax/home"
   val agentHome = "/agent/home"
   val agentAddClient = "/agent/add-client"
   val carBenefit = "/paye/car-benefit/home"
+  val payeHome = carBenefit
   val agentRegistration = "/agent/reason-for-application"
 
   val redirectSessionKey = "login_redirect"
