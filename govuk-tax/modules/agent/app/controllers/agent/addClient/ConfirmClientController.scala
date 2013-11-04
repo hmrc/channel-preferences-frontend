@@ -12,23 +12,23 @@ import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import PreferredClientController.emptyUnValidatedPreferredContactForm
-import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import controllers.common.service.Connectors
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import models.agent.addClient.PotentialClient
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 
-class ConfirmClientController(keyStoreMicroService: KeyStoreMicroService,
-                              override val auditMicroService: AuditMicroService)
-                             (implicit override val authMicroService: AuthMicroService)
+class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
+                              override val auditConnector: AuditConnector)
+                             (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with Validators {
 
-  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService)(MicroServices.authMicroService)
+  def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   import ConfirmClientController._
 
@@ -39,14 +39,14 @@ class ConfirmClientController(keyStoreMicroService: KeyStoreMicroService,
 
   private[agent] def confirmAction(user: User)(request: Request[_]): SimpleResult = {
     val form = confirmClientForm().bindFromRequest()(request)
-    keyStoreMicroService.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
+    keyStoreConnector.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
       case Some(potentialClient@PotentialClient(Some(searchedClient), _, _)) => {
         form.fold(
           errors => BadRequest(search_client_result(searchedClient, form)),
           confirmationWithInstanceId => {
             val (confirmation, instanceId) = confirmationWithInstanceId
 
-            keyStoreMicroService.addKeyStoreEntry(
+            keyStoreConnector.addKeyStoreEntry(
               id = keystoreId(user.oid, instanceId),
               source = serviceSourceKey,
               key = addClientKey,

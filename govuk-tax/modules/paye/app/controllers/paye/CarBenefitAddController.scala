@@ -12,14 +12,13 @@ import play.api.data.Forms._
 import CarBenefitFormFields._
 import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
-import controllers.common.service.MicroServices
+import controllers.common.service.Connectors
 import views.html.paye.add_car_benefit_review
 import controllers.paye.validation.EngineCapacity
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationData
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
 import play.api.mvc.SimpleResult
@@ -27,15 +26,16 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRootData
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
+import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
-class CarBenefitAddController(keyStoreService: KeyStoreMicroService, override val auditMicroService: AuditMicroService, override val authMicroService: AuthMicroService)
-                             (implicit payeMicroService: PayeMicroService, txQueueMicroService: TxQueueMicroService) extends BaseController2
+class CarBenefitAddController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
+                             (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController2
 with Actions
 with Benefits
 with Validators
 with TaxYearSupport {
 
-  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService, MicroServices.authMicroService)(MicroServices.payeMicroService, MicroServices.txQueueMicroService)
+  def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   def timeSource() = new LocalDate(DateTimeZone.UTC)
 
@@ -139,7 +139,7 @@ with TaxYearSupport {
       val carBenefitDataAndCalculation = savedValuesFromKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber").getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
       val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
-      val addBenefitsResponse = payeMicroService.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, CarBenefits(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber))
+      val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, CarBenefits(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber))
       keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
       Ok(views.html.paye.add_car_benefit_confirmation(BenefitUpdatedConfirmationData(
         TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear), addBenefitsResponse.get.calculatedTaxCode, addBenefitsResponse.get.personalAllowance, "start date", "end date")))
@@ -176,7 +176,7 @@ with TaxYearSupport {
                 fuelBenefitStopDate = addCarBenefitData.dateFuelWithdrawn) //TODO check if employerPayFuel can be None
 
               val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
-              val benefitCalculations = payeMicroService.calculateBenefitValue(uri, addBenefitPayload).get
+              val benefitCalculations = payeConnector.calculateBenefitValue(uri, addBenefitPayload).get
               val carBenefitValue : Option[BenefitValue]= benefitCalculations.carBenefitValue.map(BenefitValue)
               val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
 

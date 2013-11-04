@@ -4,7 +4,7 @@ import org.scalatest.{ Matchers, WordSpec }
 import play.api.libs.json.JsValue
 import play.api.test.{ FakeApplication, WithApplication }
 
-class TestAuditMicroService extends AuditMicroService {
+class TestAuditConnector extends AuditConnector {
   var body: JsValue = null
   var headers: Map[String, String] = null
 
@@ -14,18 +14,18 @@ class TestAuditMicroService extends AuditMicroService {
   }
 }
 
-class AuditMicroServiceSpec extends WordSpec with Matchers {
+class AuditConnectorSpec extends WordSpec with Matchers {
 
-  "AuditMicroService enabled" should {
+  "AuditConnector enabled" should {
     "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.enabled" -> true))) {
-      val auditMicroService = new TestAuditMicroService()
+      val auditConnector = new TestAuditConnector()
 
       val auditEvent = AuditEvent("frontend", "request", Map("userId" -> "/auth/oid/099990"), Map("name" -> "Fred"))
-      auditMicroService.audit(auditEvent)
+      auditConnector.audit(auditEvent)
 
-      auditMicroService.headers should be(Map.empty)
+      auditConnector.headers should be(Map.empty)
 
-      val body = auditMicroService.body
+      val body = auditConnector.body
       (body \ "auditSource").as[String] should be("frontend")
       (body \ "auditType").as[String] should be("request")
       (body \ "tags" \ "userId").as[String] should be("/auth/oid/099990")
@@ -33,15 +33,15 @@ class AuditMicroServiceSpec extends WordSpec with Matchers {
     }
   }
 
-  "AuditMicroService disabled" should {
+  "AuditConnector disabled" should {
     "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.enabled" -> false))) {
 
-      val auditMicroService = new TestAuditMicroService()
+      val auditConnector = new TestAuditConnector()
       val auditEvent = AuditEvent("frontend", "request", Map("userId" -> "/auth/oid/099990"), Map("name" -> "Fred"))
-      auditMicroService.audit(auditEvent)
+      auditConnector.audit(auditEvent)
 
-      auditMicroService.body should be(null)
-      auditMicroService.headers should be(null)
+      auditConnector.body should be(null)
+      auditConnector.headers should be(null)
 
     }
   }

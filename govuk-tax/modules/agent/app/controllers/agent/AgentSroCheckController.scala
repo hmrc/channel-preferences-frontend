@@ -4,16 +4,16 @@ import play.api.data._
 import play.api.data.Forms._
 import controllers.common._
 import play.api.Logger
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.service.Connectors
 
-class AgentSroCheckController(override val auditMicroService: AuditMicroService)
-                             (implicit override val authMicroService: AuthMicroService)
+class AgentSroCheckController(override val auditConnector: AuditConnector)
+                             (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions {
 
-  def this() = this(MicroServices.auditMicroService)(MicroServices.authMicroService)
+  def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
   def reasonForApplication() = UnauthorisedAction {
     implicit request =>

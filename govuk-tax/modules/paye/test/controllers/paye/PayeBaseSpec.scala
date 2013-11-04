@@ -12,8 +12,8 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.microservice.txqueue.{Status, TxQueueTransaction}
 import org.joda.time.chrono.ISOChronology
+import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 
 class PayeBaseSpec extends BaseSpec {
 

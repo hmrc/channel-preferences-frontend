@@ -25,7 +25,7 @@ trait NonBusinessTaxRequest extends CookieEncryption with ConnectorMocks with No
     userAuthority = userAuthority,
     regimes = RegimeRoots())
 
-  when(mockAuthMicroService.authority(userId)).thenReturn(Some(userAuthority))
+  when(mockAuthConnector.authority(userId)).thenReturn(Some(userAuthority))
 
   def request = {
 

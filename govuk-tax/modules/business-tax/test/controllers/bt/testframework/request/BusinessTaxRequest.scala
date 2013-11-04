@@ -56,7 +56,7 @@ trait BusinessTaxRequest extends CookieEncryption  with BusinessUserFixture with
     ctUtr = ctUtrOpt,
     empRef = empRefOpt)
 
-  when(mockAuthMicroService.authority(userId)).thenReturn(Some(userAuthority))
+  when(mockAuthConnector.authority(userId)).thenReturn(Some(userAuthority))
 
   saRootLink.map(link => when(mockSaConnector.root(link.toString)).thenReturn(saJsonRoot.get))
   vatRootLink.map(link => when(mockVatConnector.root(link.toString)).thenReturn(vatJsonRoot.get))

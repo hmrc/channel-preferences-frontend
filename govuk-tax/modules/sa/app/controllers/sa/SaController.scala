@@ -15,20 +15,20 @@ import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.sa.{routes => saRoutes}
 import uk.gov.hmrc.common.microservice.sa.domain.{SaPerson, SaRegime}
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 
-class SaController(override val auditMicroService: AuditMicroService)
+class SaController(override val auditConnector: AuditConnector)
                   (implicit saConnector : SaConnector,
-                   override val authMicroService: AuthMicroService)
+                   override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with DateTimeProvider
   with Validators {
 
-  def this() = this(MicroServices.auditMicroService)(MicroServices.saConnector, MicroServices.authMicroService)
+  def this() = this(Connectors.auditConnector)(Connectors.saConnector, Connectors.authConnector)
 
   def details = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>

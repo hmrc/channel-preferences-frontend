@@ -7,32 +7,32 @@ import play.api.data.{Form, Forms}
 import Forms._
 import org.joda.time.LocalDate
 import controllers.common.validators.Validators
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import models.agent.addClient.{ConfirmClient, PotentialClient, ClientSearch}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.service.MicroServices
+import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
 import uk.gov.hmrc.utils.DateConverter
 import ConfirmClientController.confirmClientForm
 import org.bson.types.ObjectId
 import uk.gov.hmrc.domain.Nino
 import models.agent.{SearchRequest, MatchingPerson}
-import service.agent.AgentMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import service.agent.AgentConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
-class SearchClientController(val keyStoreMicroService: KeyStoreMicroService,
-                             override val auditMicroService: AuditMicroService)
-                            (implicit agentMicroService: AgentMicroService,
-                             override val authMicroService: AuthMicroService)
+class SearchClientController(val keyStoreConnector: KeyStoreConnector,
+                             override val auditConnector: AuditConnector)
+                            (implicit agentMicroService: AgentConnector,
+                             override val authConnector: AuthConnector)
   extends BaseController2
   with Actions {
 
   import SearchClientController._
   import SearchClientController.KeyStoreKeys._
 
-  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService)(AgentMicroService(), MicroServices.authMicroService)
+  def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(AgentConnector(), Connectors.authConnector)
 
   def start = ActionAuthorisedBy(Ida)(Some(AgentRegime), redirectToOrigin = true) {
     homeAction
@@ -75,7 +75,7 @@ class SearchClientController(val keyStoreMicroService: KeyStoreMicroService,
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
-                keyStoreMicroService.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
+                keyStoreConnector.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
                 Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
               }
             }

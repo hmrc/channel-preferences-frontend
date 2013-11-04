@@ -1,10 +1,10 @@
 package controllers.common.actions
 
-import controllers.common.service.MicroServices
+import controllers.common.service.Connectors
 import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import scala.concurrent.ExecutionContext
 import controllers.common.HeaderNames
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
@@ -14,11 +14,11 @@ import uk.gov.hmrc.common.microservice.domain.User
 import util.Success
 
 trait AuditActionWrapper extends HeaderNames {
-  val auditMicroService : AuditMicroService
-  object WithRequestAuditing extends WithRequestAuditing(auditMicroService)
+  val auditConnector : AuditConnector
+  object WithRequestAuditing extends WithRequestAuditing(auditConnector)
 }
 
-class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.auditMicroService) extends MdcHelper with HeaderNames {
+class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends MdcHelper with HeaderNames {
 
   import ExecutionContext.Implicits.global
 
@@ -29,14 +29,14 @@ class WithRequestAuditing(auditMicroService : AuditMicroService = MicroServices.
   
   private def applyAudited(user: Option[User], action: Action[AnyContent]) = Action.async {
     request =>
-      if (traceRequests && auditMicroService.enabled) {
+      if (traceRequests && auditConnector.enabled) {
         val context = fromMDC
         val eventCreator = auditEvent(user, request, context) _
 
-        auditMicroService.audit(eventCreator("Request", Map("path" -> request.path), extractFormData(request)))
+        auditConnector.audit(eventCreator("Request", Map("path" -> request.path), extractFormData(request)))
 
         action(request).andThen({
-          case Success(result) => auditMicroService.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString), Map()))
+          case Success(result) => auditConnector.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString), Map()))
           case Failure(exception) => // FIXME!!!
         })
       }

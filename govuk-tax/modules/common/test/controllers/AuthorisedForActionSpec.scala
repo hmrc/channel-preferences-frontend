@@ -2,8 +2,8 @@ package controllers
 
 import org.scalatest.mock.MockitoSugar
 import play.api.mvc.Controller
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
@@ -14,11 +14,11 @@ import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import org.scalatest.TestData
 import java.util.UUID
-import uk.gov.hmrc.common.microservice.agent.{AgentMicroServiceRoot, AgentRegime}
+import uk.gov.hmrc.common.microservice.agent.{AgentConnectorRoot, AgentRegime}
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.utils.DateTimeUtils.now
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import controllers.common.service.MicroServices._
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import controllers.common.service.Connectors._
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
@@ -29,18 +29,18 @@ import play.api.test.FakeApplication
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
-  val mockAuthMicroService = mock[AuthMicroService]
-  val mockPayeMicroService = mock[PayeMicroService]
-  val mockAgentMicroService = mock[AgentMicroServiceRoot]
+  val mockAuthConnector = mock[AuthConnector]
+  val mockPayeConnector = mock[PayeConnector]
+  val mockAgentMicroService = mock[AgentConnectorRoot]
 
-  val testController = new TestController(mockPayeMicroService, mockAgentMicroService, null)(mockAuthMicroService)
+  val testController = new TestController(mockPayeConnector, mockAgentMicroService, null)(mockAuthConnector)
 
   override protected def beforeEach(testData: TestData) {
-    reset(mockAuthMicroService, mockPayeMicroService, mockAgentMicroService)
+    reset(mockAuthConnector, mockPayeConnector, mockAgentMicroService)
 
     //FIXME: mocking expectation should not be done in the before callback EVER!
     // It makes refactoring so much harder later on. Move this out and defined for each that requires it
-    when(mockPayeMicroService.root("/paye/AB123456C")).thenReturn(
+    when(mockPayeConnector.root("/paye/AB123456C")).thenReturn(
       PayeRoot(
         name = "John Densmore",
         firstName = "John",
@@ -55,7 +55,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
         actions = Map("calculateBenefitValue" -> "/calculation/paye/benefit/new/value-calculation")
       )
     )
-    when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(
+    when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenReturn(
       Some(UserAuthority("/auth/oid/jfisher", Regimes(paye = Some(URI.create("/paye/AB123456C"))), None)))
   }
 
@@ -74,7 +74,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
   "AuthorisedForIdaAction" should {
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenReturn(None)
+      when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenReturn(None)
 
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -96,8 +96,8 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
-    "return internal server error page if the AuthMicroService throws an exception" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
+    "return internal server error page if the AuthConnector throws an exception" in new WithApplication(FakeApplication()) {
+      when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -125,7 +125,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
     "return 200 in case the agent is successfully authorised" in new WithApplication(FakeApplication()) {
 
-      when(mockAuthMicroService.authority("/auth/oid/goeff")).thenReturn(
+      when(mockAuthConnector.authority("/auth/oid/goeff")).thenReturn(
         Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))), None)))
 
       val agent = AgentRoot("uar-for-goeff", Map.empty, Map.empty)
@@ -142,7 +142,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
+      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
       val result = testController.testAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -155,7 +155,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     }
 
     "redirect to the Tax Regime landing page if the agent is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
-      when(mockAuthMicroService.authority("/auth/oid/john")).thenReturn(
+      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
       val result = testController.testAgentAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -206,10 +206,10 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 }
 
 
-sealed class TestController(payeMicroService : PayeMicroService,
-                            agentMicroServiceRoot : AgentMicroServiceRoot,
-                            override val auditMicroService: AuditMicroService)
-                           (implicit override val authMicroService: AuthMicroService)
+sealed class TestController(payeConnector : PayeConnector,
+                            agentConnectorRoot : AgentConnectorRoot,
+                            override val auditConnector: AuditConnector)
+                           (implicit override val authConnector: AuthConnector)
   extends Controller
   with Actions
   with HeaderNames {
@@ -219,10 +219,10 @@ sealed class TestController(payeMicroService : PayeMicroService,
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map {
-        uri => payeMicroService.root(uri.toString)
+        uri => payeConnector.root(uri.toString)
       },
       agent = regimes.agent.map {
-        uri => agentMicroServiceRoot.root(uri.toString)
+        uri => agentConnectorRoot.root(uri.toString)
       }
     )
   }

@@ -1,12 +1,12 @@
 package uk.gov.hmrc.common.microservice.saml
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.microservice.{ MicroServiceConfig, MicroService }
+import uk.gov.hmrc.microservice.{ MicroServiceConfig, Connector }
 import uk.gov.hmrc.microservice.saml.domain.{ AuthResponseValidationResult, AuthRequestFormData }
 import org.slf4j.MDC
 import controllers.common.HeaderNames
 
-class SamlMicroService extends MicroService with HeaderNames {
+class SamlConnector extends Connector with HeaderNames {
 
   override val serviceUrl = MicroServiceConfig.samlServiceUrl
 

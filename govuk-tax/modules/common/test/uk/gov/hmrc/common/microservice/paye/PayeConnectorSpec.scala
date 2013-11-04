@@ -3,14 +3,13 @@ package uk.gov.hmrc.common.microservice.paye
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue}
+import play.api.libs.json.JsValue
 import org.joda.time.LocalDate
 import play.api.test.WithApplication
 import org.mockito.ArgumentCaptor
 import controllers.common.domain.Transform
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.paye.domain._
-import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationResponse
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationData
 import scala.Some
@@ -20,9 +19,8 @@ import uk.gov.hmrc.common.microservice.paye.domain.Car
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
-import play.api
 
-class PayeMicroServiceSpec extends BaseSpec {
+class PayeConnectorSpec extends BaseSpec {
 
   val carBenefit = Benefit(31, 2013, 321.42, 2, None, None, None, None, None, None, None,
     Some(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some("A"), Some(BigDecimal("12343.21")), None, None)),
@@ -32,7 +30,7 @@ class PayeMicroServiceSpec extends BaseSpec {
 
     "forward the version as a Version header" in new WithApplication(FakeApplication()) {
 
-      val service = new HttpMockedPayeMicroService
+      val service = new HttpMockedPayeConnector
 
       val headers: Map[String, String] = Map("Version" -> "22")
       val dateCarWithdrawn = new LocalDate(2013, 7, 18)
@@ -54,7 +52,7 @@ class PayeMicroServiceSpec extends BaseSpec {
   "Addition of new benefits" should {
 
     "delegate correctly to the paye service" in {
-      val service = new HttpMockedPayeMicroService
+      val service = new HttpMockedPayeConnector
       val uri = ""
       val version = 0
       val employmentSeqNumber = 1
@@ -80,7 +78,7 @@ class PayeMicroServiceSpec extends BaseSpec {
   "Calculation of benefit addition" should {
 
     "delegate correctly to the paye service" in {
-      val service = new HttpMockedPayeMicroService
+      val service = new HttpMockedPayeConnector
       val uri: String = "/paye/AB123456C/benefits/2013/1/add"
 
       val benefitData = NewBenefitCalculationData(carRegisteredBefore98 = false, fuelType = "diesel", co2Emission = Some(200), engineCapacity = Some(1200),
@@ -105,7 +103,7 @@ class PayeMicroServiceSpec extends BaseSpec {
   "Calculation of benefit withdrawal" should {
 
     "delegate correctly to the paye service" in new WithApplication(FakeApplication()) {
-      val service = new HttpMockedPayeMicroService
+      val service = new HttpMockedPayeConnector
 
       val stubbedCalculationResult = Option(new RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(1234.56), "2014" -> BigDecimal(0))))
       when(service.httpWrapper.get[RemoveBenefitCalculationResponse]("someUrl/2013-07-18")).thenReturn(stubbedCalculationResult)
@@ -122,7 +120,7 @@ class PayeMicroServiceSpec extends BaseSpec {
 
 }
 
-class HttpMockedPayeMicroService extends PayeMicroService with MockitoSugar {
+class HttpMockedPayeConnector extends PayeConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 

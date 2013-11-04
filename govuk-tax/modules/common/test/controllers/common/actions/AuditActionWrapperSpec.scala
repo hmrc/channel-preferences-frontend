@@ -4,7 +4,7 @@ import play.api.mvc.{ Action, Controller }
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
-import uk.gov.hmrc.common.microservice.audit.{AuditMicroService, AuditEvent}
+import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
 import play.api.test._
 import org.slf4j.MDC
 import controllers.common.HeaderNames
@@ -27,7 +27,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import org.scalatest.mock.MockitoSugar
 
-class AuditTestController(override val auditMicroService: AuditMicroService) extends Controller with AuditActionWrapper {
+class AuditTestController(override val auditConnector: AuditConnector) extends Controller with AuditActionWrapper {
 
   def test(userOption: Option[User]) = userOption match {
     case Some(user) => WithRequestAuditing(user) { user: User  =>
@@ -60,15 +60,15 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
       MDC.put(requestId, exampleRequestId)
 
 
-      val auditMicroService: AuditMicroService = mock[AuditMicroService]
-      val controller = new AuditTestController(auditMicroService)
+      val auditConnector: AuditConnector = mock[AuditConnector]
+      val controller = new AuditTestController(auditConnector)
 
-      when(auditMicroService.enabled).thenReturn(true)
+      when(auditConnector.enabled).thenReturn(true)
 
       val response = controller.test(None)(FakeRequest("GET", "/foo"))
 
       whenReady(response) { result =>
-        verify(auditMicroService, times(2)).audit(auditEventCaptor.capture())
+        verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
 
         val auditEvents = auditEventCaptor.getAllValues
         auditEvents.size should be(2)
@@ -125,10 +125,10 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
       MDC.put(forwardedFor, "192.168.1.1")
       MDC.put(requestId, exampleRequestId)
 
-      val auditMicroService: AuditMicroService = mock[AuditMicroService]
-      val controller = new AuditTestController(auditMicroService)
+      val auditConnector: AuditConnector = mock[AuditConnector]
+      val controller = new AuditTestController(auditConnector)
 
-      when(auditMicroService.enabled).thenReturn(true)
+      when(auditConnector.enabled).thenReturn(true)
 
       val response = controller.test(None)(FakeRequest("POST", "/foo").withFormUrlEncodedBody(
         "key1" -> "value1",
@@ -137,7 +137,7 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
         "key4" -> ""))
 
       whenReady(response) { result =>
-        verify(auditMicroService, times(2)).audit(auditEventCaptor.capture())
+        verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
 
         val auditEvents = auditEventCaptor.getAllValues
         auditEvents.size should be(2)
@@ -169,15 +169,15 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
         MDC.put(requestId, exampleRequestId)
         MDC.put(xSessionId, exampleSessionId)
 
-      val auditMicroService: AuditMicroService = mock[AuditMicroService]
-      val controller = new AuditTestController(auditMicroService)
+      val auditConnector: AuditConnector = mock[AuditConnector]
+      val controller = new AuditTestController(auditConnector)
 
-        when(auditMicroService.enabled).thenReturn(true)
+        when(auditConnector.enabled).thenReturn(true)
 
         val response = controller.test(Some(user))(FakeRequest("GET", "/foo"))
 
         whenReady(response) { result =>
-          verify(auditMicroService, times(2)).audit(auditEventCaptor.capture())
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
 
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
@@ -233,14 +233,14 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
   "AuditActionWrapper with traceRequests disabled " should {
     "not audit any events" in new WithApplication(FakeApplication()) {
 
-      val auditMicroService: AuditMicroService = mock[AuditMicroService]
-      val controller = new AuditTestController(auditMicroService)
+      val auditConnector: AuditConnector = mock[AuditConnector]
+      val controller = new AuditTestController(auditConnector)
 
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
 
       controller.test(None)(FakeRequest())
-      verify(auditMicroService, never).audit(any(classOf[AuditEvent]))
+      verify(auditConnector, never).audit(any(classOf[AuditEvent]))
     }
   }
 

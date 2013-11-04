@@ -15,7 +15,7 @@ import scala.Some
 import controllers.agent.registration.AgentCompanyDetailsFormFields._
 import controllers.common.validators.AddressFields._
 import concurrent.Future
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import org.scalatest.TestData
 
 class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
@@ -27,12 +27,12 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
   val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
-  val keyStoreMicroService = mock[KeyStoreMicroService]
+  val keyStoreConnector = mock[KeyStoreConnector]
 
-  private val controller = new AgentCompanyDetailsController(null, keyStoreMicroService)(null)
+  private val controller = new AgentCompanyDetailsController(null, keyStoreConnector)(null)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    reset(keyStoreMicroService)
+    reset(keyStoreConnector)
   }
 
   "The company details page" should {
@@ -41,63 +41,63 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(companyNameVal = "")))
       status(result) shouldBe 400
       contentAsString(result) should include("This field is required")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if companyName is blank" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(companyNameVal = "   ")))
       status(result) shouldBe 400
       contentAsString(result) should include("This field is required")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if both phone numbers are missing" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(landlineNumberVal = None, mobileNumberVal = None)))
       status(result) shouldBe 400
       contentAsString(result) should include("You must either specify a landline or mobile phone number")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if landline number is invalid" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(landlineNumberVal = Some("asdf"))))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if mobile number is invalid" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mobileNumberVal = Some("asdf"))))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid phone number")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if email is missing" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(emailVal = "")))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if email is invalid" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(emailVal = "kdhdhdhd")))
       status(result) shouldBe 400
       contentAsString(result) should include("Valid email required")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if main address is missing" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mainAddressLine1Val = "")))
       status(result) shouldBe 400
       contentAsString(result) should include("This address line field must not be blank")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if main address postcode is incorrect" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mainAddressPostcodeVal = "1234")))
       status(result) shouldBe 400
       contentAsString(result) should include("Postcode is incorrect")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if main address is blank" in new WithApplication(FakeApplication()) {
@@ -105,7 +105,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(mainAddressLine1Val = "   ")))
       status(result) shouldBe 400
       contentAsString(result) should include("This address line field must not be blank")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if communication address is missing" in new WithApplication(FakeApplication()) {
@@ -113,7 +113,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(communicationAddressLine1Val = "")))
       status(result) shouldBe 400
       contentAsString(result) should include("This address line field must not be blank")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if communication address is blank" in new WithApplication(FakeApplication()) {
@@ -121,7 +121,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(communicationAddressLine1Val = "   ")))
       status(result) shouldBe 400
       contentAsString(result) should include("This address line field must not be blank")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if communication address postcode is incorrect" in new WithApplication(FakeApplication()) {
@@ -129,7 +129,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(communicationAddressPostcodeVal = "1234")))
       status(result) shouldBe 400
       contentAsString(result) should include("Postcode is incorrect")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if business address is missing" in new WithApplication(FakeApplication()) {
@@ -137,7 +137,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(businessAddressLine1Val = "")))
       status(result) shouldBe 400
       contentAsString(result) should include("This address line field must not be blank")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if business address is blank" in new WithApplication(FakeApplication()) {
@@ -145,7 +145,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(businessAddressLine1Val = "   ")))
       status(result) shouldBe 400
       contentAsString(result) should include("This address line field must not be blank")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if business address postcode is incorrect" in new WithApplication(FakeApplication()) {
@@ -153,7 +153,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(businessAddressPostcodeVal = "1234")))
       status(result) shouldBe 400
       contentAsString(result) should include("Postcode is incorrect")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if SA UTR is missing" in new WithApplication(FakeApplication()) {
@@ -161,7 +161,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(saUtrVal = "")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid SA UTR value")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if SA UTR is invalid" in new WithApplication(FakeApplication()) {
@@ -169,7 +169,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(saUtrVal = "hello")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please enter a valid SA UTR value")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if not registered on HMRC" in new WithApplication(FakeApplication()) {
@@ -177,7 +177,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, newRequestForCompanyDetails(registeredOnHMRCVal = false)))
       status(result) shouldBe 400
       contentAsString(result) should include("You must be registered with HMRC to register as an agent")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "go to next step if required details are provided" in new WithApplication(FakeApplication()) {
@@ -186,7 +186,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val request = newRequestForCompanyDetails()
       val result = Future.successful(controller.postCompanyDetailsAction(user, request))
       status(result) shouldBe 303
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(
+      verify(controller.keyStoreConnector).addKeyStoreEntry(
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(companyDetailsFormName),

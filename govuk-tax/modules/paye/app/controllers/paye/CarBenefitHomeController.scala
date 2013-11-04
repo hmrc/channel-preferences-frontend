@@ -9,20 +9,20 @@ import play.api.Logger
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
+import controllers.common.service.Connectors
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
-class CarBenefitHomeController(override val auditMicroService: AuditMicroService, override val authMicroService: AuthMicroService)(implicit payeService: PayeMicroService, txQueueMicroservice: TxQueueMicroService) extends BaseController2
+class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)(implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController2
   with Actions
   with Benefits
   with Validators {
 
   private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
 
-  def this() = this(MicroServices.auditMicroService, MicroServices.authMicroService)(MicroServices.payeMicroService, MicroServices.txQueueMicroService)
+  def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   def carBenefitHome = ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
     implicit user =>

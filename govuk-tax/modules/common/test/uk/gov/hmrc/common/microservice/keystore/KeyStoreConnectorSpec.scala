@@ -7,7 +7,7 @@ import org.mockito.{ ArgumentCaptor, Matchers, Mockito }
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.BaseSpec
 
-class TestKeyStoreMicroService extends KeyStoreMicroService with MockitoSugar {
+class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
   val httpWrapper = mock[HttpWrapper]
 
   override protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
@@ -34,23 +34,23 @@ class TestKeyStoreMicroService extends KeyStoreMicroService with MockitoSugar {
   }
 }
 
-class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
+class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar {
 
-  "KeyStoreMicroService" should {
+  "KeyStoreConnector" should {
     "call the key store service when adding a key store entry " in new WithApplication(FakeApplication()) {
 
-      val keyStoreMicroService = new TestKeyStoreMicroService()
+      val keyStoreConnector = new TestKeyStoreConnector()
 
       val id: String = "anId"
       val source: String = "aSource"
       val key: String = "aKey"
       val data = Map("key1" -> "value1", "key2" -> "value2")
 
-      keyStoreMicroService.addKeyStoreEntry(id, source, key, data)
+      keyStoreConnector.addKeyStoreEntry(id, source, key, data)
 
       private val captor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
 
-      verify(keyStoreMicroService.httpWrapper, times(1)).httpPut[String](Matchers.eq("/keystore/aSource/anId/data/aKey"), captor.capture(), Matchers.any[Map[String, String]])
+      verify(keyStoreConnector.httpWrapper, times(1)).httpPut[String](Matchers.eq("/keystore/aSource/anId/data/aKey"), captor.capture(), Matchers.any[Map[String, String]])
 
       val body = captor.getValue
       (body \ "key1").as[String] should be("value1")
@@ -59,27 +59,27 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
 
     "call the key store service when getting a key store " in new WithApplication(FakeApplication()) {
 
-      val keyStoreMicroService = new TestKeyStoreMicroService()
+      val keyStoreConnector = new TestKeyStoreConnector()
 
       val id: String = "anId"
       val source: String = "aSource"
 
-      keyStoreMicroService.getKeyStore[String](id, source)
+      keyStoreConnector.getKeyStore[String](id, source)
 
-      verify(keyStoreMicroService.httpWrapper, times(1)).get[String]("/keystore/aSource/anId")
+      verify(keyStoreConnector.httpWrapper, times(1)).get[String]("/keystore/aSource/anId")
     }
 
     case class SomeData(firstName: String, lastName: String)
 
     "retrieve a specific entry" in {
 
-      val keyStoreMicroService = new TestKeyStoreMicroService()
+      val keyStoreConnector = new TestKeyStoreConnector()
 
-      Mockito.when(keyStoreMicroService.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("entryKey" -> SomeData("John", "Densmore")))))
+      Mockito.when(keyStoreConnector.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("entryKey" -> SomeData("John", "Densmore")))))
 
-      val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "entryKey")
+      val entry = keyStoreConnector.getEntry[SomeData]("anId", "aSource", "entryKey")
 
-      verify(keyStoreMicroService.httpWrapper, times(1)).get[String]("/keystore/aSource/anId")
+      verify(keyStoreConnector.httpWrapper, times(1)).get[String]("/keystore/aSource/anId")
       entry should not be 'empty
       entry.get.firstName shouldBe "John"
       entry.get.lastName shouldBe "Densmore"
@@ -88,11 +88,11 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
 
     "handle existing keystore without an entry" in {
 
-      val keyStoreMicroService = new TestKeyStoreMicroService()
+      val keyStoreConnector = new TestKeyStoreConnector()
 
-      Mockito.when(keyStoreMicroService.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("anotherEntry" -> SomeData("John", "Densmore")))))
+      Mockito.when(keyStoreConnector.httpWrapper.get[KeyStore[SomeData]]("/keystore/aSource/anId")).thenReturn(Some(KeyStore[SomeData]("anID", null, null, Map("anotherEntry" -> SomeData("John", "Densmore")))))
 
-      val entry = keyStoreMicroService.getEntry[SomeData]("anId", "aSource", "entryKey")
+      val entry = keyStoreConnector.getEntry[SomeData]("anId", "aSource", "entryKey")
 
       entry shouldBe None
 
@@ -100,26 +100,26 @@ class KeyStoreMicroServiceSpec extends BaseSpec with MockitoSugar {
 
     "call the key store service when deleting a key store " in new WithApplication(FakeApplication()) {
 
-      val keyStoreMicroService = new TestKeyStoreMicroService()
+      val keyStoreConnector = new TestKeyStoreConnector()
 
       val id: String = "anId"
       val source: String = "aSource"
 
-      keyStoreMicroService.deleteKeyStore(id, source)
+      keyStoreConnector.deleteKeyStore(id, source)
 
-      verify(keyStoreMicroService.httpWrapper, times(1)).httpDeleteAndForget("/keystore/aSource/anId")
+      verify(keyStoreConnector.httpWrapper, times(1)).httpDeleteAndForget("/keystore/aSource/anId")
     }
 
     "call the key store service when getting the data keys" in new WithApplication(FakeApplication()) {
 
-      val keyStoreMicroService = new TestKeyStoreMicroService()
+      val keyStoreConnector = new TestKeyStoreConnector()
 
       val id: String = "anId"
       val source: String = "aSource"
 
-      keyStoreMicroService.getDataKeys(id, source)
+      keyStoreConnector.getDataKeys(id, source)
 
-      verify(keyStoreMicroService.httpWrapper, times(1)).get[String]("/keystore/aSource/anId/data/keys")
+      verify(keyStoreConnector.httpWrapper, times(1)).get[String]("/keystore/aSource/anId/data/keys")
 
     }
 

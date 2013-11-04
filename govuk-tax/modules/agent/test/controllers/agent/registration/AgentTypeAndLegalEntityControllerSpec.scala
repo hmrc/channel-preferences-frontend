@@ -13,7 +13,7 @@ import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.agent.registration.AgentTypeAndLegalEntityFormFields._
 import concurrent.Future
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import org.scalatest.mock.MockitoSugar
 
 class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
@@ -25,9 +25,9 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
   val payeRoot = PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map())
   val user = User(id, null, RegimeRoots(Some(payeRoot), None, None, None, None), None, None)
 
-  val keyStoreMicroService = mock[KeyStoreMicroService]
+  val keyStoreConnector = mock[KeyStoreConnector]
 
-  private val controller = new AgentTypeAndLegalEntityController(null, keyStoreMicroService)(null)
+  private val controller = new AgentTypeAndLegalEntityController(null, keyStoreConnector)(null)
 
   "The agent type and legal entity" should {
 
@@ -40,33 +40,33 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postAgentTypeAction(user, newRequest("", "ltdCompany")))
       status(result) shouldBe 400
       contentAsString(result) should include("This field is required")
-      verifyZeroInteractions(keyStoreMicroService)
+      verifyZeroInteractions(keyStoreConnector)
     }
 
     "not go to the next step if no legal entity is chosen" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postAgentTypeAction(user, newRequest("inBusiness", "")))
       status(result) shouldBe 400
       contentAsString(result) should include("This field is required")
-      verifyZeroInteractions(keyStoreMicroService)
+      verifyZeroInteractions(keyStoreConnector)
     }
     "not go to the next step if an illegal legal entity is chosen" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postAgentTypeAction(user, newRequest("inBusiness", "invalid")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please select a valid option")
-      verifyZeroInteractions(keyStoreMicroService)
+      verifyZeroInteractions(keyStoreConnector)
     }
     "not go to the next step if an illegal agent type is chosen" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postAgentTypeAction(user, newRequest("aslkjddhjks", "ltdCompany")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please select a valid option")
-      verifyZeroInteractions(keyStoreMicroService)
+      verifyZeroInteractions(keyStoreConnector)
     }
     "go to the company details page and save data in keystore if all items are chosen" in new WithApplication(FakeApplication()) {
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = Future.successful(controller.postAgentTypeAction(user, newRequest("inBusiness", "ltdCompany")))
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/company-details")
-      verify(keyStoreMicroService).addKeyStoreEntry(
+      verify(keyStoreConnector).addKeyStoreEntry(
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(agentTypeAndLegalEntityFormName),

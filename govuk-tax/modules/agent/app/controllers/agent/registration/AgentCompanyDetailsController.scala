@@ -12,21 +12,21 @@ import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.{Ida, BaseController2, Actions}
 import controllers.common.actions.MultiFormWrapper
-import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import controllers.common.service.Connectors
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
-class AgentCompanyDetailsController(override val auditMicroService: AuditMicroService,
-                                    override val keyStoreMicroService: KeyStoreMicroService)
-                                   (implicit override val authMicroService: AuthMicroService)
+class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
+                                    override val keyStoreConnector: KeyStoreConnector)
+                                   (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with AgentController
   with Validators
   with MultiFormWrapper {
 
-  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(MicroServices.authMicroService)
+  def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
 
   private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
@@ -125,7 +125,7 @@ class AgentCompanyDetailsController(override val auditMicroService: AuditMicroSe
       },
       _ => {
         val agentCompanyDetails = companyDetailsForm.bindFromRequest()(request).data
-        keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, companyDetailsFormName, agentCompanyDetails)
+        keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, companyDetailsFormName, agentCompanyDetails)
         Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership())
       }
     )

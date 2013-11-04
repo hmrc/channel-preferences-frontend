@@ -5,14 +5,14 @@ import uk.gov.hmrc.common.microservice.domain.{TaxRegime, User}
 import views.html.login
 import play.api.Logger
 import controllers.common.{CookieEncryption, AuthenticationType, ServiceRoots}
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 trait UserActionWrapper
   extends Results
   with CookieEncryption
   with ServiceRoots {
 
-  implicit val authMicroService: AuthMicroService
+  implicit val authConnector: AuthConnector
 
   object WithUserAuthorisedBy {
     def apply(authenticationType: AuthenticationType)
@@ -32,7 +32,7 @@ trait UserActionWrapper
       case (Some(encryptedUserId), tokenOption) =>
         val userId = decrypt(encryptedUserId)
         val token = tokenOption.map(decrypt)
-        val userAuthority = authMicroService.authority(userId)
+        val userAuthority = authConnector.authority(userId)
         Logger.debug(s"Received user authority: $userAuthority")
 
         userAuthority match {

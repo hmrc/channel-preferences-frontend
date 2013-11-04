@@ -12,21 +12,21 @@ import controllers.agent.registration.FormNames._
 import AgentContactDetailsFormFields._
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import controllers.common.service.Connectors
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
-class AgentContactDetailsController(override val auditMicroService: AuditMicroService,
-                                    override val keyStoreMicroService: KeyStoreMicroService)
-                                   (implicit override val authMicroService: AuthMicroService)
+class AgentContactDetailsController(override val auditConnector: AuditConnector,
+                                    override val keyStoreConnector: KeyStoreConnector)
+                                   (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with AgentController
   with Validators
   with MultiFormWrapper {
 
-  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(MicroServices.authMicroService)
+  def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
 
   private val contactForm = Form[AgentContactDetails](
     mapping(
@@ -63,7 +63,7 @@ class AgentContactDetailsController(override val auditMicroService: AuditMicroSe
         val paye: PayeRoot = user.regimes.paye.get
         var agentDetails = contactForm.bindFromRequest()(request).data
         agentDetails +=((title, paye.title), (firstName, paye.firstName), (lastName, paye.surname), (dateOfBirth, paye.dateOfBirth), (nino, paye.nino))
-        keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, contactFormName, agentDetails)
+        keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, contactFormName, agentDetails)
         Redirect(routes.AgentTypeAndLegalEntityController.agentType())
       }
     )

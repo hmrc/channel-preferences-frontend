@@ -6,23 +6,23 @@ import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import controllers.agent.registration.FormNames._
 import controllers.common.actions.MultiFormWrapper
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import service.agent.AgentMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.service.Connectors
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import service.agent.AgentConnector
 
-class AgentThankYouController(override val auditMicroService: AuditMicroService,
-                              override val keyStoreMicroService: KeyStoreMicroService)
-                             (implicit agentMicroService : AgentMicroService,
-                              override val authMicroService: AuthMicroService)
+class AgentThankYouController(override val auditConnector: AuditConnector,
+                              override val keyStoreConnector: KeyStoreConnector)
+                             (implicit agentMicroService : AgentConnector,
+                              override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with AgentController
   with MultiFormWrapper
   with AgentMapper {
 
-  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(AgentMicroService(), MicroServices.authMicroService)
+  def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(AgentConnector(), Connectors.authConnector)
 
   def thankYou = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     MultiFormAction(multiFormConfig) {
@@ -31,11 +31,11 @@ class AgentThankYouController(override val auditMicroService: AuditMicroService,
   }
 
   private[registration] val thankYouAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
-    keyStoreMicroService.getKeyStore[Map[String, String]](registrationId(user), agent) match {
+    keyStoreConnector.getKeyStore[Map[String, String]](registrationId(user), agent) match {
       case Some(x) => {
         val agentId = agentMicroService.create(user.regimes.paye.get.nino, toAgent(x)).uar
 
-        keyStoreMicroService.deleteKeyStore(registrationId(user), agent)
+        keyStoreConnector.deleteKeyStore(registrationId(user), agent)
         Ok(views.html.agents.registration.thank_you_page(agentId))
       }
       case _ => Redirect(routes.AgentContactDetailsController.contactDetails())

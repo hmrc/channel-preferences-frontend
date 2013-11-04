@@ -1,7 +1,7 @@
 package controllers
 
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
@@ -18,8 +18,8 @@ import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.domain.EmpRef
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import controllers.common.service.MicroServices._
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import controllers.common.service.Connectors._
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
@@ -46,9 +46,9 @@ class AuthorisedForGovernmentGatewayActionSpec
   val epayeConnector = mock[EpayeConnector]
   val ctConnector = mock[CtConnector]
   val vatConnector = mock[VatConnector]
-  val authMicroService = mock[AuthMicroService]
+  val authConnector = mock[AuthConnector]
 
-  val testController = new AuthorisedForGovernmentGatewayActionSpecController(saConnector, epayeConnector, ctConnector, vatConnector, null)(authMicroService)
+  val testController = new AuthorisedForGovernmentGatewayActionSpecController(saConnector, epayeConnector, ctConnector, vatConnector, null)(authConnector)
 
   private val lottyRegime_empRef = EmpRef("123", "456")
   private val lottyRegime_ctUtr = CtUtr("aCtUtr")
@@ -56,13 +56,13 @@ class AuthorisedForGovernmentGatewayActionSpec
   private val lottyRegime_saUtr = SaUtr("aSaUtr")
 
   override protected def beforeEach(testData: TestData) {
-    reset(saConnector, epayeConnector, ctConnector, vatConnector, authMicroService)
+    reset(saConnector, epayeConnector, ctConnector, vatConnector, authConnector)
 
     when(saConnector.root("/sa/detail/3333333333")).thenReturn(
       SaJsonRoot(Map("link1" -> "http://somelink/1"))
     )
 
-    when(authMicroService.authority("/auth/oid/gfisher")).thenReturn(
+    when(authConnector.authority("/auth/oid/gfisher")).thenReturn(
       Some(
         UserAuthority(
           id = "/auth/oid/gfisher",
@@ -75,7 +75,7 @@ class AuthorisedForGovernmentGatewayActionSpec
       )
     )
 
-    when(authMicroService.authority("/auth/oid/lottyRegimes")).thenReturn(
+    when(authConnector.authority("/auth/oid/lottyRegimes")).thenReturn(
       Some(UserAuthority("/auth/oid/lottyRegimes",
         regimes = Regimes(sa = Some(URI.create("/saDetailEndpoint")),
           epaye = Some(URI.create("/epayeDetailEndpoint")),
@@ -102,7 +102,7 @@ class AuthorisedForGovernmentGatewayActionSpec
 
   "AuthorisedForGovernmentGatewayAction" should {
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      when(authMicroService.authority("/auth/oid/gfisher")).thenReturn(None)
+      when(authConnector.authority("/auth/oid/gfisher")).thenReturn(None)
 
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -124,8 +124,8 @@ class AuthorisedForGovernmentGatewayActionSpec
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
-    "return internal server error page if the AuthMicroService throws an exception" in new WithApplication(FakeApplication()) {
-      when(authMicroService.authority("/auth/oid/gfisher")).thenThrow(new RuntimeException("TEST"))
+    "return internal server error page if the AuthConnector throws an exception" in new WithApplication(FakeApplication()) {
+      when(authConnector.authority("/auth/oid/gfisher")).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -151,7 +151,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
-      when(authMicroService.authority("/auth/oid/bob")).thenReturn(
+      when(authConnector.authority("/auth/oid/bob")).thenReturn(
         Some(UserAuthority("bob", Regimes(sa = None, paye = Some(URI.create("/personal/paye/12345678"))), None)))
       val result = testController.testAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -206,8 +206,8 @@ sealed class AuthorisedForGovernmentGatewayActionSpecController(saConnector: SaC
                                                                 epayeConnector: EpayeConnector,
                                                                 ctConnector: CtConnector,
                                                                 vatConnector: VatConnector,
-                                                                override val auditMicroService: AuditMicroService)
-                                                               (implicit override val authMicroService: AuthMicroService)
+                                                                override val auditConnector: AuditConnector)
+                                                               (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions {
 

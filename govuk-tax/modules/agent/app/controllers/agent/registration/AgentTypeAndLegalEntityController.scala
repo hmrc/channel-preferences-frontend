@@ -10,21 +10,21 @@ import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
-import controllers.common.service.MicroServices
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import controllers.common.service.Connectors
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
-class AgentTypeAndLegalEntityController(override val auditMicroService: AuditMicroService,
-                                        override val keyStoreMicroService: KeyStoreMicroService)
-                                       (implicit override val authMicroService: AuthMicroService)
+class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnector,
+                                        override val keyStoreConnector: KeyStoreConnector)
+                                       (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with AgentController
   with Validators
   with MultiFormWrapper {
 
-  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(MicroServices.authMicroService)
+  def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
 
   private val agentTypeAndLegalEntityForm = Form[AgentTypeAndLegalEntity](
     mapping(
@@ -60,7 +60,7 @@ class AgentTypeAndLegalEntityController(override val auditMicroService: AuditMic
       },
       _ => {
         val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest()(request).data
-        keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails)
+        keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails)
         Redirect(routes.AgentCompanyDetailsController.companyDetails())
       }
     )

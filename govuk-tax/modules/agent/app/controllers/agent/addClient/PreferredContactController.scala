@@ -14,11 +14,11 @@ import scala.Some
 import Validators.validateMandatoryPhoneNumber
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import models.agent.{Client, Contact, PreferredContact}
-import _root_.service.agent.AgentMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import controllers.common.service.MicroServices
+import _root_.service.agent.AgentConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import controllers.common.service.Connectors
 import models.agent.addClient.PotentialClient
 import scala.Some
 import play.api.mvc.SimpleResult
@@ -27,14 +27,14 @@ import models.agent.Client
 import models.agent.PreferredContact
 import models.agent.Contact
 
-class PreferredContactController(keyStoreMicroService: KeyStoreMicroService,
-                                 override val auditMicroService: AuditMicroService)
-                                (implicit agentMicroService : AgentMicroService,
-                                 override val authMicroService: AuthMicroService)
+class PreferredContactController(keyStoreConnector: KeyStoreConnector,
+                                 override val auditConnector: AuditConnector)
+                                (implicit agentMicroService : AgentConnector,
+                                 override val authConnector: AuthConnector)
   extends BaseController2
   with Actions {
 
-  def this() = this(MicroServices.keyStoreMicroService, MicroServices.auditMicroService)(AgentMicroService(), MicroServices.authMicroService)
+  def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(AgentConnector(), Connectors.authConnector)
 
   def preferredContact = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     preferredContactAction
@@ -43,7 +43,7 @@ class PreferredContactController(keyStoreMicroService: KeyStoreMicroService,
   private[agent] def preferredContactAction(user: User)(request: Request[_]): SimpleResult = {
     val form = preferredContactForm(request).bindFromRequest()(request)
     val ksId = keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound"))
-    keyStoreMicroService.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) match {
+    keyStoreConnector.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) match {
       case Some(pc@PotentialClient(Some(_), Some(_), _)) => {
         //FIXME we should trim contact details before saving them here
         form.fold(
@@ -61,7 +61,7 @@ class PreferredContactController(keyStoreMicroService: KeyStoreMicroService,
 
             val client: Client = Client(pc.clientSearch.get.nino, pc.confirmation.get.internalClientReference, contact)
             agentMicroService.saveOrUpdateClient(addClientUri, client)
-            keyStoreMicroService.deleteKeyStore(ksId, serviceSourceKey)
+            keyStoreConnector.deleteKeyStore(ksId, serviceSourceKey)
             Ok(client_successfully_added(client))
           }
         )

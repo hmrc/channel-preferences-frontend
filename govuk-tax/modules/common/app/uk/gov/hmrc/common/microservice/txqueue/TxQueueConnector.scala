@@ -1,9 +1,10 @@
-package uk.gov.hmrc.microservice.txqueue
+package uk.gov.hmrc.common.microservice.txqueue
 
-import uk.gov.hmrc.microservice.{ MicroServiceConfig, MicroService }
+import uk.gov.hmrc.microservice.{ MicroServiceConfig, Connector }
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 
-class TxQueueMicroService extends MicroService {
+class TxQueueConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.txQueueUrl
 

@@ -2,10 +2,10 @@ package uk.gov.hmrc.common.microservice.governmentgateway
 
 import play.api.libs.json._
 import scala.collection.Seq
-import uk.gov.hmrc.microservice.{MicroService, MicroServiceConfig}
+import uk.gov.hmrc.microservice.{Connector, MicroServiceConfig}
 import org.joda.time.DateTime
 
-class GovernmentGatewayMicroService extends MicroService {
+class GovernmentGatewayConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.governmentGatewayServiceUrl
 

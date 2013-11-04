@@ -4,19 +4,19 @@ import play.api.mvc.{ AnyContent, Action }
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayMicroService, GovernmentGatewayResponse, Credentials}
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, GovernmentGatewayResponse, Credentials}
 import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
-import controllers.common.service.{MicroServices, FrontEndConfig}
+import controllers.common.service.{Connectors, FrontEndConfig}
 import java.util.UUID
-import uk.gov.hmrc.common.microservice.saml.SamlMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.saml.SamlConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 
-class LoginController(samlMicroService : SamlMicroService,
-                      governmentGatewayMicroService : GovernmentGatewayMicroService,
-                      override val auditMicroService: AuditMicroService)
-                     (implicit override val authMicroService: AuthMicroService)
+class LoginController(samlConnector : SamlConnector,
+                      governmentGatewayConnector : GovernmentGatewayConnector,
+                      override val auditConnector: AuditConnector)
+                     (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions {
 
@@ -24,10 +24,10 @@ class LoginController(samlMicroService : SamlMicroService,
     Ok(views.html.login())
   })
 
-  def this() = this(MicroServices.samlMicroService, MicroServices.governmentGatewayMicroService, MicroServices.auditMicroService)(MicroServices.authMicroService)
+  def this() = this(Connectors.samlConnector, Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   def samlLogin = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
-    val authRequestFormData = samlMicroService.create
+    val authRequestFormData = samlConnector.create
     Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
   })
 
@@ -48,7 +48,7 @@ class LoginController(samlMicroService : SamlMicroService,
       Ok(views.html.ggw_login_form(boundForm))
     } else {
       try {
-        val response: GovernmentGatewayResponse = governmentGatewayMicroService.login(boundForm.value.get)
+        val response: GovernmentGatewayResponse = governmentGatewayConnector.login(boundForm.value.get)
         FrontEndRedirect.toBusinessTax
           .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
       } catch {
@@ -75,9 +75,9 @@ class LoginController(samlMicroService : SamlMicroService,
         Unauthorized(views.html.login_error())
       },
       samlResponse => {
-        val validationResult = samlMicroService.validate(samlResponse.response)
+        val validationResult = samlConnector.validate(samlResponse.response)
         if (validationResult.valid) {
-          authMicroService.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get) match {
+          authConnector.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get) match {
             case Some(authority) => {
               val target = FrontEndRedirect.forSession(session)
               target.withSession("userId"-> encrypt(authority.id), "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"))

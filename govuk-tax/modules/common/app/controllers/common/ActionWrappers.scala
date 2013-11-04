@@ -20,7 +20,7 @@ object HeaderNames extends HeaderNames
 
 @deprecated("please use Actions", "24.10.13")
 trait ActionWrappers
-  extends MicroServices
+  extends Connectors
   with Actions  {
 
   override def regimeRoots(authority: UserAuthority): RegimeRoots = {
@@ -28,7 +28,7 @@ trait ActionWrappers
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map {
-        uri => payeMicroService.root(uri.toString)
+        uri => payeConnector.root(uri.toString)
       },
       sa = regimes.sa map {
         uri => SaRoot(authority.saUtr.get, saConnector.root(uri.toString))
@@ -43,7 +43,7 @@ trait ActionWrappers
         uri => CtRoot(authority.ctUtr.get, ctConnector.root(uri.toString))
       },
       agent = regimes.agent.map {
-        uri => agentMicroServiceRoot.root(uri.toString)
+        uri => agentConnectorRoot.root(uri.toString)
       }
     )
   }

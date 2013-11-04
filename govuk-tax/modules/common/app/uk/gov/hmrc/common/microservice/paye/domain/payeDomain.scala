@@ -2,12 +2,13 @@ package uk.gov.hmrc.common.microservice.paye.domain
 
 import org.joda.time.{DateTimeZone, DateTime, LocalDate}
 import org.joda.time.format.DateTimeFormat
-import controllers.common.{Ida, AuthenticationType, routes}
-import uk.gov.hmrc.common.microservice.paye.PayeMicroService
+import controllers.common.{Ida, routes}
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.microservice.txqueue.{TxQueueTransaction, TxQueueMicroService}
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
 object PayeRegime extends TaxRegime {
 
@@ -36,49 +37,49 @@ case class PayeRoot(nino: String,
 
   def currentDate = new DateTime(DateTimeZone.UTC)
 
-  def fetchTaxYearData(taxYear: Int)(implicit payeMicroService: PayeMicroService, txQueueMicroservice: TxQueueMicroService) = PayeRootData(
+  def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector) = PayeRootData(
     fetchRecentAcceptedTransactions,
     fetchRecentCompletedTransactions,
     fetchBenefits(taxYear),
     fetchEmployments(taxYear))
 
-  def fetchTaxCodes(taxYear: Int)(implicit payeMicroService: PayeMicroService) =
+  def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector) =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-  def fetchBenefits(taxYear: Int)(implicit payeMicroService: PayeMicroService) : Seq[Benefit] =
+  def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector) : Seq[Benefit] =
     valuesForTaxYear[Benefit](resource = "benefits", taxYear = taxYear)
 
-  def fetchEmployments(taxYear: Int)(implicit payeMicroService: PayeMicroService) : Seq[Employment] =
+  def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector) : Seq[Employment] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
-  def fetchRecentAcceptedTransactions()(implicit txQueueMicroService: TxQueueMicroService) : Seq[TxQueueTransaction] = {
+  def fetchRecentAcceptedTransactions()(implicit txQueueConnector: TxQueueConnector) : Seq[TxQueueTransaction] = {
     transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
   }
 
-  def fetchRecentCompletedTransactions()(implicit txQueueMicroService: TxQueueMicroService) : Seq[TxQueueTransaction]  = {
+  def fetchRecentCompletedTransactions()(implicit txQueueConnector: TxQueueConnector) : Seq[TxQueueTransaction]  = {
     transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
   }
 
   def addBenefitLink(taxYear: Int) : Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
 
-  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueMicroService: TxQueueMicroService): Seq[TxQueueTransaction] =
+  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueConnector: TxQueueConnector): Seq[TxQueueTransaction] =
     transactionLinks.get(status) match {
       case Some(uri) =>
         val uri = transactionLinks(status).replace("{from}", date.toString(dateFormat))
-        val tx = txQueueMicroService.transaction(uri)
+        val tx = txQueueConnector.transaction(uri)
         tx.getOrElse(Seq.empty)
       case _ =>
         Seq.empty[TxQueueTransaction]
     }
 
-  private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Seq[T] =
+  private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T]): Seq[T] =
     links.get(resource) match {
       case Some(uri) => resourceFor[Seq[T]](uri.replace("{taxYear}", taxYear.toString)).getOrElse(Seq.empty)
       case _ => Seq.empty
     }
 
-  private def resourceFor[T](uri: String)(implicit payeMicroService: PayeMicroService, m: Manifest[T]): Option[T] =
-    payeMicroService.linkedResource[T](uri)
+  private def resourceFor[T](uri: String)(implicit payeConnector: PayeConnector, m: Manifest[T]): Option[T] =
+    payeConnector.linkedResource[T](uri)
 }
 
 case class PayeRootData(acceptedTransactions: Seq[TxQueueTransaction], completedTransactions: Seq[TxQueueTransaction],

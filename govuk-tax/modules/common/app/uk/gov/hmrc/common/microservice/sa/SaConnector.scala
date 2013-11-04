@@ -1,13 +1,13 @@
 package uk.gov.hmrc.common.microservice.sa
 
-import uk.gov.hmrc.microservice.{ MicroService, MicroServiceConfig }
+import uk.gov.hmrc.microservice.{ Connector, MicroServiceConfig }
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, SaPerson, SaJsonRoot}
 
-class SaConnector extends MicroService {
+class SaConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.saServiceUrl
 

@@ -1,9 +1,9 @@
 package uk.gov.hmrc.common.microservice.vat
 
-import uk.gov.hmrc.microservice.{MicroService, MicroServiceConfig}
+import uk.gov.hmrc.microservice.{Connector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatJsonRoot}
 
-class VatConnector extends MicroService {
+class VatConnector extends Connector {
 
   val serviceUrl = MicroServiceConfig.vatServiceUrl
 

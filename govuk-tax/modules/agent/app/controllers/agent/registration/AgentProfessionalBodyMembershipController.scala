@@ -10,21 +10,21 @@ import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.{Ida, BaseController2, Actions}
 import controllers.common.validators.Validators
 import controllers.common.actions.MultiFormWrapper
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import controllers.common.service.Connectors
 
-class AgentProfessionalBodyMembershipController(override val auditMicroService: AuditMicroService,
-                                                override val keyStoreMicroService: KeyStoreMicroService)
-                                               (implicit override val authMicroService: AuthMicroService)
+class AgentProfessionalBodyMembershipController(override val auditConnector: AuditConnector,
+                                                override val keyStoreConnector: KeyStoreConnector)
+                                               (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with AgentController
   with Validators
   with MultiFormWrapper {
 
-  def this() = this(MicroServices.auditMicroService, MicroServices.keyStoreMicroService)(MicroServices.authMicroService)
+  def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
 
   private val professionalBodyMembershipForm = Form[AgentProfessionalBodyMembership](
     mapping(
@@ -67,7 +67,7 @@ class AgentProfessionalBodyMembershipController(override val auditMicroService: 
       },
       _ => {
         val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest()(request).data
-        keyStoreMicroService.addKeyStoreEntry(registrationId(user), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership)
+        keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership)
         Redirect(routes.AgentThankYouController.thankYou())
       }
     )

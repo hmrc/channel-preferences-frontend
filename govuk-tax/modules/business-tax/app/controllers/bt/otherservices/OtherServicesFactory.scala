@@ -2,12 +2,12 @@ package controllers.bt.otherservices
 
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import views.helpers.{HrefKey, LinkMessage, RenderableLinkMessage}
-import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayMicroService
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnector
 import uk.gov.hmrc.common.AffinityGroupParser
 import play.api.mvc.Request
 
 
-class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicroService) extends AffinityGroupParser {
+class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnector) extends AffinityGroupParser {
 
   private val hmrcWebsiteLinkText = "HMRC website"
 
@@ -15,7 +15,7 @@ class OtherServicesFactory(governmentGatewayMicroService: GovernmentGatewayMicro
     import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
     import ManageYourTaxesConf._
 
-    val profile = governmentGatewayMicroService.profile(user.userId).getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
+    val profile = governmentGatewayConnector.profile(user.userId).getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
     val affinityGroup = parseAffinityGroup
     affinityGroup match {
       case INDIVIDUAL => {

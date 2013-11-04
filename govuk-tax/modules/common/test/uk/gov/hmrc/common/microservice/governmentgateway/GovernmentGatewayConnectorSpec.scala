@@ -9,7 +9,7 @@ import scala.Some
 import play.api.libs.json._
 import uk.gov.hmrc.utils.DateTimeUtils
 
-class TestGovernmentGatewayMicroService extends GovernmentGatewayMicroService with MockitoSugar {
+class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
@@ -28,9 +28,9 @@ class TestGovernmentGatewayMicroService extends GovernmentGatewayMicroService wi
 
 }
 
-class GovernmentGatewayMicroServiceSpec extends BaseSpec with MockitoSugar {
+class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar {
 
-  lazy val service = new TestGovernmentGatewayMicroService
+  lazy val service = new TestGovernmentGatewayConnector
 
   "login endpoint" should {
 

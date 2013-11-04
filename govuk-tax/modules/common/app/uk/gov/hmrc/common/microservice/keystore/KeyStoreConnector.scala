@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.keystore
 
-import uk.gov.hmrc.microservice.{ MicroServiceConfig, MicroService }
+import uk.gov.hmrc.microservice.{ MicroServiceConfig, Connector }
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import org.joda.time.DateTime
@@ -11,7 +11,7 @@ case class KeyStore[T](id: String, dateCreated: DateTime, dateUpdated: DateTime,
   }
 }
 
-class KeyStoreMicroService(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends MicroService {
+class KeyStoreConnector(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends Connector {
 
   def addKeyStoreEntry[T](id: String, source: String, key: String, data: T)(implicit manifest: Manifest[T]) {
     val uri = buildUri(id, source) + s"/data/${key}"

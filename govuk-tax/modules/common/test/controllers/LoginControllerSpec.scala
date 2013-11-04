@@ -1,11 +1,11 @@
 package controllers
 
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.saml.SamlMicroService
+import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import org.mockito.Mockito._
 import play.api.test.{ WithApplication, FakeRequest }
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.governmentgateway.{GatewayToken, GovernmentGatewayMicroService, GovernmentGatewayResponse, Credentials}
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.governmentgateway.{GatewayToken, GovernmentGatewayConnector, GovernmentGatewayResponse, Credentials}
 import play.api.http._
 import controllers.common._
 import uk.gov.hmrc.common.BaseSpec
@@ -25,16 +25,16 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   import play.api.test.Helpers._
 
   abstract class WithSetup(additionalConfiguration: Map[String, _] = Map.empty) extends WithApplication(FakeApplication(additionalConfiguration = additionalConfiguration)) {
-    lazy val mockSamlMicroService = mock[SamlMicroService]
-    lazy val mockAuthMicroService = mock[AuthMicroService]
-    lazy val mockGovernmentGatewayMicroService = mock[GovernmentGatewayMicroService]
+    lazy val mockSamlConnector = mock[SamlConnector]
+    lazy val mockAuthConnector = mock[AuthConnector]
+    lazy val mockGovernmentGatewayConnector = mock[GovernmentGatewayConnector]
     lazy val mockBusinessTaxPages = mock[BusinessTaxPages]
 
-    when(mockSamlMicroService.create).thenReturn(
+    when(mockSamlConnector.create).thenReturn(
       AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
     )
 
-    lazy val loginController = new LoginController(mockSamlMicroService, mockGovernmentGatewayMicroService, null)(mockAuthMicroService){
+    lazy val loginController = new LoginController(mockSamlConnector, mockGovernmentGatewayConnector, null)(mockAuthConnector){
 
       override def notOnBusinessTaxWhitelistPage = {
         Html(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage)
@@ -86,13 +86,13 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "redirect to the home page if the response is valid and not registering an agent" in new WithSetup {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
+      when(mockSamlConnector.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-      when(mockAuthMicroService.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(Some(UserAuthority(id, Regimes(), None)))
+      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
-      verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
+      verify(mockAuthConnector).authorityByPidAndUpdateLoginTime(hashPid)
 
       status(result) shouldBe(303)
       redirectLocation(result).get shouldBe FrontEndRedirect.payeHome
@@ -103,13 +103,13 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "redirect to the agent contact details if it s registering an agent" in new WithSetup {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
+      when(mockSamlConnector.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-      when(mockAuthMicroService.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(Some(UserAuthority(id, Regimes(), None)))
+      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(Some(UserAuthority(id, Regimes(), None)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("login_redirect" -> "/agent/home"))
 
-      verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
+      verify(mockAuthConnector).authorityByPidAndUpdateLoginTime(hashPid)
 
       status(result) shouldBe 303
 
@@ -136,7 +136,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "return Unauthorised if the saml response fails validation" in new WithSetup {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = false, None, Some(originalRequestId)))
+      when(mockSamlConnector.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = false, None, Some(originalRequestId)))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
@@ -146,13 +146,13 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "return Unauthorised if there is no Authority record matching the hash pid" in new WithSetup {
 
-      when(mockSamlMicroService.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
+      when(mockSamlConnector.validate(samlResponse)).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-      when(mockAuthMicroService.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(None)
+      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(None)
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
-      verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
+      verify(mockAuthConnector).authorityByPidAndUpdateLoginTime(hashPid)
 
       status(result) shouldBe 401
       contentAsString(result) should include("Login error")
@@ -194,7 +194,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should not include "Invalid Password"
 
       session(result).get("userId") shouldBe None
-      verifyZeroInteractions(mockGovernmentGatewayMicroService)
+      verifyZeroInteractions(mockGovernmentGatewayConnector)
     }
 
     "not be able to log in and should return to the login form with an error message if he submits an empty Government Gateway password" in new WithSetup {
@@ -207,14 +207,14 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should not include "Invalid User ID"
 
       session(result).get("userId") shouldBe None
-      verifyZeroInteractions(mockGovernmentGatewayMicroService)
+      verifyZeroInteractions(mockGovernmentGatewayConnector)
 
     }
 
     "not be able to log in and should return to the login form with an error message on submitting invalid Government Gateway credentials" in new WithSetup {
 
       val mockResponse = mock[Response]
-      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(UnauthorizedException("Unauthenticated request", mockResponse))
+      when(mockGovernmentGatewayConnector.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(UnauthorizedException("Unauthenticated request", mockResponse))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
@@ -228,7 +228,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "not be able to log in and should return to the login form with an error message on submitting valid Government Gateway credentials but not on the whitelist" in new WithSetup {
 
       val mockResponse = mock[Response]
-      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(ForbiddenException("Not authorised to make this request", mockResponse))
+      when(mockGovernmentGatewayConnector.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenThrow(ForbiddenException("Not authorised to make this request", mockResponse))
       when(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage).thenReturn("<html>NOT IN WHITELIST</html>")
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
@@ -240,7 +240,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name" in new WithSetup {
 
-      when(mockGovernmentGatewayMicroService.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, geoff.affinityGroup, geoff.encodedGovernmentGatewayToken))
+      when(mockGovernmentGatewayConnector.login(Credentials(geoff.governmentGatewayUserId, geoff.password))).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, geoff.affinityGroup, geoff.encodedGovernmentGatewayToken))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 

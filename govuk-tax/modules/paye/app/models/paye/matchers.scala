@@ -1,7 +1,7 @@
 package models.paye
 
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 
 object matchers {
 

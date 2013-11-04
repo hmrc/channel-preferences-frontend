@@ -5,10 +5,10 @@ import controllers.common.domain.Transform._
 import uk.gov.hmrc.domain.Uar
 import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.MicroServiceException
-import uk.gov.hmrc.common.microservice.agent.AgentMicroServiceRoot
+import uk.gov.hmrc.common.microservice.agent.AgentConnectorRoot
 import models.agent.{Client, MatchingPerson, SearchRequest, AgentRegistrationRequest}
 
-class AgentMicroService extends AgentMicroServiceRoot {
+class AgentConnector extends AgentConnectorRoot {
 
   def create(nino: String, newAgent: AgentRegistrationRequest): Uar = {
     val uar = httpPost[Uar](s"/agent/register/nino/$nino", Json.parse(toRequestBody(newAgent)))
@@ -26,11 +26,6 @@ class AgentMicroService extends AgentMicroServiceRoot {
   }
 }
 
-object AgentMicroService {
-  def apply() = new AgentMicroService()
+object AgentConnector {
+  def apply() = new AgentConnector()
 }
-
-//trait AgentMicroServices {
-//
-//  implicit lazy val agentMicroService = new AgentMicroService()
-//}

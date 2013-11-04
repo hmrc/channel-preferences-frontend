@@ -228,11 +228,11 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
         affinityGroup = AffinityGroup(AGENT),
         activeEnrolments = Set.empty))
 
-      when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(expectedResponse)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
 
       val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
 
-      verify(mockGovernmentGatewayMicroService).profile("userId")
+      verify(mockGovernmentGatewayConnector).profile("userId")
 
       result shouldBe None
     }
@@ -242,14 +242,14 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
       implicit val request = FakeRequest()
 
-      when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(None)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(None)
       when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(INDIVIDUAL)
 
       intercept[RuntimeException] {
         factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
       }
 
-      verify(mockGovernmentGatewayMicroService).profile("userId")
+      verify(mockGovernmentGatewayConnector).profile("userId")
 
     }
 
@@ -286,11 +286,11 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
         )
       )
 
-      when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(expectedResponse)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
 
       val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
 
-      verify(mockGovernmentGatewayMicroService).profile("userId")
+      verify(mockGovernmentGatewayConnector).profile("userId")
 
       result shouldBe expectedResult
     }
@@ -351,11 +351,11 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
         )
       )
 
-      when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(expectedResponse)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
 
       val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
 
-      verify(mockGovernmentGatewayMicroService).profile("userId")
+      verify(mockGovernmentGatewayConnector).profile("userId")
 
       result shouldBe expectedResult
     }
@@ -368,7 +368,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       val expectedResponse = Some(ProfileResponse(
         affinityGroup = AffinityGroup(INDIVIDUAL),
         activeEnrolments = Set.empty))
-      when(mockGovernmentGatewayMicroService.profile("userId")).thenReturn(expectedResponse)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
       when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new InternalError)
 
       intercept[InternalError] {
@@ -404,7 +404,7 @@ abstract class OtherServicesFactoryForTest
 
   val hmrcWebsiteLinkText = "HMRC website"
 
-  val factoryUnderTest = new OtherServicesFactory(mockGovernmentGatewayMicroService) with PortalUrlBuilderMock with MockedAffinityGroupParser
+  val factoryUnderTest = new OtherServicesFactory(mockGovernmentGatewayConnector) with PortalUrlBuilderMock with MockedAffinityGroupParser
 
   def assertCorrectBusinessTaxRegistration(expectedLink: String, linkMessage: String)(implicit user: User) {
     def linkObj = Some(RenderableLinkMessage(LinkMessage(href = expectedLink, text = linkMessage, newWindow = false, sso = true)))

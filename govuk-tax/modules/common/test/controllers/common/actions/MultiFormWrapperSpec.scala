@@ -8,9 +8,9 @@ import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
 import concurrent.Future
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
-sealed class MultiFormSpecController(override val keyStoreMicroService: KeyStoreMicroService)
+sealed class MultiFormSpecController(override val keyStoreConnector: KeyStoreConnector)
   extends Controller 
   with MultiFormWrapper 
   with MockitoSugar {
@@ -68,10 +68,10 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
 
     "redirect to step1 when keystore does not exist and user attempts to go to step3" in new WithApplication(FakeApplication()) {
       val user: User = mock[User]
-      val keyStoreMicroService = mock[KeyStoreMicroService]
-      val controller = new MultiFormSpecController(keyStoreMicroService)
+      val keyStoreConnector = mock[KeyStoreConnector]
+      val controller = new MultiFormSpecController(keyStoreConnector)
       
-      when(keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(None)
+      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(None)
       when(controller.call1.url).thenReturn("/step1")
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
@@ -81,10 +81,10 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
 
     "allow access to step1 when user tries to access it for the first time and key store does not exist" in new WithApplication(FakeApplication()) {
       val user: User = mock[User]
-      val keyStoreMicroService = mock[KeyStoreMicroService]
-      val controller = new MultiFormSpecController(keyStoreMicroService)
+      val keyStoreConnector = mock[KeyStoreConnector]
+      val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(None)
+      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(None)
 
       val result = Future.successful(controller.testHomePage()(user)(FakeRequest()))
       status(result) should be(200)
@@ -94,10 +94,10 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
     "redirect to step1 when keystore exists but the data keys set is empty" in new WithApplication(FakeApplication()) {
 
       val user: User = mock[User]
-      val keyStoreMicroService = mock[KeyStoreMicroService]
-      val controller = new MultiFormSpecController(keyStoreMicroService)
+      val keyStoreConnector = mock[KeyStoreConnector]
+      val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set.empty[String]))
+      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(Some(Set.empty[String]))
       when(controller.call1.url).thenReturn("/step1")
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
@@ -108,10 +108,10 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
     "go to step3 when keystore exists and the previous steps were completed" in new WithApplication(FakeApplication()) {
 
       val user: User = mock[User]
-      val keyStoreMicroService = mock[KeyStoreMicroService]
-      val controller = new MultiFormSpecController(keyStoreMicroService)
+      val keyStoreConnector = mock[KeyStoreConnector]
+      val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set("step1", "step2")))
+      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(Some(Set("step1", "step2")))
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
       status(result) should be(200)
@@ -121,10 +121,10 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
     "redirect to step2 when trying to go to step3 and in keystore only step1 was completed" in new WithApplication(FakeApplication()) {
 
       val user: User = mock[User]
-      val keyStoreMicroService = mock[KeyStoreMicroService]
-      val controller = new MultiFormSpecController(keyStoreMicroService)
+      val keyStoreConnector = mock[KeyStoreConnector]
+      val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreMicroService.getDataKeys("userId", "source")).thenReturn(Some(Set("step1")))
+      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(Some(Set("step1")))
       when(controller.call2.url).thenReturn("/step2")
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))

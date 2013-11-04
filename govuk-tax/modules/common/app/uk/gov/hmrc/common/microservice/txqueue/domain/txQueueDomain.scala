@@ -1,4 +1,4 @@
-package uk.gov.hmrc.microservice.txqueue
+package uk.gov.hmrc.common.microservice.txqueue.domain
 
 import java.net.{ URL, URI }
 import org.joda.time.DateTime

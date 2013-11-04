@@ -3,7 +3,7 @@ package controllers.common
 import play.api.mvc._
 import controllers.common.actions.{UserActionWrapper, AuditActionWrapper}
 import uk.gov.hmrc.common.microservice.domain._
-import controllers.common.service.MicroServices
+import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
@@ -52,7 +52,7 @@ trait Actions
 
 trait ServiceRoots {
 
-  import MicroServices._
+  import Connectors._
 
   /**
    * NOTE: THE DEFAULT IMPLEMENTATION WILL BE REMOVED SHORTLY
@@ -61,7 +61,7 @@ trait ServiceRoots {
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map {
-        uri => payeMicroService.root(uri.toString)
+        uri => payeConnector.root(uri.toString)
       },
       sa = regimes.sa map {
         uri => SaRoot(authority.saUtr.get, saConnector.root(uri.toString))
@@ -76,7 +76,7 @@ trait ServiceRoots {
         uri => CtRoot(authority.ctUtr.get, ctConnector.root(uri.toString))
       },
       agent = regimes.agent.map {
-        uri => agentMicroServiceRoot.root(uri.toString)
+        uri => agentConnectorRoot.root(uri.toString)
       }
     )
   }

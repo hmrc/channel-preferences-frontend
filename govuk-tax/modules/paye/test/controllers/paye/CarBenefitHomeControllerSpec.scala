@@ -11,36 +11,35 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatest.TestData
 import uk.gov.hmrc.utils.DateConverter
-import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import controllers.DateFieldsHelper
 import java.net.URI
-import uk.gov.hmrc.microservice.txqueue
 import concurrent.Future
-import txqueue.{TxQueueTransaction, TxQueueMicroService}
-import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
+import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
-  val mockPayeMicroService = mock[PayeMicroService]
-  val mockTxQueueMicroService = mock[TxQueueMicroService]
-  val mockAuditMicroService = mock[AuditMicroService]
-  val mockAuthMicroService = mock[AuthMicroService]
+  val mockPayeConnector = mock[PayeConnector]
+  val mockTxQueueConnector = mock[TxQueueConnector]
+  val mockAuditConnector = mock[AuditConnector]
+  val mockAuthConnector = mock[AuthConnector]
 
-  private lazy val controller = new CarBenefitHomeController(mockAuditMicroService, mockAuthMicroService)(mockPayeMicroService, mockTxQueueMicroService){
+  private lazy val controller = new CarBenefitHomeController(mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector){
     override def currentTaxYear = 2013
   }
 
   override protected def beforeEach(testData: TestData) {
     super.beforeEach(testData)
 
-    Mockito.reset(mockPayeMicroService)
-    Mockito.reset(mockTxQueueMicroService)
-    Mockito.reset(mockAuditMicroService)
-    Mockito.reset(mockAuthMicroService)
+    Mockito.reset(mockPayeConnector)
+    Mockito.reset(mockTxQueueConnector)
+    Mockito.reset(mockAuditConnector)
+    Mockito.reset(mockAuthConnector)
   }
 
   val removeFuelLinkId = "rmFuelLink"
@@ -247,18 +246,18 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
                                         acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
-    when(mockPayeMicroService.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
-    when(mockPayeMicroService.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
-    when(mockPayeMicroService.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
-    when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
-    when(mockTxQueueMicroService.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
+    when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
+    when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
+    when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
+    when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
+    when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
   }
 
   private def generateTransactionData(benefitType : Int, isCompletedTransaction : Boolean) : TxQueueTransaction = {
     val benefitTypes = Map(29 -> "fuel", 31 -> "car")
-    val acceptedStatus = txqueue.Status("ACCEPTED", None, DateTime.now())
-    val createdStatus = txqueue.Status("CREATED", None, DateTime.now())
-    val completedStatus = txqueue.Status("COMPLETED", None, DateTime.now())
+    val acceptedStatus = Status("ACCEPTED", None, DateTime.now())
+    val createdStatus = Status("CREATED", None, DateTime.now())
+    val completedStatus = Status("COMPLETED", None, DateTime.now())
 
     val statusList = if (isCompletedTransaction)
       List(completedStatus, acceptedStatus, createdStatus)

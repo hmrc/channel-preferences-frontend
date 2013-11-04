@@ -2,23 +2,23 @@ package controllers.common
 
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayMicroService, SsoLoginRequest}
-import service.{ FrontEndConfig, SsoWhiteListService, MicroServices }
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, SsoLoginRequest}
+import service.{ FrontEndConfig, SsoWhiteListService, Connectors }
 import play.api.Logger
 import play.api.libs.json.Json
 import java.net.{ MalformedURLException, URISyntaxException, URI }
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 class SsoInController(ssoWhiteListService : SsoWhiteListService,
-                      governmentGatewayMicroService : GovernmentGatewayMicroService,
-                      override val auditMicroService: AuditMicroService)
-                     (implicit override val authMicroService: AuthMicroService)
+                      governmentGatewayConnector : GovernmentGatewayConnector,
+                      override val auditConnector: AuditConnector)
+                     (implicit override val authConnector: AuthConnector)
   extends BaseController2
   with Actions
   with SessionTimeoutWrapper {
 
-  def this() = this(new SsoWhiteListService(FrontEndConfig.domainWhiteList), MicroServices.governmentGatewayMicroService, MicroServices.auditMicroService)(MicroServices.authMicroService)
+  def this() = this(new SsoWhiteListService(FrontEndConfig.domainWhiteList), Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   def in = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
@@ -36,7 +36,7 @@ class SsoInController(ssoWhiteListService : SsoWhiteListService,
         case true => {
           val tokenRequest = SsoLoginRequest(token, time)
           try {
-            val response = governmentGatewayMicroService.ssoLogin(tokenRequest)
+            val response = governmentGatewayConnector.ssoLogin(tokenRequest)
             Logger.debug(s"successfully authenticated: $response.name")
             Redirect(dest.get).withSession(
               "userId" -> encrypt(response.authId),

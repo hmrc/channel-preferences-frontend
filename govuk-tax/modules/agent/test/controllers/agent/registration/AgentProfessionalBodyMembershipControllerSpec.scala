@@ -11,7 +11,7 @@ import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.keystore.{KeyStoreMicroService, KeyStore}
+import uk.gov.hmrc.common.microservice.keystore.{KeyStoreConnector, KeyStore}
 import play.api.test.FakeApplication
 import scala.Some
 import controllers.agent.registration.AgentProfessionalBodyMembershipFormFields._
@@ -28,12 +28,12 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
 
   val mockKeyStore = mock[KeyStore[String]]
 
-  val keyStoreMicroService = mock[KeyStoreMicroService]
+  val keyStoreConnector = mock[KeyStoreConnector]
 
-  private val controller = new AgentProfessionalBodyMembershipController(null, keyStoreMicroService)(null)
+  private val controller = new AgentProfessionalBodyMembershipController(null, keyStoreConnector)(null)
 
   override protected def beforeEach(testData: TestData): Unit = {
-    reset(keyStoreMicroService)
+    reset(keyStoreConnector)
   }
 
   "AgentProfessionalMembershipController" should {
@@ -42,28 +42,28 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "")))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify a membership number for your professional body")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if professional body is specified but membership number is blank" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "   ")))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify a membership number for your professional body")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if professional body is invalid" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("sad", "")))
       status(result) shouldBe 400
       contentAsString(result) should include("Please select a valid option")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "not go to the next step if membership number is specified but not the professional body" in new WithApplication(FakeApplication()) {
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", "asdsafd")))
       status(result) shouldBe 400
       contentAsString(result) should include("You must specify which professional body you belong to")
-      verifyZeroInteractions(controller.keyStoreMicroService)
+      verifyZeroInteractions(controller.keyStoreConnector)
     }
 
     "go to the next step if no input data is entered" in new WithApplication(FakeApplication()) {
@@ -71,7 +71,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", "")))
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/thank-you")
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(
+      verify(controller.keyStoreConnector).addKeyStoreEntry(
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),
@@ -87,7 +87,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data")))
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/thank-you")
-      verify(controller.keyStoreMicroService).addKeyStoreEntry(
+      verify(controller.keyStoreConnector).addKeyStoreEntry(
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),

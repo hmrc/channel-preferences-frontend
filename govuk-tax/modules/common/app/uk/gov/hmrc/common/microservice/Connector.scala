@@ -13,7 +13,7 @@ import play.api.libs.json.JsValue
 import org.slf4j.MDC
 import controllers.common.HeaderNames
 
-trait TaxRegimeMicroService[A <: RegimeRoot[_]] extends MicroService {
+trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 
   def linkedResource[T](uri: String)(implicit m: Manifest[T]) = {
     Logger.debug(s"Loading linked resource uri: $uri")
@@ -21,7 +21,7 @@ trait TaxRegimeMicroService[A <: RegimeRoot[_]] extends MicroService {
   }
 }
 
-trait MicroService extends Status with HeaderNames {
+trait Connector extends Status with HeaderNames {
 
   import collection.JavaConversions._
   import MicroServiceConfig.defaultTimeoutDuration

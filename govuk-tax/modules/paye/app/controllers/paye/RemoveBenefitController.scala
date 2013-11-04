@@ -14,14 +14,13 @@ import scala.collection.mutable
 import controllers.paye.validation.RemoveBenefitValidator._
 import org.joda.time.format.DateTimeFormat
 import views.formatting.Dates
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreMicroService
-import uk.gov.hmrc.common.microservice.paye.PayeMicroService
-import controllers.common.service.MicroServices
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import controllers.common.service.Connectors
 import play.api.Logger
 import config.DateTimeProvider
-import uk.gov.hmrc.microservice.txqueue.TxQueueMicroService
-import uk.gov.hmrc.common.microservice.auth.AuthMicroService
-import uk.gov.hmrc.common.microservice.audit.AuditMicroService
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import models.paye.BenefitUpdatedConfirmationData
 import scala.Some
 import models.paye.BenefitInfo
@@ -31,15 +30,16 @@ import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.CarFuelBenefitDates
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import models.paye.RemoveBenefitFormData
+import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
-class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override val authMicroService : AuthMicroService, override val auditMicroService : AuditMicroService)(implicit payeMicroService: PayeMicroService, txQueueMicroService : TxQueueMicroService) extends BaseController2
+class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector : AuthConnector, override val auditConnector : AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector : TxQueueConnector) extends BaseController2
   with Actions
   with SessionTimeoutWrapper
   with Benefits
   with TaxYearSupport
   with DateTimeProvider {
 
-  def this() = this(MicroServices.keyStoreMicroService, MicroServices.authMicroService, MicroServices.auditMicroService)(MicroServices.payeMicroService, MicroServices.txQueueMicroService)
+  def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
     user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
@@ -146,7 +146,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
   private final val dateRegex = """(\d\d\d\d-\d\d-\d\d)""".r
 
   private def getStartDate(benefit: Benefit): LocalDate = {
-    val pathIncludingStartDate = benefit.calculations.get(payeMicroService.calculationWithdrawKey()).getOrElse("")
+    val pathIncludingStartDate = benefit.calculations.get(payeConnector.calculationWithdrawKey()).getOrElse("")
 
     val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) map {dateFormat.parseLocalDate(_)}
 
@@ -170,7 +170,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
             val revisedBenefits = displayBenefit.benefits.map(b => RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
               throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
 
-            val removeBenefitResponse = payeMicroService.removeBenefits(uri, payeRoot.version, revisedBenefits, formData.withdrawDate).get
+            val removeBenefitResponse = payeConnector.removeBenefits(uri, payeRoot.version, revisedBenefits, formData.withdrawDate).get
             Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString,
               displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
               removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
@@ -183,7 +183,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
     play.api.mvc.SimpleResult = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) =>
-    if (txQueueMicroService.transaction(oid, user.regimes.paye.get).isEmpty) {
+    if (txQueueConnector.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
       keyStoreService.deleteKeyStore(user.oid, "paye_ui")
@@ -227,7 +227,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreMicroService, override va
   }
 
   private def calculateRevisedAmount(benefit: Benefit, withdrawDate: LocalDate): BigDecimal = {
-    val calculationResult = payeMicroService.calculateWithdrawBenefit(benefit, withdrawDate)
+    val calculationResult = payeConnector.calculateWithdrawBenefit(benefit, withdrawDate)
     calculationResult.result(benefit.taxYear.toString)
   }
 

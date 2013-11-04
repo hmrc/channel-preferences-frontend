@@ -4,7 +4,7 @@ import controllers.bt.otherservices.{OtherServicesFactory, OtherServicesSummary}
 import controllers.common.{Actions, GovernmentGateway, BaseController}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.service.MicroServices
+import controllers.common.service.Connectors
 import play.api.mvc.Request
 
 
@@ -13,7 +13,7 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory)
   with Actions
   with PortalUrlBuilder {
 
-  def this() = this(new OtherServicesFactory(MicroServices.governmentGatewayMicroService))
+  def this() = this(new OtherServicesFactory(Connectors.governmentGatewayConnector))
 
   def otherServices = ActionAuthorisedBy(GovernmentGateway)() {
     user => request => otherServicesPage(user, request)

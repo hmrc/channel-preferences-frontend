@@ -3,9 +3,9 @@ package models.paye
 import org.joda.time.{ DateTime, LocalDate }
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import uk.gov.hmrc.common.microservice.paye.domain.Car
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 
 object BenefitTypes {
 

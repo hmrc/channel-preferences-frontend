@@ -3,7 +3,7 @@ package controllers
 import common.service.SsoWhiteListService
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeRequest, WithApplication}
-import uk.gov.hmrc.common.microservice.governmentgateway.{GatewayToken, GovernmentGatewayMicroService, GovernmentGatewayResponse, SsoLoginRequest}
+import uk.gov.hmrc.common.microservice.governmentgateway.{GatewayToken, GovernmentGatewayConnector, GovernmentGatewayResponse, SsoLoginRequest}
 import org.mockito.Mockito._
 import java.net.{URI, URLEncoder}
 import uk.gov.hmrc.common.BaseSpec
@@ -18,7 +18,7 @@ import uk.gov.hmrc.utils.DateTimeUtils
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption with ScalaFutures {
 
-  private lazy val mockGovernmentGatewayService = mock[GovernmentGatewayMicroService]
+  private lazy val mockGovernmentGatewayService = mock[GovernmentGatewayConnector]
   private val mockSsoWhiteListService = mock[SsoWhiteListService]
   private val redirectUrl = "http://www.redirect-url.co.uk"
 

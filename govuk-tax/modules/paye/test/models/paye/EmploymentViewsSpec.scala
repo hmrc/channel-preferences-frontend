@@ -1,15 +1,13 @@
 package models.paye
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.paye.domain.{ TaxCode, Employment }
+import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import org.joda.time.{ DateTime, LocalDate }
-import uk.gov.hmrc.microservice.txqueue.{ Status, TxQueueTransaction }
 import java.net.URI
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
-import uk.gov.hmrc.microservice.txqueue.TxQueueTransaction
-import uk.gov.hmrc.microservice.txqueue.Status
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 
 class EmploymentViewsSpec extends BaseSpec {
 
