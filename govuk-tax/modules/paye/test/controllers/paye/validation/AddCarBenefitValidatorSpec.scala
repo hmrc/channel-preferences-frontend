@@ -159,10 +159,9 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "Please specify when your employer stopped paying for fuel.")
     }
 
-    "reject the date value for employer pays fuel if days unavailable is not blank" in new WithApplication(FakeApplication()) {
+    "accept the date value for employer pays fuel if days unavailable is not blank" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(numberOfDaysUnavailableVal = Some("3"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(employerPayFuel -> "date", numberOfDaysUnavailable -> "3"))
-      form.hasErrors shouldBe true
-      assertHasThisErrorMessage(form, employerPayFuel, "Unable to calculate fuel benefit when there is an interruption in car availability.Please contact call centre.")
+      form.hasErrors shouldBe false
     }
 
     "reject fuel withdrawn date if it is in previous tax year" in new WithApplication(FakeApplication()) {

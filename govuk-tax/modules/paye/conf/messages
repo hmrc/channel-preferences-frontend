@@ -32,7 +32,6 @@ error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity=If your fuel 
 error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity=If your fuel type is not electric or zero emissions, then you must select an engine capacity. No engine size does not apply to non-electric vehicles.
 error.paye.co2_figures_not_blank=You must provide a CO2 emissions figure, or select that the DVLA do not have one.
 error.paye.engine_capacity_must_not_be_blank_for_registered_before_98=If your car was registered with the DVLA before 1998, then you must provide an engine capacity.
-error.paye.employer_pay_fuel_must_not_have_days_unavailable=Unable to calculate fuel benefit when there is an interruption in car availability.Please contact call centre.
 error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date=Please specify when your employer stopped paying for fuel.
 error.paye.fuel_withdraw_date_must_be_after_car_start_date=Your fuel cannot end before you get the car.
 error.paye.fuel_withdraw_date_must_be_before_car_end_date=Your fuel cannot end after you gave back the car.
