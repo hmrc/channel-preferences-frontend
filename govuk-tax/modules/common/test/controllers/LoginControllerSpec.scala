@@ -51,9 +51,10 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   "Login controller GET /login" should {
     "forward to the login page" in new WithSetup {
       val result = loginController.login()(FakeRequest())
+      val redirectUrl  =  s"""href="${FrontEndRedirect.payeHome}""""
 
       status(result) should be(200)
-      contentAsString(result) should include("href=\"/samllogin\"")
+      contentAsString(result) should include(redirectUrl)
     }
   }
 
@@ -94,10 +95,10 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       verify(mockAuthMicroService).authorityByPidAndUpdateLoginTime(hashPid)
 
       status(result) shouldBe(303)
-      redirectLocation(result).get shouldBe("/paye/home")
+      redirectLocation(result).get shouldBe FrontEndRedirect.payeHome
 
       val sess = session(result)
-      decrypt(sess("userId")) shouldBe(id)
+      decrypt(sess("userId")) shouldBe id
     }
 
     "redirect to the agent contact details if it s registering an agent" in new WithSetup {

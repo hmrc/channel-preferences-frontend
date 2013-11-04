@@ -639,7 +639,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       verifyZeroInteractions(mockKeyStoreService)
 
       status(result) shouldBe 303
-      val expectedUri = routes.BenefitHomeController.listBenefits.url
+      val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
       redirectLocation(result) shouldBe  Some(expectedUri)
     }
 
@@ -655,7 +655,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       verifyZeroInteractions(mockKeyStoreService)
 
       status(result) shouldBe 303
-      val expectedUri = routes.BenefitHomeController.listBenefits.url
+      val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
       redirectLocation(result) shouldBe  Some(expectedUri)
     }
 
@@ -930,7 +930,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = Future.successful(controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 1))
       status(result) shouldBe 303
-      val expectedUri = routes.BenefitHomeController.listBenefits.url
+
+      val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
       redirectLocation(result) shouldBe  Some(expectedUri)
     }
 
@@ -939,7 +940,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = Future.successful(controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "30", 2013, 1))
       status(result) shouldBe 303
-      val expectedUri = routes.BenefitHomeController.listBenefits.url
+      val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
       redirectLocation(result) shouldBe  Some(expectedUri)
     }
 
@@ -948,7 +949,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = Future.successful(controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 3))
       status(result) shouldBe 303
-      val expectedUri = routes.BenefitHomeController.listBenefits.url
+      val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
       redirectLocation(result) shouldBe  Some(expectedUri)
     }
   }
