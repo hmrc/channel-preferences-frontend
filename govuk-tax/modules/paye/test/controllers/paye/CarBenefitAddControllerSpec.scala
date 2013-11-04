@@ -801,8 +801,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val carBenefitData = new CarBenefitData(providedFrom = Some(new LocalDate(taxYear, 7, 29)),
         carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
         giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = Some(new LocalDate(taxYear, 8, 30)) , listPrice = Some(1000),
-        employeeContributes = Some(true),
-        employeeContribution = Some(50),
+        employeeContributes = Some(false),
+        employeeContribution = None,
         employerContributes = Some(true),
         employerContribution = Some(999),
         fuelType = Some("diesel"),
@@ -817,7 +817,6 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
 
       result should haveStatus(200)
-
       verify(mockKeyStoreService).getEntry[CarBenefitDataAndCalculations](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -831,8 +830,8 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("[id~=providedTo]").select("[id~=month-8]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedTo]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
       doc.select("#listPrice").attr("value")  shouldBe "1000"
-      doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
-      doc.select("#employeeContribution").attr("value")  shouldBe "50"
+      doc.select("#employeeContributes-true").attr("checked") shouldBe empty
+      doc.select("#employeeContribution").attr("value")  shouldBe empty
       doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
       doc.select("#employerContribution").attr("value")  shouldBe "999"
 
