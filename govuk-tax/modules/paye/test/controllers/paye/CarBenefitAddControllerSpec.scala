@@ -1024,7 +1024,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         amountOfRelief = None,
         paymentOrBenefitDescription = None,
         dateWithdrawn = carBenefitData.dateFuelWithdrawn,
-        car = None,
+        car = Some(car),
         actions = Map.empty[String, String],
         calculations = Map.empty[String, String])
 

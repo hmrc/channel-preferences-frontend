@@ -1,7 +1,7 @@
 package controllers.paye.validation
 
 object EngineCapacity {
-  private val NOT_APPLICABLE = "none"
+  val NOT_APPLICABLE = "none"
   val engineCapacityOptions = Seq(NOT_APPLICABLE, "1400", "2000", "9999")
 
   def engineCapacityEmpty(valueOpt : Option[String]) : Boolean = {

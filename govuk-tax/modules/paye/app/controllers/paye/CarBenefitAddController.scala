@@ -255,9 +255,9 @@ object CarBenefits {
     val fuelBenefit = carBenefitData.employerPayFuel match {
         //benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int
       case Some(data) if data == "true" || data == "again" => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.providedTo, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = None, grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
+        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
       case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = None, grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
+        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
       case _ => None
     }
     Seq(Some(carBenefit), fuelBenefit).flatten
@@ -281,7 +281,7 @@ object CarBenefits {
   private def engineSize(engineCapacity: Option[String]) : Option[Int] = {
     engineCapacity match {
       // TODO: Investigate why keystore is returning a string value 'none' instead of an Option None value
-      case Some(engine) if(engine != "none") => Some(engine.toInt)
+      case Some(engine) if(engine != EngineCapacity.NOT_APPLICABLE) => Some(engine.toInt)
       case _ => None
     }
   }
