@@ -232,6 +232,22 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       removeBenefitTransactionLinkVisibilityTest(31, true, false, false)
     }
 
+    "show an add company car benefit link if no add car benefit transactions are pending " in new WithApplication(FakeApplication()) {
+//      val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction, addFuelTransaction, removedFuelTransactionForEmployment2)
+       //TODO HB and CP check what to do if remove car benefit transactions are pending
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById(addCarLinkId).text should include("add a company car")
+    }
+
+    "do not show an add company car benefit link if any add car benefit transactions are pending " in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(addCarTransaction), List.empty)
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById(addCarLinkId) shouldBe null
+    }
+
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
 
       val (employerName1, employerName2) = ("Johnson PLC", "Xylophone and Son Ltd")
