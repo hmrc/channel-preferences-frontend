@@ -23,7 +23,8 @@ object ApplicationBuild extends Build {
     Dependencies.Test.junit,
     Dependencies.Test.scalaTest,
     Dependencies.Test.mockito,
-    Dependencies.Test.jsoup
+    Dependencies.Test.jsoup,
+    Dependencies.Test.pegdown
   )
 
 
@@ -53,6 +54,6 @@ object Common {
       ),
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
-      testOptions in Test += Tests.Argument("-u", "target/test-reports")
+      testOptions in Test += Tests.Argument("-u", "target/test-reports", "-h", "target/test-reports/html-report")
     ) ++ playScalaSettings ++ Repositories.publishingSettings
 }
