@@ -5,11 +5,13 @@ import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import play.api.Play
 import play.api.Play.current
+import org.joda.time.{DateTimeZone, DateTime}
 
 case class AuditEvent(auditSource: String,
-  auditType: String,
-  tags: Map[String, String] = Map.empty,
-  detail: Map[String, String] = Map.empty)
+                      auditType: String,
+                      tags: Map[String, String] = Map.empty,
+                      detail: Map[String, String] = Map.empty,
+                      generatedAt: DateTime = DateTime.now.withZone(DateTimeZone.UTC))
 
 class AuditConnector(override val serviceUrl: String = MicroServiceConfig.auditServiceUrl) extends Connector {
 

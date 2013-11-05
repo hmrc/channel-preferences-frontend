@@ -73,7 +73,7 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
         val auditEvents = auditEventCaptor.getAllValues
         auditEvents.size should be(2)
 
-        inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail) =>
+        inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
           auditSource should be("frontend")
           auditType should be("Request")
           tags should contain(authorisation -> "/auth/oid/123123123")
@@ -95,7 +95,7 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
           detail should contain("userAgentString" -> "-")
         }
 
-        inside(auditEvents.get(1)) { case AuditEvent(auditSource, auditType, tags, detail) =>
+        inside(auditEvents.get(1)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
           auditSource should be("frontend")
           auditType should be("Response")
           tags should contain(authorisation -> "/auth/oid/123123123")
@@ -142,7 +142,7 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
         val auditEvents = auditEventCaptor.getAllValues
         auditEvents.size should be(2)
 
-        inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail) =>
+        inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
           detail should contain("formData" -> "[key1: {value1}, key2: {value2}, key3: <no values>, key4: <no values>]")
         }
       }
@@ -181,7 +181,7 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
 
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
-          inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail) =>
+          inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
             auditSource should be("frontend")
             auditType should be("Request")
             tags should contain(authorisation -> "/auth/oid/123123123")
@@ -204,7 +204,7 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
             detail should contain("userAgentString" -> "-")
           }
 
-          inside(auditEvents.get(1)) { case AuditEvent(auditSource, auditType, tags, detail) =>
+          inside(auditEvents.get(1)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
             auditSource should be("frontend")
             auditType should be("Response")
             tags should contain(authorisation -> "/auth/oid/123123123")
