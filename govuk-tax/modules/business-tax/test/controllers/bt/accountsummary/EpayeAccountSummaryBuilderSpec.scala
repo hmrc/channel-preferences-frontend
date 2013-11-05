@@ -121,17 +121,24 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     "build the correct account summary model when there is no RTI and Non-RTI account summary data" in {
       val accountSummary = EpayeAccountSummary()
 
-      val unableToDisplayAccountInfoMessage =Msg (epayeSummaryUnavailableErrorMessage)
-      val expectedMessages = Seq(empRefMessageString, unableToDisplayAccountInfoMessage)
+      val unableToDisplayAccountInfoMessages = Seq(Msg(epayeSummaryUnavailableErrorMessage1),
+                                                   Msg(epayeSummaryUnavailableErrorMessage2),
+                                                   Msg(epayeSummaryUnavailableErrorMessage3),
+                                                   Msg(epayeSummaryUnavailableErrorMessage4))
 
-      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
+      val expectedMessages = empRefMessageString +: unableToDisplayAccountInfoMessages
+
+      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Success(Some(accountSummary)), expectedMessages, Seq.empty)
     }
 
     "build the correct account summary model if no summary is returned from the service (e.g. due to 404 or 500 from the REST call)" in {
 
-      val unableToDisplayAccountInfoMessage =Msg (epayeSummaryUnavailableErrorMessage)
-      val expectedMessages = Seq(empRefMessageString, unableToDisplayAccountInfoMessage)
-      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Success(None), expectedMessages, expectedNonRtiLinks)
+      val unableToDisplayAccountInfoMessages = Seq(Msg(epayeSummaryUnavailableErrorMessage1),
+                                                   Msg(epayeSummaryUnavailableErrorMessage2),
+                                                   Msg(epayeSummaryUnavailableErrorMessage3),
+                                                   Msg(epayeSummaryUnavailableErrorMessage4))
+      val expectedMessages = empRefMessageString +: unableToDisplayAccountInfoMessages
+      testEpayeAccountSummaryBuilder("epaye.regimeName.unknown", Success(None), expectedMessages, Seq.empty)
     }
 
 //    "return the oops summary if there is an exception when requesting the root" in {

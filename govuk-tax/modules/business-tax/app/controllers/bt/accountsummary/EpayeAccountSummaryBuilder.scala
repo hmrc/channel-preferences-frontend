@@ -19,11 +19,6 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
 
     val links = createLinks(buildPortalUrl, accountSummary)
 
-      Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage),
-      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(fileAReturnLinkMessage)))
-
     AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
   }
 
@@ -32,42 +27,44 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
 
   private def regimeName(accountSummary: Option[EpayeAccountSummary]): String = {
     accountSummary match {
-      case Some(summary) if summary.rti.isDefined => epayeRtiRegimeNameMessage
-      case Some(summary) if summary.nonRti.isDefined => epayeNonRtiRegimeNameMessage
+      case Some(EpayeAccountSummary(Some(rti), None)) => epayeRtiRegimeNameMessage
+      case Some(EpayeAccountSummary(None, Some(nonRti))) => epayeNonRtiRegimeNameMessage
       case _ => epayeUnknownRegimeName
     }
   }
 
   private def messageStrategy(accountSummary: Option[EpayeAccountSummary]): () => Seq[Msg] = {
     accountSummary match {
-      case Some(summary) if summary.rti.isDefined => createMessages(summary.rti.get)
-      case Some(summary) if summary.nonRti.isDefined => createMessages(summary.nonRti.get)
+      case Some(EpayeAccountSummary(Some(rti), None)) => createMessages(rti)
+      case Some(EpayeAccountSummary(None, Some(nonRti))) => createMessages(nonRti)
       case _ => createNoInformationMessage
     }
   }
 
-  private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]) : Seq[RenderableMessage] = {
-    val expectedRtiLinks = Seq[RenderableMessage](
+  private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[RenderableMessage] = {
+    def expectedRtiLinks = Seq[RenderableMessage](
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
       LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage)
     )
 
 
-    val expectedNonRtiLinks = Seq[RenderableMessage](
+    def expectedNonRtiLinks = Seq[RenderableMessage](
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
       LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage),
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(fileAReturnLinkMessage)))
 
-
     accountSummary match {
-      case Some(summary) if summary.rti.isDefined => expectedRtiLinks
-      case Some(summary) if summary.nonRti.isDefined => expectedNonRtiLinks
-      case _ => expectedNonRtiLinks
+      case Some(EpayeAccountSummary(Some(rti), None)) => expectedRtiLinks
+      case Some(EpayeAccountSummary(None, Some(nonRti))) => expectedNonRtiLinks
+      case _ => Seq.empty
     }
   }
 
   private def createNoInformationMessage(): Seq[Msg] = {
-    Seq(Msg(epayeSummaryUnavailableErrorMessage))
+    Seq(Msg(epayeSummaryUnavailableErrorMessage1),
+      Msg(epayeSummaryUnavailableErrorMessage2),
+      Msg(epayeSummaryUnavailableErrorMessage3),
+      Msg(epayeSummaryUnavailableErrorMessage4))
   }
 
   private def createMessages(rti: RTI)(): Seq[Msg] = {
@@ -113,8 +110,11 @@ object EpayeMessageKeys {
   val epayeYouHaveOverpaidMessage = "epaye.message.youHaveOverPaid"
   val epayeAdjustFuturePaymentsMessage = "epaye.message.adjustFuturePayments"
   val epayeDueForPaymentMessage = "epaye.message.dueForPayment"
-  val epayeSummaryUnavailableErrorMessage = "epaye.message.summaryUnavailable"
   val epayePaidToDateForPeriodMessage = "epaye.message.paidToDateForPeriod"
   val epayeEmpRefMessage = "epaye.message.empRef"
+  val epayeSummaryUnavailableErrorMessage1 = "epaye.message.summaryUnavailable.1"
+  val epayeSummaryUnavailableErrorMessage2 = "epaye.message.summaryUnavailable.2"
+  val epayeSummaryUnavailableErrorMessage3 = "epaye.message.summaryUnavailable.3"
+  val epayeSummaryUnavailableErrorMessage4 = "epaye.message.summaryUnavailable.4"
 }
 

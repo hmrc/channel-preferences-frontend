@@ -50,7 +50,10 @@ epaye.message.nothingToPay=You have nothing to pay.
 epaye.message.youHaveOverPaid=You have overpaid by {0}
 epaye.message.adjustFuturePayments=Please adjust your future payments
 epaye.message.dueForPayment={0} is now due for payment
-epaye.message.summaryUnavailable=HM Revenue and Customs are currently unable to display your account information. This may be because: - there is no information to view at this time - you have only just activated this service and there is a short delay before the information is available to view. If you do not think either of the above reasons apply, please contact the Online Services Help-desk.
+epaye.message.summaryUnavailable.1=HM Revenue and Customs are currently unable to display your account information. This may be because:
+epaye.message.summaryUnavailable.2=- there is no information to view at this time
+epaye.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available to view.
+epaye.message.summaryUnavailable.4=If you do not think either of the above reasons apply, please contact the Online Services Helpdesk.
 epaye.message.paidToDateForPeriod={0} paid to date for period {1}
 
 
