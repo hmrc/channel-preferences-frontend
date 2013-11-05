@@ -792,7 +792,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       verify(mockKeyStoreService).getEntry[CarBenefitDataAndCalculations](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")
     }
 
-    "allow the user to reedit the form and show it with values already filled" in new WithApplication(FakeApplication()){
+    "allow the user to reedit the form with other fuel type and show it with values already filled" in new WithApplication(FakeApplication()){
 
       setupMocksForJohnDensmore()
 
@@ -805,7 +805,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         employeeContribution = None,
         employerContributes = Some(true),
         employerContribution = Some(999),
-        fuelType = Some("diesel"),
+        fuelType = Some("other"),
         co2Figure = None,
         co2NoFigure = Some(true),
         engineCapacity = Some("1400"),
@@ -838,7 +838,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
-      doc.select("#fuelType-diesel").attr("checked") shouldBe "checked"
+      doc.select("#fuelType-other").attr("checked") shouldBe "checked"
       doc.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
       doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-29]").attr("selected") shouldBe "selected"
@@ -846,6 +846,55 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("[id~=dateFuelWithdrawn]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
+
+    "allow the user to reedit the form with electric fuel type and show it with values already filled" in new WithApplication(FakeApplication()){
+
+      setupMocksForJohnDensmore()
+
+      val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
+      val taxYear = controller.currentTaxYear
+      val carBenefitData = new CarBenefitData(providedFrom = Some(new LocalDate(taxYear, 7, 29)),
+        carUnavailable = Some(false), numberOfDaysUnavailable = None,
+        giveBackThisTaxYear = Some(false), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None , listPrice = Some(1000),
+        employeeContributes = Some(true),
+        employeeContribution = Some(100),
+        employerContributes = Some(true),
+        employerContribution = Some(999),
+        fuelType = Some("electricity"),
+        co2Figure = None,
+        co2NoFigure = None,
+        engineCapacity = Some("none"),
+        employerPayFuel = Some("false"),
+        dateFuelWithdrawn = None)
+
+      when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(CarBenefitDataAndCalculations(carBenefitData, 0, None)))
+
+      val result = Future.successful(controller.startAddCarBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
+
+      result should haveStatus(200)
+      verify(mockKeyStoreService).getEntry[CarBenefitDataAndCalculations](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedFrom]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
+      doc.select("#carUnavailable-false").attr("checked") shouldBe "checked"
+      doc.select("#numberOfDaysUnavailable").attr("value")  shouldBe ""
+      doc.select("#giveBackThisTaxYear-false").attr("checked") shouldBe "checked"
+      doc.select("#listPrice").attr("value")  shouldBe "1000"
+      doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
+      doc.select("#employeeContribution").attr("value")  shouldBe "100"
+      doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
+      doc.select("#employerContribution").attr("value")  shouldBe "999"
+
+      doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
+      doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-none").attr("checked") shouldBe "checked"
+      doc.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
+    }
+
 
     "allow the user to confirm the addition of the car benefit" in  new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore()
