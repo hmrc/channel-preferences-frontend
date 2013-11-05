@@ -20,6 +20,8 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 
+//"This feature will be reactivated soon, HMTB-1912"
+@Deprecated
 class SaController(override val auditConnector: AuditConnector)
                   (implicit saConnector : SaConnector,
                    override val authConnector: AuthConnector)
@@ -33,35 +35,42 @@ class SaController(override val auditConnector: AuditConnector)
   def details = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
-        detailsAction
+        NotFound
+//        detailsAction
   }
 
   def changeAddress = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
-        changeAddressAction
+        NotFound
+//        changeAddressAction
   }
 
   def redisplayChangeAddress() = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
-        redisplayChangeAddressAction
+        NotFound
+//        redisplayChangeAddressAction
   }
 
   def submitChangeAddress() = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
-    implicit user => implicit request => submitChangeAddressAction
+    implicit user => implicit request =>
+      NotFound
+//      submitChangeAddressAction
   }
 
   def confirmChangeAddress = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
-        confirmChangeAddressAction
+        NotFound
+//        confirmChangeAddressAction
   }
 
   def changeAddressComplete(id: String) = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
     implicit user =>
       implicit request =>
-        changeAddressCompleteAction(id)
+        NotFound
+//        changeAddressCompleteAction(id)
   }
 
   private[sa] def detailsAction(implicit user: User, request: Request[_]): SimpleResult = {
