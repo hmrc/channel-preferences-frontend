@@ -16,3 +16,6 @@ addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.2")
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8")
 
 addSbtPlugin("com.eed3si9n" % "sbt-dirty-money" % "0.1.0")
+
+addSbtPlugin("uk.gov.hmrc" % "sbt-git-stamp" % "1.0.0")
+

@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Keys._
 import scala.Some
+import uk.gov.hmrc.GitStampPlugin._
 
 object Version {
   val thisApp = "0.0.1-SNAPSHOT"
@@ -86,6 +87,7 @@ object Repositories {
           Some(hmrcNexusReleases)
     }
 
-  ) ++ addArtifact(artifact in publishDist, publishDist)
+  ) ++ addArtifact(artifact in publishDist, publishDist) ++ gitStampSettings
+
 }
  
