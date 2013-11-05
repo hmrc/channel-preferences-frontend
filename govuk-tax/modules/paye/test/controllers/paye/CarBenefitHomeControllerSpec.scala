@@ -11,8 +11,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatest.TestData
 import uk.gov.hmrc.utils.DateConverter
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import controllers.DateFieldsHelper
 import java.net.URI
 import concurrent.Future
@@ -21,6 +19,12 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
+import uk.gov.hmrc.common.microservice.paye.domain.Employment._
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
+import scala.Some
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.txqueue.domain.Status
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -229,27 +233,46 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     }
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
+
+      val (employerName1, employerName2) = ("Johnson PLC", "Xylophone and Son Ltd")
+      val johnDensmoresEmployments = Seq(
+        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some(employerName1), employmentType = primaryEmploymentType),
+        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = Some(employerName2), employmentType = 2))
+      val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction, addCarTransaction, addFuelTransaction, removedFuelTransactionForEmployment2)
+
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, testTransactions, testTransactions)
 
       val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
       val doc = Jsoup.parse(contentAsString(result))
       val recentChanges = doc.select(".overview__actions__done").text
-      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from $employerName1. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from $employerName1. This has been processed and your new Tax Code is 430L. $employerName1 have been notified.")
 
-      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from $employerName1. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from $employerName1. This has been processed and your new Tax Code is 430L. $employerName1 have been notified.")
 
+      recentChanges should include(s"On 2 December 2012, you added your company fuel benefit from $employerName1. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you added your company fuel benefit from $employerName1. This has been processed and your new Tax Code is 430L. $employerName1 have been notified.")
+      recentChanges should not include (employerName2)
       doc.select(".no_actions") shouldBe empty
     }
 
-    "display recent transactions for multiple benefit removal for John Densmore" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, multiBenefitTransactions, multiBenefitTransactions)
+    "display recent transactions for John Densmore when both car and fuel benefit have been removed and added " in new WithApplication(FakeApplication()) {
+      val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
+      val addCar2AndFuel2CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> "31,29"))
+      val removeCar2AndFuel2AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
+      val addCar3AndFuel4AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> "31,29"))
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(removeCar2AndFuel2AcceptedTransaction, addCar3AndFuel4AcceptedTransaction), List(removeCar1AndFuel1CompletedTransaction, addCar2AndFuel2CompletedTransaction))
+
 
       val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".overview__actions__done").text should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
-      doc.select(".overview__actions__done").text should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      val recentChanges = doc.select(".overview__actions__done").text
+      recentChanges should include(s"On 2 December 2012, you added your company car and fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
+      recentChanges should include(s"On 2 December 2012, you added your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+      recentChanges should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
     }
 
     "display a message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) {

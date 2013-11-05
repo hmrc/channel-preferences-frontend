@@ -49,6 +49,9 @@ error.paye.answer_mandatory=Please answer this question.
 recent.change.removeBenefits.accepted=On {0}, you removed your company {1} benefit from {2}. This is being processed and you will receive a new Tax Code within 2 days.
 recent.change.removeBenefits.completed=On {0}, you removed your company {1} benefit from {2}. This has been processed and your new Tax Code is {3}. {2} have been notified.
 
+recent.change.addBenefits.accepted=On {0}, you added your company {1} benefit from {2}. This is being processed and you will receive a new Tax Code within 2 days.
+recent.change.addBenefits.completed=On {0}, you added your company {1} benefit from {2}. This has been processed and your new Tax Code is {3}. {2} have been notified.
+
 recent.change.taxcode.accepted=(a new tax code is being calculated and this may change soon)
 recent.change.taxcode.completed=(This changed on {0})
 
