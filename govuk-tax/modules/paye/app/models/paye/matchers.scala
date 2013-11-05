@@ -2,8 +2,7 @@ package models.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-
-object matchers {
+object Matchers {
 
   object transactions {
 
@@ -13,10 +12,11 @@ object matchers {
         tx.tags.get.exists(_.startsWith("message.code."))
     }
 
-    def matchesBenefit(tx: TxQueueTransaction, kind: Int, employmentSequenceNumber: Int, year: Int): Boolean = {
+    def matchesBenefit(tx: TxQueueTransaction, kind: Int, employmentSequenceNumber: Int, year: Int, transactionTypeTag:String): Boolean = {
       tx.properties("benefitTypes").split(',').contains(kind.toString) &&
         tx.properties("employmentSequenceNumber").toInt == employmentSequenceNumber &&
-        tx.properties("taxYear").toInt == year
+        tx.properties("taxYear").toInt == year &&
+        tx.tags.exists(_.exists(_.contains(transactionTypeTag))) 
     }
 
     def matchesBenefitWithMessageCode(tx: TxQueueTransaction, benefit: Benefit): Boolean = {

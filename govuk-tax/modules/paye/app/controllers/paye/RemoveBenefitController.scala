@@ -267,7 +267,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
       kind match {
         case CAR | FUEL => {
-          if (thereAreNoExistingTransactionsMatching(kind, employmentSequenceNumber, taxYear, payeRootData)) {
+          if (thereAreNoExistingRemoveBenefitTransactionsMatching(kind, employmentSequenceNumber, taxYear, payeRootData)) {
             getBenefitMatching(kind, employmentSequenceNumber, payeRootData) match {
               case Some(benefit) => Some(benefit)
               case _ => None

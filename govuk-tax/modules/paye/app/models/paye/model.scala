@@ -39,7 +39,7 @@ object DisplayBenefit {
 
 object DisplayBenefits {
 
-  import models.paye.matchers.transactions.matchesBenefitWithMessageCode
+  import models.paye.Matchers.transactions.matchesBenefitWithMessageCode
 
   def apply(benefits: Seq[Benefit], employments: Seq[Employment], transactions: Seq[TxQueueTransaction]): Seq[DisplayBenefit] = {
     val matchedBenefits = benefits.filter {
@@ -70,7 +70,7 @@ object EmploymentViews {
   val TRANSACTION_STATUS_ACCEPTED = "accepted"
   val TRANSACTION_STATUS_COMPLETED = "completed"
 
-  import matchers.transactions.matchesBenefitWithMessageCode
+  import Matchers.transactions.matchesBenefitWithMessageCode
 
   def apply(employments: Seq[Employment],
             taxCodes: Seq[TaxCode],
