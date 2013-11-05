@@ -271,11 +271,19 @@ object CarBenefits {
       employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
       fuelType = carBenefitData.fuelType,
       co2Emissions = carBenefitData.co2Figure,
-      engineSize = carBenefitData.engineCapacity.map(_.toInt),
+      engineSize = engineSize(carBenefitData.engineCapacity),
       mileageBand = None,
       carValue = carBenefitData.listPrice.map(BigDecimal(_)),
       employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
       daysUnavailable = carBenefitData.numberOfDaysUnavailable)
+  }
+
+  private def engineSize(engineCapacity: Option[String]) : Option[Int] = {
+    engineCapacity match {
+      // TODO: Investigate why keystore is returning a string value 'none' instead of an Option None value
+      case Some(engine) if(engine != "none") => Some(engine.toInt)
+      case _ => None
+    }
   }
 
   private def createBenefit(benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int) = {
