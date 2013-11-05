@@ -1,15 +1,33 @@
-@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName: Option[String], employerSequenceNumber: Int, currentTaxYear: Int)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName: Option[String], employerSequenceNumber: Int, currentTaxYear: Int, employmentViews: Seq[models.paye.EmploymentView])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
 @import views.formatting.Money._
 
 @main(title = "Your tax home", user = Some(user)) {
-    @defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
 
-        <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
-        <h2>Your company Car</h2>
-        @if( carBenefit.isDefined ) {
+    <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+
+@defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
+
+    <div class="overview__actions">
+            <h2 class="overview__sub-heading">Recent changes</h2>
+            <ul class="overview__actions__done" data-recent-changes>
+                @if(employmentViews.flatMap(e => e.recentChanges).size > 0) {
+                    @for(employmentView <- employmentViews) {
+                        @for(recentChange <- employmentView.recentChanges) {
+                            @defining(joinList(recentChange.types.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+                                <li>@Messages(s"recent.change.${recentChange.messageCode}", formatDate(recentChange.timeOfChange), benefitsTitle, employerNameString, employmentView.taxCode)</li>
+                            }
+                        }
+                    }
+                } else {
+                <li class="no_actions" >There are no changes to your tax in the last month.</li>
+                }
+            </ul>
+        </div>
+    <h2>Your company Car</h2>
+    @if( carBenefit.isDefined ) {
               <table>
                   <tbody>
                   <tr>

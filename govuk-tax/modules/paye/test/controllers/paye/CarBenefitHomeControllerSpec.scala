@@ -228,6 +228,40 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       removeBenefitTransactionLinkVisibilityTest(31, true, false, false)
     }
 
+    "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, testTransactions, testTransactions)
+
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+      val doc = Jsoup.parse(contentAsString(result))
+      val recentChanges = doc.select(".overview__actions__done").text
+      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+
+      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+
+      doc.select(".no_actions") shouldBe empty
+    }
+
+    "display recent transactions for multiple benefit removal for John Densmore" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, multiBenefitTransactions, multiBenefitTransactions)
+
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".overview__actions__done").text should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
+      doc.select(".overview__actions__done").text should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+    }
+
+    "display a message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) {
+
+     setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
+
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".no_actions") should not be empty
+      doc.select(".no_actions").text should include("no changes")
+    }
+
     def removeBenefitTransactionLinkVisibilityTest(removeTransactionBenefitType : Int, isCompleted : Boolean, expRemoveFuelLink : Boolean, expRemoveCarLink : Boolean){
       val acceptedTransactions = if (!isCompleted) List(generateTransactionData(removeTransactionBenefitType , false)) else List.empty
       val completedTransactions = if (isCompleted) List(generateTransactionData(removeTransactionBenefitType , true)) else List.empty

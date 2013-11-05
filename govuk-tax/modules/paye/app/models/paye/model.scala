@@ -67,20 +67,23 @@ case class EmploymentView(companyName: String, startDate: LocalDate, endDate: Op
 
 object EmploymentViews {
 
+  val TRANSACTION_STATUS_ACCEPTED = "accepted"
+  val TRANSACTION_STATUS_COMPLETED = "completed"
+
   import matchers.transactions.matchesBenefitWithMessageCode
 
   def apply(employments: Seq[Employment],
-    taxCodes: Seq[TaxCode],
-    taxYear: Int,
-    acceptedTransactions: Seq[TxQueueTransaction],
-    completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentView] = {
-    for (e <- employments) yield EmploymentView(
-      e.employerNameOrReference, e.startDate, e.endDate, TaxCodeResolver.currentTaxCode(taxCodes, e.sequenceNumber),
-      (transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, acceptedTransactions, ".accepted") ++
-        transactionsWithEmploymentNumber(e.sequenceNumber, taxYear, completedTransactions, ".completed")).toList,
-      taxCodeChange(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions))
-  }
+            taxCodes: Seq[TaxCode],
+            taxYear: Int,
+            acceptedTransactions: Seq[TxQueueTransaction],
+            completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentView] = employments.map(e => EmploymentView(
+    e.employerNameOrReference, e.startDate, e.endDate, TaxCodeResolver.currentTaxCode(taxCodes, e.sequenceNumber),
+    recentChanges(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions),
+    taxCodeChange(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions)))
 
+  private def recentChanges(sequenceNumber:Int, taxYear:Int, acceptedTransactions:Seq[TxQueueTransaction], completedTransactions: Seq[TxQueueTransaction]) =
+    transactionsWithEmploymentNumber(sequenceNumber, taxYear, acceptedTransactions, s".$TRANSACTION_STATUS_ACCEPTED") ++
+    transactionsWithEmploymentNumber(sequenceNumber, taxYear, completedTransactions, s".$TRANSACTION_STATUS_COMPLETED")
 
   private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
     messageCodePostfix: String): Seq[RecentChange] = {
