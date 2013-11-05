@@ -24,7 +24,8 @@ object GovUkTaxBuild extends Build {
     Dependencies.Test.junit,
     Dependencies.Test.scalaTest,
     Dependencies.Test.mockito,
-    Dependencies.Test.jsoup
+    Dependencies.Test.jsoup,
+    Dependencies.Test.pegdown
   )
 
   val allPhases = "tt->test;test->test;test->compile;compile->compile"
@@ -100,10 +101,9 @@ object Common {
         "-target:jvm-1.7",
         "-encoding", "UTF-8"
       ),
-
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
-      testOptions in Test += Tests.Argument("-u", "target/test-reports")
+      testOptions in Test += Tests.Argument("-u", "target/test-reports", "-h", "target/test-reports/html-report")
     ) ++
     jasmineSettings ++
     Seq(

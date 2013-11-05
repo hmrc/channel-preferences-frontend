@@ -23,11 +23,11 @@ object Dependencies {
   }
 
   sealed abstract class Test(scope: String) {
-
-    val junit = "junit" % "junit" % "4.11" % "test"
-    val scalaTest = "org.scalatest" %% "scalatest" % "2.0" % "test"
-    val mockito = "org.mockito" % "mockito-all" % "1.9.5" % "test"
-    val jsoup = "org.jsoup" % "jsoup" % "1.7.2"% "test"
+    val junit = "junit" % "junit" % "4.11" % scope
+    val scalaTest = "org.scalatest" %% "scalatest" % "2.0" % scope
+    val mockito = "org.mockito" % "mockito-all" % "1.9.5" % scope
+    val jsoup = "org.jsoup" % "jsoup" % "1.7.2"% scope
+    val pegdown = "org.pegdown" % "pegdown" % "1.1.0" % scope
   }
 
   object Test extends Test("test")
