@@ -81,6 +81,8 @@ object EmploymentViews {
     recentChanges(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions),
     taxCodeChange(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions)))
 
+  def hasPendingTransactionsOfType(employmentViews : Seq[EmploymentView], transactionType  :String) : Boolean =  employmentViews.flatMap(_.recentChanges).exists(_.messageCode.endsWith(s"$transactionType.$TRANSACTION_STATUS_ACCEPTED") )
+
   private def recentChanges(sequenceNumber:Int, taxYear:Int, acceptedTransactions:Seq[TxQueueTransaction], completedTransactions: Seq[TxQueueTransaction]) =
     transactionsWithEmploymentNumber(sequenceNumber, taxYear, acceptedTransactions, s".$TRANSACTION_STATUS_ACCEPTED") ++
     transactionsWithEmploymentNumber(sequenceNumber, taxYear, completedTransactions, s".$TRANSACTION_STATUS_COMPLETED")
@@ -97,9 +99,9 @@ object EmploymentViews {
 
   private def taxCodeChange(employmentSequenceNumber: Int, taxYear: Int, acceptedTransactions: Seq[TxQueueTransaction],
     completedTransactions: Seq[TxQueueTransaction]): Option[RecentChange] = {
-    val accepted = findTaxCodeChange(employmentSequenceNumber, taxYear, acceptedTransactions, "taxcode.accepted")
+    val accepted = findTaxCodeChange(employmentSequenceNumber, taxYear, acceptedTransactions, s"taxcode.$TRANSACTION_STATUS_ACCEPTED")
     if (accepted.isEmpty) {
-      findTaxCodeChange(employmentSequenceNumber, taxYear, completedTransactions, "taxcode.completed")
+      findTaxCodeChange(employmentSequenceNumber, taxYear, completedTransactions, s"taxcode.$TRANSACTION_STATUS_COMPLETED")
     } else {
       accepted
     }

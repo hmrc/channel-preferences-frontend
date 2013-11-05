@@ -277,13 +277,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select(".amount").text shouldBe "£197"
     }
 
-    "show the right tax codes when removing fuel benefit"  in {
-
-    }
-
-    "show the right tax codes when removing the car benefit in a second time" in {
-
-    }
   }
 
   "Given a user who has car and fuel benefits, removing car benefit " should {
