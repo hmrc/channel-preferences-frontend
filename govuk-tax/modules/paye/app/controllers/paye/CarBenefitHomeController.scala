@@ -2,7 +2,7 @@ package controllers.paye
 
 import controllers.common.{Ida, Actions, BaseController2}
 import play.api.mvc.{SimpleResult, Request}
-import uk.gov.hmrc.common.microservice.paye.domain.{PayeRootData, Employment, PayeRegime}
+import uk.gov.hmrc.common.microservice.paye.domain.{TaxYearData, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import models.paye.{EmploymentView, EmploymentViews, BenefitTypes}
 import play.api.Logger
@@ -17,7 +17,6 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)(implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController2
   with Actions
-  with Benefits
   with Validators {
 
   private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
@@ -37,10 +36,10 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
     findPrimaryEmployment(currentTaxYearData) match {
       case Some(employment) => {
 
-        val carBenefit = findExistingBenefit(employment.sequenceNumber, BenefitTypes.CAR, currentTaxYearData)
-        val fuelBenefit = findExistingBenefit(employment.sequenceNumber, BenefitTypes.FUEL, currentTaxYearData)
+        val carBenefit = currentTaxYearData.findExistingBenefit(employment.sequenceNumber, BenefitTypes.CAR)
+        val fuelBenefit = currentTaxYearData.findExistingBenefit(employment.sequenceNumber, BenefitTypes.FUEL)
 
-        val employmentViews = EmploymentViews(payeRoot.fetchEmployments(currentTaxYear), payeRoot.fetchTaxCodes(currentTaxYear), currentTaxYear, currentTaxYearData.acceptedTransactions, currentTaxYearData.completedTransactions)
+        val employmentViews = EmploymentViews(payeRoot.fetchEmployments(currentTaxYear), payeRoot.fetchTaxCodes(currentTaxYear), currentTaxYear, payeRoot.fetchRecentAcceptedTransactions(), payeRoot.fetchRecentCompletedTransactions())
         Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employment.employerName, employment.sequenceNumber, currentTaxYear, employmentViews))
       }
       case None => {
@@ -50,7 +49,7 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
     }
   }
 
-  private def findPrimaryEmployment(payeRootData: PayeRootData): Option[Employment] = {
-    payeRootData.taxYearEmployments.find(_.employmentType == primaryEmploymentType)
+  private def findPrimaryEmployment(payeRootData: TaxYearData): Option[Employment] = {
+    payeRootData.employments.find(_.employmentType == primaryEmploymentType)
   }
 }

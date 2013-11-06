@@ -21,7 +21,6 @@ case class BenefitInfo(startDate:String, withdrawDate:String, apportionedValue:B
 case class DisplayBenefit(employment: Employment,
     benefits: Seq[Benefit],
     car: Option[Car],
-    transaction: Option[TxQueueTransaction],
     benefitsInfo:Map[String, BenefitInfo] = Map.empty) {
 
   lazy val benefit = benefits(0)
@@ -41,7 +40,7 @@ object DisplayBenefits {
 
   import models.paye.Matchers.transactions.matchesBenefitWithMessageCode
 
-  def apply(benefits: Seq[Benefit], employments: Seq[Employment], transactions: Seq[TxQueueTransaction]): Seq[DisplayBenefit] = {
+  def apply(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] = {
     val matchedBenefits = benefits.filter {
       benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber)
     }
@@ -50,9 +49,7 @@ object DisplayBenefits {
       benefit =>
         DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get,
           Seq(benefit),
-          benefit.car,
-          transactions.find(matchesBenefitWithMessageCode(_, benefit))
-        )
+          benefit.car)
     }
   }
 }

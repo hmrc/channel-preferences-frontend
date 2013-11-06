@@ -25,7 +25,7 @@ import models.paye.BenefitUpdatedConfirmationData
 import scala.Some
 import models.paye.BenefitInfo
 import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRootData
+import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.CarFuelBenefitDates
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
@@ -35,7 +35,6 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector : AuthConnector, override val auditConnector : AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector : TxQueueConnector) extends BaseController2
   with Actions
   with SessionTimeoutWrapper
-  with Benefits
   with TaxYearSupport
   with DateTimeProvider {
 
@@ -73,11 +72,11 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     }
   }
 
-  private def getSecondBenefit(payeRootData: PayeRootData, mainBenefit: Benefit, removeCar: Boolean): Option[Benefit] = {
+  private def getSecondBenefit(payeRootData: TaxYearData, mainBenefit: Benefit, removeCar: Boolean): Option[Benefit] = {
 
     mainBenefit.benefitType match {
-      case CAR => findExistingBenefit(mainBenefit.employmentSequenceNumber, FUEL, payeRootData)
-      case FUEL if removeCar => findExistingBenefit(mainBenefit.employmentSequenceNumber, CAR, payeRootData)
+      case CAR => payeRootData.findExistingBenefit(mainBenefit.employmentSequenceNumber, FUEL)
+      case FUEL if removeCar => payeRootData.findExistingBenefit(mainBenefit.employmentSequenceNumber, CAR)
       case _ => None
     }
   }
@@ -148,7 +147,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   private def getStartDate(benefit: Benefit): LocalDate = {
     val pathIncludingStartDate = benefit.calculations.get(payeConnector.calculationWithdrawKey()).getOrElse("")
 
-    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) map {dateFormat.parseLocalDate(_)}
+    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) map {dateFormat.parseLocalDate}
 
     benefitStartDate match {
       case Some(dateOfBenefitStart) if dateOfBenefitStart.isAfter(startOfCurrentTaxYear) => dateOfBenefitStart
@@ -199,7 +198,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     }
 
 
-  private def carRemovalMissesFuelRemoval(payeRootData: PayeRootData, displayBenefit: DisplayBenefit) = {
+  private def carRemovalMissesFuelRemoval(payeRootData: TaxYearData, displayBenefit: DisplayBenefit) = {
     displayBenefit.benefits.exists(_.benefitType == CAR) && !displayBenefit.benefits.exists(_.benefitType == FUEL) && hasUnremovedFuelBenefit(payeRootData, displayBenefit.benefit.employmentSequenceNumber)
   }
 
@@ -231,12 +230,12 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     calculationResult.result(benefit.taxYear.toString)
   }
 
-  private def hasUnremovedFuelBenefit(payeRootData: PayeRootData, employmentNumber: Int): Boolean = {
-    findExistingBenefit(employmentNumber, FUEL, payeRootData).isDefined
+  private def hasUnremovedFuelBenefit(payeRootData: TaxYearData, employmentNumber: Int): Boolean = {
+    payeRootData.findExistingBenefit(employmentNumber, FUEL).isDefined
   }
 
-  private def hasUnremovedCarBenefit(payeRootData: PayeRootData, employmentNumber: Int): Boolean = {
-    findExistingBenefit(employmentNumber, CAR, payeRootData).isDefined
+  private def hasUnremovedCarBenefit(payeRootData: TaxYearData, employmentNumber: Int): Boolean = {
+    payeRootData.findExistingBenefit(employmentNumber, CAR).isDefined
   }
 
   private def loadFormDataFor(user: User) = {
@@ -244,11 +243,11 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   }
 
   object WithValidatedRequest {
-    def apply(action: (Request[_], User, DisplayBenefit, PayeRootData) => SimpleResult): (User, Request[_], String, Int, Int) => SimpleResult = {
+    def apply(action: (Request[_], User, DisplayBenefit, TaxYearData) => SimpleResult): (User, Request[_], String, Int, Int) => SimpleResult = {
       (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
         val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
 
-        val emptyBenefit = DisplayBenefit(null, Seq.empty, None, None)
+        val emptyBenefit = DisplayBenefit(null, Seq.empty, None)
         val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
           kind => getBenefit(kind, taxYear, employmentSequenceNumber, payeRootData)
         }
@@ -263,29 +262,22 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       }
     }
 
-    private def getBenefit(kind: Int, taxYear: Int, employmentSequenceNumber: Int, payeRootData: PayeRootData): Option[DisplayBenefit] = {
+    private def getBenefit(kind: Int, taxYear: Int, employmentSequenceNumber: Int, payeRootData: TaxYearData): Option[DisplayBenefit] = {
 
       kind match {
         case CAR | FUEL => {
-          if (thereAreNoExistingRemoveBenefitTransactionsMatching(kind, employmentSequenceNumber, taxYear, payeRootData)) {
-            getBenefitMatching(kind, employmentSequenceNumber, payeRootData) match {
-              case Some(benefit) => Some(benefit)
-              case _ => None
-            }
-          } else {
-            None
-          }
+          getBenefitMatching(kind, employmentSequenceNumber, payeRootData)
         }
         case _ => None
       }
     }
 
-    private def getBenefitMatching(kind: Int, employmentSequenceNumber: Int, payeRootData: PayeRootData): Option[DisplayBenefit] = {
+    private def getBenefitMatching(kind: Int, employmentSequenceNumber: Int, payeRootData: TaxYearData): Option[DisplayBenefit] = {
 
-      val benefit = payeRootData.taxYearBenefits.find(
+      val benefit = payeRootData.benefits.find(
         b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
 
-      val matchedBenefits = DisplayBenefits(benefit.toList, payeRootData.taxYearEmployments, payeRootData.completedTransactions)
+      val matchedBenefits = DisplayBenefits(benefit.toList, payeRootData.employments)
 
       if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
     }
@@ -302,7 +294,6 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       db1.copy(
         benefits = db1.benefits ++ db2.benefits,
         car = validOption(db1.car, db2.car),
-        transaction = validOption(db1.transaction, db2.transaction),
         employment = if (db1.employment != null) db1.employment else db2.employment
       )
     }

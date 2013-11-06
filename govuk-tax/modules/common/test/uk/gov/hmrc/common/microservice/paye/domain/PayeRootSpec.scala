@@ -21,11 +21,8 @@ class PayeRootSpec extends BaseSpec with MockitoSugar {
 
         override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector): Seq[Employment] = if (taxYear == 2013) Seq(employment) else Seq.empty
 
-        override def fetchRecentAcceptedTransactions()(implicit txQueueConnector: TxQueueConnector): Seq[TxQueueTransaction] = Seq(tx1)
-
-        override def fetchRecentCompletedTransactions()(implicit txQueueConnector: TxQueueConnector): Seq[TxQueueTransaction] = Seq(tx2)
       }
-      stubPayeRoot.fetchTaxYearData(2013) shouldBe PayeRootData(Seq(tx1), Seq(tx2), Seq(benefit), Seq(employment))
+      stubPayeRoot.fetchTaxYearData(2013) shouldBe TaxYearData(Seq(benefit), Seq(employment))
     }
   }
 

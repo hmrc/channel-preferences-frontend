@@ -12,13 +12,6 @@ object Matchers {
         tx.tags.get.exists(_.startsWith("message.code."))
     }
 
-    def matchesBenefit(tx: TxQueueTransaction, kind: Int, employmentSequenceNumber: Int, year: Int, transactionTypeTag:String): Boolean = {
-      tx.properties("benefitTypes").split(',').contains(kind.toString) &&
-        tx.properties("employmentSequenceNumber").toInt == employmentSequenceNumber &&
-        tx.properties("taxYear").toInt == year &&
-        tx.tags.exists(_.exists(_.contains(transactionTypeTag))) 
-    }
-
     def matchesBenefitWithMessageCode(tx: TxQueueTransaction, benefit: Benefit): Boolean = {
       tx.properties("benefitTypes").split(',').contains(benefit.benefitType.toString) &&
         tx.properties("employmentSequenceNumber").toInt == benefit.employmentSequenceNumber &&

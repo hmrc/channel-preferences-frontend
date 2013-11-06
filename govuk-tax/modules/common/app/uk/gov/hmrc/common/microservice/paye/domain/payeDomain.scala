@@ -37,11 +37,9 @@ case class PayeRoot(nino: String,
 
   def currentDate = new DateTime(DateTimeZone.UTC)
 
-  def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector) = PayeRootData(
-    fetchRecentAcceptedTransactions,
-    fetchRecentCompletedTransactions,
-    fetchBenefits(taxYear),
-    fetchEmployments(taxYear))
+  def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector) = {
+    TaxYearData(fetchBenefits(taxYear), fetchEmployments(taxYear))
+  }
 
   def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector) =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
@@ -82,8 +80,12 @@ case class PayeRoot(nino: String,
     payeConnector.linkedResource[T](uri)
 }
 
-case class PayeRootData(acceptedTransactions: Seq[TxQueueTransaction], completedTransactions: Seq[TxQueueTransaction],
-                        taxYearBenefits: Seq[Benefit], taxYearEmployments: Seq[Employment])
+case class TaxYearData(benefits: Seq[Benefit], employments: Seq[Employment]) {
+
+  def findExistingBenefit(employmentNumber: Int, benefitType: Int): Option[Benefit] = {
+    benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber)
+  }
+}
 
 
 case class TaxCode(employmentSequenceNumber: Int,

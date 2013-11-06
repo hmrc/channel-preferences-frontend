@@ -109,13 +109,11 @@
             }
         </ul>
         } else {
-            @if(!EmploymentViews.hasPendingTransactionsOfType(employmentViews, "addBenefits")){
-                <div id="no-car-benefit-container">
-                    <ul>
-                        <li><a id="addCarLink" href="@controllers.paye.routes.CarBenefitAddController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a company car (including any fuel benefit you may have)</a></li>
-                    </ul>
-                </div>
-            }
+            <div id="no-car-benefit-container">
+                <ul>
+                    <li><a id="addCarLink" href="@controllers.paye.routes.CarBenefitAddController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a company car (including any fuel benefit you may have)</a></li>
+                </ul>
+            </div>
         }
 
         <p>If you do not need to make any changes you can <a href="@common.routes.LoginController.logout">log out from your account</a>.</p>
