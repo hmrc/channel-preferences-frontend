@@ -133,6 +133,5 @@ case class RecentTransaction(messageCode: String,
 
 case class RemoveBenefitResponse(transaction: TransactionId, calculatedTaxCode: Option[String], personalAllowance: Option[Int])
 
-case class AddBenefitResponse(calculatedTaxCode: Option[String], personalAllowance: Option[Int])
-
+case class AddBenefitResponse(transaction: TransactionId, newTaxCode: Option[String], netCodedAllowance: Option[Int])
 

@@ -141,7 +141,7 @@ with TaxYearSupport {
       val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, CarBenefits(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber))
       keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
       Ok(views.html.paye.add_car_benefit_confirmation(BenefitUpdatedConfirmationData(
-        TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear), addBenefitsResponse.get.calculatedTaxCode, addBenefitsResponse.get.personalAllowance, "start date", "end date")))
+        TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear), addBenefitsResponse.get.newTaxCode, addBenefitsResponse.get.netCodedAllowance, "start date", "end date")))
     }
   }
 

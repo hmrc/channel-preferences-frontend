@@ -61,10 +61,10 @@ class PayeConnectorSpec extends BaseSpec {
 
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
 
-      when(service.httpWrapper.post[AddBenefitResponse](Matchers.eq(uri), capturedBody.capture, Matchers.any())).thenReturn(Some(AddBenefitResponse(Some("456TR"), Some(12345))))
+      when(service.httpWrapper.post[AddBenefitResponse](Matchers.eq(uri), capturedBody.capture, Matchers.any())).thenReturn(Some(AddBenefitResponse(TransactionId("24242t"), Some("456TR"), Some(12345))))
       val response = service.addBenefits(uri, version, employmentSeqNumber, Seq(benefit))
-      response.get.calculatedTaxCode shouldBe Some("456TR")
-      response.get.personalAllowance shouldBe Some(12345)
+      response.get.newTaxCode shouldBe Some("456TR")
+      response.get.netCodedAllowance shouldBe Some(12345)
 
       val capturedAddedBenefit = Transform.fromResponse[AddBenefit](capturedBody.getValue.toString())
       capturedAddedBenefit should have (
