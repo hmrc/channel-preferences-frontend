@@ -32,7 +32,7 @@ object ApplicationBuild extends Build {
     Version.thisApp, appDependencies,
     settings = Common.commonSettings ++ SassPlugin.sassSettings
   ).settings(
-//    version <<= version in ThisBuild
+      Keys.fork in Test := false
   )
 
 }
