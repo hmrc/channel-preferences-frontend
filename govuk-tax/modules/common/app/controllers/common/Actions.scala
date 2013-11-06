@@ -25,18 +25,7 @@ trait Actions
   def ActionAuthorisedBy(authenticationType: AuthenticationType)
                         (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
                         (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
-    WithHeaders {
-      WithRequestLogging {
-        WithSessionTimeoutValidation {
-          WithUserAuthorisedBy(authenticationType)(taxRegime, redirectToOrigin) {
-            user =>
-              WithRequestAuditing(user) {
-                user => Action(body(user))
-              }
-          }
-        }
-      }
-    }
+    ActionAuthorisedByWithVisibility(authenticationType)(taxRegime, redirectToOrigin)(DefaultPageVisibilityPredicate)(body)
   }
 
   def ActionAuthorisedByWithVisibility(authenticationType: AuthenticationType)

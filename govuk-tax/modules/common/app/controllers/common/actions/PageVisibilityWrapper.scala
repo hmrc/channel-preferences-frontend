@@ -25,3 +25,6 @@ object WithPageVisibility {
     }
 }
 
+object DefaultPageVisibilityPredicate extends PageVisibilityPredicate {
+  def isVisible(user: User, request: Request[AnyContent]) = true
+}
