@@ -8,22 +8,18 @@ import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Mockito._
 import org.mockito.{Mockito, Matchers}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import org.scalatest.TestData
 import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
-import java.net.URI
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-import scala.Some
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.txqueue.domain.Status
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
@@ -102,7 +98,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#private-fuel").text shouldBe "Yes, private fuel is available when you use the car"
     }
 
-    "show car details for user with a company car and fuel benefit that has been withdrawn" in new WithApplication(FakeApplication()) {
+    "show car details for a user with a company car and a fuel benefit that has been withdrawn" in new WithApplication(FakeApplication()) {
       val benefits = Seq(
         carBenefitEmployer1,
         fuelBenefitEmployer1.copy(dateWithdrawn = Some(new LocalDate(2013,6,6))))
@@ -123,7 +119,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#private-fuel").text shouldBe "Weyland-Yutani Corp did pay for fuel for private travel, but stopped paying on 6 June 2013"
     }
 
-    "show car details for user with a company car an no employer name" in new WithApplication(FakeApplication()) {
+    "show car details for user with a company car where the employer name is unknown" in new WithApplication(FakeApplication()) {
       val johnDensmoresEmploymentsWithoutName = Seq(
         Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, employmentType = Employment.primaryEmploymentType),
         Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 1))
@@ -144,7 +140,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
-    "show Add Car link for a user without a company car" in new WithApplication(FakeApplication()) {
+    "show an Add Car link for a user without a company car" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
@@ -160,7 +156,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-date-available").text shouldBe ""
       doc.select("#car-benefit-amount").text shouldBe ""
       doc.select("#fuel-benefit-amount").text shouldBe ""
-      doc.getElementById(addCarLinkId) should not be (None)
+      doc.getElementById(addCarLinkId) should not be None
     }
 
     "not show an add Car link for a user with a company car" in new WithApplication(FakeApplication()) {
@@ -206,8 +202,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.getElementById(addCarLinkId) should not be (null)
     }
 
-    "show an add Car link for a user with a company car who has an accepted car removal transaction" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List(generateTransactionData(31, false)), List.empty)
+    "show an add Car link for a user without a company car" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
       val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
@@ -216,33 +212,39 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.getElementById(addCarLinkId) should not be (null)
     }
 
-    "show a remove car link and not show a remove fuel link for a user with both benefits who has an accepted fuel removal transaction" in new WithApplication(FakeApplication()) {
-      removeBenefitTransactionLinkVisibilityTest(29, false, false, true)
+
+    "not show a remove car or remove fuel link for a user with no car benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.getElementById(removeFuelLinkId) should be (null)
+      doc.getElementById(removeCarLinkId) should be (null)
     }
 
-    "not show a remove car or remove fuel link for a user with both benefits who has an accepted car removal transaction" in new WithApplication(FakeApplication()) {
-      removeBenefitTransactionLinkVisibilityTest(31, false, false, false)
+    "show a remove car link and not show a remove fuel link for a user with a car benefit but no fuel benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+
+      status(result) should be(200)
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.getElementById(removeFuelLinkId) should be (null)
+      doc.getElementById(removeCarLinkId) should not be null
     }
 
-    "show a remove car link and not show a remove fuel link for a user with both benefits who has a completed fuel removal transaction" in new WithApplication(FakeApplication()) {
-      removeBenefitTransactionLinkVisibilityTest(29, true, false, true)
-    }
-
-    "not show a remove car or remove fuel link for a user with both benefits who has a completed car removal transaction" in new WithApplication(FakeApplication()) {
-      removeBenefitTransactionLinkVisibilityTest(31, true, false, false)
-    }
-
-    "show an add company car benefit link if no add car benefit transactions are pending " in new WithApplication(FakeApplication()) {
-//      val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction, addFuelTransaction, removedFuelTransactionForEmployment2)
-       //TODO HB and CP check what to do if remove car benefit transactions are pending
+    "show an add company car benefit link if for a user who has no car benefit " in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
       val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(addCarLinkId).text should include("add a company car")
     }
 
-    "do not show an add company car benefit link if any add car benefit transactions are pending " in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(addCarTransaction), List.empty)
+    "do not show an add company car benefit link if the user has a car benefit" in new WithApplication(FakeApplication()) {
+      val benefits = Seq[Benefit](carBenefitEmployer1)
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, benefits, List.empty, List.empty)
       val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(addCarLinkId) shouldBe null
@@ -269,7 +271,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       recentChanges should include(s"On 2 December 2012, you added your company fuel benefit from $employerName1. This is being processed and you will receive a new Tax Code within 2 days.")
       recentChanges should include(s"On 2 December 2012, you added your company fuel benefit from $employerName1. This has been processed and your new Tax Code is 430L. $employerName1 have been notified.")
-      recentChanges should not include (employerName2)
+      recentChanges should not include employerName2
       doc.select(".no_actions") shouldBe empty
     }
 
@@ -291,7 +293,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       recentChanges should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
     }
 
-    "display a message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) {
+    "display a suitable message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) {
 
      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List.empty, List.empty)
 
@@ -300,22 +302,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select(".no_actions") should not be empty
       doc.select(".no_actions").text should include("no changes")
     }
-
-    def removeBenefitTransactionLinkVisibilityTest(removeTransactionBenefitType : Int, isCompleted : Boolean, expRemoveFuelLink : Boolean, expRemoveCarLink : Boolean){
-      val acceptedTransactions = if (!isCompleted) List(generateTransactionData(removeTransactionBenefitType , false)) else List.empty
-      val completedTransactions = if (isCompleted) List(generateTransactionData(removeTransactionBenefitType , true)) else List.empty
-
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1, fuelBenefitEmployer1), acceptedTransactions, completedTransactions)
-      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
-
-      status(result) should be(200)
-      val doc = Jsoup.parse(contentAsString(result))
-
-      if (expRemoveFuelLink) doc.getElementById(removeFuelLinkId) should not be (null) else doc.getElementById(removeFuelLinkId) should be (null)
-      if (expRemoveCarLink) doc.getElementById(removeCarLinkId) should not be (null) else doc.getElementById(removeCarLinkId) should be (null)
-    }
   }
-
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
                                         acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
@@ -324,28 +311,5 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))).thenReturn(Some(acceptedTransactions))
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))).thenReturn(Some(completedTransactions))
-  }
-
-  private def generateTransactionData(benefitType : Int, isCompletedTransaction : Boolean) : TxQueueTransaction = {
-    val benefitTypes = Map(29 -> "fuel", 31 -> "car")
-    val acceptedStatus = Status("ACCEPTED", None, DateTime.now())
-    val createdStatus = Status("CREATED", None, DateTime.now())
-    val completedStatus = Status("COMPLETED", None, DateTime.now())
-
-    val statusList = if (isCompletedTransaction)
-      List(completedStatus, acceptedStatus, createdStatus)
-    else
-      List(acceptedStatus, createdStatus)
-
-     TxQueueTransaction(
-      new URI("Test"),
-      "paye",
-      new URI("/auth/oid/jdensmore"),
-      None,
-      statusList,
-      Some(List("benefits", "remove", "message.code.removeBenefits", benefitTypes(benefitType))),
-      Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitTypes" -> benefitType.toString) ,
-      DateTime.now(),
-      DateTime.now())
   }
 }

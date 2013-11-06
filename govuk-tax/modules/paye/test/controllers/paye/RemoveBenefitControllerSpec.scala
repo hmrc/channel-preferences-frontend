@@ -265,8 +265,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, carWithdrawDate)).thenReturn(carCalculationResult)
 
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate)), "31", 2013, 2))
-      private val string: String = contentAsString(result)
-      println(string)
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -587,61 +585,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
        "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      when(mockPayeConnector.removeBenefits(Matchers.any[String], Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), Some("123L"), Some(9999))))
-
-      val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye_ui", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
-
-      val result = Future.successful(controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2))
-
-      val revisedBenefits = Seq(RevisedBenefit(carBenefit, BigDecimal(210.17)), RevisedBenefit(fuelBenefit, BigDecimal(14.1)))
-      verify(mockPayeConnector, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", 22, revisedBenefits, withdrawDate)
-
-      status(result) shouldBe 303
-      val expectedUri = routes.RemoveBenefitController.benefitRemoved("31,29", 2013, 2, "someIdForCarAndFuelRemoval", Some("123L"), Some(9999)).url
-      redirectLocation(result) shouldBe  Some(expectedUri)
-    }
-
-    "in step 2 redirect to benefits home page if one of the benefits being removed is already a part of running transaction" in {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val transaction: TxQueueTransaction = mock[TxQueueTransaction]
-      when(mockTxQueueConnector.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
-      when(transaction.properties).thenReturn(Map("benefitTypes" -> "31", "employmentSequenceNumber" -> "2", "taxYear" -> "2013"))
-
-      val result = Future.successful(controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2))
-
-      verifyZeroInteractions(mockKeyStoreService)
-
-      status(result) shouldBe 303
-      val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
-      redirectLocation(result) shouldBe  Some(expectedUri)
-    }
-
-    "in step 2 redirect to benefits home page if both of the benefits being removed are already a part of running transaction" in {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val transaction: TxQueueTransaction = mock[TxQueueTransaction]
-      when(mockTxQueueConnector.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
-      when(transaction.properties).thenReturn(Map("benefitTypes" -> "29,31", "employmentSequenceNumber" -> "2", "taxYear" -> "2013"))
-
-      val result = Future.successful(controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), "31,29", 2013, 2))
-
-      verifyZeroInteractions(mockKeyStoreService)
-
-      status(result) shouldBe 303
-      val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
-      redirectLocation(result) shouldBe  Some(expectedUri)
-    }
-
-    "in step 2, do not redirect to benefits home page if only unrelated benefits are already a part of running transaction" in {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val transaction: TxQueueTransaction = mock[TxQueueTransaction]
-      when(mockTxQueueConnector.transaction(Matchers.any[String])).thenReturn(Some(List(transaction)))
-      when(transaction.properties).thenReturn(Map("benefitTypes" -> "5,6,7", "employmentSequenceNumber" -> "2", "taxYear" -> "2013"))
 
       when(mockPayeConnector.removeBenefits(Matchers.any[String], Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), Some("123L"), Some(9999))))
 
