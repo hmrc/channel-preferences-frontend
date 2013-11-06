@@ -35,10 +35,12 @@
                       <th id="company-name">Company car provided by @employerNameString</th>
                       <th></th>
                   </tr>
+                  @if(carBenefit.get.car.get.dateCarMadeAvailable.isDefined) {
                   <tr>
                       <td>Date Provided</td>
                       <td id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
                   </tr>
+                  }
                   @if(carBenefit.get.car.get.carValue.isDefined) {
                   <tr>
                       <td>List Price including accessories</td>
