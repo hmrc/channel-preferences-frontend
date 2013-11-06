@@ -4,21 +4,24 @@ import controllers.common.{GovernmentGateway, Actions, BaseController}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{Results, Request}
-import views.helpers.{RenderableMessage, LinkMessage}
+import play.api.mvc.Request
+import views.helpers.LinkMessage
 import uk.gov.hmrc.common.microservice.ct.domain.CtRegime
 import uk.gov.hmrc.common.microservice.vat.domain.VatRegime
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRegime
+
 
 class PaymentController extends BaseController
 with Actions
 with PortalUrlBuilder {
 
-  def makeSaPayment = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
-    user => request => makeSaPaymentPage(user, request)
+  def makeEpayePayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(EpayeRegime))(EpayePaymentPredicate) {
+      user => request =>
+        makeEpayePaymentPage(user, request)
   }
 
-  def makeEpayePayment = ActionAuthorisedBy(GovernmentGateway)(Some(CtRegime)) {
-    user => request => makeEpayePaymentPage(user, request)
+  def makeSaPayment = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+     user => request => makeSaPaymentPage(user, request)
   }
 
   def makeCtPayment = ActionAuthorisedBy(GovernmentGateway)(Some(CtRegime)) {

@@ -1,18 +1,18 @@
 package controllers.common
 
 import play.api.mvc._
-import controllers.common.actions.{UserActionWrapper, AuditActionWrapper}
+import controllers.common.actions._
 import uk.gov.hmrc.common.microservice.domain._
 import controllers.common.service.Connectors
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import controllers.common.actions.{WithRequestLogging, WithHeaders}
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import controllers.common.actions.WithHeaders
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.mvc.SimpleResult
 
 trait Actions
   extends Results
@@ -32,6 +32,27 @@ trait Actions
             user =>
               WithRequestAuditing(user) {
                 user => Action(body(user))
+              }
+          }
+        }
+      }
+    }
+  }
+
+  def ActionAuthorisedByWithVisibility(authenticationType: AuthenticationType)
+                                      (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
+                                      (pageVisibilityPredicate: PageVisibilityPredicate)
+                                      (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
+    WithHeaders {
+      WithRequestLogging {
+        WithSessionTimeoutValidation {
+          WithUserAuthorisedBy(authenticationType)(taxRegime, redirectToOrigin) {
+            user =>
+              WithPageVisibility(pageVisibilityPredicate, user) {
+                user =>
+                  WithRequestAuditing(user) {
+                    user => Action(body(user))
+                  }
               }
           }
         }

@@ -1,8 +1,20 @@
 package uk.gov.hmrc.common.microservice.epaye.domain
 
-import uk.gov.hmrc.common.microservice.domain.RegimeRoot
+import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import controllers.common.{GovernmentGateway, FrontEndRedirect}
+
+
+object EpayeRegime extends TaxRegime {
+
+  def isAuthorised(regimes: Regimes) = regimes.epaye.isDefined
+
+  def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
+
+  def authenticationType = GovernmentGateway
+}
 
 case class EpayeLinks(accountSummary: Option[String])
 
