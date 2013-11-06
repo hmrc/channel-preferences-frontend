@@ -26,10 +26,37 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import controllers.bt.accountsummary.AccountSummary
 import play.api.test.FakeApplication
 import controllers.bt.accountsummary.Msg
+import controllers.bt.{routes => businessTaxRoutes}
+import controllers.common.{routes => commonRoutes}
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling home with a valid logged in business user" should {
+
+    "always render the navigation links to home, other services and log out" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
+
+      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+
+      val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
+      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+      val request = FakeRequest()
+
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(Seq.empty))
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
+
+      val result = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
+
+      status(result) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(result))
+
+      document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home().url
+      document.getElementById("otherServicesNavHref").attr("href") shouldBe "/business-tax" + businessTaxRoutes.OtherServicesController.otherServices().url
+      document.getElementById("logOutNavHref").attr("href") shouldBe commonRoutes.LoginController.logout().url
+    }
 
     "always render the sso links to enrol, de-enrol and manage services" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
 
