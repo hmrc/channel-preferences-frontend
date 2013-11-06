@@ -38,6 +38,11 @@ object FrontEndRedirect extends Controller {
     Redirect(businessTaxHome)
   }
 
+  def toAgent = {
+    Logger.debug("Redirecting to agent...")
+    Redirect(agentHome)
+  }
+
   def toSamlLogin = {
     Logger.debug("Redirecting to login")
     Redirect(routes.LoginController.samlLogin)
