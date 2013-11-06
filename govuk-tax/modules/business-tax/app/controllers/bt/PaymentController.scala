@@ -20,15 +20,15 @@ with PortalUrlBuilder {
         makeEpayePaymentPage(user, request)
   }
 
-  def makeSaPayment = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def makeSaPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(SaRegime))(SaPaymentPredicate) {
      user => request => makeSaPaymentPage(user, request)
   }
 
-  def makeCtPayment = ActionAuthorisedBy(GovernmentGateway)(Some(CtRegime)) {
+  def makeCtPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(CtRegime))(CtPaymentPredicate) {
     user => request => makeCtPaymentPage(user, request)
   }
 
-  def makeVatPayment = ActionAuthorisedBy(GovernmentGateway)(Some(VatRegime)) {
+  def makeVatPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(VatRegime))(VatPaymentPredicate) {
     user => request => makeVatPaymentPage(user, request)
   }
 
