@@ -1,8 +1,26 @@
+function toggleDefaultOptions($form, $options, bool) {
+print("calling the function")
+    if(bool) {
+    console.log("calling the function true")
+        $options.prop("checked", true).parents('li').addClass('visuallyhidden');
+        $form.find('#co2Figure').val('')
+            .end().find('#co2NoFigure').prop("checked", false);
+    } else {
+             console.log("calling the function false")
+           //check if electric has data flagged if true turn it off and reset everything
+           if(typeof $form.data("electricFlagged") !== 'undefined') {
+             $options.prop("checked", false).parents('li').removeClass('visuallyhidden');
+             //remove the electric data
+
+           }
+    }
+}
+
 /**
  * Attach a one-time event handler for all global links
  */
 $(document).on('click', 'a', function(e) {
-    
+
   var $target = $(this),
       linkHost = ($(this).data('sso') === true) ? true : false,
       a = document.createElement('a');
@@ -52,6 +70,7 @@ $(document).on('click', 'a', function(e) {
  * DOM ready
  */
 $(document).ready(function() {
+console.log("dom ready");
   $('.print-link a').attr('target', '_blank');
 
   // header search toggle
@@ -135,26 +154,15 @@ $(document).ready(function() {
       document.getElementsByTagName('head')[0].appendChild($new_styles[0]);
     }
   }());
-function toggleDefaultOptions($form, $options, bool) {
-    if(bool) {
-        $options.prop("checked", true).parents('li').addClass('visuallyhidden');
-        $form.find('#co2Figure').val('')
-            .end().find('#co2NoFigure').prop("checked", false);
-    } else {
 
-           //check if electric has data flagged if true turn it off and reset everything
-           if(typeof $form.data("electricFlagged") !== 'undefined') {
-             $options.prop("checked", false).parents('li').removeClass('visuallyhidden');
-             //remove the electric data
-
-           }
-    }
-}
   // if(window.GOVUK && GOVUK.userSatisfaction){
   //   GOVUK.userSatisfaction.randomlyShowSurveyBar();
   // }
 
-  if ($("#form-add-car-benefit").length) {
+
+});
+
+
   			//toggle fuel quesitons depending on if user has selected zero emissions
               var $form            = $("#form-add-car-benefit"),
                   $defaultOptions  = $form.find('*[data-default]');
@@ -167,17 +175,17 @@ function toggleDefaultOptions($form, $options, bool) {
                 toggleDefaultOptions($form, $defaultOptions, true);
                 $form.data('electricFlagged', true);
             }
-            $form.on('click', '*[data-iselectric]', function(e) {
+            $(document).on('click', '*[data-iselectric]', function(e) {
+            console.log("clicked");
                 if ($(this).data("iselectric")) {
+                    console.log("call function")
                      toggleDefaultOptions($form, $defaultOptions, true) ;
 
                      $form.data('electricFlagged', true);
                 } else {
-
+                     console.log("not electric")
                     toggleDefaultOptions($form, $defaultOptions, false);
                     $form.removeData('electricFlagged');
 
                 }
             });
-  }
-});
