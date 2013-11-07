@@ -4,10 +4,16 @@ import play.api.mvc.{Session, AnyContent, Request, SimpleResult}
 import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoots}
 import scala.Some
 import play.api.Logger
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.service.Connectors
 
-class HomeController
-  extends BaseController
+class HomeController(override val auditConnector: AuditConnector)
+                    (implicit override val authConnector: AuthConnector)
+  extends BaseController2
   with Actions {
+
+  def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
   def landing = UnauthorisedAction {
     request => redirectToLoginPage

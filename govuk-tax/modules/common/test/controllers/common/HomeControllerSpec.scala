@@ -21,7 +21,7 @@ import java.net.URI
 class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private abstract class WithSetup extends WithApplication(FakeApplication()) {
-    val controller = new HomeController
+    val controller = new HomeController()
   }
 
   "Calling redirectToLoginPage" should {
