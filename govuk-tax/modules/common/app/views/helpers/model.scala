@@ -16,6 +16,6 @@ object InputText {
   }
 }
 
-case class DateControl(yearRange: Range) extends FieldType
+case class DateControl(yearRange: Range, extraClass: Option[String] = None) extends FieldType
 
 case class FormField(field: play.api.data.Field, inputs: Seq[FieldType])

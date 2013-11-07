@@ -1,4 +1,4 @@
-@(formItem:Form[_], fieldName: String, label: String, yearRange: Range, args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
+@(formItem:Form[_], fieldName: String, label: String, yearRange: Range, extraClass: Option[String], args: (Symbol,Any)*)(implicit lang: play.api.i18n.Lang)
 
 @import controllers.common.validators.DateFields._
 @import play.api.i18n._
@@ -10,5 +10,5 @@
     <p>@label</p>
     @elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
 
-    @dateFieldsInline(formItem, fieldName, label, yearRange, args : _*)
+    @dateFieldsInline(formItem, fieldName, label, yearRange, extraClass, args : _*)
 </div>

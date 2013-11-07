@@ -7,7 +7,7 @@
 
 @value = @{ field.value match { case Some(x) => x case None => "" case x => x }}
 
-<div class="@elements.args.get('_groupDivClass) @if(elements.hasErrors) {error}">
+<div class="@elements.args.get('_groupDivClass)@if(elements.hasErrors){' ' + error}">
     <label for="@elements.field.name" class="@elements.args.get('_labelClass)">
         <span class="label__text">
             @elements.label

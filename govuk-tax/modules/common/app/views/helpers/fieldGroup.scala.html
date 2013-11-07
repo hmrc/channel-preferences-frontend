@@ -21,7 +21,7 @@
 
              @input match {
                 case dateControl: DateControl => {
-                    @dateFieldsInline(formItem, field.field.id, "", dateControl.yearRange)
+		    @dateFieldsInline(formItem, field.field.id, "", dateControl.yearRange, dateControl.extraClass)
                 }
                 case inputType: InputType => {
                         @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
