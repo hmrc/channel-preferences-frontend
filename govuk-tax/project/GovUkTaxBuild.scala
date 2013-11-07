@@ -39,14 +39,16 @@ object GovUkTaxBuild extends Build {
   val common = play.Project(
     appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
     settings = Common.commonSettings ++ SassPlugin.sassSettings
-  ).configs(TemplateTest)
-   .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-   .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
-   .settings(javaOptions in Test += configPath)
+  ).settings(Keys.fork in Test := false)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
 
   val paye = play.Project(
     appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
-  ).dependsOn(common % allPhases)
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(common % allPhases)
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
@@ -55,7 +57,8 @@ object GovUkTaxBuild extends Build {
 
   val agent = play.Project(
     appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent"), settings = Common.commonSettings
-  ).dependsOn(common % allPhases)
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(common % allPhases)
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
@@ -64,7 +67,8 @@ object GovUkTaxBuild extends Build {
 
   val bt = play.Project(
     appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.commonSettings
-  ).dependsOn(common % allPhases)
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(common % allPhases)
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
@@ -72,7 +76,8 @@ object GovUkTaxBuild extends Build {
 
   val sa = play.Project(
     appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.commonSettings
-  ).dependsOn(common % allPhases, bt)
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(common % allPhases, bt)
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
@@ -82,7 +87,10 @@ object GovUkTaxBuild extends Build {
     appName,
     Version.thisApp, appDependencies,
     settings = Common.commonSettings ++ SassPlugin.sassSettings
-  ).settings(publishArtifact := true).dependsOn(paye, agent, sa, bt).aggregate(common, paye, agent, sa, bt)
+  ).settings(publishArtifact := true,
+    Keys.fork in Test := false)
+    .dependsOn(paye, agent, sa, bt)
+    .aggregate(common, paye, agent, sa, bt)
 
 }
 
