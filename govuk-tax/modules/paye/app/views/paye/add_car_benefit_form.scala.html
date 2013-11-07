@@ -32,12 +32,12 @@
                     carBenefitForm,
                     Seq(
                         FormField(carBenefitForm(carUnavailable), Seq(
-                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio")),
-                            RadioButton("true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio")))),
+                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+                            RadioButton("true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
 			FormField(carBenefitForm(numberOfDaysUnavailable), Seq(InputType("text", "", "days", Some("form-field--inline input--contextual"), Some(""), Some("input--xsmall"))))
                     ),
                     '_label -> "Has the new company car been unavailable to you for at least 30 consecutive days since 6 April?",
-                    '_groupDivClass -> "form-field",
+                    '_groupDivClass -> "form-field  includes-contextual",
                     '_valueAfter -> true
                 )
             </li>
@@ -46,12 +46,12 @@
                     carBenefitForm,
                     Seq(
                         FormField(carBenefitForm(giveBackThisTaxYear), Seq(
-                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio")),
-                            RadioButton("true", "Yes: on ", Some("form-field--inline-spaced-right"), Some("")))),
+                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio"),Some(""), Some("data-contextual-helper=disable")),
+                            RadioButton("true", "Yes: on ", Some("form-field--inline-spaced-right"), Some(""), Some(""), Some("data-contextual-helper=enable")))),
 			FormField(carBenefitForm(providedTo), Seq(DateControl((2013 to 2014), Some("input--contextual"))))
                     ),
                     '_label -> "Will you give back your new company car before 5 April?",
-                    '_groupDivClass -> "form-field",
+                    '_groupDivClass -> "form-field includes-contextual",
                     '_valueAfter -> true
                 )
             </li>
@@ -83,12 +83,12 @@
                     carBenefitForm,
                     Seq(
                         FormField(carBenefitForm(employeeContributes), Seq(
-                            RadioButton("false", "No", Some("form-field clear"), Some("label--inlineRadio")),
-                            RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio")))),
-                        FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline"), Some(""), Some("input--small"))))
+                            RadioButton("false", "No", Some("form-field clear"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+                            RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+                        FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline input--contextual"), Some(""), Some("input--small"))))
                     ),
                     '_label -> "Did you pay anything towards the cost of the car?",
-                    '_groupDivClass -> "form-field",
+                    '_groupDivClass -> "form-field  includes-contextual",
                     '_valueAfter -> true
                 )
             </li>
@@ -97,12 +97,12 @@
                     carBenefitForm,
                     Seq(
                         FormField(carBenefitForm(employerContributes), Seq(
-                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio")),
-                            RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio")))),
-                        FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", "a year", Some("form-field--inline"), Some(""), Some("input--xsmall"))))
+                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+                            RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+                        FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", "a year", Some("form-field--inline input--contextual"), Some(""), Some("input--xsmall"))))
                     ),
                     '_label -> "Do you pay your employer for private use of the company car?",
-                    '_groupDivClass -> "form-field",
+                    '_groupDivClass -> "form-field includes-contextual",
                     '_valueAfter -> true
                 )
             </li>
