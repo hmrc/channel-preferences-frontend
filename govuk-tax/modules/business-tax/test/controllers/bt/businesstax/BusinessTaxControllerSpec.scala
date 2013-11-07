@@ -36,7 +36,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
     "always render the navigation links to home, other services and log out" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
 
       val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
@@ -61,7 +61,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
     "always render the sso links to enrol, de-enrol and manage services" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
 
       val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
@@ -98,7 +98,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
 
       val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
 
@@ -127,7 +127,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
 
       val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
 
@@ -155,7 +155,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
 
       val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
 
@@ -182,7 +182,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
 
       val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
 
@@ -215,7 +215,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) with MockedPortalUrlBuilder
+      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
 
       val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
 

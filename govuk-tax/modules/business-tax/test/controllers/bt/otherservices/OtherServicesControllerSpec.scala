@@ -27,7 +27,7 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
     "render the Other Services template without the Manage your taxes section if the related summary is None" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
 
       val mockOtherServicesFactory = mock[OtherServicesFactory]
-      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory)
+      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory, null)(null)
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
@@ -69,7 +69,7 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
     "render the Other Services template including the three sections if all the summaries are available " in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
 
       val mockOtherServicesFactory = mock[OtherServicesFactory]
-      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory)
+      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory, null)(null)
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
@@ -109,7 +109,7 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
 
     "render the Other Services template without the Manage your taxes section if the related summary is empty" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
       val mockOtherServicesFactory = mock[OtherServicesFactory]
-      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory)
+      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory, null)(null)
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
@@ -151,7 +151,7 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
 
     "render the Other Services template with the generic registration message if the registration link is not available" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
       val mockOtherServicesFactory = mock[OtherServicesFactory]
-      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory)
+      val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory, null)(null)
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)

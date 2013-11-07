@@ -14,7 +14,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 class BusinessTaxControllerStandardBehaviourSpec extends BaseSpec {
 
   val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory) {
+  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) {
     override private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]): SimpleResult = Ok
   }
 

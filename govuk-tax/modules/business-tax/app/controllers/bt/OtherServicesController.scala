@@ -1,19 +1,23 @@
 package controllers.bt
 
 import controllers.bt.otherservices.{OtherServicesFactory, OtherServicesSummary}
-import controllers.common.{Actions, GovernmentGateway, BaseController}
+import controllers.common.{BaseController2, Actions, GovernmentGateway}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.Connectors
 import play.api.mvc.Request
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 
-class OtherServicesController(otherServicesFactory: OtherServicesFactory)
-  extends BaseController
+class OtherServicesController(otherServicesFactory: OtherServicesFactory,
+                              override val auditConnector: AuditConnector)
+                             (implicit override val authConnector: AuthConnector)
+  extends BaseController2
   with Actions
   with PortalUrlBuilder {
 
-  def this() = this(new OtherServicesFactory(Connectors.governmentGatewayConnector))
+  def this() = this(new OtherServicesFactory(Connectors.governmentGatewayConnector), Connectors.auditConnector)(Connectors.authConnector)
 
   def otherServices = ActionAuthorisedBy(GovernmentGateway)() {
     user => request => otherServicesPage(user, request)

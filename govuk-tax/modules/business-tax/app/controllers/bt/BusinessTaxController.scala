@@ -6,13 +6,18 @@ import controllers.bt.accountsummary._
 import uk.gov.hmrc.common.microservice.domain.User
 import views.helpers.LinkMessage
 import play.api.mvc.Request
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.service.Connectors
 
-class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory)
-  extends BaseController
+class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
+                            override val auditConnector: AuditConnector)
+                           (implicit override val authConnector: AuthConnector)
+  extends BaseController2
   with Actions
   with PortalUrlBuilder {
 
-  def this() = this(new AccountSummariesFactory())
+  def this() = this(new AccountSummariesFactory(), Connectors.auditConnector)(Connectors.authConnector)
 
   def home = ActionAuthorisedBy(GovernmentGateway)() {
     user => request => businessTaxHomepage(user, request)
