@@ -1,16 +1,26 @@
 package controllers.common
 
-import service.Encryption
+import controllers.common.service.{Connectors, Encryption}
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Request, Action}
 import config.PortalConfig
 import play.api.{Logger, Play}
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 object SsoPayloadEncryptor extends Encryption {
   val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
 }
 
-class SsoOutController extends BaseController with ActionWrappers with CookieEncryption with SessionTimeoutWrapper {
+class SsoOutController(override val auditConnector: AuditConnector)
+                      (implicit override val authConnector: AuthConnector)
+  extends BaseController2
+  with Actions
+  with CookieEncryption
+  with SessionTimeoutWrapper {
+
+  def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
   def encryptPayload = WithSessionTimeoutValidation(Action(BadRequest("Error")), Action {
     implicit request =>

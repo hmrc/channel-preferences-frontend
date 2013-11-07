@@ -14,7 +14,7 @@ import org.joda.time.DateTime
 class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
   private def dateTime = DateTimeProvider.now
-  private def controller = new SsoOutController {
+  private def controller = new SsoOutController() {
     override def now: () => DateTime = dateTime
   }
 
