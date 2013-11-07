@@ -51,7 +51,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
       accountSummaryView.messages shouldBe Seq[Msg](Msg(vatRegistrationNumberMessage, Seq(vrn.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
-        Msg(vatSummaryUnavailableErrorMessage3), Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage, sso = true))))
+        Msg(vatSummaryUnavailableErrorMessage3), Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage(vatHelpDeskPortalUrl, vatHelpDeskLinkMessage, sso = true, id = Some("vatHelpDeskPortalHref")))))
       accountSummaryView.addenda shouldBe Seq.empty
       accountSummaryView.status shouldBe SummaryStatus.default
     }

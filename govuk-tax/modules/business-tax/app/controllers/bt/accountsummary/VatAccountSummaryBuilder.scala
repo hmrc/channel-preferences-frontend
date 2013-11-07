@@ -35,7 +35,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
         val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
           Msg(vatSummaryUnavailableErrorMessage3),
         //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
-          Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage.portalLink(buildPortalUrl(vatHelpDeskPortalUrl), Some(vatHelpDeskLinkMessage)))))
+          Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage.portalLink(buildPortalUrl(vatHelpDeskPortalUrl), Some(vatHelpDeskLinkMessage), id = Some("vatHelpDeskPortalHref")))))
         AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
       }
     }
