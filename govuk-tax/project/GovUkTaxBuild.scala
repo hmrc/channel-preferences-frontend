@@ -54,7 +54,6 @@ object GovUkTaxBuild extends Build {
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
     .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "paye" })
-    .settings(jasmineFixturesDir <+= baseDirectory { src => src / "test" / "views" / "paye" / "specs"/ "fixtures" })
 
   val agent = play.Project(
     appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent"), settings = Common.commonSettings
@@ -83,8 +82,6 @@ object GovUkTaxBuild extends Build {
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
-    .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "sa" })
-    .settings(jasmineFixturesDir <+= baseDirectory { src => src / "test" / "views" / "sa" / "specs"/ "fixtures" })
 
   lazy val govukTax = play.Project(
     appName,
@@ -119,11 +116,8 @@ object Common {
     jasmineSettings ++
     Seq(
       appJsDir <+= baseDirectory {dir => dir},
-      appJsLibDir <+= baseDirectory {dir => dir / ".." / "common" / "public" / "javascripts" / "vendor" },
+      appJsLibDir <+= baseDirectory {dir => dir / ".." / "common" / "public" / "javascripts"},
       jasmineConfFile <+= baseDirectory { src => src / ".." / "common" / "test" / "test.dependencies.js"},
-      jasmineRequireJsFile <+= baseDirectory { src => src / ".." / "common" / "public" / "javascripts" / "vendor"/ "require.js" },
-      jasmineRequireConfFile <+= baseDirectory { src => src / ".." / "common" / "public" / "javascripts" / "require.conf.js" },
-
-  (test in Test) <<= (test in Test) dependsOn (jasmine)
+      (test in Test) <<= (test in Test) dependsOn (jasmine)
     ) ++ playScalaSettings ++ Repositories.publishingSettings
 }
