@@ -5,7 +5,9 @@ import uk.gov.hmrc.common.microservice.domain.{User, RegimeRoots}
 import scala.Some
 import play.api.Logger
 
-class HomeController extends BaseController with ActionWrappers {
+class HomeController
+  extends BaseController
+  with Actions {
 
   def landing = UnauthorisedAction {
     request => redirectToLoginPage
