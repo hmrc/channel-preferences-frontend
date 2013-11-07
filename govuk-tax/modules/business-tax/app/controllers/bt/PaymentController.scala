@@ -1,6 +1,6 @@
 package controllers.bt
 
-import controllers.common.{GovernmentGateway, Actions, BaseController}
+import controllers.common.{BaseController2, GovernmentGateway, Actions}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
@@ -9,19 +9,26 @@ import views.helpers.LinkMessage
 import uk.gov.hmrc.common.microservice.ct.domain.CtRegime
 import uk.gov.hmrc.common.microservice.vat.domain.VatRegime
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRegime
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.service.Connectors
 
 
-class PaymentController extends BaseController
-with Actions
-with PortalUrlBuilder {
+class PaymentController(override val auditConnector: AuditConnector)
+                       (implicit override val authConnector: AuthConnector)
+  extends BaseController2
+  with Actions
+  with PortalUrlBuilder {
+
+  def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
   def makeEpayePayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(EpayeRegime))(EpayePaymentPredicate) {
-      user => request =>
-        makeEpayePaymentPage(user, request)
+    user => request =>
+      makeEpayePaymentPage(user, request)
   }
 
   def makeSaPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(SaRegime))(SaPaymentPredicate) {
-     user => request => makeSaPaymentPage(user, request)
+    user => request => makeSaPaymentPage(user, request)
   }
 
   def makeCtPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(CtRegime))(CtPaymentPredicate) {
