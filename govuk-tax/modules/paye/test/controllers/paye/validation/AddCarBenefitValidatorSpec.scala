@@ -43,6 +43,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     }
   }
 
+
   "AddCarBenefitValidator for field NUMBER OF DAYS UNAVAILABLE" should {
 
     case class DummyModel(daysUnAvailable: Option[Int])
@@ -88,7 +89,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     "reject when the value is bigger than the providedFrom -> providedTo range." in new WithApplication(FakeApplication()) {
       val fromDate = Some(new LocalDate(2012, 5, 30))
       val toDate = Some(new LocalDate(2012, 5, 31))
-      val form = bindFormWithValue(dummyForm(getValues(providedFromVal = fromDate, providedToVal = toDate, carUnavailableVal=Some("true"))), numberOfDaysUnavailable, "3")
+      val form = bindFormWithValue(dummyForm(getValues(providedFromVal = fromDate, providedToVal = toDate, carUnavailableVal=Some("true"), giveBackThisTaxYearVal = Some("true"))), numberOfDaysUnavailable, "3")
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Car cannot be unavailable for longer than the total time you have a company car for.")
     }
@@ -111,6 +112,17 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val form = bindFormWithValue(dummyForm(values), employerPayFuel, "-123")
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, employerPayFuel, "Value not accepted. Please select one of the options.")
+    }
+
+    "accept a value for fuel date withdrawn if providedTo is not empty but giveBackCarThisYear is false" in new WithApplication(FakeApplication()) {
+      val withdrawnDateAfterCarProvidedTo = buildDateFormField(dateFuelWithdrawn, Some((s"$currentTaxYear", "6", "7")))
+      val form = dummyForm(getValues(
+        employerPayFuelVal = Some("date"),
+        giveBackThisTaxYearVal = Some("false"),
+        providedToVal = Some(new LocalDate(currentTaxYear,5,5)))
+      ).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(withdrawnDateAfterCarProvidedTo: _*))
+
+      form.errors(dateFuelWithdrawn) shouldBe empty
     }
 
     "reject if there is no value for the employer pay fuel field" in new WithApplication(FakeApplication()) {
@@ -190,7 +202,11 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
       val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
 
-      val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
+      val valuesWithCarProvidedDates = getValues(
+        employerPayFuelVal = Some("date"),
+        providedFromVal = carStartDate,
+        providedToVal = carStopDate,
+        giveBackThisTaxYearVal = Some("true"))
       val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
       form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end before you get the car.")
@@ -202,7 +218,11 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val carStartDate = Some(new LocalDate(currentTaxYear, 6, 12))
       val carStopDate = Some(new LocalDate(currentTaxYear, 8 , 4))
 
-      val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
+      val valuesWithCarProvidedDates = getValues(
+        employerPayFuelVal = Some("date"),
+        providedFromVal = carStartDate,
+        providedToVal = carStopDate,
+        giveBackThisTaxYearVal = Some("true"))
       val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
       form.hasErrors shouldBe true
 
@@ -238,7 +258,6 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       form should haveErrors
       assertHasThisErrorMessage(form, employerPayFuel, "Fuel benefits cannot be claimed for electric or zero emission cars.")
     }
-
   }
 
   "AddCarBenefitValidator for field CO2 FIGURE & CO2 NO FIGURE " should {
@@ -421,12 +440,13 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
   def getValues(fuelTypeVal: Option[String] = None, co2NoFigureVal: Option[String] = None, co2FigureVal: Option[String] = None,
                 carRegistrationDateVal: Option[LocalDate] = None, numberOfDaysUnavailableVal: Option[String] = None, employerPayFuelVal: Option[String] = None,
-                providedFromVal: Option[LocalDate] = None, providedToVal: Option[LocalDate] = None, carUnavailableVal: Option[String] = None) =
+                providedFromVal: Option[LocalDate] = None, providedToVal: Option[LocalDate] = None, carUnavailableVal: Option[String] = None,
+                giveBackThisTaxYearVal: Option[String] = None) =
     new CarBenefitValues(
         providedFromVal = providedFromVal,
         carUnavailableVal = carUnavailableVal,
         numberOfDaysUnavailableVal = numberOfDaysUnavailableVal,
-        giveBackThisTaxYearVal = None,
+        giveBackThisTaxYearVal = giveBackThisTaxYearVal,
         providedToVal = providedToVal,
         carRegistrationDate = carRegistrationDateVal,
         employeeContributes = None,

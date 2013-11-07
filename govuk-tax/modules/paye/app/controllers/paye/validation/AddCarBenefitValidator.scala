@@ -102,7 +102,10 @@ object AddCarBenefitValidator extends Validators {
   }
 
   private def getStartDate(values:CarBenefitValues)  = values.providedFromVal.getOrElse(TaxYearResolver.startOfCurrentTaxYear)
-  private def getEndDate(values:CarBenefitValues)  = values.providedToVal.getOrElse(TaxYearResolver.endOfCurrentTaxYear)
+  private def getEndDate(values:CarBenefitValues)  =  (values.giveBackThisTaxYearVal, values.providedToVal) match {
+      case (Some("true"), Some(date)) => date
+      case _ => TaxYearResolver.endOfCurrentTaxYear
+  }
 
   private[paye] def validateNumberOfDaysUnavailable(values: CarBenefitValues) : Mapping[Option[Int]] = values.carUnavailableVal.map(_.toBoolean) match {
     case Some(true) => {
@@ -160,12 +163,6 @@ object AddCarBenefitValidator extends Validators {
     case _ => true
   }
 
-  private def isValidCompareTo(employerPayFuel:String , daysCarUnavailable:Option[String]) = {
-    daysCarUnavailable match {
-      case Some(days) =>  employerPayFuel != employerPayeFuelDateOption
-      case _ => true
-    }
-  }
 
   private[paye] def validateProvidedFrom(timeSource: () => LocalDate) = {
     validateNotMoreThan7DaysFromNow(timeSource, dateInCurrentTaxYear)

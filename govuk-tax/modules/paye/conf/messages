@@ -41,6 +41,7 @@ error.paye.date_must_be_after_1900=You must specify a valid date.
 error.paye.number_of_days_unavailable_less_than_0=Days unavailable must be greater than zero if you have selected yes.
 error.boolean=Please use a boolean value.
 error.number=Please use whole numbers only, not decimals or other characters.
+error.paye.no_option_needs_empty_value=You cannot specify a value if you have chosen the option No.
 
 error.paye.registered_date_not_after_today=Date first registered with the DVLA cannot be in the future.
 
