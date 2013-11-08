@@ -1,6 +1,6 @@
 package controllers.agent.registration
 
-import controllers.common.{Ida, BaseController2, Actions}
+import controllers.common.{Ida, BaseController, Actions}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.data.Form
 import play.api.data.Forms._
@@ -18,7 +18,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnector,
                                         override val keyStoreConnector: KeyStoreConnector)
                                        (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with AgentController
   with Validators

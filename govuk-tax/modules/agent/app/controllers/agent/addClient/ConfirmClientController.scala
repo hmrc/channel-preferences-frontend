@@ -24,7 +24,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
                               override val auditConnector: AuditConnector)
                              (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with Validators {
 

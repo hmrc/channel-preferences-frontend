@@ -15,7 +15,7 @@ object SsoPayloadEncryptor extends Encryption {
 
 class SsoOutController(override val auditConnector: AuditConnector)
                       (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with CookieEncryption
   with SessionTimeoutWrapper {

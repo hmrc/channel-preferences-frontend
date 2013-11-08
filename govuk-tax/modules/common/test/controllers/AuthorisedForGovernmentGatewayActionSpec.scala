@@ -208,7 +208,7 @@ sealed class AuthorisedForGovernmentGatewayActionSpecController(saConnector: SaC
                                                                 vatConnector: VatConnector,
                                                                 override val auditConnector: AuditConnector)
                                                                (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions {
 
   override def regimeRoots(authority: UserAuthority): RegimeRoots = {

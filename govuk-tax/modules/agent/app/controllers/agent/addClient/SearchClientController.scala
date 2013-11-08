@@ -2,7 +2,7 @@ package controllers.agent.addClient
 
 import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient._
-import controllers.common.{Ida, BaseController2, Actions}
+import controllers.common.{Ida, BaseController, Actions}
 import play.api.data.{Form, Forms}
 import Forms._
 import org.joda.time.LocalDate
@@ -26,7 +26,7 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
                              override val auditConnector: AuditConnector)
                             (implicit agentMicroService: AgentConnector,
                              override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions {
 
   import SearchClientController._

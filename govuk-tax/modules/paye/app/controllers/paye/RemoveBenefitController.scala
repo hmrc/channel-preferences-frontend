@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import org.joda.time.LocalDate
 import models.paye._
 import models.paye.BenefitTypes._
-import controllers.common.{Ida, Actions, BaseController2, SessionTimeoutWrapper}
+import controllers.common.{Ida, Actions, BaseController, SessionTimeoutWrapper}
 import scala.collection.mutable
 import controllers.paye.validation.RemoveBenefitValidator._
 import org.joda.time.format.DateTimeFormat
@@ -32,7 +32,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import models.paye.RemoveBenefitFormData
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
-class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector : AuthConnector, override val auditConnector : AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector : TxQueueConnector) extends BaseController2
+class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector : AuthConnector, override val auditConnector : AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector : TxQueueConnector) extends BaseController
   with Actions
   with SessionTimeoutWrapper
   with TaxYearSupport

@@ -1,7 +1,7 @@
 package controllers.bt
 
 import controllers.bt.otherservices.{OtherServicesFactory, OtherServicesSummary}
-import controllers.common.{BaseController2, Actions, GovernmentGateway}
+import controllers.common.{BaseController, Actions, GovernmentGateway}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.Connectors
@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 class OtherServicesController(otherServicesFactory: OtherServicesFactory,
                               override val auditConnector: AuditConnector)
                              (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with PortalUrlBuilder {
 

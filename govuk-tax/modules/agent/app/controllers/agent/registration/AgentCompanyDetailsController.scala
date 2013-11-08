@@ -10,7 +10,7 @@ import play.api.data._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.{Ida, BaseController2, Actions}
+import controllers.common.{Ida, BaseController, Actions}
 import controllers.common.actions.MultiFormWrapper
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -20,7 +20,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
                                     override val keyStoreConnector: KeyStoreConnector)
                                    (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with AgentController
   with Validators

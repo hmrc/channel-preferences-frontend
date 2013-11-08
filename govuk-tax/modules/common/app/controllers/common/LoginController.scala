@@ -17,7 +17,7 @@ class LoginController(samlConnector : SamlConnector,
                       governmentGatewayConnector : GovernmentGatewayConnector,
                       override val auditConnector: AuditConnector)
                      (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions {
 
   def login = WithNewSessionTimeout(UnauthorisedAction { implicit request =>

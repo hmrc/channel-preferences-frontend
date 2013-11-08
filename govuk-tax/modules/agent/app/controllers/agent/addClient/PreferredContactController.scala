@@ -31,7 +31,7 @@ class PreferredContactController(keyStoreConnector: KeyStoreConnector,
                                  override val auditConnector: AuditConnector)
                                 (implicit agentMicroService : AgentConnector,
                                  override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(AgentConnector(), Connectors.authConnector)

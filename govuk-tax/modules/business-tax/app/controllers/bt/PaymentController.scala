@@ -1,6 +1,6 @@
 package controllers.bt
 
-import controllers.common.{BaseController2, GovernmentGateway, Actions}
+import controllers.common.{BaseController, GovernmentGateway, Actions}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
@@ -16,7 +16,7 @@ import controllers.common.service.Connectors
 
 class PaymentController(override val auditConnector: AuditConnector)
                        (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with PortalUrlBuilder {
 

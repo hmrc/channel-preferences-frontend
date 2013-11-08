@@ -10,7 +10,7 @@ import controllers.common.service.Connectors
 
 class AgentSroCheckController(override val auditConnector: AuditConnector)
                              (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)

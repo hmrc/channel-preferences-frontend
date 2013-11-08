@@ -25,7 +25,7 @@ import uk.gov.hmrc.common.microservice.sa.SaConnector
 class SaController(override val auditConnector: AuditConnector)
                   (implicit saConnector : SaConnector,
                    override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with DateTimeProvider
   with Validators {

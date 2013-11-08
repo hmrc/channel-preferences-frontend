@@ -13,7 +13,7 @@ import controllers.common.service.Connectors
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
                             override val auditConnector: AuditConnector)
                            (implicit override val authConnector: AuthConnector)
-  extends BaseController2
+  extends BaseController
   with Actions
   with PortalUrlBuilder {
 
