@@ -11,9 +11,10 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import scala.Some
 import play.api.test.FakeRequest
-import controllers.bt.testframework.mocks.ConnectorMocks
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import org.scalatest.mock.MockitoSugar
 
-trait NonBusinessTaxRequest extends CookieEncryption with ConnectorMocks with NonBusinessUserFixture  {
+trait NonBusinessTaxRequest extends CookieEncryption with NonBusinessUserFixture with MockitoSugar {
 
   private val userAuthority = UserAuthority(
     id = userId,
@@ -24,6 +25,8 @@ trait NonBusinessTaxRequest extends CookieEncryption with ConnectorMocks with No
     userId = userAuthority.id,
     userAuthority = userAuthority,
     regimes = RegimeRoots())
+
+  val mockAuthConnector = mock[AuthConnector]
 
   when(mockAuthConnector.authority(userId)).thenReturn(Some(userAuthority))
 

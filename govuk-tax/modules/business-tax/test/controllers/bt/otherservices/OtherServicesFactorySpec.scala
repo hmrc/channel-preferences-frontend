@@ -7,11 +7,11 @@ import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.domain.{CtUtr, Vrn, EmpRef, SaUtr}
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.scalatest.Matchers
-import uk.gov.hmrc.common.microservice.governmentgateway.{Enrolment, AffinityGroup, ProfileResponse}
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, Enrolment, AffinityGroup, ProfileResponse}
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
 import play.api.test.{FakeRequest, WithApplication, FakeApplication}
-import controllers.bt.testframework.mocks.{AffinityGroupParserMock, ConnectorMocks, PortalUrlBuilderMock}
+import controllers.bt.testframework.mocks.{AffinityGroupParserMock, PortalUrlBuilderMock}
 import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
@@ -396,8 +396,9 @@ abstract class OtherServicesFactoryForTest
     "govuk-tax.Test.externalLinks.businessTax.registration.otherWays" -> "http://www.hmrc.gov.uk/online/new.htm#2")))
   with PortalUrlBuilderMock
   with AffinityGroupParserMock
-  with ConnectorMocks
   with Matchers {
+
+  val mockGovernmentGatewayConnector = mock[GovernmentGatewayConnector]
 
   val linkToHmrcWebsite = "http://www.hmrc.gov.uk/online/new.htm#2"
   val linkToHmrcOnlineRegistration = "http://businessRegistrationLink"

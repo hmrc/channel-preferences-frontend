@@ -11,13 +11,18 @@ import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeRequest
-import controllers.bt.testframework.mocks.ConnectorMocks
 import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatJsonRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeJsonRoot
+import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
+import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.sa.SaConnector
+import uk.gov.hmrc.common.microservice.vat.VatConnector
+import uk.gov.hmrc.common.microservice.ct.CtConnector
 
-trait BusinessTaxRequest extends CookieEncryption  with BusinessUserFixture with ConnectorMocks {
+trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with MockitoSugar {
 
   private def saUtrOpt = saRoot.map(_.utr)
 
@@ -42,6 +47,13 @@ trait BusinessTaxRequest extends CookieEncryption  with BusinessUserFixture with
   private def ctJsonRoot = ctRoot.map(root => CtJsonRoot(root.links))
 
   private def epayeJsonRoot = epayeRoot.map(root => EpayeJsonRoot(root.links))
+
+  val mockAuthConnector = mock[AuthConnector]
+  val mockSaConnector = mock[SaConnector]
+  val mockVatConnector = mock[VatConnector]
+  val mockCtConnector = mock[CtConnector]
+  val mockEpayeConnector = mock[EpayeConnector]
+
 
   private def userAuthority = UserAuthority(
     id = userId,

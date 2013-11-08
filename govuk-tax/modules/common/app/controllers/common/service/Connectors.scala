@@ -1,11 +1,9 @@
 package controllers.common.service
 
-import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
+object Connectors {
 
-@deprecated("this will eventually be removed. All new controllers should wire in the services that they require", "")
-trait Connectors {
-
+  import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
   import uk.gov.hmrc.common.microservice.auth.AuthConnector
   import uk.gov.hmrc.common.microservice.paye.PayeConnector
   import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -30,7 +28,4 @@ trait Connectors {
   implicit lazy val vatConnector = new VatConnector()
   implicit lazy val ctConnector = new CtConnector()
   implicit lazy val epayeConnector = new EpayeConnector()
-
 }
-
-object Connectors extends Connectors
