@@ -174,14 +174,14 @@
                     FormField(
                         carBenefitForm(employerPayFuel),
                         Seq(
-                            RadioButton("false", Messages("paye.add_car_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default")),
+                            RadioButton("false", Messages("paye.add_car_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default data-contextual-helper=disable")),
                             RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right")),
-                            RadioButton("date", Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"))
+                            RadioButton("date", Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=enable"))
                         )
                     ),
                     FormField(
                         carBenefitForm(dateFuelWithdrawn),
-                        Seq(DateControl((2013 to 2014)))
+                        Seq(DateControl((2013 to 2014), Some("input--contextual")))
                     ),
                     FormField(
                         carBenefitForm(employerPayFuel),
@@ -191,7 +191,7 @@
                     )
                 ),
                 '_label -> Messages("paye.add_car_benefit.employer_pay_fuel.label", employerNameString),
-                '_groupDivClass -> "form-field",
+                '_groupDivClass -> "form-field includes-contextual",
                 '_valueAfter -> true
                 )
             </li>

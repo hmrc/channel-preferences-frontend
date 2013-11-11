@@ -17,23 +17,36 @@ function toggleDefaultOptions( $form, $options, bool ) {
 var toggleContextualFields = function(){
     var $DOM = $( "#content" ),
     setup = function(){
-        var $contextualInput = $DOM.find( '.includes-contextual .input--contextual' ).find( ':input' );
-        $DOM.find( '[data-contextual-helper="disable"]:checked' ).each( function(){
-            toggle( $( this ) );
+        //select 'yes' option when user selects a contextual input
+        $DOM.on('click', '.includes-contextual .input--contextual input', function(e){
+            preselect($(e.currentTarget));
         });
-
+        $DOM.on('change', '.includes-contextual .input--contextual select', function(e){
+            preselect($(e.currentTarget));
+        });
         $DOM.on( 'click', '*[data-contextual-helper]',function( e ){
             toggle( $( this ) );
         });
     },
-    toggle = function( el ) {
-        if( el.data( 'contextual-helper' ) === "disable" ){
-            el.parents( '.includes-contextual' ).find( '.input--contextual' ).find( ':input' ).prop( 'disabled', true );
+    preselect =function ($el) {
+        $el.parents('.includes-contextual').find('*[data-contextual-helper="enable"]').trigger('click');
+    },
+    toggle = function( $el ) {
+        if( $el.data('contextual-helper') === "disable" ){
+            //clear value inputs
+            $el.parents('.includes-contextual').find( '.input--contextual' ).find(':input').each(function (i, el){
+               el.value = '';
+            });
         } else {
-            el.parents( '.includes-contextual' ).find( '.input--contextual' ).find( ':input' ).prop( 'disabled', false  );
+            var $inputs = $el.parents('.includes-contextual').find('.input--contextual').find(':input');
+            //set focus on first input if its a text box
+            $.each($inputs, function(index, element) {
+                if(index == 0 && element.type === "text") {
+                   $(element).focus();
+                }
+            });
         }
     }
-
     return {
         setup: setup
     }
@@ -44,7 +57,7 @@ var toggleContextualFields = function(){
  * Attach a one-time event handler for all global links
  */
 $(document).on('click', 'a', function(e) {
-    
+
   var $target = $(this),
       linkHost = ($(this).data('sso') === true) ? true : false,
       a = document.createElement('a');
