@@ -4,6 +4,7 @@ import play.api.mvc.{Action, Controller}
 import play.api.Play
 import com.typesafe.config.ConfigValueType
 import play.api.libs.ws.WS
+import play.api.libs.json.Json
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.collection.mutable.ListBuffer
@@ -64,4 +65,30 @@ class HealthCheckController extends Controller {
       case e: Exception => Some(s"$name:${e.getClass.getSimpleName}:${e.getMessage}")
     }
    }
+
+  def details() = Action {
+    Ok(Json.toJson(manifest))
+  }
+
+  def detail(name: String) = Action {
+    if (manifest.containsKey(name)) Ok(manifest(name)) else NotFound
+  }
+
+  private val resources = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF")
+
+  private val manifest = resources.foldLeft(Map.empty[String, String]) { (map, url) =>
+    val manifest = new java.util.jar.Manifest(url.openStream())
+    if (map.isEmpty && isApplicationManifest(manifest)) {
+      manifest.getMainAttributes.toMap.map {
+        t => t._1.toString -> t._2.toString
+      }
+    } else {
+      map
+    }
+  }
+
+  private def isApplicationManifest(manifest: java.util.jar.Manifest) = {
+    "govuk-tax".equals(manifest.getMainAttributes.getValue("Implementation-Title")) &&
+      "uk.gov.hmrc".equals(manifest.getMainAttributes.getValue("Implementation-Vendor"))
+  }
 }

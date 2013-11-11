@@ -24,3 +24,5 @@ GET     /home                           @controllers.common.HomeController.home
 GET     /                               @controllers.common.HomeController.landing
 
 GET     /admin/healthcheck              @controllers.common.HealthCheckController.check
+GET     /admin/details                  @controllers.common.HealthCheckController.details
+GET     /admin/detail/:name             @controllers.common.HealthCheckController.detail(name: String)
