@@ -1,4 +1,4 @@
-@(ctOnlineAccountLink: views.helpers.RenderableMessage, ctDirectDebitsLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(ctOnlineAccountLink: views.helpers.RenderableMessage, btDirectDebitsLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.RenderableMessageProperty.Link._
 
@@ -27,7 +27,7 @@
 
 <div id="directDebitSection">
     <h2>Direct Debit</h2>
-    <p>Set up a Direct Debit through your company's @{ctDirectDebitsLink.set(ID, "ctDirectDebitsHref").set(TEXT, "HMRC online account").render}.</p>
+    <p>Set up a Direct Debit through your company's @{btDirectDebitsLink.set(ID, "btDirectDebitsHref").set(TEXT, "HMRC online account").render}.</p>
     <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it's 3 working days.</p>
     <p>Payments will appear on your bank statements as "HMRC NDDS". You can make changes to the Direct Debit through your company's HMRC online account.</p>
 </div>

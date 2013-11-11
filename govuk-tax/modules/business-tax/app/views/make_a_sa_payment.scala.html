@@ -1,4 +1,4 @@
-@(ctDirectDebitsLink: views.helpers.RenderableMessage, utr: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(btDirectDebitsLink: views.helpers.RenderableMessage, utr: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.RenderableMessageProperty.Link._
 
@@ -17,13 +17,13 @@
 <div>
     <h2>Direct Debit</h2>
 
-    <p>Set up a Direct Debit through your company’s @{ctDirectDebitsLink.set(ID, "ctDirectDebitsHref1").set(TEXT, "HMRC online account").render}.</p>
+    <p>Set up a Direct Debit through your company’s @{btDirectDebitsLink.set(ID, "btDirectDebitsHref1").set(TEXT, "HMRC online account").render}.</p>
 
     <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it’s 3 working days.</p>
 
     <p>Payments will appear on your bank statements as “HMRC NDDS”.</p>
 
-    <p>To make changes to a Direct Debit or arrange new payment use your @{ctDirectDebitsLink.set(ID, "ctDirectDebitsHref2").set(TEXT, "HMRC online account").render}.</p>
+    <p>To make changes to a Direct Debit or arrange new payment use your @{btDirectDebitsLink.set(ID, "btDirectDebitsHref2").set(TEXT, "HMRC online account").render}.</p>
 
     <h2>Flexible payments</h2>
 
@@ -33,7 +33,7 @@
         <li>stop paying for up to 6 months</li>
     </ul>
 
-    <p>Set up a budget payment plan using your @{ctDirectDebitsLink.set(ID, "ctDirectDebitsHref3").set(TEXT, "HMRC online account").render} - you must be up-to-date with your payments and pay by Direct Debit.</p>
+    <p>Set up a budget payment plan using your @{btDirectDebitsLink.set(ID, "btDirectDebitsHref3").set(TEXT, "HMRC online account").render} - you must be up-to-date with your payments and pay by Direct Debit.</p>
 
     <p>If the total you’ve paid during the year doesn’t cover your bill in full, you’ll have to pay the difference.</p>
 </div>
