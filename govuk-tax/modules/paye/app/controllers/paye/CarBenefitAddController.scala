@@ -4,7 +4,7 @@ import controllers.common.{Ida, Actions, BaseController}
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
-import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData, BenefitTypes}
+import models.paye.{BenefitUpdatedConfirmationData, TaxCodeResolver, BenefitTypes}
 import play.api.Logger
 import org.joda.time._
 import play.api.data.Form
@@ -27,6 +27,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
+import models.paye.BenefitUpdatedConfirmationData
 
 class CarBenefitAddController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
@@ -140,8 +141,13 @@ with TaxYearSupport {
       val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
       val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, CarBenefits(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber))
       keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
-      Ok(views.html.paye.add_car_benefit_confirmation(BenefitUpdatedConfirmationData(
-        TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear), addBenefitsResponse.get.newTaxCode, addBenefitsResponse.get.netCodedAllowance, "start date", "end date")))
+
+      val currentTaxYearCode = TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear)
+      val newTaxCode = addBenefitsResponse.get.newTaxCode
+      val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
+      val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, "start date", "end date")
+
+      Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
     }
   }
 
