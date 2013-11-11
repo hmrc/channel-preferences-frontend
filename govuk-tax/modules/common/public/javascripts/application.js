@@ -1,13 +1,13 @@
-function toggleDefaultOptions($form, $options, bool) {
-    if(bool) {
-        $options.prop("checked", true).parents('li').addClass('visuallyhidden');
+function toggleDefaultOptions( $form, $options, bool ) {
+    if( bool ) {
+        $options.prop( "checked", true ).parents( 'li' ).addClass( 'visuallyhidden' );
 
-        $form.find('#co2Figure').val('')
-            .end().find('#co2NoFigure').prop("checked", false);
+        $form.find( '#co2Figure' ).val( '' )
+            .end().find( '#co2NoFigure' ).prop( "checked", false );
     } else {
            //check if electric has data flagged if true turn it off and reset everything
-           if(typeof $form.data("electricFlagged") !== 'undefined') {
-             $options.prop("checked", false).parents('li').removeClass('visuallyhidden');
+           if( typeof $form.data( "electricFlagged" ) !== 'undefined' ) {
+             $options.prop( "checked", false ).parents( 'li' ).removeClass( 'visuallyhidden' );
              //remove the electric data
 
            }
@@ -15,26 +15,24 @@ function toggleDefaultOptions($form, $options, bool) {
 }
 
 var toggleContextualFields = function(){
-    var $DOM = $("#content"),
-        setup = function(){
-        //toggle()
-            $DOM.find(".includes-contextual .input--contextual").find(':input').prop('disabled', true);
-            $DOM.on("click", "*[data-contextual-helper]",function(e){
-                if($(e.currentTarget).data('contextual-helper') === "disable"){
-                     toggle($(e.currentTarget), true);
-                } else {
-                    toggle($(e.currentTarget), false);
-                }
-            });
-        },
-        toggle = function($el, bool){
-            if(bool) {
-                $el.parents('.includes-contextual').find('.input--contextual').find(':input').prop('disabled', true);
+    var $DOM = $( "#content" ),
+    setup = function(){
+        var $contextualInput = $DOM.find( '.includes-contextual .input--contextual' ).find( ':input' );
+        $DOM.find( '[data-contextual-helper="disable"]:checked' ).each( function(){
+            toggle( $( this ) );
+        });
 
-            } else {
-                $el.parents('.includes-contextual').find('.input--contextual').find(':input').prop('disabled', false);
-            }
+        $DOM.on( 'click', '*[data-contextual-helper]',function( e ){
+            toggle( $( this ) );
+        });
+    },
+    toggle = function( el ) {
+        if( el.data( 'contextual-helper' ) === "disable" ){
+            el.parents( '.includes-contextual' ).find( '.input--contextual' ).find( ':input' ).prop( 'disabled', true );
+        } else {
+            el.parents( '.includes-contextual' ).find( '.input--contextual' ).find( ':input' ).prop( 'disabled', false  );
         }
+    }
 
     return {
         setup: setup
@@ -183,7 +181,7 @@ $(document).ready(function() {
   //   GOVUK.userSatisfaction.randomlyShowSurveyBar();
   // }
 
-  if ($("#form-add-car-benefit").length) {
+  if ($("*[data-contextual-helper]").length) {
     // setup showing/hiding of contextual fields
     toggleContextualFields.setup();
     //toggle fuel quesitons depending on if user has selected zero emissions
