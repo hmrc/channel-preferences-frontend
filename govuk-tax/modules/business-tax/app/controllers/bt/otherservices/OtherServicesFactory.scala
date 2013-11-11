@@ -111,10 +111,13 @@ class ManageTaxesLink(buildPortalUrl: String => String, keyToLink: String, keysT
   def buildLinks: Seq[RenderableLinkMessage] = {
 
     keysToLinkText.map(text => {
+
+      val id = s"${text.substring(text.lastIndexOf(".") + 1)}Href"
+
       if (isSso) {
-        RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl(keyToLink), Some(text)))
+        RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl(keyToLink), text = Some(text), id = Some(id)))
       } else {
-        RenderableLinkMessage(LinkMessage.externalLink(hrefKey = HrefKey(keyToLink), text = text, id = None, postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")))
+        RenderableLinkMessage(LinkMessage.externalLink(hrefKey = HrefKey(keyToLink), text = text, id = Some(id), postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")))
       }
     })
   }
