@@ -68,7 +68,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val request = FakeRequest()
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(Seq.empty))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
@@ -78,7 +77,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
       val document = Jsoup.parse(contentAsString(result))
 
-      document.getElementById("otherServicesHref").attr("href") shouldBe "otherServicesUrl"
       document.getElementById("enrolServiceHref1").attr("href") shouldBe "otherServicesEnrolmentUrl"
       document.getElementById("enrolServiceHref2").attr("href") shouldBe "otherServicesEnrolmentUrl"
       document.getElementById("removeServiceHref").attr("href") shouldBe "servicesDeEnrolmentUrl"

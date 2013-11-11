@@ -25,7 +25,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
 
   private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]) = {
     val accountSummaries = accountSummaryFactory.create(buildPortalUrl)
-    val otherServicesLink = LinkMessage.portalLink(buildPortalUrl("otherServices"))
+    val otherServicesLink = LinkMessage.internalLink(controllers.bt.routes.OtherServicesController.otherServices.url, "link")
     val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"))
     val removeServiceLink = LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"))
     Ok(views.html.business_tax_home(accountSummaries, otherServicesLink, enrolServiceLink, removeServiceLink))

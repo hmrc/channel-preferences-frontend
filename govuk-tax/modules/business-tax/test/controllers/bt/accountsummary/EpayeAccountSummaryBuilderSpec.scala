@@ -37,8 +37,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   private val expectedNonRtiLinks = Seq(
     RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, sso = true)),
-    RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage, sso = false)),
-    RenderableLinkMessage(LinkMessage(homeUrl, fileAReturnLinkMessage, sso = true))
+    RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage, sso = false))
   )
 
   "EpayeAccountSummaryViewBuilder with RTI" should {

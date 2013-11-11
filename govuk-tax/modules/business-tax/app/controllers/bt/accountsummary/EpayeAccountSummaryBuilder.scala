@@ -50,8 +50,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
 
     def expectedNonRtiLinks = Seq[RenderableMessage](
       LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage),
-      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(fileAReturnLinkMessage)))
+      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage))
 
     accountSummary match {
       case Some(EpayeAccountSummary(Some(rti), None)) => expectedRtiLinks
