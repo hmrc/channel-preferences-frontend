@@ -26,7 +26,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return an OnlineServicesEnrolment object with the SSO link to access the portal" in new OtherServicesFactoryForTest {
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("http://someLink")
-      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "here", sso = true)))
+      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "here", sso = true, id=Some("otherServicesEnrolmentHref"))))
       val result = factoryUnderTest.createOnlineServicesEnrolment(mockPortalUrlBuilder.buildPortalUrl)
 
       result shouldBe expected
@@ -38,7 +38,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return an OnlineServicesDeEnrolment object with the SSO link to access the portal" in new OtherServicesFactoryForTest {
 
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("http://someLink")
-      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "here", sso = true)))
+      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "here", sso = true, id = Some("servicesDeEnrolmentHref"))))
       val result = factoryUnderTest.createOnlineServicesDeEnrolment(mockPortalUrlBuilder.buildPortalUrl)
 
       result shouldBe expected
@@ -407,12 +407,17 @@ abstract class OtherServicesFactoryForTest
 
   val factoryUnderTest = new OtherServicesFactory(mockGovernmentGatewayConnector) with PortalUrlBuilderMock with MockedAffinityGroupParser
 
-  def assertCorrectBusinessTaxRegistration(expectedLink: String, linkMessage: String)(implicit user: User) {
-    def linkObj = Some(RenderableLinkMessage(LinkMessage(href = expectedLink, text = linkMessage, newWindow = false, sso = true)))
-    val link = if (linkMessage != hmrcWebsiteLinkText) linkObj else None
+  protected def assertCorrectBusinessTaxRegistration(expectedLink: String, linkMessage: String)(implicit user: User) {
+    
+    val expectedRegistrationLink = if (linkMessage != hmrcWebsiteLinkText)
+      Some(RenderableLinkMessage(LinkMessage(href = expectedLink, text = linkMessage, newWindow = false, sso = true, id = Some("businessRegistrationHref"))))
+    else 
+      None
+    
     val expected = BusinessTaxesRegistration(
-      link,
-      RenderableLinkMessage(LinkMessage(href = linkToHmrcWebsite, text = hmrcWebsiteLinkText, newWindow = true, sso = false)))
+      expectedRegistrationLink,
+      RenderableLinkMessage(LinkMessage(href = linkToHmrcWebsite, text = hmrcWebsiteLinkText, newWindow = true, sso = false, id = Some("otherWaysHref"))))
+    
     val result = factoryUnderTest.createBusinessTaxesRegistration(mockPortalUrlBuilder.buildPortalUrl)(user)
 
     result shouldBe expected

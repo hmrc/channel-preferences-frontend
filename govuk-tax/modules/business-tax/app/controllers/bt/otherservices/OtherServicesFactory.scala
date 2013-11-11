@@ -35,10 +35,10 @@ class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnecto
   }
 
   def createOnlineServicesEnrolment(buildPortalUrl: String => String): OnlineServicesEnrolment =
-    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"), Some("here"))))
+    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl("otherServicesEnrolment"), text = Some("here"), id = Some("otherServicesEnrolmentHref"))))
 
   def createOnlineServicesDeEnrolment(buildPortalUrl: String => String): OnlineServicesEnrolment =
-    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"), Some("here"))))
+    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl("servicesDeEnrolment"), text = Some("here"), id = Some("servicesDeEnrolmentHref"))))
 
   def createBusinessTaxesRegistration(buildPortalUrl: String => String)(implicit user: User) = {
 
@@ -59,8 +59,8 @@ class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnecto
         Some(s"Register for ${appendInactiveRegimes(inactiveRegimes)}")
       }
     }
-    val link = linkText.map(text => RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("businessRegistration"), Some(text))))
-    BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage.externalLink(HrefKey("businessTax.registration.otherWays"), hmrcWebsiteLinkText)))
+    val link = linkText.map(text => RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl("businessRegistration"), text = Some(text), id = Some("businessRegistrationHref"))))
+    BusinessTaxesRegistration(link, RenderableLinkMessage(LinkMessage.externalLink(hrefKey = HrefKey("businessTax.registration.otherWays"), text = hmrcWebsiteLinkText, id = Some("otherWaysHref"))))
   }
 }
 
