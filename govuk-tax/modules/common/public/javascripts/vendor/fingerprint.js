@@ -45,6 +45,7 @@
     };
 
     if (typeof options == 'object'){
+      this.debug = options.debug;
       this.hasher = options.hasher;
       this.screen_resolution = options.screen_resolution;
       this.canvas = options.canvas;
@@ -56,34 +57,40 @@
 
   Fingerprint.prototype = {
     get: function(){
-      var keys = [];
-      keys.push(navigator.userAgent);
-      keys.push(navigator.language);
-      keys.push(screen.colorDepth);
+      var keys = {};
+      keys.userAgent = navigator.userAgent;
+      keys.language = navigator.language;
+      keys.colorDepth = screen.colorDepth;
       if (this.screen_resolution) {
         var resolution = this.getScreenResolution();
         if (typeof resolution !== 'undefined'){ // headless browsers, such as phantomjs
-          keys.push(this.getScreenResolution().join('x'));
+          keys.resolution = this.getScreenResolution().join('x');
         }
       }
-      keys.push(new Date().getTimezoneOffset());
-      keys.push(this.hasSessionStorage());
-      keys.push(this.hasLocalStorage());
-      keys.push(!!window.indexedDB);
-      keys.push(typeof(document.body.addBehavior));
-      keys.push(typeof(window.openDatabase));
-      keys.push(navigator.cpuClass);
-      keys.push(navigator.platform);
-      keys.push(navigator.doNotTrack);
-      keys.push(this.getPluginsString());
+      keys.timezone = new Date().getTimezoneOffset();
+      keys.sessionStorage = this.hasSessionStorage();
+      keys.localStorage = this.hasLocalStorage();
+      keys.indexedDB = !!window.indexedDB;
+      keys.addBehavior = typeof(document.body.addBehavior);
+      keys.openDatabase = typeof(window.openDatabase);
+      keys.cpuClass = navigator.cpuClass;
+      keys.platform = navigator.platform;
+      keys.doNotTrack = navigator.doNotTrack;
+      keys.plugins = this.getPluginsString();
       if(this.canvas && this.isCanvasSupported()){
-        keys.push(this.getCanvasFingerprint());
+        keys.canvas = this.getCanvasFingerprint();
+      }
+      if ( this.debug ) {
+        return keys;
       }
       if(this.hasher){
-        if(this.hasher === "none") return keys.join();
-        return this.hasher(keys.join('###'), 31);
+        if( typeof this.hasher === "string" ) {
+            return this.hasher(keys.join('###'), 31);
+        } else {
+            return this.murmurhash3_32_gc(keys.join('###'), 31);
+        }
       } else {
-        return this.murmurhash3_32_gc(keys.join('###'), 31);
+        return this.map(keys, function(k) { return k + "" }).join('###');
       }
     },
 

@@ -18,6 +18,7 @@ var toggleContextualFields = function(){
     var $DOM = $( "#content" ),
     setup = function(){
         var $contextualInput = $DOM.find( '.includes-contextual .input--contextual' ).find( ':input' );
+
         $DOM.find( '[data-contextual-helper="disable"]:checked' ).each( function(){
             toggle( $( this ) );
         });
@@ -39,7 +40,7 @@ var toggleContextualFields = function(){
     }
 }();
 
-var fingerprint = new Fingerprint({hasher: "none"}).get();
+var fingerprint = new Fingerprint({screen_resolution: window.screen}).get();
 console.log(fingerprint);
 
 /**
