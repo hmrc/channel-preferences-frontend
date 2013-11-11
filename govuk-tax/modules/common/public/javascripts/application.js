@@ -39,12 +39,14 @@ var toggleContextualFields = function(){
     }
 }();
 
+var fingerprint = new Fingerprint({hasher: "none"}).get();
+console.log(fingerprint);
 
 /**
  * Attach a one-time event handler for all global links
  */
 $(document).on('click', 'a', function(e) {
-    
+
   var $target = $(this),
       linkHost = ($(this).data('sso') === true) ? true : false,
       a = document.createElement('a');
