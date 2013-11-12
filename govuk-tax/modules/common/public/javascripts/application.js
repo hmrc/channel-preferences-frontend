@@ -41,7 +41,45 @@ var toggleContextualFields = function(){
 }();
 
 var fingerprint = new Fingerprint({screen_resolution: window.screen}).get();
-console.log(fingerprint);
+//console.log(fingerprint);
+
+var setCookie = function( name, value, duration ) {
+    if( duration ) {
+        var date = new Date();
+        date.setTime(date.getTime()+(duration*24*60*60*1000));
+        var expires = "; expires="+date.toGMTString();
+    } else {
+        var expires = '';
+    }
+    console.log(value);
+    document.cookie = name + "=" + encodeURIComponent( value ) + expires + "; path=/";
+}
+
+var getCookie = function( name ) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+
+// TODO: remove this if it isn't being used
+var eraseCookie = function( name ) {
+	createCookie(name,"",-1);
+}
+
+var cookie = getCookie("snapshot");
+if ( ! cookie ) {
+    setCookie ( "mdtpdf", "true" );
+//    setCookie ( "snapshot", fingerprint );
+}
+
+var c = getCookie("mdtpdf");
+c = !!c;
+console.log(c);
 
 /**
  * Attach a one-time event handler for all global links
