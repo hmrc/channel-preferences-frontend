@@ -43,8 +43,9 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
         Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employment.employerName, employment.sequenceNumber, currentTaxYear, employmentViews))
       }
       case None => {
-        Logger.debug(s"Unable to find current employment for user ${user.oid}")
-        InternalServerError
+        val errorMessage = s"Unable to find current employment for user ${user.oid}"
+        Logger.error(errorMessage)
+        InternalServerError(views.html.paye.error_no_data_car_benefit_home(errorMessage))
       }
     }
   }

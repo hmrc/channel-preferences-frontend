@@ -50,7 +50,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
   "calling carBenefitHome" should {
 
-    "return 500 if we cannot find a primary employment for the customer" in {
+    "return 500 if we cannot find a primary employment for the customer and show an error page" in new WithApplication(FakeApplication()) {
       val employments = Seq(
         Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = 2),
         Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 2))
@@ -60,6 +60,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(500)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#error-message") should not be empty
     }
 
     "show car details for user with a company car and no fuel" in new WithApplication(FakeApplication()) {
