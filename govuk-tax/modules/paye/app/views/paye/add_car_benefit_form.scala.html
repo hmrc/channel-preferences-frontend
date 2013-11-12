@@ -175,7 +175,7 @@
                         carBenefitForm(employerPayFuel),
                         Seq(
                             RadioButton("false", Messages("paye.add_car_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default data-contextual-helper=disable")),
-                            RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default data-contextual-helper=disable")),
+                            RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable")),
                             RadioButton("date", Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=enable"))
                         )
                     ),
@@ -186,7 +186,7 @@
                     FormField(
                         carBenefitForm(employerPayFuel),
                         Seq(
-                            RadioButton("again", Messages("paye.add_car_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default data-contextual-helper=disable"))
+                            RadioButton("again", Messages("paye.add_car_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable"))
                         )
                     )
                 ),
