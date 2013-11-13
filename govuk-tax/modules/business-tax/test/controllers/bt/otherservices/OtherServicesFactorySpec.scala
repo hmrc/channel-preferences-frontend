@@ -345,8 +345,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
             /* hmrcemcsorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.emcs", "otherservices.manageTaxes.link.hmrcemcsorg", Some("hmrcemcsorgHref"), false, None, true)),
             /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg", Some("hmrceureforgHref"), false, None, true)),
             /* hmrcicsorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.ics", "otherservices.manageTaxes.link.hmrcicsorg", Some("hmrcicsorgHref"), false, None, true)),
-            /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg", Some("hmrcmgdorgHref"), false, None, true)),
-            /* hmrcnovaorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.nova", "otherservices.manageTaxes.link.hmrcnovaorg", Some("hmrcnovaorgHref"), false, None, true))
+            /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg", Some("hmrcmgdorgHref"), false, None, true))
           )
         )
       )

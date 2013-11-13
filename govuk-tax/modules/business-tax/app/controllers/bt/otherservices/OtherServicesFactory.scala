@@ -101,8 +101,7 @@ object ManageYourTaxesConf {
       "hmce-vatrsl-org" -> nonSsoLink("businessTax.manageTaxes.rcsl", Seq("otherservices.manageTaxes.link.hmcevatrslorg"), buildPortalUrl)
     )
 
-    val links = keys.sorted flatMap linksForOrganisation.get
-    links :+ ssoLink("manageTaxes.nova", Seq("otherservices.manageTaxes.link.hmrcnovaorg"), buildPortalUrl)
+    keys.sorted flatMap linksForOrganisation.get
   }
 }
 
