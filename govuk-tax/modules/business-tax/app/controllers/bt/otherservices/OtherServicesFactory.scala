@@ -94,7 +94,6 @@ object ManageYourTaxesConf {
       "hmrc-mgd-org" -> ssoLink("manageTaxes.machinegames", Seq("otherservices.manageTaxes.link.hmrcmgdorg"), buildPortalUrl),
       "hmce-ncts-org" -> nonSsoLink("businessTax.manageTaxes.ncts", Seq("otherservices.manageTaxes.link.hmcenctsorg"), buildPortalUrl),
       "hmce-nes" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcenes"), buildPortalUrl),
-      "hmrc-nova-org" -> ssoLink("manageTaxes.nova", Seq("otherservices.manageTaxes.link.hmrcnovaorg"), buildPortalUrl),
       "hmce-ro" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmcero1", "otherservices.manageTaxes.link.hmcero2", "otherservices.manageTaxes.link.hmcero3"), buildPortalUrl),
       "hmce-to" -> nonSsoLink("businessTax.manageTaxes.servicesHome", Seq("otherservices.manageTaxes.link.hmceto"), buildPortalUrl),
       "hmce-ecsl-org" -> nonSsoLink("businessTax.manageTaxes.ecsl", Seq("otherservices.manageTaxes.link.hmceecslorg"), buildPortalUrl),
@@ -102,7 +101,8 @@ object ManageYourTaxesConf {
       "hmce-vatrsl-org" -> nonSsoLink("businessTax.manageTaxes.rcsl", Seq("otherservices.manageTaxes.link.hmcevatrslorg"), buildPortalUrl)
     )
 
-    keys.sorted flatMap linksForOrganisation.get
+    val links = keys.sorted flatMap linksForOrganisation.get
+    links :+ ssoLink("manageTaxes.nova", Seq("otherservices.manageTaxes.link.hmrcnovaorg"), buildPortalUrl)
   }
 }
 
