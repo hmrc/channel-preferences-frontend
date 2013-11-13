@@ -12,6 +12,7 @@ import util.Failure
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import util.Success
+import java.net.URLDecoder
 
 trait AuditActionWrapper extends HeaderNames {
   val auditConnector : AuditConnector
@@ -63,7 +64,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
     details.put("referrer", request.headers.get("Referer").getOrElse("-"))
     request.cookies.get(CookieNames.deviceFingerprint).foreach { cookie =>
-      details.put("deviceFingerprint", cookie.value)
+      details.put("deviceFingerprint", URLDecoder.decode(cookie.value, "UTF-8"))
     }
 
 
