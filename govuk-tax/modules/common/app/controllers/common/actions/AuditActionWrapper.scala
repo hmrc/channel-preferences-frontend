@@ -64,7 +64,10 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     details.put("referrer", request.headers.get("Referer").getOrElse("-"))
 
 
-    AuditEvent("frontend", auditType, tags.toMap ++ mdcContext ++ extraTags, details.toMap ++ extraDetails)
+    AuditEvent(auditSource = "frontend",
+               auditType = auditType,
+               tags = tags.toMap ++ mdcContext ++ extraTags,
+               detail = details.toMap ++ extraDetails)
   }
 
   private def extractFormData(request: Request[AnyContent]) = {

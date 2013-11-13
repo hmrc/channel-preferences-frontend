@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import play.api.mvc.{ Action, Controller }
+import play.api.mvc.{Action, Controller}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
@@ -30,11 +30,12 @@ import org.scalatest.mock.MockitoSugar
 class AuditTestController(override val auditConnector: AuditConnector) extends Controller with AuditActionWrapper {
 
   def test(userOption: Option[User]) = userOption match {
-    case Some(user) => WithRequestAuditing(user) { user: User  =>
-      Action {
-        request =>
-          Ok("")
-      }
+    case Some(user) => WithRequestAuditing(user) {
+      user: User =>
+        Action {
+          request =>
+            Ok("")
+        }
     }
     case None => WithRequestAuditing {
       Action {
@@ -44,89 +45,84 @@ class AuditTestController(override val auditConnector: AuditConnector) extends C
     }
   }
 
+  def failingAction(user: User) =
+    WithRequestAuditing(user) {
+      user: User =>
+        Action {
+          request =>
+            throw new IllegalArgumentException("whoopsie")
+      }
+    }
 }
 
-class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames with ScalaFutures with Inside {
+class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside {
 
   "AuditActionWrapper with traceRequestsEnabled " should {
-    "generate audit events with user details when a user is supplied" in new WithApplication(
-      FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> true))) {
-
-      val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
-      val exampleRequestId = ObjectId.get().toString
+    "generate audit events with no user details when no user is supplied" in new TestCase(traceRequests = true) {
 
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
       MDC.put(requestId, exampleRequestId)
-
-
-      val auditConnector: AuditConnector = mock[AuditConnector]
-      val controller = new AuditTestController(auditConnector)
 
       when(auditConnector.enabled).thenReturn(true)
 
       val response = controller.test(None)(FakeRequest("GET", "/foo"))
 
-      whenReady(response) { result =>
-        verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+      whenReady(response) {
+        result =>
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
 
-        val auditEvents = auditEventCaptor.getAllValues
-        auditEvents.size should be(2)
+          val auditEvents = auditEventCaptor.getAllValues
+          auditEvents.size should be(2)
 
-        inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
-          auditSource should be("frontend")
-          auditType should be("Request")
-          tags should contain(authorisation -> "/auth/oid/123123123")
-          tags should contain(forwardedFor -> "192.168.1.1")
-          tags should contain("path" -> "/foo")
-          tags should contain(requestId -> exampleRequestId)
-          tags should not contain key (xSessionId)
-          tags should not contain key ("authId")
-          tags should not contain key ("saUtr")
-          tags should not contain key ("nino")
-          tags should not contain key ("vatNo")
-          tags should not contain key ("governmentGatewayId")
-          tags should not contain key ("idaPid")
+          inside(auditEvents.get(0)) {
+            case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
+              auditSource should be("frontend")
+              auditType should be("Request")
+              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(forwardedFor -> "192.168.1.1")
+              tags should contain("path" -> "/foo")
+              tags should contain(requestId -> exampleRequestId)
+              tags should not contain key(xSessionId)
+              tags should not contain key("authId")
+              tags should not contain key("saUtr")
+              tags should not contain key("nino")
+              tags should not contain key("vatNo")
+              tags should not contain key("governmentGatewayId")
+              tags should not contain key("idaPid")
 
-          detail should contain("method" -> "GET")
-          detail should contain("url" -> "/foo")
-          detail should contain("ipAddress" -> "192.168.1.1")
-          detail should contain("referrer" -> "-")
-          detail should contain("userAgentString" -> "-")
-        }
+              detail should contain("method" -> "GET")
+              detail should contain("url" -> "/foo")
+              detail should contain("ipAddress" -> "192.168.1.1")
+              detail should contain("referrer" -> "-")
+              detail should contain("userAgentString" -> "-")
+          }
 
-        inside(auditEvents.get(1)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
-          auditSource should be("frontend")
-          auditType should be("Response")
-          tags should contain(authorisation -> "/auth/oid/123123123")
-          tags should contain(forwardedFor -> "192.168.1.1")
-          tags should contain("statusCode" -> "200")
-          tags should contain(requestId -> exampleRequestId)
-          tags should not contain key (xSessionId)
+          inside(auditEvents.get(1)) {
+            case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
+              auditSource should be("frontend")
+              auditType should be("Response")
+              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(forwardedFor -> "192.168.1.1")
+              tags should contain("statusCode" -> "200")
+              tags should contain(requestId -> exampleRequestId)
+              tags should not contain key(xSessionId)
 
 
-          detail should contain("method" -> "GET")
-          detail should contain("url" -> "/foo")
-          detail should contain("ipAddress" -> "192.168.1.1")
-          detail should contain("referrer" -> "-")
-          detail should contain("userAgentString" -> "-")
+              detail should contain("method" -> "GET")
+              detail should contain("url" -> "/foo")
+              detail should contain("ipAddress" -> "192.168.1.1")
+              detail should contain("referrer" -> "-")
+              detail should contain("userAgentString" -> "-")
 
-        }
+          }
       }
     }
 
-    "generate audit events with form data when POSTing a form" in new WithApplication(
-      FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> true))) {
-
-      val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
-      val exampleRequestId = ObjectId.get().toString
-
+    "generate audit events with form data when POSTing a form" in new TestCase(traceRequests = true) {
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
       MDC.put(requestId, exampleRequestId)
-
-      val auditConnector: AuditConnector = mock[AuditConnector]
-      val controller = new AuditTestController(auditConnector)
 
       when(auditConnector.enabled).thenReturn(true)
 
@@ -136,106 +132,91 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
         "key3" -> null,
         "key4" -> ""))
 
-      whenReady(response) { result =>
-        verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
-
-        val auditEvents = auditEventCaptor.getAllValues
-        auditEvents.size should be(2)
-
-        inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
-          detail should contain("formData" -> "[key1: {value1}, key2: {value2}, key3: <no values>, key4: <no values>]")
-        }
-      }
-    }
-
-    "generate audit events with no user details when a user is not supplied" in new WithApplication(
-      FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> true))) {
-
-      val userAuth = UserAuthority("exAuthId", Regimes(),
-        saUtr = Some(SaUtr("exampleUtr")),
-        nino = Some(Nino("AB123456C")),
-        ctUtr = Some(CtUtr("asdfa")),
-        vrn = Some(Vrn("123")),
-        governmentGatewayCredential = Some(GovernmentGatewayCredentialResponse("ggCred")),
-        idaCredential = Some(IdaCredentialResponse(List(Pid("idCred")))))
-      val user = User("exUid", userAuth, RegimeRoots(), None, None)
-
-        val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
-        val exampleRequestId = ObjectId.get().toString
-        val exampleSessionId = ObjectId.get().toString
-
-        MDC.put(authorisation, "/auth/oid/123123123")
-        MDC.put(forwardedFor, "192.168.1.1")
-        MDC.put(requestId, exampleRequestId)
-        MDC.put(xSessionId, exampleSessionId)
-
-      val auditConnector: AuditConnector = mock[AuditConnector]
-      val controller = new AuditTestController(auditConnector)
-
-        when(auditConnector.enabled).thenReturn(true)
-
-        val response = controller.test(Some(user))(FakeRequest("GET", "/foo"))
-
-        whenReady(response) { result =>
+      whenReady(response) {
+        result =>
           verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
 
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
-          inside(auditEvents.get(0)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
-            auditSource should be("frontend")
-            auditType should be("Request")
-            tags should contain(authorisation -> "/auth/oid/123123123")
-            tags should contain(forwardedFor -> "192.168.1.1")
-            tags should contain("path" -> "/foo")
-            tags should contain(requestId -> exampleRequestId)
-            tags should contain(xSessionId-> exampleSessionId)
-            tags should contain("authId" -> "exAuthId")
-            tags should contain("saUtr" -> "exampleUtr")
-            tags should contain("nino" -> "AB123456C")
-            tags should contain("vatNo" -> "123")
-            tags should contain("governmentGatewayId" -> "ggCred")
-            tags should contain("idaPid" -> "[idCred]")
+
+          inside(auditEvents.get(0)) {
+            case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
+              detail should contain("formData" -> "[key1: {value1}, key2: {value2}, key3: <no values>, key4: <no values>]")
+          }
+      }
+    }
+
+    "generate audit events with user details when a user is supplied" in new TestCase(traceRequests = true) {
+      MDC.put(authorisation, "/auth/oid/123123123")
+      MDC.put(forwardedFor, "192.168.1.1")
+      MDC.put(requestId, exampleRequestId)
+      MDC.put(xSessionId, exampleSessionId)
 
 
-            detail should contain("method" -> "GET")
-            detail should contain("url" -> "/foo")
-            detail should contain("ipAddress" -> "192.168.1.1")
-            detail should contain("referrer" -> "-")
-            detail should contain("userAgentString" -> "-")
+      when(auditConnector.enabled).thenReturn(true)
+
+      val response = controller.test(Some(user))(FakeRequest("GET", "/foo"))
+
+      whenReady(response) {
+        result =>
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+
+          val auditEvents = auditEventCaptor.getAllValues
+          auditEvents.size should be(2)
+          inside(auditEvents.get(0)) {
+            case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
+              auditSource should be("frontend")
+              auditType should be("Request")
+              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(forwardedFor -> "192.168.1.1")
+              tags should contain("path" -> "/foo")
+              tags should contain(requestId -> exampleRequestId)
+              tags should contain(xSessionId -> exampleSessionId)
+              tags should contain("authId" -> "exAuthId")
+              tags should contain("saUtr" -> "exampleUtr")
+              tags should contain("nino" -> "AB123456C")
+              tags should contain("vatNo" -> "123")
+              tags should contain("governmentGatewayId" -> "ggCred")
+              tags should contain("idaPid" -> "[idCred]")
+
+
+              detail should contain("method" -> "GET")
+              detail should contain("url" -> "/foo")
+              detail should contain("ipAddress" -> "192.168.1.1")
+              detail should contain("referrer" -> "-")
+              detail should contain("userAgentString" -> "-")
           }
 
-          inside(auditEvents.get(1)) { case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
-            auditSource should be("frontend")
-            auditType should be("Response")
-            tags should contain(authorisation -> "/auth/oid/123123123")
-            tags should contain(forwardedFor -> "192.168.1.1")
-            tags should contain("statusCode" -> "200")
-            tags should contain(requestId -> exampleRequestId)
-            tags should contain(xSessionId-> exampleSessionId)
-            tags should contain("authId" -> "exAuthId")
-            tags should contain("saUtr" -> "exampleUtr")
-            tags should contain("nino" -> "AB123456C")
-            tags should contain("vatNo" -> "123")
-            tags should contain("governmentGatewayId" -> "ggCred")
-            tags should contain("idaPid" -> "[idCred]")
+          inside(auditEvents.get(1)) {
+            case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
+              auditSource should be("frontend")
+              auditType should be("Response")
+              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(forwardedFor -> "192.168.1.1")
+              tags should contain("statusCode" -> "200")
+              tags should contain(requestId -> exampleRequestId)
+              tags should contain(xSessionId -> exampleSessionId)
+              tags should contain("authId" -> "exAuthId")
+              tags should contain("saUtr" -> "exampleUtr")
+              tags should contain("nino" -> "AB123456C")
+              tags should contain("vatNo" -> "123")
+              tags should contain("governmentGatewayId" -> "ggCred")
+              tags should contain("idaPid" -> "[idCred]")
 
-            detail should contain("method" -> "GET")
-            detail should contain("url" -> "/foo")
-            detail should contain("ipAddress" -> "192.168.1.1")
-            detail should contain("referrer" -> "-")
-            detail should contain("userAgentString" -> "-")
+              detail should contain("method" -> "GET")
+              detail should contain("url" -> "/foo")
+              detail should contain("ipAddress" -> "192.168.1.1")
+              detail should contain("referrer" -> "-")
+              detail should contain("userAgentString" -> "-")
           }
 
-        }
+      }
+    }
+
   }
-}
 
   "AuditActionWrapper with traceRequests disabled " should {
-    "not audit any events" in new WithApplication(FakeApplication()) {
-
-      val auditConnector: AuditConnector = mock[AuditConnector]
-      val controller = new AuditTestController(auditConnector)
-
+    "not audit any events" in new TestCase(traceRequests = false) {
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
 
@@ -248,4 +229,24 @@ class AuditActionWrapperSpec extends BaseSpec with MockitoSugar with HeaderNames
     MDC.clear
   }
 
+}
+
+class TestCase(traceRequests: Boolean) extends WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> traceRequests))) with MockitoSugar {
+  val auditConnector: AuditConnector = mock[AuditConnector]
+  val controller = new AuditTestController(auditConnector)
+
+  val auditEventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
+
+  val exampleRequestId = ObjectId.get().toString
+  val exampleSessionId = ObjectId.get().toString
+
+
+  val userAuth = UserAuthority("exAuthId", Regimes(),
+    saUtr = Some(SaUtr("exampleUtr")),
+    nino = Some(Nino("AB123456C")),
+    ctUtr = Some(CtUtr("asdfa")),
+    vrn = Some(Vrn("123")),
+    governmentGatewayCredential = Some(GovernmentGatewayCredentialResponse("ggCred")),
+    idaCredential = Some(IdaCredentialResponse(List(Pid("idCred")))))
+  val user = User("exUid", userAuth, RegimeRoots(), None, None)
 }
