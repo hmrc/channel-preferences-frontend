@@ -6,7 +6,7 @@ import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import scala.concurrent.ExecutionContext
-import controllers.common.HeaderNames
+import controllers.common.{HeaderNames, CookieNames}
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import util.Failure
 import scala.Some
@@ -62,6 +62,9 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     details.put("method", request.method.toUpperCase)
     details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
     details.put("referrer", request.headers.get("Referer").getOrElse("-"))
+    request.cookies.get(CookieNames.deviceFingerprint).foreach { cookie =>
+      details.put("deviceFingerprint", cookie.value)
+    }
 
 
     AuditEvent(auditSource = "frontend",
