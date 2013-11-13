@@ -73,8 +73,8 @@ var eraseCookie = function( name ) {
 
 var cookie = getCookie("mdtpdf");
 if ( ! cookie ) {
-    setCookie ( "mdtpdf", "true" );
-//    setCookie ( "snapshot", fingerprint );
+//    setCookie ( "mdtpdf", "true" );
+    setCookie ( "mdtpdf", fingerprint );
 }
 //
 //var c = getCookie("mdtpdf");
