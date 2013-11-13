@@ -1,13 +1,13 @@
 package controllers.common.actions
 
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Cookie, Action, Controller}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
 import play.api.test._
 import org.slf4j.MDC
-import controllers.common.HeaderNames
+import controllers.common.{CookieNames, HeaderNames}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.bson.types.ObjectId
@@ -64,8 +64,6 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       MDC.put(forwardedFor, "192.168.1.1")
       MDC.put(requestId, exampleRequestId)
 
-      when(auditConnector.enabled).thenReturn(true)
-
       val response = controller.test(None)(FakeRequest("GET", "/foo"))
 
       whenReady(response) {
@@ -120,11 +118,6 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
     }
 
     "generate audit events with form data when POSTing a form" in new TestCase(traceRequests = true) {
-      MDC.put(authorisation, "/auth/oid/123123123")
-      MDC.put(forwardedFor, "192.168.1.1")
-      MDC.put(requestId, exampleRequestId)
-
-      when(auditConnector.enabled).thenReturn(true)
 
       val response = controller.test(None)(FakeRequest("POST", "/foo").withFormUrlEncodedBody(
         "key1" -> "value1",
@@ -146,14 +139,27 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       }
     }
 
+    "generate audit events with the device finger print when it is supplied in a request cookie" in new TestCase(traceRequests = true) {
+      val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withCookies(Cookie(CookieNames.deviceFingerprint, "12345")))
+
+      whenReady(response) {
+        result =>
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+
+          val auditEvents = auditEventCaptor.getAllValues
+          auditEvents.size should be(2)
+          inside(auditEvents.get(0)) {
+            case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
+              detail should contain("deviceFingerprint" -> "12345")
+          }
+      }
+    }
+
     "generate audit events with user details when a user is supplied" in new TestCase(traceRequests = true) {
       MDC.put(authorisation, "/auth/oid/123123123")
       MDC.put(forwardedFor, "192.168.1.1")
       MDC.put(requestId, exampleRequestId)
       MDC.put(xSessionId, exampleSessionId)
-
-
-      when(auditConnector.enabled).thenReturn(true)
 
       val response = controller.test(Some(user))(FakeRequest("GET", "/foo"))
 
@@ -231,7 +237,8 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
 }
 
-class TestCase(traceRequests: Boolean) extends WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> traceRequests))) with MockitoSugar {
+class TestCase(traceRequests: Boolean)
+  extends WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.traceRequests" -> traceRequests))) with MockitoSugar {
   val auditConnector: AuditConnector = mock[AuditConnector]
   val controller = new AuditTestController(auditConnector)
 
@@ -239,6 +246,7 @@ class TestCase(traceRequests: Boolean) extends WithApplication(FakeApplication(a
 
   val exampleRequestId = ObjectId.get().toString
   val exampleSessionId = ObjectId.get().toString
+
 
 
   val userAuth = UserAuthority("exAuthId", Regimes(),
@@ -249,4 +257,6 @@ class TestCase(traceRequests: Boolean) extends WithApplication(FakeApplication(a
     governmentGatewayCredential = Some(GovernmentGatewayCredentialResponse("ggCred")),
     idaCredential = Some(IdaCredentialResponse(List(Pid("idCred")))))
   val user = User("exUid", userAuth, RegimeRoots(), None, None)
+  when(auditConnector.enabled).thenReturn(true)
+
 }

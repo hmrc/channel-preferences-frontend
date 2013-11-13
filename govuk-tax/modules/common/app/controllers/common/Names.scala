@@ -8,5 +8,9 @@ trait HeaderNames {
   val forwardedFor = "x-forwarded-for"
   val xSessionId = "X-Session-ID"
 }
-
 object HeaderNames extends HeaderNames
+
+trait CookieNames {
+  val deviceFingerprint = "mdtpdf"
+}
+object CookieNames extends CookieNames
