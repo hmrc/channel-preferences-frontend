@@ -140,20 +140,13 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
     }
 
     "generate audit events with the device finger print when it is supplied in a request cookie" in new TestCase(traceRequests = true) {
-      val fingerprint = "QuickTime%20Plug-in%207.7.1%3A%3AThe%20QuickTime%20Plugin%20allows%20you%20to%20view%20a%20wide%20variety%20of%20multimedia%20content%20in%20web%20pages." +
-        "%20For%20more%20information%2C%20visit%20the%20%3CA%20HREF%3Dhttp%3A%2F%2Fwww.apple.com%2Fquicktime%3EQuickTime%3C%2FA%3E%20Web%20site.%3A%3Avideo%2Fx-msvideo~avi%2Cvfw%2Caudio%2" +
-        "Fmp3~mp3%2Cswa%2Caudio%2Fmpeg3~mp3%2Cswa%2Cvideo%2F3gpp2~3g2%2C3gp2%2Caudio%2Fx-caf~caf%2Caudio%2Fmpeg~mpeg%2Cmpg%2Cm1s%2Cm1a%2Cmp2%2Cmpm%2Cmpa%2Cm2a%2Cmp3%2Cswa%2Cvideo%2Fquicktime~" +
-        "mov%2Cqt%2Cmqv%2Caudio%2Fx-mpeg3~mp3%2Cswa%2Cvideo%2Fmp4~mp4%2Capplication%2Fx-sdp~sdp%2Caudio%2Fwav~wav%2Cbwf%2Cvideo%2Favi~avi%2Cvfw%2Caudio%2Fx-ac3~ac3%2Caudio%2Fmp4~mp4%2Cvideo%2Fx-" +
-        "m4v~m4v%2Capplication%2Fsdp~sdp%2Caudio%2Fx-wav~wav%2Cbwf%2Caudio%2Fx-aiff~aiff%2Caif%2Caifc%2Ccdda%2Cvideo%2Fx-mpeg~mpeg%2Cmpg%2Cm1s%2Cm1v%2Cm1a%2Cm75%2Cm15%2Cmp2%2Cmpm%2Cmpv%2Cmpa%2Cvid" +
-        "eo%2F3gpp~3gp%2C3gpp%2Cvideo%2Fmsvideo~avi%2Cvfw%2Caudio%2Fx-mpeg~mpeg%2Cmpg%2Cm1s%2Cm1a%2Cmp2%2Cmpm%2Cmpa%2Cm2a%2Cmp3%2Cswa%2Caudio%2Fvnd.qcelp~qcp%2Cqcp%2Caudio%2Fx-mp3~mp3%2Cswa%2Capplic" +
-        "ation%2Fx-rtsp~rtsp%2Crts%2Caudio%2FAMR~AMR%2Cvideo%2Fsd-video~sdv%2Caudio%2Faiff~aiff%2Caif%2Caifc%2Ccdda%2Cvideo%2Fmpeg~mpeg%2Cmpg%2Cm1s%2Cm1v%2Cm1a%2Cm75%2Cm15%2Cmp2%2Cmpm%2Cmpv%2Cmpa%2Cau" +
-        "dio%2F3gpp2~3g2%2C3gp2%2Caudio%2Faac~aac%2Cadts%2Caudio%2Fac3~ac3%2Caudio%2Fx-m4b~m4b%2Caudio%2Fx-m4p~m4p%2Caudio%2Fx-gsm~gsm%2Capplication%2Fx-mpeg~amc%2Caudio%2Fx-aac~aac%2Cadts%2Caudio%2Fbasi" +
-        "c~au%2Csnd%2Culw%2Caudio%2Fx-m4a~m4a%2Caudio%2F3gpp~3gp%2C3gpp%3BJava%20Applet%20Plug-in%3A%3ADisplays%20Java%20applet%20content%2C%20or%20a%20placeholder%20if%20Java%20is%20not%20installed.%3A%3A" +
-        "application%2Fx-java-applet%3Bjavafx%3D2.2.25~%2Capplication%2Fx-java-applet%3Bversion%3D1.4~%2Capplication%2Fx-java-applet%3Bversion%3D1.2.1~%2Capplication%2Fx-java-applet%3Bversion%3D1.2.2~%2Cappl" +
-        "ication%2Fx-java-applet%3Bversion%3D1.3~%2Capplication%2Fx-java-vm~%2Capplication%2Fx-java-applet%3Bversion%3D1.1.1~%2Capplication%2Fx-java-vm-npruntime~%2Capplication%2Fx-java-applet%3Bversion%3D" +
-        "1.2~%2Capplication%2Fx-java-applet%3Bversion%3D1.7~%2Capplication%2Fx-java-applet%3Bjpi-version%3D1.7.0_25~%2Capplication%2Fx-java-applet%3Bversion%3D1.4.1~%2Capplication%2Fx-java-applet~javaapp" +
-        "let%2Capplication%2Fx-java-applet%3Bversion%3D1.1.2~%2Capplication%2Fx-java-applet%3Bversion%3D1.1~%2Capplication%2Fx-java-applet%3Bversion%3D1.1.3~%2Capplication%2Fx-java-applet%3Bversion%3D1.6~%" +
-        "2Capplication%2Fx-java-applet%3Bversion%3D1.4.2~%2Capplication%2Fx-java-applet%3Bversion%3D1.3.1~%2Capplication%2Fx-java-applet%3Bversion%3D1.5~%2Capplication%2Fx-java-applet%3Bdeploy%3D10.25.2~"
+      val fingerprint = "%7B%22userAgent%22%3A%22Mozilla%2F5.0%20(Macintosh%3B%20Intel%20Mac%20OS%20X%2010_8_4)%20AppleWebKit%2F537" +
+        ".36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F30.0.1599.101%20Safari%2F537.36%22%2C%22language%22%3A%22en-US%22%2C%22colorDept" +
+        "h%22%3A24%2C%22resolution%22%3A%221200x1920%22%2C%22timezone%22%3A0%2C%22sessionStorage%22%3Atrue%2C%22localStorage%22%3Atr" +
+        "ue%2C%22indexedDB%22%3Atrue%2C%22addBehavior%22%3A%22undefined%22%2C%22openDatabase%22%3A%22function%22%2C%22platform%22%3A" +
+        "%22MacIntel%22%2C%22doNotTrack%22%3Afalse%2C%22numberOfPlugins%22%3A5%2C%22plugins%22%3A%5B%22Shockwave%20Flash%22%2C%22Chr" +
+        "ome%20Remote%20Desktop%20Viewer%22%2C%22Native%20Client%22%2C%22Chrome%20PDF%20Viewer%22%2C%22QuickTime%20Plug-in%207.7.1%2" +
+        "2%5D%7D"
 
 
       val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withCookies(Cookie(CookieNames.deviceFingerprint, fingerprint)))
@@ -165,27 +158,11 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
           auditEvents.get(0).detail should contain("deviceFingerprint" -> (
-                "QuickTime Plug-in 7.7.1::The QuickTime Plugin allows you to view a wide variety of multimedia content i" +
-                "n web pages. For more information, visit the <A HREF=http://www.apple.com/quicktime>QuickTime</A> Web s" +
-                "ite.::video/x-msvideo~avi,vfw,audio/mp3~mp3,swa,audio/mpeg3~mp3,swa,video/3gpp2~3g2,3gp2,audio/x-caf~ca" +
-                "f,audio/mpeg~mpeg,mpg,m1s,m1a,mp2,mpm,mpa,m2a,mp3,swa,video/quicktime~mov,qt,mqv,audio/x-mpeg3~mp3,swa," +
-                "video/mp4~mp4,application/x-sdp~sdp,audio/wav~wav,bwf,video/avi~avi,vfw,audio/x-ac3~ac3,audio/mp4~mp4,v" +
-                "ideo/x-m4v~m4v,application/sdp~sdp,audio/x-wav~wav,bwf,audio/x-aiff~aiff,aif,aifc,cdda,video/x-mpeg~mpe" +
-                "g,mpg,m1s,m1v,m1a,m75,m15,mp2,mpm,mpv,mpa,video/3gpp~3gp,3gpp,video/msvideo~avi,vfw,audio/x-mpeg~mpeg,m" +
-                "pg,m1s,m1a,mp2,mpm,mpa,m2a,mp3,swa,audio/vnd.qcelp~qcp,qcp,audio/x-mp3~mp3,swa,application/x-rtsp~rtsp," +
-                "rts,audio/AMR~AMR,video/sd-video~sdv,audio/aiff~aiff,aif,aifc,cdda,video/mpeg~mpeg,mpg,m1s,m1v,m1a,m75," +
-                "m15,mp2,mpm,mpv,mpa,audio/3gpp2~3g2,3gp2,audio/aac~aac,adts,audio/ac3~ac3,audio/x-m4b~m4b,audio/x-m4p~m" +
-                "4p,audio/x-gsm~gsm,application/x-mpeg~amc,audio/x-aac~aac,adts,audio/basic~au,snd,ulw,audio/x-m4a~m4a,a" +
-                "udio/3gpp~3gp,3gpp;Java Applet Plug-in::Displays Java applet content, or a placeholder if Java is not i" +
-                "nstalled.::application/x-java-applet;javafx=2.2.25~,application/x-java-applet;version=1.4~,application/" +
-                "x-java-applet;version=1.2.1~,application/x-java-applet;version=1.2.2~,application/x-java-applet;version" +
-                "=1.3~,application/x-java-vm~,application/x-java-applet;version=1.1.1~,application/x-java-vm-npruntime~," +
-                "application/x-java-applet;version=1.2~,application/x-java-applet;version=1.7~,application/x-java-applet" +
-                ";jpi-version=1.7.0_25~,application/x-java-applet;version=1.4.1~,application/x-java-applet~javaapplet,ap" +
-                "plication/x-java-applet;version=1.1.2~,application/x-java-applet;version=1.1~,application/x-java-applet" +
-                ";version=1.1.3~,application/x-java-applet;version=1.6~,application/x-java-applet;version=1.4.2~,applica" +
-                "tion/x-java-applet;version=1.3.1~,application/x-java-applet;version=1.5~,application/x-java-applet;depl" +
-                "oy=10.25.2~"))
+            """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36",""" +
+              """"language":"en-US","colorDepth":24,"resolution":"1200x1920","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,""" +
+              """"addBehavior":"undefined","openDatabase":"function","platform":"MacIntel","doNotTrack":false,"numberOfPlugins":5,"plugins":["Shockwave Flash",""" +
+              """"Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
+            )
       }
     }
 
