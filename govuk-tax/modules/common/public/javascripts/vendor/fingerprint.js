@@ -47,6 +47,8 @@
     if (typeof options == 'object'){
       this.debug = options.debug;
       this.hasher = options.hasher;
+      this.openDB = options.openDB;
+      this.addBehavior = options.addBehavior;
       this.screen_resolution = options.screen_resolution;
       this.canvas = options.canvas;
       this.ie_activex = options.ie_activex;
@@ -71,8 +73,12 @@
       keys.sessionStorage = this.hasSessionStorage();
       keys.localStorage = this.hasLocalStorage();
       keys.indexedDB = !!window.indexedDB;
-      keys.addBehavior = typeof(document.body.addBehavior);
-      keys.openDatabase = typeof(window.openDatabase);
+      if( this.addBehavior ) {
+        keys.addBehavior = typeof(document.body.addBehavior);
+      }
+      if( this.openDB ) {
+        keys.openDatabase = typeof(window.openDatabase);
+      }
       keys.cpuClass = navigator.cpuClass;
       keys.platform = navigator.platform;
       keys.doNotTrack = !!navigator.doNotTrack;
