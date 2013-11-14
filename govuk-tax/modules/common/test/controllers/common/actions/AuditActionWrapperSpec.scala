@@ -140,13 +140,11 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
     }
 
     "generate audit events with the device finger print when it is supplied in a request cookie" in new TestCase(traceRequests = true) {
-      val fingerprint = "%7B%22userAgent%22%3A%22Mozilla%2F5.0%20(Macintosh%3B%20Intel%20Mac%20OS%20X%2010_8_4)%20AppleWebKit%2F537" +
-        ".36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F30.0.1599.101%20Safari%2F537.36%22%2C%22language%22%3A%22en-US%22%2C%22colorDept" +
-        "h%22%3A24%2C%22resolution%22%3A%221200x1920%22%2C%22timezone%22%3A0%2C%22sessionStorage%22%3Atrue%2C%22localStorage%22%3Atr" +
-        "ue%2C%22indexedDB%22%3Atrue%2C%22addBehavior%22%3A%22undefined%22%2C%22openDatabase%22%3A%22function%22%2C%22platform%22%3A" +
-        "%22MacIntel%22%2C%22doNotTrack%22%3Afalse%2C%22numberOfPlugins%22%3A5%2C%22plugins%22%3A%5B%22Shockwave%20Flash%22%2C%22Chr" +
-        "ome%20Remote%20Desktop%20Viewer%22%2C%22Native%20Client%22%2C%22Chrome%20PDF%20Viewer%22%2C%22QuickTime%20Plug-in%207.7.1%2" +
-        "2%5D%7D"
+      val fingerprint = "eyJ1c2VyQWdlbnQiOiJNb3ppbGxhLzUuMCAoTWFjaW50b3NoOyBJbnRlbCBNYWMgT1MgWCAxMF84XzUpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGx" +
+        "pa2UgR2Vja28pIENocm9tZS8zMS4wLjE2NTAuNDggU2FmYXJpLzUzNy4zNiIsImxhbmd1YWdlIjoiZW4tVVMiLCJjb2xvckRlcHRoIjoyNCwicmVzb2x1dGlvbiI6IjgwMHgxMj" +
+        "gwIiwidGltZXpvbmUiOjAsInNlc3Npb25TdG9yYWdlIjp0cnVlLCJsb2NhbFN0b3JhZ2UiOnRydWUsImluZGV4ZWREQiI6dHJ1ZSwicGxhdGZvcm0iOiJNYWNJbnRlbCIsImRvT" +
+        "m90VHJhY2siOnRydWUsIm51bWJlck9mUGx1Z2lucyI6NSwicGx1Z2lucyI6WyJTaG9ja3dhdmUgRmxhc2giLCJDaHJvbWUgUmVtb3RlIERlc2t0b3AgVmlld2VyIiwiTmF0aXZl" +
+        "IENsaWVudCIsIkNocm9tZSBQREYgVmlld2VyIiwiUXVpY2tUaW1lIFBsdWctaW4gNy43LjEiXX0="
 
 
       val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withCookies(Cookie(CookieNames.deviceFingerprint, fingerprint)))
@@ -158,10 +156,15 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
           auditEvents.get(0).detail should contain("deviceFingerprint" -> (
-            """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36",""" +
-              """"language":"en-US","colorDepth":24,"resolution":"1200x1920","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,""" +
-              """"addBehavior":"undefined","openDatabase":"function","platform":"MacIntel","doNotTrack":false,"numberOfPlugins":5,"plugins":["Shockwave Flash",""" +
-              """"Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
+            """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36",""" +
+            """"language":"en-US","colorDepth":24,"resolution":"800x1280","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,"platform":"MacIntel",""" +
+            """"doNotTrack":true,"numberOfPlugins":5,"plugins":["Shockwave Flash","Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
+
+
+//            """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36",""" +
+//              """"language":"en-US","colorDepth":24,"resolution":"1200x1920","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,""" +
+//              """"addBehavior":"undefined","openDatabase":"function","platform":"MacIntel","doNotTrack":false,"numberOfPlugins":5,"plugins":["Shockwave Flash",""" +
+//              """"Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
             )
       }
     }

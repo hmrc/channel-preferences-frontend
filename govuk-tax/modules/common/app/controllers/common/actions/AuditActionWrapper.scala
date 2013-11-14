@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import controllers.common.service.Connectors
+import controllers.common.service.{Encryption, Connectors}
 import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
@@ -13,6 +13,8 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import util.Success
 import java.net.URLDecoder
+import com.ning.http.util.Base64
+import scala.collection.JavaConversions._
 
 trait AuditActionWrapper extends HeaderNames {
   val auditConnector : AuditConnector
@@ -64,7 +66,8 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
     details.put("referrer", request.headers.get("Referer").getOrElse("-"))
     request.cookies.get(CookieNames.deviceFingerprint).foreach { cookie =>
-      details.put("deviceFingerprint", URLDecoder.decode(cookie.value, "UTF-8"))
+      val cookieAsArray = Base64.decode(cookie.value)
+      details.put("deviceFingerprint", new String(cookieAsArray, "UTF-8"))
     }
 
 
