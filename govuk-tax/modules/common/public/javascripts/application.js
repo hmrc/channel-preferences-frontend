@@ -53,8 +53,8 @@ var toggleContextualFields = function(){
 }();
 
 
-var fingerprint = new Fingerprint( { screen_resolution: true } ).get();
-//console.log("Byte size:" + (encodeURI(fingerprint).split(/%..|./).length - 1));
+var fingerprint = B64.encode( new Fingerprint( { screen_resolution: true } ).get() );
+console.log("Byte size:" + (encodeURI(fingerprint).split(/%..|./).length - 1));
 console.log(fingerprint);
 
 var setCookie = function( name, value, duration ) {
@@ -65,7 +65,7 @@ var setCookie = function( name, value, duration ) {
     } else {
         var expires = '';
     }
-    document.cookie = name + "=" + encodeURIComponent( value ) + expires + "; path=/";
+    document.cookie = name + "=" + value + expires + "; path=/";
 }
 
 var getCookie = function( name ) {
