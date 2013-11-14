@@ -6,8 +6,11 @@
 
 <h2>Important Dates</h2>
 
-@for(date <- importantDates) {
-    @date.render
-}
+<ul class="activity-list">
+    @for(date <- importantDates) {
+
+        <li>@date.render</li>
+    }
+</ul>
 
 }

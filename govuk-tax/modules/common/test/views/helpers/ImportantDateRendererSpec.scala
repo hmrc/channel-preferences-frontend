@@ -23,8 +23,8 @@ class ImportantDateRendererSpec extends BaseSpec {
       )
 
       val result = message.render.toString().trim
-      result shouldBe "<P>10 September 2013 <SPAN>some text to show 10 November 2013 to 9 November 2014 is due</SPAN>." +
-        "\n<A href=\"someUrl\">Make a payment</A></P>"
+      result shouldBe "<DIV class=\"activity-list__date\"><P>10 September 2013</P></DIV><DIV class=\"activity-list__description\"><P><SPAN>some text to show 10 November 2013 to 9 November 2014 is due</SPAN>." +
+        "\n<A href=\"someUrl\">Make a payment</A></P></DIV>"
     }
 
     "render the message containing dates, grayed out text, no link and post message text" in new WithApplication(FakeApplication()) {
@@ -38,7 +38,9 @@ class ImportantDateRendererSpec extends BaseSpec {
       )
 
       val result = message.render.toString().trim
-      result shouldBe "<P>10 September 2013 <SPAN style=\"color:#C0C0C0;\">some text to show 10 November 2013 to 9 November 2014 is due</SPAN> ct.message.importantDates.returnAlreadyReceived.</P>"
+
+      result shouldBe "<DIV class=\"activity-list__date\"><P>10 September 2013</P></DIV><DIV class=\"activity-list__description\"><P><SPAN class=\"faded-text\">some text to show 10 November 2013 to 9 November 2014 is due</SPAN>" +
+        " ct.message.importantDates.returnAlreadyReceived.</P></DIV>"
     }
   }
 
@@ -57,8 +59,9 @@ class ImportantDateRendererSpec extends BaseSpec {
       )
 
       val result = message.render.toString().trim
-      result shouldBe "<P>10 September <SPAN>some text to show 10 November to 9 November is due</SPAN>." +
-        "\n<A href=\"someUrl\">Make a payment</A></P>"
+
+      result shouldBe "<DIV class=\"activity-list__date\"><P>10 September</P></DIV><DIV class=\"activity-list__description\"><P><SPAN>some text to show 10 November to 9 November is due</SPAN>." +
+        "\n<A href=\"someUrl\">Make a payment</A></P></DIV>"
     }
 
     "render the message containing dates, grayed out text, no link and post message text" in new WithApplication(FakeApplication()) {
@@ -72,7 +75,9 @@ class ImportantDateRendererSpec extends BaseSpec {
       )
 
       val result = message.render.toString().trim
-      result shouldBe "<P>10 September <SPAN style=\"color:#C0C0C0;\">some text to show 10 November to 9 November is due</SPAN> ct.message.importantDates.returnAlreadyReceived.</P>"
+
+      result shouldBe "<DIV class=\"activity-list__date\"><P>10 September</P></DIV><DIV class=\"activity-list__description\"><P><SPAN class=\"faded-text\">some text to show 10 November to 9 November is due</SPAN>" +
+        " ct.message.importantDates.returnAlreadyReceived.</P></DIV>"
     }
   }
 
