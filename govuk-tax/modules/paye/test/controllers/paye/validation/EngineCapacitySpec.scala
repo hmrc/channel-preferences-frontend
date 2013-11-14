@@ -1,6 +1,7 @@
 package controllers.paye.validation
 
 import uk.gov.hmrc.common.BaseSpec
+import models.paye.EngineCapacity
 
 class EngineCapacitySpec extends BaseSpec {
       "EngineCapacity " should {

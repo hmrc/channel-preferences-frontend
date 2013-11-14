@@ -7,6 +7,7 @@ import uk.gov.hmrc.utils.TaxYearResolver
 import org.joda.time.{DateTimeZone, LocalDate}
 import controllers.paye.CarBenefitFormFields._
 import controllers.common.validators.{StopOnFirstFail, Validators}
+import models.paye.EngineCapacity
 import EngineCapacity._
 import StopOnFirstFail._
 

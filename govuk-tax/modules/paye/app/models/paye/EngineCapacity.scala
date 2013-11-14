@@ -1,4 +1,4 @@
-package controllers.paye.validation
+package models.paye
 
 object EngineCapacity {
   val NOT_APPLICABLE = "none"

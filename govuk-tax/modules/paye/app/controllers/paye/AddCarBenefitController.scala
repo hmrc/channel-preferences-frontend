@@ -4,7 +4,7 @@ import controllers.common.{Ida, Actions, BaseController}
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
-import models.paye.{BenefitUpdatedConfirmationData, TaxCodeResolver, BenefitTypes}
+import models.paye.{EngineCapacity, TaxCodeResolver, BenefitTypes, BenefitUpdatedConfirmationData}
 import play.api.Logger
 import org.joda.time._
 import play.api.data.Form
@@ -14,20 +14,14 @@ import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
 import controllers.common.service.Connectors
 import views.html.paye.add_car_benefit_review
-import controllers.paye.validation.EngineCapacity
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationData
-import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
 import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import models.paye.BenefitUpdatedConfirmationData
 
 class AddCarBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
