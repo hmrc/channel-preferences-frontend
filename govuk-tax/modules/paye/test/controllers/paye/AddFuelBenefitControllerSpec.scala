@@ -15,9 +15,11 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import play.api.test.FakeApplication
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import FuelBenefitFormFields._
+import controllers.DateFieldsHelper
+import play.api.i18n.Messages
 
-class AddFuelBenefitControllerSpec  extends PayeBaseSpec{
+class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
   override lazy val testTaxYear = 2012
   private val employmentSeqNumberOne = 1
@@ -110,6 +112,92 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec{
       result should haveStatus(400)
     }
   }
+
+
+  "submitting add fuel benefit" should {
+
+    "return 200 for employerpayefuel date and date withrdrawn is entered" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore()
+
+      val request = newRequestForSaveAddFuelBenefit( employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(testTaxYear.toString, "6", "3"))
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#second-heading").text should include("Check your company car fuel details")
+
+    }
+
+    "return to the car benefit home page if the user already has a fuel benefit" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear, employmentSeqNumberOne))
+      result should haveStatus(303)
+      redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome.url)
+    }
+
+    "ignore invalid withdrawn date if employerpayfuel is not date" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore()
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"), dateFuelWithdrawnVal = Some("isdufgpsiuf", "6", "3")), testTaxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
+    }
+
+    "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore()
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(("jkhasgdkhsa","05","30")))
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
+      doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
+    }
+
+    "return 400 if the year submitted is not the current tax year" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore()
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear+1, employmentSeqNumberOne))
+
+      result should haveStatus(400)
+    }
+
+    "return 400 if the submitting employment number is not the primary employment" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore()
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear, 2))
+
+      result should haveStatus(400)
+    }
+
+    "return 200 if the user selects again for the EMPLOYER PAY FUEL" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore()
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"))
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      result should haveStatus(200)
+    }
+
+    "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore()
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = None)
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select(".error-notification").text should be(Messages("error.paye.answer_mandatory"))
+    }
+
+    "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()){
+      setupMocksForJohnDensmore()
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("hacking!"))
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      result should haveStatus(400)
+    }
+  }
+
+  private def newRequestForSaveAddFuelBenefit(employerPayFuelVal:Option[String] = None, dateFuelWithdrawnVal:Option[(String, String,String)] = None, path:String = "") = FakeRequest("GET", path).withFormUrlEncodedBody(Seq(
+    employerPayFuel -> employerPayFuelVal.getOrElse(""))
+    ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal) : _*)
 
   private def haveStatus(expectedStatus:Int) = new Matcher[Future[SimpleResult]]{
     def apply(response:Future[SimpleResult]) = {

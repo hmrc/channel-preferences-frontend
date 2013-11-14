@@ -1,6 +1,6 @@
 package controllers.paye.validation
 
-import controllers.paye.PayeBaseSpec
+import controllers.paye.{MockedTaxYearSupport, PayeBaseSpec}
 import org.scalatest.mock.MockitoSugar
 import play.api.data.{Mapping, Form}
 import play.api.data.Forms._
@@ -14,9 +14,8 @@ import controllers.DateFieldsHelper
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import play.api.test.FakeApplication
 
-class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
-
-   val currentTaxYear:Int = 2013
+class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with MockedTaxYearSupport {
+  override def currentTaxYear = 2013
    val now = new LocalDate(currentTaxYear, 10, 2)
    val endOfTaxYear = new LocalDate(currentTaxYear, 4, 5)
 
@@ -53,7 +52,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     def dummyForm(values:CarBenefitValues) = {
       Form(
         mapping(
-          numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(values)
+          numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(values, taxYearInterval)
         )(DummyModel.apply)(DummyModel.unapply))
     }
 
@@ -104,7 +103,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       Form(
         mapping(
           employerPayFuel -> validateEmployerPayFuel(values),
-          dateFuelWithdrawn -> validateDateFuelWithdrawn(values)
+          dateFuelWithdrawn -> validateDateFuelWithdrawn(values, taxYearInterval)
         )(DummyModel.apply)(DummyModel.unapply))
     }
 

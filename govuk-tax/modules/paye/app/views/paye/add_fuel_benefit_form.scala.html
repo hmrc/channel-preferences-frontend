@@ -1,4 +1,4 @@
-@(fuelBenefitForm: Form[controllers.paye.FuelBenefitData], employerName: Option[String])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(fuelBenefitForm: Form[controllers.paye.FuelBenefitData],  taxYear: Int, employmentSequenceNumber: Int, employerName: Option[String])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
 @import views.helpers._
@@ -11,6 +11,8 @@
 @defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
 
     <p>We need some information about the company car fuel provided by <span id="company-name">@employerNameString</span>.</p>
+    @helper.form(action = controllers.paye.routes.AddFuelBenefitController.reviewAddFuelBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit") {
+
         <li>
             @helpers.fieldGroup(
                 fuelBenefitForm,
@@ -38,6 +40,10 @@
                 '_valueAfter -> true
             )
         </li>
-    }
+
+        <input type="submit" class="button" value="Next"/>
+
+}
+        }
 }
 

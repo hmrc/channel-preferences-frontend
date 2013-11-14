@@ -61,12 +61,12 @@ with TaxYearSupport {
 
   private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
     mapping(
-      providedFrom -> validateProvidedFrom(timeSource),
+      providedFrom -> validateProvidedFrom(timeSource,taxYearInterval),
       carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-      numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues),
+      numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues, taxYearInterval),
       giveBackThisTaxYear -> validateGiveBackThisTaxYear(),
       carRegistrationDate -> validateCarRegistrationDate(timeSource),
-      providedTo -> validateProvidedTo(carBenefitValues),
+      providedTo -> validateProvidedTo(carBenefitValues, taxYearInterval),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employeeContribution -> validateEmployeeContribution(carBenefitValues),
@@ -77,7 +77,7 @@ with TaxYearSupport {
       co2NoFigure -> validateNoCo2Figure(carBenefitValues),
       engineCapacity -> validateEngineCapacity(carBenefitValues),
       employerPayFuel -> validateEmployerPayFuel(carBenefitValues),
-      dateFuelWithdrawn -> validateDateFuelWithdrawn(carBenefitValues)
+      dateFuelWithdrawn -> validateDateFuelWithdrawn(carBenefitValues, taxYearInterval)
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
