@@ -22,6 +22,7 @@ import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
+import controllers.paye.validation.WithValidatedCarRequest
 
 class AddCarBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
@@ -49,9 +50,6 @@ with TaxYearSupport {
     ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
       user => request => confirmAddingBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
-
-  private def findPrimaryEmployment(payeRootData: TaxYearData): Option[Employment] =
-    payeRootData.employments.find(_.employmentType == primaryEmploymentType)
 
   private def findEmployment(employmentSequenceNumber: Int, payeRootData: TaxYearData) = {
     payeRootData.employments.find(_.sequenceNumber == employmentSequenceNumber)
@@ -83,7 +81,7 @@ with TaxYearSupport {
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
-  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
+  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedCarRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
@@ -126,7 +124,7 @@ with TaxYearSupport {
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
       employerPayFuel = defaults.employerPayFuel)
 
-  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
+  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedCarRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
 
       val payeRoot = user.getPaye
@@ -145,7 +143,7 @@ with TaxYearSupport {
     }
   }
 
-  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedRequest {
+  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedCarRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
@@ -194,32 +192,6 @@ with TaxYearSupport {
       }
     }
 
-  }
-
-  object WithValidatedRequest {
-    def apply(action: (Request[_], User, Int, Int, TaxYearData) => SimpleResult): (User, Request[_], Int, Int) => SimpleResult = {
-      (user, request, taxYear, employmentSequenceNumber) => {
-        if (currentTaxYear != taxYear) {
-          Logger.error("Adding car benefit is only allowed for the current tax year")
-          BadRequest
-        } else {
-          val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
-
-          if (employmentSequenceNumber != findPrimaryEmployment(payeRootData).get.sequenceNumber) {
-            Logger.error("Adding car benefit is only allowed for the primary employment")
-            BadRequest
-          } else {
-            if (payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR).isDefined) {
-              redirectToCarBenefitHome(request, user)
-            } else {
-              action(request, user, taxYear, employmentSequenceNumber, payeRootData)
-            }
-          }
-        }
-      }
-    }
-
-    private val redirectToCarBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome().url)
   }
 
 }

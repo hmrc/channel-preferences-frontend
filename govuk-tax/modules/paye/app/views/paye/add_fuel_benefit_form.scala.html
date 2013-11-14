@@ -1,0 +1,43 @@
+@(fuelBenefitForm: Form[controllers.paye.FuelBenefitData], employerName: Option[String])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.formatting.Strings._
+@import views.helpers._
+@import controllers.paye.FuelBenefitFormFields._
+
+@main(title = "Your Tax Home", user = Some(user)) {
+
+<h1 id="heading"><span class="pre-heading">service</span> Tell HMRC about a change to your company car fuel</h1>
+
+@defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
+
+    <p>We need some information about the company car fuel provided by <span id="company-name">@employerNameString</span>.</p>
+        <li>
+            @helpers.fieldGroup(
+                fuelBenefitForm,
+                Seq(
+                    FormField(
+                        fuelBenefitForm(employerPayFuel),
+                        Seq(
+                            RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable")),
+                            RadioButton("date", Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=enable"))
+                        )
+                    ),
+                    FormField(
+                        fuelBenefitForm(dateFuelWithdrawn),
+                        Seq(DateControl((2013 to 2014), Some("input--contextual")))
+                    ),
+                    FormField(
+                        fuelBenefitForm(employerPayFuel),
+                        Seq(
+                            RadioButton("again", Messages("paye.add_car_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable"))
+                        )
+                    )
+                ),
+                '_label -> Messages("paye.add_car_benefit.employer_pay_fuel.label", employerNameString),
+                '_groupDivClass -> "form-field includes-contextual",
+                '_valueAfter -> true
+            )
+        </li>
+    }
+}
+
