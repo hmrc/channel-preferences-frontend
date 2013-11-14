@@ -105,14 +105,14 @@
             @if( fuelBenefit.isDefined ) {
                 <li><a id="rmFuelLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)">remove your car fuel benefit</a></li>
             } else {
-                <li><a id="addFuelLink" href="@controllers.paye.routes.CarBenefitAddController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a car fuel benefit</a></li>
+                <li><a id="addFuelLink" href="@controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a car fuel benefit</a></li>
 
             }
         </ul>
         } else {
             <div id="no-car-benefit-container">
                 <ul>
-                    <li><a id="addCarLink" href="@controllers.paye.routes.CarBenefitAddController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a company car (including any fuel benefit you may have)</a></li>
+                    <li><a id="addCarLink" href="@controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a company car (including any fuel benefit you may have)</a></li>
                 </ul>
             </div>
         }

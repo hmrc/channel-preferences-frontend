@@ -29,7 +29,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import models.paye.BenefitUpdatedConfirmationData
 
-class CarBenefitAddController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
+class AddCarBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
 with Actions
 with Validators

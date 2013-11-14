@@ -14,7 +14,7 @@
 
     <p>We need some information about the company car provided by <span id="company-name">@employerNameLowercaseString</span>.</p>
 
-    @helper.form(action = controllers.paye.routes.CarBenefitAddController.reviewAddCarBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-car-benefit") {
+    @helper.form(action = controllers.paye.routes.AddCarBenefitController.reviewAddCarBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-car-benefit") {
 
     <fieldset>
         <h2>How long you have had the new company car</h2>

@@ -29,7 +29,7 @@ import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 
-class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
+class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
   val mockKeyStoreService = mock[KeyStoreConnector]
   val mockPayeConnector = mock[PayeConnector]
@@ -37,7 +37,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
   val mockAuthConnector = mock[AuthConnector]
   val mockAuditConnector = mock[AuditConnector]
 
-  private lazy val controller = new CarBenefitAddController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
+  private lazy val controller = new AddCarBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
     override def timeSource() = CarBenefitDataBuilder.now
   }
 
@@ -905,7 +905,7 @@ class CarBenefitAddControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
       result should haveStatus(200)
 
-      val expectedUri = routes.CarBenefitAddController.confirmAddingBenefit(taxYear, employmentSeqNumberOne).url
+      val expectedUri = routes.AddCarBenefitController.confirmAddingBenefit(taxYear, employmentSeqNumberOne).url
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("form").attr("action") shouldBe expectedUri
 
