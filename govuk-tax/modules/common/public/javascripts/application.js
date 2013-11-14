@@ -55,9 +55,9 @@ var toggleContextualFields = function(){
 
 var fingerprint = new Fingerprint( { screen_resolution: true } ).get();
 var encodedfingerprint = B64.encode( fingerprint );
-console.log("Byte size:" + (encodeURI(fingerprint).split(/%..|./).length - 1));
-console.log(fingerprint);
-console.log("Encoded: " + encodedfingerprint);
+//console.log("Byte size:" + (encodeURI(fingerprint).split(/%..|./).length - 1));
+//console.log(fingerprint);
+//console.log("Encoded: " + encodedfingerprint);
 
 var setCookie = function( name, value, duration ) {
     if( duration ) {
