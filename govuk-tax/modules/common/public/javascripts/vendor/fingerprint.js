@@ -75,7 +75,8 @@
       keys.openDatabase = typeof(window.openDatabase);
       keys.cpuClass = navigator.cpuClass;
       keys.platform = navigator.platform;
-      keys.doNotTrack = navigator.doNotTrack;
+      keys.doNotTrack = !!navigator.doNotTrack;
+      keys.numberOfPlugins = navigator.plugins.length;
       keys.plugins = this.getPluginsString();
       if(this.canvas && this.isCanvasSupported()){
         keys.canvas = this.getCanvasFingerprint();
@@ -90,7 +91,8 @@
             return this.murmurhash3_32_gc(keys.join('###'), 31);
         }
       } else {
-        return this.map(keys, function(k) { return k + "" }).join('###');
+        return JSON.stringify( keys );
+//        return this.map(keys, function(k) { return k + "" }).join('###');
       }
     },
 
@@ -203,9 +205,21 @@
         var mimeTypes = this.map(p, function(mt){
           return [mt.type, mt.suffixes].join('~');
         }).join(',');
-        return [p.name, p.description, mimeTypes].join('::');
-      }, this).join(';');
+//        return { name: p.name, description: p.description, mimeTypes: mimeTypes } ;
+        return p.name;
+      }, this);
     },
+
+//    getRegularPluginsString: function () {
+//
+//        return navigator.plugins.forEach( function (p) {
+//        var mimeTypes = p.forEach(function(mt){
+//          return { mt.type: mt.suffixes }.join('~');
+//        }).join(',');
+//        return { name: p.name, description: p.description, mimeTypes: mimeTypes };
+//      }, this).join(',');
+//
+//    },
 
     getIEPluginsString: function () {
       var names = ['ShockwaveFlash.ShockwaveFlash',//flash plugin
@@ -255,7 +269,8 @@
       ctx.fillText(txt, 2, 15);
       ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
       ctx.fillText(txt, 4, 17);
-      return canvas.toDataURL();
+      var canvasData = canvas.toDataURL();
+      return canvasData.substr( canvasData.indexOf( ',' ) + 1 );
     }
   };
 

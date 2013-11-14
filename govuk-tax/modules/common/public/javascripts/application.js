@@ -53,8 +53,9 @@ var toggleContextualFields = function(){
 }();
 
 
-var fingerprint = new Fingerprint({screen_resolution: window.screen}).getPluginsString();
-console.log(fingerprint);
+var fingerprint = new Fingerprint( { screen_resolution: true } ).get();
+//console.log("Byte size:" + (encodeURI(fingerprint).split(/%..|./).length - 1));
+//console.log(fingerprint);
 
 var setCookie = function( name, value, duration ) {
     if( duration ) {
@@ -64,7 +65,6 @@ var setCookie = function( name, value, duration ) {
     } else {
         var expires = '';
     }
-    console.log(value);
     document.cookie = name + "=" + encodeURIComponent( value ) + expires + "; path=/";
 }
 
@@ -86,13 +86,8 @@ var eraseCookie = function( name ) {
 
 var cookie = getCookie("mdtpdf");
 if ( ! cookie ) {
-//    setCookie ( "mdtpdf", "true" );
     setCookie ( "mdtpdf", fingerprint );
 }
-//
-//var c = getCookie("mdtpdf");
-//c = !!c;
-//console.log(c);
 
 /**
  * Attach a one-time event handler for all global links
