@@ -21,6 +21,8 @@ ct.message.summaryUnavailable.2=- there is no information to view at this time
 ct.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available to view.
 ct.message.summaryUnavailable.4=If you do not this either of the above reasons apply, please contact the Online Services Helpdesk.
 
+ct.message.importantDates.returnAlreadyReceived=- already received so no action needed, thank you
+
 
 
 

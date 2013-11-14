@@ -1,0 +1,24 @@
+@(dateMessage : views.helpers.ImportantDateMessage)(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+@import views.helpers._
+@import play.api.templates.HtmlFormat
+
+@{
+    def escape(str: String) = HtmlFormat.escape(str).toString
+    def tag(name: String, value: String) = " " + name + "=\"" + escape(value) + "\""
+
+    val date = dateMessage.date.render.toString.trim
+    val link = if (dateMessage.link.isDefined) "\n" + dateMessage.link.get.render.toString.trim else ""
+    val text = escape(Messages(dateMessage.text))
+    val textColor = if (!dateMessage.link.isDefined) tag("style", "color:#C0C0C0;") else ""
+    val startDate = dateMessage.startDate.render.toString.trim
+    val endDate = dateMessage.endDate.render.toString.trim
+    val postMessageText = if (!dateMessage.link.isDefined) " " + escape(Messages(dateMessage.postMessageText.get)) else ""
+
+   Html("<P>" + date + " <SPAN" + textColor + ">" + text + " "+ startDate + " to " + endDate + " is due"+ "</SPAN>"+postMessageText+ "."
+    + link + "</P>")
+
+}
+

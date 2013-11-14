@@ -5,3 +5,4 @@ GET     /ct/makeAPayment                                @controllers.bt.PaymentC
 GET     /sa/makeAPayment                                @controllers.bt.PaymentController.makeSaPayment
 GET     /epaye/makeAPayment                             @controllers.bt.PaymentController.makeEpayePayment
 GET     /otherServices                                  @controllers.bt.OtherServicesController.otherServices
+GET     /importantDates                                 @controllers.bt.ImportantDatesController.importantDates

@@ -3,8 +3,8 @@ package views.helpers
 import views.html.helpers.{moneyPoundsRenderer, linkRenderer}
 import play.api.templates.Html
 import org.joda.time.LocalDate
-import controllers.common.domain.accountSummaryDateFormatter
 import views.helpers.RenderableMessageProperty.RenderableMessageProperty
+import java.text.{SimpleDateFormat, DateFormat}
 
 
 case class LinkMessage(href: String, text: String, id: Option[String] = None,
@@ -85,8 +85,8 @@ case class RenderableLinkMessage(linkMessage: LinkMessage) extends RenderableMes
 
 }
 
-case class RenderableDateMessage(date: LocalDate) extends RenderableMessage {
-  val formattedDate = accountSummaryDateFormatter.format(date)
+case class RenderableDateMessage(date: LocalDate)(implicit dateFormat: DateFormat = new SimpleDateFormat("d MMM yyy")) extends RenderableMessage {
+  val formattedDate = dateFormat.format(date.toDate)
 
   override def render: Html = Html(formattedDate)
 }

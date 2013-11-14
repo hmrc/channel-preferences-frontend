@@ -1,0 +1,13 @@
+@(importantDates : List[views.helpers.RenderableMessage])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "Your tax home", nav = true, user= Some(user)) {
+
+<h1><span class="pre-heading">service</span> Your tax account </h1>
+
+<h2>Important Dates</h2>
+
+@for(date <- importantDates) {
+    @date.render
+}
+
+}
