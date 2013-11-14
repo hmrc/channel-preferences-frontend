@@ -1,7 +1,7 @@
 package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{FakeRequest, WithApplication}
+import play.api.test.{WithApplication, FakeRequest, FakeApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
@@ -19,7 +19,6 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
@@ -45,6 +44,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
   val removeFuelLinkId = "rmFuelLink"
   val removeCarLinkId = "rmCarLink"
   val addCarLinkId = "addCarLink"
+  val addFuelLinkId = "addFuelLink"
   val taxYear = 2013
   val employmentSeqNumber = 1
 
@@ -142,7 +142,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
-    "show an Add Car link for a user without a company car" in new WithApplication(FakeApplication()) {
+    "show an Add Car link for a user without a company car and do not show the add fuel link" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
 
@@ -158,18 +158,35 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.select("#car-benefit-date-available").text shouldBe ""
       doc.select("#car-benefit-amount").text shouldBe ""
       doc.select("#fuel-benefit-amount").text shouldBe ""
-      doc.getElementById(addCarLinkId) should not be None
+      doc.getElementById(addCarLinkId) should not be (null)
+      doc.getElementById(addFuelLinkId) shouldBe (null)
     }
 
-    "not show an add Car link for a user with a company car" in new WithApplication(FakeApplication()) {
-
+    "show an Add Fuel link for a user with a car benefit but no fuel benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
+
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+
+      status(result) should be(200)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#company-name").text should include(johnDensmoresEmployments(0).employerName.get)
+      doc.select("#car-benefit-fuel-type").text should not be empty
+      doc.select("#car-benefit-fuel-type").text.toLowerCase shouldBe carBenefitEmployer1.car.get.fuelType.get
+      doc.getElementById(addFuelLinkId) should not be (null)
+      doc.getElementById(addCarLinkId) shouldBe (null)
+    }
+
+    "not show an add Car or add Fuel links for a user with company car and fuel benefits" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1, fuelBenefitEmployer1), List.empty, List.empty)
 
       val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
 
       status(result) should be(200)
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(addCarLinkId) should be (null)
+      doc.getElementById(addFuelLinkId) should be (null)
     }
 
     "show a remove car link and not show a remove fuel link for a user who has a car without a fuel benefit" in new WithApplication(FakeApplication()) {
