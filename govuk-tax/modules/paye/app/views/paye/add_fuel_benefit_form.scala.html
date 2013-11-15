@@ -6,13 +6,16 @@
 
 @main(title = "Your Tax Home", user = Some(user)) {
 
-<h1 id="heading"><span class="pre-heading">service</span> Tell HMRC about a change to your company car fuel</h1>
+<h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 
-@defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
+@defining(optionalValue(employerName, "your.employer", true)) { employerNameString =>
 
-    <p>We need some information about the company car fuel provided by <span id="company-name">@employerNameString</span>.</p>
+<h2 id="heading"><span id="company-name">@employerNameString</span> have given you a company fuel benefit.</h2>
+
+    <p>We need some information about the private fuel provided by @employerNameString.</p>
+
     @helper.form(action = controllers.paye.routes.AddFuelBenefitController.reviewAddFuelBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit") {
-
+    <ol class="list--numbered">
         <li>
             @helpers.fieldGroup(
                 fuelBenefitForm,
@@ -40,10 +43,9 @@
                 '_valueAfter -> true
             )
         </li>
-
+    </ol>
         <input type="submit" class="button" value="Next"/>
-
+    }
 }
-        }
 }
 

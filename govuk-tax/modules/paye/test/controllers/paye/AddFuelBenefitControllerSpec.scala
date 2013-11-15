@@ -43,7 +43,7 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       result should haveStatus(200)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
-      doc.select("#heading").text should include("company car fuel")
+      doc.select("#heading").text should include("company fuel")
     }
 
     "return 200 and show the add fuel benefit form with the required fields and no values filled in" in new WithApplication(FakeApplication()) {
@@ -73,7 +73,7 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
       result should haveStatus(200)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "Your employer"
+      doc.select("#company-name").text shouldBe "your employer"
     }
 
     "return 400 when employer for sequence number does not exist" in new WithApplication(FakeApplication()) {
