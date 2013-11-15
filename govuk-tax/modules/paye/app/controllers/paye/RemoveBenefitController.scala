@@ -207,7 +207,6 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
                                 dates: Option[CarFuelBenefitDates]) = Form[RemoveBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping(Some(benefitStartDate), now().toLocalDate),
-      "agreement" -> checked("error.paye.remove.benefit.accept.agreement"),
       "removeCar" -> boolean,
       "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
       "fuelWithdrawDate" -> validateFuelDate(dates, Some(benefitStartDate))

@@ -12,13 +12,11 @@
 
 @main(title = "Remove your company benefit", user = Some(user)) {
 <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+<h2><span class="employer-name">@displayBenefit.employment.employerName</span> no longer supply a company car</h2>
 @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
 <h2 class="benefit-type">Remove your company @benefitsTitle benefit</h2>
 }
 
-    <p>Car provided by <span class="employer-name">@displayBenefit.employment.employerName</span></p>
-    @if(displayBenefit.car.get.dateCarRegistered.isDefined){<p>Registered on <span class="date-registered">@formatDate(displayBenefit.car.get.dateCarRegistered.get)</span>.</p>}
-    <p>Value of car benefit: <span class="amount">@pounds(displayBenefit.benefit.grossAmount)</span></p>
 
     <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
 
@@ -30,18 +28,6 @@
                                 currentTaxYearYearsRange,
 				Some(""),
                                 '_groupDivClass -> "form-field")
-
-        <div class="form-field">
-
-            @singleCheckbox(
-                updateForm("agreement"),
-                '_id -> "agreement",
-                '_inputClass -> "flush--left",
-                '_label -> s"${displayBenefit.employment.employerNameOrReference} no longer provide me with a company car",
-                '_showConstraints -> false)
-
-        </div>
-
         @if(hasFuelBenefit){
 
                 <p class="fuel-benefit-info" >We will also remove your fuel benefit.</p>
