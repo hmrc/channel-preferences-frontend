@@ -27,14 +27,15 @@
                 }
             </ul>
         </div>
-    <h2>Your company Car</h2>
+    <h2>Your company car</h2>
     @if( carBenefit.isDefined ) {
               <table>
-                  <tbody>
+                  <thead>
                   <tr>
-                      <th id="company-name">Company car provided by @employerNameString</th>
-                      <th></th>
+                      <th colspan="2" id="company-name">Company car provided by @employerNameString</th>
                   </tr>
+                  </thead>
+                  <tbody>
                   @if(carBenefit.get.car.get.dateCarMadeAvailable.isDefined) {
                   <tr>
                       <td>Date Provided</td>
