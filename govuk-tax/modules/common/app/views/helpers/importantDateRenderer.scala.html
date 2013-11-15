@@ -10,7 +10,7 @@
     def tag(name: String, value: String) = " " + name + "=\"" + escape(value) + "\""
 
     val date = dateMessage.date.render.toString.trim
-    val link = if (dateMessage.link.isDefined) "\n" + dateMessage.link.get.render.toString.trim else ""
+    val link = if (dateMessage.link.isDefined) "<BR>" + dateMessage.link.get.render.toString.trim else ""
     val text = escape(Messages(dateMessage.text))
     val textClass = if (!dateMessage.link.isDefined) tag("class", "faded-text") else ""
     val startDate = dateMessage.startDate.render.toString.trim
