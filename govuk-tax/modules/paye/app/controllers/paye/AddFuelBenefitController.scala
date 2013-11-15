@@ -1,7 +1,7 @@
 package controllers.paye
 
 import controllers.common.{BaseController, Ida, Actions}
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.{BenefitValue, AddFuelBenefitConfirmationData, PayeRegime, TaxYearData}
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -16,10 +16,10 @@ import play.api.data.Form
 import FuelBenefitFormFields._
 import controllers.paye.validation.AddCarBenefitValidator._
 import org.joda.time.LocalDate
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
+import models.paye.BenefitTypes
 
 
 class AddFuelBenefitController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
@@ -81,8 +81,10 @@ with TaxYearSupport {
               BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName)(user))
             },
             (addFuelBenefitData: FuelBenefitData) => {
-
-              Ok(views.html.paye.add_fuel_benefit_review(user))
+              val benefit = payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR)
+              val benefitStartDate = getDateInTaxYear(benefit.get.car.flatMap(_.dateCarMadeAvailable))
+              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get,addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = Some(BenefitValue(0)))
+              Ok(views.html.paye.add_fuel_benefit_review(fuelData, user))
             })
         }
         case None => {
@@ -93,6 +95,12 @@ with TaxYearSupport {
     }
   }
 
+  private def getDateInTaxYear(benefitDate:Option[LocalDate]) = {
+    benefitDate match {
+      case Some(date) if date.isAfter(startOfCurrentTaxYear) => benefitDate
+      case _ => Some(startOfCurrentTaxYear)
+    }
+  }
   private def findEmployment(employmentSequenceNumber: Int, payeRootData: TaxYearData) = {
     payeRootData.employments.find(_.sequenceNumber == employmentSequenceNumber)
   }

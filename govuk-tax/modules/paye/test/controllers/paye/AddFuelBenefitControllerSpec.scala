@@ -116,18 +116,40 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
   "submitting add fuel benefit" should {
 
-    "return 200 for employerpayefuel date and date withrdrawn is entered" in new WithApplication(FakeApplication()) {
+    "return 200 for employerpayefuel of type date with a correct date withdrawn and display the details in a table" in new WithApplication(FakeApplication()) {
+      val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
+        Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
 
-      setupMocksForJohnDensmore()
+      setupMocksForJohnDensmore(benefits = Seq(carBenefitStartedThisYear))
 
       val request = newRequestForSaveAddFuelBenefit( employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(testTaxYear.toString, "6", "3"))
 
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+
       result should haveStatus(200)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#second-heading").text should include("Check your company car fuel details")
+      doc.select("#second-heading").text should include("Check your private fuel details")
+      doc.select("#private-fuel").text should include(s"3 June $testTaxYear")
+      doc.select("#provided-from").text should include(s"12 May ${testTaxYear}")
+      //      doc.select("#fuelBenefitTaxableValue").text should include("£0")
 
+    }
+
+    "return 200 and show start date as beginning of the tax year if carMadeAvailable is earlier" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore(benefits = Seq(carBenefitEmployer1))
+
+      val request = newRequestForSaveAddFuelBenefit( employerPayFuelVal = Some("true"))
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+
+      result should haveStatus(200)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#second-heading").text should include("Check your private fuel details")
+      doc.select("#provided-from").text should include(s"6 April ${testTaxYear}")
+      doc.select("#private-fuel").text should include(s"Yes, private fuel is available when you use the car")
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new WithApplication(FakeApplication()) {
@@ -139,7 +161,7 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
     }
 
     "ignore invalid withdrawn date if employerpayfuel is not date" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore()
+      setupMocksForJohnDensmore(benefits = Seq(carBenefitEmployer1))
 
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"), dateFuelWithdrawnVal = Some("isdufgpsiuf", "6", "3")), testTaxYear, employmentSeqNumberOne))
       result should haveStatus(200)
@@ -172,7 +194,7 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
     }
 
     "return 200 if the user selects again for the EMPLOYER PAY FUEL" in new WithApplication(FakeApplication()){
-      setupMocksForJohnDensmore()
+      setupMocksForJohnDensmore(benefits = Seq(carBenefitEmployer1))
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"))
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
       result should haveStatus(200)

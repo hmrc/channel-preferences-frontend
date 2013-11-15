@@ -1,9 +1,26 @@
-@(user: uk.gov.hmrc.common.microservice.domain.User)
+@(data: uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData, user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.formatting.Strings._
+@import views.formatting.Money._
+@import views.formatting.Dates._
 
 @main(title = "Confirm", user = Some(user)) {
-    <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car fuel</h1>
-    <h2 id="second-heading">Check your company car fuel details before submitting them</h2>
+    <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+    <h2 id="second-heading">Check your private fuel details before submitting them</h2>
 
+    @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>
+    <table>
+        <tbody>
+        @if(data.providedFrom.isDefined){
+        <tr><td>Date provided</td><td id="provided-from">@{formatDate(data.providedFrom.get)}</td></tr>
+        }
+        <tr><td>Private fuel</td><td id="private-fuel"> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
+        @if(data.carFuelBenefitValue.isDefined){
+        <tr><td>Fuel benefit taxable value</td><td><span id="fuelBenefitTaxableValue">@pounds(data.carFuelBenefitValue.get.taxableValue)</span></td></tr>
+        }
+        </tbody>
+    </table>
+    }
 }
 
 

@@ -100,16 +100,16 @@
             You can make the following changes to the information HMRC has about your company car
         </p>
         @if( carBenefit.isDefined ) {
-        <ul><li>
-            <a id="rmCarLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)">remove your company car</a>
-            @if( fuelBenefit.isDefined ) {
+        <ul>
+            <li><a id="rmCarLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)">remove your company car</a></li>
+            <li>@if( fuelBenefit.isDefined ) {
                 <a id="rmFuelLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)">remove your car fuel benefit</a>
             } else {
                 @if(carBenefit.get.car.get.fuelType != Some("electricity") ) {
                     <a id="addFuelLink" href="@controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employerSequenceNumber)">add a car fuel benefit</a>
                  }
-            }
-        </li></ul>
+            }</li>
+        </ul>
         } else {
             <div id="no-car-benefit-container">
                 <ul>
