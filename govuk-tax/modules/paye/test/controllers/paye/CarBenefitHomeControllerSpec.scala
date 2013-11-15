@@ -189,6 +189,19 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       doc.getElementById(addFuelLinkId) should be (null)
     }
 
+    "not show an Add Fuel Link if the user has a company car with fuel of type electricicity" in new WithApplication(FakeApplication()) {
+      val electricCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
+        Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("electricity"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(electricCarBenefit), List.empty, List.empty)
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+
+      status(result) should be(200)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById(addFuelLinkId) shouldBe null
+    }
+
     "show a remove car link and not show a remove fuel link for a user who has a car without a fuel benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefitEmployer1), List.empty, List.empty)
 
