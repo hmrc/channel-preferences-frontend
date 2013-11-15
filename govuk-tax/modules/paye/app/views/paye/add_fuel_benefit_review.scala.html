@@ -1,4 +1,4 @@
-@(data: uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData, user: uk.gov.hmrc.common.microservice.domain.User)
+@(data: uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData, currentUri:String, currentTaxYearYearsRange: Range, taxYear: Int, employmentSequenceNumber: Int, user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
 @import views.formatting.Money._
@@ -20,6 +20,39 @@
         }
         </tbody>
     </table>
+    }
+
+    <a id="edit-data" href=@currentUri>This information is wrong</a>
+
+    @if(data.carFuelBenefitValue.isDefined){
+    <p>Based on the information your private fuel benefit value is @pounds(data.carFuelBenefitValue.get.taxableValue).</p>
+    <p>In order to calculate the actual tax you will pay on this benefit, we need to add it to your other income and tax information, and recalculate your tax code.</p>
+
+    <p>However the following provides an indication of the tax you will pay if you are a basic rate (20%), higher rate (40%) or additional rate (45%) taxpayer:</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>@{s"${currentTaxYearYearsRange(0)}/${currentTaxYearYearsRange(1)}"}</th>
+            <th>20%</th>
+            <th>40%</th>
+            <th>45%</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>Private fuel tax</td>
+            <td>@pounds(data.carFuelBenefitValue.get.basicRateValue, 2)</td>
+            <td>@pounds(data.carFuelBenefitValue.get.higherRateValue, 2)</td>
+            <td>@pounds(data.carFuelBenefitValue.get.additionalRateValue, 2)</td>
+        </tr>
+
+        </tbody>
+    </table>
+    }
+    @helper.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
+        <button type="submit">Submit</button>
     }
 }
 

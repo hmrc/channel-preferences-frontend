@@ -11,4 +11,5 @@ POST        /car-benefit/:year/:employmentSequenceNumber/add/confirmation       
 
 GET         /fuel-benefit/:year/:employmentSequenceNumber/add                   @controllers.paye.AddFuelBenefitController.startAddFuelBenefit(year: Int, employmentSequenceNumber: Int)
 POST        /fuel-benefit/:year/:employmentSequenceNumber/add                   @controllers.paye.AddFuelBenefitController.reviewAddFuelBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /fuel-benefit/:year/:employmentSequenceNumber/add/confirmation      @controllers.paye.AddFuelBenefitController.confirmAddingBenefit(year: Int, employmentSequenceNumber: Int)
 

@@ -32,14 +32,17 @@ with TaxYearSupport {
 
   def startAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
-      user =>
-        request =>
-          startAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
+      user => request => startAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
   def reviewAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
       user => request => reviewAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
+    }
+
+  def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
+    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
+      user => request => Ok
     }
 
   private def fuelBenefitForm(values:CarBenefitValues) = Form[FuelBenefitData](
@@ -84,7 +87,7 @@ with TaxYearSupport {
               val benefit = payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR)
               val benefitStartDate = getDateInTaxYear(benefit.get.car.flatMap(_.dateCarMadeAvailable))
               val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get,addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = Some(BenefitValue(0)))
-              Ok(views.html.paye.add_fuel_benefit_review(fuelData, user))
+              Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
             })
         }
         case None => {
