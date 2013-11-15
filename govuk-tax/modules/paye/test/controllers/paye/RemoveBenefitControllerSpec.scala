@@ -106,7 +106,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
 
-      doc.select("label[for=agreement]").text should include("899/1212121 no longer provide me with a company car")
       doc.select("label[for=removeCar]").text shouldBe ""
     }
   }
@@ -125,17 +124,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   }
 
   "Removing your benefit without checking the agreement checkbox in the form" should {
-
-    "display an error message" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, FakeRequest().withFormUrlEncodedBody(), "31", 2013, 2))
-
-      status(result) shouldBe 400
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".error-notification").text should include("Please confirm that you are no longer provided with this benefit")
-    }
 
     "keep the previously entered date when redirected to the form for a car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
@@ -664,18 +652,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   "The remove benefit method" should {
 
-    "in step 1 display car details" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val result = Future.successful(controller.benefitRemovalFormAction(johnDensmore, FakeRequest(), "31", 2013, 2))
-      status(result) shouldBe 200
-
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("12 December 2012")
-      doc.select(".amount").text should include("£321")
-    }
-
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
@@ -687,8 +663,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("12 December 2012")
-      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be greater than 7 days from today")
     }
 
@@ -703,8 +677,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("12 December 2012")
-      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in previous tax years")
     }
 
@@ -718,8 +690,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("12 December 2012")
-      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in next tax years")
     }
 
@@ -731,8 +701,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company car benefit")
-      doc.select(".date-registered").text should include("12 December 2012")
-      doc.select(".amount").text should include("£321")
       doc.select(".error-notification").text should include("Please enter a date")
     }
 
@@ -747,7 +715,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".benefit-type").text should include("Remove your company fuel benefit")
       doc.select(".error-notification").text should include("You must specify a valid date")
-      doc.select(".error-notification").text should include("Please confirm that you are no longer provided with this benefit")
     }
 
     "in step 2 display the calculated value" in new WithApplication(FakeApplication()) {
@@ -899,7 +866,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = Future.successful(controller.requestBenefitRemovalAction(user, request, "31", 2013, 1))
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("h2").first().text should be("Remove your company car benefit")
+      doc.select("h2").first().text should be("no longer supply a company car")
     }
 
     "Contain correct employee names" in new WithApplication(FakeApplication()) {
