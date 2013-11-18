@@ -1,15 +1,25 @@
-@(importantDates : List[views.helpers.RenderableMessage])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(importantDates : List[controllers.bt.ImportantDate])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @main(title = "Your tax home", nav = true, user= Some(user)) {
 
 <h1><span class="pre-heading">service</span> Your tax account </h1>
 
-<h2>Important Dates</h2>
+<h2 class="heading-36">Important Dates</h2>
 
 <ul class="activity-list">
     @for(date <- importantDates) {
 
-        <li>@date.render</li>
+        <li>
+
+            @helpers.importantDate(
+                date.date,
+                date.grayedoutText,
+                date.text,
+                date.args,
+                date.link
+            )
+
+        </li>
     }
 </ul>
 

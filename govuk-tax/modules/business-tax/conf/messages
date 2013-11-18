@@ -21,9 +21,11 @@ ct.message.summaryUnavailable.2=- there is no information to view at this time
 ct.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available to view.
 ct.message.summaryUnavailable.4=If you do not this either of the above reasons apply, please contact the Online Services Helpdesk.
 
-ct.message.importantDates.returnAlreadyReceived=- already received so no action needed, thank you
-
-
+ct.message.importantDates.additionalText.filing=' - already received so no action needed, thank you
+ct.message.importantDates.text.filing=Your company Tax return for the accounting period {0} to {1} is due
+ct.message.importantDates.link.filing=File a return
+ct.message.importantDates.text.payment=Your company Tax payment for the accounting period {0} to {1} is due
+ct.message.importantDates.link.payment=Make a payment
 
 
 sa.regimeName=Self-Assessment

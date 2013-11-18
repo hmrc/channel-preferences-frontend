@@ -5,6 +5,9 @@ import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.ct.CtConnector
+import org.joda.time.LocalDate
+import java.text.SimpleDateFormat
+import org.joda.time.format.DateTimeFormat
 
 object CtRegime extends TaxRegime {
   def isAuthorised(regimes: Regimes) = regimes.ct.isDefined
@@ -43,3 +46,9 @@ case class CtAccountSummary(accountBalance: Option[CtAccountBalance], dateOfBala
 
 case class CtAccountBalance(amount: Option[BigDecimal])
 
+case class AccountingPeriod(startDate: LocalDate, endDate: LocalDate, returnFiled: Boolean)
+
+case class CalendarEvent(accountingPeriod: AccountingPeriod,
+                         eventDate: LocalDate,
+                         eventType: String,
+                         regime: String = "CT")
