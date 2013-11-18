@@ -1,10 +1,9 @@
 package controllers.agent.registration
 
-import controllers.common.{Ida, BaseController}
+import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.data.Form
 import play.api.data.Forms._
-import scala.Some
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
@@ -37,20 +36,21 @@ class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnec
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
-  def agentType = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def agentType = AuthorisedFor(PayeRegime) {
     MultiFormAction(multiFormConfig) {
       user => request => agentTypeAction(user, request)
     }
   }
 
-  private[registration] val agentTypeAction: (User, Request[_]) => SimpleResult = (user, request) => {
-    Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
-  }
 
-  def postAgentType = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def postAgentType = AuthorisedFor(PayeRegime) {
     MultiFormAction(multiFormConfig) {
       user => request => postAgentTypeAction(user, request)
     }
+  }
+
+  private[registration] val agentTypeAction: (User, Request[_]) => SimpleResult = (user, request) => {
+    Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
   private[registration] val postAgentTypeAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
@@ -67,7 +67,6 @@ class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnec
   }
 
   def step: String = agentTypeAndLegalEntityFormName
-
 }
 
 case class AgentTypeAndLegalEntity(agentType: String, legalEntity: String)

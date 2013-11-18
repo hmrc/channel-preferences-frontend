@@ -28,6 +28,18 @@ class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
 
   def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
 
+  def companyDetails = AuthorisedFor(PayeRegime) {
+    MultiFormAction(multiFormConfig) {
+      user => request => companyDetailsAction(user, request)
+    }
+  }
+
+  def postCompanyDetails = AuthorisedFor(PayeRegime) {
+    MultiFormAction(multiFormConfig) {
+      user => request => postCompanyDetailsAction(user, request)
+    }
+  }
+
   private val companyDetailsForm = Form[AgentCompanyDetails](
     mapping(
       companyName -> nonEmptyNotBlankSmallText,
@@ -103,20 +115,9 @@ class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
     }
   )
 
-  def companyDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
-    MultiFormAction(multiFormConfig) {
-      user => request => companyDetailsAction(user, request)
-    }
-  }
-
   private[registration] val companyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) =>
     Ok(views.html.agents.registration.company_details(companyDetailsForm.fill(AgentCompanyDetails())))
 
-  def postCompanyDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
-    MultiFormAction(multiFormConfig) {
-      user => request => postCompanyDetailsAction(user, request)
-    }
-  }
 
   private[registration] val postCompanyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
     companyDetailsForm.bindFromRequest()(request).fold(

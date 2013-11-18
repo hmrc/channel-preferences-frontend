@@ -1,13 +1,12 @@
 package controllers.agent.registration
 
 import play.api.data._
-import controllers.common.{Ida, BaseController}
+import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{SimpleResult, Request}
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import scala.Some
 import controllers.agent.registration.FormNames._
 import AgentContactDetailsFormFields._
 import controllers.common.validators.Validators
@@ -36,9 +35,15 @@ class AgentContactDetailsController(override val auditConnector: AuditConnector,
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )
 
-  def contactDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime), redirectToOrigin = true) {
+  def contactDetails = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
     MultiFormAction(multiFormConfig) {
       user => request => contactDetailsAction(user, request)
+    }
+  }
+
+  def postContactDetails = AuthorisedFor(PayeRegime) {
+    MultiFormAction(multiFormConfig) {
+      user => request => postContactDetailsAction(user, request)
     }
   }
 
@@ -46,12 +51,6 @@ class AgentContactDetailsController(override val auditConnector: AuditConnector,
     val paye: PayeRoot = user.regimes.paye.get
     val form = contactForm.fill(AgentContactDetails())
     Ok(views.html.agents.registration.contact_details(form, paye))
-  }
-
-  def postContactDetails = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
-    MultiFormAction(multiFormConfig) {
-      user => request => postContactDetailsAction(user, request)
-    }
   }
 
   private[registration] val postContactDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {

@@ -20,7 +20,7 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory,
 
   def this() = this(new OtherServicesFactory(Connectors.governmentGatewayConnector), Connectors.auditConnector)(Connectors.authConnector)
 
-  def otherServices = ActionAuthorisedBy(GovernmentGateway)() {
+  def otherServices = AuthorisedBy(GovernmentGateway) {
     user => request => otherServicesPage(user, request)
   }
 

@@ -150,7 +150,7 @@ class SaController(override val auditConnector: AuditConnector)
       case _ => NotFound
     }
 
-  def changeAddressFailed(id: String) = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def changeAddressFailed(id: String) = AuthorisedFor(SaRegime) {
     implicit user => implicit request => changeAddressFailedAction(id)
   }
 

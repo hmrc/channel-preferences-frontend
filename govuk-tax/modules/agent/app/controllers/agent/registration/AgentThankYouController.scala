@@ -1,6 +1,6 @@
 package controllers.agent.registration
 
-import controllers.common.{Ida, BaseController}
+import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
@@ -14,7 +14,7 @@ import service.agent.AgentConnector
 
 class AgentThankYouController(override val auditConnector: AuditConnector,
                               override val keyStoreConnector: KeyStoreConnector)
-                             (implicit agentMicroService : AgentConnector,
+                             (implicit agentMicroService: AgentConnector,
                               override val authConnector: AuthConnector)
   extends BaseController
   with Actions
@@ -24,7 +24,7 @@ class AgentThankYouController(override val auditConnector: AuditConnector,
 
   def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(AgentConnector(), Connectors.authConnector)
 
-  def thankYou = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def thankYou = AuthorisedFor(PayeRegime) {
     MultiFormAction(multiFormConfig) {
       user => request => thankYouAction(user, request)
     }

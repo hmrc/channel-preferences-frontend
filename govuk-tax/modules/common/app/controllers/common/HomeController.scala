@@ -24,7 +24,7 @@ class HomeController(override val auditConnector: AuditConnector)
     Redirect(routes.LoginController.login()).withNewSession
   }
 
-  def home = ActionAuthorisedBy(AnyLoggedInUser)() {
+  def home = AuthorisedBy(AnyLoggedInUser) {
     user => implicit request => redirectToHomepage(user, session)
   }
 

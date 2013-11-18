@@ -4,14 +4,14 @@ import controllers.common.CookieEncryption
 import play.api.mvc.Results
 import concurrent.Future
 
-object WithHeaders extends WithHeaders
+private[actions] object WithHeaders extends WithHeaders
 
-class WithHeaders extends Results with CookieEncryption {
+private[actions] class WithHeaders extends Results with CookieEncryption {
 
   import play.api.mvc._
   import org.slf4j.MDC
   import java.util.UUID
-  import play.api.{ Mode, Play }
+  import play.api.{Mode, Play}
   import views.html.server_error
   import play.Logger
   import uk.gov.hmrc.microservice.HasResponse
@@ -47,7 +47,7 @@ class WithHeaders extends Results with CookieEncryption {
   private def logThrowable(t: Throwable) {
     Logger.error("Action failed", t)
     t match {
-      case resp : HasResponse => Logger.error(s"MicroService Response '${resp.response.body}'")
+      case resp: HasResponse => Logger.error(s"MicroService Response '${resp.response.body}'")
       case _ =>
     }
   }

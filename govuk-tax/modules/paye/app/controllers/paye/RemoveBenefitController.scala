@@ -41,20 +41,20 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
-  def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
     user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   }
 
-  def requestBenefitRemoval(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def requestBenefitRemoval(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
     user => request => requestBenefitRemovalAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   }
 
-  def confirmBenefitRemoval(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def confirmBenefitRemoval(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
     user => request => confirmBenefitRemovalAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   }
 
   def benefitRemoved(benefitTypes: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]) =
-    ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+    AuthorisedFor(PayeRegime) {
       user => request => benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance)
     }
 

@@ -27,14 +27,13 @@ class ImportantDatesController(ctConnector: CtConnector, override val auditConne
 
   implicit val dateFormat = new SimpleDateFormat("d MMMM yyy")
 
-  def importantDates = ActionAuthorisedBy(GovernmentGateway)() {
+  def importantDates = AuthorisedBy(GovernmentGateway) {
     user => request => importantDatesPage(user, request)
   }
 
   private[bt] def importantDatesPage(implicit user: User, request: Request[AnyRef]) = {
-
     val regimes = List(user.regimes.ct)
-    val events = regimes.flatMap{
+    val events = regimes.flatMap {
       regime => regime match {
         case Some(ctRoot: CtRoot) => ctConnector.calendar(ctRoot.links("calendar"))
         //Other cases for VAT etc. go here when we implement them
@@ -42,7 +41,7 @@ class ImportantDatesController(ctConnector: CtConnector, override val auditConne
       }
     }.flatten
 
-    val dates =events map (ImportantDate.create(_, buildPortalUrl))
+    val dates = events map (ImportantDate.create(_, buildPortalUrl))
     Ok(views.html.important_dates(dates.sortBy(_.date.toDate))(user))
   }
 }
@@ -61,7 +60,7 @@ object ImportantDate {
       else
         Some(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("ctFileAReturn"), Some(s"$service.message.importantDates.link.$eventType"))))
 
-    if(event.accountingPeriod.returnFiled && eventType == "filing") {
+    if (event.accountingPeriod.returnFiled && eventType == "filing") {
       ImportantDate(
         event.eventDate,
         s"$service.message.importantDates.additionalText.$eventType",

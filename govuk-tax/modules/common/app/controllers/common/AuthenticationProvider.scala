@@ -40,3 +40,5 @@ object GovernmentGateway extends AuthenticationProvider with CookieEncryption {
       Right(handleRedirect(request))
   }
 }
+
+

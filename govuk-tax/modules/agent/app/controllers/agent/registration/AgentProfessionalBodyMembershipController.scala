@@ -7,7 +7,7 @@ import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.{Ida, BaseController}
+import controllers.common.BaseController
 import controllers.common.validators.Validators
 import controllers.common.actions.{Actions, MultiFormWrapper}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
@@ -43,21 +43,21 @@ class AgentProfessionalBodyMembershipController(override val auditConnector: Aud
     }
   )
 
-  def professionalBodyMembership = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def professionalBodyMembership = AuthorisedFor(PayeRegime) {
     MultiFormAction(multiFormConfig) {
       user => request => professionalBodyMembershipAction(user, request)
+    }
+  }
+
+  def postProfessionalBodyMembership = AuthorisedFor(PayeRegime) {
+    MultiFormAction(multiFormConfig) {
+      user => request => postProfessionalBodyMembershipAction(user, request)
     }
   }
 
   private[registration] val professionalBodyMembershipAction: (User, Request[_]) => SimpleResult = (user, request) => {
     val form = professionalBodyMembershipForm.fill(AgentProfessionalBodyMembership())
     Ok(views.html.agents.registration.professional_body_membership(form, Configuration.config.professionalBodyOptions))
-  }
-
-  def postProfessionalBodyMembership = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
-    MultiFormAction(multiFormConfig) {
-      user => request => postProfessionalBodyMembershipAction(user, request)
-    }
   }
 
   private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => SimpleResult) = (user, request) => {

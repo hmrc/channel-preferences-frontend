@@ -24,7 +24,7 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
-  def carBenefitHome = ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
+  def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
     implicit user =>
       implicit request =>
         carBenefitHomeAction

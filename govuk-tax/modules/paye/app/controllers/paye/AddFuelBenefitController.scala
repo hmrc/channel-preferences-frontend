@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.{BaseController, Ida}
+import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain.{BenefitValue, AddFuelBenefitConfirmationData, PayeRegime, TaxYearData}
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
@@ -32,21 +32,21 @@ with TaxYearSupport {
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   def startAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
+    AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
       user => request => startAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
   def reviewAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
+    AuthorisedFor(PayeRegime) {
       user => request => reviewAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
   def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
+    AuthorisedFor(PayeRegime) {
       user => request => Ok
     }
 
-  private def fuelBenefitForm(values:CarBenefitValues) = Form[FuelBenefitData](
+  private def fuelBenefitForm(values: CarBenefitValues) = Form[FuelBenefitData](
     mapping(
       employerPayFuel -> validateEmployerPayFuel(values),
       dateFuelWithdrawn -> validateDateFuelWithdrawn(values, taxYearInterval)
@@ -87,7 +87,7 @@ with TaxYearSupport {
             (addFuelBenefitData: FuelBenefitData) => {
               val benefit = payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR)
               val benefitStartDate = getDateInTaxYear(benefit.get.car.flatMap(_.dateCarMadeAvailable))
-              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get,addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = Some(BenefitValue(0)))
+              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get, addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = Some(BenefitValue(0)))
               Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
             })
         }
@@ -99,12 +99,13 @@ with TaxYearSupport {
     }
   }
 
-  private def getDateInTaxYear(benefitDate:Option[LocalDate]) = {
+  private def getDateInTaxYear(benefitDate: Option[LocalDate]) = {
     benefitDate match {
       case Some(date) if date.isAfter(startOfCurrentTaxYear) => benefitDate
       case _ => Some(startOfCurrentTaxYear)
     }
   }
+
   private def findEmployment(employmentSequenceNumber: Int, payeRootData: TaxYearData) = {
     payeRootData.employments.find(_.sequenceNumber == employmentSequenceNumber)
   }
