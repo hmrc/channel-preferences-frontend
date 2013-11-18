@@ -1,7 +1,7 @@
 package controllers.agent.registration
 
 import play.api.data._
-import controllers.common.{Ida, BaseController, Actions}
+import controllers.common.{Ida, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.mvc.{SimpleResult, Request}
 import play.api.data.Forms._
@@ -11,7 +11,7 @@ import scala.Some
 import controllers.agent.registration.FormNames._
 import AgentContactDetailsFormFields._
 import controllers.common.validators.Validators
-import controllers.common.actions.MultiFormWrapper
+import controllers.common.actions.{Actions, MultiFormWrapper}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors

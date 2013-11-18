@@ -1,6 +1,6 @@
 package controllers.bt
 
-import controllers.common.{BaseController, GovernmentGateway, Actions}
+import controllers.common.BaseController
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRegime
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
+import controllers.common.actions.Actions
 
 
 class PaymentController(override val auditConnector: AuditConnector)
@@ -22,20 +23,20 @@ class PaymentController(override val auditConnector: AuditConnector)
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
-  def makeEpayePayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(EpayeRegime))(EpayePaymentPredicate) {
+  def makeEpayePayment = AuthorisedFor(account = EpayeRegime, pageVisibility = EpayePaymentPredicate) {
     user => request =>
       makeEpayePaymentPage(user, request)
   }
 
-  def makeSaPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(SaRegime))(SaPaymentPredicate) {
+  def makeSaPayment = AuthorisedFor(account = SaRegime, pageVisibility = SaPaymentPredicate) {
     user => request => makeSaPaymentPage(user, request)
   }
 
-  def makeCtPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(CtRegime))(CtPaymentPredicate) {
+  def makeCtPayment = AuthorisedFor(account = CtRegime, pageVisibility = CtPaymentPredicate) {
     user => request => makeCtPaymentPage(user, request)
   }
 
-  def makeVatPayment = ActionAuthorisedByWithVisibility(GovernmentGateway)(Some(VatRegime))(VatPaymentPredicate) {
+  def makeVatPayment = AuthorisedFor(account = VatRegime, pageVisibility = VatPaymentPredicate) {
     user => request => makeVatPaymentPage(user, request)
   }
 

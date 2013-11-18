@@ -8,12 +8,10 @@ import play.api.mvc.SimpleResult
 trait PageVisibilityPredicate {
   def isVisible(user: User, request: Request[AnyContent]): Boolean
 
-  def nonVisibleResult: SimpleResult = {
-    NotFound
-  }
+  def nonVisibleResult: SimpleResult = NotFound
 }
 
-object WithPageVisibility {
+private[actions] object WithPageVisibility {
   def apply(predicate: PageVisibilityPredicate, user: User)(action: User => Action[AnyContent]): Action[AnyContent] =
 
     Action.async {

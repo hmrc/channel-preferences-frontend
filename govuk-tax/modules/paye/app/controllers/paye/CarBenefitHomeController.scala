@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.{Ida, Actions, BaseController}
+import controllers.common.{Ida, BaseController}
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.{TaxYearData, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
@@ -14,6 +14,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
+import controllers.common.actions.Actions
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)(implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
   with Actions

@@ -19,11 +19,12 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.sa.SaConnector
+import controllers.common.actions.Actions
 
 //"This feature will be reactivated soon, HMTB-1912"
 @Deprecated
 class SaController(override val auditConnector: AuditConnector)
-                  (implicit saConnector : SaConnector,
+                  (implicit saConnector: SaConnector,
                    override val authConnector: AuthConnector)
   extends BaseController
   with Actions
@@ -32,45 +33,45 @@ class SaController(override val auditConnector: AuditConnector)
 
   def this() = this(Connectors.auditConnector)(Connectors.saConnector, Connectors.authConnector)
 
-  def details = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def details = AuthorisedFor(SaRegime) {
     implicit user =>
       implicit request =>
         NotFound
-//        detailsAction
+    //        detailsAction
   }
 
-  def changeAddress = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def changeAddress = AuthorisedFor(SaRegime) {
     implicit user =>
       implicit request =>
         NotFound
-//        changeAddressAction
+    //        changeAddressAction
   }
 
-  def redisplayChangeAddress() = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def redisplayChangeAddress() = AuthorisedFor(SaRegime) {
     implicit user =>
       implicit request =>
         NotFound
-//        redisplayChangeAddressAction
+    //        redisplayChangeAddressAction
   }
 
-  def submitChangeAddress() = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def submitChangeAddress() = AuthorisedFor(SaRegime) {
     implicit user => implicit request =>
       NotFound
-//      submitChangeAddressAction
+    //      submitChangeAddressAction
   }
 
-  def confirmChangeAddress = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def confirmChangeAddress = AuthorisedFor(SaRegime) {
     implicit user =>
       implicit request =>
         NotFound
-//        confirmChangeAddressAction
+    //        confirmChangeAddressAction
   }
 
-  def changeAddressComplete(id: String) = ActionAuthorisedBy(GovernmentGateway)(Some(SaRegime)) {
+  def changeAddressComplete(id: String) = AuthorisedFor(SaRegime) {
     implicit user =>
       implicit request =>
         NotFound
-//        changeAddressCompleteAction(id)
+    //        changeAddressCompleteAction(id)
   }
 
   private[sa] def detailsAction(implicit user: User, request: Request[_]): SimpleResult = {

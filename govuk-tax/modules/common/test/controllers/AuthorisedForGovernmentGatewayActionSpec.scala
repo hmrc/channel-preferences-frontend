@@ -31,6 +31,7 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
+import controllers.common.actions.Actions
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec

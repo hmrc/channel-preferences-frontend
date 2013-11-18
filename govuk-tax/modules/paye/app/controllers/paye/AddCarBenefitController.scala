@@ -1,10 +1,9 @@
 package controllers.paye
 
-import controllers.common.{Ida, Actions, BaseController}
+import controllers.common.{BaseController}
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain._
-import uk.gov.hmrc.common.microservice.paye.domain.Employment._
-import models.paye.{EngineCapacity, TaxCodeResolver, BenefitTypes, BenefitUpdatedConfirmationData}
+import models.paye.{EngineCapacity, TaxCodeResolver, BenefitUpdatedConfirmationData}
 import play.api.Logger
 import org.joda.time._
 import play.api.data.Form
@@ -23,6 +22,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.paye.validation.WithValidatedCarRequest
+import controllers.common.actions.Actions
 
 class AddCarBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
@@ -34,22 +34,19 @@ with TaxYearSupport {
 
   def timeSource() = new LocalDate(DateTimeZone.UTC)
 
-  def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime), redirectToOrigin = true) {
-      user =>
-        request =>
-          startAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
-    }
+  def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
+    user =>
+      request =>
+        startAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
+  }
 
-  def reviewAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
-      user => request => reviewAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
-    }
+  def reviewAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
+    user => request => reviewAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
+  }
 
-  def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    ActionAuthorisedBy(Ida)(taxRegime = Some(PayeRegime)) {
-      user => request => confirmAddingBenefitAction(user, request, taxYear, employmentSequenceNumber)
-    }
+  def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
+    user => request => confirmAddingBenefitAction(user, request, taxYear, employmentSequenceNumber)
+  }
 
   private def findEmployment(employmentSequenceNumber: Int, payeRootData: TaxYearData) = {
     payeRootData.employments.find(_.sequenceNumber == employmentSequenceNumber)
@@ -61,7 +58,7 @@ with TaxYearSupport {
 
   private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
     mapping(
-      providedFrom -> validateProvidedFrom(timeSource,taxYearInterval),
+      providedFrom -> validateProvidedFrom(timeSource, taxYearInterval),
       carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues, taxYearInterval),
       giveBackThisTaxYear -> validateGiveBackThisTaxYear(),
@@ -174,10 +171,10 @@ with TaxYearSupport {
 
               val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
               val benefitCalculations = payeConnector.calculateBenefitValue(uri, addBenefitPayload).get
-              val carBenefitValue : Option[BenefitValue]= benefitCalculations.carBenefitValue.map(BenefitValue)
+              val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
               val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
 
-              keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue , fuelBenefitValue.map(_.taxableValue)))
+              keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue)))
               val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                 addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                 addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)
@@ -195,6 +192,7 @@ with TaxYearSupport {
   }
 
 }
+
 case class CarBenefitData(providedFrom: Option[LocalDate],
                           carUnavailable: Option[Boolean],
                           numberOfDaysUnavailable: Option[Int],
@@ -213,22 +211,22 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
                           employerPayFuel: Option[String],
                           dateFuelWithdrawn: Option[LocalDate])
 
-case class CarBenefitDataAndCalculations(carBenefitData : CarBenefitData, carBenefitValue: Int, fuelBenefitValue: Option[Int])
+case class CarBenefitDataAndCalculations(carBenefitData: CarBenefitData, carBenefitValue: Int, fuelBenefitValue: Option[Int])
 
 //TODO this code can be removed from here once it has been copied to the PAYE service
 object CarBenefits {
   def apply(carBenefitDataAndCalculations: CarBenefitDataAndCalculations, taxYear: Int, employmentSequenceNumber: Int): Seq[Benefit] = {
-  val carBenefitData = carBenefitDataAndCalculations.carBenefitData
+    val carBenefitData = carBenefitDataAndCalculations.carBenefitData
     val car = createCar(carBenefitData)
 
     val carBenefit = createBenefit(31, carBenefitData.providedTo, taxYear, employmentSequenceNumber, Some(car), carBenefitDataAndCalculations.carBenefitValue)
 
     val fuelBenefit = carBenefitData.employerPayFuel match {
-        //benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int
+      //benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int
       case Some(data) if data == "true" || data == "again" => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.providedTo, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
+        employmentSeqNumber = employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
       case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
+        employmentSeqNumber = employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
       case _ => None
     }
     Seq(Some(carBenefit), fuelBenefit).flatten
@@ -249,15 +247,15 @@ object CarBenefits {
       daysUnavailable = carBenefitData.numberOfDaysUnavailable)
   }
 
-  private def engineSize(engineCapacity: Option[String]) : Option[Int] = {
+  private def engineSize(engineCapacity: Option[String]): Option[Int] = {
     engineCapacity match {
       // TODO: Investigate why keystore is returning a string value 'none' instead of an Option None value
-      case Some(engine) if(engine != EngineCapacity.NOT_APPLICABLE) => Some(engine.toInt)
+      case Some(engine) if (engine != EngineCapacity.NOT_APPLICABLE) => Some(engine.toInt)
       case _ => None
     }
   }
 
-  private def createBenefit(benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int) = {
+  private def createBenefit(benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount: Int) = {
     Benefit(benefitType = benefitType,
       taxYear = taxYear,
       grossAmount = grossBenefitAmount,

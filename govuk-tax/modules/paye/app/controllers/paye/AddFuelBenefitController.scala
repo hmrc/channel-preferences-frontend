@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.{BaseController, Ida, Actions}
+import controllers.common.{BaseController, Ida}
 import uk.gov.hmrc.common.microservice.paye.domain.{BenefitValue, AddFuelBenefitConfirmationData, PayeRegime, TaxYearData}
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
@@ -20,6 +20,7 @@ import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import models.paye.BenefitTypes
+import controllers.common.actions.Actions
 
 
 class AddFuelBenefitController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)

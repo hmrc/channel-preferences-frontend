@@ -26,6 +26,7 @@ import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
+import controllers.common.actions.Actions
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -61,7 +62,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
   "basic homepage test" should {
     "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
-      val result = testController.test(FakeRequest().withSession(
+      val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/jdensmore"))
@@ -76,7 +77,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
       when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenReturn(None)
 
-      val result = testController.test(FakeRequest().withSession(
+      val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/jdensmore"))
@@ -99,7 +100,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     "return internal server error page if the AuthConnector throws an exception" in new WithApplication(FakeApplication()) {
       when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
 
-      val result = testController.test(FakeRequest().withSession(
+      val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/jdensmore"))
@@ -124,9 +125,8 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
 
     "return 200 in case the agent is successfully authorised" in new WithApplication(FakeApplication()) {
-
       when(mockAuthConnector.authority("/auth/oid/goeff")).thenReturn(
-        Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))), None)))
+        Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))))))
 
       val agent = AgentRoot("uar-for-goeff", Map.empty, Map.empty)
       when(mockAgentMicroService.root("/agent/uar-for-goeff")).thenReturn(agent)
@@ -143,8 +143,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
       when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(
-        Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
-      val result = testController.testAuthorisation(FakeRequest().withSession(
+        Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))))))
+
+      val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/john"))
@@ -168,7 +169,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     }
 
     "redirect to the login page when the userId is not found in the session " in new WithApplication(FakeApplication()) {
-      val result = testController.testAuthorisation(FakeRequest().withSession(
+      val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         lastRequestTimestampKey -> now.getMillis.toString
       ))
 
@@ -177,7 +178,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     }
 
     "redirect to the login page when the userId is found but a gateway token is present" in new WithApplication(FakeApplication()) {
-      val result = testController.testAuthorisation(FakeRequest().withSession(
+      val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         "userId" -> encrypt("/auth/oid/john"),
         lastRequestTimestampKey -> now.getMillis.toString,
@@ -206,8 +207,8 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 }
 
 
-sealed class TestController(payeConnector : PayeConnector,
-                            agentConnectorRoot : AgentConnectorRoot,
+sealed class TestController(payeConnector: PayeConnector,
+                            agentConnectorRoot: AgentConnectorRoot,
                             override val auditConnector: AuditConnector)
                            (implicit override val authConnector: AuthConnector)
   extends Controller
@@ -227,7 +228,7 @@ sealed class TestController(payeConnector : PayeConnector,
     )
   }
 
-  def test = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def testPayeAuthorisation = AuthorisedFor(PayeRegime) {
     implicit user =>
       implicit request =>
         val userPayeRegimeRoot = user.regimes.paye.get
@@ -235,22 +236,14 @@ sealed class TestController(payeConnector : PayeConnector,
         Ok(userName)
   }
 
-  def testAuthorisation = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
-    implicit user =>
-      implicit request =>
-        val userPayeRegimeRoot = user.regimes.paye.get
-        val userName = userPayeRegimeRoot.name
-        Ok(userName)
-  }
-
-  def testAgentAuthorisation = ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
+  def testAgentAuthorisation = AuthorisedFor(AgentRegime) {
     implicit user =>
       implicit request =>
         val userAgentRegimeRoot = user.regimes.agent.get
         Ok(userAgentRegimeRoot.uar)
   }
 
-  def testAuthorisationWithRedirectCommand = ActionAuthorisedBy(Ida)(redirectToOrigin = true) {
+  def testAuthorisationWithRedirectCommand = AuthorisedBy(authenticationProvider = Ida, redirectToOrigin = true) {
     implicit user =>
       implicit request =>
         val userPayeRegimeRoot = user.regimes.paye.get
@@ -258,13 +251,13 @@ sealed class TestController(payeConnector : PayeConnector,
         Ok(userName)
   }
 
-  def testThrowsException = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def testThrowsException = AuthorisedFor(PayeRegime) {
     implicit user =>
       implicit request =>
         throw new RuntimeException("ACTION TEST")
   }
 
-  def testMdc = ActionAuthorisedBy(Ida)(Some(PayeRegime)) {
+  def testMdc = AuthorisedFor(PayeRegime) {
     implicit user =>
       implicit request =>
         Ok(s"${MDC.get(authorisation)} ${MDC.get(requestId)}")

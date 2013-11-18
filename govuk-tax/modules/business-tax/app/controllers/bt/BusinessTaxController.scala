@@ -9,6 +9,7 @@ import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
+import controllers.common.actions.Actions
 
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
                             override val auditConnector: AuditConnector)

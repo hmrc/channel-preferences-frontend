@@ -9,6 +9,7 @@ import play.api.libs.json.Json
 import java.net.{ MalformedURLException, URISyntaxException, URI }
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.actions.Actions
 
 class SsoInController(ssoWhiteListService : SsoWhiteListService,
                       governmentGatewayConnector : GovernmentGatewayConnector,

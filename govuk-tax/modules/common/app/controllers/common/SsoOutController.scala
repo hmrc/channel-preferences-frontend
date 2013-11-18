@@ -8,6 +8,7 @@ import play.api.{Logger, Play}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.actions.Actions
 
 object SsoPayloadEncryptor extends Encryption {
   val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get

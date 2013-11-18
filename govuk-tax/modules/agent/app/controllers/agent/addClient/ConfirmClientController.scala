@@ -3,14 +3,12 @@ package controllers.agent.addClient
 import controllers.common._
 import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.agent.AgentRegime
-import play.api.mvc.{SimpleResult, Request}
+import play.api.mvc.Request
 import views.html.agents.addClient.{preferred_contact, search_client_result}
 import SearchClientController.KeyStoreKeys._
 import play.api.data.Form
-import models.agent.addClient.{PreferredContactData, PotentialClient, ConfirmClient}
+import models.agent.addClient.{PreferredContactData, ConfirmClient}
 import play.api.data.Forms._
-import uk.gov.hmrc.common.microservice.domain.User
-import scala.Some
 import PreferredClientController.emptyUnValidatedPreferredContactForm
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
@@ -20,6 +18,7 @@ import models.agent.addClient.PotentialClient
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
+import controllers.common.actions.Actions
 
 class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
                               override val auditConnector: AuditConnector)
@@ -32,10 +31,9 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
 
   import ConfirmClientController._
 
-  def confirm =
-    ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
-      confirmAction
-    }
+  def confirm = AuthorisedFor(AgentRegime) {
+    confirmAction
+  }
 
   private[agent] def confirmAction(user: User)(request: Request[_]): SimpleResult = {
     val form = confirmClientForm().bindFromRequest()(request)

@@ -2,7 +2,7 @@ package controllers.agent.addClient
 
 import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient._
-import controllers.common.{Ida, BaseController, Actions}
+import controllers.common.{BaseController}
 import play.api.data.{Form, Forms}
 import Forms._
 import org.joda.time.LocalDate
@@ -21,6 +21,7 @@ import models.agent.{SearchRequest, MatchingPerson}
 import service.agent.AgentConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.actions.Actions
 
 class SearchClientController(val keyStoreConnector: KeyStoreConnector,
                              override val auditConnector: AuditConnector)
@@ -34,15 +35,15 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(AgentConnector(), Connectors.authConnector)
 
-  def start = ActionAuthorisedBy(Ida)(Some(AgentRegime), redirectToOrigin = true) {
+  def start = AuthorisedFor(account = AgentRegime, redirectToOrigin = true) {
     homeAction
   }
 
-  def restart = ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
+  def restart = AuthorisedFor(AgentRegime) {
     restartAction
   }
 
-  def search = ActionAuthorisedBy(Ida)(Some(AgentRegime)) {
+  def search = AuthorisedFor(AgentRegime) {
     searchAction
   }
 

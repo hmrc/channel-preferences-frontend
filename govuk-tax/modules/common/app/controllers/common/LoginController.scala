@@ -11,6 +11,7 @@ import java.util.UUID
 import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.actions.Actions
 
 
 class LoginController(samlConnector : SamlConnector,

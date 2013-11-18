@@ -1,13 +1,14 @@
 package controllers.bt
 
 import controllers.bt.otherservices.{OtherServicesFactory, OtherServicesSummary}
-import controllers.common.{BaseController, Actions, GovernmentGateway}
+import controllers.common.{BaseController, GovernmentGateway}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.service.Connectors
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.common.actions.Actions
 
 
 class OtherServicesController(otherServicesFactory: OtherServicesFactory,

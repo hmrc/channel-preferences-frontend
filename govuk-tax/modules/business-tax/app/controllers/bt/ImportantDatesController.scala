@@ -1,6 +1,6 @@
 package controllers.bt
 
-import controllers.common.{BaseController, Actions, GovernmentGateway}
+import controllers.common.{BaseController, GovernmentGateway}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import controllers.common.service.Connectors
 import play.api.mvc.Request
@@ -15,6 +15,7 @@ import views.helpers.RenderableLinkMessage
 import scala.Some
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.ct.CtConnector
+import controllers.common.actions.Actions
 
 
 class ImportantDatesController(ctConnector: CtConnector, override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)

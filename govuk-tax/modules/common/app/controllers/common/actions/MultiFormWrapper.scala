@@ -3,10 +3,11 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
-
 trait MultiFormWrapper {
   val keyStoreConnector: KeyStoreConnector
+
   object MultiFormAction extends MultiFormAction(keyStoreConnector)
+
 }
 
 case class MultiFormConfiguration(id: String, source: String, stepsList: List[MultiFormStep], currentStep: String, unauthorisedStep: MultiFormStep)
