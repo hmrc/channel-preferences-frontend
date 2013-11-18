@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.bson.types.ObjectId
 import uk.gov.hmrc.domain.Nino
-import org.scalatest.Inside
+import org.scalatest.{Inspectors, Inside}
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.auth.domain.Pid
 import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
@@ -26,6 +26,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import org.scalatest.mock.MockitoSugar
+import scala.collection.JavaConverters._
 
 class AuditTestController(override val auditConnector: AuditConnector) extends Controller with AuditActionWrapper {
 
@@ -55,7 +56,7 @@ class AuditTestController(override val auditConnector: AuditConnector) extends C
     }
 }
 
-class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside {
+class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside with Inspectors {
 
   "AuditActionWrapper with traceRequestsEnabled " should {
     "generate audit events with no user details when no user is supplied" in new TestCase(traceRequests = true) {
@@ -140,32 +141,51 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
     }
 
     "generate audit events with the device finger print when it is supplied in a request cookie" in new TestCase(traceRequests = true) {
-      val fingerprint = "eyJ1c2VyQWdlbnQiOiJNb3ppbGxhLzUuMCAoTWFjaW50b3NoOyBJbnRlbCBNYWMgT1MgWCAxMF84XzUpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGx" +
+      val encryptedFingerprint = "eyJ1c2VyQWdlbnQiOiJNb3ppbGxhLzUuMCAoTWFjaW50b3NoOyBJbnRlbCBNYWMgT1MgWCAxMF84XzUpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGx" +
         "pa2UgR2Vja28pIENocm9tZS8zMS4wLjE2NTAuNDggU2FmYXJpLzUzNy4zNiIsImxhbmd1YWdlIjoiZW4tVVMiLCJjb2xvckRlcHRoIjoyNCwicmVzb2x1dGlvbiI6IjgwMHgxMj" +
         "gwIiwidGltZXpvbmUiOjAsInNlc3Npb25TdG9yYWdlIjp0cnVlLCJsb2NhbFN0b3JhZ2UiOnRydWUsImluZGV4ZWREQiI6dHJ1ZSwicGxhdGZvcm0iOiJNYWNJbnRlbCIsImRvT" +
         "m90VHJhY2siOnRydWUsIm51bWJlck9mUGx1Z2lucyI6NSwicGx1Z2lucyI6WyJTaG9ja3dhdmUgRmxhc2giLCJDaHJvbWUgUmVtb3RlIERlc2t0b3AgVmlld2VyIiwiTmF0aXZl" +
         "IENsaWVudCIsIkNocm9tZSBQREYgVmlld2VyIiwiUXVpY2tUaW1lIFBsdWctaW4gNy43LjEiXX0="
 
-
-      val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withCookies(Cookie(CookieNames.deviceFingerprint, fingerprint)))
+      val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withCookies(Cookie(CookieNames.deviceFingerprint, encryptedFingerprint)))
 
       whenReady(response) {
         result =>
           verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
 
-          val auditEvents = auditEventCaptor.getAllValues
-          auditEvents.size should be(2)
-          auditEvents.get(0).detail should contain("deviceFingerprint" -> (
-            """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36",""" +
-            """"language":"en-US","colorDepth":24,"resolution":"800x1280","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,"platform":"MacIntel",""" +
-            """"doNotTrack":true,"numberOfPlugins":5,"plugins":["Shockwave Flash","Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
-
-
-//            """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36",""" +
-//              """"language":"en-US","colorDepth":24,"resolution":"1200x1920","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,""" +
-//              """"addBehavior":"undefined","openDatabase":"function","platform":"MacIntel","doNotTrack":false,"numberOfPlugins":5,"plugins":["Shockwave Flash",""" +
-//              """"Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
+          forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
+            event.detail should contain("deviceFingerprint" -> (
+              """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36",""" +
+              """"language":"en-US","colorDepth":24,"resolution":"800x1280","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,"platform":"MacIntel",""" +
+              """"doNotTrack":true,"numberOfPlugins":5,"plugins":["Shockwave Flash","Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
             )
+          }
+      }
+    }
+
+    "generate audit events without the device finger print when it is not supplied in a request cookie" in new TestCase(traceRequests = true) {
+      val response = controller.test(Some(user))(FakeRequest("GET", "/foo"))
+
+      whenReady(response) {
+        result =>
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+
+          forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
+            event.detail should not contain key ("deviceFingerprint")
+          }
+      }
+    }
+
+    "generate audit events without the device finger print when the value supplied in the request cookie is invalid" in new TestCase(traceRequests = true) {
+      val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withCookies(Cookie(CookieNames.deviceFingerprint, "THIS IS SOME JUST THAT SHOULDN'T BE DECRYPTABLE *!@&£$)B__!@£$")))
+
+      whenReady(response) {
+        result =>
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+
+          forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
+            event.detail should not contain key ("deviceFingerprint")
+          }
       }
     }
 

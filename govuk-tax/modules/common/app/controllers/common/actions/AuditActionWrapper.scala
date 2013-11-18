@@ -8,13 +8,13 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import scala.concurrent.ExecutionContext
 import controllers.common.{HeaderNames, CookieNames}
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import util.Failure
+import scala.util.{Try, Failure, Success}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
-import util.Success
 import java.net.URLDecoder
 import com.ning.http.util.Base64
 import scala.collection.JavaConversions._
+import akka.dispatch.sysmsg.Failed
 
 trait AuditActionWrapper extends HeaderNames {
   val auditConnector : AuditConnector
@@ -24,6 +24,7 @@ trait AuditActionWrapper extends HeaderNames {
 class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends MdcHelper with HeaderNames {
 
   import ExecutionContext.Implicits.global
+  import play.api.Logger
 
   lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
 
@@ -66,10 +67,15 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
     details.put("referrer", request.headers.get("Referer").getOrElse("-"))
     request.cookies.get(CookieNames.deviceFingerprint).foreach { cookie =>
-      val cookieAsArray = Base64.decode(cookie.value)
-      details.put("deviceFingerprint", new String(cookieAsArray, "UTF-8"))
+      Try {
+        Base64.decode(cookie.value)
+      } match {
+        case Success(decodedFingerprint) =>
+          details.put("deviceFingerprint", new String(decodedFingerprint, "UTF-8"))
+        case Failure(e) =>
+          Logger.info(s"Failed to decode device fingerprint: ${cookie.value}", e)
+      }
     }
-
 
     AuditEvent(auditSource = "frontend",
                auditType = auditType,
