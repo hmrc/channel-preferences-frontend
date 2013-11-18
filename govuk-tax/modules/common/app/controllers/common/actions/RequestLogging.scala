@@ -4,20 +4,19 @@ import uk.gov.hmrc.utils.DateConverter
 import config.DateTimeProvider
 import util.Success
 import controllers.common.HeaderNames
+import play.api.mvc._
+import java.text.SimpleDateFormat
+import java.util.Date
+import play.api.Logger
+import scala.concurrent.ExecutionContext
 
-private[actions] object WithRequestLogging extends HeaderNames with MdcHelper with DateConverter {
-
-  import play.api.mvc._
-  import java.text.SimpleDateFormat
-  import java.util.Date
-  import play.api.Logger
-  import scala.concurrent.ExecutionContext
+private[actions] trait RequestLogging extends HeaderNames with MdcHelper with DateConverter {
 
   import ExecutionContext.Implicits.global
 
   private val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZZ")
 
-  def apply(action: Action[AnyContent]): Action[AnyContent] = Action.async {
+  protected def logRequest(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     request => {
       val start = DateTimeProvider.now().getMillis
       val startTime = format.format(new Date(start))

@@ -1,24 +1,22 @@
 package controllers.common.actions
 
-import controllers.common.{ CookieEncryption, HeaderNames }
-import play.api.mvc.{ Action, Controller }
-import play.api.test.{ FakeApplication, WithApplication, FakeRequest }
+import controllers.common.{CookieEncryption, HeaderNames}
+import play.api.mvc.{Action, Controller}
+import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import org.slf4j.MDC
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
 
-object HeaderTestController extends Controller with HeaderNames {
+object HeaderTestController extends Controller with MdcHeaders {
 
-  import controllers.common.actions.WithHeaders
-
-  def test() = WithHeaders {
+  def test() = storeHeaders {
     Action {
       request =>
         Ok(s"${MDC.get(xSessionId)}:${MDC.get(authorisation)}:${MDC.get("token")}:${MDC.get(forwardedFor)}:${MDC.get(requestId)}")
     }
   }
 
-  def fail() = WithHeaders {
+  def fail() = storeHeaders {
     Action {
       request =>
         throw new Exception
@@ -42,7 +40,6 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncry
       fields(3) shouldBe "192.168.1.1"
       fields(4) should startWith("govuk-tax-")
       MDC.getCopyOfContextMap should be(null)
-
     }
 
     "return an internal server error " in new WithApplication(FakeApplication()) {
@@ -54,9 +51,6 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncry
 
       status(result) should be(INTERNAL_SERVER_ERROR)
       MDC.getCopyOfContextMap should be(null)
-
     }
-
   }
-
 }

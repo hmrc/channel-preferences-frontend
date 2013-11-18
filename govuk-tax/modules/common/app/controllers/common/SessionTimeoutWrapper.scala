@@ -40,7 +40,6 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
 
   def apply(action: Action[AnyContent]): Action[AnyContent] = apply(defaultErrorAction, action)
 
-
   private def hasValidTimestamp(session: Session): Boolean = {
     val valid: Option[Boolean] = for {
       lastRequestTimestamp: DateTime <- extractTimestamp(session)

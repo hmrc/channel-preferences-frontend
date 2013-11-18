@@ -10,34 +10,37 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import controllers.common.{AuthenticationProvider, SessionTimeoutWrapper, CookieEncryption}
-import scala.deprecated
 
 trait Actions
   extends Results
-  with CookieEncryption
+  with MdcHeaders
+  with RequestLogging
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with ServiceRoots
   with UserActionWrapper {
 
+  private type PlayRequest = (Request[AnyContent] => SimpleResult)
+  private type PlayUserRequest = User => PlayRequest
+
   def AuthorisedFor(account: TaxRegime,
                     redirectToOrigin: Boolean = false,
                     pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
-                   (body: User => (Request[AnyContent] => SimpleResult)) =
+                   (body: PlayUserRequest) =
     authorised(account.authenticationType, Some(account), redirectToOrigin, pageVisibility, body)
 
   def AuthorisedBy(authenticationProvider: AuthenticationProvider,
                    redirectToOrigin: Boolean = false)
-                  (body: User => (Request[AnyContent] => SimpleResult)) =
+                  (body: PlayUserRequest) =
     authorised(authenticationProvider, None, redirectToOrigin, DefaultPageVisibilityPredicate, body)
 
   private def authorised(authenticationProvider: AuthenticationProvider,
                          account: Option[TaxRegime],
                          redirectToOrigin: Boolean,
                          pageVisibility: PageVisibilityPredicate,
-                         body: User => (Request[AnyContent] => SimpleResult)) =
-    WithHeaders {
-      WithRequestLogging {
+                         body: PlayUserRequest) =
+    storeHeaders {
+      logRequest {
         WithSessionTimeoutValidation {
           WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
             user =>
@@ -52,22 +55,9 @@ trait Actions
       }
     }
 
-  @deprecated("Use AuthorisedFor or AuthorisedBy instead", "18/nov/2013")
-  def ActionAuthorisedBy(authenticationType: AuthenticationProvider)
-                        (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
-                        (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] =
-    ActionAuthorisedByWithVisibility(authenticationType)(taxRegime, redirectToOrigin)(DefaultPageVisibilityPredicate)(body)
-
-  @deprecated("Use AuthorisedFor or AuthorisedBy instead", "18/nov/2013")
-  def ActionAuthorisedByWithVisibility(authenticationType: AuthenticationProvider)
-                                      (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
-                                      (pageVisibilityPredicate: PageVisibilityPredicate)
-                                      (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] =
-    authorised(authenticationType, taxRegime, redirectToOrigin, pageVisibilityPredicate, body)
-
-  def UnauthorisedAction(body: (Request[AnyContent] => SimpleResult)): Action[AnyContent] =
-    WithHeaders {
-      WithRequestLogging {
+  def UnauthorisedAction(body: PlayRequest): Action[AnyContent] =
+    storeHeaders {
+      logRequest {
         WithRequestAuditing {
           Action(body)
         }

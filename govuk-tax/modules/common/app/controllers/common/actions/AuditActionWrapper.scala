@@ -34,7 +34,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
   private def applyAudited(user: Option[User], action: Action[AnyContent]) = Action.async {
     request =>
       if (traceRequests && auditConnector.enabled) {
-        val context = fromMDC
+        val context = fromMDC()
         val eventCreator = auditEvent(user, request, context) _
 
         auditConnector.audit(eventCreator("Request", Map("path" -> request.path), extractFormData(request)))
@@ -88,7 +88,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
       case formData: AnyContentAsFormUrlEncoded =>
         Map("formData" -> formData.data.map(entry => {
           val (key, values) = entry
-          s"${key}: " + (values match {
+          s"$key: " + (values match {
             case Seq() | Seq(null) | Seq("") => "<no values>"
             case values => s"{${values.mkString(", ")}}"
           })
