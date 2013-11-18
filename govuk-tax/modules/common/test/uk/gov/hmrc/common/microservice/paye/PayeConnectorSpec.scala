@@ -19,6 +19,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Car
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
+import org.joda.time.chrono.ISOChronology
 
 class PayeConnectorSpec extends BaseSpec {
 
@@ -75,25 +76,40 @@ class PayeConnectorSpec extends BaseSpec {
     }
   }
 
+  def localDate(year : Int, month : Int, day : Int) = new LocalDate(year, month, day, ISOChronology.getInstanceUTC)
   "Calculation of benefit addition" should {
 
     "delegate correctly to the paye service" in {
       val service = new HttpMockedPayeConnector
       val uri: String = "/paye/AB123456C/benefits/2013/1/add"
 
-      val benefitData = NewBenefitCalculationData(carRegisteredBefore98 = false, fuelType = "diesel", co2Emission = Some(200), engineCapacity = Some(1200),
-        userContributingAmount = Some(9000), listPrice = 25000, carBenefitStartDate = Some(new LocalDate(2013, 7, 1)), carBenefitStopDate = Some(new LocalDate(2014, 2, 1)),
-        numDaysCarUnavailable = None, employeePayments = Some(250), employerPayFuel = "true", fuelBenefitStopDate = None)
+      val car = Car(dateCarMadeAvailable = Some(localDate(2013, 7, 1)), dateCarWithdrawn = Some(localDate(2014, 2, 1)), dateCarRegistered = Some(localDate(1988, 1,1)),
+        employeeCapitalContribution = Some(9000), fuelType = Some("diesel"), co2Emissions = Some(200), engineSize = Some(1200),
+        mileageBand = None, carValue = Some(25000), employeePayments = Some(250), daysUnavailable = None)
+
+      val carBenefit = Benefit(benefitType = BenefitTypes.CAR, taxYear = 2013,
+        grossAmount = 0, employmentSequenceNumber = 1, costAmount = Some(25000),
+        amountMadeGood = None, cashEquivalent = None, expensesIncurred = None,
+        amountOfRelief = None, paymentOrBenefitDescription = None,
+        dateWithdrawn = Some(localDate(2014, 2, 1)), car = Some(car),
+        actions = Map.empty, calculations = Map.empty)
+      val fuelBenefit = Benefit(benefitType = BenefitTypes.FUEL, taxYear = 2013,
+        grossAmount = 0, employmentSequenceNumber = 1, costAmount = None,
+        amountMadeGood = None, cashEquivalent = None, expensesIncurred = None,
+        amountOfRelief = None, paymentOrBenefitDescription = None,
+        dateWithdrawn = None, car = None,
+        actions = Map.empty, calculations = Map.empty)
+      val carAndFuel = CarAndFuel(carBenefit, Some(fuelBenefit))
 
       when(service.httpWrapper.post[NewBenefitCalculationResponse](Matchers.eq(uri), Matchers.any[JsValue], Matchers.any[Map[String, String]])).thenReturn(Some(NewBenefitCalculationResponse(Some(123), Some(456))))
 
-      val response = service.calculateBenefitValue(uri, benefitData)
+      val response = service.calculateBenefitValue(uri, carAndFuel)
 
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
       verify(service.httpWrapper).post(Matchers.eq(uri), capturedBody.capture, Matchers.any[Map[String, String]])
 
-      val capturedAddedBenefit = Transform.fromResponse[NewBenefitCalculationData](capturedBody.getValue.toString())
-      capturedAddedBenefit shouldBe benefitData
+      val capturedAddedBenefit = Transform.fromResponse[CarAndFuel](capturedBody.getValue.toString())
+      capturedAddedBenefit shouldBe carAndFuel
 
       response.get.carBenefitValue shouldBe Some(123)
       response.get.fuelBenefitValue shouldBe Some(456)

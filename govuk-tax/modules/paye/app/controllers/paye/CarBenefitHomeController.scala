@@ -4,7 +4,8 @@ import controllers.common.{Ida, BaseController}
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.paye.domain.{TaxYearData, Employment, PayeRegime}
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
-import models.paye.{EmploymentView, EmploymentViews, BenefitTypes}
+import models.paye.EmploymentViews
+import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes
 import play.api.Logger
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators

@@ -40,3 +40,15 @@ case class Car(dateCarMadeAvailable: Option[LocalDate],
                employeePayments: Option[BigDecimal],
                daysUnavailable: Option[Int]
                 )
+
+object BenefitTypes {
+
+  val FUEL = 29
+  val CAR = 31
+  val TELEPHONE = 32
+
+}
+
+case class CarAndFuel(carBenefit  :Benefit , fuelBenefit : Option[Benefit]) {
+  require(carBenefit.car.isDefined && carBenefit.benefitType == BenefitTypes.CAR && !fuelBenefit.exists(_.benefitType != BenefitTypes.FUEL))
+}

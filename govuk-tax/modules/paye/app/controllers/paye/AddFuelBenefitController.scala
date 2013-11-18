@@ -1,7 +1,7 @@
 package controllers.paye
 
 import controllers.common.BaseController
-import uk.gov.hmrc.common.microservice.paye.domain.{BenefitValue, AddFuelBenefitConfirmationData, PayeRegime, TaxYearData}
+import uk.gov.hmrc.common.microservice.paye.domain._
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -19,8 +19,16 @@ import org.joda.time.LocalDate
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import models.paye.BenefitTypes
 import controllers.common.actions.Actions
+import uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData
+import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
+import play.api.mvc.SimpleResult
+import controllers.paye.EmployerPayeFuelString
+import uk.gov.hmrc.common.microservice.domain.User
+import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
+import controllers.paye.FuelBenefitData
 
 
 class AddFuelBenefitController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)

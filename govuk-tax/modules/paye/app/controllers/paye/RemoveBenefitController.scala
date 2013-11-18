@@ -8,9 +8,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import org.joda.time.LocalDate
 import models.paye._
-import models.paye.BenefitTypes._
-import controllers.common.{Ida, BaseController, SessionTimeoutWrapper}
-import scala.collection.mutable
+import controllers.common.{BaseController, SessionTimeoutWrapper}
 import controllers.paye.validation.RemoveBenefitValidator._
 import org.joda.time.format.DateTimeFormat
 import views.formatting.Dates
@@ -22,7 +20,6 @@ import config.DateTimeProvider
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import models.paye.BenefitUpdatedConfirmationData
-import scala.Some
 import models.paye.BenefitInfo
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
@@ -32,7 +29,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import models.paye.RemoveBenefitFormData
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.Actions
-
+import BenefitTypes._
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector : AuthConnector, override val auditConnector : AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector : TxQueueConnector) extends BaseController
   with Actions
   with SessionTimeoutWrapper
@@ -102,18 +99,14 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
           val benefits = benefit.benefits ++ Seq(secondBenefit).filter(_.isDefined).map(_.get)
 
-          val finalAndRevisedAmounts = benefits.foldLeft(BigDecimal(0), mutable.Map[String, BigDecimal]())((runningAmounts, benefit) => {
+          val (aggregateSumOfRevisedBenefitAmounts, apportionedValues) = benefits.foldLeft(BigDecimal(0), Map[String, BigDecimal]())((runningAmounts, benefit) => {
             val revisedAmount = benefit.benefitType match {
               case FUEL if differentDateForFuel(removeBenefitData.fuelDateChoice) => calculateRevisedAmount(benefit, removeBenefitData.fuelWithdrawDate.get)
               case _ => calculateRevisedAmount(benefit, removeBenefitData.withdrawDate)
             }
-            (benefit, removeBenefitData.withdrawDate)
-            runningAmounts._2.put(benefit.benefitType.toString, revisedAmount)
-
-            (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2)
+            (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2 + ((benefit.benefitType.toString -> revisedAmount)))
           })
 
-          val apportionedValues = finalAndRevisedAmounts._2.toMap
           val secondWithdrawDate = removeBenefitData.fuelWithdrawDate.getOrElse(removeBenefitData.withdrawDate)
 
           val benefitsInfo: Map[String, BenefitInfo] = mapBenefitsInfo(benefit.benefits(0), removeBenefitData.withdrawDate, apportionedValues) ++
@@ -124,7 +117,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
           mainBenefitType match {
             case CAR | FUEL => {
               val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
-              Ok(remove_benefit_confirm(finalAndRevisedAmounts._1, updatedBenefit)(user))
+              Ok(remove_benefit_confirm(aggregateSumOfRevisedBenefitAmounts, updatedBenefit)(user))
             }
             case _ => Logger.error(s"Unsupported type of the main benefit: $mainBenefitType, redirecting to car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
           }

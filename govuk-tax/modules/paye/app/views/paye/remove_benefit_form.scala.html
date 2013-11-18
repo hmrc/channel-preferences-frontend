@@ -27,7 +27,7 @@
 
         <div>
 
-            @if(displayBenefit.benefit.benefitType == models.paye.BenefitTypes.FUEL && hasUnremovedCar) {
+            @if(displayBenefit.benefit.benefitType == uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes.FUEL && hasUnremovedCar) {
                 @singleCheckbox(
                     updateForm("removeCar"),
                     '_id -> "removeCar",

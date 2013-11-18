@@ -14,6 +14,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import org.joda.time.chrono.ISOChronology
 import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
+import BenefitTypes._
 
 class PayeBaseSpec extends BaseSpec {
 
@@ -126,14 +127,14 @@ class PayeBaseSpec extends BaseSpec {
       currentTestDate,
       currentTestDate.minusDays(1))
 
-  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31"))
+  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR"))
   val otherTransaction = transactionWithTags(List("paye", "test"))
-  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29"))
-  val removedFuelTransactionForEmployment2 = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "29"), 2)
-  val multiBenefitTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
+  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$FUEL"))
+  val removedFuelTransactionForEmployment2 = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$FUEL"), 2)
+  val multiBenefitTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
 
-  val addCarTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> "31"))
-  val addFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> "29"))
+  val addCarTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR"))
+  val addFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"))
 
   val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction)
 

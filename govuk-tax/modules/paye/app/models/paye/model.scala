@@ -7,14 +7,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 
-object BenefitTypes {
-
-  val FUEL = 29
-  val CAR = 31
-  val TELEPHONE = 32
-
-}
-
 case class BenefitInfo(startDate:String, withdrawDate:String, apportionedValue:BigDecimal)
 
 

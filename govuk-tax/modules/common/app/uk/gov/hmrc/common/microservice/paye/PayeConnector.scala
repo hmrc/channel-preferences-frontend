@@ -58,12 +58,12 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-  def calculateBenefitValue(uri: String, benefitCalculationData: NewBenefitCalculationData): Option[NewBenefitCalculationResponse] = {
+  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel): Option[NewBenefitCalculationResponse] = {
     httpPost[NewBenefitCalculationResponse](
       uri,
       body = Json.parse(
         toRequestBody(
-          benefitCalculationData
+          carAndFuel
         )
       )
     )

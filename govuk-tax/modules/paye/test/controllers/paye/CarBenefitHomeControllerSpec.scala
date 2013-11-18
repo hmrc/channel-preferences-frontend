@@ -1,5 +1,7 @@
 package controllers.paye
 
+import uk.gov.hmrc.common.microservice.paye.domain._
+import BenefitTypes._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{WithApplication, FakeRequest, FakeApplication}
 import play.api.test.Helpers._
@@ -7,7 +9,6 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.mockito.Mockito._
 import org.mockito.{Mockito, Matchers}
-import uk.gov.hmrc.common.microservice.paye.domain.Employment
 import org.joda.time.LocalDate
 import org.scalatest.TestData
 import uk.gov.hmrc.utils.DateConverter
@@ -19,7 +20,6 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -308,10 +308,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     }
 
     "display recent transactions for John Densmore when both car and fuel benefit have been removed and added " in new WithApplication(FakeApplication()) {
-      val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
-      val addCar2AndFuel2CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> "31,29"))
-      val removeCar2AndFuel2AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> "31,29"))
-      val addCar3AndFuel4AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> "31,29"))
+      val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
+      val addCar2AndFuel2CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
+      val removeCar2AndFuel2AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
+      val addCar3AndFuel4AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, List(removeCar2AndFuel2AcceptedTransaction, addCar3AndFuel4AcceptedTransaction), List(removeCar1AndFuel1CompletedTransaction, addCar2AndFuel2CompletedTransaction))
 

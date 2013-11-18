@@ -2,9 +2,8 @@ package controllers.paye.validation
 
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.paye.domain.{Employment, TaxYearData}
+import uk.gov.hmrc.common.microservice.paye.domain.{BenefitTypes, Employment, TaxYearData}
 import play.api.Logger
-import models.paye.BenefitTypes
 import controllers.paye.routes
 import play.api.mvc.Results._
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
