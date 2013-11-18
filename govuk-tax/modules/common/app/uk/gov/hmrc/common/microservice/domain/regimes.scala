@@ -3,7 +3,7 @@ package uk.gov.hmrc.common.microservice.domain
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.agent.AgentRoot
-import controllers.common.AuthenticationType
+import controllers.common.AuthenticationProvider
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
@@ -15,7 +15,7 @@ abstract class TaxRegime {
 
   def unauthorisedLandingPage: String
 
-  def authenticationType: AuthenticationType
+  def authenticationType: AuthenticationProvider
 }
 
 abstract class RegimeRoot[I] {

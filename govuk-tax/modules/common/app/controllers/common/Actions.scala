@@ -47,13 +47,13 @@ trait Actions
 //    // TODO
 //  }
 
-  def ActionAuthorisedBy(authenticationType: AuthenticationType)
+  def ActionAuthorisedBy(authenticationType: AuthenticationProvider)
                         (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
                         (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
     ActionAuthorisedByWithVisibility(authenticationType)(taxRegime, redirectToOrigin)(DefaultPageVisibilityPredicate)(body)
   }
 
-  def ActionAuthorisedByWithVisibility(authenticationType: AuthenticationType)
+  def ActionAuthorisedByWithVisibility(authenticationType: AuthenticationProvider)
                                       (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
                                       (pageVisibilityPredicate: PageVisibilityPredicate)
                                       (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {

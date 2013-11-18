@@ -4,7 +4,7 @@ import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, User}
 import views.html.login
 import play.api.Logger
-import controllers.common.{CookieEncryption, AuthenticationType, ServiceRoots}
+import controllers.common.{CookieEncryption, AuthenticationProvider, ServiceRoots}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 trait UserActionWrapper
@@ -15,12 +15,12 @@ trait UserActionWrapper
   implicit val authConnector: AuthConnector
 
   object WithUserAuthorisedBy {
-    def apply(authenticationType: AuthenticationType)
+    def apply(authenticationType: AuthenticationProvider)
              (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
              (action: User => Action[AnyContent]): Action[AnyContent] =
       Action.async {
         request =>
-          val handle = authenticationType.handleNotAuthorised(request, redirectToOrigin) orElse handleAuthorised(request, taxRegime)
+          val handle = authenticationType.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime)
 
           handle((request.session.get("userId"), request.session.get("token"))) match {
             case Left(successfullyFoundUser) => action(successfullyFoundUser)(request)
@@ -28,7 +28,7 @@ trait UserActionWrapper
           }
       }
 
-    def handleAuthorised(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
+    private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
       case (Some(encryptedUserId), tokenOption) =>
         val userId = decrypt(encryptedUserId)
         val token = tokenOption.map(decrypt)
