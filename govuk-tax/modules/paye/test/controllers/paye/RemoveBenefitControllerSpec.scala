@@ -115,7 +115,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Your old company fuel benefit")
+      doc.select(".benefit-type").text should include("Remove your company car benefit")
 
       doc.getElementById("withdrawDate.day-1").attr("selected") shouldBe "selected"
       doc.getElementById("withdrawDate.month-9").attr("selected") shouldBe "selected"
