@@ -9,6 +9,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.joda.time.LocalDate
 import java.text.SimpleDateFormat
 import views.helpers._
+import views.helpers.LinkMessage._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.ct.domain.{CtRoot, CalendarEvent}
 import views.helpers.RenderableLinkMessage
@@ -54,27 +55,24 @@ object ImportantDate {
     val args = Seq(Dates.formatDate(event.accountingPeriod.startDate), Dates.formatDate(event.accountingPeriod.endDate))
     val service: String = event.regime.toLowerCase
     val eventType: String = event.eventType.toLowerCase
-    val link =
-      if (eventType == "payment")
-        Some(RenderableLinkMessage(LinkMessage.internalLink(routes.PaymentController.makeCtPayment().url, s"$service.message.importantDates.link.$eventType")))
-      else
-        Some(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("ctFileAReturn"), Some(s"$service.message.importantDates.link.$eventType"))))
+    val linkTextKey = s"$service.message.importantDates.link.$eventType"
+    val textMessageKey =s"$service.message.importantDates.text.$eventType"
+    val additionalTextMessageKey =s"$service.message.importantDates.additionalText.$eventType"
 
-    if (event.accountingPeriod.returnFiled && eventType == "filing") {
-      ImportantDate(
-        event.eventDate,
-        s"$service.message.importantDates.additionalText.$eventType",
-        args,
-        Some(s"$service.message.importantDates.text.$eventType")
-      )
-    } else {
-      ImportantDate(
-        event.eventDate,
-        s"$service.message.importantDates.text.$eventType",
-        args,
-        None,
-        link
-      )
+    val (link, text, additionalText):(Option[RenderableLinkMessage], String, Option[String])  = (service, eventType, event.accountingPeriod.returnFiled) match {
+      case ("ct", "payment", _) =>
+        (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeCtPayment().url, linkTextKey))), textMessageKey, None)
+      case ("vat", "payment", _) =>
+        (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeVatPayment().url, linkTextKey))), textMessageKey, None)
+      case (service, "filing", true) =>
+        (None, additionalTextMessageKey, Some(textMessageKey))
+      case (service, "filing", false) =>
+        (Some(RenderableLinkMessage(portalLink(buildPortalUrl(s"${service}FileAReturn"), Some(linkTextKey)))),
+          textMessageKey,
+          None)
     }
+
+    ImportantDate(event.eventDate, text, args, additionalText, link)
+
   }
 }

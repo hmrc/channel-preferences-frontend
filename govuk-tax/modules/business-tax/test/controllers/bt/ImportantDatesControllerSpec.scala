@@ -36,7 +36,7 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       val response = Future.successful(controller.importantDatesPage(user, FakeRequest()))
 
       verify(mockCtConnector).calendar("/ct/someCtUtr/calendar")
-      verify(mockPortalUrlBuilder, times(2)).buildPortalUrl("ctFileAReturn")
+      verify(mockPortalUrlBuilder, times(1)).buildPortalUrl("ctFileAReturn")
       status(response) shouldBe 200
 
       val page = Jsoup.parse(contentAsString(response))
