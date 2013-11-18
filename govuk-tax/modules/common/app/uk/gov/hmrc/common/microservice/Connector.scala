@@ -30,7 +30,7 @@ trait Connector extends Status with HeaderNames {
 
   private def headers(): Seq[(String, String)] = {
 
-    val context : Map[String, String] = if (MDC.getCopyOfContextMap.isEmpty) Map.empty else MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
+    val context : Map[String, String] = if (MDC.getCopyOfContextMap == null || MDC.getCopyOfContextMap.isEmpty) Map.empty else MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
 
     context.foldLeft(Seq[Tuple2[String, String]]()){(s, entry) => {
       entry._1 match {
