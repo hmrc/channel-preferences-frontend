@@ -16,7 +16,7 @@ private[actions] trait RequestLogging extends HeaderNames with MdcHelper with Da
 
   private val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZZ")
 
-  protected def logRequest(action: Action[AnyContent]): Action[AnyContent] = Action.async {
+  protected def logRequest(action: Action[AnyContent]) = Action.async {
     request => {
       val start = DateTimeProvider.now().getMillis
       val startTime = format.format(new Date(start))
