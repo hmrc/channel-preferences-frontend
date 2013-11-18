@@ -29,13 +29,16 @@ trait Connector extends Status with HeaderNames {
   protected val serviceUrl: String
 
   private def headers(): Seq[(String, String)] = {
-    val headers = for {
-      (k, v) <- MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
-    } yield k match {
-      case `authorisation` => (k, s"Bearer $v")
-      case _ => (k, v)
+
+    val context : Map[String, String] = if (MDC.getCopyOfContextMap.isEmpty) Map.empty else MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
+
+    context.foldLeft(Seq[Tuple2[String, String]]()){(s, entry) => {
+      entry._1 match {
+        case `authorisation` => s :+ entry._1 -> s"Bearer ${entry._2}"
+        case _ => s :+ entry
+        }
+      }
     }
-    headers.toSeq
   }
 
   protected def httpResource(uri: String) = {
