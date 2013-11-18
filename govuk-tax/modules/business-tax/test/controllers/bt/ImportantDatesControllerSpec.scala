@@ -43,8 +43,8 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       val ul = page.getElementsByClass("activity-list").get(0)
       val dates = ul.getElementsByClass("activity-list__date")
       dates.size shouldBe 4
-      dates.get(0).getElementsByTag("p").get(0).html shouldBe "10 May"
-      dates.get(1).getElementsByTag("p").get(0).html shouldBe "10 June"
+      dates.get(0).getElementsByTag("p").get(0).html shouldBe s"10 May ${currentYear}"
+      dates.get(1).getElementsByTag("p").get(0).html shouldBe s"10 June ${currentYear}"
       dates.get(2).getElementsByTag("p").get(0).html shouldBe s"10 June ${currentYear+1}"
       dates.get(3).getElementsByTag("p").get(0).html shouldBe s"10 July ${currentYear+1}"
 

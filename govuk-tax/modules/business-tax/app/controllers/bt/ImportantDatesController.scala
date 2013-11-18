@@ -51,7 +51,7 @@ case class ImportantDate(date: LocalDate, text: String, args: Seq[String] = Seq.
 object ImportantDate {
   def create(event: CalendarEvent, buildPortalUrl: (String) => String)(implicit user: User): ImportantDate = {
 
-    val args = Seq(Dates.formatYearAware(event.accountingPeriod.startDate), Dates.formatYearAware(event.accountingPeriod.endDate))
+    val args = Seq(Dates.formatDate(event.accountingPeriod.startDate), Dates.formatDate(event.accountingPeriod.endDate))
     val service: String = event.regime.toLowerCase
     val eventType: String = event.eventType.toLowerCase
     val link =

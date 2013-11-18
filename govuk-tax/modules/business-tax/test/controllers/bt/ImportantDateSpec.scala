@@ -21,7 +21,7 @@ class ImportantDateSpec extends BaseSpec {
       val expectedResult = ImportantDate(
         new LocalDate(2013, 9, 10),
         "ct.message.importantDates.additionalText.filing",
-        Seq(Dates.formatYearAware(new LocalDate(2013, 1, 1)), Dates.formatYearAware(new LocalDate(2013, 12, 31))),
+        Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
         Some("ct.message.importantDates.text.filing")
       )
 
@@ -40,7 +40,7 @@ class ImportantDateSpec extends BaseSpec {
       val expectedResult = ImportantDate(
         new LocalDate(2013, 9, 10),
         "ct.message.importantDates.text.filing",
-        Seq(Dates.formatYearAware(new LocalDate(2013, 1, 1)), Dates.formatYearAware(new LocalDate(2013, 12, 31))),
+        Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
         None,
         Some(RenderableLinkMessage(LinkMessage("someUrl", "ct.message.importantDates.link.filing", None, false, None, true)))
       )

@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat
 object Dates {
 
   private[formatting] val dateFormat = DateTimeFormat.forPattern("d MMMM y").withZone(DateTimeZone.forID("Europe/London"))
-  private[formatting] val dateFormatWithoutYear = DateTimeFormat.forPattern("d MMMM").withZone(DateTimeZone.forID("Europe/London"))
   private[formatting] val shortDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(DateTimeZone.forID("Europe/London"))
   private[formatting] val easyReadingTimestampFormat = DateTimeFormat.forPattern("EEEE d MMMM, yyyy 'at' h:mmaa").withZone(DateTimeZone.forID("Europe/London"))
 
@@ -28,9 +27,4 @@ object Dates {
 
   def shortDate(date: LocalDate) = shortDateFormat.print(date)
 
-  def formatYearAware(date: LocalDate): String = {
-    if(date.getYear == DateTimeUtils.now.getYear)
-      dateFormatWithoutYear.print(date)
-    else dateFormat.print(date)
-  }
 }

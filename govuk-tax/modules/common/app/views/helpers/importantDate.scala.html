@@ -6,7 +6,7 @@
 @import play.api.templates.HtmlFormat
 @import views.formatting.Dates._
 
-<DIV class="activity-list__date"><P>@formatYearAware(date)</P></DIV>
+<DIV class="activity-list__date"><P>@formatDate(date)</P></DIV>
 <DIV class="activity-list__description">
     <P>@if(grayedoutText.isDefined) {<SPAN class="faded-text">@Messages(grayedoutText.get,args: _*)</SPAN>}<SPAN>@Messages(text, args: _*).</SPAN>@{if (link.isDefined) Html("<br>" + link.get.render.toString)}</P>
 </DIV>
