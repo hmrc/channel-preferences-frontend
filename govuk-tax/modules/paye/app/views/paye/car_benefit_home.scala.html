@@ -67,10 +67,6 @@
                   </tr>
                   }
                   <tr>
-                      <td>Car benefit taxable value</td>
-                      <td id="car-benefit-amount">@pounds(carBenefit.get.grossAmount)</td>
-                  </tr>
-                  <tr>
                       <td>Private Fuel</td>
                       <td id="private-fuel">
                           @if(fuelBenefit.isEmpty) {
@@ -83,6 +79,16 @@
                             }
                           }
                       </td>
+                  </tr>
+                  <tr>
+                      <td>Car benefit taxable value</td>
+                      <td id="car-benefit-amount">@pounds(carBenefit.get.grossAmount)</td>
+                  </tr>
+                  <tr>
+                      <th colspan="2">Taxable benefit value</th>
+                  </tr>
+                  <tr>
+                      <td colspan="2">These amounts are added to your income and you pay tax on them.</td>
                   </tr>
                   @if(fuelBenefit.isDefined) {
                   <tr>
