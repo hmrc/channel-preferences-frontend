@@ -22,6 +22,31 @@ trait Actions
   with ServiceRoots
   with UserActionWrapper {
 
+  // MAT: TODO I think that this is the only authorised method signature that we actually need.
+  //           I think also that we're going a bit far with the number of method parameter lists. We don't need them.
+  //           and defaulting the parameters and using named parameters would give a far simpler signature.
+  //           I'm calling the TaxRegime param "account" as the auth refactor will call these things accounts.
+  //
+  //           With this we'd be able to say:
+  //
+  //           AuthorisedFor(Paye) {
+  //              //doStuff()
+  //           ]
+  //
+  //           or
+  //
+  //           AuthorisedFor(account = Paye, pageVisibility = ...) {
+  //               // doStuff
+  //           }
+  //
+  //           etc
+//  def AuthorisedFor(account: TaxRegime,
+//                    redirectToOrigin: Boolean = false,
+//                    pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
+//                   (body: Action[AnyContent]) = {
+//    // TODO
+//  }
+
   def ActionAuthorisedBy(authenticationType: AuthenticationType)
                         (taxRegime: Option[TaxRegime] = None, redirectToOrigin: Boolean = false)
                         (body: (User => (Request[AnyContent] => SimpleResult))): Action[AnyContent] = {
