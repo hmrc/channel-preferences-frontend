@@ -336,7 +336,6 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
     "reject registered before 98 if it is blank" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> ""))
-      form.hasErrors shouldBe true
       assertHasThisErrorMessage(form, carRegistrationDate, "Please answer this question.")
     }
 
