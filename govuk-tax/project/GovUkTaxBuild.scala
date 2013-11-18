@@ -44,6 +44,7 @@ object GovUkTaxBuild extends Build {
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
+//    .settings(javascriptEntryPoints <<= baseDirectory { _ /  "public" / "javascripts" ** "*.js"})
 
   val paye = play.Project(
     appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
@@ -115,9 +116,9 @@ object Common {
     ) ++
     jasmineSettings ++
     Seq(
-      appJsDir <+= baseDirectory {dir => dir},
-      appJsLibDir <+= baseDirectory {dir => dir / ".." / "common" / "public" / "javascripts"},
-      jasmineConfFile <+= baseDirectory { src => src / ".." / "common" / "test" / "test.dependencies.js"},
+      appJsDir <+= baseDirectory,
+      appJsLibDir <+= baseDirectory { _ / ".." / "common" / "public" / "javascripts"},
+      jasmineConfFile <+= baseDirectory { _ / ".." / "common" / "test" / "test.dependencies.js"},
       (test in Test) <<= (test in Test) dependsOn (jasmine)
     ) ++ playScalaSettings ++ Repositories.publishingSettings
 }

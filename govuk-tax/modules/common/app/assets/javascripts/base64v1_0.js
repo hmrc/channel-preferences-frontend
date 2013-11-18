@@ -22,7 +22,10 @@ var B64 = {
         var buffer = B64.toUtf8(s),
             position = -1,
             len = buffer.length,
-            nan1, nan2, enc = [, , , ];
+            nan1, nan2,
+//            enc = [, , , ];
+            enc = new Array(4);
+
         if (B64.ie) {
             var result = [];
             while (++position < len) {
@@ -92,7 +95,8 @@ var B64 = {
     fromUtf8: function (s) {
         var position = -1,
             len, buffer = [],
-            enc = [, , , ];
+//            enc = [, , , ];
+            enc = new Array(4);
         if (!B64.lookup) {
             len = B64.alphabet.length;
             B64.lookup = {};
@@ -115,3 +119,4 @@ var B64 = {
         return buffer;
     }
 };
+window['B64'] = B64;
