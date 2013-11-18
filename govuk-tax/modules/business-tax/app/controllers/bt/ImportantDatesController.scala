@@ -60,7 +60,7 @@ object ImportantDate {
       else
         Some(RenderableLinkMessage(LinkMessage.portalLink(buildPortalUrl("ctFileAReturn"), Some(s"$service.message.importantDates.link.$eventType"))))
 
-    if(event.accountingPeriod.returnFiled) {
+    if(event.accountingPeriod.returnFiled && eventType == "filing") {
       ImportantDate(
         event.eventDate,
         s"$service.message.importantDates.additionalText.$eventType",
