@@ -18,6 +18,7 @@ import org.mockito.Mockito._
 import FuelBenefitFormFields._
 import controllers.DateFieldsHelper
 import play.api.i18n.Messages
+import org.mockito.Matchers
 
 class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
@@ -150,6 +151,25 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       doc.select("#second-heading").text should include("Check your private fuel details")
       doc.select("#provided-from").text should include(s"6 April ${testTaxYear}")
       doc.select("#private-fuel").text should include(s"Yes, private fuel is available when you use the car")
+    }
+
+    "show the users recalculated tax code" in new WithApplication(FakeApplication()) {
+
+      val fuelBenefitValue = 1234
+      val benefitCalculationResponse = NewBenefitCalculationResponse(None, Some(fuelBenefitValue))
+
+      setupMocksForJohnDensmore(benefits = Seq(carBenefitEmployer1))
+      when(mockPayeConnector.calculateBenefitValue(Matchers.any(), Matchers.any())).thenReturn(Some(benefitCalculationResponse))
+
+
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("true"))
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+
+      result should haveStatus(200)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#fuelBenefitTaxableValue").text shouldBe s"£$fuelBenefitValue"
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new WithApplication(FakeApplication()) {

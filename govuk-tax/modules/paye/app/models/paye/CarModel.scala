@@ -3,6 +3,7 @@ package models.paye
 import org.joda.time.LocalDate
 import uk.gov.hmrc.common.microservice.paye.domain.{Benefit, Car, CarAndFuel}
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
+import controllers.paye.FuelBenefitData
 
 case class CarBenefitData(providedFrom: Option[LocalDate],
                           carUnavailable: Option[Boolean],
@@ -37,6 +38,18 @@ object CarAndFuelBuilder {
         employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
       case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
         employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
+      case _ => None
+    }
+    new CarAndFuel(carBenefit, fuelBenefit)
+  }
+
+  def apply(addFuelBenefit: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) {
+    val car = carBenefit.car
+    val fuelBenefit = addFuelBenefit.employerPayFuel match {
+      case Some("true" | "again") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.providedTo, taxYear = taxYear,
+        employmentSeqNumber =  employmentSequenceNumber, car = car, grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
+      case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
+        employmentSeqNumber =  employmentSequenceNumber, car = car, grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
       case _ => None
     }
     new CarAndFuel(carBenefit, fuelBenefit)

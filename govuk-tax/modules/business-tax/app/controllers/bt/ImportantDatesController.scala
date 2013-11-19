@@ -83,4 +83,4 @@ object ImportantDate {
     ImportantDate(event.eventDate, text, args, additionalText, link)
 
   }
-}
+}ko

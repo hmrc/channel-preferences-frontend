@@ -29,6 +29,7 @@ import controllers.paye.EmployerPayeFuelString
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.paye.FuelBenefitData
+import models.paye.{CarBenefitDataAndCalculations, CarAndFuelBuilder}
 
 
 class AddFuelBenefitController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
@@ -95,7 +96,11 @@ with TaxYearSupport {
             (addFuelBenefitData: FuelBenefitData) => {
               val benefit = payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR)
               val benefitStartDate = getDateInTaxYear(benefit.get.car.flatMap(_.dateCarMadeAvailable))
-              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get, addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = Some(BenefitValue(0)))
+              val payeRoot = user.regimes.paye.get
+              val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
+              val benefitCalculations = payeConnector.calculateBenefitValue(uri, CarAndFuel(benefit.get, Some(CarAndFuelBuilder(addFuelBenefitData, benefit, taxYear, employmentSequenceNumber)))).get
+              val fuelBenefitValue = benefitCalculations.fuelBenefitValue.map(BenefitValue)
+              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get, addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = fuelBenefitValue)
               Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
             })
         }
