@@ -8,7 +8,6 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.joda.time.LocalDate
 import java.text.SimpleDateFormat
-import views.helpers._
 import views.helpers.LinkMessage._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.ct.domain.{CtRoot, CalendarEvent}
@@ -17,14 +16,17 @@ import scala.Some
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import controllers.common.actions.Actions
+import uk.gov.hmrc.common.microservice.vat.VatConnector
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import play.api.Logger
 
 
-class ImportantDatesController(ctConnector: CtConnector, override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
+class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnector, override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with PortalUrlBuilder {
 
-  def this() = this(Connectors.ctConnector, Connectors.auditConnector)(Connectors.authConnector)
+  def this() = this(Connectors.ctConnector, Connectors.vatConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   implicit val dateFormat = new SimpleDateFormat("d MMMM yyy")
 
@@ -33,10 +35,12 @@ class ImportantDatesController(ctConnector: CtConnector, override val auditConne
   }
 
   private[bt] def importantDatesPage(implicit user: User, request: Request[AnyRef]) = {
-    val regimes = List(user.regimes.ct)
+    val regimes = List(user.regimes.ct, user.regimes.vat)
+
     val events = regimes.flatMap {
       regime => regime match {
-        case Some(ctRoot: CtRoot) => ctConnector.calendar(ctRoot.links("calendar"))
+        case Some(ctRoot: CtRoot) => ctRoot.links.get("calendar").map(ctConnector.calendar).getOrElse(None)
+        case Some(vatRoot: VatRoot) => vatRoot.links.get("calendar").map(vatConnector.calendar).getOrElse(None)
         //Other cases for VAT etc. go here when we implement them
         case None => List.empty
       }
@@ -56,10 +60,10 @@ object ImportantDate {
     val service: String = event.regime.toLowerCase
     val eventType: String = event.eventType.toLowerCase
     val linkTextKey = s"$service.message.importantDates.link.$eventType"
-    val textMessageKey =s"$service.message.importantDates.text.$eventType"
-    val additionalTextMessageKey =s"$service.message.importantDates.additionalText.$eventType"
+    val textMessageKey = s"$service.message.importantDates.text.$eventType"
+    val additionalTextMessageKey = s"$service.message.importantDates.additionalText.$eventType"
 
-    val (link, text, additionalText):(Option[RenderableLinkMessage], String, Option[String])  = (service, eventType, event.accountingPeriod.returnFiled) match {
+    val (link, text, additionalText): (Option[RenderableLinkMessage], String, Option[String]) = (service, eventType, event.accountingPeriod.returnFiled) match {
       case ("ct", "payment", _) =>
         (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeCtPayment().url, linkTextKey))), textMessageKey, None)
       case ("vat", "payment", _) =>
@@ -70,6 +74,8 @@ object ImportantDate {
         (Some(RenderableLinkMessage(portalLink(buildPortalUrl(s"${service}FileAReturn"), Some(linkTextKey)))),
           textMessageKey,
           None)
+
+      case _ => Logger.error(s"Could not render $event"); throw new MatchError(event.toString)
     }
 
     ImportantDate(event.eventDate, text, args, additionalText, link)

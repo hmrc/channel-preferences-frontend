@@ -8,6 +8,8 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.MicroServiceException
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatJsonRoot}
+import uk.gov.hmrc.common.microservice.ct.domain.{AccountingPeriod, CalendarEvent}
+import org.joda.time.LocalDate
 
 class VatConnectorSpec extends BaseSpec {
 
@@ -49,6 +51,38 @@ class VatConnectorSpec extends BaseSpec {
       val result = connector.accountSummary("/vat/vrn/123456/accountSummary")
 
       result shouldBe accountSummary
+    }
+  }
+
+  "Requesting the calendar" should {
+
+    "return a list of calendar events" in new VatConnectorApplication {
+      val vatCalendarUri = "/vat/someVrn/calendar"
+
+      val event1 = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), true),
+        new LocalDate(2013, 12, 15),
+        "filing"
+      )
+
+      val event2 = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), false),
+        new LocalDate(2014, 2, 15),
+        "payment"
+      )
+
+      when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List(event1, event2)))
+
+      connector.calendar(vatCalendarUri).get shouldBe List(event1, event2)
+    }
+
+    "return the empty list if there are no events" in new VatConnectorApplication {
+      val vatCalendarUri = "/vat/someVrn/calendar"
+
+      when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
+
+      connector.calendar(vatCalendarUri).get shouldBe List.empty[CalendarEvent]
+
     }
   }
 }
