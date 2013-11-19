@@ -20,17 +20,27 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 
 class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
 
-  private val ctCalendarUrl: String = "/ct/someCtUtr/calendar"
-  private val vatCalendarUrl: String = "/vat/someVrn/calendar"
+  private val currentYear = DateTimeUtils.now.getYear
+  private val ctCalendarUrl = "/ct/someCtUtr/calendar"
+  private val vatCalendarUrl = "/vat/someVrn/calendar"
+
+  private def ctAndVatUser = {
+    val ctRegime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar"->ctCalendarUrl)))
+    val vatRegime = Some(VatRoot(Vrn("someVrn"), Map("calendar"->vatCalendarUrl)))
+    User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
+      nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime, vat = vatRegime), decryptedToken = None)
+  }
+
+  private def ctUser = {
+    val ctRegime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar"->ctCalendarUrl)))
+    User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
+      nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime), decryptedToken = None)
+  }
 
   "important dates page" should {
 
     "render view with CT payment and filing dates" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
-      val currentYear = DateTimeUtils.now.getYear
-      val ctRegime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar"->ctCalendarUrl)))
-      val vatRegime = Some(VatRoot(Vrn("someVrn"), Map("calendar"->vatCalendarUrl)))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
-        nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime, vat = vatRegime), decryptedToken = None)
+      val user = ctAndVatUser
 
       val mockCtConnector = mock[CtConnector]
       val mockVatConnector = mock[VatConnector]
@@ -49,7 +59,6 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
 
       verify(mockCtConnector).calendar(ctCalendarUrl)
       verify(mockPortalUrlBuilder, times(1)).buildPortalUrl("ctFileAReturn")
-
       verify(mockVatConnector).calendar(vatCalendarUrl)
       verify(mockPortalUrlBuilder, times(1)).buildPortalUrl("vatFileAReturn")
 
@@ -72,10 +81,7 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "render view with no dates if there are none" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
-
-      val regime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar"->ctCalendarUrl)))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
-        nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = regime), decryptedToken = None)
+      val user = ctUser
 
       val mockCtConnector = mock[CtConnector]
       val controller = new ImportantDatesController(mockCtConnector, null, null)(null) with MockedPortalUrlBuilder
@@ -93,8 +99,6 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       ul.getElementsByClass("activity-List__date").size shouldBe 0
     }
   }
-
-  private val currentYear = DateTimeUtils.now.getYear
 
   def getCtSampleEvents = {
     val event1 = CalendarEvent(
