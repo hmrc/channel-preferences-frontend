@@ -14,7 +14,8 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeLinks, EpayeRoot}
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
-import scala.concurrent.Future
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import scala.Some
@@ -42,7 +43,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(Seq.empty))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(Seq.empty)))
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
@@ -67,7 +68,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(Seq.empty))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(Seq.empty)))
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
@@ -89,7 +90,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
       val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(List(saAccountSummary)))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
 
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
@@ -118,7 +119,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
         nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = regime), decryptedToken = None)
 
       val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(List(accountSummary)))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
 
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
@@ -146,7 +147,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
         nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = regime), decryptedToken = None)
 
       val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(List(accountSummary)))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
 
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
@@ -173,7 +174,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = regime), decryptedToken = None)
 
       val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(List(accountSummary)))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
 
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
@@ -207,7 +208,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(None, saRegime, vatRegime, epayeRegime, ctRegime), decryptedToken = None)
 
       val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary,epayeAcountSummary)))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary,epayeAcountSummary))))
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")

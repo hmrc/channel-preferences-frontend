@@ -9,6 +9,8 @@ import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 class CtConnectorSpec extends BaseSpec {
 
@@ -43,48 +45,49 @@ class CtConnectorSpec extends BaseSpec {
   }
 
   "Requesting the CT calendar" should {
-     "return a list of calendar events" in new CtConnectorApplication {
-       val ctCalendarUri = "/ct/someCtUtr/calendar"
+    "return a list of calendar events" in new CtConnectorApplication {
+      val ctCalendarUri = "/ct/someCtUtr/calendar"
 
-       val event1 = CalendarEvent(
-          AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), true),
-          new LocalDate(2013, 12, 15),
-          "eventType1",
-          "CT"
-       )
+      val event1 = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), true),
+        new LocalDate(2013, 12, 15),
+        "eventType1",
+        "CT"
+      )
 
-       val event2 = CalendarEvent(
-         AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), false),
-         new LocalDate(2014, 2, 15),
-         "eventType2",
-       "CT"
-       )
+      val event2 = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), false),
+        new LocalDate(2014, 2, 15),
+        "eventType2",
+        "CT"
+      )
 
-       when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List(event1, event2)))
+      when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List(event1, event2)))
 
-       connector.calendar(ctCalendarUri).get shouldBe List(event1, event2)
-     }
+      connector.calendar(ctCalendarUri).map {_.get shouldBe List(event1, event2)}
+    }
 
     "return the empty list if there are no events" in new CtConnectorApplication {
       val ctCalendarUri = "/ct/someCtUtr/calendar"
 
       when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
 
-      connector.calendar(ctCalendarUri).get shouldBe List.empty[CalendarEvent]
+      connector.calendar(ctCalendarUri).map {_.get shouldBe List.empty[CalendarEvent]}
 
     }
   }
 }
 
 abstract class CtConnectorApplication extends WithApplication(FakeApplication()) with MockitoSugar {
-  
+
   val mockHttpClient = mock[HttpWrapper]
-  
+
   val connector = new CtConnector {
     override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = mockHttpClient.get[A](uri)
   }
-  
+
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
   }
+
 }

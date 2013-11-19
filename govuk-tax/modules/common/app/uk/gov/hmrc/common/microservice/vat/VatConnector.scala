@@ -12,5 +12,5 @@ class VatConnector extends Connector {
 
   def accountSummary(uri: String) = httpGet[VatAccountSummary](uri)
 
-  def calendar(uri: String) = httpGet[List[CalendarEvent]](uri)
+  def calendar(uri: String) = httpGetF[List[CalendarEvent]](uri)
 }

@@ -3,13 +3,13 @@ package controllers.bt
 import controllers.common.{BaseController, GovernmentGateway}
 import uk.gov.hmrc.common.PortalUrlBuilder
 import controllers.common.service.Connectors
-import play.api.mvc.Request
+import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.joda.time.LocalDate
 import java.text.SimpleDateFormat
 import views.helpers.LinkMessage._
-import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.{RegimeRoot, User}
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import views.helpers.RenderableLinkMessage
 import scala.Some
@@ -20,6 +20,8 @@ import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import play.api.Logger
 import uk.gov.hmrc.domain.CalendarEvent
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 
 class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnector, override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
@@ -31,24 +33,23 @@ class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnec
 
   implicit val dateFormat = new SimpleDateFormat("d MMMM yyy")
 
-  def importantDates = AuthenticatedBy(GovernmentGateway) {
+  def importantDates = AsyncAuthenticatedBy(GovernmentGateway) {
     user => request => importantDatesPage(user, request)
   }
 
-  private[bt] def importantDatesPage(implicit user: User, request: Request[AnyRef]) = {
-    val regimes = List(user.regimes.ct, user.regimes.vat)
+  private[bt] def importantDatesPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+    val regimes: List[RegimeRoot[_]] = List(user.regimes.ct, user.regimes.vat).flatten
 
-    val events = regimes.flatMap {
-      regime => regime match {
-        case Some(ctRoot: CtRoot) => ctRoot.links.get("calendar").map(ctConnector.calendar).getOrElse(None)
-        case Some(vatRoot: VatRoot) => vatRoot.links.get("calendar").map(vatConnector.calendar).getOrElse(None)
-        //Other cases for VAT etc. go here when we implement them
-        case None => List.empty
-      }
-    }.flatten
+    val eventsLF = regimes.map {
+      case ctRoot: CtRoot if ctRoot.links.get("calendar").isDefined => ctConnector.calendar(ctRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent]))
+      case vatRoot: VatRoot if vatRoot.links.get("calendar").isDefined => vatConnector.calendar(vatRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent]))
+      case _ => Future(List.empty[CalendarEvent])
+    }
 
-    val dates = events map (ImportantDate.create(_, buildPortalUrl))
-    Ok(views.html.important_dates(dates.sortBy(_.date.toDate))(user))
+    val eventsF = Future.sequence(eventsLF).map(_.flatten)
+    val datesF = eventsF.map(_.map(ImportantDate.create(_, buildPortalUrl)))
+
+    datesF.map(dates => Ok(views.html.important_dates(dates.sortBy(_.date.toDate))(user)))
   }
 }
 

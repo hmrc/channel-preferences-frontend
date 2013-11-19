@@ -9,13 +9,15 @@ import controllers.bt.testframework.fixtures.{JohnDensmoreTestFixture, GeoffFish
 import controllers.bt.BusinessTaxController
 import controllers.bt.accountsummary.AccountSummariesFactory
 import uk.gov.hmrc.common.microservice.domain.User
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 
 class BusinessTaxControllerStandardBehaviourSpec extends BaseSpec {
 
   val mockAccountSummariesFactory = mock[AccountSummariesFactory]
   val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) {
-    override private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]): SimpleResult = Ok
+    override private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = Future(Ok)
   }
 
   "Calling home" should {

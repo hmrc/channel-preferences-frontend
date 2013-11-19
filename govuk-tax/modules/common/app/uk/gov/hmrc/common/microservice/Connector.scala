@@ -1,13 +1,13 @@
 package uk.gov.hmrc.microservice
 
 import scala.concurrent.duration.Duration
-import play.api.libs.ws.{ Response, WS }
+import play.api.libs.ws.{Response, WS}
 import play.api.http.Status
 import controllers.common.domain.Transform._
-import scala.concurrent.{ Await, ExecutionContext }
+import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import play.api.{ Logger, Play }
-import scala.concurrent.Future
+import play.api.{Logger, Play}
+import scala.concurrent._
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
 import org.slf4j.MDC
@@ -30,14 +30,14 @@ trait Connector extends Status with HeaderNames {
 
   private def headers(): Seq[(String, String)] = {
 
-    val context : Map[String, String] = if (MDC.getCopyOfContextMap == null || MDC.getCopyOfContextMap.isEmpty) Map.empty else MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
+    val context: Map[String, String] = if (MDC.getCopyOfContextMap == null || MDC.getCopyOfContextMap.isEmpty) Map.empty else MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
 
-    context.foldLeft(Seq[Tuple2[String, String]]()){(s, entry) => {
+    context.foldLeft(Seq[Tuple2[String, String]]()) { (s, entry) => {
       entry._1 match {
         case `authorisation` => s :+ entry._1 -> s"Bearer ${entry._2}"
         case _ => s :+ entry
-        }
       }
+    }
     }
   }
 
@@ -47,6 +47,8 @@ trait Connector extends Status with HeaderNames {
   }
 
   protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+
+  protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] = response[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
 
   //FIXME: Why is the body a JsValue? Why do we care what type it is
 
@@ -106,20 +108,19 @@ trait Connector extends Status with HeaderNames {
   }
 
   protected def response[A](futureResponse: Future[Response], uri: String)(handleResponse: (Response) => A)(implicit m: Manifest[A]): Future[Option[A]] = {
-    futureResponse map {
-      res =>
-        res.status match {
-          case OK => Some(handleResponse(res))
-          case CREATED => Some(handleResponse(res))
-          //TODO: add some proper error handling - 204 or 404 are returned to the micro service as None
-          case NO_CONTENT => None
-          case NOT_FOUND => None
-          case BAD_REQUEST => throw MicroServiceException("Bad request", res)
-          case UNAUTHORIZED => throw UnauthorizedException("Unauthenticated request", res)
-          case FORBIDDEN => throw ForbiddenException("Not authorised to make this request", res)
-          case CONFLICT => throw MicroServiceException("Invalid state", res)
-          case x => throw MicroServiceException(s"Internal server error, response status is: $x trying to hit: ${httpResource(uri)}", res)
-        }
+    futureResponse map { res =>
+      res.status match {
+        case OK => Some(handleResponse(res))
+        case CREATED => Some(handleResponse(res))
+        //TODO: add some proper error handling - 204 or 404 are returned as None
+        case NO_CONTENT => None
+        case NOT_FOUND => None
+        case BAD_REQUEST => throw MicroServiceException("Bad request", res)
+        case UNAUTHORIZED => throw UnauthorizedException("Unauthenticated request", res)
+        case FORBIDDEN => throw ForbiddenException("Not authorised to make this request", res)
+        case CONFLICT => throw MicroServiceException("Invalid state", res)
+        case x => throw MicroServiceException(s"Internal server error, response status is: $x trying to hit: ${httpResource(uri)}", res)
+      }
     }
   }
 }

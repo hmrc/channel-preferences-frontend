@@ -10,6 +10,8 @@ import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatJsonRoot}
 import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 class VatConnectorSpec extends BaseSpec {
 
@@ -63,7 +65,7 @@ class VatConnectorSpec extends BaseSpec {
         AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), true),
         new LocalDate(2013, 12, 15),
         "filing",
-      " VAT"
+        " VAT"
       )
 
       val event2 = CalendarEvent(
@@ -75,7 +77,7 @@ class VatConnectorSpec extends BaseSpec {
 
       when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List(event1, event2)))
 
-      connector.calendar(vatCalendarUri).get shouldBe List(event1, event2)
+      connector.calendar(vatCalendarUri).map {_.get shouldBe List(event1, event2)}
     }
 
     "return the empty list if there are no events" in new VatConnectorApplication {
@@ -83,7 +85,7 @@ class VatConnectorSpec extends BaseSpec {
 
       when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
 
-      connector.calendar(vatCalendarUri).get shouldBe List.empty[CalendarEvent]
+      connector.calendar(vatCalendarUri).map {_.get shouldBe List.empty[CalendarEvent]}
 
     }
   }
