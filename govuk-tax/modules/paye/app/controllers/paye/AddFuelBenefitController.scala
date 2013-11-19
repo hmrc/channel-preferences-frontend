@@ -88,17 +88,20 @@ with TaxYearSupport {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
           val validationLesForm = validationLessForm.bindFromRequest()(request)
+
+          //TODO: Why is the car provided from the start of the tax year?
           val values = CarBenefitValues(providedFromVal = Some(startOfCurrentTaxYear), employerPayFuel = validationLesForm.get.employerPayFuel)
           fuelBenefitForm(values).bindFromRequest()(request).fold(
             errors => {
               BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName)(user))
             },
             (addFuelBenefitData: FuelBenefitData) => {
-              val benefit = payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR)
-              val benefitStartDate = getDateInTaxYear(benefit.get.car.flatMap(_.dateCarMadeAvailable))
+              val carBenefit = payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR)
+              val benefitStartDate = getDateInTaxYear(carBenefit.get.car.flatMap(_.dateCarMadeAvailable))
               val payeRoot = user.regimes.paye.get
               val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
-              val benefitCalculations = payeConnector.calculateBenefitValue(uri, CarAndFuel(benefit.get, Some(CarAndFuelBuilder(addFuelBenefitData, benefit, taxYear, employmentSequenceNumber)))).get
+
+              val benefitCalculations = payeConnector.calculateBenefitValue(uri, CarAndFuelBuilder(addFuelBenefit = addFuelBenefitData, carBenefit.get, taxYear, employmentSequenceNumber)).get
               val fuelBenefitValue = benefitCalculations.fuelBenefitValue.map(BenefitValue)
               val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get, addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = fuelBenefitValue)
               Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))

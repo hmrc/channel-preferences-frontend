@@ -123,6 +123,10 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
       setupMocksForJohnDensmore(benefits = Seq(carBenefitStartedThisYear))
 
+      val fuelBenefitValue = 1234
+      val benefitCalculationResponse = NewBenefitCalculationResponse(None, Some(fuelBenefitValue))
+      when(mockPayeConnector.calculateBenefitValue(Matchers.any(), Matchers.any())).thenReturn(Some(benefitCalculationResponse))
+
       val request = newRequestForSaveAddFuelBenefit( employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(testTaxYear.toString, "6", "3"))
 
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
@@ -169,7 +173,8 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       result should haveStatus(200)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#fuelBenefitTaxableValue").text shouldBe s"£$fuelBenefitValue"
+      doc.select("#fuelBenefitTaxableValue").text shouldBe
+        "£1,234"
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new WithApplication(FakeApplication()) {
