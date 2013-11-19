@@ -14,7 +14,7 @@ object Strings {
 
   def hyphenate(value: String) = value.split(" ").map(sentence(_)).mkString("-")
 
-  def joinList(values: Seq[String], separator: String) = values.mkString(separator)
+  def joinList(values: Traversable[String], separator: String) = values.mkString(separator)
 
   def optionalValue(value: Option[String], defaultMessageKey: String, isSentence: Boolean = false) = {
     value match {

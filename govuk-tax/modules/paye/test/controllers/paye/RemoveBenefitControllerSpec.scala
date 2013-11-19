@@ -466,6 +466,32 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#apportioned-value-29").text shouldBe "£20"
       doc.select("#allowance-increase").text shouldBe "£200"
     }
+    "in step 2, display the company car details and the date the car was given back" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
+
+      val carWithdrawDate = new LocalDate(2013, 12, 8)
+      val fuelWithdrawDate = carWithdrawDate.minusDays(1)
+      val companyCarDetails = "company-car-details"
+
+      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
+      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, carWithdrawDate)).thenReturn(carCalculationResult)
+
+      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(20.01), "2014" -> BigDecimal(0)))
+      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, fuelWithdrawDate)).thenReturn(fuelCalculationResult)
+
+
+      val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate), true,  Some("differentDateFuel"), Some(fuelWithdrawDate)), "31", 2013, 2))
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById(companyCarDetails) should not be (null)
+      doc.select("#company-name").text should include("Company car provided by")
+      doc.select("#car-benefit-car-value").text shouldBe "£12,343"
+      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
+      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
+      doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
+      doc.select("#private-fuel").text shouldBe "Yes, private fuel is available when you use the car"
+    }
   }
 
   "The car benefit removal method" should {
