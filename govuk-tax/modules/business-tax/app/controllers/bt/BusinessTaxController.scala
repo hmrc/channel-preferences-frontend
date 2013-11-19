@@ -20,7 +20,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
 
   def this() = this(new AccountSummariesFactory(), Connectors.auditConnector)(Connectors.authConnector)
 
-  def home = AuthorisedBy(GovernmentGateway) {
+  def home = AuthenticatedBy(GovernmentGateway) {
     user => request => businessTaxHomepage(user, request)
   }
 

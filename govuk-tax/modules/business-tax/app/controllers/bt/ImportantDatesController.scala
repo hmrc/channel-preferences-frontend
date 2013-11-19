@@ -31,7 +31,7 @@ class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnec
 
   implicit val dateFormat = new SimpleDateFormat("d MMMM yyy")
 
-  def importantDates = AuthorisedBy(GovernmentGateway) {
+  def importantDates = AuthenticatedBy(GovernmentGateway) {
     user => request => importantDatesPage(user, request)
   }
 

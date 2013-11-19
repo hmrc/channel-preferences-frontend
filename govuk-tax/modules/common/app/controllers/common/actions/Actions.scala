@@ -20,10 +20,10 @@ trait Actions
                    (body: PlayUserRequest) =
     authorised(account.authenticationType, Some(account), redirectToOrigin, pageVisibility, body)
 
-  def AuthorisedBy(authenticationProvider: AuthenticationProvider,
-                   redirectToOrigin: Boolean = false,
-                   pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
-                  (body: PlayUserRequest) =
+  def AuthenticatedBy(authenticationProvider: AuthenticationProvider,
+                      redirectToOrigin: Boolean = false,
+                      pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
+                     (body: PlayUserRequest) =
     authorised(authenticationProvider, None, redirectToOrigin, pageVisibility, body)
 
   def UnauthorisedAction(body: PlayRequest) =
