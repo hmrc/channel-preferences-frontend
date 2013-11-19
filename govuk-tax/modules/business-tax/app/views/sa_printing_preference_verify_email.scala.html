@@ -12,12 +12,14 @@
 
     <p><a class="button" href="redirect">continue to Self Assessment</a></p>
 
-    <a id="emailIsNotCorrectLink" href="@controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress))">No, my email address is not correct</a>
-
     @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
-        <p><input id="emailIsCorrectLink" class="input--link" type="submit" value="My email is correct" /></p>
+        <div class="form-field">
+            <button id="emailIsCorrectLink" class="button" type="submit">My email is correct</button>
+        </div>
         <input type="hidden" name="email" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
+
+    <a id="emailIsNotCorrectLink" href="@controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress))">No, my email address is not correct</a>
 
 }
