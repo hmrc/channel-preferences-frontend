@@ -45,10 +45,3 @@ case class CtRoot(utr: CtUtr, links: Map[String, String]) extends RegimeRoot[CtU
 case class CtAccountSummary(accountBalance: Option[CtAccountBalance], dateOfBalance: Option[String])
 
 case class CtAccountBalance(amount: Option[BigDecimal])
-
-case class AccountingPeriod(startDate: LocalDate, endDate: LocalDate, returnFiled: Boolean)
-
-case class CalendarEvent(accountingPeriod: AccountingPeriod,
-                         eventDate: LocalDate,
-                         eventType: String,
-                         regime: String = "CT")

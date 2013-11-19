@@ -8,8 +8,8 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.MicroServiceException
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatJsonRoot}
-import uk.gov.hmrc.common.microservice.ct.domain.{AccountingPeriod, CalendarEvent}
 import org.joda.time.LocalDate
+import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 
 class VatConnectorSpec extends BaseSpec {
 
@@ -62,13 +62,15 @@ class VatConnectorSpec extends BaseSpec {
       val event1 = CalendarEvent(
         AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), true),
         new LocalDate(2013, 12, 15),
-        "filing"
+        "filing",
+      " VAT"
       )
 
       val event2 = CalendarEvent(
         AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), false),
         new LocalDate(2014, 2, 15),
-        "payment"
+        "payment",
+        "VAT"
       )
 
       when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List(event1, event2)))

@@ -6,8 +6,9 @@ import play.api.test.{FakeApplication, WithApplication}
 import org.mockito.Mockito._
 import uk.gov.hmrc.microservice.MicroServiceException
 import play.api.libs.ws.Response
-import uk.gov.hmrc.common.microservice.ct.domain.{AccountingPeriod, CalendarEvent, CtJsonRoot}
+import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import org.joda.time.LocalDate
+import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 
 class CtConnectorSpec extends BaseSpec {
 
@@ -48,13 +49,15 @@ class CtConnectorSpec extends BaseSpec {
        val event1 = CalendarEvent(
           AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), true),
           new LocalDate(2013, 12, 15),
-          "eventType1"
+          "eventType1",
+          "CT"
        )
 
        val event2 = CalendarEvent(
          AccountingPeriod(new LocalDate(2013, 8, 20), new LocalDate(2014, 8, 19), false),
          new LocalDate(2014, 2, 15),
-         "eventType2"
+         "eventType2",
+       "CT"
        )
 
        when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List(event1, event2)))

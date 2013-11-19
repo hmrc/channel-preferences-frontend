@@ -1,10 +1,10 @@
 package controllers.bt
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.ct.domain.{AccountingPeriod, CalendarEvent}
 import org.joda.time.LocalDate
 import views.formatting.Dates
 import views.helpers.{RenderableLinkMessage, LinkMessage}
+import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 
 class ImportantDateSpec extends BaseSpec {
 
@@ -16,7 +16,7 @@ class ImportantDateSpec extends BaseSpec {
       val event = CalendarEvent(
         AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), true),
         new LocalDate(2013, 9, 10),
-        "FILING")
+        "FILING", "CT")
 
       val expectedResult = ImportantDate(
         new LocalDate(2013, 9, 10),
@@ -35,7 +35,7 @@ class ImportantDateSpec extends BaseSpec {
       val event = CalendarEvent(
         AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), false),
         new LocalDate(2013, 9, 10),
-        "FILING")
+        "FILING", "CT")
 
       val expectedResult = ImportantDate(
         new LocalDate(2013, 9, 10),
@@ -57,7 +57,7 @@ class ImportantDateSpec extends BaseSpec {
       val event = CalendarEvent(
         AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), false),
         new LocalDate(2013, 9, 10),
-        "PAYMENT")
+        "PAYMENT", "CT")
 
       val expectedResult = ImportantDate(
         new LocalDate(2013, 9, 10),

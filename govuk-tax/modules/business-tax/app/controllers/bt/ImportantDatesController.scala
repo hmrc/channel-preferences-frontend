@@ -10,7 +10,7 @@ import org.joda.time.LocalDate
 import java.text.SimpleDateFormat
 import views.helpers.LinkMessage._
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.ct.domain.{CtRoot, CalendarEvent}
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import views.helpers.RenderableLinkMessage
 import scala.Some
 import views.formatting.Dates
@@ -19,6 +19,7 @@ import controllers.common.actions.Actions
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import play.api.Logger
+import uk.gov.hmrc.domain.CalendarEvent
 
 
 class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnector, override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)

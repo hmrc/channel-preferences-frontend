@@ -4,8 +4,8 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import uk.gov.hmrc.common.microservice.ct.CtConnector
-import uk.gov.hmrc.common.microservice.ct.domain.{AccountingPeriod, CalendarEvent, CtRoot}
-import uk.gov.hmrc.domain.{Vrn, CtUtr}
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent, Vrn, CtUtr}
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.mockito.Mockito._
@@ -104,25 +104,29 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
     val event1 = CalendarEvent(
       AccountingPeriod(new LocalDate(currentYear, 2, 2), new LocalDate(currentYear + 1, 1, 2), returnFiled = true),
       new LocalDate(currentYear, 5, 10),
-      "filing"
+      "filing",
+      "CT"
     )
 
     val event2 = CalendarEvent(
       AccountingPeriod(new LocalDate(currentYear+ 1 , 2, 2), new LocalDate(currentYear + 2, 1, 2), returnFiled = false),
       new LocalDate(currentYear + 1, 6, 10),
-      "filing"
+      "filing",
+      "CT"
     )
 
     val event3 = CalendarEvent(
       AccountingPeriod(new LocalDate(currentYear, 2, 2), new LocalDate(currentYear + 1, 1, 2), returnFiled = false),
       new LocalDate(currentYear, 6, 10),
-      "payment"
+      "payment",
+      "CT"
     )
 
     val event4 = CalendarEvent(
       AccountingPeriod(new LocalDate(currentYear + 1, 2, 2), new LocalDate(currentYear + 2, 1, 2), returnFiled = false),
       new LocalDate(currentYear + 1, 7, 10),
-      "payment"
+      "payment",
+      "CT"
     )
     List(event1, event2, event3, event4)
   }
