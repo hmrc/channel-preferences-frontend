@@ -3,7 +3,7 @@
 @import views.formatting.Strings._
 @import views.formatting.Money._
 @import views.formatting.Dates._
-@import models.paye.BenefitTypes._
+@import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 
 @main(title = "Confirm", user = Some(user)) {
 
@@ -15,7 +15,7 @@
 
 <h1 id="main-heading"><span class="pre-heading">service</span> Tell HMRC about a change to your company @{benefitsTitle}</h1>
 
-<h2 class="title">@{displayBenefit.employment.employerNameOrReference} no longer provide a company @{benefitsTitle} benefit</h2>
+<h2 class="title">Check your change before submitting</h2>
 
 @if(carBenefit.isDefined) {
     <table id="company-car-details">
@@ -93,7 +93,7 @@
 
     @for(key <- keys){
     <p>For the period <span id="start-date-@{key}">@benefitsInfo(key).startDate</span> to @benefitsInfo(key).withdrawDate, the charge will be
-        <span id="apportioned-value-@{key}">@pounds(benefitsInfo(key).apportionedValue)</span> for the company @Messages(s"benefitType.${key}.title").</p>
+        <span id="apportioned-value-@{key}">@pounds(benefitsInfo(key).apportionedValue)</span> for the company <span id="benefit-type-@Messages(s"benefitType.${key}.title")">@Messages(s"benefitType.${key}.title").</span></p>
     }
 
 }}

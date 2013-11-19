@@ -114,8 +114,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
-
       doc.getElementById("withdrawDate.day-1").attr("selected") shouldBe "selected"
       doc.getElementById("withdrawDate.month-9").attr("selected") shouldBe "selected"
       doc.getElementById("withdrawDate.year-2013").attr("selected") shouldBe "selected"
@@ -185,7 +183,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".title").text should include("fuel and car")
+      doc.select("#benefit-type-fuel").text should include("fuel")
+      doc.select("#benefit-type-car").text should include("car")
       doc.select("#start-date-29").text shouldBe  "10 September 2013"
       doc.select("#start-date-31").text shouldBe  "30 May 2013"
       doc.select("#withdraw-date-29").text shouldBe "8 December 2013"
@@ -216,8 +215,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       val error =  doc.select(".error-notification").text
-      doc.select(".title").text should include("fuel")
-      doc.select(".title").text should not include ("car")
+      doc.select("#benefit-type-fuel").text should include("fuel")
+      doc.select("#benefit-type-car").text should not include("car")
       doc.select("#start-date-29").text shouldBe  "10 September 2013"
       doc.select("#start-date-31") shouldBe  empty
       doc.select("#withdraw-date-29").text shouldBe "8 December 2013"
@@ -238,8 +237,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".title").text should include("car")
-      doc.select(".title").text should not include ("fuel")
+      doc.select("#benefit-type-car").text should include("car")
+      doc.select("#benefit-type-fuel").text should not include("fuel")
       doc.select(".amount").text shouldBe "£197"
     }
 
@@ -290,7 +289,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".title").text should include("car and fuel")
+      doc.select("h1").text should include("car and fuel")
       doc.select(".amount").text shouldBe "£210"
     }
 
@@ -388,7 +387,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".title").text should include("car and fuel")
+      doc.select("h1").text should include("car and fuel")
       doc.select(".amount").text shouldBe "£210"
     }
 
@@ -457,7 +456,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".title").text should include("car and fuel")
+      doc.select("h1").text should include("car and fuel")
       doc.select("#start-date-31").text shouldBe  "30 May 2013"
       doc.select("#start-date-29").text shouldBe  "10 September 2013"
       doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
@@ -546,7 +545,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#main-heading").text should include("car and fuel")
-      doc.select(".title").text should include("car and fuel").and(include(employment(0).employerName.get))
       doc.select("#first-section").text should include("your company car benefit from").and(include("and fuel benefit from"))
       doc.select("#start-date-31").text shouldBe  "30 May 2013"
       doc.select("#start-date-29").text shouldBe  "10 September 2013"
@@ -568,8 +566,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".title").text should include("car")
-      doc.select(".title").text should not include ("fuel")
+      doc.select("h1").text should include("car")
+      doc.select("h1").text should not include ("fuel")
       doc.select("#start-date-31").text shouldBe  "30 May 2013"
       doc.select("#start-date-29") shouldBe empty
       doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
@@ -670,7 +668,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 400
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".benefit-type").text should include("Your old company car")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be greater than 7 days from today")
     }
 
@@ -684,7 +682,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 400
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".benefit-type").text should include("Your old company car")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in previous tax years")
     }
 
@@ -697,7 +695,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".benefit-type").text should include("Your old company car")
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be in next tax years")
     }
 
@@ -708,7 +706,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Remove your company car benefit")
+      doc.select(".benefit-type").text should include("Your old company car")
       doc.select(".error-notification").text should include("Please enter a date")
     }
 
@@ -721,7 +719,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text should include("Your old company fuel benefit")
+      doc.select(".benefit-type").text should include("Your old company")
       doc.select(".error-notification").text should include("You must specify a valid date")
     }
 
@@ -787,7 +785,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val response = Jsoup.parse(contentAsString(result))
-      response.select(".title").text should include("fuel and car benefit")
+      response.select("h1").text should include("fuel and car")
       response.select(".amount").text shouldBe "£210"
     }
 
@@ -802,7 +800,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe 200
       val response = Jsoup.parse(contentAsString(result))
-      response.select(".title").text should include("company fuel benefit")
+      response.select("h1").text should include("company fuel")
       response.select(".amount").text shouldBe "£12"
     }
 
