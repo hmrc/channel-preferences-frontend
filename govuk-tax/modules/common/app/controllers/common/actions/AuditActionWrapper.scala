@@ -1,20 +1,17 @@
 package controllers.common.actions
 
-import controllers.common.service.{Encryption, Connectors}
-import play.api.Play
+import controllers.common.service.Connectors
+import play.api.{Logger, Play}
 import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import scala.concurrent.ExecutionContext
 import controllers.common.{HeaderNames, CookieNames}
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import scala.util.{Try, Failure, Success}
+import scala.util.{Try, Failure}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
-import java.net.URLDecoder
 import com.ning.http.util.Base64
-import scala.collection.JavaConversions._
-import akka.dispatch.sysmsg.Failed
 
 trait AuditActionWrapper extends HeaderNames {
   val auditConnector : AuditConnector
@@ -24,7 +21,6 @@ trait AuditActionWrapper extends HeaderNames {
 class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends MdcHelper with HeaderNames {
 
   import ExecutionContext.Implicits.global
-  import play.api.Logger
 
   lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
 
@@ -35,19 +31,37 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     request =>
       if (traceRequests && auditConnector.enabled) {
         val context = fromMDC()
-        val eventCreator = auditEvent(user, request, context) _
+        val possibleFingerprint = deviceFingerprintFrom(request)
+        val eventCreator = auditEvent(user, request, possibleFingerprint.flatMap(_.toOption), context) _
 
         auditConnector.audit(eventCreator("Request", Map("path" -> request.path), extractFormData(request)))
 
-        action(request).andThen({
-          case Success(result) => auditConnector.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString), Map()))
-          case Failure(exception) => // FIXME!!!
-        })
+        action(request).transform(
+          result => {
+            auditConnector.audit(eventCreator("Response", Map("statusCode" -> result.header.status.toString), Map()))
+            possibleFingerprint match {
+              case Some(Failure(_)) => result.discardingCookies(DiscardingCookie(CookieNames.deviceFingerprint))
+              case _ => result
+            }
+          },
+          // FIXME - we need to audit failed actions
+          throwable => throwable
+        )
       }
       else action(request)
   }
 
-  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], mdcContext: Map[String, String])(auditType: String, extraTags: Map[String, String], extraDetails: Map[String, String]) = {
+  private def deviceFingerprintFrom(request: Request[AnyContent]): Option[Try[String]] =
+    request.cookies.get(CookieNames.deviceFingerprint).map { cookie =>
+      val decodeAttempt = Try {
+        Base64.decode(cookie.value)
+      }
+      decodeAttempt.failed.foreach { Logger.info(s"Failed to decode device fingerprint: ${cookie.value}", _) }
+      decodeAttempt.map { new String(_, "UTF-8") }
+    }
+
+  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], deviceFingerprint: Option[String], mdcContext: Map[String, String])
+                        (auditType: String, extraTags: Map[String, String], extraDetails: Map[String, String]) = {
     val tags = new collection.mutable.HashMap[String, String]
 
     userLoggedIn foreach { user =>
@@ -66,16 +80,8 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     details.put("method", request.method.toUpperCase)
     details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
     details.put("referrer", request.headers.get("Referer").getOrElse("-"))
-    request.cookies.get(CookieNames.deviceFingerprint).foreach { cookie =>
-      Try {
-        Base64.decode(cookie.value)
-      } match {
-        case Success(decodedFingerprint) =>
-          details.put("deviceFingerprint", new String(decodedFingerprint, "UTF-8"))
-        case Failure(e) =>
-          Logger.info(s"Failed to decode device fingerprint: ${cookie.value}", e)
-      }
-    }
+
+    deviceFingerprint.foreach(f => details.put("deviceFingerprint", f))
 
     AuditEvent(auditSource = "frontend",
                auditType = auditType,

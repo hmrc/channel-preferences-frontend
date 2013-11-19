@@ -159,6 +159,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
               """"language":"en-US","colorDepth":24,"resolution":"800x1280","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,"platform":"MacIntel",""" +
               """"doNotTrack":true,"numberOfPlugins":5,"plugins":["Shockwave Flash","Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
             )
+            result.header.headers should not contain key ("Set-Cookie")
           }
       }
     }
@@ -172,6 +173,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
           forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
             event.detail should not contain key ("deviceFingerprint")
+            result.header.headers should not contain key ("Set-Cookie")
           }
       }
     }
@@ -185,6 +187,8 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
           forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
             event.detail should not contain key ("deviceFingerprint")
+            result.header.headers should contain key ("Set-Cookie")
+            result.header.headers("Set-Cookie") should include regex (s"${CookieNames.deviceFingerprint}=;")
           }
       }
     }
