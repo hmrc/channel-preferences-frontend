@@ -150,13 +150,15 @@ object MicroServiceConfig {
   lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8540)}"
   lazy val governmentGatewayServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.government-gateway.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.government-gateway.port").getOrElse(8570)}"
   lazy val saServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.sa.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.sa.port").getOrElse(8900)}"
-  lazy val txQueueUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.txqueue.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.txqueue.port").getOrElse(8700)}"
+  lazy val txQueueServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.txqueue.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.txqueue.port").getOrElse(8700)}"
   lazy val auditServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.datastream.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.datastream.port").getOrElse(8100)}"
   lazy val keyStoreServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.keystore.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.keystore.port").getOrElse(8400)}"
   lazy val agentServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.agent.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.agent.port").getOrElse(8420)}"
   lazy val vatServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.vat.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.vat.port").getOrElse(8880)}"
   lazy val epayeServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.epaye.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.epaye.port").getOrElse(8880)}"
   lazy val ctServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.ct.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.ct.port").getOrElse(8880)}"
+  lazy val preferencesServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.preferences.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.preferences.port").getOrElse(8025)}"
+  lazy val emailServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.email.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.email.port").getOrElse(8300)}"
 
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 

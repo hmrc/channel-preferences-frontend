@@ -1,3 +1,6 @@
+error.email=Please provide a valid email address
+
+
 vat.regimeName=VAT
 
 vat.message.registrationNumber=VAT Registration Number: {0}

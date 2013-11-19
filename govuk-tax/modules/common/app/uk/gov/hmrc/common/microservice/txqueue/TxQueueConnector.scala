@@ -6,7 +6,7 @@ import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 
 class TxQueueConnector extends Connector {
 
-  override val serviceUrl = MicroServiceConfig.txQueueUrl
+  override val serviceUrl = MicroServiceConfig.txQueueServiceUrl
 
   def transaction(uri: String): Option[List[TxQueueTransaction]] = httpGet[List[TxQueueTransaction]](uri)
   def transaction(oid: String, userRoot: PayeRoot): Option[TxQueueTransaction] = httpGet[TxQueueTransaction](userRoot.transactionLinks.get("findByOid").get.replace("{oid}", oid))
