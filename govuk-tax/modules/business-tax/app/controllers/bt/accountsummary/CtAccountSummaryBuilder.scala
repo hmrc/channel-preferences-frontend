@@ -7,6 +7,7 @@ import uk.gov.hmrc.utils.DateConverter
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.domain.CtUtr
+import controllers.common.actions.HeaderCarrier
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
 
@@ -14,8 +15,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
   import CtMessageKeys._
   import CtPortalUrlKeys._
 
-  override protected def buildAccountSummary(ctRoot: CtRoot, buildPortalUrl: (String) => String): AccountSummary = {
-
+  override protected def buildAccountSummary(ctRoot: CtRoot, buildPortalUrl: (String) => String)(implicit headerCarrier:HeaderCarrier): AccountSummary = {
     val accountSummary: Option[CtAccountSummary] = ctRoot.accountSummary(ctConnector)
     val accountValueOption: Option[BigDecimal] = accountValueIfPresent(accountSummary)
     val dateOfBalanceOption: Option[String] = accountSummary flatMap (_.dateOfBalance)

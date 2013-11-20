@@ -6,6 +6,7 @@ import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatRoot}
+import controllers.common.actions.HeaderCarrier
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 
@@ -15,7 +16,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
 
   def rootForRegime(user: User): Option[VatRoot] = user.regimes.vat
 
-  def buildAccountSummary(vatRoot: VatRoot, buildPortalUrl: String => String): AccountSummary = {
+  def buildAccountSummary(vatRoot: VatRoot, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): AccountSummary = {
     val accountSummary: Option[VatAccountSummary] = vatRoot.accountSummary(vatConnector)
 
 

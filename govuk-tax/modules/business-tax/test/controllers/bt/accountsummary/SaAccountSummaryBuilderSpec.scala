@@ -16,6 +16,7 @@ import SaPortalUrlKeys._
 import uk.gov.hmrc.domain.SaUtr
 import CommonBusinessMessageKeys._
 import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, Liability, AmountDue, SaAccountSummary}
+import controllers.common.actions.HeaderCarrier
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://home"
@@ -144,6 +145,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
           Msg(saSummaryUnavailableErrorMessage4)
         )
 
+      implicit val headerCarrier = HeaderCarrier()
       val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build, mockUser).get
       actualAccountSummary.regimeName shouldBe saRegimeName
       actualAccountSummary.messages shouldBe expectedMessages
@@ -203,6 +205,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockPortalUrlBuilder.build(saHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl)
 
+    implicit val headerCarrier = HeaderCarrier()
     val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build, mockUser).get
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName

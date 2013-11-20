@@ -7,6 +7,7 @@ import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import controllers.common.actions.HeaderCarrier
 
 class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -35,9 +36,10 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     val regimeNameKey = "test.regime.name"
 
+
     val builder = new AccountSummaryBuilder[SaUtr, SaRoot] {
 
-      override def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String): AccountSummary = {
+      override def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String)(implicit headerCarrier: HeaderCarrier): AccountSummary = {
         mockBuilder.buildAccountSummary(regimeRoot, buildPortalUrl)
       }
 
@@ -49,21 +51,22 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   "AccountSummaryBuilder" should {
 
-//    "call oops if the root service call throws an exception" in new Builder {
-//      override lazy val regimeRoot = Some(Failure(new RuntimeException()))
-//      val expectedSummary = AccountSummary(regimeNameKey, Seq(Msg(CommonBusinessMessageKeys.oopsMessage)), Seq.empty, SummaryStatus.oops)
-//      builder.build(buildPortalUrl, user) shouldBe Some(expectedSummary)
-//    }
-//
-//    "call oops if the buildAccountSummary method throws an exception" in new Builder {
-//      when(mockBuilder.buildAccountSummary(saRoot, buildPortalUrl)).thenThrow(new NumberFormatException("broken"))
-//      val expectedSummary = AccountSummary(regimeNameKey, Seq(Msg(CommonBusinessMessageKeys.oopsMessage)), Seq.empty, SummaryStatus.oops)
-//      builder.build(buildPortalUrl, user) shouldBe Some(expectedSummary)
-//    }
+    //    "call oops if the root service call throws an exception" in new Builder {
+    //      override lazy val regimeRoot = Some(Failure(new RuntimeException()))
+    //      val expectedSummary = AccountSummary(regimeNameKey, Seq(Msg(CommonBusinessMessageKeys.oopsMessage)), Seq.empty, SummaryStatus.oops)
+    //      builder.build(buildPortalUrl, user) shouldBe Some(expectedSummary)
+    //    }
+    //
+    //    "call oops if the buildAccountSummary method throws an exception" in new Builder {
+    //      when(mockBuilder.buildAccountSummary(saRoot, buildPortalUrl)).thenThrow(new NumberFormatException("broken"))
+    //      val expectedSummary = AccountSummary(regimeNameKey, Seq(Msg(CommonBusinessMessageKeys.oopsMessage)), Seq.empty, SummaryStatus.oops)
+    //      builder.build(buildPortalUrl, user) shouldBe Some(expectedSummary)
+    //    }
 
     "return the accountSummary from buildAccountSummary when it completes successfully" in new Builder {
       val accountSummary = AccountSummary("Some Regime", Seq.empty, Seq.empty, SummaryStatus.success)
       when(mockBuilder.buildAccountSummary(saRoot, buildPortalUrl)).thenReturn(accountSummary)
+      implicit val headerCarrier = HeaderCarrier()
       builder.build(buildPortalUrl, user) shouldBe Some(accountSummary)
     }
   }

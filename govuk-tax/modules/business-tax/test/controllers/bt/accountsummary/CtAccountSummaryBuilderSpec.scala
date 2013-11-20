@@ -18,6 +18,7 @@ import uk.gov.hmrc.common.microservice.ct.CtConnector
 import controllers.bt.accountsummary.SummaryStatus._
 import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountBalance, CtAccountSummary, CtRoot}
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import controllers.common.actions.HeaderCarrier
 
 class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -41,6 +42,8 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val ctAccountSummary = CtAccountSummary(Some(CtAccountBalance(Some(4.2))), Some("2012-12-02"))
       when(ctConnectorMock.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenReturn(Some(ctAccountSummary))
       val builder = new CtAccountSummaryBuilder(ctConnectorMock)
+
+      implicit val headerCarrier = HeaderCarrier()
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
@@ -58,6 +61,8 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val userEnrolledForCtWithNoAccountSummary = User("tim", userAuthorityWithCt, regimeRootsWithNoCtAccountSummary, None, None)
       val mockCtConnector = mock[CtConnector]
       val builder = new CtAccountSummaryBuilder(mockCtConnector)
+
+      implicit val headerCarrier = HeaderCarrier()
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCtWithNoAccountSummary)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
@@ -86,6 +91,8 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val mockCtConnector = mock[CtConnector]
       when(mockCtConnector.accountSummary(s"/ct/${ctUtr.utr}/account-summary")).thenThrow(new NumberFormatException)
       val builder = new CtAccountSummaryBuilder(mockCtConnector)
+
+      implicit val headerCarrier = HeaderCarrier()
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForCt)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
@@ -97,6 +104,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     "return None if the user is not enrolled for CT" in {
       val builder = new CtAccountSummaryBuilder(mock[CtConnector])
+      implicit val headerCarrier = HeaderCarrier()
       val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userNotEnrolledForCt)
       accountSummaryOption should be(None)
     }

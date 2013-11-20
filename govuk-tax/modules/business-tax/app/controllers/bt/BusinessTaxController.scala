@@ -9,12 +9,13 @@ import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import uk.gov.hmrc.domain.SaUtr
 import controllers.bt.prefs.{routes => PreferencesRoutes}
+
 
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
                             preferencesConnector: PreferencesConnector,
@@ -32,13 +33,13 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
 
   private[bt] def businessTaxHomepage(fromLogin: Option[String])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     fromLogin match {
-      case Some("true") => if( user.regimes.sa.isDefined ) capturePrintPreferences(user.getSa.utr) else renderHomePage
+      case Some("true") => if (user.regimes.sa.isDefined) capturePrintPreferences(user.getSa.utr) else renderHomePage
       case _ => renderHomePage
     }
-
   }
 
-  private def renderHomePage(implicit user: User, request: Request[AnyRef]) = {
+  private def renderHomePage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+    implicit val headerCarrier = HeaderCarrier(request)
     val accountSummariesF = accountSummaryFactory.create(buildPortalUrl)
     val otherServicesLink = LinkMessage.internalLink(controllers.bt.routes.OtherServicesController.otherServices().url, "link")
     val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"))

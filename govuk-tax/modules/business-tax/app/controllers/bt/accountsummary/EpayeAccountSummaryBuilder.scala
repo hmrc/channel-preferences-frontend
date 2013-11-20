@@ -9,11 +9,11 @@ import views.helpers.{RenderableMessage, LinkMessage, MoneyPounds}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSummary, EpayeRoot}
+import controllers.common.actions.HeaderCarrier
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
 
-  override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String): AccountSummary = {
-
+  override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): AccountSummary = {
     val accountSummary: Option[EpayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
     val messages = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
 

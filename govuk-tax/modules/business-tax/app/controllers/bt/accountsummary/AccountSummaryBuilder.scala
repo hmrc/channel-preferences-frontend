@@ -3,10 +3,11 @@ package controllers.bt.accountsummary
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.common.microservice.domain.User
+import controllers.common.actions.HeaderCarrier
 
 abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
 
-  def build(buildPortalUrl: String => String, user: User): Option[AccountSummary] = {
+  def build(buildPortalUrl: String => String, user: User)(implicit headerCarrier:HeaderCarrier): Option[AccountSummary] = {
     rootForRegime(user).map {
       regimeRoot => try {
         buildAccountSummary(regimeRoot, buildPortalUrl)
@@ -24,7 +25,7 @@ abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
       status = SummaryStatus.oops)
   }
 
-  protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String): AccountSummary
+  protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): AccountSummary
 
   protected def defaultRegimeNameMessageKey: String
 

@@ -17,6 +17,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import scala.util.{Failure, Try, Success}
 import CommonBusinessMessageKeys._
 import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeRoot, NonRTI, EpayeAccountSummary, RTI}
+import controllers.common.actions.HeaderCarrier
 
 trait DummyPortalUrlBuilder {
   def build(a: String): String
@@ -184,6 +185,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockPortalUrlBuilder.build(epayeHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG
 
+    implicit val headerCarrier = HeaderCarrier()
     val actualAccountSummary = EpayeAccountSummaryBuilder(mockEpayeConnector).build(mockPortalUrlBuilder.build _, mockUser).get
 
     actualAccountSummary.regimeName shouldBe expectedRegimeName

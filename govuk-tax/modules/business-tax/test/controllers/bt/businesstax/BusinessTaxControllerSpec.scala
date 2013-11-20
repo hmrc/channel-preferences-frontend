@@ -29,7 +29,11 @@ import play.api.test.FakeApplication
 import controllers.bt.accountsummary.Msg
 import controllers.bt.{routes => businessTaxRoutes}
 import controllers.common.{routes => commonRoutes}
+<<<<<<< HEAD
 import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
+=======
+import controllers.common.actions.HeaderCarrier
+>>>>>>> Doug [HMTB-2047] I have introduced the HeaderCarrier class, which will replace the MDC code in the long-term. MDC uses a thread-local variable to hold the header information from the incoming request for retrieval by the Connector when making WS requests to the microservices. This is a problem when we introduce Futures as the thread making the WS call is no longer the one that received the request, so we need another way to carry that information through. The controller can build a HeaderCarrier from a Request and it will be passed down the chain of calls through the builders as an implicit param. I have also created AsyncController, which has all the same methods as Controller, but returning Futures
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
   
@@ -41,7 +45,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(Seq.empty)))
+      implicit val headerCarrier = HeaderCarrier(request)
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(Seq.empty)))
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
@@ -65,7 +70,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(Seq.empty)))
+      implicit val headerCarrier = HeaderCarrier()
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(Seq.empty)))
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
@@ -88,8 +94,14 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
+<<<<<<< HEAD
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
 
+=======
+      implicit val headerCarrier = HeaderCarrier()
+      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
+>>>>>>> Doug [HMTB-2047] I have introduced the HeaderCarrier class, which will replace the MDC code in the long-term. MDC uses a thread-local variable to hold the header information from the incoming request for retrieval by the Connector when making WS requests to the microservices. This is a problem when we introduce Futures as the thread making the WS call is no longer the one that received the request, so we need another way to carry that information through. The controller can build a HeaderCarrier from a Request and it will be passed down the chain of calls through the builders as an implicit param. I have also created AsyncController, which has all the same methods as Controller, but returning Futures
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
@@ -116,7 +128,13 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
         nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = regime), decryptedToken = None)
 
+<<<<<<< HEAD
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
+=======
+      implicit val headerCarrier = HeaderCarrier()
+      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(List(accountSummary))))
+>>>>>>> Doug [HMTB-2047] I have introduced the HeaderCarrier class, which will replace the MDC code in the long-term. MDC uses a thread-local variable to hold the header information from the incoming request for retrieval by the Connector when making WS requests to the microservices. This is a problem when we introduce Futures as the thread making the WS call is no longer the one that received the request, so we need another way to carry that information through. The controller can build a HeaderCarrier from a Request and it will be passed down the chain of calls through the builders as an implicit param. I have also created AsyncController, which has all the same methods as Controller, but returning Futures
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
@@ -142,7 +160,13 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
         nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = regime), decryptedToken = None)
 
+<<<<<<< HEAD
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
+=======
+      implicit val headerCarrier = HeaderCarrier()
+      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(List(accountSummary))))
+>>>>>>> Doug [HMTB-2047] I have introduced the HeaderCarrier class, which will replace the MDC code in the long-term. MDC uses a thread-local variable to hold the header information from the incoming request for retrieval by the Connector when making WS requests to the microservices. This is a problem when we introduce Futures as the thread making the WS call is no longer the one that received the request, so we need another way to carry that information through. The controller can build a HeaderCarrier from a Request and it will be passed down the chain of calls through the builders as an implicit param. I have also created AsyncController, which has all the same methods as Controller, but returning Futures
 
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
@@ -168,7 +192,13 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val regime = Some(VatRoot(Vrn("some vrn"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = regime), decryptedToken = None)
 
+<<<<<<< HEAD
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
+=======
+      implicit val headerCarrier = HeaderCarrier()
+      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(List(accountSummary))))
+>>>>>>> Doug [HMTB-2047] I have introduced the HeaderCarrier class, which will replace the MDC code in the long-term. MDC uses a thread-local variable to hold the header information from the incoming request for retrieval by the Connector when making WS requests to the microservices. This is a problem when we introduce Futures as the thread making the WS call is no longer the one that received the request, so we need another way to carry that information through. The controller can build a HeaderCarrier from a Request and it will be passed down the chain of calls through the builders as an implicit param. I have also created AsyncController, which has all the same methods as Controller, but returning Futures
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
@@ -187,7 +217,11 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(mockPreferencesConnector)
     }
 
+<<<<<<< HEAD
     "render all the widgets in the right order" in new BusinessTaxControllerTestSetup  {
+=======
+    "render all the widgets in the right order" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
+>>>>>>> Doug [HMTB-2047] I have introduced the HeaderCarrier class, which will replace the MDC code in the long-term. MDC uses a thread-local variable to hold the header information from the incoming request for retrieval by the Connector when making WS requests to the microservices. This is a problem when we introduce Futures as the thread making the WS call is no longer the one that received the request, so we need another way to carry that information through. The controller can build a HeaderCarrier from a Request and it will be passed down the chain of calls through the builders as an implicit param. I have also created AsyncController, which has all the same methods as Controller, but returning Futures
       val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
       val ctAccountSummary = AccountSummary("ct.regimeName", List(Msg(CtMessageKeys.ctUtrMessage)), Seq.empty, SummaryStatus.success)
       val vatAccountSummary = AccountSummary("vat.regimeName", List(Msg(VatMessageKeys.vatRegimeNameMessage)), Seq.empty, SummaryStatus.success)
@@ -200,7 +234,13 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(None, saRegime, vatRegime, epayeRegime, ctRegime), decryptedToken = None)
 
+<<<<<<< HEAD
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary,epayeAcountSummary))))
+=======
+      implicit val headerCarrier = HeaderCarrier()
+      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAcountSummary))))
+>>>>>>> Doug [HMTB-2047] I have introduced the HeaderCarrier class, which will replace the MDC code in the long-term. MDC uses a thread-local variable to hold the header information from the incoming request for retrieval by the Connector when making WS requests to the microservices. This is a problem when we introduce Futures as the thread making the WS call is no longer the one that received the request, so we need another way to carry that information through. The controller can build a HeaderCarrier from a Request and it will be passed down the chain of calls through the builders as an implicit param. I have also created AsyncController, which has all the same methods as Controller, but returning Futures
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
