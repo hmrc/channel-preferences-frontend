@@ -3,7 +3,7 @@ package uk.gov.hmrc.common
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 
-trait BaseSpec extends WordSpec with Matchers with BeforeAndAfterEachTestData with BeforeAndAfter with MockitoSugar {
+trait BaseSpec extends org.scalatest.WordSpecLike with Matchers with BeforeAndAfterEachTestData with BeforeAndAfter with MockitoSugar {
 
   import scala.concurrent.{ Await, Future }
   import scala.concurrent.duration._

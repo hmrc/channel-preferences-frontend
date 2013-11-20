@@ -16,20 +16,15 @@ import play.api.data.Form
 import FuelBenefitFormFields._
 import controllers.paye.validation.AddCarBenefitValidator._
 import org.joda.time.LocalDate
-import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.domain.User
-import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.common.actions.Actions
 import uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
 import play.api.mvc.SimpleResult
-import controllers.paye.EmployerPayeFuelString
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import controllers.paye.FuelBenefitData
-import models.paye.{CarBenefitDataAndCalculations, CarAndFuelBuilder}
+import models.paye.CarAndFuelBuilder
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
 
@@ -40,6 +35,8 @@ with Validators
 with TaxYearSupport {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
+
+  private val keystoreKey = "AddFuelBenefitForm"
 
   def startAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
@@ -87,7 +84,12 @@ with TaxYearSupport {
 
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
-          Ok(views.html.paye.add_fuel_benefit_form(fuelBenefitForm(CarBenefitValues()), taxYear, employmentSequenceNumber, employment.employerName)(user))
+
+          val initialFuelValues = initialFuelBenefitValues(user, taxYear, employmentSequenceNumber)
+
+          val form = fuelBenefitForm(CarBenefitValues(employerPayFuel = initialFuelValues.employerPayFuel)).fill(initialFuelValues)
+
+          Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName)(user))
         }
         case None => {
           Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
@@ -95,6 +97,13 @@ with TaxYearSupport {
         }
       }
     }
+  }
+
+  private val fuelBenefitFormPrefix = "AddFuelBenefit"
+
+  def initialFuelBenefitValues(user: User, taxYear: Int, employmentSequenceNumber: Int): FuelBenefitData = {
+    keyStoreService.getEntry[FuelBenefitData](KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey)
+      .getOrElse(FuelBenefitData(None, None))
   }
 
   private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
@@ -119,7 +128,7 @@ with TaxYearSupport {
               val fuelData = AddFuelBenefitConfirmationData(employment.employerName, carBenefitStartDate, addFuelBenefitData.employerPayFuel.get,
                                                             addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = fuelBenefitValue)
 
-              keyStoreService.addKeyStoreEntry(s"AddFuelBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddFuelBenefitForm", addFuelBenefitData)
+              keyStoreService.addKeyStoreEntry(KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, addFuelBenefitData)
 
               Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
             })

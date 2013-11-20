@@ -16,7 +16,7 @@ import org.joda.time.chrono.ISOChronology
 import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 import BenefitTypes._
 
-class PayeBaseSpec extends BaseSpec {
+trait PayeBaseSpec extends BaseSpec {
 
   lazy val testTaxYear = 2013
 
