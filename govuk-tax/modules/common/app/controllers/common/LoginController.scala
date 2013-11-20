@@ -50,7 +50,7 @@ class LoginController(samlConnector : SamlConnector,
     } else {
       try {
         val response: GovernmentGatewayResponse = governmentGatewayConnector.login(boundForm.value.get)
-        FrontEndRedirect.toBusinessTax
+        FrontEndRedirect.toBusinessTaxFromLogin
           .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
       } catch {
         case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))

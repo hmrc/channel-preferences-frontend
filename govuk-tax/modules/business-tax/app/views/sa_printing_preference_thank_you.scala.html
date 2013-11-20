@@ -1,4 +1,6 @@
-@main(title = "My Preferences") {
+@(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "My Preferences", user = Some(user)) {
 
     <h1>Sign up for email reminders</h1>
 
@@ -10,6 +12,6 @@
 
     <p>HMRC will never put personal information in an email.<br>Always go to GOV.UK to log in to your tax account.</p>
 
-    <p><a class="button" href="@controllers.bt.routes.BusinessTaxController.home">Go to your tax account</a></p>
+    <p><a class="button" href="@controllers.bt.routes.BusinessTaxController.home(None)">Go to your tax account</a></p>
 
 }

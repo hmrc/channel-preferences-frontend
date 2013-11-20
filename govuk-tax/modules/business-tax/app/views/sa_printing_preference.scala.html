@@ -1,9 +1,9 @@
-@(emailForm: Form[controllers.bt.prefs.EmailPreferenceData])
+@(emailForm: Form[controllers.bt.prefs.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.CustomHelpers._
 @import helper._
 
-@main(title = "My Preferences") {
+@main(title = "My Preferences", user = Some(user)) {
 
     <h1>Sign up for email reminders</h1>
 

@@ -29,15 +29,13 @@ import play.api.test.FakeApplication
 import controllers.bt.accountsummary.Msg
 import controllers.bt.{routes => businessTaxRoutes}
 import controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
+  
+  "Calling home with a valid logged in business user when not accessed directly after login" should {
 
-  "Calling home with a valid logged in business user" should {
-
-    "always render the navigation links to home, other services and log out" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
-
-      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
+    "always render the navigation links to home, other services and log out" in new BusinessTaxControllerTestSetup {
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
@@ -48,7 +46,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val result = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
+      val result = Future.successful(controllerUnderTest.businessTaxHomepage(Some("false"))(user, request))
 
       status(result) shouldBe 200
 
@@ -57,12 +55,11 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home().url
       document.getElementById("otherServicesNavHref").attr("href") shouldBe "/business-tax" + businessTaxRoutes.OtherServicesController.otherServices().url
       document.getElementById("logOutNavHref").attr("href") shouldBe commonRoutes.LoginController.logout().url
+
+      verifyZeroInteractions(mockPreferencesConnector)
     }
 
-    "always render the sso links to enrol, de-enrol and manage services" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
-
-      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
+    "always render the sso links to enrol, de-enrol and manage services" in new BusinessTaxControllerTestSetup {
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
@@ -72,7 +69,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val result = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
+      val result = Future.successful(controllerUnderTest.businessTaxHomepage(Some("notTrue"))(user, request))
 
       status(result) shouldBe 200
 
@@ -81,15 +78,16 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("enrolServiceHref1").attr("href") shouldBe "otherServicesEnrolmentUrl"
       document.getElementById("enrolServiceHref2").attr("href") shouldBe "otherServicesEnrolmentUrl"
       document.getElementById("removeServiceHref").attr("href") shouldBe "servicesDeEnrolmentUrl"
+
+      verifyZeroInteractions(mockPreferencesConnector)
     }
 
-    "render the sa widget" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
+    "render the sa widget" in new BusinessTaxControllerTestSetup {
       val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
-      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
 
 
@@ -97,9 +95,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
-
-      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(None)(user, FakeRequest()))
 
       status(homepage) shouldBe 200
 
@@ -109,26 +105,24 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("vat.regimeName") shouldBe null
       document.getElementById("epaye.regimeName") shouldBe null
 
+      verifyZeroInteractions(mockPreferencesConnector)
+
     }
 
-    "render the epaye widget" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
+    "render the epaye widget" in new BusinessTaxControllerTestSetup {
       val accountSummary = AccountSummary("epaye.regimeName", List(Msg(EpayeMessageKeys.epayeEmpRefMessage)), Seq.empty, SummaryStatus.success)
 
       val regime = Some(EpayeRoot(EmpRef("some emp/ref"), EpayeLinks(Some("link"))))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
         nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = regime), decryptedToken = None)
 
-      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
-
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
-
-      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(Some("false"))(user, FakeRequest()))
 
       status(homepage) shouldBe 200
 
@@ -137,16 +131,17 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("vat.regimeName") shouldBe null
       document.getElementById("sa.regimeName") shouldBe null
       document.getElementById("ct.regimeName") shouldBe null
+
+      verifyZeroInteractions(mockPreferencesConnector)
     }
 
-    "render the ct widget" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
+    "render the ct widget" in new BusinessTaxControllerTestSetup {
       val accountSummary = AccountSummary("ct.regimeName", List(Msg(CtMessageKeys.ctUtrMessage)), Seq.empty, SummaryStatus.success)
 
       val regime = Some(CtRoot(CtUtr("some ct utr"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
         nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = regime), decryptedToken = None)
 
-      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
 
 
@@ -154,9 +149,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
-
-      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(None)(user, FakeRequest()))
 
       status(homepage) shouldBe 200
 
@@ -165,25 +158,23 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("vat.regimeName") shouldBe null
       document.getElementById("sa.regimeName") shouldBe null
       document.getElementById("epaye.regimeName") shouldBe null
+
+      verifyZeroInteractions(mockPreferencesConnector)
     }
 
-    "render the vat widget" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
+    "render the vat widget" in new BusinessTaxControllerTestSetup {
       val accountSummary = AccountSummary("vat.regimeName", List(Msg(VatMessageKeys.vatRegimeNameMessage)), Seq.empty, SummaryStatus.success)
 
       val regime = Some(VatRoot(Vrn("some vrn"), Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = regime), decryptedToken = None)
 
-      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
-
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
-
-      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(None)(user, FakeRequest()))
 
       status(homepage) shouldBe 200
 
@@ -192,9 +183,11 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("ct.regimeName") shouldBe null
       document.getElementById("sa.regimeName") shouldBe null
       document.getElementById("epaye.regimeName") shouldBe null
+
+      verifyZeroInteractions(mockPreferencesConnector)
     }
 
-    "render all the widgets in the right order" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock  {
+    "render all the widgets in the right order" in new BusinessTaxControllerTestSetup  {
       val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
       val ctAccountSummary = AccountSummary("ct.regimeName", List(Msg(CtMessageKeys.ctUtrMessage)), Seq.empty, SummaryStatus.success)
       val vatAccountSummary = AccountSummary("vat.regimeName", List(Msg(VatMessageKeys.vatRegimeNameMessage)), Seq.empty, SummaryStatus.success)
@@ -207,16 +200,13 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(None, saRegime, vatRegime, epayeRegime, ctRegime), decryptedToken = None)
 
-      val mockAccountSummariesFactory = mock[AccountSummariesFactory]
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary,epayeAcountSummary))))
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) with MockedPortalUrlBuilder
-
-      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, FakeRequest()))
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(None)(user, FakeRequest()))
 
       status(homepage) shouldBe 200
 
@@ -229,7 +219,97 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       elements.get(2).attr("id") shouldBe "vat.regimeName"
       elements.get(3).attr("id") shouldBe "epaye.regimeName"
 
+      verifyZeroInteractions(mockPreferencesConnector)
     }
 
   }
+
+  "Calling home with a valid logged in business user when accessed just after logging in" should {
+
+    "display business tax homepage for user without SA regime" in new BusinessTaxControllerTestSetup {
+
+      val accountSummary = AccountSummary("epaye.regimeName", List(Msg(EpayeMessageKeys.epayeEmpRefMessage)), Seq.empty, SummaryStatus.success)
+
+      val regime = Some(EpayeRoot(EmpRef("some emp/ref"), EpayeLinks(Some("link"))))
+      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
+        nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = regime), decryptedToken = None)
+
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(accountSummary))))
+
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
+
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(Some("true"))(user, FakeRequest()))
+
+      status(homepage) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(homepage))
+
+      document.select("h1").text should include("Your tax account")
+
+      verifyZeroInteractions(mockPreferencesConnector)
+    }
+
+    "display business tax homepage for SA user with existing print preferences" in new BusinessTaxControllerTestSetup {
+
+      val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
+
+      val utr = SaUtr("sa-utr")
+      val saRoot = Some(SaRoot(utr, Map.empty[String, String]))
+      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
+
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
+
+      val preference = SaPreference(digital = true, Some("bob@somewhere.stuff"))
+      when(mockPreferencesConnector.getPreferences(utr)).thenReturn(Some(preference))
+
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(Some("true"))(user, FakeRequest()))
+
+      status(homepage) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(homepage))
+      document.select("h1").text should include("Your tax account")
+
+      verify(mockPreferencesConnector).getPreferences(utr)
+    }
+
+    "redirect to SA print preferences capture page for SA user without existing print preferences" in new BusinessTaxControllerTestSetup {
+
+      val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
+
+      val utr = SaUtr("sa-utr")
+      val saRoot = Some(SaRoot(utr, Map.empty[String, String]))
+      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
+
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
+      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
+
+      when(mockPreferencesConnector.getPreferences(utr)).thenReturn(None)
+
+      val response = Future.successful(controllerUnderTest.businessTaxHomepage(Some("true"))(user, FakeRequest()))
+
+      status(response) shouldBe 303
+      header("Location", response).get should include("/prefs/sa/print")
+
+      verify(mockPreferencesConnector).getPreferences(utr)
+    }
+  }
+}
+
+abstract class BusinessTaxControllerTestSetup extends WithApplication(FakeApplication()) with PortalUrlBuilderMock {
+
+  val mockAccountSummariesFactory = mock[AccountSummariesFactory]
+
+  val mockPreferencesConnector = mock[PreferencesConnector]
+
+  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, mockPreferencesConnector, null)(null) with MockedPortalUrlBuilder
+
 }

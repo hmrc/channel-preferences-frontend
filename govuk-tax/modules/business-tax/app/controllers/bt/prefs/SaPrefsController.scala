@@ -43,7 +43,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
 
   def thankYou() = AuthorisedFor(account = SaRegime) {
     user => request =>
-      Ok(views.html.sa_printing_preference_thank_you())
+      Ok(views.html.sa_printing_preference_thank_you(user))
   }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[String])(implicit user: User, request: Request[AnyRef]) = {

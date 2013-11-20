@@ -1,6 +1,6 @@
-@(emailAddress: String)
+@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@main(title = "My Preferences") {
+@main(title = "My Preferences", user = Some(user)) {
 
     <h1>Sign up for email reminders</h1>
 

@@ -245,7 +245,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
       status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result).get shouldBe FrontEndRedirect.businessTaxHome.toString
+      redirectLocation(result).get shouldBe s"${FrontEndRedirect.businessTaxHome}?fromLogin=true"
 
       val sess = session(result)
       decrypt(sess("name")) shouldBe geoff.nameFromGovernmentGateway

@@ -11,35 +11,37 @@ import controllers.bt.accountsummary.AccountSummariesFactory
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 
 
 class BusinessTaxControllerStandardBehaviourSpec extends BaseSpec {
 
   val mockAccountSummariesFactory = mock[AccountSummariesFactory]
-  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, null)(null) {
-    override private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = Future(Ok)
+  val mockPreferencesConnector = mock[PreferencesConnector]
+  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, mockPreferencesConnector, null)(null) {
+    override private[bt] def businessTaxHomepage(fromLogin: Option[String])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = Future(Ok)
   }
 
   "Calling home" should {
     "redirect if there is no session" in new WithApplication(FakeApplication()) with NoSessionRequest {
-      val result = controllerUnderTest.home(request)
+      val result = controllerUnderTest.home(None)(request)
       status(result) shouldBe 303
     }
 
     "redirect if there is no logged in user" in new WithApplication(FakeApplication()) with EmptySessionRequest {
 
-      val result =  controllerUnderTest.home(request)
+      val result =  controllerUnderTest.home(None)(request)
       status(result) shouldBe 303
     }
 
     "redirect if the session has timed out" in new WithApplication(FakeApplication()) with GeoffFisherTestFixture with BusinessTaxRequest {
       override val lastRequestTimestamp = Some(currentTime.minusMinutes(20))
-      val result =  controllerUnderTest.home(request)
+      val result =  controllerUnderTest.home(None)(request)
       status(result) shouldBe 303
     }
 
     "redirect if the user is not a business tax user" in new WithApplication(FakeApplication()) with NonBusinessTaxRequest with JohnDensmoreTestFixture {
-      val result =  controllerUnderTest.home(request)
+      val result =  controllerUnderTest.home(None)(request)
       status(result) shouldBe 303
       header("Location", result) shouldBe Some("/")
     }

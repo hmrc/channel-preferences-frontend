@@ -38,6 +38,11 @@ object FrontEndRedirect extends Controller {
     Redirect(businessTaxHome)
   }
 
+  def toBusinessTaxFromLogin = {
+    Logger.debug("Redirecting to business from login...")
+    Redirect(s"$businessTaxHome?fromLogin=true")
+  }
+
   def toAgent = {
     Logger.debug("Redirecting to agent...")
     Redirect(agentHome)
