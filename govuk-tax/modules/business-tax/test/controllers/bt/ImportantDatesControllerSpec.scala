@@ -10,7 +10,6 @@ import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.mockito.Mockito._
 import scala.concurrent._
-import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
@@ -78,7 +77,7 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       dates.get(4).getElementsByTag("p").get(0).html shouldBe s"10 July ${currentYear + 1}"
       dates.get(5).getElementsByTag("p").get(0).html shouldBe s"10 September ${currentYear + 1}"
 
-      ul.getElementsByClass("faded-text").size shouldBe 1
+      ul.getElementsByClass("faded-text").size shouldBe 2
       val description = ul.getElementsByClass("activity-list__description")
       description.size shouldBe allEvents.length
 
@@ -139,7 +138,7 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
     val event1 = CalendarEvent(
       AccountingPeriod(new LocalDate(currentYear, 2, 2), new LocalDate(currentYear + 1, 1, 2), returnFiled = false),
       new LocalDate(currentYear, 8, 10),
-      "payment",
+      "payment-directdebit",
       "VAT"
     )
 

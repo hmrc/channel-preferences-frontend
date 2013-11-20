@@ -14,7 +14,7 @@ class ImportantDateSpec extends BaseSpec {
 
     "return an important date object with additional text" in {
       val event = CalendarEvent(
-        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), true),
+        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), returnFiled = true),
         new LocalDate(2013, 9, 10),
         "FILING", "CT")
 
@@ -26,14 +26,13 @@ class ImportantDateSpec extends BaseSpec {
       )
 
       val result = ImportantDate.create(event, buildPortalUrl)(null)
-
       result shouldBe expectedResult
     }
 
 
     "return an important date object with no additional text" in {
       val event = CalendarEvent(
-        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), false),
+        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), returnFiled = false),
         new LocalDate(2013, 9, 10),
         "FILING", "CT")
 
@@ -42,7 +41,7 @@ class ImportantDateSpec extends BaseSpec {
         "ct.message.importantDates.text.filing",
         Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
         None,
-        Some(RenderableLinkMessage(LinkMessage("someUrl", "ct.message.importantDates.link.filing", None, false, None, true)))
+        Some(RenderableLinkMessage(LinkMessage("someUrl", "ct.message.importantDates.link.filing", None, newWindow = false, None, sso = true)))
       )
 
       val result = ImportantDate.create(event, buildPortalUrl)(null)
@@ -51,11 +50,11 @@ class ImportantDateSpec extends BaseSpec {
     }
   }
 
-  "Translating a payment calendar event into an important date" should {
+  "CT - Translating a payment calendar event into an important date" should {
 
     "return an important date object" in {
       val event = CalendarEvent(
-        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), false),
+        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), returnFiled = false),
         new LocalDate(2013, 9, 10),
         "PAYMENT", "CT")
 
@@ -64,13 +63,89 @@ class ImportantDateSpec extends BaseSpec {
         "ct.message.importantDates.text.payment",
         Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
         None,
-        Some(RenderableLinkMessage(LinkMessage(routes.PaymentController.makeCtPayment().url, "ct.message.importantDates.link.payment", None, false, None, false)))
+        Some(RenderableLinkMessage(LinkMessage(routes.PaymentController.makeCtPayment().url, "ct.message.importantDates.link.payment", None, newWindow = false, None, sso = false)))
       )
 
       val result = ImportantDate.create(event, buildPortalUrl)(null)
-
       result shouldBe expectedResult
     }
+  }
+
+  "VAT - Translating a payment calendar event into an important date" should {
+
+    "return an important date object for payment type payment-directdebit (text is displayed in grey, we have additional message and no link is present)" in {
+      val event = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), returnFiled = false),
+        new LocalDate(2013, 9, 10),
+        "payment-directdebit", "VAT")
+
+      val expectedResult = ImportantDate(
+        new LocalDate(2013, 9, 10),
+        "vat.message.importantDates.additionalText.payment-directdebit",
+        Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
+        Some("vat.message.importantDates.text.payment-directdebit"),
+        None
+      )
+
+      val result = ImportantDate.create(event, buildPortalUrl)(null)
+      result shouldBe expectedResult
+    }
+
+    "return an important date object for payment type payment-cheque (only text is displayed)" in {
+      val event = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), returnFiled = false),
+        new LocalDate(2013, 9, 10),
+        "payment-cheque", "VAT")
+
+      val expectedResult = ImportantDate(
+        new LocalDate(2013, 9, 10),
+        "vat.message.importantDates.text.payment-cheque",
+        Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
+        None,
+        None
+      )
+
+      val result = ImportantDate.create(event, buildPortalUrl)(null)
+      result shouldBe expectedResult
+    }
+
+    "return an important date object for payment type payment-card (text and make a payment link are displayed)" in {
+      val event = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), returnFiled = false),
+        new LocalDate(2013, 9, 10),
+        "payment-card", "VAT")
+
+      val expectedResult = ImportantDate(
+        new LocalDate(2013, 9, 10),
+        "vat.message.importantDates.text.payment-card",
+        Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
+        None,
+        Some(RenderableLinkMessage(LinkMessage(routes.PaymentController.makeVatPayment().url, "vat.message.importantDates.link.payment-card", None, newWindow = false, None, sso = false)))
+      )
+
+      val result = ImportantDate.create(event, buildPortalUrl)(null)
+      result shouldBe expectedResult
+    }
+
+    "return an important date object for payment type payment-online (text and make a payment link are displayed)" in {
+      val event = CalendarEvent(
+        AccountingPeriod(new LocalDate(2013, 1, 1), new LocalDate(2013, 12, 31), returnFiled = false),
+        new LocalDate(2013, 9, 10),
+        "payment-online", "VAT")
+
+      val expectedResult = ImportantDate(
+        new LocalDate(2013, 9, 10),
+        "vat.message.importantDates.text.payment-online",
+        Seq(Dates.formatDate(new LocalDate(2013, 1, 1)), Dates.formatDate(new LocalDate(2013, 12, 31))),
+        None,
+        Some(RenderableLinkMessage(LinkMessage(routes.PaymentController.makeVatPayment().url, "vat.message.importantDates.link.payment-online", None, newWindow = false, None, sso = false)))
+      )
+
+      val result = ImportantDate.create(event, buildPortalUrl)(null)
+      result shouldBe expectedResult
+    }
+
+
   }
 
 }
