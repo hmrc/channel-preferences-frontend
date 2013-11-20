@@ -5,9 +5,10 @@ import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.ct.CtConnector
-import org.joda.time.LocalDate
-import java.text.SimpleDateFormat
-import org.joda.time.format.DateTimeFormat
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+
+import controllers.common.actions.HeaderCarrier
 
 object CtRegime extends TaxRegime {
   def isAuthorised(regimes: Regimes) = regimes.ct.isDefined
@@ -29,16 +30,13 @@ case class CtRoot(utr: CtUtr, links: Map[String, String]) extends RegimeRoot[CtU
 
   override val identifier = utr
 
-  def accountSummary(implicit ctConnector: CtConnector) = {
-    links.get(accountSummaryKey) match {
-      case Some(uri) => {
-        ctConnector.accountSummary(uri) match {
-          case None => throw new IllegalStateException(s"Expected HOD data not found for link '$accountSummaryKey' with path: $uri")
-          case summary => summary
-        }
+  def accountSummary(implicit ctConnector: CtConnector, headerCarrier: HeaderCarrier): Future[Option[CtAccountSummary]] = {
+    links.get(accountSummaryKey).map { uri =>
+      ctConnector.accountSummary(uri).map {
+        case None => throw new IllegalStateException(s"Expected HOD data not found for link '$accountSummaryKey' with path: $uri")
+        case summary => summary
       }
-      case _ => None
-    }
+    }.getOrElse(Future.successful(None))
   }
 }
 

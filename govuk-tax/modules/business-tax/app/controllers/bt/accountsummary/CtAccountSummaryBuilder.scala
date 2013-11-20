@@ -8,6 +8,8 @@ import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.domain.CtUtr
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
 
@@ -15,18 +17,18 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
   import CtMessageKeys._
   import CtPortalUrlKeys._
 
-  override protected def buildAccountSummary(ctRoot: CtRoot, buildPortalUrl: (String) => String)(implicit headerCarrier:HeaderCarrier): AccountSummary = {
-    val accountSummary: Option[CtAccountSummary] = ctRoot.accountSummary(ctConnector)
-    val accountValueOption: Option[BigDecimal] = accountValueIfPresent(accountSummary)
-    val dateOfBalanceOption: Option[String] = accountSummary flatMap (_.dateOfBalance)
+  override protected def buildAccountSummary(ctRoot: CtRoot, buildPortalUrl: (String) => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary] = {
+    val accountSummaryF = ctRoot.accountSummary(ctConnector, headerCarrier)
 
-    (accountValueOption, dateOfBalanceOption) match {
+    accountSummaryF.map { accountSummary =>
+      val accountValueOption: Option[BigDecimal] = accountValueIfPresent(accountSummary)
+      val dateOfBalanceOption: Option[String] = accountSummary flatMap (_.dateOfBalance)
 
-      case (Some(accountValue), Some(dateOfBalance)) => {
-        accountSummaryWithDetails(buildPortalUrl, ctRoot, accountValue, dateOfBalance)
-      }
-      case _ => {
-        defaultAccountSummary(ctRoot)
+      (accountValueOption, dateOfBalanceOption) match {
+        case (Some(accountValue), Some(dateOfBalance)) => {
+          accountSummaryWithDetails(buildPortalUrl, ctRoot, accountValue, dateOfBalance)
+        }
+        case _ => defaultAccountSummary(ctRoot)
       }
     }
   }

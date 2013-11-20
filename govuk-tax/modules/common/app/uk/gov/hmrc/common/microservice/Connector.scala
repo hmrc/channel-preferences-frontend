@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
 import org.slf4j.MDC
 import controllers.common.HeaderNames
+import controllers.common.actions.HeaderCarrier
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 
@@ -29,7 +30,6 @@ trait Connector extends Status with HeaderNames {
   protected val serviceUrl: String
 
   private def headers(): Seq[(String, String)] = {
-
     val context: Map[String, String] = if (MDC.getCopyOfContextMap == null || MDC.getCopyOfContextMap.isEmpty) Map.empty else MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
 
     context.foldLeft(Seq[Tuple2[String, String]]()) { (s, entry) => {
@@ -45,10 +45,15 @@ trait Connector extends Status with HeaderNames {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri").withHeaders(headers(): _*)
   }
+  protected def httpResource2(uri: String)(implicit headerCarrier:HeaderCarrier) = {
+    Logger.info(s"Accessing backend service: $serviceUrl$uri")
+    WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
+  }
 
   protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
 
-  protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] = response[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
+  protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] =
+    response[A](httpResource2(uri).get(), uri)(extractJSONResponse[A])
 
   //FIXME: Why is the body a JsValue? Why do we care what type it is
 

@@ -13,6 +13,7 @@ import VatPortalUrls._
 import CommonBusinessMessageKeys._
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatRoot}
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
 
 class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -23,14 +24,15 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val regimeRootsWithVat = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}"))))
   val userEnrolledForVat = User("jim", userAuthorityWithVrn, regimeRootsWithVat, None, None)
 
+  implicit val hc = HeaderCarrier()
+
   "VatAccountSummaryViewBuilder" should {
     "return the correct account summary for complete data" in {
 
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(Some(6.1))), Some(aDate))
       val mockVatConnector = mock[VatConnector]
-      when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
+      when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Future.successful(Some(accountSummary)))
       val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
-      implicit val headerCarrier = HeaderCarrier()
       val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
@@ -46,9 +48,8 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val accountSummary = VatAccountSummary(Some(VatAccountBalance(None)), Some(aDate))
       val mockVatConnector = mock[VatConnector]
-      when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Some(accountSummary))
+      when(mockVatConnector.accountSummary(s"/vat/${vrn.vrn}")).thenReturn(Future.successful(Some(accountSummary)))
       val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
-      implicit val headerCarrier = HeaderCarrier()
       val accountSummaryViewOption = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
@@ -78,8 +79,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val mockVatConnector = mock[VatConnector]
       when(mockVatConnector.accountSummary(s"/vat/$vrn/account-summary")).thenThrow(new NumberFormatException)
       val builder = new VatAccountSummaryBuilder(mockVatConnector)
-      implicit val headerCarrier = HeaderCarrier()
-      val accountSummaryOption: Option[AccountSummary] = builder.build(buildPortalUrl, userEnrolledForVat)
+      val accountSummaryOption: Option[Future[AccountSummary]] = builder.build(buildPortalUrl, userEnrolledForVat)
       accountSummaryOption should not be None
       val accountSummary = accountSummaryOption.get
       accountSummary.regimeName shouldBe vatRegimeNameMessage
@@ -95,7 +95,6 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val user = User("jim", userAuthority, regimeRoots, None, None)
       val mockVatConnector = mock[VatConnector]
       val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
-      implicit val headerCarrier = HeaderCarrier()
       val accountSummaryViewOption = builder.build(buildPortalUrl, user)
       accountSummaryViewOption shouldBe None
     }

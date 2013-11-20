@@ -4,27 +4,14 @@ import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.domain.SaUtr
 import controllers.common.FrontEndRedirect
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.jsoup.Jsoup
-import play.api.test.Helpers._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.preferences.SaPreference
-import scala.Some
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.preferences.SaPreference

@@ -8,10 +8,13 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.microservice.MicroServiceException
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.epaye.domain.{NonRTI, EpayeAccountSummary, EpayeJsonRoot, EpayeLinks}
+import controllers.common.actions.HeaderCarrier
 
 class EpayeConnectorSpec extends BaseSpec {
 
-   private val uri = "someUri"
+  private val uri = "someUri"
+  implicit val hc = HeaderCarrier()
+
 
   "Requesting the EPAYE root" should {
 
@@ -72,4 +75,5 @@ abstract class EpayeConnectorApplication extends WithApplication(FakeApplication
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
   }
+
 }

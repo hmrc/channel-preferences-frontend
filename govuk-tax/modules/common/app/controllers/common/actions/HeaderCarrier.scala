@@ -14,21 +14,24 @@ import java.util.UUID
  */
 case class HeaderCarrier(userId: Option[String] = None,
                          token: Option[String] = None,
-                         forwardedFor: Option[String] = None,
+                         forwarded: Option[String] = None,
                          sessionId: Option[String] = None,
-                         appName: String = "govuk-tax") {
-  lazy val requestId = s"$appName-${UUID.randomUUID().toString}"
+                         appName: String = "govuk-tax") extends HeaderNames{
+
+  lazy val requestIdString = s"$appName-${UUID.randomUUID().toString}"
 
   lazy val headers: Seq[(String, String)] = {
-    (HeaderNames.requestId -> requestId) +:
-      List(userId.map(u => "userId" -> u),
+    (requestId -> requestIdString) +:
+      List(userId.map(u => authorisation -> s"Bearer $u"),
         token.map(t => "token" -> t),
-        forwardedFor.map(f => HeaderNames.forwardedFor -> f),
-        sessionId.map(s => "sessionId" -> s)).flatten.toList
+        forwarded.map(f => forwardedFor -> f),
+        sessionId.map(s => xSessionId -> s)).flatten.toList
   }
 }
 
 object HeaderCarrier extends CookieEncryption with HeaderNames {
+  implicit def hc(request:Request[_]): HeaderCarrier = HeaderCarrier(request)
+
   def apply(request: Request[_]): HeaderCarrier = {
     val userId = request.session.get("userId").map(decrypt)
     val token = request.session.get("token")

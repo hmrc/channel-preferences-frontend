@@ -10,16 +10,18 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSummary, EpayeRoot}
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
 
-  override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): AccountSummary = {
-    val accountSummary: Option[EpayeAccountSummary] = epayeRoot.accountSummary(epayeConnector)
-    val messages = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
-
-    val links = createLinks(buildPortalUrl, accountSummary)
-
-    AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
+  override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary] = {
+    val accountSummaryOF = epayeRoot.accountSummary(epayeConnector, headerCarrier)
+    accountSummaryOF map { accountSummary =>
+      val messages = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
+      val links = createLinks(buildPortalUrl, accountSummary)
+      AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
+    }
   }
 
   override def rootForRegime(user: User): Option[EpayeRoot] = user.regimes.epaye

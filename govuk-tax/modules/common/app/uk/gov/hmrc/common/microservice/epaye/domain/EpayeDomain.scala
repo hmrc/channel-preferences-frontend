@@ -5,7 +5,9 @@ import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
-
+import controllers.common.actions.HeaderCarrier
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 object EpayeRegime extends TaxRegime {
 
@@ -22,17 +24,14 @@ case class EpayeRoot(empRef: EmpRef, links: EpayeLinks) extends RegimeRoot[EmpRe
 
   override val identifier = empRef
 
-  def accountSummary(implicit epayeConnector: EpayeConnector) = {
-    links.accountSummary match {
-      case Some(uri) => {
-        epayeConnector.accountSummary(uri) match {
-          case None => throw new IllegalStateException(s"Expected HOD data not found for link 'accountSummary' with path: $uri")
-          case summary => summary
-        }
+  def accountSummary(implicit epayeConnector: EpayeConnector, headerCarrier: HeaderCarrier): Future[Option[EpayeAccountSummary]] = {
+    links.accountSummary map { uri =>
+      epayeConnector.accountSummary(uri) map {
+        case None => throw new IllegalStateException(s"Expected HOD data not found for link 'accountSummary' with path: $uri")
+        case summary => summary
       }
-      case _ => None
     }
-  }
+  }.getOrElse(Future.successful(None))
 }
 
 object EpayeRoot {

@@ -6,7 +6,7 @@ import scala.Predef._
 import uk.gov.hmrc.common.microservice.domain.User
 import org.mockito.Mockito._
 import controllers.common.actions.HeaderCarrier
-
+import scala.concurrent._
 
 class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
 
@@ -61,10 +61,10 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       val portalBuilder: (String => String) = (value) => value
 
       implicit val headerCarrier = HeaderCarrier()
-      when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(saAccountSummary))
-      when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(vatAccountSummary))
-      when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(ctAccountSummary))
-      when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(epayeAccountSummary))
+      when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(saAccountSummary)))
+      when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(vatAccountSummary)))
+      when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(ctAccountSummary)))
+      when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(epayeAccountSummary)))
 
       val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, headerCarrier)
       actualAccountSummaries.regimes shouldBe List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAccountSummary)
@@ -82,10 +82,10 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       val portalBuilder: (String => String) = (value) => value
 
       implicit val headerCarrier = HeaderCarrier()
-      when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(saAccountSummary))
-      when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(vatAccountSummary))
-      when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(ctAccountSummary))
-      when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(epayeAccountSummary))
+      when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(saAccountSummary)))
+      when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(vatAccountSummary)))
+      when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(ctAccountSummary)))
+      when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(epayeAccountSummary)))
 
       val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, headerCarrier)
       val expectedListInOrder = List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAccountSummary)

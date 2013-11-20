@@ -5,7 +5,9 @@ import uk.gov.hmrc.common.microservice.domain.{RegimeRoot, TaxRegime}
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.VatConnector
-
+import controllers.common.actions.HeaderCarrier
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 object VatRegime extends TaxRegime {
   def isAuthorised(regimes: Regimes) = regimes.vat.isDefined
@@ -27,16 +29,13 @@ case class VatRoot(vrn: Vrn, links: Map[String, String]) extends RegimeRoot[Vrn]
 
   override val identifier = vrn
 
-  def accountSummary(implicit vatConnector: VatConnector) = {
-    links.get(accountSummaryKey) match {
-      case Some(uri) => {
-        vatConnector.accountSummary(uri) match {
-          case None => throw new IllegalStateException(s"Expected HOD data not found for link '$accountSummaryKey' with path: $uri")
-          case summary => summary
-        }
+  def accountSummary(implicit vatConnector: VatConnector, hc: HeaderCarrier): Future[Option[VatAccountSummary]] = {
+    links.get(accountSummaryKey).map { uri =>
+      vatConnector.accountSummary(uri) map {
+        case None => throw new IllegalStateException(s"Expected HOD data not found for link '$accountSummaryKey' with path: $uri")
+        case summary => summary
       }
-      case _ => None
-    }
+    }.getOrElse(Future.successful(None))
   }
 }
 

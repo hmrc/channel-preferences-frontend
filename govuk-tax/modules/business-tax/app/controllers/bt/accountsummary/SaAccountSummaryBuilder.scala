@@ -10,40 +10,40 @@ import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.{Liability, SaAccountSummary, SaRoot}
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+
 
 case class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
 
-  private def utrMessage(utr: SaUtr) : Msg = {
+  private def utrMessage(utr: SaUtr): Msg = {
     Msg(saUtrMessage, Seq(utr.utr))
   }
 
   def rootForRegime(user: User): Option[SaRoot] = user.regimes.sa
 
-  def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): AccountSummary = {
-    saRoot.accountSummary(saConnector) match {
-      case Some(saAccountSummary) => {
-        AccountSummary(
-          regimeName = saRegimeName,
-          messages = utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
-          addenda = Seq(
-            LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
-            LinkMessage.internalLink(routes.PaymentController.makeSaPayment.url, makeAPaymentLinkMessage),
-            LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
-          status = SummaryStatus.success
-        )
-      }
-      case _ =>
-        AccountSummary(
-          regimeName = saRegimeName,
-          messages = utrMessage(saRoot.identifier) +: Seq(
-            Msg(saSummaryUnavailableErrorMessage1),
-            Msg(saSummaryUnavailableErrorMessage2),
-            Msg(saSummaryUnavailableErrorMessage3),
-            Msg(saSummaryUnavailableErrorMessage4)
-          ),
-          addenda = Seq.empty,
-          status = SummaryStatus.default
-        )
+  def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String)(implicit hc: HeaderCarrier): Future[AccountSummary] = {
+    saRoot.accountSummary(saConnector, hc) map {
+      case Some(saAccountSummary) => AccountSummary(
+        regimeName = saRegimeName,
+        messages = utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
+        addenda = Seq(
+          LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
+          LinkMessage.internalLink(routes.PaymentController.makeSaPayment.url, makeAPaymentLinkMessage),
+          LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
+        status = SummaryStatus.success
+      )
+      case _ => AccountSummary(
+        regimeName = saRegimeName,
+        messages = utrMessage(saRoot.identifier) +: Seq(
+          Msg(saSummaryUnavailableErrorMessage1),
+          Msg(saSummaryUnavailableErrorMessage2),
+          Msg(saSummaryUnavailableErrorMessage3),
+          Msg(saSummaryUnavailableErrorMessage4)
+        ),
+        addenda = Seq.empty,
+        status = SummaryStatus.default
+      )
     }
   }
 

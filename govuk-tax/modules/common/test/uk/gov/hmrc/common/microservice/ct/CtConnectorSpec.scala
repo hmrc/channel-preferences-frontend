@@ -11,6 +11,8 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import play.api.mvc.Request
+import controllers.common.actions.HeaderCarrier
 
 class CtConnectorSpec extends BaseSpec {
 
@@ -63,7 +65,7 @@ class CtConnectorSpec extends BaseSpec {
       )
 
       when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List(event1, event2)))
-
+      implicit val hc = HeaderCarrier()
       connector.calendar(ctCalendarUri).map {_.get shouldBe List(event1, event2)}
     }
 
@@ -71,7 +73,7 @@ class CtConnectorSpec extends BaseSpec {
       val ctCalendarUri = "/ct/someCtUtr/calendar"
 
       when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
-
+      implicit val hc = HeaderCarrier()
       connector.calendar(ctCalendarUri).map {_.get shouldBe List.empty[CalendarEvent]}
 
     }

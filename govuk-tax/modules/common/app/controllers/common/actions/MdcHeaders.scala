@@ -11,7 +11,6 @@ import play.Logger
 import uk.gov.hmrc.microservice.HasResponse
 
 private[actions] trait MdcHeaders extends Results with CookieEncryption with HeaderNames {
-
   protected def storeHeaders(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     request =>
       request.session.get("userId").foreach(userId => MDC.put(authorisation, decrypt(userId)))

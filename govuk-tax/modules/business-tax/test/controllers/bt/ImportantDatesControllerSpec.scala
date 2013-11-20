@@ -18,6 +18,7 @@ import uk.gov.hmrc.utils.DateTimeUtils
 import controllers.bt.testframework.mocks.PortalUrlBuilderMock
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import controllers.common.actions.HeaderCarrier
 
 class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -37,6 +38,8 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
     User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
       nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime), decryptedToken = None)
   }
+
+  implicit val hc = HeaderCarrier()
 
   "important dates page" should {
 

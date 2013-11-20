@@ -7,6 +7,9 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.sa.domain.write.{SaAddressForUpdate, TransactionId}
 import org.joda.time.LocalDate
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+import controllers.common.actions.HeaderCarrier
 
 object SaRegime extends TaxRegime {
 
@@ -37,16 +40,13 @@ case class SaRoot(utr: SaUtr, links: Map[String, String]) extends RegimeRoot[SaU
       case _ => None
     }
 
-  def accountSummary(implicit saConnector: SaConnector) =
-    links.get(individualAccountSummaryKey) match {
-      case Some(uri) => {
-        saConnector.accountSummary(uri) match {
-          case None => throw new IllegalStateException(s"Expected HOD data not found for link '$individualAccountSummaryKey' with path: $uri")
-          case summary => summary
-        }
+  def accountSummary(implicit saConnector: SaConnector, hc: HeaderCarrier): Future[Option[SaAccountSummary]] =
+    links.get(individualAccountSummaryKey).map { uri =>
+      saConnector.accountSummary(uri) map {
+        case None => throw new IllegalStateException(s"Expected HOD data not found for link '$individualAccountSummaryKey' with path: $uri")
+        case summary => summary
       }
-      case _ => None
-    }
+    }.getOrElse(Future.successful(None))
 
   def updateIndividualMainAddress(address: SaAddressForUpdate)(implicit saConnector: SaConnector): Either[String, TransactionId] =
     saConnector.updateMainAddress(uriFor(individualMainAddressKey), address)

@@ -4,9 +4,11 @@ import play.api.mvc._
 import play.api.mvc.Results._
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.SimpleResult
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 trait PageVisibilityPredicate {
-  def isVisible(user: User, request: Request[AnyContent]): Boolean
+  def isVisible(user: User, request: Request[AnyContent]): Future[Boolean]
 
   def nonVisibleResult: SimpleResult = NotFound
 }
@@ -16,13 +18,15 @@ private[actions] object WithPageVisibility {
 
     Action.async {
       request =>
-        if (predicate.isVisible(user, request))
-          action(user)(request)
-        else
-          Action(predicate.nonVisibleResult)(request)
+        predicate.isVisible(user, request).flatMap { visible =>
+          if (visible)
+            action(user)(request)
+          else
+            Action(predicate.nonVisibleResult)(request)
+        }
     }
 }
 
 object DefaultPageVisibilityPredicate extends PageVisibilityPredicate {
-  def isVisible(user: User, request: Request[AnyContent]) = true
+  def isVisible(user: User, request: Request[AnyContent]) = Future.successful(true)
 }

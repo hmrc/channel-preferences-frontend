@@ -17,6 +17,7 @@ import uk.gov.hmrc.domain.SaUtr
 import CommonBusinessMessageKeys._
 import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, Liability, AmountDue, SaAccountSummary}
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
 
 class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val homeUrl = "http://home"
@@ -24,7 +25,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val liabilityDate = new LocalDate(2014, 1, 15)
   private val saUtr = SaUtr("123456789")
   private val utrMessage = Msg("sa.message.utr", Seq(saUtr.utr))
-
+  implicit val hc = HeaderCarrier()
 
   "Sa Account SummaryView Builder builds correct Account Summary model " should {
     " when no amounts are due now or later " in {
@@ -134,7 +135,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       when(mockUser.regimes).thenReturn(mockRegimeRoots)
       when(mockRegimeRoots.sa).thenReturn(Some(mockSaRoot))
-      when(mockSaRoot.accountSummary(mockSaConnector)).thenReturn(None)
+      when(mockSaRoot.accountSummary(mockSaConnector, hc)).thenReturn(Future.successful(None))
       when(mockSaRoot.identifier).thenReturn(saUtr)
 
       val expectedMessages =
@@ -145,7 +146,6 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
           Msg(saSummaryUnavailableErrorMessage4)
         )
 
-      implicit val headerCarrier = HeaderCarrier()
       val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build, mockUser).get
       actualAccountSummary.regimeName shouldBe saRegimeName
       actualAccountSummary.messages shouldBe expectedMessages
@@ -199,13 +199,12 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
     when(mockRegimeRoots.sa).thenReturn(Some(mockSaRoot))
-    when(mockSaRoot.accountSummary(mockSaConnector)).thenReturn(Some(accountSummary))
+    when(mockSaRoot.accountSummary(mockSaConnector,hc)).thenReturn(Future.successful(Some(accountSummary)))
     when(mockSaRoot.identifier).thenReturn(saUtr)
 
     when(mockPortalUrlBuilder.build(saHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl)
 
-    implicit val headerCarrier = HeaderCarrier()
     val actualAccountSummary = SaAccountSummaryBuilder(mockSaConnector).build(mockPortalUrlBuilder.build, mockUser).get
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName

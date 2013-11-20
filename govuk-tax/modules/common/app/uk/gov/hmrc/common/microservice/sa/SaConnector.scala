@@ -6,6 +6,8 @@ import controllers.common.domain.Transform._
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, SaPerson, SaJsonRoot}
+import scala.concurrent.Future
+import controllers.common.actions.HeaderCarrier
 
 class SaConnector extends Connector {
 
@@ -15,7 +17,7 @@ class SaConnector extends Connector {
 
   def person(uri: String): Option[SaPerson] = httpGet[SaPerson](uri)
 
-  def accountSummary(uri: String): Option[SaAccountSummary] = httpGet[SaAccountSummary](uri)
+  def accountSummary(uri: String)(implicit headerCarrier:HeaderCarrier): Future[Option[SaAccountSummary]] = httpGetF[SaAccountSummary](uri)
 
   def updateMainAddress(uri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
 

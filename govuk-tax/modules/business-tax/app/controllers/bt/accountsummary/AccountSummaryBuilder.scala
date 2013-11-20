@@ -4,10 +4,13 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+
 
 abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
 
-  def build(buildPortalUrl: String => String, user: User)(implicit headerCarrier:HeaderCarrier): Option[AccountSummary] = {
+  def build(buildPortalUrl: String => String, user: User)(implicit headerCarrier:HeaderCarrier): Option[Future[AccountSummary]] = {
     rootForRegime(user).map {
       regimeRoot => try {
         buildAccountSummary(regimeRoot, buildPortalUrl)
@@ -17,15 +20,15 @@ abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
     }
   }
 
-  private def oops(user: User): AccountSummary = {
-    AccountSummary(
+  private def oops(user: User): Future[AccountSummary] = {
+    Future.successful(AccountSummary(
       regimeName = defaultRegimeNameMessageKey,
       messages = Seq(Msg(CommonBusinessMessageKeys.oopsMessage)),
       addenda = Seq.empty,
-      status = SummaryStatus.oops)
+      status = SummaryStatus.oops))
   }
 
-  protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): AccountSummary
+  protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): Future[AccountSummary]
 
   protected def defaultRegimeNameMessageKey: String
 

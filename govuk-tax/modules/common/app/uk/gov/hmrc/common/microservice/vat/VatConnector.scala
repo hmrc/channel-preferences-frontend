@@ -3,6 +3,7 @@ package uk.gov.hmrc.common.microservice.vat
 import uk.gov.hmrc.microservice.{Connector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatJsonRoot}
 import uk.gov.hmrc.domain.CalendarEvent
+import controllers.common.actions.HeaderCarrier
 
 class VatConnector extends Connector {
 
@@ -10,7 +11,7 @@ class VatConnector extends Connector {
 
   def root(uri: String) = httpGet[VatJsonRoot](uri).getOrElse(VatJsonRoot(Map.empty))
 
-  def accountSummary(uri: String) = httpGet[VatAccountSummary](uri)
+  def accountSummary(uri: String)(implicit hc:HeaderCarrier) = httpGetF[VatAccountSummary](uri)
 
-  def calendar(uri: String) = httpGetF[List[CalendarEvent]](uri)
+  def calendar(uri: String)(implicit hc:HeaderCarrier) = httpGetF[List[CalendarEvent]](uri)
 }

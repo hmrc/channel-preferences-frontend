@@ -15,7 +15,7 @@ import views.helpers.RenderableLinkMessage
 import scala.Some
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.ct.CtConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import play.api.Logger
@@ -40,6 +40,7 @@ class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnec
   private[bt] def importantDatesPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     val regimes: List[RegimeRoot[_]] = List(user.regimes.ct, user.regimes.vat).flatten
 
+    implicit val hc = HeaderCarrier(request)
     val eventsLF = regimes.map {
       case ctRoot: CtRoot if ctRoot.links.get("calendar").isDefined => ctConnector.calendar(ctRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent]))
       case vatRoot: VatRoot if vatRoot.links.get("calendar").isDefined => vatConnector.calendar(vatRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent]))

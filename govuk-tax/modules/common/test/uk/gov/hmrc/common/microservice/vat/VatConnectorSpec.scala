@@ -12,6 +12,7 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import controllers.common.actions.HeaderCarrier
 
 class VatConnectorSpec extends BaseSpec {
 
@@ -50,7 +51,7 @@ class VatConnectorSpec extends BaseSpec {
       val accountSummary = Some(VatAccountSummary(Some(VatAccountBalance(Some(4.0))), None))
       when(mockHttpClient.get[VatAccountSummary]("/vat/vrn/123456/accountSummary")).thenReturn(accountSummary)
 
-      val result = connector.accountSummary("/vat/vrn/123456/accountSummary")
+      val result = connector.accountSummary("/vat/vrn/123456/accountSummary")(HeaderCarrier())
 
       result shouldBe accountSummary
     }
@@ -76,7 +77,7 @@ class VatConnectorSpec extends BaseSpec {
       )
 
       when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List(event1, event2)))
-
+      implicit val hc = HeaderCarrier()
       connector.calendar(vatCalendarUri).map {_.get shouldBe List(event1, event2)}
     }
 
@@ -84,7 +85,7 @@ class VatConnectorSpec extends BaseSpec {
       val vatCalendarUri = "/vat/someVrn/calendar"
 
       when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
-
+      implicit val hc = HeaderCarrier()
       connector.calendar(vatCalendarUri).map {_.get shouldBe List.empty[CalendarEvent]}
 
     }

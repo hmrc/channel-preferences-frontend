@@ -6,6 +6,7 @@ import play.api.test.{FakeRequest, WithApplication, FakeApplication}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.Helpers._
+import scala.concurrent._
 
 class PageVisibilityWrapperSpec extends BaseSpec with MockitoSugar {
 
@@ -14,7 +15,7 @@ class PageVisibilityWrapperSpec extends BaseSpec with MockitoSugar {
     "authorise the action requested if the predicate is true" in new WithApplication(FakeApplication()) {
 
       val positivePredicate = new PageVisibilityPredicate {
-        def isVisible(user: User, request: Request[AnyContent]): Boolean = true
+        def isVisible(user: User, request: Request[AnyContent]) = Future.successful(true)
       }
       val userMock = mock[User]
 
@@ -26,7 +27,7 @@ class PageVisibilityWrapperSpec extends BaseSpec with MockitoSugar {
     "Non authorise the action requested if the predicate is false" in {
 
       val negativePredicate = new PageVisibilityPredicate {
-        def isVisible(user: User, request: Request[AnyContent]): Boolean = false
+        def isVisible(user: User, request: Request[AnyContent]) = Future.successful(false)
       }
 
       val userMock = mock[User]

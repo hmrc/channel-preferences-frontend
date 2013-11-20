@@ -16,7 +16,6 @@ import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import uk.gov.hmrc.domain.SaUtr
 import controllers.bt.prefs.{routes => PreferencesRoutes}
 
-
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
                             preferencesConnector: PreferencesConnector,
                             override val auditConnector: AuditConnector)
@@ -44,6 +43,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
     val otherServicesLink = LinkMessage.internalLink(controllers.bt.routes.OtherServicesController.otherServices().url, "link")
     val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"))
     val removeServiceLink = LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"))
+
     accountSummariesF.map { accountSummaries =>
       Ok(views.html.business_tax_home(accountSummaries, otherServicesLink, enrolServiceLink, removeServiceLink))
     }

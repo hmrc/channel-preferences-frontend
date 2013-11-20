@@ -15,6 +15,7 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
 import uk.gov.hmrc.microservice.MicroServiceException
+import controllers.common.actions.HeaderCarrier
 
 class SaConnectorSpec extends BaseSpec {
 
@@ -67,7 +68,7 @@ class SaConnectorSpec extends BaseSpec {
 
       val saAccountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(1367.29), requiresPayment = true)), None, Some(BigDecimal(34.03))))
       when(mockHttpClient.get[SaAccountSummary]("/sa/individual/12345/accountSummary")).thenReturn(saAccountSummary)
-
+      implicit val hc = HeaderCarrier()
       val result = connector.accountSummary("/sa/individual/12345/accountSummary")
 
       result shouldBe saAccountSummary
@@ -77,9 +78,9 @@ class SaConnectorSpec extends BaseSpec {
 }
 
 abstract class SaConnectorApplication extends WithApplication(FakeApplication()) with MockitoSugar {
-  
+
   val mockHttpClient = mock[HttpWrapper]
-  
+
   val connector = new SaConnector {
     override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = mockHttpClient.get[A](uri)
   }
