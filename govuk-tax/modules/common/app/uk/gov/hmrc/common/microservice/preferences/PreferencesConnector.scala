@@ -16,15 +16,7 @@ class PreferencesConnector extends Connector {
   }
 
   def getPreferences(utr: SaUtr): Option[SaPreference] = {
-
-    try {
-      val v = httpGet[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
-      v.map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response"))
-
-    } catch {
-      case MicroServiceException(errorMessage, response) if response.status == 404 => None
-      case otherException: Exception => throw otherException
-    }
+    httpGet[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
   }
 //
 //  def updateEmailValidationStatus(token : String) : Boolean = {

@@ -6,11 +6,9 @@
 
     <h2>@emailAddress</h2>
 
-    <p>We have checked the address you have entered and we can't validated that it is correct - are you sure it is right?</p>
+    <p>We have checked the address you have entered and we can't validate that it is correct - are you sure it is right?</p>
 
     <p>Please confirm below that you are happy to continue.</p>
-
-    <p><a class="button" href="redirect">continue to Self Assessment</a></p>
 
     @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
         <div class="form-field">
