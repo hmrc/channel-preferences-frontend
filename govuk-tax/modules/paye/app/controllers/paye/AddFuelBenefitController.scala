@@ -95,15 +95,16 @@ with TaxYearSupport {
             errors => {
               BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName)(user))
             },
-            (addFuelBenefitData: FuelBenefitData) => {
-              val carBenefit = payeRootData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR)
-              val benefitStartDate = getDateInTaxYear(carBenefit.get.car.flatMap(_.dateCarMadeAvailable))
-              val payeRoot = user.regimes.paye.get
-              val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
 
-              val benefitCalculations = payeConnector.calculateBenefitValue(uri, CarAndFuelBuilder(addFuelBenefit = addFuelBenefitData, carBenefit.get, taxYear, employmentSequenceNumber)).get
-              val fuelBenefitValue = benefitCalculations.fuelBenefitValue.map(BenefitValue)
-              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, benefitStartDate, addFuelBenefitData.employerPayFuel.get, addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = fuelBenefitValue)
+            (addFuelBenefitData: FuelBenefitData) => {
+              val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
+
+              val fuelBenefitValue = fuelCalculation(user, addFuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)
+
+              val carBenefitStartDate = getDateInTaxYear(carBenefit.car.flatMap(_.dateCarMadeAvailable))
+              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, carBenefitStartDate, addFuelBenefitData.employerPayFuel.get,
+                                                            addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = fuelBenefitValue)
+
               Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
             })
         }
@@ -113,6 +114,20 @@ with TaxYearSupport {
         }
       }
     }
+  }
+
+  private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int) : Benefit = {
+    taxYearData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR) match {
+      case Some(carBenefit) => carBenefit
+      case _ => throw new StaleHodDataException("No Car benefit found!") //TODO: Refine this error scenario
+    }
+  }
+
+  private def fuelCalculation(user: User, addFuelBenefitData: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int): Option[BenefitValue] = {
+    val payeRoot = user.regimes.paye.get
+    val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
+    val benefitCalculations = payeConnector.calculateBenefitValue(uri, CarAndFuelBuilder(addFuelBenefit = addFuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)).get
+    benefitCalculations.fuelBenefitValue.map(BenefitValue)
   }
 
   private def getDateInTaxYear(benefitDate: Option[LocalDate]) = {
@@ -134,4 +149,8 @@ case class EmployerPayeFuelString(employerPayFuel: Option[String])
 object FuelBenefitFormFields {
   val employerPayFuel = "employerPayFuel"
   val dateFuelWithdrawn = "dateFuelWithdrawn"
+}
+
+class StaleHodDataException(message: String, cause: Throwable) extends RuntimeException(message, cause) {
+  def this(message: String) = this(message, null)
 }

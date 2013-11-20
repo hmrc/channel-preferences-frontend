@@ -1,7 +1,7 @@
 package controllers.paye
 
 import play.api.test.{FakeRequest, WithApplication}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Await, Future}
 import org.jsoup.Jsoup
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.domain._
@@ -19,6 +19,9 @@ import FuelBenefitFormFields._
 import controllers.DateFieldsHelper
 import play.api.i18n.Messages
 import org.mockito.Matchers
+import scala.concurrent.duration.Duration
+import java.util.concurrent.TimeUnit
+import ExecutionContext.Implicits.global
 
 class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
@@ -173,8 +176,7 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       result should haveStatus(200)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#fuelBenefitTaxableValue").text shouldBe
-        "£1,234"
+      doc.select("#fuelBenefitTaxableValue").text shouldBe "£1,234"
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new WithApplication(FakeApplication()) {
@@ -239,6 +241,17 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("hacking!"))
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
       result should haveStatus(400)
+    }
+
+    "return with an error (tbd) when a car benefit is not found" in {
+      when(mockPayeConnector.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefits/$testTaxYear")).thenReturn(Some(Seq.empty))
+
+      val request = newRequestForSaveAddFuelBenefit( employerPayFuelVal = Some("true"))
+
+      val result = Future(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+
+      val ex = Await.result(result.failed, Duration(3, TimeUnit.SECONDS))
+      ex shouldBe a [StaleHodDataException]
     }
   }
 
