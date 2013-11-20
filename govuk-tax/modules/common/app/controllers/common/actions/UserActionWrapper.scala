@@ -75,17 +75,17 @@ trait UserActionWrapper
       paye = regimes.paye map {
         uri => payeConnector.root(uri.toString)
       },
-      sa = regimes.sa map {
-        uri => SaRoot(authority.saUtr.get, saConnector.root(uri.toString))
+      sa = regimes.sa flatMap {
+        uri => authority.saUtr map {utr => SaRoot(utr, saConnector.root(uri.toString))}
       },
-      vat = regimes.vat map {
-        uri => VatRoot(authority.vrn.get, vatConnector.root(uri.toString))
+      vat = regimes.vat flatMap {
+        uri => println(s"VAT: authority.vrn: ${authority.vrn.isDefined}"); authority.vrn map {vrn => VatRoot(vrn, vatConnector.root(uri.toString))}
       },
-      epaye = regimes.epaye.map {
-        uri => EpayeRoot(authority.empRef.get, epayeConnector.root(uri.toString))
+      epaye = regimes.epaye.flatMap {
+        uri => authority.empRef map {empRef => EpayeRoot(empRef, epayeConnector.root(uri.toString))}
       },
-      ct = regimes.ct.map {
-        uri => CtRoot(authority.ctUtr.get, ctConnector.root(uri.toString))
+      ct = regimes.ct.flatMap {
+        uri => authority.ctUtr map {utr => CtRoot(utr, ctConnector.root(uri.toString))}
       },
       agent = regimes.agent.map {
         uri => agentConnectorRoot.root(uri.toString)
