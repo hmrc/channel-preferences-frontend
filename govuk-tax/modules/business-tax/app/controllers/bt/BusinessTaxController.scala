@@ -26,7 +26,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
 
   def this() = this(new AccountSummariesFactory(), Connectors.preferencesConnector, Connectors.auditConnector)(Connectors.authConnector)
 
-  def home(fromLogin: Option[String]) = AsyncAuthenticatedBy(GovernmentGateway) {
+  def home(fromLogin: Option[String]) = AuthenticatedBy(GovernmentGateway).async {
     user => request => businessTaxHomepage(fromLogin)(user, request)
   }
 

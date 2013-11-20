@@ -17,23 +17,31 @@ trait Actions
   private type PlayUserRequest = User => PlayRequest
   private type AsyncPlayUserRequest = User => AsyncPlayRequest
 
+  type UserAction = User => Action[AnyContent]
+
+  implicit def makeAction(body: PlayUserRequest): UserAction = (user: User) => Action(body(user))
+
+  implicit def makeFutureAction(body: AsyncPlayUserRequest): UserAction = (user: User) => Action.async(body(user))
+
+  class AuthenticatedBy(authenticationProvider: AuthenticationProvider,
+                        account: Option[TaxRegime],
+                        redirectToOrigin: Boolean,
+                        pageVisibility: PageVisibilityPredicate) {
+    def apply(body: PlayUserRequest): Action[AnyContent] = authorised(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
+
+    def async(body: AsyncPlayUserRequest): Action[AnyContent] = authorised(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
+  }
+
+
   def AuthorisedFor(account: TaxRegime,
                     redirectToOrigin: Boolean = false,
                     pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
-                   (body: PlayUserRequest) =
-    authorised(account.authenticationType, Some(account), redirectToOrigin, pageVisibility, body)
+  = new AuthenticatedBy(account.authenticationType, Some(account), redirectToOrigin, pageVisibility)
 
   def AuthenticatedBy(authenticationProvider: AuthenticationProvider,
                       redirectToOrigin: Boolean = false,
                       pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
-                     (body: PlayUserRequest) =
-    authorised(authenticationProvider, None, redirectToOrigin, pageVisibility, body)
-
-  def AsyncAuthenticatedBy(authenticationProvider: AuthenticationProvider,
-                           redirectToOrigin: Boolean = false,
-                           pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
-                          (body: AsyncPlayUserRequest) =
-    asyncAuthorised(authenticationProvider, None, redirectToOrigin, pageVisibility, body)
+  = new AuthenticatedBy(authenticationProvider, None, redirectToOrigin, pageVisibility)
 
   def UnauthorisedAction(body: PlayRequest) =
     storeHeaders {
@@ -48,39 +56,14 @@ trait Actions
                          account: Option[TaxRegime],
                          redirectToOrigin: Boolean,
                          pageVisibility: PageVisibilityPredicate,
-                         body: PlayUserRequest) =
+                         body: UserAction) =
     storeHeaders {
       logRequest {
         WithSessionTimeoutValidation {
-          WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
-            user =>
-              WithPageVisibility(pageVisibility, user) {
-                user =>
-                  WithRequestAuditing(user) {
-                    user => Action(body(user))
-                  }
-              }
-          }
-        }
-      }
-    }
-
-  private def asyncAuthorised(authenticationProvider: AuthenticationProvider,
-                              account: Option[TaxRegime],
-                              redirectToOrigin: Boolean,
-                              pageVisibility: PageVisibilityPredicate,
-                              body: AsyncPlayUserRequest) =
-    storeHeaders {
-      logRequest {
-        WithSessionTimeoutValidation {
-          WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
-            user =>
-              WithPageVisibility(pageVisibility, user) {
-                user =>
-                  WithRequestAuditing(user) {
-                    user => Action.async(body(user))
-                  }
-              }
+          WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) { user =>
+            WithPageVisibility(pageVisibility, user) { implicit user =>
+              WithRequestAuditing(user) { user => body(user)}
+            }
           }
         }
       }
