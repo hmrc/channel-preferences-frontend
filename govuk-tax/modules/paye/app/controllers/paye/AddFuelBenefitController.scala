@@ -30,15 +30,16 @@ import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import controllers.paye.FuelBenefitData
 import models.paye.{CarBenefitDataAndCalculations, CarAndFuelBuilder}
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
 
-class AddFuelBenefitController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
+class AddFuelBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
 with Actions
 with Validators
 with TaxYearSupport {
 
-  def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
+  def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   def startAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
@@ -52,7 +53,20 @@ with TaxYearSupport {
 
   def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedFor(PayeRegime) {
-      user => request => Ok
+      user => request =>
+
+        // Retrieve fuel calculation data from ketstore
+
+        // Build Fuel Benefit model
+
+        // Send Fuel Benefit to the Paye Service
+
+        // Delete the keystore
+
+        // Build page model
+
+        // Return the add_fuel_benefit_confirmation template
+        Ok
     }
 
   private def fuelBenefitForm(values: CarBenefitValues) = Form[FuelBenefitData](
@@ -104,6 +118,8 @@ with TaxYearSupport {
               val carBenefitStartDate = getDateInTaxYear(carBenefit.car.flatMap(_.dateCarMadeAvailable))
               val fuelData = AddFuelBenefitConfirmationData(employment.employerName, carBenefitStartDate, addFuelBenefitData.employerPayFuel.get,
                                                             addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = fuelBenefitValue)
+
+              keyStoreService.addKeyStoreEntry(s"AddFuelBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddFuelBenefitForm", addFuelBenefitData)
 
               Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
             })

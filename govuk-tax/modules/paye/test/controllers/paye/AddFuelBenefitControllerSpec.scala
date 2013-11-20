@@ -18,10 +18,11 @@ import org.mockito.Mockito._
 import FuelBenefitFormFields._
 import controllers.DateFieldsHelper
 import play.api.i18n.Messages
-import org.mockito.Matchers
+import org.mockito.{Mockito, ArgumentCaptor, Matchers}
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
 class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
@@ -32,8 +33,13 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
   val mockTxQueueConnector = mock[TxQueueConnector]
   val mockAuthConnector = mock[AuthConnector]
   val mockAuditConnector = mock[AuditConnector]
+  val mockKeyStoreService = mock[KeyStoreConnector]
 
-  private lazy val controller = new AddFuelBenefitController(mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector)  with MockedTaxYearSupport {
+  before {
+    Mockito.reset(mockKeyStoreService)
+  }
+
+  private lazy val controller = new AddFuelBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector)  with MockedTaxYearSupport {
     override def currentTaxYear = testTaxYear
   }
 
@@ -120,6 +126,36 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
   "submitting add fuel benefit" should {
 
+    "successfully store the form values in the keystore" in new WithApplication(FakeApplication()) {
+      val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
+        Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
+
+      setupMocksForJohnDensmore(benefits = Seq(carBenefitStartedThisYear))
+
+      val fuelBenefitValue = 1234
+      val benefitCalculationResponse = NewBenefitCalculationResponse(None, Some(fuelBenefitValue))
+      when(mockPayeConnector.calculateBenefitValue(Matchers.any(), Matchers.any())).thenReturn(Some(benefitCalculationResponse))
+
+      val dateFuelWithdrawnFormData = new LocalDate(testTaxYear, 6, 3)
+      val employerPayFuelFormData = "date"
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some(employerPayFuelFormData), dateFuelWithdrawnVal = Some(testTaxYear.toString, "6", "3"))
+
+      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+
+      result should haveStatus(200)
+
+      val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[FuelBenefitData])
+
+      verify(mockKeyStoreService).addKeyStoreEntry(
+        Matchers.eq(s"AddFuelBenefit:${johnDensmoreOid}:$testTaxYear:$employmentSeqNumberOne"),
+        Matchers.eq("paye"),
+        Matchers.eq("AddFuelBenefitForm"),
+        keyStoreDataCaptor.capture()) (Matchers.any())
+
+      keyStoreDataCaptor.getValue.dateFuelWithdrawn shouldBe Some(dateFuelWithdrawnFormData)
+      keyStoreDataCaptor.getValue.employerPayFuel shouldBe Some(employerPayFuelFormData)
+    }
+
     "return 200 for employerpayefuel of type date with a correct date withdrawn and display the details in a table" in new WithApplication(FakeApplication()) {
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
@@ -130,7 +166,9 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       val benefitCalculationResponse = NewBenefitCalculationResponse(None, Some(fuelBenefitValue))
       when(mockPayeConnector.calculateBenefitValue(Matchers.any(), Matchers.any())).thenReturn(Some(benefitCalculationResponse))
 
-      val request = newRequestForSaveAddFuelBenefit( employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(testTaxYear.toString, "6", "3"))
+      val dateFuelWithdrawnFormData = new LocalDate(testTaxYear, 6, 3)
+      val employerPayFuelFormData = "date"
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some(employerPayFuelFormData), dateFuelWithdrawnVal = Some(testTaxYear.toString, "6", "3"))
 
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
 
@@ -196,12 +234,16 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
+      reset(mockKeyStoreService)
+
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(("jkhasgdkhsa","05","30")))
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
       result should haveStatus(400)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
+
+      verifyNoSaveToKeyStore
     }
 
     "return 400 if the year submitted is not the current tax year" in new WithApplication(FakeApplication()) {
@@ -210,6 +252,7 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear+1, employmentSeqNumberOne))
 
       result should haveStatus(400)
+      verifyNoSaveToKeyStore
     }
 
     "return 400 if the submitting employment number is not the primary employment" in new WithApplication(FakeApplication()) {
@@ -218,6 +261,7 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear, 2))
 
       result should haveStatus(400)
+      verifyNoSaveToKeyStore
     }
 
     "return 200 if the user selects again for the EMPLOYER PAY FUEL" in new WithApplication(FakeApplication()){
@@ -241,6 +285,8 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("hacking!"))
       val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
       result should haveStatus(400)
+
+      verifyNoSaveToKeyStore
     }
 
     "return with an error (tbd) when a car benefit is not found" in {
@@ -252,6 +298,12 @@ class AddFuelBenefitControllerSpec  extends PayeBaseSpec with DateFieldsHelper{
 
       val ex = Await.result(result.failed, Duration(3, TimeUnit.SECONDS))
       ex shouldBe a [StaleHodDataException]
+
+      verifyNoSaveToKeyStore
+    }
+
+    def verifyNoSaveToKeyStore {
+      verify(mockKeyStoreService, never()).addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())
     }
   }
 
