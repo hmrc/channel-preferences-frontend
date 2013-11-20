@@ -30,6 +30,16 @@ ct.message.importantDates.link.filing=File a return
 ct.message.importantDates.text.payment=Your Company Tax payment for the accounting period {0} to {1} is due
 ct.message.importantDates.link.payment=Make a payment
 
+vat.message.importantDates.text.filing=Your VAT return for the quarter running from {0} to {1} is due
+vat.message.importantDates.link.filing=File a return
+vat.message.importantDates.additionalText.filing=' - already received so no action needed, thank you
+vat.message.importantDates.text.payment-directdebit=Your VAT payment for the quarter running from {0} to {1} will be taken from your account by Direct Debit
+vat.message.importantDates.additionalText.payment-directdebit=' - no action needed
+vat.message.importantDates.text.payment-cheque=If you choose to pay your VAT for the quarter running from {0} to {1} by cheque it will need to have cleared by this date
+vat.message.importantDates.text.payment-card=If you choose to pay your VAT for the quarter running from {0} to {1} by credit/debit card, BACs, CHAPs or bank giro it will need to reach HMRC by this date
+vat.message.importantDates.link.payment-card=Make a payment
+vat.message.importantDates.text.payment-online=If you choose to pay your VAT for the quarter running from {0} to {1} by faster payments or online/telephone banking it will need to reach HMRC by this date
+vat.message.importantDates.link.payment-online=Make a payment
 
 sa.regimeName=Self-Assessment
 sa.message.utr=Unique Taxpayer Reference (UTR): {0}
@@ -44,9 +54,6 @@ sa.message.summaryUnavailable.1=We are currently unable to display your account 
 sa.message.summaryUnavailable.2=- there is no information to view at this time
 sa.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available to view.
 sa.message.summaryUnavailable.4=If you do not this either of the above reasons apply, please contact the Online Services Helpdesk.
-
-
-
 
 epaye.regimeName.rti=Employers PAYE (RTI)
 epaye.regimeName.nonRti=Employers PAYE (non-RTI)

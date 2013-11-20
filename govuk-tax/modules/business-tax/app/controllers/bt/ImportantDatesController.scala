@@ -68,11 +68,15 @@ object ImportantDate {
     val (link, text, additionalText): (Option[RenderableLinkMessage], String, Option[String]) = (service, eventType, event.accountingPeriod.returnFiled) match {
       case ("ct", "payment", _) =>
         (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeCtPayment().url, linkTextKey))), textMessageKey, None)
-      case ("vat", "payment", _) =>
-        (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeVatPayment().url, linkTextKey))), textMessageKey, None)
-      case (service, "filing", true) =>
+      case ("vat", "payment-directdebit", _) =>
         (None, additionalTextMessageKey, Some(textMessageKey))
-      case (service, "filing", false) =>
+      case ("vat", "payment-cheque", _) =>
+        (None, textMessageKey, None)
+      case ("vat", "payment-card", _) | ("vat", "payment-online", _)=>
+        (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeVatPayment().url, linkTextKey))), textMessageKey, None)
+      case (serviceKey, "filing", true) =>
+        (None, additionalTextMessageKey, Some(textMessageKey))
+      case (serviceKey, "filing", false) =>
         (Some(RenderableLinkMessage(portalLink(buildPortalUrl(s"${service}FileAReturn"), Some(linkTextKey)))),
           textMessageKey,
           None)
