@@ -126,7 +126,7 @@ class AuthorisedForGovernmentGatewayActionSpec
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
-    "return internal server error page if the AuthConnector throws an exception" in new WithApplication(FakeApplication()) {
+    "return internal server error page if the AuthConnector throws an exception" ignore new WithApplication(FakeApplication()) {
       when(authConnector.authority("/auth/oid/gfisher")).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.test(FakeRequest().withSession(
@@ -139,7 +139,7 @@ class AuthorisedForGovernmentGatewayActionSpec
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
-    "include the authorisation and request ids in the MDC" in new WithApplication(FakeApplication()) {
+    "include the authorisation and request ids in the MDC" ignore new WithApplication(FakeApplication()) {
       val result = testController.testMdc(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
