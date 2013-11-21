@@ -30,11 +30,12 @@ import models.paye.RemoveBenefitFormData
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import BenefitTypes._
-class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector : AuthConnector, override val auditConnector : AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector : TxQueueConnector) extends BaseController
-  with Actions
-  with SessionTimeoutWrapper
-  with TaxYearSupport
-  with DateTimeProvider {
+
+class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
+with Actions
+with SessionTimeoutWrapper
+with TaxYearSupport
+with DateTimeProvider {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
@@ -83,6 +84,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     (request, user, benefit, payeRootData) => {
       val benefitStartDate = getStartDate(benefit.benefit)
       val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
+      implicit def hc = HeaderCarrier(request)
       updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
         errors => {
           benefit.benefit.benefitType match {
@@ -141,7 +143,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   private def getStartDate(benefit: Benefit): LocalDate = {
     val pathIncludingStartDate = benefit.calculations.get(payeConnector.calculationWithdrawKey()).getOrElse("")
 
-    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) map {dateFormat.parseLocalDate}
+    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) map {
+      dateFormat.parseLocalDate
+    }
 
     benefitStartDate match {
       case Some(dateOfBenefitStart) if dateOfBenefitStart.isAfter(startOfCurrentTaxYear) => dateOfBenefitStart
@@ -152,6 +156,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => SimpleResult = WithValidatedRequest {
     (request, user, displayBenefit, payeRootData) => {
       val payeRoot = user.regimes.paye.get
+      implicit def hc = HeaderCarrier(request)
       if (carRemovalMissesFuelRemoval(payeRootData, displayBenefit)) {
         BadRequest
       } else {
@@ -175,13 +180,12 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   }
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
-    play.api.mvc.SimpleResult = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) =>
+    play.api.mvc.SimpleResult = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) => {
+    implicit def hc = HeaderCarrier(request)
+
     if (txQueueConnector.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-
-      implicit val hc = HeaderCarrier(request)
-
       keyStoreService.deleteKeyStore(user.oid, "paye_ui")
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
@@ -193,6 +197,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         Redirect(routes.CarBenefitHomeController.carBenefitHome())
       }
     }
+  }
 
 
   private def carRemovalMissesFuelRemoval(payeRootData: TaxYearData, displayBenefit: DisplayBenefit) = {
@@ -221,7 +226,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     datesForm().bindFromRequest()(request).value
   }
 
-  private def calculateRevisedAmount(benefit: Benefit, withdrawDate: LocalDate): BigDecimal = {
+  private def calculateRevisedAmount(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier): BigDecimal = {
     val calculationResult = payeConnector.calculateWithdrawBenefit(benefit, withdrawDate)
     calculationResult.result(benefit.taxYear.toString)
   }
@@ -234,7 +239,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     payeRootData.findExistingBenefit(employmentNumber, CAR).isDefined
   }
 
-  private def loadFormDataFor(user: User) = {
+  private def loadFormDataFor(user: User)(implicit hc: HeaderCarrier) = {
     keyStoreService.getEntry[RemoveBenefitData](user.oid, "paye_ui", "remove_benefit")
   }
 

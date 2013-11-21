@@ -23,7 +23,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import models.agent.Client
 import models.agent.PreferredContact
 import models.agent.Contact
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 class PreferredContactController(keyStoreConnector: KeyStoreConnector,
                                  override val auditConnector: AuditConnector)
@@ -41,6 +41,7 @@ class PreferredContactController(keyStoreConnector: KeyStoreConnector,
   private[agent] def preferredContactAction(user: User)(request: Request[_]): SimpleResult = {
     val form = preferredContactForm(request).bindFromRequest()(request)
     val ksId = keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound"))
+    implicit def hc = HeaderCarrier(request)
     keyStoreConnector.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) match {
       case Some(pc@PotentialClient(Some(_), Some(_), _)) => {
         //FIXME we should trim contact details before saving them here

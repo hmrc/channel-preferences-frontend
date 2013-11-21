@@ -8,12 +8,13 @@ import play.api.test.FakeApplication
 import scala.Some
 import play.api.libs.json._
 import uk.gov.hmrc.utils.DateTimeUtils
+import controllers.common.actions.HeaderCarrier
 
 class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = {
+  override protected def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = {
     httpWrapper.get[A](uri)
   }
 

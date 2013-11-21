@@ -6,6 +6,7 @@ import play.api.libs.json.JsValue
 import org.mockito.{ ArgumentCaptor, Matchers, Mockito }
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.BaseSpec
+import controllers.common.actions.HeaderCarrier
 
 class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
   val httpWrapper = mock[HttpWrapper]
@@ -14,7 +15,7 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
     httpWrapper.post(uri, body, headers)
   }
 
-  override protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = {
+  override protected def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = {
     httpWrapper.get[A](uri)
   }
 

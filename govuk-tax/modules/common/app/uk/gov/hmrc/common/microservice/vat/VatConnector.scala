@@ -9,7 +9,7 @@ class VatConnector extends Connector {
 
   val serviceUrl = MicroServiceConfig.vatServiceUrl
 
-  def root(uri: String)(implicit hc: HeaderCarrier) = httpGetHC[VatJsonRoot](uri).getOrElse(VatJsonRoot(Map.empty))
+  def root(uri: String)(implicit hc: HeaderCarrier) = httpGet[VatJsonRoot](uri).getOrElse(VatJsonRoot(Map.empty))
 
   def accountSummary(uri: String)(implicit hc:HeaderCarrier) = httpGetF[VatAccountSummary](uri)
 

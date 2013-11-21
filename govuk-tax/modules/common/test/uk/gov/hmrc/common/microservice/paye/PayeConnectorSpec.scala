@@ -20,6 +20,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationRespo
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
 import org.joda.time.chrono.ISOChronology
+import controllers.common.actions.HeaderCarrier
 
 class PayeConnectorSpec extends BaseSpec {
 
@@ -140,7 +141,7 @@ class HttpMockedPayeConnector extends PayeConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = httpWrapper.get[A](uri)
+  override def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = httpWrapper.get[A](uri)
 
   override def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = httpWrapper.post[A](uri, body, headers)
 

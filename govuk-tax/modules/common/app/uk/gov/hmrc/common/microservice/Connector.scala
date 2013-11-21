@@ -18,7 +18,7 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier:HeaderCarrier) = {
     Logger.debug(s"Loading linked resource uri: $uri")
-    httpGetHC[T](uri)
+    httpGet[T](uri)
   }
 }
 
@@ -52,9 +52,9 @@ trait Connector extends Status with HeaderNames {
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+//  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
 
-  protected def httpGetHC[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = Await.result(response2[A](httpResource2(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = Await.result(response2[A](httpResource2(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
 
   protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] =
     response2[A](httpResource2(uri).get(), uri)(extractJSONResponse[A])

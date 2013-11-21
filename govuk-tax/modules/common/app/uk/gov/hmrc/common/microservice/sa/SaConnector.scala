@@ -13,9 +13,9 @@ class SaConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.saServiceUrl
 
-  def root(uri: String)(implicit hc: HeaderCarrier): SaJsonRoot = httpGetHC[SaJsonRoot](uri).getOrElse(SaJsonRoot(Map.empty))
+  def root(uri: String)(implicit hc: HeaderCarrier): SaJsonRoot = httpGet[SaJsonRoot](uri).getOrElse(SaJsonRoot(Map.empty))
 
-  def person(uri: String)(implicit hc: HeaderCarrier): Option[SaPerson] = httpGetHC[SaPerson](uri)
+  def person(uri: String)(implicit hc: HeaderCarrier): Option[SaPerson] = httpGet[SaPerson](uri)
 
   def accountSummary(uri: String)(implicit headerCarrier:HeaderCarrier): Future[Option[SaAccountSummary]] = httpGetF[SaAccountSummary](uri)
 

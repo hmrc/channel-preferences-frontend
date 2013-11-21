@@ -5,6 +5,7 @@ import views.helpers.{HrefKey, LinkMessage, RenderableLinkMessage}
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnector
 import uk.gov.hmrc.common.AffinityGroupParser
 import play.api.mvc.Request
+import controllers.common.actions.HeaderCarrier
 
 
 class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnector) extends AffinityGroupParser {
@@ -15,6 +16,7 @@ class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnecto
     import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
     import ManageYourTaxesConf._
 
+    implicit def hc = HeaderCarrier(request)
     val profile = governmentGatewayConnector.profile(user.userId).getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
     val affinityGroup = parseAffinityGroup
     affinityGroup match {

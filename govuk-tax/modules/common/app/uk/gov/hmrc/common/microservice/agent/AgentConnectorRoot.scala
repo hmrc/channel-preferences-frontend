@@ -9,6 +9,6 @@ import controllers.common.actions.HeaderCarrier
 
 class AgentConnectorRoot(override val serviceUrl: String = MicroServiceConfig.agentServiceUrl) extends Connector {
 
-  def root(uri: String)(implicit hc: HeaderCarrier) = httpGetHC[AgentRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Agent root not found at URI '$uri'"))
+  def root(uri: String)(implicit hc: HeaderCarrier) = httpGet[AgentRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Agent root not found at URI '$uri'"))
 
 }

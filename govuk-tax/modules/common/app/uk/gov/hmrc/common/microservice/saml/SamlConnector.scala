@@ -5,12 +5,13 @@ import uk.gov.hmrc.microservice.{ MicroServiceConfig, Connector }
 import uk.gov.hmrc.microservice.saml.domain.{ AuthResponseValidationResult, AuthRequestFormData }
 import org.slf4j.MDC
 import controllers.common.HeaderNames
+import controllers.common.actions.HeaderCarrier
 
 class SamlConnector extends Connector with HeaderNames {
 
   override val serviceUrl = MicroServiceConfig.samlServiceUrl
 
-  def create = httpGet[AuthRequestFormData]("/saml/create")
+  def create(implicit hc: HeaderCarrier) = httpGet[AuthRequestFormData]("/saml/create")
     .getOrElse(throw new IllegalStateException("Expected SAML auth response but none returned"))
 
   def validate(authResponse: String) = {

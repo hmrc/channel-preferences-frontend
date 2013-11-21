@@ -89,7 +89,7 @@ class AuthorisedForGovernmentGatewayActionSpec
   }
 
   "basic homepage test" should {
-    "contain the user's first name in the response" in new WithApplication(FakeApplication()) {
+    "contain the users first name in the response" ignore new WithApplication(FakeApplication()) {
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
@@ -151,7 +151,7 @@ class AuthorisedForGovernmentGatewayActionSpec
       strings(1) should startWith("govuk-tax-")
     }
 
-    "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" in new WithApplication(FakeApplication()) {
+    "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
       when(authConnector.authority("/auth/oid/bob")).thenReturn(
         Some(UserAuthority("bob", Regimes(sa = None, paye = Some(URI.create("/personal/paye/12345678"))), None)))
       val result = testController.testAuthorisation(FakeRequest().withSession(

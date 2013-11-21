@@ -19,7 +19,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
-  def root(uri: String)(implicit hc: HeaderCarrier) = httpGetHC[PayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Paye root not found at URI '$uri'"))
+  def root(uri: String)(implicit hc: HeaderCarrier) = httpGet[PayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Paye root not found at URI '$uri'"))
 
   def addBenefits(uri: String,
     version: Int,
@@ -68,7 +68,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   }
 
   def calculationWithdrawKey():String = "withdraw"
-  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate) = exWrapper {
+  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier) = exWrapper {
     httpGet[RemoveBenefitCalculationResponse](benefit.calculations(calculationWithdrawKey).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
   }
 }

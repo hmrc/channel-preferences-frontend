@@ -39,6 +39,8 @@ trait UserActionWrapper
 
   private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[(Option[String], Option[String]), Either[User, SimpleResult]] = {
     case (Some(encryptedUserId), tokenOption) =>
+
+      implicit val hc = HeaderCarrier(request)
       val userId = decrypt(encryptedUserId)
       val token = tokenOption.map(decrypt)
       val userAuthority = authConnector.authority(userId)

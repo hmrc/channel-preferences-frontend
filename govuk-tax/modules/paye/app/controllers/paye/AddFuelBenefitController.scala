@@ -69,7 +69,7 @@ with TaxYearSupport {
 
   private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
-
+      implicit def hc = HeaderCarrier(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
 
@@ -89,7 +89,7 @@ with TaxYearSupport {
 
   private val fuelBenefitFormPrefix = "AddFuelBenefit"
 
-  def initialFuelBenefitValues(user: User, taxYear: Int, employmentSequenceNumber: Int): FuelBenefitData = {
+  def initialFuelBenefitValues(user: User, taxYear: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): FuelBenefitData = {
     keyStoreService.getEntry[FuelBenefitData](KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey)
       .getOrElse(FuelBenefitData(None, None))
   }

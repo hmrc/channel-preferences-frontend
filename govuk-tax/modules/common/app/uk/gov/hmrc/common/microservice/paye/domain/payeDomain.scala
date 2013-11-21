@@ -51,17 +51,17 @@ case class PayeRoot(nino: String,
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier) : Seq[Employment] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
-  def fetchRecentAcceptedTransactions()(implicit txQueueConnector: TxQueueConnector) : Seq[TxQueueTransaction] = {
+  def fetchRecentAcceptedTransactions()(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier) : Seq[TxQueueTransaction] = {
     transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
   }
 
-  def fetchRecentCompletedTransactions()(implicit txQueueConnector: TxQueueConnector) : Seq[TxQueueTransaction]  = {
+  def fetchRecentCompletedTransactions()(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier) : Seq[TxQueueTransaction]  = {
     transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
   }
 
   def addBenefitLink(taxYear: Int) : Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
 
-  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueConnector: TxQueueConnector): Seq[TxQueueTransaction] =
+  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Seq[TxQueueTransaction] =
     transactionLinks.get(status) match {
       case Some(uri) =>
         val uri = transactionLinks(status).replace("{from}", date.toString(dateFormat))

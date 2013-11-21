@@ -54,7 +54,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
   }
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
-
+    implicit def hc = HeaderCarrier(request)
     emailForm.bindFromRequest()(request).fold(
       errors => BadRequest(views.html.sa_printing_preference(errors)),
       emailForm => {

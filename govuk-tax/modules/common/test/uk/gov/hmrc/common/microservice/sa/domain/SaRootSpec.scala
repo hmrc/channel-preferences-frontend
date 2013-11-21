@@ -64,7 +64,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       when(saConnector.person(uri)).thenReturn(saPersonalDetails)
 
       saRoot.personalDetails(saConnector, hc) shouldBe saPersonalDetails
-      verify(saConnector).person(Matchers.eq(uri))
+      verify(saConnector).person(Matchers.eq(uri))(Matchers.eq(hc))
     }
 
     "return None when the personal details link is not present" in {
@@ -72,7 +72,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val saConnector = mock[SaConnector]
 
       saRoot.personalDetails(saConnector, hc) shouldBe None
-      verify(saConnector, times(0)).person(Matchers.anyString())
+      verify(saConnector, times(0)).person(Matchers.anyString())(Matchers.eq(hc))
     }
 
   }

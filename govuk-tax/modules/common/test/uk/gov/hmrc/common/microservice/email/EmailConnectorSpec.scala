@@ -7,6 +7,7 @@ import play.api.libs.json.JsValue
 import org.mockito.Mockito._
 import java.net.URLEncoder
 import play.api.test.{FakeApplication, WithApplication}
+import controllers.common.actions.HeaderCarrier
 
 class EmailConnectorSpec extends BaseSpec {
 
@@ -35,7 +36,7 @@ class HttpMockedEmailConnector extends EmailConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = httpWrapper.get[A](uri)
+  override def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = httpWrapper.get[A](uri)
 
   override def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = httpWrapper.post[A](uri, body, headers)
 

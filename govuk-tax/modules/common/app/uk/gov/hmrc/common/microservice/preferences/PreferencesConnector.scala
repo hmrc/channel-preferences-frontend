@@ -17,7 +17,7 @@ class PreferencesConnector extends Connector {
   }
 
   def getPreferences(utr: SaUtr)(implicit headerCarrier:HeaderCarrier): Option[SaPreference] = {
-    httpGetHC[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
+    httpGet[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
   }
 //
 //  def updateEmailValidationStatus(token : String) : Boolean = {

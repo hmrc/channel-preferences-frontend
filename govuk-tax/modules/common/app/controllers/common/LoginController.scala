@@ -11,7 +11,7 @@ import java.util.UUID
 import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 
 class LoginController(samlConnector : SamlConnector,
@@ -28,7 +28,7 @@ class LoginController(samlConnector : SamlConnector,
   def this() = this(Connectors.samlConnector, Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   def samlLogin = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
-    val authRequestFormData = samlConnector.create
+    val authRequestFormData = samlConnector.create(HeaderCarrier(request))
     Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
   })
 

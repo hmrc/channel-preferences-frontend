@@ -22,7 +22,7 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
     httpWrapper.post(uri, body, headers)
   }
 
-  override protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = {
+  override protected def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = {
     httpWrapper.get(uri)
   }
 

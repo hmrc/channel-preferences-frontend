@@ -22,7 +22,7 @@ class MultiFormAction(keyStore: KeyStoreConnector) extends Results {
     implicit user =>
       implicit request =>
         val conf = config(user)
-        keyStore.getDataKeys(conf.id, conf.source) match {
+        keyStore.getDataKeys(conf.id, conf.source)(HeaderCarrier(request)) match {
           case None => if (conf.currentStep == conf.stepsList.head.stepName) action(user)(request) else Redirect(conf.unauthorisedStep.stepCall)
           case Some(dataKeys) =>
             val next = nextStep(conf.stepsList, dataKeys)

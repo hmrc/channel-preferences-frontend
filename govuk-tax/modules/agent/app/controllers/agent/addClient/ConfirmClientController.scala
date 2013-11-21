@@ -18,7 +18,7 @@ import models.agent.addClient.PotentialClient
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
                               override val auditConnector: AuditConnector)
@@ -37,6 +37,7 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
 
   private[agent] def confirmAction(user: User)(request: Request[_]): SimpleResult = {
     val form = confirmClientForm().bindFromRequest()(request)
+    implicit def hc = HeaderCarrier(request)
     keyStoreConnector.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
       case Some(potentialClient@PotentialClient(Some(searchedClient), _, _)) => {
         form.fold(

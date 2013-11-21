@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import controllers.agent.registration.FormNames._
-import controllers.common.actions.{Actions, MultiFormWrapper}
+import controllers.common.actions.{HeaderCarrier, Actions, MultiFormWrapper}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
@@ -31,6 +31,7 @@ class AgentThankYouController(override val auditConnector: AuditConnector,
   }
 
   private[registration] val thankYouAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
+    implicit def hc = HeaderCarrier(request)
     keyStoreConnector.getKeyStore[Map[String, String]](registrationId(user), agent) match {
       case Some(x) => {
         val agentId = agentMicroService.create(user.regimes.paye.get.nino, toAgent(x)).uar

@@ -16,7 +16,7 @@ trait MockGet extends MockitoSugar {
 
   val mockHttpClient: HttpWrapper = mock[HttpWrapper]
 
-  override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = mockHttpClient.get[A](uri)
+  override def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = mockHttpClient.get[A](uri)
 
   override def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = mockHttpClient.getF[A](uri)
 }
