@@ -18,7 +18,7 @@ trait AuditActionWrapper extends HeaderNames {
   object WithRequestAuditing extends WithRequestAuditing(auditConnector)
 }
 
-class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends MdcHelper with HeaderNames {
+class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends HeaderNames {
 
   import ExecutionContext.Implicits.global
 
@@ -30,9 +30,9 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
   private def applyAudited(user: Option[User], action: Action[AnyContent]) = Action.async {
     request =>
       if (traceRequests && auditConnector.enabled) {
-        val context = fromMDC()
+        val hc = HeaderCarrier(request)
         val possibleFingerprint = deviceFingerprintFrom(request)
-        val eventCreator = auditEvent(user, request, possibleFingerprint.flatMap(_.toOption), context) _
+        val eventCreator = auditEvent(user, request, possibleFingerprint.flatMap(_.toOption), hc) _
 
         auditConnector.audit(eventCreator("Request", Map("path" -> request.path), extractFormData(request)))
 
@@ -60,7 +60,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
       decodeAttempt.map { new String(_, "UTF-8") }
     }
 
-  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], deviceFingerprint: Option[String], mdcContext: Map[String, String])
+  private def auditEvent(userLoggedIn: Option[User], request: Request[AnyContent], deviceFingerprint: Option[String], hc: HeaderCarrier)
                         (auditType: String, extraTags: Map[String, String], extraDetails: Map[String, String]) = {
     val tags = new collection.mutable.HashMap[String, String]
 
@@ -75,7 +75,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     }
 
     val details = new collection.mutable.HashMap[String, String]
-    details.put("ipAddress", mdcContext.get(forwardedFor).getOrElse("-"))
+    details.put("ipAddress", hc.forwarded.getOrElse("-"))
     details.put("url", request.uri)
     details.put("method", request.method.toUpperCase)
     details.put("userAgentString", request.headers.get("User-Agent").getOrElse("-"))
@@ -85,7 +85,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
 
     AuditEvent(auditSource = "frontend",
                auditType = auditType,
-               tags = tags.toMap ++ mdcContext ++ extraTags,
+               tags = tags.toMap ++ hc.headers.toMap ++ extraTags,
                detail = details.toMap ++ extraDetails)
   }
 

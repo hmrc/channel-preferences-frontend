@@ -7,7 +7,7 @@ import org.mockito.Matchers.any
 import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
 import play.api.test._
 import org.slf4j.MDC
-import controllers.common.{CookieNames, HeaderNames}
+import controllers.common.{CookieEncryption, CookieNames, HeaderNames}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.bson.types.ObjectId
@@ -27,6 +27,37 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import org.scalatest.mock.MockitoSugar
 import scala.collection.JavaConverters._
+import java.util.UUID
+import controllers.common.SessionTimeoutWrapper._
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.Pid
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
+import play.api.mvc.Cookie
+import uk.gov.hmrc.utils.DateTimeUtils._
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.Pid
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
+import play.api.mvc.Cookie
 
 class AuditTestController(override val auditConnector: AuditConnector) extends Controller with AuditActionWrapper {
 
@@ -56,16 +87,17 @@ class AuditTestController(override val auditConnector: AuditConnector) extends C
     }
 }
 
-class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside with Inspectors {
+class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside with Inspectors with CookieEncryption {
 
   "AuditActionWrapper with traceRequestsEnabled " should {
     "generate audit events with no user details when no user is supplied" in new TestCase(traceRequests = true) {
 
-      MDC.put(authorisation, "/auth/oid/123123123")
-      MDC.put(forwardedFor, "192.168.1.1")
-      MDC.put(requestId, exampleRequestId)
-
-      val response = controller.test(None)(FakeRequest("GET", "/foo"))
+      val response = controller.test(None)(FakeRequest("GET", "/foo").withSession(
+        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/123123123"))
+        .withHeaders((forwardedFor, "192.168.1.1"))
+      )
 
       whenReady(response) {
         result =>
@@ -78,11 +110,10 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Request")
-              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
-              tags should contain(requestId -> exampleRequestId)
-              tags should not contain key(xSessionId)
+              tags(requestId) contains "govuk-tax-"
               tags should not contain key("authId")
               tags should not contain key("saUtr")
               tags should not contain key("nino")
@@ -101,12 +132,10 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Response")
-              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
-              tags should contain(requestId -> exampleRequestId)
-              tags should not contain key(xSessionId)
-
+              tags(requestId) contains "govuk-tax-"
 
               detail should contain("method" -> "GET")
               detail should contain("url" -> "/foo")
@@ -194,12 +223,14 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
     }
 
     "generate audit events with user details when a user is supplied" in new TestCase(traceRequests = true) {
-      MDC.put(authorisation, "/auth/oid/123123123")
-      MDC.put(forwardedFor, "192.168.1.1")
-      MDC.put(requestId, exampleRequestId)
-      MDC.put(xSessionId, exampleSessionId)
 
-      val response = controller.test(Some(user))(FakeRequest("GET", "/foo"))
+      val sessionId = s"session-${UUID.randomUUID().toString}"
+
+      val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withSession(
+        "sessionId" -> encrypt(sessionId),
+        lastRequestTimestampKey -> now.getMillis.toString,
+        "userId" -> encrypt("/auth/oid/123123123"))
+        .withHeaders((forwardedFor, "192.168.1.1")))
 
       whenReady(response) {
         result =>
@@ -211,11 +242,11 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Request")
-              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
-              tags should contain(requestId -> exampleRequestId)
-              tags should contain(xSessionId -> exampleSessionId)
+              tags(requestId) contains "govuk-tax-"
+              tags should contain(xSessionId -> sessionId)
               tags should contain("authId" -> "exAuthId")
               tags should contain("saUtr" -> "exampleUtr")
               tags should contain("nino" -> "AB123456C")
@@ -235,11 +266,11 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Response")
-              tags should contain(authorisation -> "/auth/oid/123123123")
+              tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
-              tags should contain(requestId -> exampleRequestId)
-              tags should contain(xSessionId -> exampleSessionId)
+              tags(requestId) contains "govuk-tax-"
+              tags should contain(xSessionId -> sessionId)
               tags should contain("authId" -> "exAuthId")
               tags should contain("saUtr" -> "exampleUtr")
               tags should contain("nino" -> "AB123456C")

@@ -6,8 +6,7 @@ import controllers.common.{AuthenticationProvider, SessionTimeoutWrapper}
 import scala.concurrent.Future
 
 trait Actions
-  extends MdcHeaders
-  with RequestLogging
+  extends RequestLogging
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with UserActionWrapper {
@@ -29,7 +28,7 @@ trait Actions
                         pageVisibility: PageVisibilityPredicate) {
     def apply(body: PlayUserRequest): Action[AnyContent] = authorised(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
 
-    def async(body: AsyncPlayUserRequest): Action[AnyContent] = authorisedAsync(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
+    def async(body: AsyncPlayUserRequest): Action[AnyContent] = authorised(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
   }
 
 
@@ -44,20 +43,17 @@ trait Actions
   = new AuthenticatedBy(authenticationProvider, None, redirectToOrigin, pageVisibility)
 
   def UnauthorisedAction(body: PlayRequest) =
-    storeHeaders {
       logRequest {
         WithRequestAuditing {
           Action(body)
         }
       }
-    }
 
   private def authorised(authenticationProvider: AuthenticationProvider,
                          account: Option[TaxRegime],
                          redirectToOrigin: Boolean,
                          pageVisibility: PageVisibilityPredicate,
                          body: UserAction) =
-//    storeHeaders {
       logRequest {
         WithSessionTimeoutValidation {
           WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
@@ -71,26 +67,6 @@ trait Actions
           }
         }
       }
-//    }
-
-  private def authorisedAsync(authenticationProvider: AuthenticationProvider,
-                              account: Option[TaxRegime],
-                              redirectToOrigin: Boolean,
-                              pageVisibility: PageVisibilityPredicate,
-                              body: UserAction) =
-    logRequest {
-      WithSessionTimeoutValidation {
-        WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
-          user =>
-            WithPageVisibility(pageVisibility, user) {
-              implicit user =>
-                WithRequestAuditing(user) {
-                  user => body(user)
-                }
-            }
-        }
-      }
-    }
 }
 
 
