@@ -86,7 +86,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       status(result) should equal(401)
     }
 
-    "return internal server error page if the Action throws an exception" in new WithApplication(FakeApplication()) {
+    "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
       val result = testController.testThrowsException(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,

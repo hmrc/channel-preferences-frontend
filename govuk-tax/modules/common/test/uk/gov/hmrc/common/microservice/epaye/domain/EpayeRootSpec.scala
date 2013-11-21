@@ -6,6 +6,7 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import scala.concurrent._
+import duration._
 import controllers.common.actions.HeaderCarrier
 
 
@@ -21,23 +22,23 @@ class EpayeRootSpec extends BaseSpec with MockitoSugar {
     "return an AccountSummary object if the service call is successful" in {
       val mockConnector = mock[EpayeConnector]
       val root = EpayeRoot(empRef, EpayeLinks(Some(accountSummaryLink)))
-      when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Future.successful(Some(accountSummary)))
-      root.accountSummary(mockConnector, hc) shouldBe Some(accountSummary)
+      when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Some(accountSummary))
+      await(root.accountSummary(mockConnector, hc)) shouldBe Some(accountSummary)
     }
 
     "return None if no accountSummary link exists" in {
       val mockConnector = mock[EpayeConnector]
       val root = EpayeRoot(empRef, EpayeLinks(None))
-      root.accountSummary(mockConnector, hc) shouldBe None
+      await(root.accountSummary(mockConnector, hc)) shouldBe None
       verifyZeroInteractions(mockConnector)
     }
 
     "throw an exception if we have an accountSummary link but it returns a not found status" in {
       val mockConnector = mock[EpayeConnector]
       val root = EpayeRoot(empRef, EpayeLinks(Some(accountSummaryLink)))
-      when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Future.successful(None))
+      when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(None)
 
-      val thrown = evaluating(root.accountSummary(mockConnector, hc) shouldBe Some(accountSummary)) should produce [IllegalStateException]
+      val thrown = evaluating(await(root.accountSummary(mockConnector, hc)) shouldBe Some(accountSummary)) should produce [IllegalStateException]
 
       thrown.getMessage shouldBe s"Expected HOD data not found for link 'accountSummary' with path: $accountSummaryLink"
     }

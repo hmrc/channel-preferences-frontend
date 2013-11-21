@@ -55,8 +55,8 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       val allEvents = (ctEvents ++ vatEvents).sortBy(_.eventDate.toDate)
 
       when(mockPortalUrlBuilder.buildPortalUrl("ctFileAReturn")).thenReturn("someUrl")
-      when(mockCtConnector.calendar(ctCalendarUrl)).thenReturn(Future(Some(ctEvents)))
-      when(mockVatConnector.calendar(vatCalendarUrl)).thenReturn(Future(Some(vatEvents)))
+      when(mockCtConnector.calendar(ctCalendarUrl)).thenReturn(Some(ctEvents))
+      when(mockVatConnector.calendar(vatCalendarUrl)).thenReturn(Some(vatEvents))
       when(mockPortalUrlBuilder.buildPortalUrl("vatFileAReturn")).thenReturn("someUrl")
 
       val response = controller.importantDatesPage(user, FakeRequest())

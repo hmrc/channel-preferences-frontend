@@ -23,14 +23,14 @@ class CtRootSpec extends BaseSpec with MockitoSugar {
       val root = CtRoot(utr, Map("accountSummary" -> accountSummaryLink))
 
       when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Future.successful(Some(accountSummary)))
-      root.accountSummary(mockConnector, hc) shouldBe Some(accountSummary)
+      await(root.accountSummary(mockConnector, hc)) shouldBe Some(accountSummary)
 
     }
 
     "return None if no accountSummary link exists" in {
       val mockConnector = mock[CtConnector]
       val root = CtRoot(utr, Map[String, String]())
-      root.accountSummary(mockConnector, hc) shouldBe None
+      await(root.accountSummary(mockConnector, hc)) shouldBe None
       verifyZeroInteractions(mockConnector)
     }
 
@@ -39,7 +39,7 @@ class CtRootSpec extends BaseSpec with MockitoSugar {
       val root = CtRoot(utr, Map("accountSummary" -> accountSummaryLink))
       when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Future.successful(None))
 
-      val thrown = evaluating(root.accountSummary(mockConnector, hc) shouldBe Some(accountSummary)) should produce[IllegalStateException]
+      val thrown = evaluating(await(root.accountSummary(mockConnector, hc)) shouldBe Some(accountSummary)) should produce[IllegalStateException]
 
       thrown.getMessage shouldBe s"Expected HOD data not found for link 'accountSummary' with path: $accountSummaryLink"
     }
@@ -49,7 +49,7 @@ class CtRootSpec extends BaseSpec with MockitoSugar {
       val root = CtRoot(utr, Map("accountSummary" -> accountSummaryLink))
       when(mockConnector.accountSummary(accountSummaryLink)).thenThrow(new NumberFormatException("Not a number"))
 
-      evaluating(root.accountSummary(mockConnector, hc) shouldBe Some(accountSummary)) should produce[NumberFormatException]
+      evaluating(await(root.accountSummary(mockConnector, hc)) shouldBe Some(accountSummary)) should produce[NumberFormatException]
     }
   }
 }

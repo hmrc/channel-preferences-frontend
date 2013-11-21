@@ -30,7 +30,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   private val dummyEmpRef = EmpRef("abc", "defg")
   private val homeUrl = "http://homeUrl"
-  private val makeAPaymentUrl = routes.PaymentController.makeEpayePayment().url
+  private val makeAPaymentUrl = routes.PaymentController.makeEpayePayment.url
   private val empRefMessageString: Msg = Msg(epayeEmpRefMessage, Seq(dummyEmpRef.toString))
 
   private val expectedRtiLinks = Seq(
@@ -189,7 +189,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockPortalUrlBuilder.build(epayeHomePortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG
 
-    val actualAccountSummary = EpayeAccountSummaryBuilder(mockEpayeConnector).build(mockPortalUrlBuilder.build _, mockUser).get
+    val actualAccountSummary = await(EpayeAccountSummaryBuilder(mockEpayeConnector).build(mockPortalUrlBuilder.build _, mockUser).get)
 
     actualAccountSummary.regimeName shouldBe expectedRegimeName
     actualAccountSummary.messages shouldBe expectedMessages

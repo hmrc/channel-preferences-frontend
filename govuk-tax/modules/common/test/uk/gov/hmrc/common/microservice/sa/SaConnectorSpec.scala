@@ -4,7 +4,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.test.WithApplication
 import org.mockito.Mockito._
 import org.mockito.Matchers
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MockGet, BaseSpec}
 import uk.gov.hmrc.common.microservice.sa.domain._
 import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import play.api.libs.ws.Response
@@ -67,25 +67,17 @@ class SaConnectorSpec extends BaseSpec {
     "call the microservice with the correct uri and get the contents" in new SaConnectorApplication {
 
       val saAccountSummary = Some(SaAccountSummary(Some(AmountDue(BigDecimal(1367.29), requiresPayment = true)), None, Some(BigDecimal(34.03))))
-      when(mockHttpClient.get[SaAccountSummary]("/sa/individual/12345/accountSummary")).thenReturn(saAccountSummary)
+      when(mockHttpClient.getF[SaAccountSummary]("/sa/individual/12345/accountSummary")).thenReturn(saAccountSummary)
       implicit val hc = HeaderCarrier()
       val result = connector.accountSummary("/sa/individual/12345/accountSummary")
 
-      result shouldBe saAccountSummary
-      verify(mockHttpClient).get[SaAccountSummary](Matchers.eq("/sa/individual/12345/accountSummary"))
+      await(result) shouldBe saAccountSummary
+      verify(mockHttpClient).getF[SaAccountSummary](Matchers.eq("/sa/individual/12345/accountSummary"))
     }
   }
 }
 
 abstract class SaConnectorApplication extends WithApplication(FakeApplication()) with MockitoSugar {
-
-  val mockHttpClient = mock[HttpWrapper]
-
-  val connector = new SaConnector {
-    override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = mockHttpClient.get[A](uri)
-  }
-
-  class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
-  }
+  val connector = new SaConnector with MockGet
+  val mockHttpClient = connector.mockHttpClient
 }

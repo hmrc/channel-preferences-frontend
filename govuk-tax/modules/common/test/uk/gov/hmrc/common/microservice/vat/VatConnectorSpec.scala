@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.vat
 
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MockGet, BaseSpec}
 import org.scalatest.mock.MockitoSugar
 import play.api.test.WithApplication
 import org.mockito.Mockito._
@@ -13,6 +13,7 @@ import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 
 class VatConnectorSpec extends BaseSpec {
 
@@ -49,11 +50,11 @@ class VatConnectorSpec extends BaseSpec {
     "call the micro service with the correct uri and return the contents" in new VatConnectorApplication {
 
       val accountSummary = Some(VatAccountSummary(Some(VatAccountBalance(Some(4.0))), None))
-      when(mockHttpClient.get[VatAccountSummary]("/vat/vrn/123456/accountSummary")).thenReturn(accountSummary)
+      when(mockHttpClient.getF[VatAccountSummary]("/vat/vrn/123456/accountSummary")).thenReturn(accountSummary)
 
       val result = connector.accountSummary("/vat/vrn/123456/accountSummary")(HeaderCarrier())
 
-      result shouldBe accountSummary
+      await(result) shouldBe accountSummary
     }
   }
 
@@ -76,7 +77,7 @@ class VatConnectorSpec extends BaseSpec {
         "VAT"
       )
 
-      when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List(event1, event2)))
+      when(mockHttpClient.getF[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List(event1, event2)))
       implicit val hc = HeaderCarrier()
       connector.calendar(vatCalendarUri).map {_.get shouldBe List(event1, event2)}
     }
@@ -84,7 +85,7 @@ class VatConnectorSpec extends BaseSpec {
     "return the empty list if there are no events" in new VatConnectorApplication {
       val vatCalendarUri = "/vat/someVrn/calendar"
 
-      when(mockHttpClient.get[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
+      when(mockHttpClient.getF[List[CalendarEvent]](vatCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
       implicit val hc = HeaderCarrier()
       connector.calendar(vatCalendarUri).map {_.get shouldBe List.empty[CalendarEvent]}
 
@@ -93,15 +94,6 @@ class VatConnectorSpec extends BaseSpec {
 }
 
 class VatConnectorApplication extends WithApplication(FakeApplication()) with MockitoSugar {
-
-  val mockHttpClient = mock[HttpWrapper]
-
-  val connector = new VatConnector {
-    override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = mockHttpClient.get[A](uri)
-  }
-
-  class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
-  }
-
+  val connector = new VatConnector with MockGet
+  val mockHttpClient = connector.mockHttpClient
 }

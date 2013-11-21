@@ -23,14 +23,14 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val mockConnector = mock[SaConnector]
       val root = SaRoot(utr, Map("individual/account-summary" -> accountSummaryLink))
       when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Future.successful(Some(accountSummary)))
-      root.accountSummary(mockConnector, hc) shouldBe Some(accountSummary)
+      await(root.accountSummary(mockConnector, hc)) shouldBe Some(accountSummary)
 
     }
 
     "return None if no accountSummary link exists" in {
       val mockConnector = mock[SaConnector]
       val root = SaRoot(utr, Map[String, String]())
-      root.accountSummary(mockConnector, hc) shouldBe None
+      await(root.accountSummary(mockConnector, hc)) shouldBe None
       verifyZeroInteractions(mockConnector)
     }
 
@@ -39,7 +39,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val root = SaRoot(utr, Map("individual/account-summary" -> accountSummaryLink))
       when(mockConnector.accountSummary(accountSummaryLink)).thenReturn(Future.successful(None))
 
-      val thrown = evaluating(root.accountSummary(mockConnector, hc) shouldBe Some(accountSummary)) should produce [IllegalStateException]
+      val thrown = evaluating(await(root.accountSummary(mockConnector, hc)) shouldBe Some(accountSummary)) should produce [IllegalStateException]
 
       thrown.getMessage shouldBe s"Expected HOD data not found for link 'individual/account-summary' with path: $accountSummaryLink"
     }
@@ -99,7 +99,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val saMainAddress = SaAddressForUpdate("line1", "line2", None, None, None, None)
 
       evaluating(saRoot.updateIndividualMainAddress(saMainAddress)) should produce[IllegalStateException]
-      verify(saConnector, times(0)).accountSummary(Matchers.anyString())(hc)
+      verify(saConnector, times(0)).accountSummary(Matchers.anyString())(Matchers.eq(hc))
     }
   }
 }

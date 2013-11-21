@@ -1,20 +1,20 @@
 package uk.gov.hmrc.common.microservice.epaye
 
-import uk.gov.hmrc.common.BaseSpec
-import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.common.{MockGet, BaseSpec}
 import play.api.test.WithApplication
 import org.mockito.Mockito._
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.MicroServiceException
+import uk.gov.hmrc.microservice.{Connector, MicroServiceException}
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.epaye.domain.{NonRTI, EpayeAccountSummary, EpayeJsonRoot, EpayeLinks}
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
+import org.scalatest.mock.MockitoSugar
 
 class EpayeConnectorSpec extends BaseSpec {
 
   private val uri = "someUri"
   implicit val hc = HeaderCarrier()
-
 
   "Requesting the EPAYE root" should {
 
@@ -46,34 +46,25 @@ class EpayeConnectorSpec extends BaseSpec {
     "Return the correct response for an example with account summary information" in new EpayeConnectorApplication {
       val summary = EpayeAccountSummary(nonRti = Some(NonRTI(BigDecimal(50D), 2013)))
 
-      when(mockHttpClient.get[EpayeAccountSummary](uri)).thenReturn(Some(summary))
-      connector.accountSummary(uri) shouldBe Some(summary)
+      when(mockHttpClient.getF[EpayeAccountSummary](uri)).thenReturn(Future.successful(Some(summary)))
+      await(connector.accountSummary(uri)) shouldBe Some(summary)
     }
 
     "Return None for an example with invalid data - containing neither RTI nor Non-RTI information" in new EpayeConnectorApplication {
       val invalidSummary = EpayeAccountSummary(rti = None, nonRti = None)
 
-      when(mockHttpClient.get[EpayeAccountSummary](uri)).thenReturn(Some(invalidSummary))
-      connector.accountSummary(uri) shouldBe None
+      when(mockHttpClient.getF[EpayeAccountSummary](uri)).thenReturn(Future.successful(Some(invalidSummary)))
+      await(connector.accountSummary(uri)) shouldBe None
     }
 
     "Return None for an example where no data is returned (e.g. 404 occurs)" in new EpayeConnectorApplication {
-      when(mockHttpClient.get[EpayeAccountSummary](uri)).thenReturn(None)
-      connector.accountSummary(uri) shouldBe None
+      when(mockHttpClient.getF[EpayeAccountSummary](uri)).thenReturn(Future.successful(None))
+      await(connector.accountSummary(uri)) shouldBe None
     }
   }
 }
 
 abstract class EpayeConnectorApplication extends WithApplication(FakeApplication()) with MockitoSugar {
-
-  val mockHttpClient = mock[HttpWrapper]
-
-  val connector = new EpayeConnector {
-    override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = mockHttpClient.get[A](uri)
-  }
-
-  class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
-  }
-
+  val connector = new EpayeConnector with MockGet
+  val mockHttpClient = connector.mockHttpClient
 }

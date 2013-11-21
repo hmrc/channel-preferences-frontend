@@ -5,18 +5,18 @@ import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 
 abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
 
-  def build(buildPortalUrl: String => String, user: User)(implicit headerCarrier:HeaderCarrier): Option[Future[AccountSummary]] = {
+  def build(buildPortalUrl: String => String, user: User)(implicit hc: HeaderCarrier): Option[Future[AccountSummary]] = {
     rootForRegime(user).map {
-      regimeRoot => try {
-        buildAccountSummary(regimeRoot, buildPortalUrl)
-      } catch {
-        case e: Throwable => oops(user)
-      }
+      regimeRoot =>
+        try {
+          buildAccountSummary(regimeRoot, buildPortalUrl)
+        } catch {
+          case e: Throwable => oops(user)
+        }
     }
   }
 
@@ -28,7 +28,7 @@ abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
       status = SummaryStatus.oops))
   }
 
-  protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String)(implicit headerCarrier:HeaderCarrier): Future[AccountSummary]
+  protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary]
 
   protected def defaultRegimeNameMessageKey: String
 

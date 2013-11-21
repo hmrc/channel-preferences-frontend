@@ -11,14 +11,12 @@ class AccountSummariesFactory(saRegimeAccountSummaryViewBuilder: SaAccountSummar
                               epayeRegimeAccountSummaryViewBuilder: EpayeAccountSummaryBuilder = new EpayeAccountSummaryBuilder) {
 
   def create(buildPortalUrl: (String) => String)(implicit user: User, headerCarrier: HeaderCarrier): Future[AccountSummaries] = {
+    val sa = saRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
+    val ct = ctRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
+    val vat = vatRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
+    val epaye = epayeRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
 
-
-    val saRegimeO = saRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-    val vatRegimeO = vatRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-    val ctRegimeO = ctRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-    val epayeRegimeO = epayeRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
-
-    val regimes = Future.sequence(List(saRegimeO, vatRegimeO, ctRegimeO, epayeRegimeO).flatten)
+    val regimes = Future.sequence(List(sa, ct, vat, epaye).flatten)
 
     regimes.map(AccountSummaries)
   }

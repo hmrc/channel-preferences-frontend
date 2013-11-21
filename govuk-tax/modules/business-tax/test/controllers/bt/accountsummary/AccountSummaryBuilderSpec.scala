@@ -8,11 +8,13 @@ import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent._
+import duration._
 
 class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   trait MockableBuilder {
-    def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String): AccountSummary
+    def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String): Future[AccountSummary]
 
     def oops(user: User): AccountSummary
   }
@@ -39,7 +41,7 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     val builder = new AccountSummaryBuilder[SaUtr, SaRoot] {
 
-      override def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String)(implicit headerCarrier: HeaderCarrier): AccountSummary = {
+      override def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary] = {
         mockBuilder.buildAccountSummary(regimeRoot, buildPortalUrl)
       }
 
@@ -67,7 +69,7 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummary = AccountSummary("Some Regime", Seq.empty, Seq.empty, SummaryStatus.success)
       when(mockBuilder.buildAccountSummary(saRoot, buildPortalUrl)).thenReturn(accountSummary)
       implicit val headerCarrier = HeaderCarrier()
-      builder.build(buildPortalUrl, user) shouldBe Some(accountSummary)
+      builder.build(buildPortalUrl, user).map(f => await(f)) shouldBe Some(accountSummary)
     }
   }
 }

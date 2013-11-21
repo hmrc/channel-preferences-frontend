@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.ct
 
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MockGet, BaseSpec}
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeApplication, WithApplication}
 import org.mockito.Mockito._
@@ -11,7 +11,6 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import play.api.mvc.Request
 import controllers.common.actions.HeaderCarrier
 
 class CtConnectorSpec extends BaseSpec {
@@ -64,7 +63,7 @@ class CtConnectorSpec extends BaseSpec {
         "CT"
       )
 
-      when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List(event1, event2)))
+      when(mockHttpClient.getF[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List(event1, event2)))
       implicit val hc = HeaderCarrier()
       connector.calendar(ctCalendarUri).map {_.get shouldBe List(event1, event2)}
     }
@@ -72,7 +71,7 @@ class CtConnectorSpec extends BaseSpec {
     "return the empty list if there are no events" in new CtConnectorApplication {
       val ctCalendarUri = "/ct/someCtUtr/calendar"
 
-      when(mockHttpClient.get[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
+      when(mockHttpClient.getF[List[CalendarEvent]](ctCalendarUri)).thenReturn(Some(List.empty[CalendarEvent]))
       implicit val hc = HeaderCarrier()
       connector.calendar(ctCalendarUri).map {_.get shouldBe List.empty[CalendarEvent]}
 
@@ -81,15 +80,6 @@ class CtConnectorSpec extends BaseSpec {
 }
 
 abstract class CtConnectorApplication extends WithApplication(FakeApplication()) with MockitoSugar {
-
-  val mockHttpClient = mock[HttpWrapper]
-
-  val connector = new CtConnector {
-    override def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = mockHttpClient.get[A](uri)
-  }
-
-  class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
-  }
-
+  val connector = new CtConnector with MockGet
+  val mockHttpClient = connector.mockHttpClient
 }
