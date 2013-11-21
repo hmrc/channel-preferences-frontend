@@ -27,14 +27,11 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   def this() = this(new AccountSummariesFactory(), Connectors.preferencesConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   def home(fromLogin: Option[String]) = AuthenticatedBy(GovernmentGateway).async {
-    user => request => businessTaxHomepage(fromLogin)(user, request)
+    user => request => businessTaxHomepage(fromLogin.map(_ == "true").getOrElse(false))(user, request)
   }
 
-  private[bt] def businessTaxHomepage(fromLogin: Option[String])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    fromLogin match {
-      case Some("true") => if (user.regimes.sa.isDefined) capturePrintPreferences(user.getSa.utr) else renderHomePage
-      case _ => renderHomePage
-    }
+  private[bt] def businessTaxHomepage(fromLogin: Boolean)(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+    if (fromLogin && user.regimes.sa.isDefined) capturePrintPreferences(user.getSa.utr) else renderHomePage
   }
 
   private def renderHomePage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {

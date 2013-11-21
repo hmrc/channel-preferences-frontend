@@ -19,7 +19,7 @@ class BusinessTaxControllerStandardBehaviourSpec extends BaseSpec {
   val mockAccountSummariesFactory = mock[AccountSummariesFactory]
   val mockPreferencesConnector = mock[PreferencesConnector]
   val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, mockPreferencesConnector, null)(null) {
-    override private[bt] def businessTaxHomepage(fromLogin: Option[String])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = Future(Ok)
+    override private[bt] def businessTaxHomepage(fromLogin: Boolean)(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = Future(Ok)
   }
 
   "Calling home" should {
