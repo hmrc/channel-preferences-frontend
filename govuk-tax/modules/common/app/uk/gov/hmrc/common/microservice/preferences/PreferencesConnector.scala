@@ -5,6 +5,7 @@ import uk.gov.hmrc.microservice.{MicroServiceException, Connector, MicroServiceC
 import controllers.common.domain.Transform._
 import play.api.libs.json.Json
 import uk.gov.hmrc.domain.SaUtr
+import controllers.common.actions.HeaderCarrier
 
 
 class PreferencesConnector extends Connector {
@@ -15,8 +16,8 @@ class PreferencesConnector extends Connector {
     httpPostAndForget(s"/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 
-  def getPreferences(utr: SaUtr): Option[SaPreference] = {
-    httpGet[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
+  def getPreferences(utr: SaUtr)(implicit headerCarrier:HeaderCarrier): Option[SaPreference] = {
+    httpGetHC[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
   }
 //
 //  def updateEmailValidationStatus(token : String) : Boolean = {

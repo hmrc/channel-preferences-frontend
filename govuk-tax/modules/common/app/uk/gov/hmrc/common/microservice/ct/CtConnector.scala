@@ -10,7 +10,7 @@ class CtConnector extends Connector {
 
   val serviceUrl = MicroServiceConfig.ctServiceUrl
 
-  def root(uri: String) = httpGet[CtJsonRoot](uri).getOrElse(CtJsonRoot(Map.empty))
+  def root(uri: String)(implicit hc: HeaderCarrier) = httpGetHC[CtJsonRoot](uri).getOrElse(CtJsonRoot(Map.empty))
 
   def accountSummary(uri: String)(implicit headerCarrier:HeaderCarrier) = httpGetF[CtAccountSummary](uri)
 

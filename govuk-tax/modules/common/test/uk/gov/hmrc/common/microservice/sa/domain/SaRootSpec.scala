@@ -15,7 +15,6 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
   private val utr = SaUtr("2222233333")
   private val accountSummaryLink = s"/sa/individual/$utr/account-summary"
   private val accountSummary = SaAccountSummary(None, None, Some(1))
-  implicit val hc = HeaderCarrier()
 
   "Requesting AccountSummary" should {
 
@@ -64,7 +63,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
 
       when(saConnector.person(uri)).thenReturn(saPersonalDetails)
 
-      saRoot.personalDetails(saConnector) shouldBe saPersonalDetails
+      saRoot.personalDetails(saConnector, hc) shouldBe saPersonalDetails
       verify(saConnector).person(Matchers.eq(uri))
     }
 
@@ -72,7 +71,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val saRoot = SaRoot(SaUtr("12345"), Map[String, String]())
       val saConnector = mock[SaConnector]
 
-      saRoot.personalDetails(saConnector) shouldBe None
+      saRoot.personalDetails(saConnector, hc) shouldBe None
       verify(saConnector, times(0)).person(Matchers.anyString())
     }
 

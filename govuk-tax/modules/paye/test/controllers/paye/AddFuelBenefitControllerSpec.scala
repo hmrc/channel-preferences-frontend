@@ -22,6 +22,7 @@ import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.BaseSpec
+import controllers.common.actions.HeaderCarrier
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
@@ -460,6 +461,8 @@ class TestCase(protected val taxYear: Int = 2012) extends WithApplication(FakeAp
   }
 
   def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes, employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[Benefit] = Seq.empty) {
+
+    implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$taxYear")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$taxYear")).thenReturn(Some(employments))
     when(mockPayeConnector.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefits/$taxYear")).thenReturn(Some(benefits))

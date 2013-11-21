@@ -16,7 +16,7 @@ import play.api.data.Form
 import FuelBenefitFormFields._
 import controllers.paye.validation.AddCarBenefitValidator._
 import org.joda.time.LocalDate
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import scala.Some
@@ -131,6 +131,7 @@ with TaxYearSupport {
 
   private[paye] def confirmAddFuelBenefitAction: ( User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
     (request: Request[_], user : User, taxYear : Int, employmentSequenceNumber: Int, taxYearData : TaxYearData) => {
+      implicit val hc = HeaderCarrier(request)
       val keystoreId = KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber)
 
       val fuelBenefitData = keyStoreService.getEntry[FuelBenefitData](keystoreId, KeystoreUtils.source, keystoreKey).

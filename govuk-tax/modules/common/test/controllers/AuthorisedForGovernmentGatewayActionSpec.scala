@@ -31,8 +31,7 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import controllers.common.actions.Actions
-import play.api.mvc.SimpleResult
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
@@ -213,7 +212,7 @@ sealed class AuthorisedForGovernmentGatewayActionSpecController(saConnector: SaC
   extends BaseController
   with Actions {
 
-  override def regimeRoots(authority: UserAuthority): RegimeRoots = {
+  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
     val regimes = authority.regimes
     RegimeRoots(
       sa = regimes.sa map {

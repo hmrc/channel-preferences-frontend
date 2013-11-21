@@ -39,8 +39,6 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime), decryptedToken = None)
   }
 
-  implicit val hc = HeaderCarrier()
-
   "important dates page" should {
 
     "render view with CT payment and filing dates" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {

@@ -47,7 +47,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   }
 
   private def capturePrintPreferences(utr: SaUtr)(implicit user: User, request: Request[AnyRef]) = {
-
+    implicit val headerCarrier = HeaderCarrier(request)
     preferencesConnector.getPreferences(utr) match {
       case Some(pref) => renderHomePage
       case None => Future.successful(Redirect(PreferencesRoutes.SaPrefsController.displayPrefsForm(None)))

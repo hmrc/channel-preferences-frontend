@@ -30,6 +30,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationResponse
 import org.joda.time.chrono.ISOChronology
 import models.paye.{CarAndFuelBuilder, CarBenefitData, CarBenefitDataAndCalculations}
 import org.scalatest.TestData
+import controllers.common.actions.HeaderCarrier
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
@@ -1117,6 +1118,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes, employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[Benefit] = Seq.empty,
                                         acceptedTransactions: List[TxQueueTransaction] = List.empty, completedTransactions: List[TxQueueTransaction] =  List.empty) {
+
+    implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$taxYear")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$taxYear")).thenReturn(Some(employments))
     when(mockPayeConnector.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefits/$taxYear")).thenReturn(Some(benefits))

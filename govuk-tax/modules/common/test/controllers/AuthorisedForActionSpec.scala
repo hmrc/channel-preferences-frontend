@@ -26,7 +26,7 @@ import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -214,7 +214,7 @@ sealed class TestController(payeConnector: PayeConnector,
   with HeaderNames {
 
 
-  override def regimeRoots(authority: UserAuthority): RegimeRoots = {
+  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map {

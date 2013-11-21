@@ -12,6 +12,7 @@ import play.api.test.FakeApplication
 import play.api.libs.json.JsBoolean
 import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.domain.SaUtr
+import controllers.common.actions.HeaderCarrier
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
@@ -80,8 +81,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
 
+
       when(preferenceMicroService.httpWrapper.get[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(true, Some("someEmail@email.com"))))
-      val result = preferenceMicroService.getPreferences(utr).get
+      val result = preferenceMicroService.getPreferences(utr)(HeaderCarrier()).get
       verify(preferenceMicroService.httpWrapper).get[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
 
       result.digital shouldBe (true)
@@ -91,7 +93,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
     "get preferences for a user who opted for paper notification" in new WithApplication(FakeApplication()) {
 
       when(preferenceMicroService.httpWrapper.get[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(false)))
-      val result = preferenceMicroService.getPreferences(utr).get
+      val result = preferenceMicroService.getPreferences(utr)(HeaderCarrier()).get
       verify(preferenceMicroService.httpWrapper).get[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
 
       result.digital shouldBe (false)
@@ -100,7 +102,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
     "return none for a user who has not set preferences" in new WithApplication(FakeApplication()) {
       when(preferenceMicroService.httpWrapper.get[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")).thenReturn(None)
-      preferenceMicroService.getPreferences(utr) shouldBe None
+      preferenceMicroService.getPreferences(utr)(HeaderCarrier()) shouldBe None
       verify(preferenceMicroService.httpWrapper).get[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
     }
 //

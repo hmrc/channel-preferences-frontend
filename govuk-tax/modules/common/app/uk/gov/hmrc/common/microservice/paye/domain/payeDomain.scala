@@ -9,6 +9,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
+import controllers.common.actions.HeaderCarrier
 
 object PayeRegime extends TaxRegime {
 
@@ -37,17 +38,17 @@ case class PayeRoot(nino: String,
 
   def currentDate = new DateTime(DateTimeZone.UTC)
 
-  def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector) = {
+  def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector, headerCarrier:HeaderCarrier) = {
     TaxYearData(fetchBenefits(taxYear), fetchEmployments(taxYear))
   }
 
-  def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector) =
+  def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier) =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-  def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector) : Seq[Benefit] =
+  def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier) : Seq[Benefit] =
     valuesForTaxYear[Benefit](resource = "benefits", taxYear = taxYear)
 
-  def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector) : Seq[Employment] =
+  def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier) : Seq[Employment] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
   def fetchRecentAcceptedTransactions()(implicit txQueueConnector: TxQueueConnector) : Seq[TxQueueTransaction] = {
@@ -70,13 +71,13 @@ case class PayeRoot(nino: String,
         Seq.empty[TxQueueTransaction]
     }
 
-  private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T]): Seq[T] =
+  private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier:HeaderCarrier): Seq[T] =
     links.get(resource) match {
       case Some(uri) => resourceFor[Seq[T]](uri.replace("{taxYear}", taxYear.toString)).getOrElse(Seq.empty)
       case _ => Seq.empty
     }
 
-  private def resourceFor[T](uri: String)(implicit payeConnector: PayeConnector, m: Manifest[T]): Option[T] =
+  private def resourceFor[T](uri: String)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier:HeaderCarrier): Option[T] =
     payeConnector.linkedResource[T](uri)
 }
 

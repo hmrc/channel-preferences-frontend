@@ -15,7 +15,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)(implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
   with Actions
@@ -32,6 +32,9 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
   }
 
   private[paye] def carBenefitHomeAction(implicit user: User, request: Request[_]): SimpleResult = {
+
+    implicit val hc = HeaderCarrier(request)
+
     val payeRoot = user.getPaye
     val currentTaxYearData = payeRoot.fetchTaxYearData(currentTaxYear)
 

@@ -27,7 +27,6 @@ import duration._
 import ExecutionContext.Implicits.global
 
 class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
-  implicit val hc = HeaderCarrier()
 
   "EpayePaymentPredicate" should {
 

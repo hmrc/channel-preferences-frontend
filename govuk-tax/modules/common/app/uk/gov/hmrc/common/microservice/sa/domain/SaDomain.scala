@@ -34,7 +34,7 @@ case class SaRoot(utr: SaUtr, links: Map[String, String]) extends RegimeRoot[SaU
 
   override val identifier = utr
 
-  def personalDetails(implicit saConnector: SaConnector) =
+  def personalDetails(implicit saConnector: SaConnector, hc: HeaderCarrier) =
     links.get(individualDetailsKey) match {
       case Some(uri) => saConnector.person(uri)
       case _ => None

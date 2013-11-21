@@ -35,7 +35,6 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val userAuthorityWithoutCt = UserAuthority("123", Regimes(), vrn = Some(vrn))
   private val regimeRootsWithoutCt = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}"))))
   private val userNotEnrolledForCt = User("jim", userAuthorityWithoutCt, regimeRootsWithoutCt, None, None)
-  implicit val hc = HeaderCarrier()
 
   "The CtAccountSummaryBuilder build method" should {
 

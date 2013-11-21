@@ -29,7 +29,7 @@ trait Actions
                         pageVisibility: PageVisibilityPredicate) {
     def apply(body: PlayUserRequest): Action[AnyContent] = authorised(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
 
-    def async(body: AsyncPlayUserRequest): Action[AnyContent] = authorised(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
+    def async(body: AsyncPlayUserRequest): Action[AnyContent] = authorisedAsync(authenticationProvider, account, redirectToOrigin, pageVisibility, body)
   }
 
 
@@ -60,11 +60,34 @@ trait Actions
     storeHeaders {
       logRequest {
         WithSessionTimeoutValidation {
-          WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) { user =>
-            WithPageVisibility(pageVisibility, user) { implicit user =>
-              WithRequestAuditing(user) { user => body(user)}
-            }
+          WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
+            user =>
+              WithPageVisibility(pageVisibility, user) {
+                implicit user =>
+                  WithRequestAuditing(user) {
+                    user => body(user)
+                  }
+              }
           }
+        }
+      }
+    }
+
+  private def authorisedAsync(authenticationProvider: AuthenticationProvider,
+                              account: Option[TaxRegime],
+                              redirectToOrigin: Boolean,
+                              pageVisibility: PageVisibilityPredicate,
+                              body: UserAction) =
+    logRequest {
+      WithSessionTimeoutValidation {
+        WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
+          user =>
+            WithPageVisibility(pageVisibility, user) {
+              implicit user =>
+                WithRequestAuditing(user) {
+                  user => body(user)
+                }
+            }
         }
       }
     }

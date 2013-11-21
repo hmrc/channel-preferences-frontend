@@ -20,6 +20,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
+import controllers.common.actions.HeaderCarrier
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -338,6 +339,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit],
                                         acceptedTransactions: List[TxQueueTransaction], completedTransactions: List[TxQueueTransaction]) {
+    implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
     when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))

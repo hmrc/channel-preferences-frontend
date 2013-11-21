@@ -3,12 +3,13 @@ package models.paye
 import uk.gov.hmrc.common.microservice.paye.domain.{PayeRoot, TaxCode}
 
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import controllers.common.actions.HeaderCarrier
 
 object TaxCodeResolver {
 
   val NON_DEFINED_TAXCODE = "N/A"
 
-  def currentTaxCode(payeRoot: PayeRoot, employmentSequenceNumber: Int, taxYear: Int)(implicit microservice: PayeConnector) : String = {
+  def currentTaxCode(payeRoot: PayeRoot, employmentSequenceNumber: Int, taxYear: Int)(implicit microservice: PayeConnector, headerCarrier:HeaderCarrier) : String = {
     currentTaxCode(payeRoot.fetchTaxCodes(taxYear), employmentSequenceNumber )
   }
 

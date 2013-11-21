@@ -25,7 +25,6 @@ class SaAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val liabilityDate = new LocalDate(2014, 1, 15)
   private val saUtr = SaUtr("123456789")
   private val utrMessage = Msg("sa.message.utr", Seq(saUtr.utr))
-  implicit val hc = HeaderCarrier()
 
   "Sa Account SummaryView Builder builds correct Account Summary model " should {
     " when no amounts are due now or later " in {

@@ -14,7 +14,6 @@ import org.scalatest.mock.MockitoSugar
 class EpayeConnectorSpec extends BaseSpec {
 
   private val uri = "someUri"
-  implicit val hc = HeaderCarrier()
 
   "Requesting the EPAYE root" should {
 

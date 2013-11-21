@@ -15,8 +15,6 @@ class VatRootSpec extends BaseSpec with MockitoSugar {
   private val accountSummaryLink = s"/vat/$vrn/accountSummary"
   private val accountSummary = VatAccountSummary(accountBalance = Some(VatAccountBalance(Some(50.4D))), dateOfBalance = Some("2013-11-22"))
 
-  implicit val hc = HeaderCarrier()
-
   "Requesting AccountSummary" should {
 
     "return an AccountSummary object if the service call is successful" in {

@@ -21,6 +21,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
+import controllers.common.actions.HeaderCarrier
 
 trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with MockitoSugar {
 
@@ -53,6 +54,9 @@ trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with 
   val mockVatConnector = mock[VatConnector]
   val mockCtConnector = mock[CtConnector]
   val mockEpayeConnector = mock[EpayeConnector]
+
+
+  implicit val hc = HeaderCarrier()
 
 
   private def userAuthority = UserAuthority(

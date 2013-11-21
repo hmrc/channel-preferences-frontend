@@ -54,7 +54,7 @@ trait UserActionWrapper
               Left(User(
                 userId = userId,
                 userAuthority = ua,
-                regimes = regimeRoots(ua),
+                regimes = regimeRoots(ua)(HeaderCarrier(request)),
                 nameFromGovernmentGateway = decrypt(request.session.get("name")),
                 decryptedToken = token))
           }
@@ -69,7 +69,7 @@ trait UserActionWrapper
   /**
    * NOTE: THE DEFAULT IMPLEMENTATION WILL BE REMOVED SHORTLY
    */
-  protected def regimeRoots(authority: UserAuthority): RegimeRoots = {
+  protected def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
     val regimes = authority.regimes
     RegimeRoots(
       paye = regimes.paye map {

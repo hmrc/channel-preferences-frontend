@@ -21,6 +21,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
+import controllers.common.actions.HeaderCarrier
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -44,7 +45,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect to the homepage when preferences already exist for a specific utr" in new Setup {
       val preferencesAlreadyCreated = SaPreference(true, Some("test@test.com"))
-      when(preferencesConnector.getPreferences(validUtr)).thenReturn(Some(preferencesAlreadyCreated))
+      when(preferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = Future.successful(controller.displayPrefsFormAction(None)(user, request))
 

@@ -19,7 +19,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.sa.SaConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 //"This feature will be reactivated soon, HMTB-1912"
 @Deprecated
@@ -77,6 +77,7 @@ class SaController(override val auditConnector: AuditConnector)
   private[sa] def detailsAction(implicit user: User, request: Request[_]): SimpleResult = {
     val userData = user.regimes.sa.get
 
+    implicit val hc = HeaderCarrier(request)
     userData.personalDetails match {
       case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
       case _ => NotFound //FIXME: this should really be an error page

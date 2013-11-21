@@ -40,13 +40,12 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       val userUnderTest = mockUser
       val portalBuilder: (String => String) = (value) => value
 
-      implicit val headerCarrier = HeaderCarrier()
       when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
       when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
       when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
       when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(None)
 
-      val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, headerCarrier)
+      val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, hc)
       actualAccountSummaries.regimes shouldBe Seq.empty
     }
 
@@ -60,13 +59,12 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       val userUnderTest = mockUser
       val portalBuilder: (String => String) = (value) => value
 
-      implicit val headerCarrier = HeaderCarrier()
       when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(saAccountSummary)))
       when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(vatAccountSummary)))
       when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(ctAccountSummary)))
       when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(epayeAccountSummary)))
 
-      val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, headerCarrier)
+      val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, hc)
       actualAccountSummaries.regimes shouldBe List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAccountSummary)
     }
 
@@ -81,13 +79,12 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
       val userUnderTest = mockUser
       val portalBuilder: (String => String) = (value) => value
 
-      implicit val headerCarrier = HeaderCarrier()
       when(mockSaRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(saAccountSummary)))
       when(mockVatRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(vatAccountSummary)))
       when(mockCtRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(ctAccountSummary)))
       when(mockEpayeRegimeAccountSummaryViewBuilder.build(portalBuilder, userUnderTest)).thenReturn(Some(Future.successful(epayeAccountSummary)))
 
-      val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, headerCarrier)
+      val actualAccountSummaries = factoryUnderTest.create(portalBuilder)(userUnderTest, hc)
       val expectedListInOrder = List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAccountSummary)
       actualAccountSummaries.regimes shouldBe expectedListInOrder
 

@@ -5,7 +5,7 @@ import play.api.data.Forms._
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import controllers.common.{FrontEndRedirect, BaseController}
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -47,7 +47,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
   }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[String])(implicit user: User, request: Request[AnyRef]) = {
-    preferencesConnector.getPreferences(user.getSa.utr) match {
+    preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)) match {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
       case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.getOrElse(""), None))))
     }

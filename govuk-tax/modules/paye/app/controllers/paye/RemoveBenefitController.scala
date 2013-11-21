@@ -28,7 +28,7 @@ import models.paye.CarFuelBenefitDates
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import models.paye.RemoveBenefitFormData
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import BenefitTypes._
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector : AuthConnector, override val auditConnector : AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector : TxQueueConnector) extends BaseController
   with Actions
@@ -179,6 +179,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     if (txQueueConnector.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
+
+      implicit val hc = HeaderCarrier(request)
+
       keyStoreService.deleteKeyStore(user.oid, "paye_ui")
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
@@ -238,6 +241,8 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   object WithValidatedRequest {
     def apply(action: (Request[_], User, DisplayBenefit, TaxYearData) => SimpleResult): (User, Request[_], String, Int, Int) => SimpleResult = {
       (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
+
+        implicit val hc = HeaderCarrier(request)
         val payeRootData = user.regimes.paye.get.fetchTaxYearData(currentTaxYear)
 
         val emptyBenefit = DisplayBenefit(null, Seq.empty, None)

@@ -266,8 +266,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val saRoot = Some(SaRoot(utr, Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
-      implicit val headerCarrier = HeaderCarrier()
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(hc))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
@@ -294,8 +293,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val saRoot = Some(SaRoot(utr, Map.empty[String, String]))
       val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
-      implicit val headerCarrier = HeaderCarrier()
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(hc))).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")

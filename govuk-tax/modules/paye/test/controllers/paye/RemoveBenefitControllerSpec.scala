@@ -33,6 +33,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import BenefitTypes._
+import controllers.common.actions.HeaderCarrier
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper {
 
@@ -62,6 +63,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   }
 
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode], employments: Seq[Employment], benefits: Seq[Benefit]) {
+    implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
     when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
@@ -853,11 +855,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val car = Car(None, Some(new LocalDate(2012, 12, 12)), None, Some(BigDecimal(10)), Some("diesel"), Some(1), Some(1400), None, Some(BigDecimal("1432")), None, None)
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
-        override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector): Seq[Employment] = {
+        override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier): Seq[Employment] = {
           Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None, primaryEmploymentType))
         }
 
-        override def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector): Seq[Benefit] = {
+        override def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier): Seq[Benefit] = {
           Seq(Benefit(31, 2013, BigDecimal("3"), 1, Some(BigDecimal("4")), Some(BigDecimal("5")), Some(BigDecimal("6")), Some(BigDecimal("7")), Some(BigDecimal("8")), Some("payment"), None, Some(car), Map[String, String](), Map[String, String]()))
         }
       }
@@ -880,11 +882,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val car = Car(None, None, Some(new LocalDate()), Some(BigDecimal(10)), Some("diesel"), Some(10), Some(1400), None, Some(BigDecimal("1432")), None, None)
 
       val payeRoot = new PayeRoot("CE927349E", 1, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
-        override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector): Seq[Employment] = {
+        override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier): Seq[Employment] = {
           Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys"), primaryEmploymentType))
         }
 
-        override def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector): Seq[Benefit] = {
+        override def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier): Seq[Benefit] = {
           Seq(Benefit(31, 2013, BigDecimal("3"), 1, Some(BigDecimal("4")), Some(BigDecimal("5")), Some(BigDecimal("6")), Some(BigDecimal("7")), Some(BigDecimal("8")), Some("payment"), None, Some(car), Map[String, String](), Map[String, String]()))
         }
       }

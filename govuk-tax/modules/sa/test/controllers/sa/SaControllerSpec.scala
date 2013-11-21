@@ -20,6 +20,7 @@ import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import org.scalatest.TestData
 import uk.gov.hmrc.common.microservice.sa.domain.{SaIndividualAddress, SaPerson, SaName, SaRoot}
+import controllers.common.actions.HeaderCarrier
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -58,7 +59,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
   "The details page" should {
     "show the individual SA address of Geoff Fisher" in new WithApplication(FakeApplication()) {
 
-      when(saConnector.person("/sa/individual/123456789012/details")).thenReturn(
+      when(saConnector.person("/sa/individual/123456789012/details")(HeaderCarrier())).thenReturn(
         Some(SaPerson(
           name = nameFromSa,
           address = SaIndividualAddress(

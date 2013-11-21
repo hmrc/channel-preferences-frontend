@@ -18,7 +18,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.paye.validation.WithValidatedCarRequest
 import models.paye.CarBenefitData
 import models.paye.CarBenefitDataAndCalculations
@@ -130,6 +130,7 @@ with TaxYearSupport {
   private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedCarRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
 
+      implicit val hc = HeaderCarrier(request)
       val payeRoot = user.getPaye
       val carBenefitDataAndCalculation = savedValuesFromKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber").getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 

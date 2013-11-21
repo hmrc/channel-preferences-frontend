@@ -15,7 +15,6 @@ class EpayeRootSpec extends BaseSpec with MockitoSugar {
   private val empRef = EmpRef("ABC", "2345X")
   private val accountSummaryLink = s"/epaye/$empRef/accountSummary"
   private val accountSummary = EpayeAccountSummary(rti = Some(RTI(45.3)))
-  implicit val hc = HeaderCarrier()
 
   "Requesting AccountSummary" should {
 

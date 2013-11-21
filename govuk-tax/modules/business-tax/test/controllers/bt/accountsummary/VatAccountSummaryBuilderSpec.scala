@@ -24,8 +24,6 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   val regimeRootsWithVat = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}"))))
   val userEnrolledForVat = User("jim", userAuthorityWithVrn, regimeRootsWithVat, None, None)
 
-  implicit val hc = HeaderCarrier()
-
   "VatAccountSummaryViewBuilder" should {
     "return the correct account summary for complete data" in {
 

@@ -10,6 +10,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
+import controllers.common.actions.HeaderCarrier
 import scala.util.control.Exception._
 
 class PayeConnector extends TaxRegimeConnector[PayeRoot] {
@@ -18,12 +19,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
-  def root(uri: String) = httpGet[PayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Paye root not found at URI '$uri'"))
-
-  override def linkedResource[T](uri: String)(implicit m: Manifest[T]) = {
-    Logger.debug(s"Loading linked paye resource, uri: $uri")
-    httpGet[T](uri)
-  }
+  def root(uri: String)(implicit hc: HeaderCarrier) = httpGetHC[PayeRoot](uri).getOrElse(throw new IllegalStateException(s"Expected Paye root not found at URI '$uri'"))
 
   def addBenefits(uri: String,
     version: Int,
