@@ -19,7 +19,7 @@ class SaConnector extends Connector {
 
   def accountSummary(uri: String)(implicit headerCarrier:HeaderCarrier): Future[Option[SaAccountSummary]] = httpGetF[SaAccountSummary](uri)
 
-  def updateMainAddress(uri: String, mainAddress: SaAddressForUpdate): Either[String, TransactionId] = {
+  def updateMainAddress(uri: String, mainAddress: SaAddressForUpdate)(implicit hc: HeaderCarrier): Either[String, TransactionId] = {
 
     val response = httpPostSynchronous(uri, Json.parse(toRequestBody(mainAddress)))
 

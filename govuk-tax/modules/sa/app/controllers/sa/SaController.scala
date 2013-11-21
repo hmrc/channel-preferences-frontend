@@ -134,11 +134,13 @@ class SaController(override val auditConnector: AuditConnector)
     changeAddressForm.bindFromRequest()(request).fold(
       errors =>
         BadRequest(sa_personal_details_update(errors)),
-      formData =>
+      formData => {
+        implicit val hc = HeaderCarrier(request)
         user.regimes.sa.get.updateIndividualMainAddress(formData.toUpdateAddress) match {
           case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptParameter(errorMessage)))
           case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(encryptParameter(transactionId.oid)))
         }
+      }
     )
 
   private def encryptParameter(value: String): String = SecureParameter(value, now()).encrypt

@@ -190,7 +190,7 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(companyDetailsFormName),
-        keyStoreDataCaptor.capture())(Matchers.any())
+        keyStoreDataCaptor.capture())(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(companyName) should be("Alvaro Ltd")
       keyStoreData(tradingName) should be("Alvarito")

@@ -14,7 +14,7 @@ case class KeyStore[T](id: String, dateCreated: DateTime, dateUpdated: DateTime,
 
 class KeyStoreConnector(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends Connector {
 
-  def addKeyStoreEntry[T](id: String, source: String, key: String, data: T)(implicit manifest: Manifest[T]) {
+  def addKeyStoreEntry[T](id: String, source: String, key: String, data: T)(implicit manifest: Manifest[T], headerCarrier:HeaderCarrier) {
     val uri = buildUri(id, source) + s"/data/${key}"
     httpPut[KeyStore[T]](uri, Json.parse(toRequestBody(data)))
   }
@@ -30,7 +30,7 @@ class KeyStoreConnector(override val serviceUrl: String = MicroServiceConfig.key
     httpGet[KeyStore[T]](buildUri(id, source))
   }
 
-  def deleteKeyStore(id: String, source: String) {
+  def deleteKeyStore(id: String, source: String)(implicit hc: HeaderCarrier) {
     httpDeleteAndForget(buildUri(id, source))
   }
 

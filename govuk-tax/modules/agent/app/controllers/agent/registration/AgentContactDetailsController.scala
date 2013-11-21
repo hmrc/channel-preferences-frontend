@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import controllers.agent.registration.FormNames._
 import AgentContactDetailsFormFields._
 import controllers.common.validators.Validators
-import controllers.common.actions.{Actions, MultiFormWrapper}
+import controllers.common.actions.{HeaderCarrier, Actions, MultiFormWrapper}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
@@ -59,6 +59,7 @@ class AgentContactDetailsController(override val auditConnector: AuditConnector,
         BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get))
       },
       _ => {
+        implicit val hc = HeaderCarrier(request)
         val paye: PayeRoot = user.regimes.paye.get
         var agentDetails = contactForm.bindFromRequest()(request).data
         agentDetails +=((title, paye.title), (firstName, paye.firstName), (lastName, paye.surname), (dateOfBirth, paye.dateOfBirth), (nino, paye.nino))

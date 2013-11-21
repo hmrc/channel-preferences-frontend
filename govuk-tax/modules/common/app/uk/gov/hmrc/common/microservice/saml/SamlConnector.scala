@@ -14,7 +14,7 @@ class SamlConnector extends Connector with HeaderNames {
   def create(implicit hc: HeaderCarrier) = httpGet[AuthRequestFormData]("/saml/create")
     .getOrElse(throw new IllegalStateException("Expected SAML auth response but none returned"))
 
-  def validate(authResponse: String) = {
+  def validate(authResponse: String)(implicit hc: HeaderCarrier) = {
     val result = httpPost[AuthResponseValidationResult](
       "/saml/validate",
       Json.toJson(Map("samlResponse" -> authResponse)),

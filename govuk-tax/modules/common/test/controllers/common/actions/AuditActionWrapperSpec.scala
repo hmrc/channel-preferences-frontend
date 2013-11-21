@@ -1,7 +1,7 @@
 package controllers.common.actions
 
 import play.api.mvc.{Cookie, Action, Controller}
-import org.mockito.ArgumentCaptor
+import org.mockito.{Matchers, ArgumentCaptor}
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
@@ -58,6 +58,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import play.api.mvc.Cookie
+import org.apache.commons.codec.binary.Base64
 
 class AuditTestController(override val auditConnector: AuditConnector) extends Controller with AuditActionWrapper {
 
@@ -101,7 +102,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
       whenReady(response) {
         result =>
-          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
@@ -157,7 +158,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
       whenReady(response) {
         result =>
-          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
@@ -180,7 +181,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
       whenReady(response) {
         result =>
-          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
           forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
             event.detail should contain("deviceFingerprint" -> (
@@ -198,7 +199,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
       whenReady(response) {
         result =>
-          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
           forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
             event.detail should not contain key ("deviceFingerprint")
@@ -212,7 +213,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
       whenReady(response) {
         result =>
-          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
           forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
             event.detail should not contain key ("deviceFingerprint")
@@ -234,7 +235,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
       whenReady(response) {
         result =>
-          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())
+          verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
           val auditEvents = auditEventCaptor.getAllValues
           auditEvents.size should be(2)
@@ -296,7 +297,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       MDC.put(forwardedFor, "192.168.1.1")
 
       controller.test(None)(FakeRequest())
-      verify(auditConnector, never).audit(any(classOf[AuditEvent]))
+      verify(auditConnector, never).audit(any(classOf[AuditEvent]))(Matchers.any())
     }
   }
 

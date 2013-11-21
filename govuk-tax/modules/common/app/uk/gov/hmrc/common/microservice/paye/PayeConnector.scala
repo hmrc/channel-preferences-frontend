@@ -24,7 +24,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   def addBenefits(uri: String,
     version: Int,
     employmentSequenceNumber:Int,
-    benefits: Seq[Benefit]) : Option[AddBenefitResponse] = exWrapper {
+    benefits: Seq[Benefit])(implicit hc: HeaderCarrier) : Option[AddBenefitResponse] = exWrapper {
 
     httpPost[AddBenefitResponse](
       uri,
@@ -42,7 +42,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   def removeBenefits(uri: String,
     version: Int,
     benefits: Seq[RevisedBenefit],
-    dateCarWithdrawn: LocalDate) = exWrapper {
+    dateCarWithdrawn: LocalDate)(implicit hc: HeaderCarrier) = exWrapper {
     httpPost[RemoveBenefitResponse](
       uri,
       body = Json.parse(
@@ -56,7 +56,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel): Option[NewBenefitCalculationResponse] = exWrapper {
+  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel)(implicit hc: HeaderCarrier): Option[NewBenefitCalculationResponse] = exWrapper {
     httpPost[NewBenefitCalculationResponse](
       uri,
       body = Json.parse(

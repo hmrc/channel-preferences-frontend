@@ -69,7 +69,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
   }
 
   private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]) = {
-    preferencesConnector.savePreferences(user.getSa.utr, false, None)
+    preferencesConnector.savePreferences(user.getSa.utr, false, None)(HeaderCarrier(request))
     Redirect(FrontEndRedirect.businessTaxHome)
   }
 }

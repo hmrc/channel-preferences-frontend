@@ -70,7 +70,7 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
         Matchers.eq(controller.registrationId(user)),
         Matchers.eq(controller.agent),
         Matchers.eq(agentTypeAndLegalEntityFormName),
-        keyStoreDataCaptor.capture())(Matchers.any())
+        keyStoreDataCaptor.capture())(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(agentType) should be("inBusiness")
       keyStoreData(legalEntity) should be("ltdCompany")

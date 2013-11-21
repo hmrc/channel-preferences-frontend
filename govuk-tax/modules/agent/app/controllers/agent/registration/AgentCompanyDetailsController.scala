@@ -11,7 +11,7 @@ import controllers.common.validators.Validators
 import uk.gov.hmrc.common.microservice.domain.Address
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.{Ida, BaseController}
-import controllers.common.actions.{Actions, MultiFormWrapper}
+import controllers.common.actions.{HeaderCarrier, Actions, MultiFormWrapper}
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -126,6 +126,7 @@ class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
       },
       _ => {
         val agentCompanyDetails = companyDetailsForm.bindFromRequest()(request).data
+        implicit val hc = HeaderCarrier(request)
         keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, companyDetailsFormName, agentCompanyDetails)
         Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership())
       }

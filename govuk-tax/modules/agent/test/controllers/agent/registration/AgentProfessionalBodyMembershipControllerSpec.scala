@@ -76,7 +76,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),
         keyStoreDataCaptor.capture()
-      )(Matchers.any())
+      )(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) should be("")
       keyStoreData(qualifiedMembershipNumber) should be("")
@@ -92,7 +92,7 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),
         keyStoreDataCaptor.capture()
-      )(Matchers.any())
+      )(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) should be("charteredInstituteOfManagementAccountants")
       keyStoreData(qualifiedMembershipNumber) should be("data")

@@ -16,14 +16,16 @@ import models.agent.MatchingPerson
 import play.api.test.FakeApplication
 import scala.Some
 import uk.gov.hmrc.microservice.MicroServiceException
+import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.BaseSpec
 
-class AgentConnectorSpec extends WordSpec with Matchers with MockitoSugar {
+class AgentConnectorSpec extends BaseSpec {
 
   "The agent micro search service" should {
     "return the result when found"  in new WithApplication(FakeApplication())  {
       val request = SearchRequest("exNino", Some("exFirst"), Some("exLast"), None)
       val service = new AgentConnector {
-        override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = {
+        override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
           Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob"))).asInstanceOf[Some[A]]
         }
       }
@@ -33,7 +35,7 @@ class AgentConnectorSpec extends WordSpec with Matchers with MockitoSugar {
     "return none if not found"  in new WithApplication(FakeApplication()) {
       val request = SearchRequest("unknown", Some("exFirst"), Some("exLast"), None)
       val service = new AgentConnector {
-        override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = {
+        override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
           None
         }
       }
@@ -45,7 +47,7 @@ class AgentConnectorSpec extends WordSpec with Matchers with MockitoSugar {
     "handle a 200 response from the microservice"  in new WithApplication(FakeApplication())  {
       val request = Client("CS700100A", Some("123456789"), PreferredContact(true, Some(Contact("foo", "foo@foo.com", "1234"))))
       val service = new AgentConnector {
-        override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String]): Response = new ResponseStub("", 200)
+        override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String]) (implicit hc: HeaderCarrier): Response = new ResponseStub("", 200)
       }
       service.saveOrUpdateClient("", request)
     }
@@ -53,7 +55,7 @@ class AgentConnectorSpec extends WordSpec with Matchers with MockitoSugar {
     "throw an exception in case of errors" in {
       val request = Client("CS700100A", Some("123456789"), PreferredContact(true, Some(Contact("foo", "foo@foo.com", "1234"))))
       val service = new AgentConnector {
-        override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String]): Response = new ResponseStub("", 500)
+        override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String]) (implicit hc: HeaderCarrier): Response = new ResponseStub("", 500)
       }
 
       MDC.setContextMap(Map.empty[String, String])

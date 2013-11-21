@@ -9,7 +9,7 @@ import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.BaseController
 import controllers.common.validators.Validators
-import controllers.common.actions.{Actions, MultiFormWrapper}
+import controllers.common.actions.{HeaderCarrier, Actions, MultiFormWrapper}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -66,6 +66,7 @@ class AgentProfessionalBodyMembershipController(override val auditConnector: Aud
         BadRequest(views.html.agents.registration.professional_body_membership(errors, Configuration.config.professionalBodyOptions))
       },
       _ => {
+        implicit val hc = HeaderCarrier(request)
         val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest()(request).data
         keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership)
         Redirect(routes.AgentThankYouController.thankYou())

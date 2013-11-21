@@ -21,7 +21,7 @@ import models.agent.{SearchRequest, MatchingPerson}
 import service.agent.AgentConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 class SearchClientController(val keyStoreConnector: KeyStoreConnector,
                              override val auditConnector: AuditConnector)
@@ -60,6 +60,7 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
     form.fold(
       errors => BadRequest(search_client(errors)),
       searchWithInstanceId => {
+        implicit val hc = HeaderCarrier(request)
         val (search, instanceId) = searchWithInstanceId
         def restricted(result: MatchingPerson) = ClientSearch(result.nino,
           search.firstName.flatMap(_ => result.firstName),
@@ -76,6 +77,7 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
+                implicit val hc = HeaderCarrier(request)
                 keyStoreConnector.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
                 Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
               }

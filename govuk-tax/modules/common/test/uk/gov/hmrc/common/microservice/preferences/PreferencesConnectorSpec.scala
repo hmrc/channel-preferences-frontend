@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.preferences
 
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ BeforeAndAfterEach, ShouldMatchers, WordSpec }
+import org.scalatest.{TestData, BeforeAndAfterEach, ShouldMatchers, WordSpec}
 import play.api.libs.json.{Json, JsValue}
 import play.api.test.WithApplication
 import org.mockito.Mockito._
@@ -13,12 +13,13 @@ import play.api.libs.json.JsBoolean
 import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.domain.SaUtr
 import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.BaseSpec
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
+  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) = {
     httpWrapper.post(uri, body, headers)
   }
 
@@ -26,7 +27,7 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
     httpWrapper.get(uri)
   }
 
-  override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
+  override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier): Response = {
     httpWrapper.httpPostSynchronous(uri, body, headers)
   }
 
@@ -44,11 +45,11 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
 }
 
-class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach {
+class PreferencesConnectorSpec extends BaseSpec {
 
   lazy val preferenceMicroService: TestPreferencesConnector = new TestPreferencesConnector
 
-  override def afterEach = reset(preferenceMicroService.httpWrapper)
+  override def afterEach(testData: TestData) = reset(preferenceMicroService.httpWrapper)
 
   val utr = SaUtr("2134567")
 

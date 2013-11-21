@@ -11,7 +11,7 @@ import controllers.common.actions.HeaderCarrier
 class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
+  override protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
     httpWrapper.post(uri, body, headers)
   }
 
@@ -19,11 +19,11 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
     httpWrapper.get[A](uri)
   }
 
-  override protected def httpDeleteAndForget(uri: String) {
+  override protected def httpDeleteAndForget(uri: String)(implicit hc: HeaderCarrier) {
     httpWrapper.httpDeleteAndForget(uri)
   }
 
-  override protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
+  override protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
     httpWrapper.httpPut[A](uri, body)
   }
 

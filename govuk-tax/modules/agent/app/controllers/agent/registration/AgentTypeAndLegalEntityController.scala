@@ -8,7 +8,7 @@ import controllers.agent.registration.FormNames._
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import controllers.common.validators.Validators
-import controllers.common.actions.{Actions, MultiFormWrapper}
+import controllers.common.actions.{HeaderCarrier, Actions, MultiFormWrapper}
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -59,6 +59,7 @@ class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnec
         BadRequest(views.html.agents.registration.agent_type_and_legal_entity(errors, Configuration.config))
       },
       _ => {
+        implicit val hc = HeaderCarrier(request)
         val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest()(request).data
         keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails)
         Redirect(routes.AgentCompanyDetailsController.companyDetails())

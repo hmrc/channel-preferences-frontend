@@ -12,7 +12,7 @@ class PreferencesConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
 
-  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None) {
+  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier) {
     httpPostAndForget(s"/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 

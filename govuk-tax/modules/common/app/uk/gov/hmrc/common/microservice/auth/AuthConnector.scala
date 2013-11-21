@@ -9,5 +9,5 @@ class AuthConnector(override val serviceUrl: String = MicroServiceConfig.authSer
 
   def authority(path: String)(implicit hc: HeaderCarrier) = httpGet[UserAuthority](path)
 
-  def authorityByPidAndUpdateLoginTime(pid: String) = httpPost[UserAuthority](s"/auth/pid/${pid}", JsNull)
+  def authorityByPidAndUpdateLoginTime(pid: String)(implicit hc: HeaderCarrier) = httpPost[UserAuthority](s"/auth/pid/${pid}", JsNull)
 }

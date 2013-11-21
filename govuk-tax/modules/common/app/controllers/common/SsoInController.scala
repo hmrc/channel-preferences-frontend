@@ -9,7 +9,7 @@ import play.api.libs.json.Json
 import java.net.{ MalformedURLException, URISyntaxException, URI }
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 
 class SsoInController(ssoWhiteListService : SsoWhiteListService,
                       governmentGatewayConnector : GovernmentGatewayConnector,
@@ -37,7 +37,7 @@ class SsoInController(ssoWhiteListService : SsoWhiteListService,
         case true => {
           val tokenRequest = SsoLoginRequest(token, time)
           try {
-            val response = governmentGatewayConnector.ssoLogin(tokenRequest)
+            val response = governmentGatewayConnector.ssoLogin(tokenRequest)(HeaderCarrier(request))
             Logger.debug(s"successfully authenticated: $response.name")
             Redirect(dest.get).withSession(
               "userId" -> encrypt(response.authId),

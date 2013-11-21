@@ -30,7 +30,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
   private def applyAudited(user: Option[User], action: Action[AnyContent]) = Action.async {
     request =>
       if (traceRequests && auditConnector.enabled) {
-        val hc = HeaderCarrier(request)
+        implicit val hc = HeaderCarrier(request)
         val possibleFingerprint = deviceFingerprintFrom(request)
         val eventCreator = auditEvent(user, request, possibleFingerprint.flatMap(_.toOption), hc) _
 

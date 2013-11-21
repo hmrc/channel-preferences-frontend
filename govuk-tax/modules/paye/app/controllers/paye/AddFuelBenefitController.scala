@@ -108,6 +108,7 @@ with TaxYearSupport {
             },
 
             (addFuelBenefitData: FuelBenefitData) => {
+              implicit val hc = HeaderCarrier(request)
               val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
 
               val fuelBenefitValue = fuelCalculation(user, addFuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)
@@ -162,7 +163,7 @@ with TaxYearSupport {
     }
   }
 
-  private def fuelCalculation(user: User, addFuelBenefitData: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int): Option[BenefitValue] = {
+  private def fuelCalculation(user: User, addFuelBenefitData: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): Option[BenefitValue] = {
     val payeRoot = user.regimes.paye.get
     val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
     val benefitCalculations = payeConnector.calculateBenefitValue(uri, CarAndFuelBuilder(addFuelBenefit = addFuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)).get

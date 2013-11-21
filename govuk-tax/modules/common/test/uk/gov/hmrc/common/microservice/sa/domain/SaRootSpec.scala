@@ -89,7 +89,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       when(saConnector.updateMainAddress(uri, saMainAddress)).thenReturn(transactionId)
 
       saRoot.updateIndividualMainAddress(saMainAddress) shouldBe transactionId
-      verify(saConnector).updateMainAddress(Matchers.eq(uri), Matchers.any())
+      verify(saConnector).updateMainAddress(Matchers.eq(uri), Matchers.any())(Matchers.any())
     }
 
     "throw a IllegalStateException when link the uri is not found in the SaRoot" in {

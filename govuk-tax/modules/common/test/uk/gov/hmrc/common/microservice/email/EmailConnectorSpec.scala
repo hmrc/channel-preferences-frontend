@@ -38,7 +38,7 @@ class HttpMockedEmailConnector extends EmailConnector with MockitoSugar {
 
   override def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = httpWrapper.get[A](uri)
 
-  override def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = httpWrapper.post[A](uri, body, headers)
+  override def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = httpWrapper.post[A](uri, body, headers)
 
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None

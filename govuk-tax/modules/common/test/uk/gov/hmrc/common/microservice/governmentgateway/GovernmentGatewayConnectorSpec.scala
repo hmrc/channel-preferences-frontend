@@ -18,7 +18,7 @@ class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with Moc
     httpWrapper.get[A](uri)
   }
 
-  override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A]): Option[A] = {
+  override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
     httpWrapper.post[A](uri, body, headers)
   }
 

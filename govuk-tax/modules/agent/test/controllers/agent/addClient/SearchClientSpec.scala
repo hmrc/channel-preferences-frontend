@@ -20,6 +20,7 @@ import SearchClientController.FieldIds
 import service.agent.AgentConnector
 import models.agent.{MatchingPerson, SearchRequest}
 import concurrent.Future
+import org.mockito.Matchers
 
 class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
@@ -188,7 +189,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
-      when(agentMicroService.searchClient(any[String], any[SearchRequest])).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
+      when(agentMicroService.searchClient(any[String], any[SearchRequest])(Matchers.any())).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "étåtø", lastName = "étåtœ", dob = ("1", "1", "1991"))
 
       status(result) shouldBe 200
@@ -276,9 +277,9 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       Future.successful(controller.searchAction(agent)(request))
     }
 
-    def givenTheAgentServiceFindsNoMatch() = when(agentMicroService.searchClient(any[String], any[SearchRequest])).thenReturn(None)
+    def givenTheAgentServiceFindsNoMatch() = when(agentMicroService.searchClient(any[String], any[SearchRequest])(Matchers.any())).thenReturn(None)
     def givenTheAgentServiceReturnsAMatch(alreadyClient: Boolean = false) =
-      when(agentMicroService.searchClient(any[String], any[SearchRequest]))
+      when(agentMicroService.searchClient(any[String], any[SearchRequest])(Matchers.any()))
         .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"))))
 
   }

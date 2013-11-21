@@ -10,7 +10,6 @@ import play.api.{Logger, Play}
 import scala.concurrent._
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
-import org.slf4j.MDC
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
 
@@ -24,78 +23,57 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 
 trait Connector extends Status with HeaderNames {
 
-  import collection.JavaConversions._
   import MicroServiceConfig.defaultTimeoutDuration
 
   protected val serviceUrl: String
 
-  private def headers(): Seq[(String, String)] = {
-    val context: Map[String, String] = if (MDC.getCopyOfContextMap == null || MDC.getCopyOfContextMap.isEmpty) Map.empty else MDC.getCopyOfContextMap.toMap.asInstanceOf[Map[String, String]]
-
-    println(context)
-
-    context.foldLeft(Seq[Tuple2[String, String]]()) { (s, entry) => {
-      entry._1 match {
-        case `authorisation` => s :+ entry._1 -> s"Bearer ${entry._2}"
-        case _ => s :+ entry
-      }
-    }
-    }
-  }
-
-  protected def httpResource(uri: String) = {
-    Logger.info(s"Accessing backend service: $serviceUrl$uri")
-    WS.url(s"$serviceUrl$uri").withHeaders(headers(): _*)
-  }
-  protected def httpResource2(uri: String)(implicit headerCarrier:HeaderCarrier) = {
+  protected def httpResource(uri: String)(implicit headerCarrier:HeaderCarrier) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
 
-//  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
-
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = Await.result(response2[A](httpResource2(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = Await.result(response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
 
   protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] =
-    response2[A](httpResource2(uri).get(), uri)(extractJSONResponse[A])
+    response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
 
   //FIXME: Why is the body a JsValue? Why do we care what type it is
 
-  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
+  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
+    Await.result(response2[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
 
-  protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
+  protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) = {
     val wsResource = httpResource(uri)
-    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), defaultTimeoutDuration)
+    Await.result(response2(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), defaultTimeoutDuration)
   }
 
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
+  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
+    Await.result(response2[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
 
-  protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
+  protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier): Response = {
     val wsResource = httpResource(uri)
     Await.result(wsResource.withHeaders(headers.toSeq: _*).post(body), defaultTimeoutDuration)
   }
 
-  protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
+  protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
     val wsResource = httpResource(uri)
     wsResource.withHeaders(headers.toSeq: _*).post(body) onFailure { case throwable =>
       Logger.error(s"Async post to $uri failed", throwable)
     }
   }
 
-  protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
+  protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
     val wsResource = httpResource(uri)
     wsResource.withHeaders(headers.toSeq: _*).put(body) onFailure { case throwable =>
       Logger.error(s"Async put to $uri failed", throwable)
     }
   }
 
-  protected def httpDeleteAndForget(uri: String) {
+  protected def httpDeleteAndForget(uri: String)(implicit hc: HeaderCarrier) {
     val wsResource = httpResource(uri)
     wsResource.delete() onFailure { case throwable =>
       Logger.error(s"Async delete to $uri failed", throwable)
@@ -117,23 +95,6 @@ trait Connector extends Status with HeaderNames {
   }
 
   protected def response2[A](futureResponse: Future[Response], uri: String)(handleResponse: (Response) => A)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Option[A]] = {
-    futureResponse map { res =>
-      res.status match {
-        case OK => Some(handleResponse(res))
-        case CREATED => Some(handleResponse(res))
-        //TODO: add some proper error handling - 204 or 404 are returned as None
-        case NO_CONTENT => None
-        case NOT_FOUND => None
-        case BAD_REQUEST => throw MicroServiceException(s"Bad request trying to hit: ${httpResource2(uri)}", res)
-        case UNAUTHORIZED => throw UnauthorizedException(s"Unauthenticated request trying to hit: ${httpResource2(uri)}", res)
-        case FORBIDDEN => throw ForbiddenException(s"Not authorised to make this request trying to hit: ${httpResource2(uri)}", res)
-        case CONFLICT => throw MicroServiceException(s"Invalid state trying to hit: ${httpResource2(uri)}", res)
-        case x => throw MicroServiceException(s"Internal server error, response status is: $x trying to hit: ${httpResource2(uri)}", res)
-      }
-    }
-  }
-
-  protected def response[A](futureResponse: Future[Response], uri: String)(handleResponse: (Response) => A)(implicit m: Manifest[A]): Future[Option[A]] = {
     futureResponse map { res =>
       res.status match {
         case OK => Some(handleResponse(res))

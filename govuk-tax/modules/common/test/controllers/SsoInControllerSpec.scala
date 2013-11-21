@@ -15,6 +15,8 @@ import play.api.test.FakeApplication
 import play.api.mvc.SimpleResult
 import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.utils.DateTimeUtils
+import org.mockito.Matchers
+import controllers.common.actions.HeaderCarrier
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption with ScalaFutures {
 
@@ -68,14 +70,16 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "replace the session details if a session already exists and the login is correct" in new WithApplication(FakeApplication()) {
 
-      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(bob.encodedToken.encodeBase64, bob.loginTimestamp))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.affinityGroup, bob.encodedToken))
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${bob.encodedToken.encodeBase64}", "time": ${bob.loginTimestamp}, "dest": "$redirectUrl"}""")
+      val request = FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64)
+
+      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(bob.encodedToken.encodeBase64, bob.loginTimestamp))(HeaderCarrier(request))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.affinityGroup, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${bob.encodedToken.encodeBase64}", "time": ${bob.loginTimestamp}, "dest": "$redirectUrl"}""")
 
-      val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
-        .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64))
+      val response = controller.in(request)
 
       whenReady(response) {
         result =>
