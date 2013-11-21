@@ -25,15 +25,19 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
   import play.api.test.Helpers._
 
   abstract class WithSetup(additionalConfiguration: Map[String, _] = Map.empty) extends WithApplication(FakeApplication(additionalConfiguration = additionalConfiguration)) {
-    lazy val mockSamlConnector = mock[SamlConnector]
+    lazy val mockSamlConnector = {
+      val samlC = mock[SamlConnector]
+
+      when(samlC.create).thenReturn(
+        AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
+      )
+
+      samlC
+    }
+
     lazy val mockAuthConnector = mock[AuthConnector]
     lazy val mockGovernmentGatewayConnector = mock[GovernmentGatewayConnector]
     lazy val mockBusinessTaxPages = mock[BusinessTaxPages]
-
-    when(mockSamlConnector.create).thenReturn(
-      AuthRequestFormData("http://www.ida.gov.uk/saml", "0987654321")
-    )
-
     lazy val loginController = new LoginController(mockSamlConnector, mockGovernmentGatewayConnector, null)(mockAuthConnector){
 
       override def notOnBusinessTaxWhitelistPage = {
@@ -41,11 +45,11 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       }
     }
 
-    val originalRequestId = "govuk-tax-325-235235-23523"
+    lazy val originalRequestId = "govuk-tax-325-235235-23523"
   }
 
   trait BusinessTaxPages {
-    def notOnBusinessTaxWhitelistPage: String
+    def notOnBusinessTaxWhitelistPage: String = ""
   }
 
   "Login controller GET /login" should {

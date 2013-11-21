@@ -59,7 +59,7 @@ class LoginController(samlConnector : SamlConnector,
     }
   })
 
-  private[common] def notOnBusinessTaxWhitelistPage = views.html.whitelist_notice()
+  def notOnBusinessTaxWhitelistPage = views.html.whitelist_notice()
 
   case class SAMLResponse(response: String)
 
