@@ -57,7 +57,7 @@ trait Actions
                          redirectToOrigin: Boolean,
                          pageVisibility: PageVisibilityPredicate,
                          body: UserAction) =
-    storeHeaders {
+//    storeHeaders {
       logRequest {
         WithSessionTimeoutValidation {
           WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
@@ -71,7 +71,7 @@ trait Actions
           }
         }
       }
-    }
+//    }
 
   private def authorisedAsync(authenticationProvider: AuthenticationProvider,
                               account: Option[TaxRegime],
