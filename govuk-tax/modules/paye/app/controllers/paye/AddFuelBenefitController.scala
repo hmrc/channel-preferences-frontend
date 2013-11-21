@@ -24,8 +24,9 @@ import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import models.paye.CarAndFuelBuilder
+import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData, CarAndFuelBuilder}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import views.html.paye.add_car_benefit_confirmation
 
 
 class AddFuelBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
@@ -50,20 +51,7 @@ with TaxYearSupport {
 
   def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedFor(PayeRegime) {
-      user => request =>
-
-        // Retrieve fuel calculation data from ketstore
-
-        // Build Fuel Benefit model
-
-        // Send Fuel Benefit to the Paye Service
-
-        // Delete the keystore
-
-        // Build page model
-
-        // Return the add_fuel_benefit_confirmation template
-        Ok
+      user => request => confirmAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
   private def fuelBenefitForm(values: CarBenefitValues) = Form[FuelBenefitData](
@@ -110,7 +98,7 @@ with TaxYearSupport {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
-          val validationLesForm = validationLessForm.bindFromRequest()(request)
+          val validationLesForm = validationLessForm().bindFromRequest()(request)
 
           //TODO: Why is the car provided from the start of the tax year?
           val values = CarBenefitValues(providedFromVal = Some(startOfCurrentTaxYear), employerPayFuel = validationLesForm.get.employerPayFuel)
@@ -138,6 +126,31 @@ with TaxYearSupport {
           BadRequest
         }
       }
+    }
+  }
+
+  private[paye] def confirmAddFuelBenefitAction: ( User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
+    (request: Request[_], user : User, taxYear : Int, employmentSequenceNumber: Int, taxYearData : TaxYearData) => {
+      val keystoreId = KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber)
+
+      val fuelBenefitData = keyStoreService.getEntry[FuelBenefitData](keystoreId, KeystoreUtils.source, keystoreKey).
+        getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddFuelBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
+
+      val carBenefit  = retrieveCarBenefit(taxYearData, employmentSequenceNumber)
+
+      val carAndFuel = CarAndFuelBuilder(addFuelBenefit = fuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)
+
+      val payeRoot = user.regimes.paye.get
+      val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
+      val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
+
+      keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
+
+      val currentTaxYearCode = TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear)
+      val newTaxCode = addBenefitsResponse.get.newTaxCode
+      val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
+      val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+      Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData))
     }
   }
 

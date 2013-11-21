@@ -939,7 +939,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       verify(mockKeyStoreService).deleteKeyStore(s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye")
     }
 
-    "show to the user a confirmation page"  in new WithApplication(FakeApplication()){
+    "show the user a confirmation page"  in new WithApplication(FakeApplication()){
       setupMocksForJohnDensmore()
       when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitDataAndCalculations))
       when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))

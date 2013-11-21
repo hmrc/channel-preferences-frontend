@@ -183,7 +183,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
         val removalData = BenefitUpdatedConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year),
-          newTaxCode, personalAllowance, Dates.formatDate(startOfCurrentTaxYear), Dates.formatDate(endOfCurrentTaxYear))
+          newTaxCode, personalAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
         Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
       } else {
         Logger.error(s"Unsupported type of removed benefits: $kinds, redirecting to benefit list")

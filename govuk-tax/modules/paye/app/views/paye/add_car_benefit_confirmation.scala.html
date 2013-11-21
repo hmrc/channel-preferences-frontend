@@ -1,6 +1,7 @@
 @(addedData: models.paye.BenefitUpdatedConfirmationData)
 
 @import views.formatting.Money._
+@import views.helpers._
 
 
 @main(title = "Benefits Added") {
@@ -15,7 +16,7 @@
 </p>
 
 @addedData.personalAllowance.map{personalAllowance =>
-<p>This means that you will pay tax on anything you earn above <span id="personal-allowance">@pounds(personalAllowance)</span> between @{addedData.taxYearStart} and @{addedData.taxYearEnd}.</p>
+<p>This means that you will pay tax on anything you earn above <span id="personal-allowance">@pounds(personalAllowance)</span> between <span id="start-date">@{RenderableDateMessage(addedData.taxYearStart).render}</span> and <span id="end-date">@{RenderableDateMessage(addedData.taxYearEnd).render}</span>.</p>
 }
 
 <p>HMRC will send you a confirmation by post within a week.</p>

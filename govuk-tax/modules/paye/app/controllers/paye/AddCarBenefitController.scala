@@ -141,7 +141,7 @@ with TaxYearSupport {
       val currentTaxYearCode = TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear)
       val newTaxCode = addBenefitsResponse.get.newTaxCode
       val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
-      val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, "start date", "end date")
+      val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
 
       Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
     }
