@@ -1,0 +1,36 @@
+@(deEnrolLink: views.helpers.RenderableMessage, enrolLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.helpers.RenderableMessageProperty.Link._
+@import views.formatting.Dates._
+@import config.PortalConfig
+@import uk.gov.hmrc.common.PortalUrlBuilder
+
+@main(title = "Merge your Government Gateway accounts", nav = false, user= Some(user)) {
+
+    <h1><span class="pre-heading">service</span>@Messages("bt.mergeggaccount.title")</h1>
+
+    <p>@Messages("bt.mergeggaccount.text.1")</p>
+
+    <ol>
+        <li>@Messages("bt.mergeggaccount.step1")</li>
+        <li>@Messages("bt.mergeggaccount.step2")</li>
+        <li>@deEnrolLink.render</li>
+        <li>
+            @Messages("bt.mergeggaccount.step4")
+            @enrolLink.render
+        </li>
+        <li>@Messages("bt.mergeggaccount.step5")</li>
+    </ol>
+
+    <p>
+        @{Html(Messages("bt.mergeggaccount.lostGgNumbers"))}
+        <a id="getGGBackHref" href="https://online.hmrc.gov.uk/user/credentials/userid" target="_blank">@Messages("bt.mergeggaccount.lostGgNumbers.linkText")</a>.
+    </p>
+
+    <p>
+        @Messages("bt.mergeggaccount.contact.1")
+        <a id="onlineHelpHref" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">@Messages("bt.mergeggaccount.contact.2.linkText")</a>
+        @Messages("bt.mergeggaccount.contact.3")
+    </p>
+
+}

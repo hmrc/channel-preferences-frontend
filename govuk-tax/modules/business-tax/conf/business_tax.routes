@@ -6,6 +6,7 @@ GET     /sa/makeAPayment                                @controllers.bt.PaymentC
 GET     /epaye/makeAPayment                             @controllers.bt.PaymentController.makeEpayePayment
 GET     /otherServices                                  @controllers.bt.OtherServicesController.otherServices
 GET     /importantDates                                 @controllers.bt.ImportantDatesController.importantDates
+GET     /mergeGGAccounts                                @controllers.bt.MergeGGAccountsController.mergeGGAccounts
 
 GET     /prefs/sa/print                                 @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[String])
 POST    /prefs/sa/print                                 @controllers.bt.prefs.SaPrefsController.submitPrefsForm

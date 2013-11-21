@@ -61,30 +61,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(mockPreferencesConnector)
     }
 
-    "always render the sso links to enrol, de-enrol and manage services" in new BusinessTaxControllerTestSetup {
-
-      val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
-      val request = FakeRequest()
-
-      implicit val headerCarrier = HeaderCarrier()
-      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), Matchers.eq(headerCarrier))).thenReturn(Future(AccountSummaries(Seq.empty)))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
-
-      val result = Future.successful(controllerUnderTest.businessTaxHomepage(false)(user, request))
-
-      status(result) shouldBe 200
-
-      val document = Jsoup.parse(contentAsString(result))
-
-      document.getElementById("enrolServiceHref1").attr("href") shouldBe "otherServicesEnrolmentUrl"
-      document.getElementById("enrolServiceHref2").attr("href") shouldBe "otherServicesEnrolmentUrl"
-      document.getElementById("removeServiceHref").attr("href") shouldBe "servicesDeEnrolmentUrl"
-
-      verifyZeroInteractions(mockPreferencesConnector)
-    }
-
     "render the sa widget" in new BusinessTaxControllerTestSetup {
       val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
 

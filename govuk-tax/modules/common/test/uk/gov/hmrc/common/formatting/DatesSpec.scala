@@ -59,8 +59,8 @@ class DatesSpec extends WordSpec with Matchers {
         Table(
           // UTC internally to -> Lon externally.
           ("date", "expectedDateFormat"),
-          (new DateTime(2013, 10, 23, 12, 30, UTC), "Wednesday 23 October, 2013 at 1:30PM"),
-          (new DateTime(1899, 7, 3, 12, 30, UTC), "Monday 3 July, 1899 at 12:30PM")
+          (new DateTime(2013, 10, 23, 12, 30, UTC), "Wednesday 23 October 2013 at 1:30pm"),
+          (new DateTime(1899, 7, 3, 12, 30, UTC), "Monday 3 July 1899 at 12:30pm")
         )
       forAll (dateTable) { (date : DateTime, expectedDateFormat : String) =>
         formatEasyReadingTimestamp(Some(date), "") shouldBe expectedDateFormat

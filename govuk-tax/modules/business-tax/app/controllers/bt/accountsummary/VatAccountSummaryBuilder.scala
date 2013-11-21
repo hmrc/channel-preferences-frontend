@@ -38,7 +38,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
           val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
             Msg(vatSummaryUnavailableErrorMessage3),
             //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
-            Msg(vatSummaryUnavailableErrorMessage4, Seq(LinkMessage.portalLink(buildPortalUrl(vatHelpDeskPortalUrl), Some(vatHelpDeskLinkMessage), id = Some("vatHelpDeskPortalHref")))))
+            Msg(vatSummaryUnavailableErrorMessage4))
           AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
         }
       }
@@ -60,7 +60,6 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
 object VatPortalUrls {
   val vatAccountDetailsPortalUrl = "vatAccountDetails"
   val vatFileAReturnPortalUrl = "vatFileAReturn"
-  val vatHelpDeskPortalUrl = "vatHelpDesk" // TODO [JJS] WHAT'S THE CORRECT HELP DESK LINK - was set to "/TODO/HelpDeskLink"
 }
 
 object VatMessageKeys {

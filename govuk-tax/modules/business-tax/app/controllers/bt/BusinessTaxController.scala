@@ -15,6 +15,7 @@ import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import uk.gov.hmrc.domain.SaUtr
 import controllers.bt.prefs.{routes => PreferencesRoutes}
+import play.api.i18n.Messages
 
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
                             preferencesConnector: PreferencesConnector,
@@ -38,11 +39,9 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
     implicit val headerCarrier = HeaderCarrier(request)
     val accountSummariesF = accountSummaryFactory.create(buildPortalUrl)
     val otherServicesLink = LinkMessage.internalLink(controllers.bt.routes.OtherServicesController.otherServices().url, "link")
-    val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"))
-    val removeServiceLink = LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"))
-
+    val mergeGGAccountsLink = LinkMessage.internalLink(controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts().url, Messages("bt.home.mergeAccountsLink"))
     accountSummariesF.map { accountSummaries =>
-      Ok(views.html.business_tax_home(accountSummaries, otherServicesLink, enrolServiceLink, removeServiceLink))
+      Ok(views.html.business_tax_home(accountSummaries, otherServicesLink, mergeGGAccountsLink))
     }
   }
 

@@ -1,4 +1,4 @@
-@(accountSummaries: controllers.bt.accountsummary.AccountSummaries, otherServicesLink: views.helpers.RenderableMessage, enrolServiceLink: views.helpers.RenderableMessage, removeServiceLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(accountSummaries: controllers.bt.accountsummary.AccountSummaries, otherServicesLink: views.helpers.RenderableMessage, mergeGGAccountsLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.RenderableMessageProperty.Link._
 @import views.formatting.Dates._
@@ -7,7 +7,7 @@
 
 @main(title = "Your tax home", nav = true, sidebarLinks = Some(sidebarLinks), user= Some(user)) {
 
-    <h1><span class="pre-heading">service</span> Your tax account</h1>
+    <h1><span class="pre-heading">service</span>@Messages("bt.home.title")</h1>
 
     @for(ac <- accountSummaries.regimes) {
         <div id="@ac.regimeName" class="account-summary">
@@ -24,68 +24,39 @@
         </div>
     }
 
-    <h2>Other services</h2>
-    <p>Follow this @{otherServicesLink.set(ID, "otherServicesHref").set(TEXT, "link").render} to manage your other taxes, register for new taxes, and enrol for new online services.</p>
+    <h2>@Messages("bt.home.otherTaxes")</h2>
+    <p>@Messages("bt.home.mergeAccounts.1")</p>
+    <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
+    <p>@mergeGGAccountsLink.set(ID, "mergeGGHref").render</p>
+    <p>
+        @Messages("bt.home.everythingElse.1")
+        @{otherServicesLink.set(ID, "otherServicesHref").set(TEXT, Messages("bt.home.everythingElse.linkText")).render}
+        @Messages("bt.home.everythingElse.2")
+    </p>
 
-    <h2>Why can't I see my tax account details:</h2>
-
-    <p>The summary of your taxes shown on this page is based on the online services attached to the Government Gateway account that you used to log in. If something is missing, it may be because:</p>
-
-    <ul class="bullets">
-        <li>you have not yet enrolled to use this online service. If this is the case, you can enrol for it now by following this @{enrolServiceLink.set(ID, "enrolServiceHref1").set(TEXT, "link").render}</li>
-        <li>you have enrolled this service with a different Government Gateway account (see "What do I need to do to see my tax account details")</li>
-	    <li>you have only just enrolled this service with this Government Gateway account and there is a short delay before the information is available to view</li>
-    </ul>
-
-    <p>If you do not think either of the above reasons apply, please contact us Online Services Helpdesk.</p>
-
-    <h2>What do I need to do to see my tax account details:</h2>
-
-    <p>You will need all the details you used to set up the services you are moving such as tax reference numbers and postcodes.</p>
-
-    <p>To move your online services into one account please follow these steps:</p>
-
-    <ul class="">
-	<li>
-	    <h3>Step 1 - remove the services from the Government Gateway account you don't want to use</h3>
-        <p>Log back in with the User ID for the online service you want to move.
-           If you are now logged in with that User ID click @{removeServiceLink.set(ID, "removeServiceHref").set(TEXT, "here").render} to remove (de-enrol) the service(s) then log out of this account
-	</li>
-
-	<li>
-	    <h3>Step 2 - add the services to the Government Gateway account you do want to use</h3>
-	    <p>Log in again, this time with the User ID and password you want to use as your main account and click @{enrolServiceLink.set(ID, "enrolServiceHref2").set(TEXT, "here").render} to add (enrol) the service(s) you want to use.</p>
-	</li>
-	<li>
-	    <h3>Step 3</h3>
-	    <p>Select the service(s) you have just removed and enrol for them again, following the on-screen instructions.</p>
-	</li>
-    </ul>
-
-    <p>If the service you've added needs to be activated before you can use it HM Revenue & Customs will send a new activation code to the address held for you.</p>
-
-    <p>When you have successfully moved your services, you will be able to see them on your homepage when you log-in using your chosen Government Gateway account.</p>
 }
 
 @sidebarLinks = {
     <div class="service-info__related-subsection">
 
-	<h2>Information about business taxes</h2>
+	<h2>@Messages("bt.home.sidebarLinks.title")</h2>
 
-	<p class="service-info__help">These links will open in a new window</p>
+	<p class="service-info__help">@Messages("bt.home.sidebarLinks.info")</p>
 
 	<nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
 	    <ul>
 		<li>
-		    <a href="https://www.gov.uk/browse/tax" target="_blank">Find more information on GOV.UK</a>
+		    <a href="https://www.gov.uk/browse/tax" target="_blank">@Messages("bt.home.sidebarLinks.money.text")</a>
 		</li>
 		<li>
-		    <a href="http://www.hmrc.gov.uk/webinars/" target="_blank">Attend one of our online seminars to learn more about tax</a>
+		    <a href="http://www.hmrc.gov.uk/webinars/" target="_blank">@Messages("bt.home.sidebarLinks.webinars.text")</a>
 		</li>
 		<li>
-		    <a href="http://www.youtube.com/hmrcgovuk" target="_blank">Watch one of our bite-sized videos on HMRC's YouTube channel</a>
+		    <a href="http://www.youtube.com/hmrcgovuk" target="_blank">@Messages("bt.home.sidebarLinks.youtube.text")</a>
 		</li>
-		<li><a class="service-info__navigation__more" href="https://www.gov.uk/browse/tax/self-assessment" target="_blank">more</a></li>
+		<li>
+            <a class="service-info__navigation__more" href="https://www.gov.uk/browse/tax/self-assessment" target="_blank">@Messages("bt.home.sidebarLinks.more.text")</a>
+        </li>
 	    </ul>
 	</nav>
     </div>
