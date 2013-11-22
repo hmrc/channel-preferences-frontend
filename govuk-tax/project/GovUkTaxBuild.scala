@@ -111,7 +111,8 @@ object Common {
       ),
       resolvers ++= Repositories.resolvers,
       retrieveManaged := true,
-      testOptions in Test += Tests.Argument("-u", "target/test-reports", "-h", "target/test-reports/html-report")
+      testOptions in Test += Tests.Argument("-u", "target/test-reports", "-h", "target/test-reports/html-report"),
+      testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
     ) ++
     jasmineSettings ++
     Seq(
