@@ -1,6 +1,5 @@
 package controllers.bt.accountsummary
 
-import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import CommonBusinessMessageKeys._
 import SaMessageKeys._
@@ -12,32 +11,42 @@ import uk.gov.hmrc.common.microservice.sa.domain.{Liability, SaAccountSummary, S
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import controllers.bt.routes
 
 
-class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
+class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector)
+  extends AccountSummaryBuilder[SaUtr, SaRoot] {
   def rootForRegime(user: User): Option[SaRoot] = user.regimes.sa
 
   override protected val defaultRegimeNameMessageKey = saRegimeName
 
-  def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String)(implicit hc: HeaderCarrier): Future[AccountSummary] = {
-    saRoot.accountSummary(saConnector, hc).map(SaASBuild.build(_, saRoot.identifier, buildPortalUrl))
+  def buildAccountSummary(saRoot: SaRoot, bpu: String => String)(implicit hc: HeaderCarrier): Future[AccountSummary] = {
+    val builder = new SaASBuild {
+      val saPaymentUrl = routes.PaymentController.makeSaPayment.url
+      def buildPortalUrl(s:String) = bpu(s)
+    }
+    saRoot.accountSummary(saConnector, hc).map(builder.build(_, saRoot.identifier))
   }
 }
 
-object SaASBuild {
-  def build(os: Option[SaAccountSummary], utr: SaUtr, buildPortalUrl: String => String): AccountSummary = os match {
-    case Some(s) => makeSummary(s, utr, buildPortalUrl)
+trait SaASBuild {
+  def buildPortalUrl(s: String): String
+
+  def saPaymentUrl: String
+
+  def build(os: Option[SaAccountSummary], utr: SaUtr): AccountSummary = os match {
+    case Some(s) => makeSummary(s, utr)
     case _ => unavailable(utr)
   }
 
   def utrMessage(utr: SaUtr) = Msg(saUtrMessage, Seq(utr.utr))
 
-  def makeSummary(saSummary: SaAccountSummary, utr: SaUtr, buildPortalUrl: String => String) = AccountSummary(
+  def makeSummary(saSummary: SaAccountSummary, utr: SaUtr) = AccountSummary(
     regimeName = saRegimeName,
     messages = utrMessage(utr) +: buildMessages(saSummary),
     addenda = Seq(
       LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
-      LinkMessage.internalLink(routes.PaymentController.makeSaPayment.url, makeAPaymentLinkMessage),
+      LinkMessage.internalLink(saPaymentUrl, makeAPaymentLinkMessage),
       LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
     status = SummaryStatus.success
   )

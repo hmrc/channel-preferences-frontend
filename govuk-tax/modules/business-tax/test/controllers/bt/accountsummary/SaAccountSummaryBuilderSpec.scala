@@ -14,11 +14,18 @@ import uk.gov.hmrc.domain.SaUtr
 
 class SaAccountSummaryBuilderSpec extends BaseSpec {
   private val homeUrl = "http://home"
-  private val makeAPaymentUrl = routes.PaymentController.makeSaPayment.url
+  private val makeAPaymentUrl = routes.PaymentController.makeSaPayment().url
   private val liabilityDate = new LocalDate(2014, 1, 15)
   private val saUtr = SaUtr("123456789")
   private val utrMessage = Msg("sa.message.utr", Seq(saUtr.utr))
 
+  val saAsBuilder = new SaASBuild {
+    def saPaymentUrl: String = makeAPaymentUrl
+
+    def buildPortalUrl(s: String) = s match {
+      case saHomePortalUrl => homeUrl
+    }
+  }
 
   "Sa Account SummaryView Builder builds correct Account Summary model " should {
     " when no amounts are due now or later " in {
@@ -34,7 +41,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
 
     "when an amount is due now (payable) " in {
       val amountDue = BigDecimal(100)
-      val totalAmountDueToHmrc = Some(AmountDue(amountDue, true))
+      val totalAmountDueToHmrc = Some(AmountDue(amountDue, requiresPayment = true))
       val nextPayment = None
       val amountHmrcOwe = Some(BigDecimal(0))
 
@@ -47,7 +54,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
 
     "when amounts are due now and later " in {
       val amountDue = BigDecimal(100)
-      val totalAmountDueToHmrc = Some(AmountDue(amountDue, true))
+      val totalAmountDueToHmrc = Some(AmountDue(amountDue, requiresPayment = true))
 
       val liabilityAmount = BigDecimal(20)
       val nextPayment = Some(Liability(new LocalDate(2014, 1, 15), liabilityAmount))
@@ -89,7 +96,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
     }
 
     "when no amounts due currently but amounts becoming due for payment " in {
-      val totalAmountDueToHmrc = Some(AmountDue(BigDecimal(0), false))
+      val totalAmountDueToHmrc = Some(AmountDue(BigDecimal(0), requiresPayment = false))
       val liabilityAmount = BigDecimal(20)
       val nextPayment = Some(Liability(new LocalDate(2014, 1, 15), liabilityAmount))
       val amountHmrcOwe = Some(BigDecimal(0))
@@ -104,7 +111,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
 
     "when amount due for payment (not payable) and other becoming due " in {
       val amountDue = BigDecimal(10)
-      val totalAmountDueToHmrc = Some(AmountDue(amountDue, false))
+      val totalAmountDueToHmrc = Some(AmountDue(amountDue, requiresPayment = false))
       val liabilityAmount = BigDecimal(20)
       val nextPayment = Some(Liability(new LocalDate(2014, 1, 15), liabilityAmount))
       val amountHmrcOwe = None
@@ -137,22 +144,16 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
     RenderableLinkMessage(LinkMessage(homeUrl, fileAReturnLinkMessage, sso = true))
   )
 
-  def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage] = goodLinks): AccountSummary =
+  def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage] = goodLinks): Unit =
     testSaAccountSummaryBuilder(Some(accountSummary), expectedMessages, expectedLinks)
 
-  private def testSaAccountSummaryBuilder(aso: Option[SaAccountSummary], expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage]): AccountSummary = {
-    def urlBuilder(s: String) = s match {
-      case saHomePortalUrl => homeUrl
-      case makeAPaymentLinkMessage => makeAPaymentUrl
-    }
-
-    val actualAccountSummary = SaASBuild.build(aso, saUtr, urlBuilder)
+  def testSaAccountSummaryBuilder(aso: Option[SaAccountSummary], expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage]): Unit = {
+    val actualAccountSummary = saAsBuilder.build(aso, saUtr)
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName
     actualAccountSummary.messages shouldBe utrMessage +: expectedMessages
 
     actualAccountSummary.addenda shouldBe expectedLinks
-    actualAccountSummary
   }
 
 }
