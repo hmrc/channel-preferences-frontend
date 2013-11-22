@@ -9,7 +9,7 @@ import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.Actions
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
@@ -28,7 +28,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   def this() = this(new AccountSummariesFactory(), Connectors.preferencesConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   def home(fromLogin: Option[String]) = AuthenticatedBy(GovernmentGateway).async {
-    user => request => businessTaxHomepage(fromLogin.map(_ == "true").getOrElse(false))(user, request)
+    user => request => businessTaxHomepage(fromLogin.exists(_ == "true"))(user, request)
   }
 
   private[bt] def businessTaxHomepage(fromLogin: Boolean)(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
@@ -36,7 +36,6 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   }
 
   private def renderHomePage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    implicit val headerCarrier = HeaderCarrier(request)
     val accountSummariesF = accountSummaryFactory.create(buildPortalUrl)
     val otherServicesLink = LinkMessage.internalLink(controllers.bt.routes.OtherServicesController.otherServices().url, "link")
     val mergeGGAccountsLink = LinkMessage.internalLink(controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts().url, Messages("bt.home.mergeAccountsLink"))
@@ -46,7 +45,6 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   }
 
   private def capturePrintPreferences(utr: SaUtr)(implicit user: User, request: Request[AnyRef]) = {
-    implicit val headerCarrier = HeaderCarrier(request)
     preferencesConnector.getPreferences(utr) match {
       case Some(pref) => renderHomePage
       case None => Future.successful(Redirect(PreferencesRoutes.SaPrefsController.displayPrefsForm(None)))

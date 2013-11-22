@@ -10,5 +10,5 @@ abstract class BaseController extends Controller {
 
   override def HTML(implicit codec: Codec) = s"${MimeTypes.HTML};charset=utf-8"
 
-  implicit def hc(request:Request[_]): HeaderCarrier = HeaderCarrier(request)
+  implicit def hc(implicit request:Request[_]): HeaderCarrier = HeaderCarrier(request)
 }
