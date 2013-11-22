@@ -224,7 +224,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       status(result) shouldBe 401
       contentAsString(result) should include("form")
-      contentAsString(result) should include("Invalid User ID or Password")
+      contentAsString(result) should include("Invalid username or password. Try again.")
 
       session(result).get("userId") shouldBe None
     }
@@ -293,7 +293,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val result = loginController.loggedout(FakeRequest().withSession("someKey" -> "someValue"))
 
       status(result) shouldBe(200)
-      contentAsString(result) should include("logged out")
+      contentAsString(result) should include("signed out")
 
       val sess = session(result)
       sess.get("someKey") shouldBe None

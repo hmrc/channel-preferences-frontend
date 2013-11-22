@@ -26,7 +26,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return an OnlineServicesEnrolment object with the SSO link to access the portal" in new OtherServicesFactoryForTest {
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("http://someLink")
-      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "here", sso = true, id=Some("otherServicesEnrolmentHref"))))
+      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "online access", sso = true, id=Some("otherServicesEnrolmentHref"))))
       val result = factoryUnderTest.createOnlineServicesEnrolment(mockPortalUrlBuilder.buildPortalUrl)
 
       result shouldBe expected
@@ -38,7 +38,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
     "return an OnlineServicesDeEnrolment object with the SSO link to access the portal" in new OtherServicesFactoryForTest {
 
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("http://someLink")
-      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "here", sso = true, id = Some("servicesDeEnrolmentHref"))))
+      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "de-enrol from it", sso = true, id = Some("servicesDeEnrolmentHref"))))
       val result = factoryUnderTest.createOnlineServicesDeEnrolment(mockPortalUrlBuilder.buildPortalUrl)
 
       result shouldBe expected

@@ -53,7 +53,7 @@ class LoginController(samlConnector : SamlConnector,
         FrontEndRedirect.toBusinessTaxFromLogin
           .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
       } catch {
-        case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid User ID or Password")))
+        case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid username or password. Try again.")))
         case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
       }
     }

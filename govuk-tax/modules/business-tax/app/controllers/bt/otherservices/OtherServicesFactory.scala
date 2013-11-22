@@ -37,10 +37,10 @@ class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnecto
   }
 
   def createOnlineServicesEnrolment(buildPortalUrl: String => String): OnlineServicesEnrolment =
-    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl("otherServicesEnrolment"), text = Some("here"), id = Some("otherServicesEnrolmentHref"))))
+    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl("otherServicesEnrolment"), text = Some("online access"), id = Some("otherServicesEnrolmentHref"))))
 
   def createOnlineServicesDeEnrolment(buildPortalUrl: String => String): OnlineServicesEnrolment =
-    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl("servicesDeEnrolment"), text = Some("here"), id = Some("servicesDeEnrolmentHref"))))
+    OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage.portalLink(href = buildPortalUrl("servicesDeEnrolment"), text = Some("de-enrol from it"), id = Some("servicesDeEnrolmentHref"))))
 
   def createBusinessTaxesRegistration(buildPortalUrl: String => String)(implicit user: User) = {
 
