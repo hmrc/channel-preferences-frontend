@@ -5,7 +5,7 @@
 <div class="service-info">
     <p class="service-info__organisation-logo">HM Revenue<br />&amp; Customs</p>
 
-    <p id="lastlogin">
+    <p id="lastlogin" class="service-info__help">
 	@if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
 	    @Messages("common.previousLoginTime", user.get.displayName.get, formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, ""))
     } else {
@@ -13,7 +13,7 @@
 	}
     </p>
 
-    <p><a href="@common.routes.LoginController.logout">Log out of your account</a></p>
+    <p class="service-info__help"><a href="@common.routes.LoginController.logout">Log out of your account</a></p>
 </div>
 
 @if( sidebarLinks.isDefined ) {
