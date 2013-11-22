@@ -15,17 +15,14 @@
         <tr><td>Date provided</td><td id="provided-from">@{formatDate(data.providedFrom.get)}</td></tr>
         }
         <tr><td>Private fuel</td><td id="private-fuel"> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
-        @if(data.carFuelBenefitValue.isDefined){
-        <tr><td>Fuel benefit taxable value</td><td><span id="fuelBenefitTaxableValue">@pounds(data.carFuelBenefitValue.get.taxableValue)</span></td></tr>
-        }
+        <tr><td>Fuel benefit taxable value</td><td><span id="fuelBenefitTaxableValue">@pounds(data.carFuelBenefitValue.taxableValue)</span></td></tr>
         </tbody>
     </table>
     }
 
     <a id="edit-data" href=@currentUri>This information is wrong</a>
 
-    @if(data.carFuelBenefitValue.isDefined){
-    <p>Based on the information your private fuel benefit value is @pounds(data.carFuelBenefitValue.get.taxableValue).</p>
+    <p>Based on the information your private fuel benefit value is @pounds(data.carFuelBenefitValue.taxableValue).</p>
     <p>In order to calculate the actual tax you will pay on this benefit, we need to add it to your other income and tax information, and recalculate your tax code.</p>
 
     <p>However the following provides an indication of the tax you will pay if you are a basic rate (20%), higher rate (40%) or additional rate (45%) taxpayer:</p>
@@ -43,14 +40,14 @@
         <tbody>
         <tr>
             <td>Private fuel tax</td>
-            <td>@pounds(data.carFuelBenefitValue.get.basicRateValue, 2)</td>
-            <td>@pounds(data.carFuelBenefitValue.get.higherRateValue, 2)</td>
-            <td>@pounds(data.carFuelBenefitValue.get.additionalRateValue, 2)</td>
+            <td>@pounds(data.carFuelBenefitValue.basicRateValue, 2)</td>
+            <td>@pounds(data.carFuelBenefitValue.higherRateValue, 2)</td>
+            <td>@pounds(data.carFuelBenefitValue.additionalRateValue, 2)</td>
         </tr>
 
         </tbody>
     </table>
-    }
+
     @helper.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
         <button type="submit">Submit</button>
     }

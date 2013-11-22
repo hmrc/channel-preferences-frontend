@@ -1,7 +1,7 @@
 package models.paye
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.common.microservice.paye.domain.{Benefit, Car, CarAndFuel}
+import uk.gov.hmrc.common.microservice.paye.domain.{BenefitValue, Benefit, Car, CarAndFuel}
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 import controllers.paye.FuelBenefitData
 
@@ -43,17 +43,17 @@ object CarAndFuelBuilder {
     new CarAndFuel(carBenefit, fuelBenefit)
   }
 
-  def apply(addFuelBenefit: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) : CarAndFuel  = {
+  def apply(addFuelBenefit: FuelBenefitData, taxableBenefit: Int, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) : CarAndFuel  = {
     val car = carBenefit.car
     val fuelBenefit = addFuelBenefit.employerPayFuel match {
 
       case Some("true" | "again") => Some(createBenefit(benefitType = FUEL, withdrawnDate = carBenefit.dateWithdrawn, taxYear = taxYear,
                                                         employmentSeqNumber =  employmentSequenceNumber, car = car,
-                                                        grossBenefitAmount = 0))
+                                                        grossBenefitAmount = taxableBenefit))
 
       case Some("date") => Some(createBenefit(benefitType = FUEL, withdrawnDate = addFuelBenefit.dateFuelWithdrawn,
                                               taxYear = taxYear, employmentSeqNumber =  employmentSequenceNumber, car = car,
-                                              grossBenefitAmount = 0))
+                                              grossBenefitAmount = taxableBenefit))
 
       case _ => None
     }

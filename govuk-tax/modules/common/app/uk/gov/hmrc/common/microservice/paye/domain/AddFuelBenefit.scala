@@ -6,4 +6,4 @@ case class AddFuelBenefitConfirmationData(employerName: Option[String],
                                           providedFrom: Option[LocalDate],
                                           employerPayFuel: String,
                                           dateFuelWithdrawn: Option[LocalDate],
-                                          carFuelBenefitValue: Option[BenefitValue])
+                                          carFuelBenefitValue: BenefitValue)
