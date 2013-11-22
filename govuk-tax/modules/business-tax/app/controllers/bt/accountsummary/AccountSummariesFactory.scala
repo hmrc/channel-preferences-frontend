@@ -12,6 +12,7 @@ class AccountSummariesFactory(saRegimeAccountSummaryViewBuilder: SaAccountSummar
 
   def create(buildPortalUrl: (String) => String)(implicit user: User, headerCarrier: HeaderCarrier): Future[AccountSummaries] = {
     val sa = saRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
+
     val ct = ctRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
     val vat = vatRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)
     val epaye = epayeRegimeAccountSummaryViewBuilder.build(buildPortalUrl, user)

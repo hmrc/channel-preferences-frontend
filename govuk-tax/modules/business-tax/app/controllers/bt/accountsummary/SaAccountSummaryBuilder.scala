@@ -14,57 +14,60 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 
 
-case class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
-
-  private def utrMessage(utr: SaUtr): Msg = {
-    Msg(saUtrMessage, Seq(utr.utr))
-  }
-
+class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector) extends AccountSummaryBuilder[SaUtr, SaRoot] {
   def rootForRegime(user: User): Option[SaRoot] = user.regimes.sa
 
-  def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String)(implicit hc: HeaderCarrier): Future[AccountSummary] = {
-    saRoot.accountSummary(saConnector, hc) map {
-      case Some(saAccountSummary) => AccountSummary(
-        regimeName = saRegimeName,
-        messages = utrMessage(saRoot.identifier) +: SaAccountSummaryMessagesBuilder(saAccountSummary).build(),
-        addenda = Seq(
-          LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
-          LinkMessage.internalLink(routes.PaymentController.makeSaPayment.url, makeAPaymentLinkMessage),
-          LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
-        status = SummaryStatus.success
-      )
-      case _ => AccountSummary(
-        regimeName = saRegimeName,
-        messages = utrMessage(saRoot.identifier) +: Seq(
-          Msg(saSummaryUnavailableErrorMessage1),
-          Msg(saSummaryUnavailableErrorMessage2),
-          Msg(saSummaryUnavailableErrorMessage3),
-          Msg(saSummaryUnavailableErrorMessage4)
-        ),
-        addenda = Seq.empty,
-        status = SummaryStatus.default
-      )
-    }
-  }
-
   override protected val defaultRegimeNameMessageKey = saRegimeName
+
+  def buildAccountSummary(saRoot: SaRoot, buildPortalUrl: String => String)(implicit hc: HeaderCarrier): Future[AccountSummary] = {
+    saRoot.accountSummary(saConnector, hc).map(SaASBuild.build(_, saRoot.identifier, buildPortalUrl))
+  }
 }
 
-case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
+object SaASBuild {
+  def build(os: Option[SaAccountSummary], utr: SaUtr, buildPortalUrl: String => String): AccountSummary = os match {
+    case Some(s) => makeSummary(s, utr, buildPortalUrl)
+    case _ => unavailable(utr)
+  }
 
-  def build(): Seq[Msg] = {
+  def utrMessage(utr: SaUtr) = Msg(saUtrMessage, Seq(utr.utr))
 
-    val messages = accountSummary.amountHmrcOwe match {
+  def makeSummary(saSummary: SaAccountSummary, utr: SaUtr, buildPortalUrl: String => String) = AccountSummary(
+    regimeName = saRegimeName,
+    messages = utrMessage(utr) +: buildMessages(saSummary),
+    addenda = Seq(
+      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
+      LinkMessage.internalLink(routes.PaymentController.makeSaPayment.url, makeAPaymentLinkMessage),
+      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
+    status = SummaryStatus.success
+  )
+
+  def unavailable(utr: SaUtr) =
+    AccountSummary(regimeName = saRegimeName,
+      messages = utrMessage(utr) +: Seq(
+        Msg(saSummaryUnavailableErrorMessage1),
+        Msg(saSummaryUnavailableErrorMessage2),
+        Msg(saSummaryUnavailableErrorMessage3),
+        Msg(saSummaryUnavailableErrorMessage4)
+      ),
+      addenda = Seq.empty,
+      status = SummaryStatus.default
+    )
+
+
+  def buildMessages(saSummary: SaAccountSummary): Seq[Msg] = {
+
+    val messages = saSummary.amountHmrcOwe match {
 
       case Some(amountHmrcOwe) if amountHmrcOwe > 0 => {
 
         addLiabilityMessageIfApplicable(
-          liability = accountSummary.nextPayment,
+          liability = saSummary.nextPayment,
           msgs = Seq(Msg(saYouHaveOverpaidMessage), Msg(saAmountDueForRepaymentMessage, Seq(MoneyPounds(amountHmrcOwe)))),
           alternativeMsg = None)
       }
       case _ => {
-        accountSummary.totalAmountDueToHmrc match {
+        saSummary.totalAmountDueToHmrc match {
           case Some(totalAmountDueToHmrc) => {
             val msgs = totalAmountDueToHmrc.requiresPayment match {
               case true =>
@@ -84,13 +87,13 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
                 )
               }
             }
-            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, None)
+            addLiabilityMessageIfApplicable(saSummary.nextPayment, msgs, None)
           }
           case _ => {
             val msgs = Seq(
               Msg(saNothingToPayMessage)
             )
-            addLiabilityMessageIfApplicable(accountSummary.nextPayment, msgs, None)
+            addLiabilityMessageIfApplicable(saSummary.nextPayment, msgs, None)
           }
         }
       }
@@ -99,15 +102,15 @@ case class SaAccountSummaryMessagesBuilder(accountSummary: SaAccountSummary) {
     messages
   }
 
-  private def getLiabilityMessage(liability: Option[Liability]): Option[Msg] = {
+  def getLiabilityMessage(liability: Option[Liability]): Option[Msg] = {
     liability match {
       case Some(l) => Some(Msg(saWillBecomeDueMessage, Seq(MoneyPounds(liability.get.amount), liability.get.dueDate)))
       case None => None
     }
   }
 
-  private def addLiabilityMessageIfApplicable(liability: Option[Liability], msgs: Seq[Msg], alternativeMsg: Option[Msg]): Seq[Msg] = {
-    val liabilityMessage = getLiabilityMessage(accountSummary.nextPayment)
+  def addLiabilityMessageIfApplicable(liability: Option[Liability], msgs: Seq[Msg], alternativeMsg: Option[Msg]): Seq[Msg] = {
+    val liabilityMessage = getLiabilityMessage(liability)
     liabilityMessage match {
       case Some(message) => msgs ++ liabilityMessage
       case _ => {
