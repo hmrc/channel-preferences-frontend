@@ -4,13 +4,6 @@ import play.api.test.{FakeRequest, WithApplication}
 import controllers.bt.testframework.mocks.PortalUrlBuilderMock
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import play.api.test.FakeApplication
-import scala.Some
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority

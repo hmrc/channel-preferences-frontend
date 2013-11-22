@@ -23,8 +23,8 @@ class MergeGGAccountsController(override val auditConnector: AuditConnector)(imp
   }
 
   private[bt] def mergeGGAccountsPage(implicit user: User, request: Request[AnyRef]): SimpleResult = {
-    val deEnrolServiceLink = LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"), Some("Remove the tax from the account you don't want to use anymore")) //TODO find a way to send message containing '
-    val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"), Some(Messages("bt.mergeggaccount.step4.linkText")))
+    val deEnrolServiceLink = LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"), Some("Remove the tax from the account you don't want to use anymore"), Some("deEnrolHref")) //TODO find a way to send message containing '
+    val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"), Some(Messages("bt.mergeggaccount.step4.linkText")), Some("enrolHref"))
     Ok(views.html.merge_gg_accounts(deEnrolServiceLink, enrolServiceLink))
   }
 
