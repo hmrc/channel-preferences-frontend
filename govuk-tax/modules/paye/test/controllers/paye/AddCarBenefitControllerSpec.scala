@@ -32,7 +32,8 @@ import models.paye.{CarAndFuelBuilder, CarBenefitData, CarBenefitDataAndCalculat
 import org.scalatest.TestData
 import controllers.common.actions.HeaderCarrier
 
-class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
+class
+AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
   val mockKeyStoreService = mock[KeyStoreConnector]
   val mockPayeConnector = mock[PayeConnector]
@@ -183,7 +184,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome.url)
     }
 
-    "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {      
+    "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {
       assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), false,  None, false,  None)
       assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), true,  Some("15"), false,  None)
       assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), false,  None, true,  Some(endOfTaxYearMinusOne))
@@ -1101,7 +1102,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](s"AddCarBenefit:$johnDensmoreOid:$taxYear:$employmentSeqNumberOne", "paye", "AddCarBenefitForm")).thenReturn(Some(carBenefitDataAndCalculations))
       val result = Future.successful(controller.confirmAddingBenefitAction(johnDensmore, FakeRequest(), taxYear, employmentSeqNumberOne))
       result should haveStatus(200)
-      print(contentAsString(result))
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#old-tax-code").text shouldBe "430L"
       doc.select("#new-tax-code").text shouldBe "aNewTaxCoe"

@@ -76,10 +76,9 @@ class LoginController(samlConnector : SamlConnector,
         Unauthorized(views.html.login_error())
       },
       samlResponse => {
-        implicit val hc = HeaderCarrier(request)
         val validationResult = samlConnector.validate(samlResponse.response)
         if (validationResult.valid) {
-          authConnector.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get)(HeaderCarrier(request)) match {
+          authConnector.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get) match {
             case Some(authority) => {
               val target = FrontEndRedirect.forSession(session)
               target.withSession("userId"-> encrypt(authority.id), "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"))

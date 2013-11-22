@@ -97,7 +97,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/123123123"))
-        .withHeaders((forwardedFor, "192.168.1.1"))
+        .withHeaders((forwardedFor, "192.168.1.1"), (xRequestId, "govuk-tax-"))
       )
 
       whenReady(response) {
@@ -228,10 +228,10 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       val sessionId = s"session-${UUID.randomUUID().toString}"
 
       val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withSession(
-        "sessionId" -> encrypt(sessionId),
+        xSessionId -> encrypt(sessionId),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/123123123"))
-        .withHeaders((forwardedFor, "192.168.1.1")))
+        .withHeaders((forwardedFor, "192.168.1.1"), (xRequestId, "govuk-tax-")))
 
       whenReady(response) {
         result =>

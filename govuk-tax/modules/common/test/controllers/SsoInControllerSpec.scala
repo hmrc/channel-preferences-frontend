@@ -50,7 +50,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
   "The Single Sign-on input page" should {
     "create a new session when the token is valid, the time not expired and no session exists" in new WithApplication(FakeApplication()) {
-      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.encodedToken.encodeBase64, john.loginTimestamp))).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.affinityGroup, john.encodedToken))
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.encodedToken.encodeBase64, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.affinityGroup, john.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
       val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
@@ -75,7 +75,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64)
 
-      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(bob.encodedToken.encodeBase64, bob.loginTimestamp))(HeaderCarrier(request))).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.affinityGroup, bob.encodedToken))
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(bob.encodedToken.encodeBase64, bob.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.affinityGroup, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
 
