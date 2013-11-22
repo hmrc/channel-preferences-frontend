@@ -257,6 +257,6 @@ sealed class TestController(payeConnector: PayeConnector,
   def testMdc = AuthorisedFor(PayeRegime) {
     implicit user =>
       implicit request =>
-        Ok(s"${MDC.get(authorisation)} ${MDC.get(requestId)}")
+        Ok(s"${MDC.get(authorisation)} ${MDC.get(xRequestId)}")
   }
 }

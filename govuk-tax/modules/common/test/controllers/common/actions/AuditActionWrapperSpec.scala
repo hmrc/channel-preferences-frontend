@@ -114,7 +114,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
               tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
-              tags(requestId) contains "govuk-tax-"
+              tags(xRequestId) contains "govuk-tax-"
               tags should not contain key("authId")
               tags should not contain key("saUtr")
               tags should not contain key("nino")
@@ -136,7 +136,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
               tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
-              tags(requestId) contains "govuk-tax-"
+              tags(xRequestId) contains "govuk-tax-"
 
               detail should contain("method" -> "GET")
               detail should contain("url" -> "/foo")
@@ -246,7 +246,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
               tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
-              tags(requestId) contains "govuk-tax-"
+              tags(xRequestId) contains "govuk-tax-"
               tags should contain(xSessionId -> sessionId)
               tags should contain("authId" -> "exAuthId")
               tags should contain("saUtr" -> "exampleUtr")
@@ -270,7 +270,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
               tags should contain(authorisation -> "Bearer /auth/oid/123123123")
               tags should contain(forwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
-              tags(requestId) contains "govuk-tax-"
+              tags(xRequestId) contains "govuk-tax-"
               tags should contain(xSessionId -> sessionId)
               tags should contain("authId" -> "exAuthId")
               tags should contain("saUtr" -> "exampleUtr")

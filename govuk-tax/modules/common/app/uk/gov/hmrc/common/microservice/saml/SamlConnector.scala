@@ -21,7 +21,7 @@ class SamlConnector extends Connector with HeaderNames {
       Map.empty)
       .getOrElse(throw new IllegalStateException("Expected SAML validation response but none returned"))
 
-    result.originalRequestId map (MDC.put(requestId, _))
+    result.originalRequestId map (MDC.put(xRequestId, _))
 
     result
   }

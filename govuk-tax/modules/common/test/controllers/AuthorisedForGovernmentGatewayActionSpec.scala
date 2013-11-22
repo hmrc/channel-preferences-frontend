@@ -41,7 +41,7 @@ class AuthorisedForGovernmentGatewayActionSpec
 
   import config.DateTimeProvider._
 
-  private val token = "someToken"
+  private val tokenValue = "someToken"
 
   val saConnector = mock[SaConnector]
   val epayeConnector = mock[EpayeConnector]
@@ -94,7 +94,7 @@ class AuthorisedForGovernmentGatewayActionSpec
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
         "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(token)))
+        "token" -> encrypt(tokenValue)))
 
       status(result) should equal(200)
       contentAsString(result) should include("3333333333")
@@ -109,7 +109,7 @@ class AuthorisedForGovernmentGatewayActionSpec
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
         "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(token)))
+        "token" -> encrypt(tokenValue)))
 
       status(result) should equal(401)
     }
@@ -119,7 +119,7 @@ class AuthorisedForGovernmentGatewayActionSpec
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
         "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(token)))
+        "token" -> encrypt(tokenValue)))
 
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
@@ -132,7 +132,7 @@ class AuthorisedForGovernmentGatewayActionSpec
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
         "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(token)))
+        "token" -> encrypt(tokenValue)))
 
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
@@ -143,7 +143,7 @@ class AuthorisedForGovernmentGatewayActionSpec
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
         "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(token)))
+        "token" -> encrypt(tokenValue)))
 
       status(result) should equal(200)
       val strings = contentAsString(result).split(" ")
@@ -158,7 +158,7 @@ class AuthorisedForGovernmentGatewayActionSpec
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
         "userId" -> encrypt("/auth/oid/bob"),
-        "token" -> encrypt(token))
+        "token" -> encrypt(tokenValue))
       )
 
       status(result) should equal(303)
@@ -254,6 +254,6 @@ sealed class AuthorisedForGovernmentGatewayActionSpecController(saConnector: SaC
   def testMdc = AuthorisedFor(SaRegime) {
     implicit user =>
       implicit request =>
-        Ok(s"${MDC.get(authorisation)} ${MDC.get(requestId)}")
+        Ok(s"${MDC.get(authorisation)} ${MDC.get(xRequestId)}")
   }
 }
