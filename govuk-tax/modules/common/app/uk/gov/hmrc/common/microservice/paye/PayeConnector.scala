@@ -1,6 +1,5 @@
 package uk.gov.hmrc.common.microservice.paye
 
-import play.Logger
 import org.joda.time.LocalDate
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.paye.domain._
@@ -11,11 +10,8 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
 import controllers.common.actions.HeaderCarrier
-import scala.util.control.Exception._
 
 class PayeConnector extends TaxRegimeConnector[PayeRoot] {
-
-  val exWrapper = allCatch.withApply(e => throw new RuntimeException(e))
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
@@ -24,7 +20,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   def addBenefits(uri: String,
     version: Int,
     employmentSequenceNumber:Int,
-    benefits: Seq[Benefit])(implicit hc: HeaderCarrier) : Option[AddBenefitResponse] = exWrapper {
+    benefits: Seq[Benefit])(implicit hc: HeaderCarrier) : Option[AddBenefitResponse] = {
 
     httpPost[AddBenefitResponse](
       uri,
@@ -42,7 +38,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   def removeBenefits(uri: String,
     version: Int,
     benefits: Seq[RevisedBenefit],
-    dateCarWithdrawn: LocalDate)(implicit hc: HeaderCarrier) = exWrapper {
+    dateCarWithdrawn: LocalDate)(implicit hc: HeaderCarrier) = {
     httpPost[RemoveBenefitResponse](
       uri,
       body = Json.parse(
@@ -56,7 +52,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel)(implicit hc: HeaderCarrier): Option[NewBenefitCalculationResponse] = exWrapper {
+  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel)(implicit hc: HeaderCarrier): Option[NewBenefitCalculationResponse] = {
     httpPost[NewBenefitCalculationResponse](
       uri,
       body = Json.parse(
@@ -68,7 +64,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   }
 
   def calculationWithdrawKey():String = "withdraw"
-  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier) = exWrapper {
-    httpGet[RemoveBenefitCalculationResponse](benefit.calculations(calculationWithdrawKey).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
+  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier) = {
+    httpGet[RemoveBenefitCalculationResponse](benefit.calculations(calculationWithdrawKey()).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
   }
 }

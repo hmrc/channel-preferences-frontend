@@ -407,7 +407,7 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       thrown should have message "No Car benefit found!"
     }
 
-    "show an error if the paye microservice update benefit call times out" in new TestCaseIn2012 {
+    "propagates any exceptions thrown by the paye microservice" in new TestCaseIn2012 {
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
       setupMocksForJohnDensmore(benefits = Seq(carBenefitStartedThisYear), taxCodes = Seq(TaxCode(employmentSeqNumberOne, Some(1), testTaxYear, "oldTaxCode", List.empty)))
@@ -416,18 +416,6 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
 
       when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), Matchers.any(classOf[Seq[Benefit]]))(Matchers.any())).thenThrow(new RuntimeException())
-      val thrown = the [RuntimeException] thrownBy controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
-    }
-
-    "show an error if the paye taxcode call times out" in new TestCaseIn2012 {
-      val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
-        Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
-      setupMocksForJohnDensmore(benefits = Seq(carBenefitStartedThisYear))
-      val fuelBenefitData = FuelBenefitData(Some("true"), None)
-      when(mockKeyStoreService.getEntry[FuelBenefitData](s"AddFuelBenefit:$johnDensmoreOid:$testTaxYear:$employmentSeqNumberOne", "paye", "AddFuelBenefitForm")).thenReturn(Some(fuelBenefitData))
-      val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
-
-      when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/tax-code/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), Matchers.any(classOf[Seq[Benefit]]))(Matchers.any())).thenThrow(new RuntimeException())
       val thrown = the [RuntimeException] thrownBy controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
     }
   }
