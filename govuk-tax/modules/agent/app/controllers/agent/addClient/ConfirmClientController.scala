@@ -31,13 +31,12 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
 
   import ConfirmClientController._
 
-  def confirm = AuthorisedFor(AgentRegime) {
-    confirmAction
+  def confirm = AuthorisedFor(AgentRegime) { user => implicit request =>
+    confirmAction(user)
   }
 
-  private[agent] def confirmAction(user: User)(request: Request[_]): SimpleResult = {
+  private[agent] def confirmAction(user: User)(implicit request: Request[_]): SimpleResult = {
     val form = confirmClientForm().bindFromRequest()(request)
-    implicit def hc = HeaderCarrier(request)
     keyStoreConnector.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
       case Some(potentialClient@PotentialClient(Some(searchedClient), _, _)) => {
         form.fold(

@@ -43,8 +43,8 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
     restartAction
   }
 
-  def search = AuthorisedFor(AgentRegime) {
-    searchAction
+  def search = AuthorisedFor(AgentRegime) { user => request =>
+    searchAction(user)(request)
   }
 
   private[agent] def homeAction(user: User)(request: Request[_]) = startViewWith(searchForm(request))
@@ -55,12 +55,11 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
   private def startViewWith(form: Form[(ClientSearch, String)]) =
     Ok(search_client(form.fill((ClientSearch.empty, ObjectId.get().toString))))
 
-  private[agent] def searchAction(user: User)(request: Request[_]): SimpleResult = {
+  private[agent] def searchAction(user: User)(implicit request: Request[_]): SimpleResult = {
     val form = searchForm(request).bindFromRequest()(request)
     form.fold(
       errors => BadRequest(search_client(errors)),
       searchWithInstanceId => {
-        implicit val hc = HeaderCarrier(request)
         val (search, instanceId) = searchWithInstanceId
         def restricted(result: MatchingPerson) = ClientSearch(result.nino,
           search.firstName.flatMap(_ => result.firstName),
@@ -77,7 +76,6 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
-                implicit val hc = HeaderCarrier(request)
                 keyStoreConnector.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
                 Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
               }

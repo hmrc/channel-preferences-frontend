@@ -9,7 +9,7 @@ import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
