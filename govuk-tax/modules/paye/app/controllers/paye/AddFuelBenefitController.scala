@@ -144,7 +144,7 @@ with TaxYearSupport {
 
       val payeRoot = user.regimes.paye.get
       val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
-      val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
+      val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, carAndFuel.fuelBenefit.toSeq)
 
       keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 

@@ -372,12 +372,10 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       val result = Future.successful(controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
 
-
       val benefitsSentToPaye = benefitsCapture.getValue
-      benefitsSentToPaye should have length 2
-      benefitsSentToPaye(0) shouldBe carBenefitStartedThisYear
+      benefitsSentToPaye should have length 1
       val expectedFuelBenefit = Some(Benefit(29,2012,0,1,None,None,None,None,None,None,None,carBenefitStartedThisYear.car,Map(),Map()))
-      Some(benefitsSentToPaye(1)) shouldBe expectedFuelBenefit
+      Some(benefitsSentToPaye.head) shouldBe expectedFuelBenefit
 
 
       result should haveStatus(200)
