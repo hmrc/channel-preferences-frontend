@@ -81,7 +81,7 @@ trait UserActionWrapper
         uri => authority.saUtr map {utr => SaRoot(utr, saConnector.root(uri.toString))}
       },
       vat = regimes.vat flatMap {
-        uri => println(s"VAT: authority.vrn: ${authority.vrn.isDefined}"); authority.vrn map {vrn => VatRoot(vrn, vatConnector.root(uri.toString))}
+        uri => authority.vrn map {vrn => VatRoot(vrn, vatConnector.root(uri.toString))}
       },
       epaye = regimes.epaye.flatMap {
         uri => authority.empRef map {empRef => EpayeRoot(empRef, epayeConnector.root(uri.toString))}
