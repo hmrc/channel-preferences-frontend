@@ -60,7 +60,7 @@ class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnecto
   }
 }
 
-object ManageYourTaxesConf {
+object ManageYourTaxesConf  {
 
   def processLinks(affinityGroup:String, profile:ProfileResponse, buildPortalUrl: String => String) = {
     val msgs = affinityGroup match {

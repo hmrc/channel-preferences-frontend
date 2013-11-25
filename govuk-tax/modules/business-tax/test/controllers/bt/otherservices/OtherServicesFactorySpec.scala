@@ -233,169 +233,40 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
   "createManageYourTaxes" should {
 
-    "return None when the user affinity group is agent" in new OtherServicesFactoryForTest {
-
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
+    "throw exception if the profile cannot be retrieved from ggw" in new OtherServicesFactoryForTest {
+      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, epaye = epayeRoot)
+      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
       implicit val request = FakeRequest()
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(AGENT)
 
-      val expectedResponse = Future.successful(Some(ProfileResponse(
-        affinityGroup = AffinityGroup(AGENT),
-        activeEnrolments = Set.empty)))
-
-      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
-
-      val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
-
-      verify(mockGovernmentGatewayConnector).profile("userId")
-
-      whenReady(result) {
-        _ shouldBe None
-      }
-
-    }
-
-    "throw a RuntimeException when the user profile cannot be retrieved from government gateway" in new OtherServicesFactoryForTest {
-
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
-      implicit val request = FakeRequest()
       when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(Future.successful(None))
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(INDIVIDUAL)
 
-      val resultF = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
+      val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
 
-      resultF.failed.futureValue shouldBe a[RuntimeException]
+      result.failed.futureValue shouldBe a [RuntimeException]
+      result.failed.futureValue.getMessage shouldBe "Could not retrieve user profile from Government Gateway service"
 
-      verify(mockGovernmentGatewayConnector).profile("userId")
-
+     verifyZeroInteractions(mockAffinityGroupParser)
     }
 
-    "return a list with links ordered by key for the user enrolments when the affinity group is individual" in new OtherServicesFactoryForTest {
-
-      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
-
+    "throw exception if the affinity group cannot be parsed" in new OtherServicesFactoryForTest {
+      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, epaye = epayeRoot)
       implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
       implicit val request = FakeRequest()
 
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(INDIVIDUAL)
-      when(mockPortalUrlBuilder.buildPortalUrl(org.mockito.Matchers.any[String])).thenAnswer(new Answer[String] {
-        def answer(invocation: InvocationOnMock): String = {
-          "http://" + invocation.getArguments.toSeq.head
-        }
-      })
-
-      val expectedResponse = Future.successful(Some(ProfileResponse(
-        affinityGroup = AffinityGroup(INDIVIDUAL),
-        activeEnrolments = Set(
-          Enrolment("HMCE-ECSL-ORG"),
-          Enrolment("HMCE-VATRSL-ORG"),
-          Enrolment("HMRC-EU-REF-ORG")
-        ))))
-
-      val postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")
-      val expectedResult = Some(
-        ManageYourTaxes(
-          Seq(
-            /* hmceecslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/ecsl/httpssl/start.do", "otherservices.manageTaxes.link.hmceecslorg", Some("hmceecslorgHref"), true, postLinkText, false)),
-            /* hmcevatrslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/rcsl/httpssl/Home.do", "otherservices.manageTaxes.link.hmcevatrslorg", Some("hmcevatrslorgHref"), true, postLinkText, false)),
-            /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg", Some("hmrceureforgHref"), false, None, true))
-          )
-        )
+      val profile = Some(ProfileResponse(
+        affinityGroup = AffinityGroup(AGENT),
+        activeEnrolments = Set.empty)
       )
 
-      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(Future.successful(profile))
+      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new RuntimeException("Affinity Group not found"))
 
       val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
-
-      verify(mockGovernmentGatewayConnector).profile("userId")
-
-      whenReady(result) {
-        _ shouldBe expectedResult
-      }
+      result.failed.futureValue shouldBe a [RuntimeException]
+      result.failed.futureValue.getMessage shouldBe  "Affinity Group not found"
     }
-
-    "return a list with links ordered by key for the user enrolments when the affinity group is organisation" in new OtherServicesFactoryForTest {
-
-      val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
-
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
-      implicit val request = FakeRequest()
-
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(ORGANISATION)
-      when(mockPortalUrlBuilder.buildPortalUrl(org.mockito.Matchers.any[String])).thenAnswer(new Answer[String] {
-        def answer(invocation: InvocationOnMock): String = {
-          "http://" + invocation.getArguments.toSeq.head
-        }
-      })
-
-      val expectedResponse = Future.successful(Some(ProfileResponse(
-        affinityGroup = AffinityGroup(ORGANISATION),
-        activeEnrolments = Set(
-          Enrolment("HMCE-DDES"),
-          Enrolment("HMCE-EBTI-ORG"),
-          Enrolment("HMCE-VATRSL-ORG"),
-          Enrolment("HMRC-EMCS-ORG"),
-          Enrolment("HMRC-ICS-ORG"),
-          Enrolment("HMRC-MGD-ORG"),
-          Enrolment("HMCE-NCTS-ORG"),
-          Enrolment("HMCE-NES"),
-          Enrolment("HMRC-NOVA-ORG"),
-          Enrolment("HMCE-RO"),
-          Enrolment("HMRC-ECW-IND"),
-          Enrolment("HMCE-TO"),
-          Enrolment("HMCE-ECSL-ORG"),
-          Enrolment("HMRC-EU-REF-ORG")
-        ))))
-
-      val postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")
-      val expectedResult = Some(
-        ManageYourTaxes(
-          Seq(
-            /* hmceddes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceddes", Some("hmceddesHref"), true, postLinkText, false)),
-            /* hmceebtiorg */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceebtiorg", Some("hmceebtiorgHref"), true, postLinkText, false)),
-            /* hmceecslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/ecsl/httpssl/start.do", "otherservices.manageTaxes.link.hmceecslorg", Some("hmceecslorgHref"), true, postLinkText, false)),
-            /* hmcenctsorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/nctsPortalWebApp/ncts.portal?_nfpb=true&pageLabel=httpssIPageOnlineServicesAppNCTS_Home", "otherservices.manageTaxes.link.hmcenctsorg", Some("hmcenctsorgHref"), true, postLinkText, false)),
-            /* hmcenes */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcenes", Some("hmcenesHref"), true, postLinkText, false)),
-            /* hmcero1 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero1", Some("hmcero1Href"), true, postLinkText, false)),
-            /* hmcero2 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero2", Some("hmcero2Href"), true, postLinkText, false)),
-            /* hmcero3 */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmcero3", Some("hmcero3Href"), true, postLinkText, false)),
-            /* hmceto */ RenderableLinkMessage(LinkMessage("https://secure.hmce.gov.uk/ecom/login/index.html", "otherservices.manageTaxes.link.hmceto", Some("hmcetoHref"), true, postLinkText, false)),
-            /* hmcevatrslorg */ RenderableLinkMessage(LinkMessage("https://customs.hmrc.gov.uk/rcsl/httpssl/Home.do", "otherservices.manageTaxes.link.hmcevatrslorg", Some("hmcevatrslorgHref"), true, postLinkText, false)),
-            /* hmrcemcsorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.emcs", "otherservices.manageTaxes.link.hmrcemcsorg", Some("hmrcemcsorgHref"), false, None, true)),
-            /* hmrceureforg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.euvat", "otherservices.manageTaxes.link.hmrceureforg", Some("hmrceureforgHref"), false, None, true)),
-            /* hmrcicsorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.ics", "otherservices.manageTaxes.link.hmrcicsorg", Some("hmrcicsorgHref"), false, None, true)),
-            /* hmrcmgdorg */ RenderableLinkMessage(LinkMessage("http://manageTaxes.machinegames", "otherservices.manageTaxes.link.hmrcmgdorg", Some("hmrcmgdorgHref"), false, None, true))
-          )
-        )
-      )
-
-      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(Future.successful(expectedResponse))
-
-      val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
-
-      verify(mockGovernmentGatewayConnector).profile("userId")
-
-      whenReady(result) {
-        _ shouldBe expectedResult
-      }
-    }
-
-    "throw an exception if the affinity group is not found" in new OtherServicesFactoryForTest {
-
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
-      implicit val request = FakeRequest()
-
-      val expectedResponse = Future.successful(Some(ProfileResponse(
-        affinityGroup = AffinityGroup(INDIVIDUAL),
-        activeEnrolments = Set.empty)))
-      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
-      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new RuntimeException)
-
-      val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
-      result.failed.futureValue shouldBe a[RuntimeException]
-    }
-
   }
+
 
   private def saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
 
