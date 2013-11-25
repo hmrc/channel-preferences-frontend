@@ -35,7 +35,8 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 with Actions
 with SessionTimeoutWrapper
 with TaxYearSupport
-with DateTimeProvider {
+with DateTimeProvider
+with PayeRegimeRoots {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 

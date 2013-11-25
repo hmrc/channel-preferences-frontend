@@ -17,17 +17,20 @@ private[actions] trait RequestLogging extends HeaderNames with DateConverter {
   private val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZZ")
 
   def requestWithID(request: Request[AnyContent]): Request[AnyContent] = {
-    if (request.session.get(HeaderNames.xRequestId).isDefined) {
-      request
-    } else {
-      val rid = s"govuk-tax-${UUID.randomUUID().toString}"
-      val requestIdHeader = HeaderNames.xRequestId -> Seq(rid)
+    request.session.get(HeaderNames.xRequestId) match {
+      case Some(s) => request
+      case _ => {
+        val rid = s"govuk-tax-${UUID.randomUUID().toString}"
+        val requestIdHeader = HeaderNames.xRequestId -> Seq(rid)
 
-      // TODO: Find a more efficient way of doing this, if possible.
-      val newHeaders = new Headers {val data: Seq[(String, Seq[String])] = (request.headers.toMap + requestIdHeader).toSeq}
+        // TODO: Find a more efficient way of doing this, if possible.
+        val newHeaders = new Headers {
+          val data: Seq[(String, Seq[String])] = (request.headers.toMap + requestIdHeader).toSeq
+        }
 
-      new WrappedRequest(request) {
-        override val headers = newHeaders
+        new WrappedRequest(request) {
+          override val headers = newHeaders
+        }
       }
     }
   }

@@ -17,7 +17,8 @@ class SsoInController(ssoWhiteListService : SsoWhiteListService,
                      (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with SessionTimeoutWrapper {
+  with SessionTimeoutWrapper
+  with AllRegimeRoots {
 
   def this() = this(new SsoWhiteListService(FrontEndConfig.domainWhiteList), Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 

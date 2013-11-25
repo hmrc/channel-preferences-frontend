@@ -22,13 +22,15 @@ import service.agent.AgentConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.agent.AgentsRegimeRoots
 
 class SearchClientController(val keyStoreConnector: KeyStoreConnector,
                              override val auditConnector: AuditConnector)
                             (implicit agentMicroService: AgentConnector,
                              override val authConnector: AuthConnector)
   extends BaseController
-  with Actions {
+  with Actions
+  with AgentsRegimeRoots {
 
   import SearchClientController._
   import SearchClientController.KeyStoreKeys._

@@ -19,7 +19,8 @@ class PaymentController(override val auditConnector: AuditConnector)
                        (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with PortalUrlBuilder {
+  with PortalUrlBuilder
+  with BusinessTaxRegimeRoots{
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 

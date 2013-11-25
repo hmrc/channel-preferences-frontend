@@ -27,7 +27,8 @@ import ExecutionContext.Implicits.global
 class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnector, override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with PortalUrlBuilder {
+  with PortalUrlBuilder
+  with BusinessTaxRegimeRoots {
 
   def this() = this(Connectors.ctConnector, Connectors.vatConnector, Connectors.auditConnector)(Connectors.authConnector)
 

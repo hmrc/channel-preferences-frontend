@@ -23,7 +23,8 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
                            (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with PortalUrlBuilder {
+  with PortalUrlBuilder
+  with BusinessTaxRegimeRoots{
 
   def this() = this(new AccountSummariesFactory(), Connectors.preferencesConnector, Connectors.auditConnector)(Connectors.authConnector)
 

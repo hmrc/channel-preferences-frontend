@@ -1,0 +1,39 @@
+package controllers.bt
+
+trait BusinessTaxRegimeRoots {
+
+  import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+  import controllers.common.actions.HeaderCarrier
+  import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+  import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+  import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+  import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
+  import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+  import controllers.common.service.Connectors.{saConnector, vatConnector, epayeConnector, ctConnector}
+
+  protected def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
+    val regimes = authority.regimes
+    RegimeRoots(
+      sa = regimes.sa flatMap {
+        uri => authority.saUtr map {
+          utr => SaRoot(utr, saConnector.root(uri.toString))
+        }
+      },
+      vat = regimes.vat flatMap {
+        uri => authority.vrn map {
+          vrn => VatRoot(vrn, vatConnector.root(uri.toString))
+        }
+      },
+      epaye = regimes.epaye flatMap {
+        uri => authority.empRef map {
+          empRef => EpayeRoot(empRef, epayeConnector.root(uri.toString))
+        }
+      },
+      ct = regimes.ct flatMap {
+        uri => authority.ctUtr map {
+          utr => CtRoot(utr, ctConnector.root(uri.toString))
+        }
+      }
+    )
+  }
+}

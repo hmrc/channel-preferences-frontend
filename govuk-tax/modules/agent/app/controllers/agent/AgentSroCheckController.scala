@@ -12,7 +12,8 @@ import controllers.common.actions.Actions
 class AgentSroCheckController(override val auditConnector: AuditConnector)
                              (implicit override val authConnector: AuthConnector)
   extends BaseController
-  with Actions {
+  with Actions
+  with AgentsRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 

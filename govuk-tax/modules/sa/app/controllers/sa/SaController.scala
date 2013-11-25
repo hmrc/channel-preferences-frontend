@@ -29,7 +29,8 @@ class SaController(override val auditConnector: AuditConnector)
   extends BaseController
   with Actions
   with DateTimeProvider
-  with Validators {
+  with Validators
+  with SaRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.saConnector, Connectors.authConnector)
 

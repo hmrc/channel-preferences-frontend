@@ -38,7 +38,8 @@ class AddFuelBenefitController(keyStoreService: KeyStoreConnector, override val 
                               (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
 with Actions
 with Validators
-with TaxYearSupport {
+with TaxYearSupport
+with PayeRegimeRoots {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 

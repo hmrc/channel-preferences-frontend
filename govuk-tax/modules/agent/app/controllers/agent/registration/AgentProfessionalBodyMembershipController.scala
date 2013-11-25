@@ -14,6 +14,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
+import controllers.agent.AgentsRegimeRoots
 
 class AgentProfessionalBodyMembershipController(override val auditConnector: AuditConnector,
                                                 override val keyStoreConnector: KeyStoreConnector)
@@ -22,7 +23,8 @@ class AgentProfessionalBodyMembershipController(override val auditConnector: Aud
   with Actions
   with AgentController
   with Validators
-  with MultiFormWrapper {
+  with MultiFormWrapper
+  with AgentsRegimeRoots {
 
   def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
 

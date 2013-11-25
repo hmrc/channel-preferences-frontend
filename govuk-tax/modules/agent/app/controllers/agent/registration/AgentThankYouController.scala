@@ -11,6 +11,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import service.agent.AgentConnector
+import controllers.agent.AgentsRegimeRoots
 
 class AgentThankYouController(override val auditConnector: AuditConnector,
                               override val keyStoreConnector: KeyStoreConnector)
@@ -20,7 +21,8 @@ class AgentThankYouController(override val auditConnector: AuditConnector,
   with Actions
   with AgentController
   with MultiFormWrapper
-  with AgentMapper {
+  with AgentMapper
+  with AgentsRegimeRoots {
 
   def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(AgentConnector(), Connectors.authConnector)
 

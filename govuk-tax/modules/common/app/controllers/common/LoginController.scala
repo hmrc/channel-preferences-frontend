@@ -19,7 +19,8 @@ class LoginController(samlConnector: SamlConnector,
                       override val auditConnector: AuditConnector)
                      (implicit override val authConnector: AuthConnector)
   extends BaseController
-  with Actions {
+  with Actions
+  with AllRegimeRoots {
 
   def login = WithNewSessionTimeout(UnauthorisedAction { implicit request =>
     Ok(views.html.login())

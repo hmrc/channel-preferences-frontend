@@ -14,7 +14,8 @@ import play.api.i18n.Messages
 class MergeGGAccountsController(override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with PortalUrlBuilder {
+  with PortalUrlBuilder
+  with BusinessTaxRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 

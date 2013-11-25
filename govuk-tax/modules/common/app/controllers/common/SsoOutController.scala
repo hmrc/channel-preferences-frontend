@@ -19,7 +19,8 @@ class SsoOutController(override val auditConnector: AuditConnector)
   extends BaseController
   with Actions
   with CookieEncryption
-  with SessionTimeoutWrapper {
+  with SessionTimeoutWrapper
+  with AllRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 

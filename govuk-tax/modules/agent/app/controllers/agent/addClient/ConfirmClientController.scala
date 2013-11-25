@@ -19,13 +19,15 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.agent.AgentsRegimeRoots
 
 class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
                               override val auditConnector: AuditConnector)
                              (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with Validators {
+  with Validators
+  with AgentsRegimeRoots {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(Connectors.authConnector)
 

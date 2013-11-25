@@ -32,7 +32,7 @@ object Configuration {
     "internationalAssociationOfBookkeepers" -> "International Association of Book-keepers"
   )
 
-  val config = new Configuration();
+  val config = new Configuration()
 }
 
 case class Configuration(agentTypeOptions: Seq[InputType] = Configuration.agentTypeOptions, legalEntityOptions: Seq[InputType] = Configuration.legalEntityOptions,

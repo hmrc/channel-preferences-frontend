@@ -16,7 +16,8 @@ class OtherServicesController(otherServicesFactory: OtherServicesFactory,
                              (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with PortalUrlBuilder {
+  with PortalUrlBuilder
+  with BusinessTaxRegimeRoots {
 
   def this() = this(new OtherServicesFactory(Connectors.governmentGatewayConnector), Connectors.auditConnector)(Connectors.authConnector)
 

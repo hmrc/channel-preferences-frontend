@@ -12,7 +12,8 @@ import controllers.common.actions.Actions
 class HomeController(override val auditConnector: AuditConnector)
                     (implicit override val authConnector: AuthConnector)
   extends BaseController
-  with Actions {
+  with Actions
+  with AllRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 

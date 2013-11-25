@@ -24,13 +24,15 @@ import models.agent.Client
 import models.agent.PreferredContact
 import models.agent.Contact
 import controllers.common.actions.Actions
+import controllers.agent.AgentsRegimeRoots
 
 class PreferredContactController(keyStoreConnector: KeyStoreConnector,
                                  override val auditConnector: AuditConnector)
                                 (implicit agentMicroService: AgentConnector,
                                  override val authConnector: AuthConnector)
   extends BaseController
-  with Actions {
+  with Actions
+  with AgentsRegimeRoots {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(AgentConnector(), Connectors.authConnector)
 
