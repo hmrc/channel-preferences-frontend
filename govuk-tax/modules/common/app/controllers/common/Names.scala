@@ -7,8 +7,6 @@ trait HeaderNames {
   val authorisation = HttpHeaders.AUTHORIZATION
   val forwardedFor = "x-forwarded-for"
   val xSessionId = "X-Session-ID"
-  val userId = "userId"
-  val token = "token"
 }
 object HeaderNames extends HeaderNames
 
