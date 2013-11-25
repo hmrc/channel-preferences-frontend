@@ -1,48 +1,21 @@
 package controllers.common.actions
 
-import play.api.mvc.{Cookie, Action, Controller}
+import play.api.mvc.{Action, Controller}
 import org.mockito.{Matchers, ArgumentCaptor}
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
-import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import play.api.test._
-import org.slf4j.MDC
 import controllers.common.{CookieEncryption, CookieNames, HeaderNames}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.bson.types.ObjectId
 import uk.gov.hmrc.domain.Nino
 import org.scalatest.{Inspectors, Inside}
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.Pid
-import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
-import scala.Some
-import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.domain.CtUtr
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import play.api.test.FakeApplication
 import org.scalatest.mock.MockitoSugar
 import scala.collection.JavaConverters._
 import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.Pid
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
-import scala.Some
-import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.domain.CtUtr
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import play.api.test.FakeApplication
-import play.api.mvc.Cookie
 import uk.gov.hmrc.utils.DateTimeUtils._
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.auth.domain.Pid
@@ -58,7 +31,6 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import play.api.mvc.Cookie
-import org.apache.commons.codec.binary.Base64
 
 class AuditTestController(override val auditConnector: AuditConnector) extends Controller with AuditActionWrapper {
 
@@ -84,7 +56,7 @@ class AuditTestController(override val auditConnector: AuditConnector) extends C
         Action {
           request =>
             throw new IllegalArgumentException("whoopsie")
-      }
+        }
     }
 }
 
@@ -183,13 +155,13 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
         result =>
           verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
-          forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
+          forAll(auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
             event.detail should contain("deviceFingerprint" -> (
               """{"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36",""" +
-              """"language":"en-US","colorDepth":24,"resolution":"800x1280","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,"platform":"MacIntel",""" +
-              """"doNotTrack":true,"numberOfPlugins":5,"plugins":["Shockwave Flash","Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
+                """"language":"en-US","colorDepth":24,"resolution":"800x1280","timezone":0,"sessionStorage":true,"localStorage":true,"indexedDB":true,"platform":"MacIntel",""" +
+                """"doNotTrack":true,"numberOfPlugins":5,"plugins":["Shockwave Flash","Chrome Remote Desktop Viewer","Native Client","Chrome PDF Viewer","QuickTime Plug-in 7.7.1"]}""")
             )
-            result.header.headers should not contain key ("Set-Cookie")
+            result.header.headers should not contain key("Set-Cookie")
           }
       }
     }
@@ -201,9 +173,9 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
         result =>
           verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
-          forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
-            event.detail should not contain key ("deviceFingerprint")
-            result.header.headers should not contain key ("Set-Cookie")
+          forAll(auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
+            event.detail should not contain key("deviceFingerprint")
+            result.header.headers should not contain key("Set-Cookie")
           }
       }
     }
@@ -215,10 +187,10 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
         result =>
           verify(auditConnector, times(2)).audit(auditEventCaptor.capture())(Matchers.any())
 
-          forAll (auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
-            event.detail should not contain key ("deviceFingerprint")
+          forAll(auditEventCaptor.getAllValues.asScala) { event: AuditEvent =>
+            event.detail should not contain key("deviceFingerprint")
             result.header.headers should contain key ("Set-Cookie")
-            result.header.headers("Set-Cookie") should include regex (s"${CookieNames.deviceFingerprint}=;")
+            result.header.headers("Set-Cookie") should include regex s"${CookieNames.deviceFingerprint}=;"
           }
       }
     }
@@ -293,18 +265,10 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
 
   "AuditActionWrapper with traceRequests disabled " should {
     "not audit any events" in new TestCase(traceRequests = false) {
-      MDC.put(authorisation, "/auth/oid/123123123")
-      MDC.put(forwardedFor, "192.168.1.1")
-
       controller.test(None)(FakeRequest())
       verify(auditConnector, never).audit(any(classOf[AuditEvent]))(Matchers.any())
     }
   }
-
-  after {
-    MDC.clear
-  }
-
 }
 
 class TestCase(traceRequests: Boolean)
@@ -316,7 +280,6 @@ class TestCase(traceRequests: Boolean)
 
   val exampleRequestId = ObjectId.get().toString
   val exampleSessionId = ObjectId.get().toString
-
 
 
   val userAuth = UserAuthority("exAuthId", Regimes(),

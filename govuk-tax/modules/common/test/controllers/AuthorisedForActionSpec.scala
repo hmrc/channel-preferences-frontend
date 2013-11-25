@@ -9,7 +9,6 @@ import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import java.net.URI
-import org.slf4j.MDC
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import org.scalatest.TestData
@@ -108,19 +107,6 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
-    }
-
-    "include the authorisation and request ids in the MDC" ignore new WithApplication(FakeApplication()) {
-      val result = testController.testMdc(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
-        lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/jdensmore"))
-      )
-
-      status(result) should equal(200)
-      val strings = contentAsString(result).split(" ")
-      strings(0) should equal("/auth/oid/jdensmore")
-      strings(1) should startWith("govuk-tax-")
     }
 
     "return 200 in case the agent is successfully authorised" ignore new WithApplication(FakeApplication()) {
@@ -252,11 +238,5 @@ sealed class TestController(payeConnector: PayeConnector,
     implicit user =>
       implicit request =>
         throw new RuntimeException("ACTION TEST")
-  }
-
-  def testMdc = AuthorisedFor(PayeRegime) {
-    implicit user =>
-      implicit request =>
-        Ok(s"${MDC.get(authorisation)} ${MDC.get(xRequestId)}")
   }
 }

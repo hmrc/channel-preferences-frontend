@@ -6,7 +6,6 @@ import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import java.net.URI
-import org.slf4j.MDC
 import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, SaJsonRoot, SaRegime}
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.BaseSpec
@@ -138,19 +137,6 @@ class AuthorisedForGovernmentGatewayActionSpec
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
-    "include the authorisation and request ids in the MDC" ignore new WithApplication(FakeApplication()) {
-      val result = testController.testMdc(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
-        lastRequestTimestampKey -> now().getMillis.toString,
-        "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(tokenValue)))
-
-      status(result) should equal(200)
-      val strings = contentAsString(result).split(" ")
-      strings(0) should equal("/auth/oid/gfisher")
-      strings(1) should startWith("govuk-tax-")
-    }
-
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
       when(authConnector.authority("/auth/oid/bob")).thenReturn(
         Some(UserAuthority("bob", Regimes(sa = None, paye = Some(URI.create("/personal/paye/12345678"))), None)))
@@ -249,11 +235,5 @@ sealed class AuthorisedForGovernmentGatewayActionSpecController(saConnector: SaC
     implicit user =>
       implicit request =>
         throw new RuntimeException("ACTION TEST")
-  }
-
-  def testMdc = AuthorisedFor(SaRegime) {
-    implicit user =>
-      implicit request =>
-        Ok(s"${MDC.get(authorisation)} ${MDC.get(xRequestId)}")
   }
 }

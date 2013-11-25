@@ -12,7 +12,6 @@ import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
-import org.slf4j.MDC
 
 
 class LoginController(samlConnector: SamlConnector,
