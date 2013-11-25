@@ -9,7 +9,7 @@ import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
 import controllers.common.service.{Connectors, FrontEndConfig}
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.saml.SamlConnector
-import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 
@@ -78,14 +78,28 @@ class LoginController(samlConnector: SamlConnector,
       samlResponse => {
         val validationResult = samlConnector.validate(samlResponse.response)
         if (validationResult.valid) {
-          val updatedHC = validationResult.originalRequestId.map(rid => hc.copy(requestId = Some(rid))).getOrElse(hc)
-          authConnector.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get)(updatedHC) match {
+          val updatedHC = hc.copy(requestId = validationResult.originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
+          val hashPid = validationResult.hashPid.get
+          authConnector.authorityByPidAndUpdateLoginTime(hashPid)(updatedHC) match {
             case Some(authority) => {
+              auditConnector.audit(
+                AuditEvent(
+                  auditType = "TxSucceded",
+                  tags = Map("transactionName" -> "IDA Login Completion", xRequestId+"-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
+                  detail = Map("hashPid" -> hashPid, "authId" -> authority.id)
+                    ++ authority.saUtr.map("saUtr" -> _.utr).toMap
+                    ++ authority.vrn.map("vrn" -> _.vrn).toMap
+                    ++ authority.ctUtr.map("ctUtr" -> _.utr).toMap
+                    ++ authority.empRef.map("empRef" -> _.toString).toMap
+                    ++ authority.nino.map("nino" -> _.nino).toMap
+                    ++ authority.uar.map("uar" -> _.uar).toMap
+                )
+              )
               val target = FrontEndRedirect.forSession(session)
-              target.withSession("userId" -> encrypt(authority.id), "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"))
+              target.withSession("userId" -> encrypt(authority.id), "sessionId" -> encrypt(updatedHC.sessionId.get))
             }
             case _ => {
-              Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")
+              Logger.warn(s"No record found in Auth for the PID ${hashPid}")
               Unauthorized(views.html.login_error())
             }
           }

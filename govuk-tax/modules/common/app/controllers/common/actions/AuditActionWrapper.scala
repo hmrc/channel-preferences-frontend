@@ -83,8 +83,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
 
     deviceFingerprint.foreach(f => details.put("deviceFingerprint", f))
 
-    AuditEvent(auditSource = "frontend",
-               auditType = auditType,
+    AuditEvent(auditType = auditType,
                tags = tags.toMap ++ hc.headers.toMap ++ extraTags,
                detail = details.toMap ++ extraDetails)
   }

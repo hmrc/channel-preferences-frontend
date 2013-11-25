@@ -8,7 +8,7 @@ import play.api.Play.current
 import org.joda.time.{DateTimeZone, DateTime}
 import controllers.common.actions.HeaderCarrier
 
-case class AuditEvent(auditSource: String,
+case class AuditEvent(auditSource: String = "frontend",
                       auditType: String,
                       tags: Map[String, String] = Map.empty,
                       detail: Map[String, String] = Map.empty,

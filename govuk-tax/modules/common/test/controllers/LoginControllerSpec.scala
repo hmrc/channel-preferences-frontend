@@ -19,9 +19,10 @@ import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import play.api.test.FakeApplication
 import play.api.templates.Html
 import uk.gov.hmrc.utils.DateTimeUtils
-import org.mockito.Matchers
+import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import scalaz.Alpha.M
+import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -41,7 +42,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     lazy val mockAuthConnector = mock[AuthConnector]
     lazy val mockGovernmentGatewayConnector = mock[GovernmentGatewayConnector]
     lazy val mockBusinessTaxPages = mock[BusinessTaxPages]
-    lazy val loginController = new LoginController(mockSamlConnector, mockGovernmentGatewayConnector, null)(mockAuthConnector){
+    lazy val mockAuditConnector = mock[AuditConnector]
+    lazy val loginController = new LoginController(mockSamlConnector, mockGovernmentGatewayConnector, mockAuditConnector)(mockAuthConnector){
 
       override def notOnBusinessTaxWhitelistPage = {
         Html(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage)
@@ -91,34 +93,56 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     val oid = "0943809346039"
     val id = s"/auth/oid/$oid"
 
-    "redirect to the home page if the response is valid and not registering an agent" in new WithSetup {
+    abstract class TestCase extends WithSetup {
+      def setupValidRequest() = {
+        when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
+        when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Some(UserAuthority(id, Regimes(), None)))
+        FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse))
+      }
+    }
 
-      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Some(UserAuthority(id, Regimes(), None)))
-
-      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
+    "redirect to the home page if the response is valid and not registering an agent" in new TestCase {
+      val result = loginController.idaLogin()(setupValidRequest())
 
       status(result) shouldBe(303)
       redirectLocation(result).get shouldBe FrontEndRedirect.payeHome
 
       val sess = session(result)
       decrypt(sess("userId")) shouldBe id
+
+      verify(mockAuditConnector).audit(Matchers.any())(Matchers.any())
     }
 
-    "redirect to the agent contact details if it s registering an agent" in new WithSetup {
-
-      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
-
-      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Some(UserAuthority(id, Regimes(), None)))
-
-      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)).withSession("login_redirect" -> "/agent/home"))
+    "redirect to the agent contact details if it s registering an agent" in new TestCase {
+      val result = loginController.idaLogin()(setupValidRequest.withSession("login_redirect" -> "/agent/home"))
 
       status(result) shouldBe 303
 
       session(result).get("login_redirect") shouldBe None
       redirectLocation(result).get shouldBe "/agent/home"
+    }
 
+    "generate an audit event if the response is valid" in new TestCase {
+      loginController.idaLogin()(setupValidRequest())
+
+      val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
+
+      val event = captor.getValue
+
+      event.auditSource should be ("frontend")
+      event.auditType should be ("TxSucceded")
+      event.tags should (
+        contain ("transactionName" -> "IDA Login Completion") and
+        contain ("X-Request-ID" -> originalRequestId) and
+        contain key ("X-Request-ID-Original") and
+        contain key ("X-Session-ID")
+      )
+      event.detail should (
+        contain ("hashPid" -> hashPid) and
+        contain ("authId" -> id)
+      )
     }
 
     "return Unauthorised if the post does not contain a saml response" in new WithSetup {
