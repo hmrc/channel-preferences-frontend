@@ -28,7 +28,7 @@ case class HeaderCarrier(userId: Option[String] = None,
 }
 
 trait SessionKeys {
-  val sessionIdName = "sessionID"
+  val sessionIdName = "sessionId"
   val userIdName = "userId"
   val tokenName = "token"
 }
