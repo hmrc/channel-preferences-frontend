@@ -1,42 +1,32 @@
 package controllers.bt.otherservices
 
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import views.helpers.{HrefKey, LinkMessage, RenderableLinkMessage}
-import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnector
+import views.helpers.LinkMessage
+import uk.gov.hmrc.common.microservice.governmentgateway.{ProfileResponse, GovernmentGatewayConnector}
 import uk.gov.hmrc.common.AffinityGroupParser
 import play.api.mvc.Request
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
+import views.helpers.RenderableLinkMessage
+import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import views.helpers.HrefKey
 
 class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnector) extends AffinityGroupParser {
 
   private val hmrcWebsiteLinkText = "HMRC website"
 
   def createManageYourTaxes(buildPortalUrl: String => String)(implicit user: User, request: Request[AnyRef]): Future[Option[ManageYourTaxes]] = {
-    import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
-    import ManageYourTaxesConf._
 
     implicit def hc = HeaderCarrier(request)
-     governmentGatewayConnector.profile(user.userId).map {
+    governmentGatewayConnector.profile(user.userId).map {
       response =>
         val profile = response.getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
         val affinityGroup = parseAffinityGroup
-        affinityGroup match {
-          case INDIVIDUAL => {
-            val linkMessages = getLinksAndMessagesForIndividual(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
-              case link: ManageTaxesLink => link.buildLinks
-            }.toList
-            Some(ManageYourTaxes(linkMessages))
-          }
-          case ORGANISATION => {
-            val linkMessages = getLinksAndMessagesForOrganisation(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
-              case link: ManageTaxesLink => link.buildLinks
-            }.toList
-            Some(ManageYourTaxes(linkMessages))
-          }
-          case _ => None
-        }
+
+        ManageYourTaxesConf.processLinks(affinityGroup, profile, buildPortalUrl)
     }
   }
 
@@ -71,6 +61,23 @@ class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnecto
 }
 
 object ManageYourTaxesConf {
+
+  def processLinks(affinityGroup:String, profile:ProfileResponse, buildPortalUrl: String => String) = {
+    val msgs = affinityGroup match {
+      case INDIVIDUAL =>
+        Some(getLinksAndMessagesForIndividual(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl))
+      case ORGANISATION =>
+        Some(getLinksAndMessagesForOrganisation(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl))
+      case _ => None
+    }
+
+    msgs.map { m =>
+      val linkMessages = m.map {
+        case link: ManageTaxesLink => link.buildLinks
+      }
+      ManageYourTaxes(linkMessages.flatten)
+    }
+  }
 
   def ssoLink(keyToLink: String, keysToLinkText: Seq[String], buildPortalUrl: String => String) = new ManageTaxesLink(buildPortalUrl, keyToLink, keysToLinkText, isSso = true)
 
