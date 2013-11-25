@@ -18,7 +18,7 @@
                     @for(employmentView <- employmentViews) {
                         @for(recentChange <- employmentView.recentChanges) {
                             @defining(joinList(recentChange.types.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-                                <li>@Messages(s"recent.change.${recentChange.messageCode}", formatDate(recentChange.timeOfChange), benefitsTitle, employerNameString, employmentView.taxCode)</li>
+                                <li>@Messages(s"recent.change.${recentChange.messageCode}", formatDate(recentChange.timeUserRequestedChange), benefitsTitle, employerNameString, employmentView.taxCode)</li>
                             }
                         }
                     }

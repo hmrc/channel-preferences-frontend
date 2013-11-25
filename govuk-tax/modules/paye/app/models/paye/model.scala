@@ -81,7 +81,7 @@ object EmploymentViews {
       tx =>
         RecentChange(
           tx.tags.get.find(_.startsWith("message.code.")).get.replace("message.code.", "") + messageCodePostfix,
-          tx.statusHistory(0).createdAt.toLocalDate, tx.properties("benefitTypes").split(',').toSeq)
+          tx.createdAt.toLocalDate, tx.properties("benefitTypes").split(',').toSeq)
     }
   }
 
@@ -104,7 +104,7 @@ object EmploymentViews {
   }
 }
 
-case class RecentChange(messageCode: String, timeOfChange: LocalDate, types:Seq[String] = Seq.empty)
+case class RecentChange(messageCode: String, timeUserRequestedChange: LocalDate, types:Seq[String] = Seq.empty)
 
 case class CarFuelBenefitDates(carDate: Option[LocalDate], fuelDateType: Option[String])
 

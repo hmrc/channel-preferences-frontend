@@ -8,6 +8,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
+import org.joda.time.chrono.ISOChronology
 
 class EmploymentViewsSpec extends BaseSpec {
 
@@ -64,6 +65,27 @@ class EmploymentViewsSpec extends BaseSpec {
       views(0).taxCodeChange should not be (None)
       views(0).taxCodeChange.get.messageCode should be("taxcode.completed")
       views(1).taxCodeChange should be(None)
+    }
+
+    "add a tax code recent change object with the correct created date if a benefit transaction is in a completed state" in {
+      val created = new DateTime(2013, 11, 5, 20, 0, ISOChronology.getInstanceUTC)
+      val views = EmploymentViews(
+        employments,
+        taxCodes,
+        taxYear,
+        List.empty,
+        Seq(TxQueueTransaction(URI.create("/foo"), "paye", URI.create("/user"), None,
+          List(Status("COMPLETED", None, new DateTime(2013, 11, 8, 20, 0, ISOChronology.getInstanceUTC)),
+               Status("ACCEPTED", None, created)
+          ),
+          Some(List("benefits", "remove", "fuel", "message.code.removeBenefits")),
+          Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitTypes" -> "29"),
+          created,
+          new DateTime(2013, 11, 8, 20, 0, ISOChronology.getInstanceUTC))
+        )
+      )
+      views(0).recentChanges should have size 1
+      views(0).recentChanges(0) should have ('timeUserRequestedChange (created.toLocalDate))
     }
 
     "not add any recent change objects if no related benefit transactions exist" in {
