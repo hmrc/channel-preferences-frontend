@@ -1,6 +1,6 @@
 package controllers.common
 
-import play.api.mvc.{ AnyContent, Action }
+import play.api.mvc.{AnyContent, Action}
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
@@ -12,10 +12,11 @@ import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
+import org.slf4j.MDC
 
 
-class LoginController(samlConnector : SamlConnector,
-                      governmentGatewayConnector : GovernmentGatewayConnector,
+class LoginController(samlConnector: SamlConnector,
+                      governmentGatewayConnector: GovernmentGatewayConnector,
                       override val auditConnector: AuditConnector)
                      (implicit override val authConnector: AuthConnector)
   extends BaseController
@@ -78,10 +79,11 @@ class LoginController(samlConnector : SamlConnector,
       samlResponse => {
         val validationResult = samlConnector.validate(samlResponse.response)
         if (validationResult.valid) {
-          authConnector.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get) match {
+          val updatedHC = validationResult.originalRequestId.map(rid => hc.copy(requestId = Some(rid))).getOrElse(hc)
+          authConnector.authorityByPidAndUpdateLoginTime(validationResult.hashPid.get)(updatedHC) match {
             case Some(authority) => {
               val target = FrontEndRedirect.forSession(session)
-              target.withSession("userId"-> encrypt(authority.id), "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"))
+              target.withSession("userId" -> encrypt(authority.id), "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"))
             }
             case _ => {
               Logger.warn(s"No record found in Auth for the PID ${validationResult.hashPid.get}")
