@@ -6,33 +6,37 @@ import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnec
 import uk.gov.hmrc.common.AffinityGroupParser
 import play.api.mvc.Request
 import controllers.common.actions.HeaderCarrier
-
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class OtherServicesFactory(governmentGatewayConnector: GovernmentGatewayConnector) extends AffinityGroupParser {
 
   private val hmrcWebsiteLinkText = "HMRC website"
 
-  def createManageYourTaxes(buildPortalUrl: String => String)(implicit user: User, request: Request[AnyRef]): Option[ManageYourTaxes] = {
+  def createManageYourTaxes(buildPortalUrl: String => String)(implicit user: User, request: Request[AnyRef]): Future[Option[ManageYourTaxes]] = {
     import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
     import ManageYourTaxesConf._
 
     implicit def hc = HeaderCarrier(request)
-    val profile = governmentGatewayConnector.profile(user.userId).getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
-    val affinityGroup = parseAffinityGroup
-    affinityGroup match {
-      case INDIVIDUAL => {
-        val linkMessages = getLinksAndMessagesForIndividual(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
-          case link: ManageTaxesLink => link.buildLinks
-        }.toList
-        Some(ManageYourTaxes(linkMessages))
-      }
-      case ORGANISATION => {
-        val linkMessages = getLinksAndMessagesForOrganisation(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
-          case link: ManageTaxesLink => link.buildLinks
-        }.toList
-        Some(ManageYourTaxes(linkMessages))
-      }
-      case _ => None
+     governmentGatewayConnector.profile(user.userId).map {
+      response =>
+        val profile = response.getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
+        val affinityGroup = parseAffinityGroup
+        affinityGroup match {
+          case INDIVIDUAL => {
+            val linkMessages = getLinksAndMessagesForIndividual(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
+              case link: ManageTaxesLink => link.buildLinks
+            }.toList
+            Some(ManageYourTaxes(linkMessages))
+          }
+          case ORGANISATION => {
+            val linkMessages = getLinksAndMessagesForOrganisation(profile.activeEnrolments.toList.map(_.key.toLowerCase), buildPortalUrl).flatMap {
+              case link: ManageTaxesLink => link.buildLinks
+            }.toList
+            Some(ManageYourTaxes(linkMessages))
+          }
+          case _ => None
+        }
     }
   }
 

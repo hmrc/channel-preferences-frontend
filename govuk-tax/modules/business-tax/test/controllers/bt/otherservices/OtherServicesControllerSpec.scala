@@ -5,9 +5,6 @@ import org.mockito.Mockito._
 import play.api.test.Helpers._
 import views.helpers.LinkMessage
 import views.helpers.RenderableLinkMessage
-import controllers.bt.testframework.request.BusinessTaxRequest
-import controllers.bt.testframework.fixtures.GeoffFisherTestFixture
-import play.api.templates.Html
 import org.mockito.Matchers
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import controllers.bt.testframework.mocks.PortalUrlBuilderMock

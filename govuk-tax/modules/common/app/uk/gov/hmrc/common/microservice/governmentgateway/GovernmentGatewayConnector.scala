@@ -5,6 +5,8 @@ import scala.collection.Seq
 import uk.gov.hmrc.microservice.{Connector, MicroServiceConfig}
 import org.joda.time.DateTime
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 class GovernmentGatewayConnector extends Connector {
 
@@ -36,11 +38,10 @@ class GovernmentGatewayConnector extends Connector {
     ssoResponse.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
   }
 
-  def profile(userId: String)(implicit hc: HeaderCarrier) = {
-    val response = httpGet[JsonProfileResponse](s"/profile$userId")
-    response match {
-      case Some(profile) => Some(ProfileResponse(profile))
-      case _ => None
+  def profile(userId: String)(implicit hc: HeaderCarrier)= {
+    val response = httpGetF[JsonProfileResponse](s"/profile$userId")
+    response.map{
+     response => response.map(ProfileResponse(_))
     }
   }
 }

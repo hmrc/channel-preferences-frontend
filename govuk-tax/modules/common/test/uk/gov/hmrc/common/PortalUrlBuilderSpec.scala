@@ -49,11 +49,11 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
       val mockUserAuthority = mock[UserAuthority]
       val saUtr = "someUtr"
 
-      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new InternalError)
+      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new RuntimeException)
       when(mockUser.userAuthority).thenReturn(mockUserAuthority)
       when(mockUserAuthority.saUtr).thenReturn(Some(SaUtr(saUtr)))
 
-      evaluating(portalUrlBuilder.buildPortalUrl("anotherDestinationPathKey")) should produce[InternalError]
+      evaluating(portalUrlBuilder.buildPortalUrl("anotherDestinationPathKey")) should produce[RuntimeException]
     }
 
     "return a URL without the UTR resolved when the utr is missing" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {

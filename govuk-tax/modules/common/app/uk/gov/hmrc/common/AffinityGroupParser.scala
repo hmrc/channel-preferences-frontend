@@ -11,7 +11,7 @@ trait AffinityGroupParser {
       case Some(affinityGroup) => CookieEncryption.decrypt(affinityGroup)
       case None => {
         Logger.error("Affinity Group not found")
-        throw new InternalError("Affinity Group not found")
+        throw new RuntimeException("Affinity Group not found")
       }
     }
   }

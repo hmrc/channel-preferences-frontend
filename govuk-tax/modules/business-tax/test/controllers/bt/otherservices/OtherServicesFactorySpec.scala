@@ -1,32 +1,47 @@
 package controllers.bt.otherservices
 
 import uk.gov.hmrc.common.BaseSpec
-import views.helpers.{RenderableLinkMessage, LinkMessage}
+import views.helpers.LinkMessage
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.domain.{CtUtr, Vrn, EmpRef, SaUtr}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.domain.EmpRef
 import org.scalatest.Matchers
-import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, Enrolment, AffinityGroup, ProfileResponse}
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, ProfileResponse}
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue._
-import play.api.test.{FakeRequest, WithApplication, FakeApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import controllers.bt.testframework.mocks.{AffinityGroupParserMock, PortalUrlBuilderMock}
 import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeLinks, EpayeRoot}
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
+import scala.concurrent._
+import org.scalatest.concurrent.ScalaFutures
+import scala._
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroup
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeLinks
+import views.helpers.RenderableLinkMessage
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.governmentgateway.Enrolment
 
-class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
+
+class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   "createOnlineServicesEnrolment " should {
 
     "return an OnlineServicesEnrolment object with the SSO link to access the portal" in new OtherServicesFactoryForTest {
 
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("http://someLink")
-      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "online access", sso = true, id=Some("otherServicesEnrolmentHref"))))
+      val expected = OnlineServicesEnrolment(RenderableLinkMessage(LinkMessage(href = "http://someLink", text = "online access", sso = true, id = Some("otherServicesEnrolmentHref"))))
       val result = factoryUnderTest.createOnlineServicesEnrolment(mockPortalUrlBuilder.buildPortalUrl)
 
       result shouldBe expected
@@ -224,9 +239,9 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val request = FakeRequest()
       when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(AGENT)
 
-      val expectedResponse = Some(ProfileResponse(
+      val expectedResponse = Future.successful(Some(ProfileResponse(
         affinityGroup = AffinityGroup(AGENT),
-        activeEnrolments = Set.empty))
+        activeEnrolments = Set.empty)))
 
       when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
 
@@ -234,20 +249,22 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
       verify(mockGovernmentGatewayConnector).profile("userId")
 
-      result shouldBe None
+      whenReady(result) {
+        _ shouldBe None
+      }
+
     }
 
     "throw a RuntimeException when the user profile cannot be retrieved from government gateway" in new OtherServicesFactoryForTest {
 
       implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
       implicit val request = FakeRequest()
-
-      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(None)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(Future.successful(None))
       when(mockAffinityGroupParser.parseAffinityGroup).thenReturn(INDIVIDUAL)
 
-      intercept[RuntimeException] {
-        factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
-      }
+      val resultF = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
+
+      resultF.failed.futureValue shouldBe a[RuntimeException]
 
       verify(mockGovernmentGatewayConnector).profile("userId")
 
@@ -267,13 +284,13 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
         }
       })
 
-      val expectedResponse = Some(ProfileResponse(
+      val expectedResponse = Future.successful(Some(ProfileResponse(
         affinityGroup = AffinityGroup(INDIVIDUAL),
         activeEnrolments = Set(
           Enrolment("HMCE-ECSL-ORG"),
           Enrolment("HMCE-VATRSL-ORG"),
           Enrolment("HMRC-EU-REF-ORG")
-        )))
+        ))))
 
       val postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")
       val expectedResult = Some(
@@ -292,7 +309,9 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
 
       verify(mockGovernmentGatewayConnector).profile("userId")
 
-      result shouldBe expectedResult
+      whenReady(result) {
+        _ shouldBe expectedResult
+      }
     }
 
     "return a list with links ordered by key for the user enrolments when the affinity group is organisation" in new OtherServicesFactoryForTest {
@@ -309,7 +328,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
         }
       })
 
-      val expectedResponse = Some(ProfileResponse(
+      val expectedResponse = Future.successful(Some(ProfileResponse(
         affinityGroup = AffinityGroup(ORGANISATION),
         activeEnrolments = Set(
           Enrolment("HMCE-DDES"),
@@ -326,7 +345,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
           Enrolment("HMCE-TO"),
           Enrolment("HMCE-ECSL-ORG"),
           Enrolment("HMRC-EU-REF-ORG")
-        )))
+        ))))
 
       val postLinkText = Some("otherservices.manageTaxes.postLink.additionalLoginRequired")
       val expectedResult = Some(
@@ -350,13 +369,15 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
         )
       )
 
-      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
+      when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(Future.successful(expectedResponse))
 
       val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
 
       verify(mockGovernmentGatewayConnector).profile("userId")
 
-      result shouldBe expectedResult
+      whenReady(result) {
+        _ shouldBe expectedResult
+      }
     }
 
     "throw an exception if the affinity group is not found" in new OtherServicesFactoryForTest {
@@ -364,15 +385,14 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar {
       implicit val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(), decryptedToken = None)
       implicit val request = FakeRequest()
 
-      val expectedResponse = Some(ProfileResponse(
+      val expectedResponse = Future.successful(Some(ProfileResponse(
         affinityGroup = AffinityGroup(INDIVIDUAL),
-        activeEnrolments = Set.empty))
+        activeEnrolments = Set.empty)))
       when(mockGovernmentGatewayConnector.profile("userId")).thenReturn(expectedResponse)
-      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new InternalError)
+      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new RuntimeException)
 
-      intercept[InternalError] {
-        factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
-      }
+      val result = factoryUnderTest.createManageYourTaxes(mockPortalUrlBuilder.buildPortalUrl)
+      result.failed.futureValue shouldBe a[RuntimeException]
     }
 
   }
@@ -407,16 +427,16 @@ abstract class OtherServicesFactoryForTest
   val factoryUnderTest = new OtherServicesFactory(mockGovernmentGatewayConnector) with PortalUrlBuilderMock with MockedAffinityGroupParser
 
   protected def assertCorrectBusinessTaxRegistration(expectedLink: String, linkMessage: String)(implicit user: User) {
-    
+
     val expectedRegistrationLink = if (linkMessage != hmrcWebsiteLinkText)
       Some(RenderableLinkMessage(LinkMessage(href = expectedLink, text = linkMessage, newWindow = false, sso = true, id = Some("businessRegistrationHref"))))
-    else 
+    else
       None
-    
+
     val expected = BusinessTaxesRegistration(
       expectedRegistrationLink,
       RenderableLinkMessage(LinkMessage(href = linkToHmrcWebsite, text = hmrcWebsiteLinkText, newWindow = true, sso = false, id = Some("otherWaysHref"))))
-    
+
     val result = factoryUnderTest.createBusinessTaxesRegistration(mockPortalUrlBuilder.buildPortalUrl)(user)
 
     result shouldBe expected

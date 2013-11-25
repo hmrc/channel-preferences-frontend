@@ -9,6 +9,8 @@ import scala.Some
 import play.api.libs.json._
 import uk.gov.hmrc.utils.DateTimeUtils
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
 class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with MockitoSugar {
 
@@ -22,14 +24,20 @@ class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with Moc
     httpWrapper.post[A](uri, body, headers)
   }
 
+
+  override protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+    httpWrapper.getF[A](uri)
+  }
+
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
+    def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
     def post[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = None
   }
 
 }
 
-class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar {
+class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   lazy val service = new TestGovernmentGatewayConnector
 
@@ -95,16 +103,16 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar {
     "return the user profile when details are found in government gateway microservice" in new WithApplication(FakeApplication()) {
 
       val userId = "/auth/oid/geofffisher"
-      val expectedResponse = Some(JsonProfileResponse(affinityGroup = "Organisation", activeEnrolments = Set("HMCE-EBTI-ORG","HMRC-EMCS-ORG")))
+      val expectedResponse = Future.successful(Some(JsonProfileResponse(affinityGroup = "Organisation", activeEnrolments = Set("HMCE-EBTI-ORG","HMRC-EMCS-ORG"))))
       val expectedResult = Some(ProfileResponse(
         affinityGroup = AffinityGroup("organisation"),
         activeEnrolments = Set(
           Enrolment("HMCE-EBTI-ORG"),
           Enrolment("HMRC-EMCS-ORG"))))
 
-      when(service.httpWrapper.get[JsonProfileResponse](s"/profile$userId")).thenReturn(expectedResponse)
+      when(service.httpWrapper.getF[JsonProfileResponse](s"/profile$userId")).thenReturn(expectedResponse)
       val result = service.profile(userId)
-      result shouldBe expectedResult
+      whenReady(result){_ shouldBe expectedResult}
     }
 
     "return None when profile for given user is not found" in new WithApplication(FakeApplication()) {
@@ -112,9 +120,9 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar {
       val userId = "/auth/oid/missingUser"
       val expectedResponse = None
 
-      when(service.httpWrapper.get[JsonProfileResponse](s"/profile$userId")).thenReturn(expectedResponse)
+      when(service.httpWrapper.getF[JsonProfileResponse](s"/profile$userId")).thenReturn(Future.successful(expectedResponse))
       val result = service.profile(userId)
-      result shouldBe expectedResponse
+      whenReady(result) {_ shouldBe expectedResponse}
     }
 
   }

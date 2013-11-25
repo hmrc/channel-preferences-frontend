@@ -23,7 +23,7 @@ class AffinityGroupParserSpec extends BaseSpec with MockitoSugar {
       val affinityGroupParser = new AffinityGroupParserTest
       implicit val request = FakeRequest()
 
-      intercept[InternalError] {
+      intercept[RuntimeException] {
         affinityGroupParser.parseAffinityGroup
       }
 
