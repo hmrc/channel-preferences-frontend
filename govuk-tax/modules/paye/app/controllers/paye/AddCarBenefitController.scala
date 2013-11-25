@@ -38,6 +38,9 @@ with TaxYearSupport {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
+  private val keyStoreKey = "AddCarBenefitForm"
+  private val carBenefitFormPrefix = "AddCarBenefit"
+
   def timeSource() = new LocalDate(DateTimeZone.UTC)
 
   def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
@@ -89,7 +92,7 @@ with TaxYearSupport {
       implicit def hc = HeaderCarrier(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
-          val benefitFormWithSavedValues = lookupValuesFromKeystoreAndBuildForm(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber")
+          val benefitFormWithSavedValues = lookupValuesFromKeystoreAndBuildForm(KeystoreUtils.formId(carBenefitFormPrefix, user, taxYear, employmentSequenceNumber))
           Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
         }
         case None => {
@@ -112,7 +115,7 @@ with TaxYearSupport {
     }
   }
 
-  private def savedValuesFromKeyStore(keyStoreId: String)(implicit hc: HeaderCarrier) = keyStoreService.getEntry[CarBenefitDataAndCalculations](keyStoreId, "paye", "AddCarBenefitForm")
+  private def savedValuesFromKeyStore(keyStoreId: String)(implicit hc: HeaderCarrier) = keyStoreService.getEntry[CarBenefitDataAndCalculations](keyStoreId, KeystoreUtils.source, keyStoreKey)
 
   private[paye] def rawValuesOf(defaults: CarBenefitData) =
     CarBenefitValues(providedFromVal = defaults.providedFrom,
@@ -133,12 +136,12 @@ with TaxYearSupport {
 
       implicit val hc = HeaderCarrier(request)
       val payeRoot = user.getPaye
-      val carBenefitDataAndCalculation = savedValuesFromKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber").getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
+      val carBenefitDataAndCalculation = savedValuesFromKeyStore(KeystoreUtils.formId(carBenefitFormPrefix, user, taxYear, employmentSequenceNumber)).getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
       val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
       val carAndFuel = CarAndFuelBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
       val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
-      keyStoreService.deleteKeyStore(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye")
+      keyStoreService.deleteKeyStore(KeystoreUtils.formId(carBenefitFormPrefix, user, taxYear, employmentSequenceNumber), KeystoreUtils.source)
 
       val currentTaxYearCode = TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear)
       val newTaxCode = addBenefitsResponse.get.newTaxCode
@@ -169,7 +172,7 @@ with TaxYearSupport {
               val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
               val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
 
-              keyStoreService.addKeyStoreEntry(s"AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber", "paye", "AddCarBenefitForm", CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue)))
+              keyStoreService.addKeyStoreEntry(KeystoreUtils.formId(carBenefitFormPrefix, user, taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue)))
               val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                 addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                 addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)

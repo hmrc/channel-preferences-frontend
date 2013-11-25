@@ -39,6 +39,8 @@ with DateTimeProvider {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
+  val keystoreKey = "remove_benefit"
+
   def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
     user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   }
@@ -114,7 +116,7 @@ with DateTimeProvider {
           val benefitsInfo: Map[String, BenefitInfo] = mapBenefitsInfo(benefit.benefits(0), removeBenefitData.withdrawDate, apportionedValues) ++
             secondBenefit.map(mapBenefitsInfo(_, secondWithdrawDate, apportionedValues)).getOrElse(Nil)
 
-          keyStoreService.addKeyStoreEntry(user.oid, "paye_ui", "remove_benefit", RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues))
+          keyStoreService.addKeyStoreEntry(user.oid, KeystoreUtils.source, keystoreKey, RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues))
 
           mainBenefitType match {
             case CAR | FUEL => {
@@ -186,7 +188,7 @@ with DateTimeProvider {
     if (txQueueConnector.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-      keyStoreService.deleteKeyStore(user.oid, "paye_ui")
+      keyStoreService.deleteKeyStore(user.oid, KeystoreUtils.source)
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
         val removalData = BenefitUpdatedConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year),
@@ -240,7 +242,7 @@ with DateTimeProvider {
   }
 
   private def loadFormDataFor(user: User)(implicit hc: HeaderCarrier) = {
-    keyStoreService.getEntry[RemoveBenefitData](user.oid, "paye_ui", "remove_benefit")
+    keyStoreService.getEntry[RemoveBenefitData](user.oid, KeystoreUtils.source, keystoreKey)
   }
 
   object WithValidatedRequest {
