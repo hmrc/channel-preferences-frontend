@@ -4,8 +4,7 @@ import org.scalatest._
 import org.scalatest.WordSpec
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import models.paye.Matchers.transactions
-import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import org.joda.time.LocalDate
+import java.lang.IllegalArgumentException
 
 class MatchersSpec extends WordSpec with Matchers {
 
@@ -43,37 +42,42 @@ class MatchersSpec extends WordSpec with Matchers {
     }
   }
 
-
-  "matchesBenefitWithMessageCode(benefit) " should {
-    val transactionTypeTag = "removeBenefits"
-    val matchingBenefit = Benefit(benefitType, taxYear, 1000, employmentSequenceNumber, Some(2000), Some(2000), Some(3000), Some(4000), Some(5000), Some("paymentOrBenefitDescription"), Some(LocalDate.now), None, Map.empty, Map.empty)
-
-    "return true if a matching transaction exists " in {
-      val matchingTransaction = txQueueTransaction(Some(List(s"message.code.$transactionTypeTag")), matchingProperties)
-      transactions.matchesBenefitWithMessageCode(matchingTransaction, matchingBenefit)
+  "matchBenefitTypes" should {
+    "return true if the transaction benefit codes include one of the codes we are interested in" in {
+      val transaction = txQueueTransaction(Some(List.empty), Map("benefitTypes" -> s"$benefitType"))
+      transactions.matchBenefitTypes(transaction, Set(benefitType)) shouldBe true
     }
 
-    "return false if no transaction exists with a matching sequenceNumber " in {
-      val propertiesWithMismatchedSequenceNumber = matchingProperties + ("employmentSequenceNumber" -> "2")
-      val transaction: TxQueueTransaction = txQueueTransaction(Some(List(s"message.code.$transactionTypeTag")), propertiesWithMismatchedSequenceNumber)
-      transactions.matchesBenefitWithMessageCode(transaction, matchingBenefit) shouldBe false
-    }
-    
-    "return false if no transaction exists with a matching benfitType " in {
-      val propertiesWithMismatchedBenefitType = matchingProperties + ("benefitTypes" -> "mismatchingBenefitType")
-      val transaction: TxQueueTransaction = txQueueTransaction(Some(List(s"message.code.$transactionTypeTag")), propertiesWithMismatchedBenefitType)
-      transactions.matchesBenefitWithMessageCode(transaction, matchingBenefit) shouldBe false
+    "return true if any of the transaction benefit codes include one of the codes we are interested in" in {
+      val transaction = txQueueTransaction(Some(List.empty), Map("benefitTypes" -> s"$benefitType,50"))
+      transactions.matchBenefitTypes(transaction, Set(benefitType, 100)) shouldBe true
     }
 
-    "return false if no transaction exists with a matching tax year " in {
-      val propertiesWithMismatchedTaxYear = matchingProperties + ("taxYear" -> "9999")
-      val transaction: TxQueueTransaction = txQueueTransaction(Some(List(s"message.code.$transactionTypeTag")), propertiesWithMismatchedTaxYear)
-      transactions.matchesBenefitWithMessageCode(transaction, matchingBenefit) shouldBe false
+    "return false if the transaction benefit codes do not include any codes we are interested in" in {
+      val transaction = txQueueTransaction(Some(List.empty), Map("benefitTypes" -> "50"))
+      transactions.matchBenefitTypes(transaction, Set(benefitType)) shouldBe false
     }
 
-    "return false if no transaction exists with a message code " in {
-      val transaction: TxQueueTransaction = txQueueTransaction(Some(List.empty), matchingProperties)
-      transactions.matchesBenefitWithMessageCode(transaction, matchingBenefit) shouldBe false
+    "return false if the transaction benefit codes are empty" in {
+      val transaction = txQueueTransaction(Some(List.empty), Map("benefitTypes" -> ""))
+      transactions.matchBenefitTypes(transaction, Set(benefitType)) shouldBe false
+
+    }
+
+    "return false if the transaction has no benefit types" in {
+      val transaction = txQueueTransaction(Some(List.empty), Map())
+      transactions.matchBenefitTypes(transaction, Set(benefitType)) shouldBe false
+
+    }
+
+    "throw an IllegalArgumentException if we provide an empty set of codes to look for" in {
+      val transaction = txQueueTransaction(Some(List.empty), Map("benefitTypes" -> s"$benefitType"))
+      evaluating(transactions.matchBenefitTypes(transaction, Set())) should produce[IllegalArgumentException]
+    }
+
+    "throw an IllegalArgumentException if the transaction given has benefit types that are in the wrong format" in {
+      val transaction = txQueueTransaction(Some(List.empty), Map("benefitTypes" -> "FUEL,CAR"))
+      evaluating(transactions.matchBenefitTypes(transaction, Set(benefitType))) should produce[IllegalArgumentException]
     }
   }
 }

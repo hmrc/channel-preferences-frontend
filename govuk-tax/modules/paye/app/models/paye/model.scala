@@ -6,6 +6,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.Car
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
+import Matchers.transactions._
 
 case class BenefitInfo(startDate:String, withdrawDate:String, apportionedValue:BigDecimal)
 
@@ -29,8 +30,6 @@ object DisplayBenefit {
 }
 
 object DisplayBenefits {
-
-  import models.paye.Matchers.transactions.matchesBenefitWithMessageCode
 
   def apply(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] = {
     val matchedBenefits = benefits.filter {
@@ -58,26 +57,25 @@ object EmploymentViews {
   val TRANSACTION_STATUS_ACCEPTED = "accepted"
   val TRANSACTION_STATUS_COMPLETED = "completed"
 
-  import Matchers.transactions.matchesBenefitWithMessageCode
-
-  def apply(employments: Seq[Employment],
+  def createEmploymentViews(employments: Seq[Employment],
             taxCodes: Seq[TaxCode],
             taxYear: Int,
+            benefitTypes: Set[Int],
             acceptedTransactions: Seq[TxQueueTransaction],
             completedTransactions: Seq[TxQueueTransaction]): Seq[EmploymentView] = employments.map(e => EmploymentView(
     e.employerNameOrReference, e.startDate, e.endDate, TaxCodeResolver.currentTaxCode(taxCodes, e.sequenceNumber),
-    recentChanges(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions),
+    recentChanges(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions, benefitTypes),
     taxCodeChange(e.sequenceNumber, taxYear, acceptedTransactions, completedTransactions)))
 
   def hasPendingTransactionsOfType(employmentViews : Seq[EmploymentView], transactionType  :String) : Boolean =  employmentViews.flatMap(_.recentChanges).exists(_.messageCode.endsWith(s"$transactionType.$TRANSACTION_STATUS_ACCEPTED") )
 
-  private def recentChanges(sequenceNumber:Int, taxYear:Int, acceptedTransactions:Seq[TxQueueTransaction], completedTransactions: Seq[TxQueueTransaction]) =
-    transactionsWithEmploymentNumber(sequenceNumber, taxYear, acceptedTransactions, s".$TRANSACTION_STATUS_ACCEPTED") ++
-    transactionsWithEmploymentNumber(sequenceNumber, taxYear, completedTransactions, s".$TRANSACTION_STATUS_COMPLETED")
+  private def recentChanges(sequenceNumber:Int, taxYear:Int, acceptedTransactions:Seq[TxQueueTransaction], completedTransactions: Seq[TxQueueTransaction], interestingBenefitTypes : Set[Int]) =
+    transactionsWithEmploymentNumber(sequenceNumber, taxYear, acceptedTransactions, s".$TRANSACTION_STATUS_ACCEPTED", interestingBenefitTypes) ++
+    transactionsWithEmploymentNumber(sequenceNumber, taxYear, completedTransactions, s".$TRANSACTION_STATUS_COMPLETED", interestingBenefitTypes)
 
   private def transactionsWithEmploymentNumber(employmentSequenceNumber: Int, taxYear: Int, transactions: Seq[TxQueueTransaction],
-    messageCodePostfix: String): Seq[RecentChange] = {
-    transactions.filter(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).map {
+    messageCodePostfix: String, interestingBenefitTypes : Set[Int]): Seq[RecentChange] = {
+    transactions.filter(matchesBenefitWithMessageCode(_, employmentSequenceNumber, taxYear)).filter(matchBenefitTypes(_, interestingBenefitTypes)).map {
       tx =>
         RecentChange(
           tx.tags.get.find(_.startsWith("message.code.")).get.replace("message.code.", "") + messageCodePostfix,

@@ -22,6 +22,7 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
   with Validators {
 
   private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
+  val interestingBenefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
@@ -44,7 +45,9 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
         val carBenefit = currentTaxYearData.findExistingBenefit(employment.sequenceNumber, BenefitTypes.CAR)
         val fuelBenefit = currentTaxYearData.findExistingBenefit(employment.sequenceNumber, BenefitTypes.FUEL)
 
-        val employmentViews = EmploymentViews(payeRoot.fetchEmployments(currentTaxYear), payeRoot.fetchTaxCodes(currentTaxYear), currentTaxYear, payeRoot.fetchRecentAcceptedTransactions(), payeRoot.fetchRecentCompletedTransactions())
+        val employmentViews = EmploymentViews.createEmploymentViews(payeRoot.fetchEmployments(currentTaxYear), payeRoot.fetchTaxCodes(currentTaxYear), currentTaxYear,
+          interestingBenefitTypes, payeRoot.fetchRecentAcceptedTransactions(), payeRoot.fetchRecentCompletedTransactions())
+
         Ok(views.html.paye.car_benefit_home(carBenefit, fuelBenefit, employment.employerName, employment.sequenceNumber, currentTaxYear, employmentViews))
       }
       case None => {

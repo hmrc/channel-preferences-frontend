@@ -1,12 +1,11 @@
 package models.paye
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.paye.domain.Employment
+import uk.gov.hmrc.common.microservice.paye.domain.{BenefitTypes, Employment, TaxCode}
 import org.joda.time.{ DateTime, LocalDate }
 import java.net.URI
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import scala.Some
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 import org.joda.time.chrono.ISOChronology
 
@@ -26,12 +25,15 @@ class EmploymentViewsSpec extends BaseSpec {
     TaxCode(2, Some(2),  taxYear, "L332", List.empty)
   )
 
+  val interestingBenefitTypes = Set(BenefitTypes.FUEL, BenefitTypes.CAR)
+  
   "EmploymentViews apply" should {
     "add a tax code recent change object if a benefit transaction is in an accepted state" in {
-      val views = EmploymentViews(
+      val views = EmploymentViews.createEmploymentViews(
         employments,
         taxCodes,
         taxYear,
+        interestingBenefitTypes,
         Seq(TxQueueTransaction(URI.create("/foo"), "paye", URI.create("/user"), None,
           List(Status("ACCEPTED", None, DateTime.now())),
           Some(List("benefits", "remove", "fuel", "message.code.removeBenefits")),
@@ -48,10 +50,11 @@ class EmploymentViewsSpec extends BaseSpec {
     }
 
     "add a tax code recent change object if a benefit transaction is in a completed state" in {
-      val views = EmploymentViews(
+      val views = EmploymentViews.createEmploymentViews(
         employments,
         taxCodes,
         taxYear,
+        interestingBenefitTypes,
         List.empty,
         Seq(TxQueueTransaction(URI.create("/foo"), "paye", URI.create("/user"), None,
           List(Status("ACCEPTED", None, DateTime.now())),
@@ -69,10 +72,11 @@ class EmploymentViewsSpec extends BaseSpec {
 
     "add a tax code recent change object with the correct created date if a benefit transaction is in a completed state" in {
       val created = new DateTime(2013, 11, 5, 20, 0, ISOChronology.getInstanceUTC)
-      val views = EmploymentViews(
+      val views = EmploymentViews.createEmploymentViews(
         employments,
         taxCodes,
         taxYear,
+        interestingBenefitTypes,
         List.empty,
         Seq(TxQueueTransaction(URI.create("/foo"), "paye", URI.create("/user"), None,
           List(Status("COMPLETED", None, new DateTime(2013, 11, 8, 20, 0, ISOChronology.getInstanceUTC)),
@@ -89,16 +93,38 @@ class EmploymentViewsSpec extends BaseSpec {
     }
 
     "not add any recent change objects if no related benefit transactions exist" in {
-      val views = EmploymentViews(
+      val views = EmploymentViews.createEmploymentViews(
         employments,
         taxCodes,
         taxYear,
+        interestingBenefitTypes,
         List.empty,
         Seq.empty
       )
       views should have size 2
       views(0).taxCodeChange should be(None)
       views(1).taxCodeChange should be(None)
+    }
+
+    "not add any recent change objects if they are for unknown benefit types" in {
+      val views = EmploymentViews.createEmploymentViews(
+        employments,
+        taxCodes,
+        taxYear,
+
+        Set(BenefitTypes.TELEPHONE),
+        Seq(TxQueueTransaction(URI.create("/foo"), "paye", URI.create("/user"), None,
+          List(Status("ACCEPTED", None, DateTime.now())),
+          Some(List("benefits", "remove", "fuel", "message.code.removeBenefits")),
+          Map("employmentSequenceNumber" -> "1", "taxYear" -> "2013", "benefitTypes" -> "29"),
+          DateTime.now,
+          DateTime.now)
+        ),
+        List.empty
+      )
+      views should have size 2
+      views(0).recentChanges shouldBe empty
+      views(1).recentChanges shouldBe empty
     }
   }
 }

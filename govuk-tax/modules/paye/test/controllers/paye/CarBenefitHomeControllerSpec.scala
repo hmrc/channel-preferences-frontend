@@ -21,6 +21,7 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import controllers.common.actions.HeaderCarrier
+import org.scalatest.matchers.{MatchResult, Matcher}
 
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper {
 
@@ -284,7 +285,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     }
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) {
-
       val (employerName1, employerName2) = ("Johnson PLC", "Xylophone and Son Ltd")
       val johnDensmoresEmployments = Seq(
         Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some(employerName1), employmentType = primaryEmploymentType),
@@ -307,6 +307,34 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       recentChanges should not include employerName2
       doc.select(".no_actions") shouldBe empty
     }
+
+    "only display recent car or fuel transactions for John Densmore" in new WithApplication(FakeApplication()) {
+      val employerName1 = "Weyland-Yutani Corp"
+      val telephoneTransaction = transactionWithTags(List("message.code.addBenefits"), properties = Map("benefitTypes" -> BenefitTypes.TELEPHONE.toString()))
+      val testTransactions = List(addCarTransaction, telephoneTransaction)
+
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits, testTransactions, testTransactions)
+
+      val result = Future.successful(controller.carBenefitHomeAction(johnDensmore, FakeRequest()))
+      val doc = Jsoup.parse(contentAsString(result))
+      val recentChanges = doc.select(".overview__actions__done").text
+
+      recentChanges should include(s"On 2 December 2012, you added your company car benefit from $employerName1. This is being processed and you will receive a new Tax Code within 2 days.")
+      recentChanges should include(s"On 2 December 2012, you added your company car benefit from $employerName1. This has been processed and your new Tax Code is 430L. $employerName1 have been notified.")
+
+      recentChanges should containSentences(5)
+    }
+
+    def containSentences(n: Int) = {
+      new Matcher[String] {
+        def apply(s: String) = {
+          MatchResult(s.split("""\.""").length == n,
+                      s"""`$s` did not contain $n sentences.""",
+                      s"""`$s` did contain $n sentences.""")
+        }
+      }
+    }
+
 
     "display recent transactions for John Densmore when both car and fuel benefit have been removed and added " in new WithApplication(FakeApplication()) {
       val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
