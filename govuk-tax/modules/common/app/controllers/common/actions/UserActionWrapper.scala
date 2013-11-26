@@ -12,11 +12,6 @@ import views.html.login
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
-import controllers.common.service.Connectors
 
 
 trait UserActionWrapper
@@ -68,5 +63,5 @@ trait UserActionWrapper
       }
   }
 
-   def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
+  def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
 }
