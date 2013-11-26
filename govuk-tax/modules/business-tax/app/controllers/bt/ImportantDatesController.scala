@@ -21,7 +21,6 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import play.api.Logger
 import uk.gov.hmrc.domain.CalendarEvent
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 
 class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnector, override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
@@ -74,7 +73,7 @@ object ImportantDate {
         (None, additionalTextMessageKey, Some(textMessageKey))
       case ("vat", "payment-cheque", _) =>
         (None, textMessageKey, None)
-      case ("vat", "payment-card", _) | ("vat", "payment-online", _)=>
+      case ("vat", "payment-card", _) | ("vat", "payment-online", _) =>
         (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeVatPayment().url, linkTextKey))), textMessageKey, None)
       case (serviceKey, "filing", true) =>
         (None, additionalTextMessageKey, Some(textMessageKey))

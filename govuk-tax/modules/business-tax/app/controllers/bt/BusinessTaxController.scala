@@ -11,7 +11,6 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import controllers.common.actions.Actions
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import uk.gov.hmrc.domain.SaUtr
 import controllers.bt.prefs.{routes => PreferencesRoutes}

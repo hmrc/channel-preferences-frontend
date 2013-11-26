@@ -198,21 +198,14 @@ sealed class TestController(payeConnector: PayeConnector,
                            (implicit override val authConnector: AuthConnector)
   extends Controller
   with Actions
-  with HeaderNames {
+  with HeaderNames
+  with RegimeRootBase {
 
 
   override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-    def sequence[T](of: Option[Future[T]]): Future[Option[T]] = of.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
-
-    val regimes = authority.regimes
-
-    val payefo = sequence(regimes.paye.map(uri => payeConnector.root(uri.toString)))
-    val agentfo = sequence(regimes.agent.map(uri => agentConnectorRoot.root(uri.toString)))
-
     for {
-      paye <- payefo
-      agent <- agentfo
+      paye <- payeRoot(authority)
+      agent <- agentRoot(authority)
     } yield RegimeRoots(paye = paye, agent = agent)
   }
 

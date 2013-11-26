@@ -1,17 +1,13 @@
 package controllers.paye
 
-trait PayeRegimeRoots {
+import scala.concurrent._
+import controllers.common.RegimeRootBase
+import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 
-  import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-  import controllers.common.actions.HeaderCarrier
-  import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-  import controllers.common.service.Connectors.payeConnector
-
-  protected def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
-    RegimeRoots(
-      paye = authority.regimes.paye map {
-        uri => payeConnector.root(uri.toString)
-      }
-    )
+trait PayeRegimeRoots extends RegimeRootBase {
+   def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
+    for (paye <- payeRoot(authority)) yield RegimeRoots(paye = paye)
   }
 }

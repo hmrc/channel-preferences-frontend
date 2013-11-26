@@ -24,18 +24,18 @@ class BusinessTaxControllerStandardBehaviourSpec extends BaseSpec {
 
     "redirect if there is no logged in user" in new WithApplication(FakeApplication()) with EmptySessionRequest {
 
-      val result =  controllerUnderTest.home(request)
+      val result = controllerUnderTest.home(request)
       status(result) shouldBe 303
     }
 
     "redirect if the session has timed out" in new WithApplication(FakeApplication()) with GeoffFisherTestFixture with BusinessTaxRequest {
       override val lastRequestTimestamp = Some(currentTime.minusMinutes(20))
-      val result =  controllerUnderTest.home(request)
+      val result = controllerUnderTest.home(request)
       status(result) shouldBe 303
     }
 
     "redirect if the user is not a business tax user" in new WithApplication(FakeApplication()) with NonBusinessTaxRequest with JohnDensmoreTestFixture {
-      val result =  controllerUnderTest.home(request)
+      val result = controllerUnderTest.home(request)
       status(result) shouldBe 303
       header("Location", result) shouldBe Some("/")
     }
