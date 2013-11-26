@@ -13,12 +13,13 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import controllers.bt.BusinessTaxRegimeRoots
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SaPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
-      extends BaseController
-      with Actions
-      with BusinessTaxRegimeRoots {
+  extends BaseController
+  with Actions
+  with BusinessTaxRegimeRoots {
 
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
@@ -28,7 +29,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     "emailVerified" -> optional(text)
   )(EmailPreferenceData.apply)(EmailPreferenceData.unapply))
 
-  def displayPrefsForm(emailAddress: Option[String]) = AuthorisedFor(account = SaRegime) {
+  def displayPrefsForm(emailAddress: Option[String]) = AuthorisedFor(account = SaRegime).async {
     user => request =>
       displayPrefsFormAction(emailAddress)(user, request)
   }
@@ -49,9 +50,12 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
   }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[String])(implicit user: User, request: Request[AnyRef]) = {
-    preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)) match {
-      case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.getOrElse(""), None))))
+    preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).map {
+      preferences =>
+        preferences match {
+          case Some(saPreference) => FrontEndRedirect.toBusinessTax
+          case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.getOrElse(""), None))))
+        }
     }
   }
 

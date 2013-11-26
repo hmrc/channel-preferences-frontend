@@ -6,6 +6,7 @@ import play.api.mvc.{Controller, Session}
 object FrontEndRedirect extends Controller {
 
   val businessTaxHome = "/business-tax/home"
+  val businessTaxHomeFromLogin = "/business-tax/homeFromLogin"
   val agentHome = "/agent/home"
   val agentAddClient = "/agent/add-client"
   val carBenefit = "/paye/car-benefit/home"
@@ -40,7 +41,7 @@ object FrontEndRedirect extends Controller {
 
   def toBusinessTaxFromLogin = {
     Logger.debug("Redirecting to business from login...")
-    Redirect(s"$businessTaxHome?fromLogin=true")
+    Redirect(businessTaxHomeFromLogin)
   }
 
   def toAgent = {

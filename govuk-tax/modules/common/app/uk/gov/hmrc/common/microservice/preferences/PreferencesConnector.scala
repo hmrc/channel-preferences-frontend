@@ -1,11 +1,12 @@
 package uk.gov.hmrc.common.microservice.preferences
 
-import uk.gov.hmrc.microservice.{MicroServiceException, Connector, MicroServiceConfig}
+import uk.gov.hmrc.microservice.{Connector, MicroServiceConfig}
 
 import controllers.common.domain.Transform._
 import play.api.libs.json.Json
 import uk.gov.hmrc.domain.SaUtr
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
 
 
 class PreferencesConnector extends Connector {
@@ -16,14 +17,9 @@ class PreferencesConnector extends Connector {
     httpPostAndForget(s"/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 
-  def getPreferences(utr: SaUtr)(implicit headerCarrier:HeaderCarrier): Option[SaPreference] = {
-    httpGet[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
+  def getPreferences(utr: SaUtr)(implicit headerCarrier:HeaderCarrier): Future[Option[SaPreference]] = {
+    httpGetF[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
   }
-//
-//  def updateEmailValidationStatus(token : String) : Boolean = {
-//    val response = httpPostSynchronous("/preferences/sa/verifyEmailAndSuppressPrint", Json.parse(toRequestBody(ValidateEmail(token))))
-//    return response.status < 300 && response.status >= 200
-//  }
 }
 
 case class ValidateEmail(token: String)

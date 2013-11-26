@@ -15,7 +15,7 @@ import controllers.common.actions.HeaderCarrier
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 
-  def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier:HeaderCarrier) = {
+  def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
     Logger.debug(s"Loading linked resource uri: $uri")
     httpGet[T](uri)
   }
@@ -27,19 +27,19 @@ trait Connector extends Status with HeaderNames {
 
   protected val serviceUrl: String
 
-  protected def httpResource(uri: String)(implicit headerCarrier:HeaderCarrier) = {
+  protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = Await.result(response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = Await.result(response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
 
-  protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] =
+  protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] =
     response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
 
   //FIXME: Why is the body a JsValue? Why do we care what type it is
 
-  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
+  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
     val wsResource = httpResource(uri)
     Await.result(response2[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
@@ -49,7 +49,7 @@ trait Connector extends Status with HeaderNames {
     Await.result(response2(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), defaultTimeoutDuration)
   }
 
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
+  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
     val wsResource = httpResource(uri)
     Await.result(response2[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
@@ -61,22 +61,25 @@ trait Connector extends Status with HeaderNames {
 
   protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
     val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).post(body) onFailure { case throwable =>
-      Logger.error(s"Async post to $uri failed", throwable)
+    wsResource.withHeaders(headers.toSeq: _*).post(body) onFailure {
+      case throwable =>
+        Logger.error(s"Async post to $uri failed", throwable)
     }
   }
 
   protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
     val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).put(body) onFailure { case throwable =>
-      Logger.error(s"Async put to $uri failed", throwable)
+    wsResource.withHeaders(headers.toSeq: _*).put(body) onFailure {
+      case throwable =>
+        Logger.error(s"Async put to $uri failed", throwable)
     }
   }
 
   protected def httpDeleteAndForget(uri: String)(implicit hc: HeaderCarrier) {
     val wsResource = httpResource(uri)
-    wsResource.delete() onFailure { case throwable =>
-      Logger.error(s"Async delete to $uri failed", throwable)
+    wsResource.delete() onFailure {
+      case throwable =>
+        Logger.error(s"Async delete to $uri failed", throwable)
     }
   }
 
@@ -95,19 +98,20 @@ trait Connector extends Status with HeaderNames {
   }
 
   protected def response2[A](futureResponse: Future[Response], uri: String)(handleResponse: (Response) => A)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Option[A]] = {
-    futureResponse map { res =>
-      res.status match {
-        case OK => Some(handleResponse(res))
-        case CREATED => Some(handleResponse(res))
-        //TODO: add some proper error handling - 204 or 404 are returned as None
-        case NO_CONTENT => None
-        case NOT_FOUND => None
-        case BAD_REQUEST => throw MicroServiceException(s"Bad request trying to hit: ${httpResource(uri)}", res)
-        case UNAUTHORIZED => throw UnauthorizedException(s"Unauthenticated request trying to hit: ${httpResource(uri)}", res)
-        case FORBIDDEN => throw ForbiddenException(s"Not authorised to make this request trying to hit: ${httpResource(uri)}", res)
-        case CONFLICT => throw MicroServiceException(s"Invalid state trying to hit: ${httpResource(uri)}", res)
-        case x => throw MicroServiceException(s"Internal server error, response status is: $x trying to hit: ${httpResource(uri)}", res)
-      }
+    futureResponse map {
+      res =>
+        res.status match {
+          case OK => Some(handleResponse(res))
+          case CREATED => Some(handleResponse(res))
+          //TODO: add some proper error handling - 204 or 404 are returned as None
+          case NO_CONTENT => None
+          case NOT_FOUND => None
+          case BAD_REQUEST => throw MicroServiceException(s"Bad request trying to hit: ${httpResource(uri)}", res)
+          case UNAUTHORIZED => throw UnauthorizedException(s"Unauthenticated request trying to hit: ${httpResource(uri)}", res)
+          case FORBIDDEN => throw ForbiddenException(s"Not authorised to make this request trying to hit: ${httpResource(uri)}", res)
+          case CONFLICT => throw MicroServiceException(s"Invalid state trying to hit: ${httpResource(uri)}", res)
+          case x => throw MicroServiceException(s"Internal server error, response status is: $x trying to hit: ${httpResource(uri)}", res)
+        }
     }
   }
 }
