@@ -4,14 +4,14 @@ import uk.gov.hmrc.common.{MockGet, BaseSpec}
 import play.api.test.WithApplication
 import org.mockito.Mockito._
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.{Connector, MicroServiceException}
+import uk.gov.hmrc.microservice.MicroServiceException
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.epaye.domain.{NonRTI, EpayeAccountSummary, EpayeJsonRoot, EpayeLinks}
-import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.concurrent.ScalaFutures
 
-class EpayeConnectorSpec extends BaseSpec {
+class EpayeConnectorSpec extends BaseSpec with ScalaFutures {
 
   private val uri = "someUri"
 
@@ -22,19 +22,19 @@ class EpayeConnectorSpec extends BaseSpec {
       val epayeLinks = EpayeLinks(accountSummary = Some("/some/path"))
       val rootObject = EpayeJsonRoot(epayeLinks)
 
-      when(mockHttpClient.get[EpayeJsonRoot](uri)).thenReturn(Some(rootObject))
-      connector.root(uri) shouldBe rootObject
+      when(mockHttpClient.getF[EpayeJsonRoot](uri)).thenReturn(Some(rootObject))
+      whenReady(connector.root(uri))(_ shouldBe rootObject)
     }
 
     "return a root object with an empty set of links for a 404 response" in new EpayeConnectorApplication {
-      when(mockHttpClient.get[EpayeJsonRoot](uri)).thenReturn(None)
-      connector.root(uri) shouldBe EpayeJsonRoot(EpayeLinks(None))
+      when(mockHttpClient.getF[EpayeJsonRoot](uri)).thenReturn(None)
+      whenReady(connector.root(uri))(_ shouldBe EpayeJsonRoot(EpayeLinks(None)))
     }
 
     "Propagate any exception that gets thrown" in new EpayeConnectorApplication {
       val rootUri = "/epaye/123/456"
 
-      when(mockHttpClient.get[EpayeJsonRoot](rootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
+      when(mockHttpClient.getF[EpayeJsonRoot](rootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
 
       evaluating(connector.root(rootUri)) should produce[MicroServiceException]
     }
