@@ -1,6 +1,5 @@
 
 GET     /home                                           @controllers.bt.BusinessTaxController.home
-GET     /homeFromLogin                                  @controllers.bt.BusinessTaxController.homeFromLogin
 GET     /vat/makeAPayment                               @controllers.bt.PaymentController.makeVatPayment
 GET     /ct/makeAPayment                                @controllers.bt.PaymentController.makeCtPayment
 GET     /sa/makeAPayment                                @controllers.bt.PaymentController.makeSaPayment

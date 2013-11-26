@@ -227,7 +227,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val preference = SaPreference(digital = true, Some("bob@somewhere.stuff"))
       when(mockPreferencesConnector.getPreferences(utr)).thenReturn(Some(preference))
 
-      val homepage = Future.successful(controllerUnderTest.businessTaxHomepageFromLogin(user, request))
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
 
       status(homepage) shouldBe 200
 
@@ -248,7 +248,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
       when(mockPreferencesConnector.getPreferences(utr)).thenReturn(None)
 
-      val response = Future.successful(controllerUnderTest.businessTaxHomepageFromLogin(user, request))
+      val response = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
 
       status(response) shouldBe 303
       header("Location", response).get should include("/prefs/sa/print")

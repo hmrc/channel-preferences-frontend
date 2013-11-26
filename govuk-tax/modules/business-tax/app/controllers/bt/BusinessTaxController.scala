@@ -28,18 +28,15 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   def this() = this(new AccountSummariesFactory(), Connectors.preferencesConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   def home = AuthenticatedBy(GovernmentGateway).async {
-    user => request => renderHomePage(user, request)
+    user => request => businessTaxHomepage(user, request)
   }
 
-  def homeFromLogin = AuthenticatedBy(GovernmentGateway).async {
-    user => request => businessTaxHomepageFromLogin(user, request)
-  }
-
-  private[bt] def businessTaxHomepageFromLogin(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+  private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     user.regimes.sa.map(_ => capturePrintPreferences(user.getSa.utr)).getOrElse(renderHomePage)
   }
 
   private[bt] def renderHomePage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+
     val accountSummariesF = accountSummaryFactory.create(buildPortalUrl)
     val otherServicesLink = LinkMessage.internalLink(controllers.bt.routes.OtherServicesController.otherServices().url, "link")
     val mergeGGAccountsLink = LinkMessage.internalLink(controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts().url, Messages("bt.home.mergeAccountsLink"))
@@ -55,6 +52,5 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
           preferences.map(_ => renderHomePage).getOrElse(Future.successful(Redirect(PreferencesRoutes.SaPrefsController.displayPrefsForm(None))))
     }
   }
-
 
 }
