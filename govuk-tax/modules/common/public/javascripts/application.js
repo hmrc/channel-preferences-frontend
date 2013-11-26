@@ -1,4 +1,7 @@
-function toggleDefaultOptions( $form, $options, bool ) {
+
+var GOVUK = GOVUK || {};
+
+GOVUK.toggleDefaultOptions = function ( $form, $options, bool ) {
     if( bool ) {
         $options.prop( "checked", true ).parents( 'li' ).addClass( 'visuallyhidden' );
 
@@ -12,9 +15,9 @@ function toggleDefaultOptions( $form, $options, bool ) {
 
            }
     }
-}
+};
 
-var toggleContextualFields = function(){
+GOVUK.toggleContextualFields = function(){
     var $DOM = $( "#content" ),
     setup = function(){
         //select 'yes' option when user selects a contextual input
@@ -52,14 +55,7 @@ var toggleContextualFields = function(){
     }
 }();
 
-
-var fingerprint = new Fingerprint( { screen_resolution: true } ).get();
-var encodedFingerPrint = B64.encode( fingerprint );
-//console.log("Byte size:" + (encodeURI(fingerprint).split(/%..|./).length - 1));
-//console.log(fingerprint);
-//console.log("Encoded: " + encodedfingerprint);
-
-var setCookie = function( name, value, duration ) {
+GOVUK.setCookie = function( name, value, duration ) {
     if( duration ) {
         var date = new Date();
         date.setTime(date.getTime()+(duration*24*60*60*1000));
@@ -68,27 +64,29 @@ var setCookie = function( name, value, duration ) {
         var expires = '';
     }
     document.cookie = name + "=" + value + expires + "; path=/";
+},
+GOVUK.getCookie = function( name ) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
 }
+    // TODO: remove this if it isn't being used
+GOVUK.eraseCookie = function( name ) {
+        createCookie(name,"",-1);
+};
 
-var getCookie = function( name ) {
-	var nameEQ = name + "=";
-	var ca = document.cookie.split(';');
-	for(var i=0;i < ca.length;i++) {
-		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-	}
-	return null;
-}
 
-// TODO: remove this if it isn't being used
-var eraseCookie = function( name ) {
-	createCookie(name,"",-1);
-}
+var fingerprint = new Fingerprint( { screen_resolution: true } ).get();
+var encodedFingerPrint = B64.encode( fingerprint );
 
-var cookie = getCookie("mdtpdf");
-if ( ! cookie ) {
-    setCookie ( "mdtpdf", encodedFingerPrint );
+var mdtpdfCookie = GOVUK.getCookie("mdtpdf");
+if ( ! mdtpdfCookie ) {
+    GOVUK.setCookie ( "mdtpdf", encodedFingerPrint );
 }
 
 /**
@@ -228,13 +226,10 @@ $(document).ready(function() {
       document.getElementsByTagName('head')[0].appendChild($new_styles[0]);
     }
   }());
-  // if(window.GOVUK && GOVUK.userSatisfaction){
-  //   GOVUK.userSatisfaction.randomlyShowSurveyBar();
-  // }
 
   if ($("*[data-contextual-helper]").length) {
     // setup showing/hiding of contextual fields
-    toggleContextualFields.setup();
+    GOVUK.toggleContextualFields.setup();
     //toggle fuel quesitons depending on if user has selected zero emissions
       var $form            = $("#form-add-car-benefit"),
           $defaultOptions  = $form.find('*[data-default]');
@@ -244,17 +239,17 @@ $(document).ready(function() {
       * an electric car. We need to hide the questions
      **/
     if($form.find("#fuelType-electricity").prop("checked")) {
-        toggleDefaultOptions($form, $defaultOptions, true);
+        GOVUK.toggleDefaultOptions($form, $defaultOptions, true);
         $form.data('electricFlagged', true);
     }
     $form.on('click', '*[data-iselectric]', function(e) {
         if ($(this).data("iselectric")) {
-             toggleDefaultOptions($form, $defaultOptions, true) ;
+             GOVUK.toggleDefaultOptions($form, $defaultOptions, true) ;
 
              $form.data('electricFlagged', true);
         } else {
 
-            toggleDefaultOptions($form, $defaultOptions, false);
+            GOVUK.toggleDefaultOptions($form, $defaultOptions, false);
             $form.removeData('electricFlagged');
 
         }
