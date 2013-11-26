@@ -6,7 +6,7 @@ import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import java.net.URI
-import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, SaJsonRoot, SaRegime}
+import uk.gov.hmrc.common.microservice.sa.domain.{SaRoot, SaRegime}
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
@@ -22,7 +22,10 @@ import controllers.common.service.Connectors._
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import controllers.common.actions.{HeaderCarrier, Actions}
+import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
@@ -30,7 +33,6 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import controllers.common.actions.{HeaderCarrier, Actions}
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
@@ -198,22 +200,23 @@ sealed class AuthorisedForGovernmentGatewayActionSpecController(saConnector: SaC
   extends BaseController
   with Actions {
 
-  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
+  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    def sequence[T](of: Option[Future[T]]): Future[Option[T]] = of.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
+
     val regimes = authority.regimes
-    RegimeRoots(
-      sa = regimes.sa map {
-        uri => SaRoot(authority.saUtr.get, saConnector.root(uri.toString))
-      },
-      vat = regimes.vat map {
-        uri => VatRoot(authority.vrn.get, vatConnector.root(uri.toString))
-      },
-      epaye = regimes.epaye.map {
-        uri => EpayeRoot(authority.empRef.get, epayeConnector.root(uri.toString))
-      },
-      ct = regimes.ct.map {
-        uri => CtRoot(authority.ctUtr.get, ctConnector.root(uri.toString))
-      }
-    )
+
+    val safo = sequence(regimes.sa.flatMap(uri => authority.saUtr map { utr => saConnector.root(uri.toString).map(SaRoot(utr, _))}))
+    val vatfo = sequence(regimes.vat.flatMap(uri => authority.vrn map { utr => vatConnector.root(uri.toString).map(VatRoot(utr, _))}))
+    val epayefo = sequence(regimes.epaye.flatMap(uri => authority.empRef map { utr => epayeConnector.root(uri.toString).map(EpayeRoot(utr, _))}))
+    val ctfo = sequence(regimes.ct.flatMap(uri => authority.ctUtr map { utr => ctConnector.root(uri.toString).map(CtRoot(utr, _))}))
+
+    for {
+      sa <- safo
+      vat <- vatfo
+      epaye <- epayefo
+      ct <- ctfo
+    } yield RegimeRoots(sa = sa, vat = vat, epaye = epaye, ct = ct)
   }
 
   def test = AuthorisedFor(SaRegime) {

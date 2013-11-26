@@ -22,6 +22,7 @@ import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
 
 trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with MockitoSugar {
 
@@ -74,10 +75,10 @@ trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with 
 
   when(mockAuthConnector.authority(userId)).thenReturn(Some(userAuthority))
 
-  saRootLink.map(link => when(mockSaConnector.root(link.toString)).thenReturn(saJsonRoot.get))
-  vatRootLink.map(link => when(mockVatConnector.root(link.toString)).thenReturn(vatJsonRoot.get))
-  epayeRootLink.map(link => when(mockEpayeConnector.root(link.toString)).thenReturn(epayeJsonRoot.get))
-  ctRootLink.map(link => when(mockCtConnector.root(link.toString)).thenReturn(ctJsonRoot.get))
+  saRootLink.map(link => when(mockSaConnector.root(link.toString)).thenReturn(Future.successful(saJsonRoot.get)))
+  vatRootLink.map(link => when(mockVatConnector.root(link.toString)).thenReturn(Future.successful(vatJsonRoot.get)))
+  epayeRootLink.map(link => when(mockEpayeConnector.root(link.toString)).thenReturn(Future.successful(epayeJsonRoot.get)))
+  ctRootLink.map(link => when(mockCtConnector.root(link.toString)).thenReturn(Future.successful(ctJsonRoot.get)))
 
   implicit lazy val user = User(
     userId = userAuthority.id,

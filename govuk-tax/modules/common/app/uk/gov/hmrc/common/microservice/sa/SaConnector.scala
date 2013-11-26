@@ -1,19 +1,19 @@
 package uk.gov.hmrc.common.microservice.sa
 
-import uk.gov.hmrc.microservice.{ Connector, MicroServiceConfig }
+import uk.gov.hmrc.microservice.{TaxRegimeConnector, Connector, MicroServiceConfig, MicroServiceException}
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
-import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, SaPerson, SaJsonRoot}
-import scala.concurrent.Future
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
 
 class SaConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.saServiceUrl
 
-  def root(uri: String)(implicit hc: HeaderCarrier): SaJsonRoot = httpGet[SaJsonRoot](uri).getOrElse(SaJsonRoot(Map.empty))
+  def root(uri: String)(implicit hc: HeaderCarrier): Future[SaJsonRoot] = httpGetF[SaJsonRoot](uri).map(_.getOrElse(SaJsonRoot(Map.empty)))
 
   def person(uri: String)(implicit hc: HeaderCarrier): Option[SaPerson] = httpGet[SaPerson](uri)
 

@@ -18,6 +18,8 @@ import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.utils.DateTimeUtils.now
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors._
+import controllers.common.actions.{HeaderCarrier, Actions}
+import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
@@ -25,7 +27,6 @@ import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import controllers.common.actions.{HeaderCarrier, Actions}
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -142,6 +143,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     "redirect to the Tax Regime landing page if the agent is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
       when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(
         Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
+
       val result = testController.testAgentAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,
@@ -199,16 +201,19 @@ sealed class TestController(payeConnector: PayeConnector,
   with HeaderNames {
 
 
-  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
+  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    def sequence[T](of: Option[Future[T]]): Future[Option[T]] = of.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
+
     val regimes = authority.regimes
-    RegimeRoots(
-      paye = regimes.paye map {
-        uri => payeConnector.root(uri.toString)
-      },
-      agent = regimes.agent.map {
-        uri => agentConnectorRoot.root(uri.toString)
-      }
-    )
+
+    val payefo = sequence(regimes.paye.map(uri => payeConnector.root(uri.toString)))
+    val agentfo = sequence(regimes.agent.map(uri => agentConnectorRoot.root(uri.toString)))
+
+    for {
+      paye <- payefo
+      agent <- agentfo
+    } yield RegimeRoots(paye = paye, agent = agent)
   }
 
   def testPayeAuthorisation = AuthorisedFor(PayeRegime) {

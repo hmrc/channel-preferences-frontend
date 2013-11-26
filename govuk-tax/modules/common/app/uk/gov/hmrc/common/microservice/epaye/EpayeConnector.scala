@@ -11,8 +11,8 @@ class EpayeConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.epayeServiceUrl
 
-  def root(uri: String)(implicit hc: HeaderCarrier): EpayeJsonRoot = {
-      httpGet[EpayeJsonRoot](uri).getOrElse(EpayeJsonRoot(EpayeLinks(None)))
+  def root(uri: String)(implicit hc: HeaderCarrier): Future[EpayeJsonRoot] = {
+      httpGetF[EpayeJsonRoot](uri).map(_.getOrElse(EpayeJsonRoot(EpayeLinks(None))))
   }
 
   def accountSummary(uri: String)(implicit headerCarrier:HeaderCarrier): Future[Option[EpayeAccountSummary]] = {

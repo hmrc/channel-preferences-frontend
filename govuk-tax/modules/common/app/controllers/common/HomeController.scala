@@ -8,6 +8,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import controllers.common.actions.Actions
+import scala.concurrent.Future
 
 class HomeController(override val auditConnector: AuditConnector)
                     (implicit override val authConnector: AuthConnector)
@@ -48,7 +49,7 @@ class HomeController(override val auditConnector: AuditConnector)
     def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
       case (None, token@_) =>
         Logger.info(s"No identity cookie found - redirecting to login. user: None token: $token")
-        Right(redirectToLoginPage)
+        Future.successful(Right(redirectToLoginPage))
     }
   }
 }
