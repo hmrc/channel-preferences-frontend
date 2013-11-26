@@ -13,7 +13,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import controllers.bt.BusinessTaxRegimeRoots
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class SaPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
