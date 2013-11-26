@@ -13,9 +13,9 @@ import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
+import org.scalatest.concurrent.ScalaFutures
 
-class VatConnectorSpec extends BaseSpec {
+class VatConnectorSpec extends BaseSpec with ScalaFutures {
 
   "Requesting the VAT root" should {
 
@@ -23,23 +23,23 @@ class VatConnectorSpec extends BaseSpec {
 
       val vatRoot = VatJsonRoot(Map("some" -> "link"))
 
-      when(mockHttpClient.get[VatJsonRoot]("/vat/vrn/123456")).thenReturn(Some(vatRoot))
+      when(mockHttpClient.getF[VatJsonRoot]("/vat/vrn/123456")).thenReturn(Some(vatRoot))
 
       val result = connector.root("/vat/vrn/123456")
 
-      result shouldBe vatRoot
+      whenReady(result)(_ shouldBe vatRoot)
     }
 
     "return a root object with an empty set of links for a 404 response" in new VatConnectorApplication {
 
-      when(mockHttpClient.get[VatJsonRoot]("/vat/vrn/123456")).thenReturn(None)
-      connector.root("/vat/vrn/123456") shouldBe VatJsonRoot(Map.empty)
+      when(mockHttpClient.getF[VatJsonRoot]("/vat/vrn/123456")).thenReturn(None)
+      whenReady(connector.root("/vat/vrn/123456"))(_ shouldBe VatJsonRoot(Map.empty))
     }
 
     "Propagate any exception that gets thrown" in new VatConnectorApplication {
       val rootUri = "/vat/111456111"
 
-      when(mockHttpClient.get[VatJsonRoot](rootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
+      when(mockHttpClient.getF[VatJsonRoot](rootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
 
       evaluating(connector.root(rootUri)) should produce[MicroServiceException]
     }

@@ -12,8 +12,9 @@ import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
+import org.scalatest.concurrent.ScalaFutures
 
-class CtConnectorSpec extends BaseSpec {
+class CtConnectorSpec extends BaseSpec with ScalaFutures {
 
   "Requesting the CT root" should {
 
@@ -22,24 +23,24 @@ class CtConnectorSpec extends BaseSpec {
       val ctRootUri = "/ct/1234512345"
       val root = CtJsonRoot(Map("someLink" -> "somePath", "someOtherLink" -> "someOTherPath"))
 
-      when(mockHttpClient.get[CtJsonRoot](ctRootUri)).thenReturn(Some(root))
+      when(mockHttpClient.getF[CtJsonRoot](ctRootUri)).thenReturn(Future.successful(Some(root)))
 
-      connector.root(ctRootUri) shouldBe root
+      whenReady(connector.root(ctRootUri)) (_ shouldBe root)
     }
 
     "return a root object with an empty set of links for a 404 response" in new CtConnectorApplication {
       val ctRootUri = "/ct/55555"
       val emptyRoot = CtJsonRoot(Map.empty)
 
-      when(mockHttpClient.get[CtJsonRoot](ctRootUri)).thenReturn(None)
+      when(mockHttpClient.getF[CtJsonRoot](ctRootUri)).thenReturn(None)
 
-      connector.root(ctRootUri) shouldBe emptyRoot
+      whenReady(connector.root(ctRootUri))(_ shouldBe emptyRoot)
     }
 
     "propagate any exception that gets thrown" in new CtConnectorApplication {
       val ctRootUri = "/ct/55555"
 
-      when(mockHttpClient.get[CtJsonRoot](ctRootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
+      when(mockHttpClient.getF[CtJsonRoot](ctRootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
 
       evaluating(connector.root(ctRootUri)) should produce[MicroServiceException]
     }

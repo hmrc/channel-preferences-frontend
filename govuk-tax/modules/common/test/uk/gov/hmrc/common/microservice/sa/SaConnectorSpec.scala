@@ -16,8 +16,9 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
 import uk.gov.hmrc.microservice.MicroServiceException
 import controllers.common.actions.HeaderCarrier
+import org.scalatest.concurrent.ScalaFutures
 
-class SaConnectorSpec extends BaseSpec {
+class SaConnectorSpec extends BaseSpec with ScalaFutures {
 
   "Requesting the SA root" should {
 
@@ -25,22 +26,22 @@ class SaConnectorSpec extends BaseSpec {
 
       val saRoot = SaJsonRoot(Map.empty)
 
-      when(mockHttpClient.get[SaJsonRoot]("/sa/individual/12345")).thenReturn(Some(saRoot))
+      when(mockHttpClient.getF[SaJsonRoot]("/sa/individual/12345")).thenReturn(Some(saRoot))
 
-      connector.root("/sa/individual/12345") shouldBe saRoot
+      whenReady(connector.root("/sa/individual/12345"))(_ shouldBe saRoot)
     }
 
     "return a root object with an empty set of links for a 404 response" in new SaConnectorApplication {
 
-      when(mockHttpClient.get[SaJsonRoot]("/sa/individual/1234567890")).thenReturn(None)
+      when(mockHttpClient.getF[SaJsonRoot]("/sa/individual/1234567890")).thenReturn(None)
 
-      connector.root("/sa/individual/1234567890") shouldBe SaJsonRoot(Map.empty)
+      whenReady(connector.root("/sa/individual/1234567890"))(_ shouldBe SaJsonRoot(Map.empty))
     }
 
     "Propagate any exception that gets thrown" in new SaConnectorApplication {
       val saRootUri = "/sa/55555"
 
-      when(mockHttpClient.get[CtJsonRoot](saRootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
+      when(mockHttpClient.getF[CtJsonRoot](saRootUri)).thenThrow(new MicroServiceException("exception thrown by external service", mock[Response]))
 
       evaluating(connector.root(saRootUri)) should produce[MicroServiceException]
     }
