@@ -27,19 +27,19 @@ trait Connector extends Status with HeaderNames {
 
   protected val serviceUrl: String
 
-  protected def httpResource(uri: String)(implicit headerCarrier:HeaderCarrier) = {
+  protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = Await.result(response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
+  protected def httpGet[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = Await.result(response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
 
-  protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] =
+  protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] =
     response2[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
 
   //FIXME: Why is the body a JsValue? Why do we care what type it is
 
-  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
+  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
     val wsResource = httpResource(uri)
     Await.result(response2[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
@@ -49,7 +49,7 @@ trait Connector extends Status with HeaderNames {
     Await.result(response2(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), defaultTimeoutDuration)
   }
 
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
+  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
     val wsResource = httpResource(uri)
     Await.result(response2[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
