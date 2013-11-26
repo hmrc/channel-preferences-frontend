@@ -14,6 +14,9 @@ trait AgentsRegimeRoots {
   protected def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): RegimeRoots = {
     val regimes = authority.regimes
     RegimeRoots(
+      paye = authority.regimes.paye map {
+        uri => payeConnector.root(uri.toString)
+      },
       sa = regimes.sa flatMap {
         uri => authority.saUtr map {utr => SaRoot(utr, saConnector.root(uri.toString))}
       },
