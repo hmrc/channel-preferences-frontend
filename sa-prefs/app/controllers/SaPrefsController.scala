@@ -40,6 +40,10 @@ class SaPrefsController extends Controller {
               Logger.error("Unable to validate token", e)
               Future.successful(Redirect(return_url))
             }
+            case e: Exception => {
+              Logger.error("Exception happened while decrypting the token", e)
+              Future.successful(Redirect(return_url))
+            }
           }
       }
   }

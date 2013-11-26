@@ -19,6 +19,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   val validUtr = "1234567"
   lazy val validToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
   lazy val expiredToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
+  lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
   val validReturnUrl = URLEncoder.encode("http://localhost:8080/portal", "UTF-8")
   private val mockRedirectWhiteListService = mock[RedirectWhiteListService]
 
@@ -60,6 +61,16 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
 
       val page = controller.index(expiredToken, validReturnUrl)(FakeRequest())
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(validReturnUrl)
+    }
+
+    "redirect to portal if the token is not valid on the landing page" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+      val controller = createController
+
+      val page = controller.index(incorrectToken, validReturnUrl)(FakeRequest())
 
       status(page) shouldBe 303
       header("Location", page).get should include(validReturnUrl)
