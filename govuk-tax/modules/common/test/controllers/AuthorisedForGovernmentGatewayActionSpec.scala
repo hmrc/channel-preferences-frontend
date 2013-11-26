@@ -30,6 +30,7 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
+import org.mockito.Matchers
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
@@ -101,7 +102,7 @@ class AuthorisedForGovernmentGatewayActionSpec
 
   "AuthorisedForGovernmentGatewayAction" should {
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      when(authConnector.authority("/auth/oid/gfisher")).thenReturn(None)
+      when(authConnector.authority(Matchers.eq("/auth/oid/gfisher"))(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),

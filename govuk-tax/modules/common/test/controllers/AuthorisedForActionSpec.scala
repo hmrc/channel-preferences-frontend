@@ -12,6 +12,7 @@ import java.net.URI
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import org.scalatest.TestData
+import org.mockito.Matchers
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.agent.{AgentConnectorRoot, AgentRegime}
 import controllers.common.SessionTimeoutWrapper._
@@ -75,7 +76,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
   "AuthorisedForIdaAction" should {
     "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenReturn(None)
+      when(mockAuthConnector.authority(Matchers.eq("/auth/oid/jdensmore"))(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
