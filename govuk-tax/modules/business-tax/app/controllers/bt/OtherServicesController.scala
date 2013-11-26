@@ -9,7 +9,6 @@ import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.Actions
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class OtherServicesController(otherServicesFactory: OtherServicesFactory,
                               override val auditConnector: AuditConnector)

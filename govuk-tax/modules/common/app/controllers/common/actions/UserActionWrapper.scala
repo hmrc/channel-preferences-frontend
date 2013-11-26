@@ -68,34 +68,5 @@ trait UserActionWrapper
       }
   }
 
-  /**
-   * NOTE: THE DEFAULT IMPLEMENTATION WILL BE REMOVED SHORTLY
-   */
-  protected def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
-    import controllers.common.service.Connectors._
-
-    /**
-     * Turns an Option of a Future into a Future of an Option:
-     * Some(Future[T]) becomes Future(Some[T])
-     * None becomes Future.successful(None)
-     */
-    def sequence[T](of: Option[Future[T]]): Future[Option[T]] = of.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
-
-    val regimes = authority.regimes
-    val payefo = sequence(regimes.paye.map(uri => Connectors.payeConnector.root(uri.toString)))
-    val safo = sequence(regimes.sa.flatMap(uri => authority.saUtr map (utr => saConnector.root(uri.toString).map(SaRoot(utr, _)))))
-    val vatfo = sequence(regimes.vat.flatMap(uri => authority.vrn map (utr => vatConnector.root(uri.toString).map(VatRoot(utr, _)))))
-    val epayefo = sequence(regimes.epaye.flatMap(uri => authority.empRef map (utr => epayeConnector.root(uri.toString).map(EpayeRoot(utr, _)))))
-    val ctfo = sequence(regimes.ct.flatMap(uri => authority.ctUtr map (utr => ctConnector.root(uri.toString).map(CtRoot(utr, _)))))
-    val agentfo = sequence(regimes.agent.map(uri => agentConnectorRoot.root(uri.toString)))
-
-    for {
-      paye <- payefo
-      sa <- safo
-      vat <- vatfo
-      epaye <- epayefo
-      ct <- ctfo
-      agent <- agentfo
-    } yield RegimeRoots(paye = paye, sa = sa, vat = vat, epaye = epaye, ct = ct, agent = agent)
-  }
+   def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
 }

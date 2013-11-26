@@ -9,9 +9,8 @@ import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.Actions
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import uk.gov.hmrc.domain.SaUtr
 import controllers.bt.prefs.{routes => PreferencesRoutes}
@@ -24,7 +23,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   extends BaseController
   with Actions
   with PortalUrlBuilder
-  with BusinessTaxRegimeRoots{
+  with BusinessTaxRegimeRoots {
 
   def this() = this(new AccountSummariesFactory(), Connectors.preferencesConnector, Connectors.auditConnector)(Connectors.authConnector)
 

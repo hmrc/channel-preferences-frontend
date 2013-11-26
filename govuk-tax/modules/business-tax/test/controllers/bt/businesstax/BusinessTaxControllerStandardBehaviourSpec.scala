@@ -10,7 +10,6 @@ import controllers.bt.BusinessTaxController
 import controllers.bt.accountsummary.AccountSummariesFactory
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 
 
