@@ -1,4 +1,5 @@
 /*
+* Based on:
 * fingerprintJS 0.5.0 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
@@ -8,7 +9,7 @@
 (function (scope) {
   'use strict';
 
-  var Fingerprint = function (options) {
+  var Mdtpdf = function (options) {
     var nativeForEach, nativeMap;
     nativeForEach = Array.prototype.forEach;
     nativeMap = Array.prototype.map;
@@ -57,7 +58,7 @@
     }
   };
 
-  Fingerprint.prototype = {
+  Mdtpdf.prototype = {
     get: function(){
       var keys = {};
       keys.userAgent = navigator.userAgent;
@@ -211,21 +212,9 @@
         var mimeTypes = this.map(p, function(mt){
           return [mt.type, mt.suffixes].join('~');
         }).join(',');
-//        return { name: p.name, description: p.description, mimeTypes: mimeTypes } ;
         return p.name;
       }, this);
     },
-
-//    getRegularPluginsString: function () {
-//
-//        return navigator.plugins.forEach( function (p) {
-//        var mimeTypes = p.forEach(function(mt){
-//          return { mt.type: mt.suffixes }.join('~');
-//        }).join(',');
-//        return { name: p.name, description: p.description, mimeTypes: mimeTypes };
-//      }, this).join(',');
-//
-//    },
 
     getIEPluginsString: function () {
       var names = ['ShockwaveFlash.ShockwaveFlash',//flash plugin
@@ -280,9 +269,8 @@
     }
   };
 
-
   if (typeof module === 'object' && typeof exports === 'object') {
-    module.exports = Fingerprint;
+    module.exports = Mdtpdf;
   }
-  scope.Fingerprint = Fingerprint;
+  scope.Mdtpdf = Mdtpdf;
 })(window);

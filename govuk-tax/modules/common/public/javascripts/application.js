@@ -81,7 +81,7 @@ GOVUK.eraseCookie = function( name ) {
 };
 
 
-var fingerprint = new Fingerprint( { screen_resolution: true } ).get();
+var fingerprint = new Mdtpdf( { screen_resolution: true } ).get();
 var encodedFingerPrint = B64.encode( fingerprint );
 
 var mdtpdfCookie = GOVUK.getCookie("mdtpdf");
