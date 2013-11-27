@@ -1,0 +1,21 @@
+@(saPreferences : Option[uk.gov.hmrc.common.microservice.preferences.SaPreference])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "Your tax home", nav = true, user= Some(user)) {
+
+<h1><span class="pre-heading">service</span> Account details </h1>
+
+<h2> Self Assessment emails reminders </h2>
+
+   @if(saPreferences.isDefined && saPreferences.get.email.isDefined) {
+       <p>
+          You have signed up for email reminders.
+       </p>
+       <p>
+          Email address: @{saPreferences.get.email.get}
+       </p>
+       <p>
+           <a id="changeEmailAddressLink" href=@controllers.bt.routes.AccountDetailsController.changeEmailAddress>Change your email address</a>
+       </p>
+   }
+
+}
