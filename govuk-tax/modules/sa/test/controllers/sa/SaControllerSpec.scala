@@ -373,7 +373,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       htmlBody should include(additionalDeliveryInformation)
 
       // Assert hidden form
-      htmlBody should include("""form action="/confirmChangeAddress" method="POST"""")
+      htmlBody should include("""form action="/confirm-change-address" method="POST"""")
       htmlBody should include(s"""input type="hidden" name="additionalDeliveryInformation" id="additionalDeliveryInformation" value="$additionalDeliveryInformation" """)
       htmlBody should include(s"""input type="hidden" name="addressLine1" id="addressLine1" value="$addressData1" """)
       htmlBody should include(s"""input type="hidden" name="addressLine2" id="addressLine2" value="$addressData2" """)
@@ -410,7 +410,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       val encodedTransactionId = SecureParameter(transactionId, currentTime).encrypt
 
       status(result) shouldBe 303
-      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressComplete?id=$encodedTransactionId")
+      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/change-address-complete?id=$encodedTransactionId")
 
       verify(saConnector).updateMainAddress(uri, addressForUpdate)
     }
@@ -437,7 +437,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
       val encodedErrorMessage = SecureParameter(errorMessage, currentTime).encrypt
 
       status(result) shouldBe 303
-      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/changeAddressFailed?id=$encodedErrorMessage")
+      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/change-address-failed?id=$encodedErrorMessage")
       verify(saConnector).updateMainAddress(uri, addressForUpdate)
     }
 
