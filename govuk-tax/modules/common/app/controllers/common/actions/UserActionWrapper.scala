@@ -42,8 +42,8 @@ trait UserActionWrapper
       val userAuthority = authConnector.authority(userId)
       Logger.debug(s"Received user authority: $userAuthority")
 
-      userAuthority.map { ua =>
-        taxRegime match {
+      userAuthority.flatMap {
+        case Some(ua) => taxRegime match {
           case Some(regime) if !regime.isAuthorised(ua.regimes) =>
             Logger.info("user not authorised for " + regime.getClass)
             Future.successful(Right(Redirect(regime.unauthorisedLandingPage)))
@@ -57,9 +57,10 @@ trait UserActionWrapper
                 decryptedToken = token))
             }
         }
-      }.getOrElse {
-        Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-        Future.successful(Right(Unauthorized(login()).withNewSession))
+        case _ => {
+          Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
+          Future.successful(Right(Unauthorized(login()).withNewSession))
+        }
       }
   }
 

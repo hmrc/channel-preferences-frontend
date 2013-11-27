@@ -7,7 +7,7 @@ import controllers.common.actions.HeaderCarrier
 
 class AuthConnector(override val serviceUrl: String = MicroServiceConfig.authServiceUrl) extends Connector {
 
-  def authority(path: String)(implicit hc: HeaderCarrier) = httpGet[UserAuthority](path)
+  def authority(path: String)(implicit hc: HeaderCarrier) = httpGetF[UserAuthority](path)
 
   def authorityByPidAndUpdateLoginTime(pid: String)(implicit hc: HeaderCarrier) = httpPost[UserAuthority](s"/auth/pid/${pid}", JsNull)
 }

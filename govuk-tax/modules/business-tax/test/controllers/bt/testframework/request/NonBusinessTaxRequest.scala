@@ -14,6 +14,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.scalatest.mock.MockitoSugar
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
 
 trait NonBusinessTaxRequest extends CookieEncryption with NonBusinessUserFixture with MockitoSugar {
 
@@ -29,7 +30,7 @@ trait NonBusinessTaxRequest extends CookieEncryption with NonBusinessUserFixture
 
   val mockAuthConnector = mock[AuthConnector]
 
-  when(mockAuthConnector.authority(userId)(HeaderCarrier())).thenReturn(Some(userAuthority))
+  when(mockAuthConnector.authority(userId)(HeaderCarrier())).thenReturn(Future.successful(Some(userAuthority)))
 
   def request = {
 
