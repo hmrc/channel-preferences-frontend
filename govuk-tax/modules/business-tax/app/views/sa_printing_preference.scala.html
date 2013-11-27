@@ -38,7 +38,9 @@
     }
 
     @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm) {
-	<p><input id="keepPaperLink" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" /></p>
+	<div class="form-field">
+        <input id="keepPaperLink" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" />
+    </div>
     }
 
 }

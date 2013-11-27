@@ -81,7 +81,21 @@ GOVUK.eraseCookie = function( name ) {
 };
 
 
-var fingerprint = new Mdtpdf( { screen_resolution: true } ).get();
+GOVUK.preventDoubleSubmit = function (event) {
+  $cta = $(event.currentTarget);
+  if ($cta.hasClass("state-processing")) {
+    // oh look, we're already in the processing state
+    // so abort and forget we were ever clicked
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return;
+  } else {
+      $cta.addClass("state-processing");
+  }
+}
+
+
+var fingerprint = new Fingerprint( { screen_resolution: true } ).get();
 var encodedFingerPrint = B64.encode( fingerprint );
 
 var mdtpdfCookie = GOVUK.getCookie("mdtpdf");
@@ -255,4 +269,10 @@ $(document).ready(function() {
         }
     });
   }
+
+    $('*[type="submit"]').on("click", function(event) {
+         GOVUK.preventDoubleSubmit(event);
+    });
+
+
 });

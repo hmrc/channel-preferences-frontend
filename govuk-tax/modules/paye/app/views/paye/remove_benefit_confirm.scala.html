@@ -102,7 +102,9 @@
 }
 
 @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
-<input class="button button--confirm" type="submit" value="Confirm"/>
+    <div class="form-field">
+        <input class="button button--confirm" type="submit" value="Confirm"/>
+    </div>
 }
 
 }    }            }

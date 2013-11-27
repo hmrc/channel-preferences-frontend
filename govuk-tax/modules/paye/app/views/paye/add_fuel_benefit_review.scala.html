@@ -49,7 +49,9 @@
     </table>
 
     @helper.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
-        <button type="submit">Submit</button>
+        <div class="form-field">
+            <input type="submit" class="button" value="Submit">
+        </div>
     }
 }
 

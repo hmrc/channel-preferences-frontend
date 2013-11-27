@@ -83,7 +83,9 @@
     }
 
   @helper.form(action = controllers.paye.routes.AddCarBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
-    <button type="submit">Submit</button>
+    <div class="form-field">
+        <input type="submit" class="button" value="submit">
+    </div>
   }
 }
 
