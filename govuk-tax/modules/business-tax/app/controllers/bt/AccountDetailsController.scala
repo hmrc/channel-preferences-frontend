@@ -1,13 +1,13 @@
 package controllers.bt
 
 import controllers.common.{GovernmentGateway, BaseController}
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.{PageVisibilityPredicate, HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{SimpleResult, Request}
+import play.api.mvc.{AnyContent, SimpleResult, Request}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
@@ -25,7 +25,7 @@ with EmailControllerHelper {
     user => request => accountDetailsPage(user, request)
   }
 
-  def changeEmailAddress() =  AuthorisedFor(account = SaRegime).async {
+  def changeEmailAddress() =  AuthorisedFor(account = SaRegime, pageVisibility = ChangeEmailVisibilityPredicate).async {
     user => request => changeEmailAddressPage(user, request)
   }
 
@@ -50,3 +50,21 @@ with EmailControllerHelper {
     }
   }
 }
+
+class ChangeEmailVisibilityPredicate(preferencesConnector: PreferencesConnector) extends PageVisibilityPredicate{
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+  def this() = this(Connectors.preferencesConnector)
+
+  def isVisible(user: User, request: Request[AnyContent]): Future[Boolean] = {
+      preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).map {
+        pref =>
+          pref match {
+            case Some(SaPreference(digital, Some(email))) => digital
+            case _ => false
+          }
+      }
+  }
+}
+
+object ChangeEmailVisibilityPredicate extends ChangeEmailVisibilityPredicate

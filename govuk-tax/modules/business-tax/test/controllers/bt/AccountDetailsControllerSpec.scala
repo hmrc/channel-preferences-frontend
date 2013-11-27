@@ -148,5 +148,52 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
     }
 
   }
+  
+  "ChangeEmailVisibilityPredicate" should {
+    
+    "return true if the sa user has opted for email notifications" in {
+      implicit val mockPreferencesConnector = mock[PreferencesConnector]
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Some(SaPreference(true, Some("test@mail.com"))))
+
+      val predicate = new ChangeEmailVisibilityPredicate(mockPreferencesConnector)
+
+      await(predicate.isVisible(user, FakeRequest())) shouldBe true
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+    }
+    
+    "return false if the sa user kept the paper notifications" in {
+      implicit val mockPreferencesConnector = mock[PreferencesConnector]
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Some(SaPreference(false, None)))
+
+      val predicate = new ChangeEmailVisibilityPredicate(mockPreferencesConnector)
+
+      await(predicate.isVisible(user, FakeRequest())) shouldBe false
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+    }
+    
+    "return false if the sa user did not set their preferences" in {
+      implicit val mockPreferencesConnector = mock[PreferencesConnector]
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(None)
+
+      val predicate = new ChangeEmailVisibilityPredicate(mockPreferencesConnector)
+
+      await(predicate.isVisible(user, FakeRequest())) shouldBe false
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+    }
+
+    "return false if the sa user has opted for email but there is no email set in their preferences" in {
+      implicit val mockPreferencesConnector = mock[PreferencesConnector]
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Some(SaPreference(true, None)))
+
+      val predicate = new ChangeEmailVisibilityPredicate(mockPreferencesConnector)
+
+      await(predicate.isVisible(user, FakeRequest())) shouldBe false
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+    }
+  }
 
 }
