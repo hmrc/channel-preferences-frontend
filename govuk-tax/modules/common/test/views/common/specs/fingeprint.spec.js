@@ -1,7 +1,5 @@
 describe("Device Fingerprint", function() {
     var fingerprint;
-    var originalNavigator = navigator;
-    var originalScreen = screen;
 
     beforeEach(function() {
         fingerprint = new Mdtpdf();
@@ -23,7 +21,6 @@ describe("Device Fingerprint", function() {
     describe("returns", function() {
         var fpDetails;
         var originalNavigator = navigator;
-        var originalScreen = screen;
 
         beforeAll(function() {
             fingerprint = new Mdtpdf( { screen_resolution: true } );
@@ -34,8 +31,6 @@ describe("Device Fingerprint", function() {
                     return value;
                 })
             })
-            screen.height = 600;
-            screen.width = 800;
         });
 
         afterAll(function() {
@@ -43,13 +38,7 @@ describe("Device Fingerprint", function() {
             navigator = originalNavigator;
             screen = originalScreen;
         });
-// Look into doing this correctly
-//        it("screen resolution", function() {
-//            spyOn(fingerprint, "getScreenResolution");
-//            fingerprint.get();
-//            expect(fingerprint.getScreenResolution).toHaveBeenCalled();
-//            expect(fp).toContain('800x600');
-//        });
+
         it("userAgent attribute", function() {
             fpDetails = $.parseJSON(fingerprint.get());
             expect(fpDetails.userAgent).toEqual('Mock user agent');
