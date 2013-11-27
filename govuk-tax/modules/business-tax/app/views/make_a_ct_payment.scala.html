@@ -23,14 +23,14 @@
         You can find the payment reference number:
         <ul class="bullets">
         <li>on your payslip</li>
-        <li>through your company's @{ctOnlineAccountLink.set(ID, "ctOnlineAccountHref").set(TEXT, "HMRC online account").render}</li>
+        <li>through your company's @{ctOnlineAccountLink.set((ID, "ctOnlineAccountHref")).set((TEXT, "HMRC online account")).render}</li>
         </ul>
     </p>
 </div>
 
 <div id="directDebitSection">
     <h2>Direct Debit</h2>
-    <p>Set up a Direct Debit through your company's @{btDirectDebitsLink.set(ID, "btDirectDebitsHref").set(TEXT, "HMRC online account").render}.</p>
+    <p>Set up a Direct Debit through your company's @{btDirectDebitsLink.set((ID, "btDirectDebitsHref")).set((TEXT, "HMRC online account")).render}.</p>
     <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it's 3 working days.</p>
     <p>Payments will appear on your bank statements as "HMRC NDDS". You can make changes to the Direct Debit through your company's HMRC online account.</p>
 </div>

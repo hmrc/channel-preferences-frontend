@@ -30,7 +30,7 @@
     <p><a id="mergeGGHref" href="@controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts">Merge your Government Gateway accounts</a></p>
     <p>
         @Messages("bt.home.everythingElse.1")
-        @{otherServicesLink.set(ID, "otherServicesHref").set(TEXT, Messages("bt.home.everythingElse.linkText")).render}
+        @{otherServicesLink.set((ID, "otherServicesHref")).set((TEXT, Messages("bt.home.everythingElse.linkText"))).render}
         @Messages("bt.home.everythingElse.2")
     </p>
 
