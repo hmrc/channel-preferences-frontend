@@ -1,6 +1,5 @@
 package controllers.common
 
-import controllers.common.service.Connectors
 import controllers.common.service.Connectors._
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
