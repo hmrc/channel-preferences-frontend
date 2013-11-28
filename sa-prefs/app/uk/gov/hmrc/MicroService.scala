@@ -129,14 +129,14 @@ class PreferencesMicroService extends MicroService {
   override val serviceUrl = MicroServiceConfig.preferenceServiceUrl
 
   def savePreferences(utr: String, digital: Boolean, email: Option[String] = None) {
-    httpPostAndForget(s"/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(SaPreference(digital, email))))
+    httpPostAndForget(s"/portal/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 
   def getPreferences(utr: String): Option[SaPreference] = {
 
     try {
-      val v = httpGet[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
-      v.map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response"))
+      val v = httpGet[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      v.map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response"))
 
     } catch {
       case MicroServiceException(errorMessage, response) if response.status == 404 => None
@@ -145,7 +145,7 @@ class PreferencesMicroService extends MicroService {
   }
 
   def updateEmailValidationStatus(token : String) : Boolean = {
-    val response = httpPostSynchronous("/preferences/sa/verifyEmailAndSuppressPrint", Json.parse(toRequestBody(ValidateEmail(token))))
+    val response = httpPostSynchronous("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token))))
     return response.status < 300 && response.status >= 200
   }
 }
