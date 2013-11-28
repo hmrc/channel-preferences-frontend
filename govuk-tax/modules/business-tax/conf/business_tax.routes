@@ -8,9 +8,10 @@ GET     /otherServices                                  @controllers.bt.OtherSer
 GET     /importantDates                                 @controllers.bt.ImportantDatesController.importantDates
 GET     /mergeGGAccounts                                @controllers.bt.MergeGGAccountsController.mergeGGAccounts
 
-GET     /account-details                                 @controllers.bt.AccountDetailsController.accountDetails
-GET     /account-details/update-email-address            @controllers.bt.AccountDetailsController.changeEmailAddress
-POST    /account-details/update-email-address            @controllers.bt.AccountDetailsController.submitEmailAddress
+GET     /account-details                                @controllers.bt.AccountDetailsController.accountDetails
+GET     /account-details/update-email-address           @controllers.bt.AccountDetailsController.changeEmailAddress(email: Option[String])
+POST    /account-details/update-email-address           @controllers.bt.AccountDetailsController.submitEmailAddress
+GET     /account-details/update-email-address-thank-you @controllers.bt.AccountDetailsController.emailAddressChangeThankYou
 
 GET     /prefs/sa/print                                 @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[String])
 POST    /prefs/sa/print                                 @controllers.bt.prefs.SaPrefsController.submitPrefsForm

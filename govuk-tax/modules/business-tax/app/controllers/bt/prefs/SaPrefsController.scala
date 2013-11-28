@@ -48,7 +48,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
       preferences =>
         preferences match {
           case Some(saPreference) => FrontEndRedirect.toBusinessTax
-          case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.getOrElse(""), None))))
+          case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None))))
         }
     }
   }

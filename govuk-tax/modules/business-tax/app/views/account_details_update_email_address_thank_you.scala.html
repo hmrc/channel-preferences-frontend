@@ -1,0 +1,17 @@
+@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "My Preferences", user = Some(user)) {
+
+    <h1>Account Details</h1>
+
+    <h2>Your email address has been changed</h2>
+
+    <p>Your self assessment email remainders will now be sent to @emailAddress</p>
+
+    <p>A verification email has been sent to this address.</p>
+
+    <hr />
+
+    <p><a class="button" href="@controllers.bt.routes.BusinessTaxController.home">Return to your tax account</a></p>
+
+}

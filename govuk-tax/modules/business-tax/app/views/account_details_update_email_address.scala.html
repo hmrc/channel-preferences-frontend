@@ -2,6 +2,7 @@
 
 @import views.helpers.CustomHelpers._
 @import helper._
+@import views.helpers._
 
 @main(title = "Your tax home", nav = true, user= Some(user)) {
 
@@ -14,17 +15,28 @@
    </p>
     @helper.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
 
-    @helpers.input(
-    emailForm("email"),
-    '_label -> "",
-    '_divClass -> "form-field",
-    '_inputClass -> "input--medium"
-    )
+        <p>Email address</p>
+        @helpers.input(
+            emailForm("email.main"),
+            '_label -> "",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--medium",
+            'parentField -> emailForm("email")
+        )
 
-    <div class="form-field">
-        <button id="submitEmailButton" class="button" type="submit">Submit</button>
-    </div>
+        <p>Confirm email address</p>
+        @helpers.input(
+            emailForm("email.confirm"),
+            '_label -> "",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--medium"
+        )
 
-}
+
+        <div class="form-field">
+            <button id="submitEmailButton" class="button" type="submit">Submit</button>
+        </div>
+
+    }
 
 }

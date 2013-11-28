@@ -25,11 +25,20 @@
     @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
 
 	@helpers.input(
-	    emailForm("email"),
-            '_label -> "",
+	    emailForm("email.main"),
+        '_label -> "",
 	    '_divClass -> "form-field",
-	    '_inputClass -> "input--medium"
+	    '_inputClass -> "input--medium",
+        'parentField -> emailForm("email")
 	)
+
+    <p>Confirm email address</p>
+    @helpers.input(
+        emailForm("email.confirm"),
+        '_label -> "",
+        '_divClass -> "form-field",
+        '_inputClass -> "input--medium"
+    )
 
 	<div class="form-field">
             <button id="submitEmailButton" class="button" type="submit">Submit</button>

@@ -14,7 +14,12 @@ trait EmailControllerHelper {
 
 
   protected val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(
-    "email" -> email,
+    "email" -> tuple(
+      "main" -> email,
+      "confirm" -> optional(text)
+    ).verifying(
+      "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")
+    ),
     "emailVerified" -> optional(text)
   )(EmailPreferenceData.apply)(EmailPreferenceData.unapply))
 
@@ -22,16 +27,17 @@ trait EmailControllerHelper {
   protected def submitPreferencesForm(errorsView: (Form[EmailPreferenceData]) => play.api.templates.HtmlFormat.Appendable,
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                       successRedirect: () => Call,
-                                      emailConnector: EmailConnector, preferencesConnector: PreferencesConnector)(implicit user: User, request: Request[AnyRef]) = {
+                                      emailConnector: EmailConnector,
+                                      preferencesConnector: PreferencesConnector)(implicit user: User, request: Request[AnyRef]) = {
     implicit def hc = HeaderCarrier(request)
     emailForm.bindFromRequest()(request).fold(
       errors => BadRequest(errorsView(errors)),
       emailForm => {
-        if (emailForm.isEmailVerified || emailConnector.validateEmailAddress(emailForm.email)) {
-          preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.email))
+        if (emailForm.isEmailVerified || emailConnector.validateEmailAddress(emailForm.mainEmail)) {
+          preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.mainEmail))
           Redirect(successRedirect())
         } else {
-          Ok(emailWarningView(emailForm.email))
+          Ok(emailWarningView(emailForm.mainEmail))
         }
       }
     )
@@ -39,6 +45,8 @@ trait EmailControllerHelper {
 
 }
 
-case class EmailPreferenceData(email: String, emailVerified: Option[String]) {
+case class EmailPreferenceData(email: (String, Option[String]), emailVerified: Option[String]) {
   lazy val isEmailVerified = emailVerified == Some("true")
+
+  def mainEmail = email._1
 }

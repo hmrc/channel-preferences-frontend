@@ -63,8 +63,10 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
       val document = Jsoup.parse(contentAsString(page))
 
-      document.getElementById("email") shouldNot be(null)
-      document.getElementById("email").attr("value") shouldBe ""
+      document.getElementById("email.main") shouldNot be(null)
+      document.getElementById("email.main").attr("value") shouldBe ""
+      document.getElementById("email.confirm") shouldNot be(null)
+      document.getElementById("email.confirm").attr("value") shouldBe ""
 
       verify(preferencesConnector, times(1)).getPreferences(validUtr)
     }
@@ -81,8 +83,10 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
       val document = Jsoup.parse(contentAsString(page))
 
-      document.getElementById("email") shouldNot be(null)
-      document.getElementById("email").attr("value") shouldBe emailAddress
+      document.getElementById("email.main") shouldNot be(null)
+      document.getElementById("email.main").attr("value") shouldBe emailAddress
+      document.getElementById("email.confirm") shouldNot be(null)
+      document.getElementById("email.confirm").attr("value") shouldBe emailAddress
 
       verify(preferencesConnector, times(1)).getPreferences(validUtr)
     }
@@ -107,7 +111,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "show an error if the email is incorrectly formatted" in new Setup {
       val emailAddress = "invalid-email"
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress))))
 
       status(page) shouldBe 400
 
@@ -118,7 +122,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "show an error if the email is not set" in new Setup {
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", ""))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", ""))))
 
       status(page) shouldBe 400
 
@@ -127,12 +131,24 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
+    "show error if the two email fields are not equal" in new Setup {
+      val emailAddress = "someone@email.com"
+
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", "other"))))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select(".error-notification").text shouldBe "The email addresses entered do not match"
+      verifyZeroInteractions(preferencesConnector, emailConnector)
+    }
+
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 200
 
@@ -148,7 +164,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val emailAddress = "someone@email.com"
       when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.SaPrefsController.thankYou().toString())
@@ -164,7 +180,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new Setup {
       val emailAddress = "someone@email.com"
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", emailAddress), ("emailVerified", "true"))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.SaPrefsController.thankYou().toString())
@@ -178,7 +194,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", emailAddress), ("emailVerified", "false"))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
 
       status(page) shouldBe 200
 
@@ -195,7 +211,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
 
       status(page) shouldBe 200
 

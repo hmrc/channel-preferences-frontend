@@ -15,6 +15,7 @@ import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesCon
 import org.mockito.Mockito._
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.email.EmailConnector
+import play.api.test.Helpers._
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -27,8 +28,6 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
 }
 
 class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
-
-  import play.api.test.Helpers._
 
   val validUtr = SaUtr("1234567890")
   val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
@@ -46,7 +45,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
       page.getElementById("changeEmailAddressLink").text shouldBe "Change your email address"
-      page.getElementById("changeEmailAddressLink").attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress().url
+      page.getElementById("changeEmailAddressLink").attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
 
@@ -95,24 +94,44 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {
-
       val saPreferences = SaPreference(true, Some("test@test.com"))
       when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller.changeEmailAddressPage(user, request))
+      val result = Future.successful(controller.changeEmailAddressPage(None)(user, request))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
 
       page.getElementById("currentEmailAddress").text shouldBe "test@test.com"
-      page.getElementById("email") shouldNot be(null)
-      page.getElementById("email").attr("value") shouldBe ""
-      //page.getElementById("verifyEmail") shouldNot be(null)
+      page.getElementById("email.main") shouldNot be(null)
+      page.getElementById("email.main").attr("value") shouldBe ""
+      page.getElementById("email.confirm") shouldNot be(null)
+      page.getElementById("email.confirm").attr("value") shouldBe ""
+    }
+
+    "fail to validate if two different email addresses are entered." in new Setup {
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      controller.submitEmailAddress()
 
     }
 
-    "display update email address form with the email input field pre-populated when coming back from the warning page" in {
-      pending
+    "display update email address form with the email input field prepopulated when coming back from the warning page" in new Setup {
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val existingEmailAddress = "existing@email.com"
+      val result = Future.successful(controller.changeEmailAddressPage(Some(existingEmailAddress))(user, request))
+
+      status(result) shouldBe 200
+      val page = Jsoup.parse(contentAsString(result))
+
+      page.getElementById("currentEmailAddress").text shouldBe "test@test.com"
+      page.getElementById("email.main") shouldNot be(null)
+      page.getElementById("email.main").attr("value") shouldBe existingEmailAddress
+      page.getElementById("email.confirm") shouldNot be(null)
+      page.getElementById("email.confirm").attr("value") shouldBe existingEmailAddress
     }
 
     "return bad request if the SA user has opted into paper" in new Setup {
@@ -120,42 +139,173 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val saPreferences = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller.changeEmailAddressPage(user, request))
+      val result = Future.successful(controller.changeEmailAddressPage(None)(user, request))
 
       status(result) shouldBe 400
     }
   }
 
-  "update email address" should {
+  "A post to update email address with no emailVerifiedFlag" should {
 
-    "validate the email address, update the address for SA user and redirect to confirmation page" in {
-      pending
+    "validate the email address, update the address for SA user and redirect to confirmation page" in new Setup {
+      val emailAddress = "someone@email.com"
+      val saPreferences = SaPreference(true, Some("oldEmailAddress@test.com"))
+
+      when(mockEmailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(routes.AccountDetailsController.emailAddressChangeThankYou().toString())
+
+      verify(mockPreferencesConnector).savePreferences(validUtr, true, Some(emailAddress))
+      verify(mockEmailConnector).validateEmailAddress(emailAddress)
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+      verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
     }
 
-    "show error if the 2 email address fields don't match" in {
-      pending
+    "show error if the 2 email address fields do not match" in new Setup {
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody("email.main" -> "a@a.com", "email.confirm" -> "b@b.com")))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select(".error-notification").text shouldBe "The email addresses entered do not match"
+      verifyZeroInteractions(mockEmailConnector)
     }
 
-    "show error if the email address is not syntactically valid" in {
-//      val emailAddress = "invalid-email"
-//
-//      val page = Future.successful(controller.submitFormAction(user, FakeRequest().withFormUrlEncodedBody(("email", emailAddress))))
-//
-//      status(page) shouldBe 400
-//
-//      val document = Jsoup.parse(contentAsString(page))
-//      document.select(".error-notification").text shouldBe "Please provide a valid email address"
-//      verifyZeroInteractions(preferencesConnector, emailConnector)
-      pending
+    "show error if the email address is not syntactically valid" in new Setup {
+      val emailAddress = "invalid-email"
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress))))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select(".error-notification").text shouldBe "Please provide a valid email address"
+      verifyZeroInteractions(mockEmailConnector)
     }
 
-    "show error if the email field is empty" in {
-      pending
+    "show error if the email field is empty" in new Setup {
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", ""))))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select(".error-notification").text shouldBe "Please provide a valid email address"
+      verifyZeroInteractions(mockEmailConnector)
     }
 
-    "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in {
-      pending
+    "show error if the two email fields are not equal" in new Setup {
+      val emailAddress = "someone@email.com"
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", "other"))))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select(".error-notification").text shouldBe "The email addresses entered do not match"
+      verifyZeroInteractions(mockEmailConnector)
     }
 
+    "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {
+
+      val emailAddress = "someone@dodgy.domain"
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+
+      when(mockEmailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
+
+      status(page) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select("#emailIsNotCorrectLink") shouldNot be(null)
+      document.select("#emailIsCorrectLink") shouldNot be(null)
+
+      verify(mockEmailConnector).validateEmailAddress(emailAddress)
+    }
+
+  }
+
+  "A post to set preferences with an emailVerifiedFlag" should {
+
+    "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new Setup {
+      val emailAddress = "someone@email.com"
+      val saPreferences = SaPreference(true, Some("oldEmailAddress@test.com"))
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody
+        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(routes.AccountDetailsController.emailAddressChangeThankYou().toString())
+
+      verify(mockPreferencesConnector).savePreferences(validUtr, true, Some(emailAddress))
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+      verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
+    }
+
+    "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new Setup {
+
+      val emailAddress = "someone@dodgy.domain"
+      val saPreferences = SaPreference(true, Some("oldEmailAddress@test.com"))
+
+      when(mockEmailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody
+        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
+
+      status(page) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select("#emailIsNotCorrectLink") shouldNot be(null)
+      document.select("#emailIsCorrectLink") shouldNot be(null)
+
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+      verifyNoMoreInteractions(mockPreferencesConnector)
+      verify(mockEmailConnector).validateEmailAddress(emailAddress)
+    }
+
+    "if the verified flag is any value other than true, treat it as false" in new Setup {
+
+      val emailAddress = "someone@dodgy.domain"
+      val saPreferences = SaPreference(true, Some("oldEmailAddress@test.com"))
+
+      when(mockEmailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+
+
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody
+        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
+
+      status(page) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select("#emailIsNotCorrectLink") shouldNot be(null)
+      document.select("#emailIsCorrectLink") shouldNot be(null)
+
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+      verifyNoMoreInteractions(mockPreferencesConnector)
+      verify(mockEmailConnector).validateEmailAddress(emailAddress)
+    }
   }
 }

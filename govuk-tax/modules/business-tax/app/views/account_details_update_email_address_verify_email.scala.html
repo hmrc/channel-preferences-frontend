@@ -2,7 +2,7 @@
 
 @main(title = "My Preferences", user = Some(user)) {
 
-    <h1>Sign up for email reminders</h1>
+    <h1>Account Details</h1>
 
     <h2 id="emailAddress">@emailAddress</h2>
 
@@ -10,7 +10,7 @@
 
     <p>Please confirm below that you are happy to continue.</p>
 
-    @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
+    @helper.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
         <div class="form-field">
             <button id="emailIsCorrectLink" class="button" type="submit">My email is correct</button>
         </div>
@@ -19,6 +19,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    <a id="emailIsNotCorrectLink" href="@controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress))">No, my email address is not correct</a>
+    <a id="emailIsNotCorrectLink" href="@controllers.bt.routes.AccountDetailsController.changeEmailAddress(Some(emailAddress))">No, my email address is not correct</a>
 
 }
