@@ -1,4 +1,4 @@
-@(date : org.joda.time.LocalDate, grayedoutText: Option[String], text: String, args: Seq[String], link: Option[views.helpers.RenderableMessage])(implicit lang: play.api.i18n.Lang)
+@(service: String, eventType: String, date : org.joda.time.LocalDate, grayedoutText: Option[String], text: String, args: Seq[String], linkO: Option[views.helpers.Link])(implicit lang: play.api.i18n.Lang)
 
 @import play.api.i18n._
 @import views.html.helper._
@@ -8,5 +8,9 @@
 
 <DIV class="activity-list__date"><P>@formatDate(date)</P></DIV>
 <DIV class="activity-list__description">
-    <P>@if(grayedoutText.isDefined) {<SPAN class="faded-text">@Messages(grayedoutText.get,args: _*)</SPAN>}<SPAN>@Messages(text, args: _*).</SPAN>@{if (link.isDefined) Html("<br>" + link.get.render.toString)}</P>
+    <P>
+        @if(grayedoutText.isDefined) {<SPAN class="faded-text">@Messages(grayedoutText.get,args: _*)</SPAN>}
+        <SPAN>@Messages(text, args: _*).</SPAN>
+        @{linkO.map { link => Html("<br>" + helpers.link("", link.url, s"$service.message.importantDates.link.$eventType", link.newWindow, link.sso))}}
+    </P>
 </DIV>

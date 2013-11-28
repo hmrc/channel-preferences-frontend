@@ -8,7 +8,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import controllers.common.actions.Actions
-import views.helpers.LinkMessage
+import views.helpers.{PortalLink, LinkMessage}
 import play.api.i18n.Messages
 
 class MergeGGAccountsController(override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
@@ -24,9 +24,7 @@ class MergeGGAccountsController(override val auditConnector: AuditConnector)(imp
   }
 
   private[bt] def mergeGGAccountsPage(implicit user: User, request: Request[AnyRef]): SimpleResult = {
-    val deEnrolServiceLink = LinkMessage.portalLink(buildPortalUrl("servicesDeEnrolment"), Some("Remove the tax from the account you don't want to use anymore"), Some("deEnrolHref")) //TODO find a way to send message containing '
-    val enrolServiceLink = LinkMessage.portalLink(buildPortalUrl("otherServicesEnrolment"), Some(Messages("bt.mergeggaccount.step4.linkText")), Some("enrolHref"))
-    Ok(views.html.merge_gg_accounts(deEnrolServiceLink, enrolServiceLink))
+    Ok(views.html.merge_gg_accounts(PortalLink(buildPortalUrl("servicesDeEnrolment")), PortalLink(buildPortalUrl("otherServicesEnrolment"))))
   }
 
 }

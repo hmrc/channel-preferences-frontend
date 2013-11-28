@@ -1,4 +1,4 @@
-@(ctOnlineAccountLink: views.helpers.RenderableMessage, btDirectDebitsLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(ctOnlineAccountLink: views.helpers.Link, ddLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.RenderableMessageProperty.Link._
 
@@ -10,8 +10,8 @@
     <p>Pay Corporation Tax by Direct Debit, online with a debit or credit card or through your bank.</p>
     <div class="application-notice info-notice">
         <p>
-            It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on <a id="timeHref" target="_blank" href="https://www.gov.uk/prepare-file-annual-accounts-for-limited-company">time</a> -
-           you may be charged interest if you don't.
+            It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on
+            @helpers.link("timeHref", "https://www.gov.uk/prepare-file-annual-accounts-for-limited-company", "time", true) - you may be charged interest if you don't.
         </p>
     </div>
 </div>
@@ -23,21 +23,23 @@
         You can find the payment reference number:
         <ul class="bullets">
         <li>on your payslip</li>
-        <li>through your company's @{ctOnlineAccountLink.set((ID, "ctOnlineAccountHref")).set((TEXT, "HMRC online account")).render}</li>
+        <li>through your company's
+            @helpers.link("ctOnlineAccountHref", ctOnlineAccountLink.url, "HMRC online account", ctOnlineAccountLink.newWindow, ctOnlineAccountLink.sso)
         </ul>
     </p>
 </div>
 
 <div id="directDebitSection">
     <h2>Direct Debit</h2>
-    <p>Set up a Direct Debit through your company's @{btDirectDebitsLink.set((ID, "btDirectDebitsHref")).set((TEXT, "HMRC online account")).render}.</p>
+    <p>Set up a Direct Debit through your company's
+        @helpers.link("btDirectDebitsHref", ddLink.url, "HMRC online account", ddLink.newWindow, ddLink.sso).</p>
     <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it's 3 working days.</p>
     <p>Payments will appear on your bank statements as "HMRC NDDS". You can make changes to the Direct Debit through your company's HMRC online account.</p>
 </div>
 
 <div id="cardSection">
     <h2>Online with a debit or credit card</h2>
-    <p>You can <a id="payOnlineHref" target="_blank" href="https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp">pay online</a>. You must have your Corporation Tax payment reference number.</p>
+    <p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online", true). You must have your Corporation Tax payment reference number.</p>
     <p>Allow 3 working days for payments to reach HMRC.</p>
     <p>You must use a card issued by a UK card issuer - not American Express or Diners Club.</p>
 </div>
@@ -66,7 +68,7 @@
                 <td>083210</td>
                 <td>12001039</td>
                 <td>
-                    <a id="chapsFormCumbernauldHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/cotaxCumbernauld.htm">CHAPS form - Cumbernauld</a>
+                    @helpers.link("chapsFormCumbernauldHref", "http://www.hmrc.gov.uk/payinghmrc/cotaxCumbernauld.htm", "CHAPS form - Cumbernauld", true)
                 </td>
             </tr>
             <tr>
@@ -74,7 +76,7 @@
                 <td>083210</td>
                 <td>12001020</td>
                 <td>
-                    <a id="chapsFormChipleyHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/cotaxShipley.htm">CHAPS form - Shipley</a>
+                    @helpers.link("chapsFormChipleyHref", "http://www.hmrc.gov.uk/payinghmrc/cotaxShipley.htm", "CHAPS form - Shipley", true)
                 </td>
             </tr>
         </tbody>
@@ -111,16 +113,20 @@
     <p>HMRC's banking address is Citi, Citigroup Centre, Canada Square, Canary Wharf, London E14 5LB.</p>
 
     <h2>Multiple CHAPS payments</h2>
-    <p>To make a single payment for multiple Corporation Tax references, contact either the <a id="cumbernauldHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/cumbernauld.htm">Cumbernauld</a> or <a id="shipleyHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/shipley.htm">Shipley</a> accounts office. </p>
+    <p>To make a single payment for multiple Corporation Tax references, contact either the
+        @helpers.link("cumbernauldHref", "http://www.hmrc.gov.uk/payinghmrc/cumbernauld.htm", "Cumbernauld", true) or
+        @helpers.link("shipleyHref", "http://www.hmrc.gov.uk/payinghmrc/shipley.htm", "Shipley", true) accounts office. </p>
 </div>
 
 <div id="nothingToPaySection">
     <h2>Nothing to pay</h2>
-    <p>You must tell HMRC if you have <a id="nothingToPayHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/ct-nil.htm">nothing to pay</a>. You will need your Corporation Tax payment reference number.</p>
+    <p>You must tell HMRC if you have @helpers.link("nothingToPayHref", "http://www.hmrc.gov.uk/payinghmrc/ct-nil.htm", "nothing to pay", true).
+       You will need your Corporation Tax payment reference number.</p>
 </div>
 
 <div id="moreThanOneCompanySection">
     <h2>Payments for more than 1 company</h2>
-    <p>If companies in a group pay under a <a id="groupPaymentsHref" target="_blank" href="http://www.hmrc.gov.uk/ct/managing/pay-repay/group-pay.htm">Group Payment Arrangement</a> HMRC will write telling you the correct payment reference.</p>
+    <p>If companies in a group pay under a @helpers.link("groupPaymentsHref", "http://www.hmrc.gov.uk/ct/managing/pay-repay/group-pay.htm", "Group Payment Arrangement", true)
+        HMRC will write telling you the correct payment reference.</p>
 </div>
 }

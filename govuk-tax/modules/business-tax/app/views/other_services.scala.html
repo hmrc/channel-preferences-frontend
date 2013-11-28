@@ -1,4 +1,4 @@
-@(otherServicesSummary : controllers.bt.otherservices.OtherServicesSummary)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(links : List[controllers.bt.OtherServiceLink], enrollLink: views.helpers.Link, deEnrollLink: views.helpers.Link, registrationLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @main(title = "Your tax home", nav = true, user= Some(user)) {
 
@@ -6,51 +6,51 @@
 <p>
     To see your other taxes here you must be registered for them and have online access.
     If both already applies but can't see them here, you're usering different Government Gateway accounts for them. You have to
-    <a id="mergeGGHref" href="@controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts">merge your accounts</a>.
+    @helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "merge your accounts").
 </p>
-@if(otherServicesSummary.manageYourTaxes.isDefined){
+
 <div id="manageYourTaxesSection">
     <h2>Manage your other taxes</h2>
-    @if(otherServicesSummary.manageYourTaxes.get.links.isEmpty) {
-        <p id="noOtherServices">There are no other taxes.</p>
+    @if(links.isEmpty) {
+    <p id="noOtherServices">There are no other taxes.</p>
     }else{
-        <p id="availableServices">
-        @for(link <- otherServicesSummary.manageYourTaxes.get.links){
-            @link.render <br>
+    <p id="availableServices">
+        @for(link <- links){
+            @helpers.link(link.id, link.url, link.text, link.newWindow, link.sso)
+            @if(!link.sso) { @Messages("otherservices.manageTaxes.postLink.additionalLoginRequired") }
+            <br>
         }
-        </p>
+    </p>
     }
 </div>
-}
 
 <div>
     <h2 id="enrollmentHeading">Get online access</h2>
-    <p id="enrollmentMessage">You must already be registered for a tax to get <span id="onlineServicesEnrolmentLink">@{otherServicesSummary.onlineServicesEnrolment.linkToPortal.render}</span>.</p>
+    <p id="enrollmentMessage">You must already be registered for a tax to get
+        <span id="onlineServicesEnrolmentLink">@helpers.link("otherServicesEnrolmentHref", enrollLink.url, "online access", enrollLink.newWindow, enrollLink.sso)</span>.</p>
 </div>
 <div>
     <h2 id="deEnrollmentHeading">Stop using an online service</h2>
-    <p id="deEnrollmentMessage">To stop using one of the online services you can <span id="onlineServicesDeEnrolmentLink">@{otherServicesSummary.onlineServicesDeEnrolment.linkToPortal.render}</span>.</p>
+    <p id="deEnrollmentMessage">To stop using one of the online services you can
+        <span id="onlineServicesDeEnrolmentLink">@helpers.link("servicesDeEnrolmentHref", deEnrollLink.url, "de-enrol from it", deEnrollLink.newWindow, deEnrollLink.sso)</span>.</p>
 
 </div>
 <div>
     <h2 id="registrationHeading">Register for new business taxes</h2>
 
-    @if(otherServicesSummary.businessTaxesRegistration.registrationLink.isDefined){
-        <p id="businessTaxesRegistrationLink">@{otherServicesSummary.businessTaxesRegistration.registrationLink.get.render}</p>
+    @controllers.bt.otherservices.OtherServicesFactory.createRegistrationText(user).map { registrationText =>
 
-        <p id="registrationMessage">
-            You can't use this service if you're setting up a limited liability partnership or you're not the 'nominated
-            partner'
-            in a self-employed business partnership. There are also a few other situations when you'll need to register a
-            different way.
-    }else{
-        <p id="registrationGenericMessage">
+            <p id="businessTaxesRegistrationLink">@helpers.link("businessRegistrationHref", registrationLink.url, registrationText, registrationLink.newWindow, registrationLink.sso)</p>
+            <p id="registrationMessage">
+                You can't use this service if you're setting up a limited liability partnership or you're not the 'nominated partner'
+                in a self-employed business partnership. There are also a few other situations when you'll need to register a different way.
+    }.getOrElse {
+            <p id="registrationGenericMessage">
     }
-            Find out more about registering for HMRC taxes on the <span id="hmrcWebsiteLink">@{otherServicesSummary.businessTaxesRegistration.hmrcWebsiteLink.render}</span>.
+
+            Find out more about registering for HMRC taxes on the <span id="hmrcWebsiteLink">@helpers.link("otherWaysHref", "http://www.hmrc.gov.uk/online/new.htm#2", "HMRC website", true)</span>.
         </p>
 
-
-    </p>
 </div>
 
 

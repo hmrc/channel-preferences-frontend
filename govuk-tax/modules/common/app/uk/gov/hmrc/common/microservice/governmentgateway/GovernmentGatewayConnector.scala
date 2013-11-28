@@ -38,12 +38,10 @@ class GovernmentGatewayConnector extends Connector {
     ssoResponse.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
   }
 
-  def profile(userId: String)(implicit hc: HeaderCarrier)= {
-    val response = httpGetF[JsonProfileResponse](s"/profile$userId")
-    response.map{
-     response => response.map(ProfileResponse(_))
+  def profile(userId: String)(implicit hc: HeaderCarrier) =
+    httpGetF[ProfileResponse](s"/profile$userId").map {
+      _.getOrElse(throw new RuntimeException("Could not retrieve user profile from Government Gateway service"))
     }
-  }
 }
 
 case class Credentials(userId: String,
@@ -58,24 +56,9 @@ case class GovernmentGatewayResponse(authId: String,
                                      encodedGovernmentGatewayToken: GatewayToken)
 
 
-case class GatewayToken(encodeBase64: String, created : DateTime, expires: DateTime)
+case class GatewayToken(encodeBase64: String, created: DateTime, expires: DateTime)
 
-
-case class AffinityGroup(identifier: String)
-
-case class Enrolment(key: String)
-
-case class ProfileResponse(affinityGroup: AffinityGroup, activeEnrolments: Set[Enrolment])
-
-object ProfileResponse {
-
-  def apply(jsonProfileResponse: JsonProfileResponse): ProfileResponse = {
-    ProfileResponse(AffinityGroup(jsonProfileResponse.affinityGroup.toLowerCase), jsonProfileResponse.activeEnrolments.map(enrolment => Enrolment(enrolment)))
-  }
-
-}
-
-private[governmentgateway] case class JsonProfileResponse(affinityGroup: String, activeEnrolments: Set[String])
+case class ProfileResponse(affinityGroup: String, activeEnrolments: List[String])
 
 object AffinityGroupValue {
   val INDIVIDUAL = "Individual"

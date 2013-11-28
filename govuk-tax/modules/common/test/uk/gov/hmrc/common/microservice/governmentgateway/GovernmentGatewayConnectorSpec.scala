@@ -9,8 +9,9 @@ import scala.Some
 import play.api.libs.json._
 import uk.gov.hmrc.utils.DateTimeUtils
 import controllers.common.actions.HeaderCarrier
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import org.scalatest.concurrent.ScalaFutures
+import scala.concurrent.duration._
 
 class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with MockitoSugar {
 
@@ -103,16 +104,10 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
     "return the user profile when details are found in government gateway microservice" in new WithApplication(FakeApplication()) {
 
       val userId = "/auth/oid/geofffisher"
-      val expectedResponse = Future.successful(Some(JsonProfileResponse(affinityGroup = "Organisation", activeEnrolments = Set("HMCE-EBTI-ORG","HMRC-EMCS-ORG"))))
-      val expectedResult = Some(ProfileResponse(
-        affinityGroup = AffinityGroup("organisation"),
-        activeEnrolments = Set(
-          Enrolment("HMCE-EBTI-ORG"),
-          Enrolment("HMRC-EMCS-ORG"))))
-
-      when(service.httpWrapper.getF[JsonProfileResponse](s"/profile$userId")).thenReturn(expectedResponse)
+      val expectedResponse = Some(ProfileResponse("Organisation", activeEnrolments = List("HMCE-EBTI-ORG","HMRC-EMCS-ORG")))
+      when(service.httpWrapper.getF[ProfileResponse](s"/profile$userId")).thenReturn(expectedResponse)
       val result = service.profile(userId)
-      whenReady(result){_ shouldBe expectedResult}
+      whenReady(result){_ shouldBe expectedResponse.get}
     }
 
     "return None when profile for given user is not found" in new WithApplication(FakeApplication()) {
@@ -120,9 +115,10 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
       val userId = "/auth/oid/missingUser"
       val expectedResponse = None
 
-      when(service.httpWrapper.getF[JsonProfileResponse](s"/profile$userId")).thenReturn(Future.successful(expectedResponse))
-      val result = service.profile(userId)
-      whenReady(result) {_ shouldBe expectedResponse}
+      when(service.httpWrapper.getF[ProfileResponse](s"/profile$userId")).thenReturn(Future.successful(expectedResponse))
+      intercept[RuntimeException] {
+        Await.result(service.profile(userId), 5 seconds)
+      }
     }
 
   }

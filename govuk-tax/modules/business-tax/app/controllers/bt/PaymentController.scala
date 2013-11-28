@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.PortalUrlBuilder
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.Request
-import views.helpers.LinkMessage
+import views.helpers.PortalLink
 import uk.gov.hmrc.common.microservice.ct.domain.CtRegime
 import uk.gov.hmrc.common.microservice.vat.domain.VatRegime
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRegime
@@ -42,24 +42,20 @@ class PaymentController(override val auditConnector: AuditConnector)
   }
 
   private[bt] def makeVatPaymentPage(implicit user: User, request: Request[AnyRef]) = {
-    val portalLink = LinkMessage.portalLink(buildPortalUrl("vatOnlineAccount"))
-    Ok(views.html.make_a_vat_payment(portalLink))
+    Ok(views.html.make_a_vat_payment(PortalLink(buildPortalUrl("vatOnlineAccount"))))
   }
 
   private[bt] def makeSaPaymentPage(implicit user: User, request: Request[AnyRef]) = {
-    val portalLink = LinkMessage.portalLink(buildPortalUrl("btDirectDebits"))
+    val portalLink = PortalLink(buildPortalUrl("btDirectDebits"))
     val utr = user.getSa.utr.utr
     Ok(views.html.make_a_sa_payment(portalLink, utr))
   }
 
   private[bt] def makeEpayePaymentPage(implicit user: User, request: Request[AnyRef]) = {
-    val portalLink = LinkMessage.portalLink(buildPortalUrl("btDirectDebits"))
-    Ok(views.html.make_a_epaye_payment(portalLink))
+    Ok(views.html.make_a_epaye_payment(PortalLink(buildPortalUrl("btDirectDebits"))))
   }
 
   private[bt] def makeCtPaymentPage(implicit user: User, request: Request[AnyRef]) = {
-    val accountDetailsLink = buildPortalUrl("ctAccountDetails")
-    val directDebitsLink = buildPortalUrl("btDirectDebits")
-    Ok(views.html.make_a_ct_payment(LinkMessage.portalLink(accountDetailsLink), LinkMessage.portalLink(directDebitsLink)))
+    Ok(views.html.make_a_ct_payment(PortalLink(buildPortalUrl("ctAccountDetails")), PortalLink(buildPortalUrl("btDirectDebits"))))
   }
 }

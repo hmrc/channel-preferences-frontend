@@ -1,4 +1,4 @@
-@(accountSummaries: controllers.bt.accountsummary.AccountSummaries, otherServicesLink: views.helpers.RenderableMessage, mergeGGAccountsLink: views.helpers.RenderableMessage)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(accountSummaries: controllers.bt.accountsummary.AccountSummaries)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.RenderableMessageProperty.Link._
 @import views.formatting.Dates._
@@ -27,13 +27,12 @@
     <h2>@Messages("bt.home.otherTaxes")</h2>
     <p>@Messages("bt.home.mergeAccounts.1")</p>
     <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
-    <p><a id="mergeGGHref" href="@controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts">Merge your Government Gateway accounts</a></p>
+    <p>@helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts")</p>
     <p>
         @Messages("bt.home.everythingElse.1")
-        @{otherServicesLink.set((ID, "otherServicesHref")).set((TEXT, Messages("bt.home.everythingElse.linkText"))).render}
+        @helpers.link("otherServicesHref", "controllers.bt.routes.OtherServicesController.otherServices.url", "bt.home.everythingElse.linkText")
         @Messages("bt.home.everythingElse.2")
     </p>
-
 }
 
 @sidebarLinks = {
@@ -45,18 +44,18 @@
 
 	<nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
 	    <ul>
-		<li>
-		    <a href="https://www.gov.uk/browse/tax" target="_blank">@Messages("bt.home.sidebarLinks.money.text")</a>
-		</li>
-		<li>
-		    <a href="http://www.hmrc.gov.uk/webinars/" target="_blank">@Messages("bt.home.sidebarLinks.webinars.text")</a>
-		</li>
-		<li>
-		    <a href="http://www.youtube.com/hmrcgovuk" target="_blank">@Messages("bt.home.sidebarLinks.youtube.text")</a>
-		</li>
-		<li>
-            <a class="service-info__navigation__more" href="https://www.gov.uk/browse/tax/self-assessment" target="_blank">@Messages("bt.home.sidebarLinks.more.text")</a>
-        </li>
+            <li>
+                @helpers.link("browseTax", "https://www.gov.uk/browse/tax", "bt.home.sidebarLinks.money.text", true)
+            </li>
+            <li>
+                @helpers.link("webminars", "http://www.hmrc.gov.uk/webinars/", "bt.home.sidebarLinks.webinars.text", true)
+            </li>
+            <li>
+                @helpers.link("youtube", "http://www.youtube.com/hmrcgovuk", "bt.home.sidebarLinks.youtube.text", true)
+            </li>
+            <li>
+                @helpers.link("moreLink", "https://www.gov.uk/browse/tax/self-assessment", "bt.home.sidebarLinks.more.text", true, false, "service-info__navigation__more")
+            </li>
 	    </ul>
 	</nav>
     </div>

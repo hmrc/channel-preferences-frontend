@@ -1,0 +1,8 @@
+@(id: String, url : String, value: String, newWindow: Boolean = false, sso: Boolean = false, cssClasses: String = "")
+@import play.api.i18n._
+@import views.html.helper._
+@import views.helpers._
+@import play.api.templates.HtmlFormat
+@target = @{if(newWindow) {"_blank"} else {"_self"}}
+@css = @{if(!cssClasses.isEmpty) {s"class=$cssClasses"} else {""}}
+<a id="@id" href="@url" target="@target" data-sso="@sso" @css>@Messages(value)</a>

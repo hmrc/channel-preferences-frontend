@@ -72,7 +72,7 @@ common.link.message.accountSummary.fileAReturn=File a return
 common.message.oops=Oops, something went wrong, we can't display your details.
 
 
-otherservices.manageTaxes.postLink.additionalLoginRequired=- you will be required to enter your separate log-in details to access this service
+otherservices.manageTaxes.postLink.additionalLoginRequired=' - you will be required to enter your separate log-in details to access this service
 otherservices.manageTaxes.link.hmceddes=Duty Deferment Electronic Statements (DDES) Service
 otherservices.manageTaxes.link.hmceebtiorg=Electronic Binding Tariff Information (eBTI)
 otherservices.manageTaxes.link.hmrcemcsorg=Excise Movement and Control System (EMCS)

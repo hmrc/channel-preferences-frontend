@@ -6,11 +6,14 @@ import play.api.test.Helpers._
 import controllers.bt.testframework.request.{NonBusinessTaxRequest, BusinessTaxRequest, EmptySessionRequest, NoSessionRequest}
 import controllers.bt.testframework.fixtures.{JohnDensmoreTestFixture, GeoffFisherTestFixture}
 import controllers.bt.OtherServicesController
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnector
 
 
 class OtherServicesControllerStandardBehaviourSpec extends BaseSpec {
-  val mockOtherServicesFactory = mock[OtherServicesFactory]
-  val controllerUnderTest = new OtherServicesController(mockOtherServicesFactory, null)(null)
+
+  val ggw = mock[GovernmentGatewayConnector]
+  val controllerUnderTest = new OtherServicesController(ggw, null)(null)
+
 
   "Calling otherServices" should {
     "redirect if there is no session" in new WithApplication(FakeApplication()) with NoSessionRequest {

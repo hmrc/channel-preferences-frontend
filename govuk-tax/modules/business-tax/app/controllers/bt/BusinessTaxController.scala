@@ -4,7 +4,6 @@ import controllers.common._
 import uk.gov.hmrc.common.PortalUrlBuilder
 import controllers.bt.accountsummary._
 import uk.gov.hmrc.common.microservice.domain.User
-import views.helpers.LinkMessage
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -14,7 +13,6 @@ import scala.concurrent._
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import uk.gov.hmrc.domain.SaUtr
 import controllers.bt.prefs.{routes => PreferencesRoutes}
-import play.api.i18n.Messages
 
 class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
                             preferencesConnector: PreferencesConnector,
@@ -37,12 +35,8 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
 
   private[bt] def renderHomePage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
 
-    val accountSummariesF = accountSummaryFactory.create(buildPortalUrl)
-    val otherServicesLink = LinkMessage.internalLink(controllers.bt.routes.OtherServicesController.otherServices().url, "link")
-    val mergeGGAccountsLink = LinkMessage.internalLink(controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts().url, Messages("bt.home.mergeAccountsLink"))
-    accountSummariesF.map {
-      accountSummaries =>
-        Ok(views.html.business_tax_home(accountSummaries, otherServicesLink, mergeGGAccountsLink))
+    accountSummaryFactory.create(buildPortalUrl).map {
+      accountSummaries => Ok(views.html.business_tax_home(accountSummaries))
     }
   }
 

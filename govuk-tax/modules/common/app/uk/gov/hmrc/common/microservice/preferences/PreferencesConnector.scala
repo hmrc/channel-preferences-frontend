@@ -24,4 +24,3 @@ class PreferencesConnector extends Connector {
 
 case class ValidateEmail(token: String)
 case class SaPreference(digital: Boolean, email: Option[String] = None)
-

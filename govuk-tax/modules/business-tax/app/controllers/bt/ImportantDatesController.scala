@@ -8,10 +8,9 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.joda.time.LocalDate
 import java.text.SimpleDateFormat
-import views.helpers.LinkMessage._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoot, User}
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
-import views.helpers.RenderableLinkMessage
+import views.helpers.{PortalLink, Link, InternalLink}
 import scala.Some
 import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.ct.CtConnector
@@ -54,7 +53,7 @@ class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnec
   }
 }
 
-case class ImportantDate(date: LocalDate, text: String, args: Seq[String] = Seq.empty, grayedoutText: Option[String] = None, link: Option[RenderableLinkMessage] = None)
+case class ImportantDate(service: String, eventType: String, date: LocalDate, text: String, args: Seq[String] = Seq.empty, grayedoutText: Option[String] = None, link: Option[Link] = None)
 
 object ImportantDate {
   def create(event: CalendarEvent, buildPortalUrl: (String) => String)(implicit user: User): ImportantDate = {
@@ -62,30 +61,21 @@ object ImportantDate {
     val args = Seq(Dates.formatDate(event.accountingPeriod.startDate), Dates.formatDate(event.accountingPeriod.endDate))
     val service: String = event.regime.toLowerCase
     val eventType: String = event.eventType.toLowerCase
-    val linkTextKey = s"$service.message.importantDates.link.$eventType"
+
     val textMessageKey = s"$service.message.importantDates.text.$eventType"
     val additionalTextMessageKey = s"$service.message.importantDates.additionalText.$eventType"
 
-    val (link, text, additionalText): (Option[RenderableLinkMessage], String, Option[String]) = (service, eventType, event.accountingPeriod.returnFiled) match {
-      case ("ct", "payment", _) =>
-        (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeCtPayment().url, linkTextKey))), textMessageKey, None)
-      case ("vat", "payment-directdebit", _) =>
-        (None, additionalTextMessageKey, Some(textMessageKey))
-      case ("vat", "payment-cheque", _) =>
-        (None, textMessageKey, None)
-      case ("vat", "payment-card", _) | ("vat", "payment-online", _) =>
-        (Some(RenderableLinkMessage(internalLink(routes.PaymentController.makeVatPayment().url, linkTextKey))), textMessageKey, None)
-      case (serviceKey, "filing", true) =>
-        (None, additionalTextMessageKey, Some(textMessageKey))
-      case (serviceKey, "filing", false) =>
-        (Some(RenderableLinkMessage(portalLink(buildPortalUrl(s"${service}FileAReturn"), Some(linkTextKey)))),
-          textMessageKey,
-          None)
-
+    val (link, text, additionalText): (Option[Link], String, Option[String]) = (service, eventType, event.accountingPeriod.returnFiled) match {
+      case ("ct", "payment", _) => (Some(InternalLink(routes.PaymentController.makeCtPayment().url)), textMessageKey, None)
+      case ("vat", "payment-directdebit", _) => (None, additionalTextMessageKey, Some(textMessageKey))
+      case ("vat", "payment-cheque", _) => (None, textMessageKey, None)
+      case ("vat", "payment-card", _) | ("vat", "payment-online", _) => (Some(InternalLink(routes.PaymentController.makeVatPayment().url)), textMessageKey, None)
+      case (serviceKey, "filing", true) => (None, additionalTextMessageKey, Some(textMessageKey))
+      case (serviceKey, "filing", false) => (Some(PortalLink(buildPortalUrl(s"${service}FileAReturn"))), textMessageKey, None)
       case _ => Logger.error(s"Could not render $event"); throw new MatchError(event.toString)
     }
 
-    ImportantDate(event.eventDate, text, args, additionalText, link)
+    ImportantDate(service, eventType, event.eventDate, text, args, additionalText, link)
 
   }
 }

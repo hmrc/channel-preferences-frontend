@@ -19,6 +19,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    <a id="emailIsNotCorrectLink" href="@controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress))">No, my email address is not correct</a>
+    @helpers.link("emailIsNotCorrectLink", controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress)).url, "No, my email address is not correct")
 
 }
