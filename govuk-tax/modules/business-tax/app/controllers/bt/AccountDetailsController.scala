@@ -25,7 +25,7 @@ with EmailControllerHelper {
     user => request => accountDetailsPage(user, request)
   }
 
-  def changeEmailAddress() =  AuthorisedFor(account = SaRegime, pageVisibility = ChangeEmailVisibilityPredicate).async {
+  def changeEmailAddress() =  AuthorisedFor(account = SaRegime).async {
     user => request => changeEmailAddressPage(user, request)
   }
 
@@ -44,27 +44,9 @@ with EmailControllerHelper {
   private[bt] def changeEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     preferencesConnector.getPreferences(user.getSa.utr).map {
       response => response match {
-        case Some(prefs) => Ok(views.html.account_details_update_email_address(prefs.email.get, emailForm))
-        case None => BadRequest("Cannot find existing preferences to update")
+        case Some(SaPreference(true, Some(email))) => Ok(views.html.account_details_update_email_address(email, emailForm))
+        case _ => BadRequest("Cannot find existing preferences to update")
       }
     }
   }
 }
-
-class ChangeEmailVisibilityPredicate(preferencesConnector: PreferencesConnector) extends PageVisibilityPredicate{
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-  def this() = this(Connectors.preferencesConnector)
-
-  def isVisible(user: User, request: Request[AnyContent]): Future[Boolean] = {
-      preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).map {
-        pref =>
-          pref match {
-            case Some(SaPreference(digital, Some(email))) => digital
-            case _ => false
-          }
-      }
-  }
-}
-
-object ChangeEmailVisibilityPredicate extends ChangeEmailVisibilityPredicate
