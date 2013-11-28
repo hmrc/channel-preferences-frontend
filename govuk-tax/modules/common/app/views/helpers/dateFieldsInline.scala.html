@@ -13,7 +13,7 @@
         '_label -> Messages("date.fields.day"),
 	'_groupDivClass -> className,
         '_labelClass -> "label--inlineDropdown",
-        '_emptyValueText -> ""
+        '_emptyValueText -> " "
 )
 @monthElem = @{fieldName + "." + month}
 @helpers.dropdown(
@@ -22,7 +22,7 @@
         '_label -> Messages("date.fields.month"),
 	'_groupDivClass -> className,
         '_labelClass -> "label--inlineDropdown",
-        '_emptyValueText -> ""
+        '_emptyValueText -> " "
 )
 @yearElem = @{fieldName + "." + year}
 @helpers.dropdown(
@@ -31,5 +31,5 @@
         '_label -> Messages("date.fields.year"),
 	'_groupDivClass -> className,
         '_labelClass -> "label--inlineDropdown",
-        '_emptyValueText -> ""
+        '_emptyValueText -> "   "
 )

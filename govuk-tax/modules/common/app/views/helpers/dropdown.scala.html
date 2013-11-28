@@ -14,7 +14,7 @@
         </span>
         @if(elements.args.contains('_additionalTitleText)){<p>@elements.args.get('_additionalTitleText)</p>}
         <select id="@elements.field.name" name="@elements.field.name">
-            <option value="">@elements.args.get('_emptyValueText)</option>
+            <option>@elements.args.get('_emptyValueText)</option>
             @for(option <- elementOptions) {
                 <option
                         id="@elements.field.name-@option._1"
