@@ -21,8 +21,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 
-//"This feature will be reactivated soon, HMTB-1912"
-@Deprecated
+@deprecated("This feature will be reactivated soon, HMTB-1912", "18/11/13")
 class SaController(override val auditConnector: AuditConnector)
                   (implicit saConnector: SaConnector,
                    override val authConnector: AuthConnector)
