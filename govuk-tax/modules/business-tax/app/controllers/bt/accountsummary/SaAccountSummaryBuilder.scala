@@ -45,9 +45,9 @@ trait SaASBuild {
     regimeName = saRegimeName,
     messages = utrMessage(utr) +: buildMessages(saSummary),
     addenda = Seq(
-      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(viewAccountDetailsLinkMessage), Some("portalLink")),
-      LinkMessage.internalLink(saPaymentUrl, makeAPaymentLinkMessage),
-      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), Some(fileAReturnLinkMessage))),
+      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, "saAccountDetailsHref"),
+      LinkMessage.internalLink(saPaymentUrl, makeAPaymentLinkMessage, "saMakePaymentHref"),
+      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage, "saFileReturnHref")),
     status = SummaryStatus.success
   )
 

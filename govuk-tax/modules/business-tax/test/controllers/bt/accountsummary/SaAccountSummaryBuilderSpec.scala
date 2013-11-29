@@ -139,9 +139,9 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
   }
 
   val goodLinks = Seq(
-    RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, Some("portalLink"), sso = true)),
-    RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage, sso = false)),
-    RenderableLinkMessage(LinkMessage(homeUrl, fileAReturnLinkMessage, sso = true))
+    RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, "saAccountDetailsHref", sso = true)),
+    RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage, "saMakePaymentHref", sso = false)),
+    RenderableLinkMessage(LinkMessage(homeUrl, fileAReturnLinkMessage, "saFileReturnHref", sso = true))
   )
 
   def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage] = goodLinks): Unit =

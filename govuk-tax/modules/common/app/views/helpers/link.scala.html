@@ -3,6 +3,15 @@
 @import views.html.helper._
 @import views.helpers._
 @import play.api.templates.HtmlFormat
-@target = @{if(newWindow) {"_blank"} else {"_self"}}
-@css = @{if(!cssClasses.isEmpty) {s"class=$cssClasses"} else {""}}
-<a id="@id" href="@url" target="@target" data-sso="@sso" @css>@Messages(value)</a>
+@{
+    def escape(str: String) = HtmlFormat.escape(str).toString
+    def tag(name: String, value: String) = " " + name + "=\"" + escape(value) + "\""
+
+    val hrefTag = tag("href", url)
+    val idTag = if (!id.isEmpty) tag("id", id) else ""
+    val targetTag = if (newWindow) tag("target", "_blank") else tag("target", "_self")
+    val ssoTag = tag("data-sso", String.valueOf(sso))
+    val text = escape(Messages(value))
+    val cssTag = if (!cssClasses.isEmpty) tag("class", cssClasses) else ""
+    Html("<a" + idTag + hrefTag + targetTag + ssoTag + cssTag + ">" + text + "</a>" )
+}

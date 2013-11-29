@@ -45,14 +45,14 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
 
   private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[RenderableMessage] = {
     def expectedRtiLinks = Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage)
+      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, "epayeAccountDetailsHref"),
+      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, "epayeMakePaymentHref")
     )
 
 
     def expectedNonRtiLinks = Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage))
+      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, "epayeAccountDetailsHref"),
+      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, "epayeMakePaymentHref"))
 
     accountSummary match {
       case Some(EpayeAccountSummary(Some(rti), None)) => expectedRtiLinks

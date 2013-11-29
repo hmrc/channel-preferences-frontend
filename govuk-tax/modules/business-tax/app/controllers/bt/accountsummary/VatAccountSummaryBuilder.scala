@@ -48,9 +48,9 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
   private def successLinks(buildPortalUrl: (String) => String): Seq[RenderableMessage] = {
     val makeAPaymentUri = routes.PaymentController.makeVatPayment().url
     Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(vatAccountDetailsPortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(makeAPaymentUri, makeAPaymentLinkMessage),
-      LinkMessage.portalLink(buildPortalUrl(vatFileAReturnPortalUrl), Some(fileAReturnLinkMessage))
+      LinkMessage.portalLink(buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, "vatAccountDetailsHref"),
+      LinkMessage.internalLink(makeAPaymentUri, makeAPaymentLinkMessage, "vatMakePaymentHref"),
+      LinkMessage.portalLink(buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage, "vatFileReturnHref")
     )
   }
 

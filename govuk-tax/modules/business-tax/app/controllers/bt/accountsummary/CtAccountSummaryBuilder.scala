@@ -59,9 +59,9 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
     val makeAPaymentUri = routes.PaymentController.makeCtPayment().url
 
     val links = Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(ctAccountDetailsPortalUrl), Some(viewAccountDetailsLinkMessage)),
-      LinkMessage.internalLink(makeAPaymentUri, text = makeAPaymentLinkMessage),
-      LinkMessage.portalLink(buildPortalUrl(ctFileAReturnPortalUrl), Some(fileAReturnLinkMessage))
+      LinkMessage.portalLink(buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, "ctAccountDetailsHref"),
+      LinkMessage.internalLink(makeAPaymentUri, makeAPaymentLinkMessage, "ctMakePaymentHref"),
+      LinkMessage.portalLink(buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage, "ctFileReturnHref")
     )
 
     val messages = Seq(

@@ -1,55 +1,24 @@
 package views.helpers
 
-import views.html.helpers.{moneyPoundsRenderer, linkRenderer}
+import views.html.helpers.{link, moneyPoundsRenderer}
 import play.api.templates.Html
 import org.joda.time.LocalDate
 import views.helpers.RenderableMessageProperty.RenderableMessageProperty
 import java.text.{SimpleDateFormat, DateFormat}
 
 
-case class LinkMessage(href: String, text: String, id: Option[String] = None,
-                       newWindow: Boolean = false, postLinkText: Option[String] = None, sso: Boolean)
-
-trait Link{
-  val url: String
-  val newWindow: Boolean
-  val sso: Boolean
-}
-
-case class PortalLink(override val url: String) extends Link {
-  override val newWindow = false
-  override val sso = true
-}
-
-case class InternalLink(override val url: String) extends Link {
-  override val newWindow = false
-  override val sso = false
-}
-
-case class ExternalLink(override val url: String) extends Link {
-  override val newWindow = true
-  override val sso = false
-}
-
-case class HrefKey(key: String)
+@deprecated("use Link")
+case class LinkMessage(href: String, text: String, id: String,
+                       newWindow: Boolean = false, sso: Boolean)
 
 object LinkMessage {
 
-  def externalLink(hrefKey: HrefKey, text: String, id: Option[String] = None, postLinkText: Option[String] = None) =
-    LinkMessage(getPath(hrefKey.key), text, id, newWindow = true, postLinkText = postLinkText, sso = false)
+  def internalLink(href: String, text: String, id: String) =
+    LinkMessage(href, text, id, newWindow = false, sso = false)
 
-  def internalLink(href: String, text: String, id: Option[String] = None, postLinkText: Option[String] = None) =
-    LinkMessage(href, text, id, newWindow = false, postLinkText = postLinkText, sso = false)
+  def portalLink(href: String, text: String, id: String) =
+    LinkMessage(href, text, id, newWindow = false, sso = true)
 
-  def portalLink(href: String, text: Option[String] = None, id: Option[String] = None, postLinkText: Option[String] = None) =
-    LinkMessage(href, text.getOrElse("NO LINK TEXT DEFINED"), id, newWindow = false, postLinkText = postLinkText, sso = true)
-
-  private def getPath(pathKey: String): String = {
-    import play.api.Play
-    import play.api.Play.current
-    lazy val env = Play.mode
-    s"${Play.configuration.getString(s"govuk-tax.$env.externalLinks.$pathKey").getOrElse("")}"
-  }
 }
 
 case class MoneyPounds(value: BigDecimal, decimalPlaces: Int = 2, roundUp: Boolean = false) {
@@ -89,21 +58,11 @@ case class RenderableStringMessage(value: String) extends RenderableMessage {
   override def render: Html = Html(value)
 }
 
+@deprecated("use helper.link")
 case class RenderableLinkMessage(linkMessage: LinkMessage) extends RenderableMessage {
   override def render: Html = {
-    linkRenderer(linkMessage)
+    link(linkMessage.id, linkMessage.href, linkMessage.text, linkMessage.newWindow, linkMessage.sso)
   }
-
-  override def set(property: (RenderableMessageProperty, String)): RenderableLinkMessage = {
-    import RenderableMessageProperty.Link._
-    property match {
-      case (ID, idValue) => linkMessage.copy(id = Some(idValue))
-      case (TEXT, textValue) => linkMessage.copy(text = textValue)
-      case _ => this
-    }
-
-  }
-
 }
 
 case class RenderableDateMessage(date: LocalDate)(implicit dateFormat: DateFormat = new SimpleDateFormat("d MMM yyy")) extends RenderableMessage {
