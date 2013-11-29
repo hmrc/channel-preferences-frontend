@@ -144,10 +144,21 @@ class PreferencesMicroService extends MicroService {
     }
   }
 
-  def updateEmailValidationStatus(token : String) : Boolean = {
+  def updateEmailValidationStatus(token : String) = {
     val response = httpPostSynchronous("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token))))
-    return response.status < 300 && response.status >= 200
+    response.status match {
+      case it if 200 to 300 contains it => EmailVerificationLinkResponse.OK
+      case 410                          => EmailVerificationLinkResponse.EXPIRED
+      case _                            => EmailVerificationLinkResponse.ERROR
+    }
   }
+
+}
+
+object EmailVerificationLinkResponse extends Enumeration {
+  type EmailVerificationLinkResponse = Value
+
+  val OK, EXPIRED, ERROR = Value
 }
 
 case class ValidateEmail(token: String)
