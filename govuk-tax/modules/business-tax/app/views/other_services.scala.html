@@ -1,4 +1,4 @@
-@(links : List[controllers.bt.OtherServiceLink], enrollLink: views.helpers.Link, deEnrollLink: views.helpers.Link, registrationLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(linksO : Option[List[controllers.bt.OtherServiceLink]], enrollLink: views.helpers.Link, deEnrollLink: views.helpers.Link, registrationLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @main(title = "Your tax home", nav = true, user= Some(user)) {
 
@@ -9,6 +9,7 @@
     @helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "merge your accounts").
 </p>
 
+@linksO.map { links =>
 <div id="manageYourTaxesSection">
     <h2>Manage your other taxes</h2>
     @if(links.isEmpty) {
@@ -23,6 +24,7 @@
     </p>
     }
 </div>
+}
 
 <div>
     <h2 id="enrollmentHeading">Get online access</h2>
