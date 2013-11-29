@@ -13,5 +13,5 @@
     val ssoTag = tag("data-sso", String.valueOf(sso))
     val text = escape(Messages(value))
     val cssTag = if (!cssClasses.isEmpty) tag("class", cssClasses) else ""
-    Html("<a" + idTag + hrefTag + targetTag + ssoTag + cssTag + ">" + text + "</a>" )
+    Html("<a" + idTag + hrefTag + targetTag + ssoTag + cssTag + ">" + text + "</a>")
 }
