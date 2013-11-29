@@ -1,19 +1,22 @@
 
-GET     /home                                           @controllers.bt.BusinessTaxController.home
-GET     /vat/makeAPayment                               @controllers.bt.PaymentController.makeVatPayment
-GET     /ct/makeAPayment                                @controllers.bt.PaymentController.makeCtPayment
-GET     /sa/makeAPayment                                @controllers.bt.PaymentController.makeSaPayment
-GET     /epaye/makeAPayment                             @controllers.bt.PaymentController.makeEpayePayment
-GET     /otherServices                                  @controllers.bt.OtherServicesController.otherServices
-GET     /importantDates                                 @controllers.bt.ImportantDatesController.importantDates
-GET     /mergeGGAccounts                                @controllers.bt.MergeGGAccountsController.mergeGGAccounts
+GET     /home                                              @controllers.bt.BusinessTaxController.home
+GET     /vat/makeAPayment                                  @controllers.bt.PaymentController.makeVatPayment
+GET     /ct/makeAPayment                                   @controllers.bt.PaymentController.makeCtPayment
+GET     /sa/makeAPayment                                   @controllers.bt.PaymentController.makeSaPayment
+GET     /epaye/makeAPayment                                @controllers.bt.PaymentController.makeEpayePayment
+GET     /otherServices                                     @controllers.bt.OtherServicesController.otherServices
+GET     /importantDates                                    @controllers.bt.ImportantDatesController.importantDates
+GET     /mergeGGAccounts                                   @controllers.bt.MergeGGAccountsController.mergeGGAccounts
 
-GET     /account-details                                @controllers.bt.AccountDetailsController.accountDetails
-GET     /account-details/update-email-address           @controllers.bt.AccountDetailsController.changeEmailAddress(email: Option[String])
-POST    /account-details/update-email-address           @controllers.bt.AccountDetailsController.submitEmailAddress
-GET     /account-details/update-email-address-thank-you @controllers.bt.AccountDetailsController.emailAddressChangeThankYou
+GET     /account-details                                   @controllers.bt.AccountDetailsController.accountDetails
+GET     /account-details/update-email-address              @controllers.bt.AccountDetailsController.changeEmailAddress(email: Option[String])
+POST    /account-details/update-email-address              @controllers.bt.AccountDetailsController.submitEmailAddress
+GET     /account-details/update-email-address-thank-you    @controllers.bt.AccountDetailsController.emailAddressChangeThankYou
+GET     /account-details/opt-out-email-reminders           @controllers.bt.AccountDetailsController.optOutOfEmailReminders
+POST    /account-details/opt-out-email-reminders           @controllers.bt.AccountDetailsController.confirmOptOutOfEmailReminders
+GET     /account-details/opt-out-email-reminders-thank-you @controllers.bt.AccountDetailsController.optedBackIntoPaperThankYou
 
-GET     /prefs/sa/print                                 @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[String])
-POST    /prefs/sa/print                                 @controllers.bt.prefs.SaPrefsController.submitPrefsForm
-POST    /prefs/sa/print/keep-paper                      @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
-GET     /prefs/sa/print/thank-you                       @controllers.bt.prefs.SaPrefsController.thankYou
+GET     /prefs/sa/print                                    @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[String])
+POST    /prefs/sa/print                                    @controllers.bt.prefs.SaPrefsController.submitPrefsForm
+POST    /prefs/sa/print/keep-paper                         @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
+GET     /prefs/sa/print/thank-you                          @controllers.bt.prefs.SaPrefsController.thankYou

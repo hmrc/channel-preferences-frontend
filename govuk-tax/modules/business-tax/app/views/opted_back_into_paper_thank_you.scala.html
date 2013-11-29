@@ -1,0 +1,13 @@
+@(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "My Preferences", user = Some(user)) {
+
+    <h1>Account Details</h1>
+
+    <h2>Thanks! Come back soon!</h2>
+
+    <hr />
+
+    <p><a id="homepageLink" class="button" href="@controllers.bt.routes.BusinessTaxController.home">Return to your tax account</a></p>
+
+}

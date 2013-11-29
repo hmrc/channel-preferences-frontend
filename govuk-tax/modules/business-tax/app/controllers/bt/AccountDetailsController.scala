@@ -33,8 +33,35 @@ with EmailControllerHelper {
     user => request => submitEmailAddressPage(user, request)
   }
 
+
+
   def emailAddressChangeThankYou() = AuthorisedFor(account = SaRegime).async {
     user => request => emailAddressChangeThankYouPage(user, request)
+  }
+
+  def optOutOfEmailReminders = AuthorisedFor(account = SaRegime).async{
+    user => request => optOutOfEmailRemindersPage(user, request)
+  }
+
+  def confirmOptOutOfEmailReminders = AuthorisedFor(account = SaRegime).async{
+    user => request => confirmOptOutOfEmailRemindersPage(user, request)
+  }
+
+  def optedBackIntoPaperThankYou() = AuthorisedFor(account = SaRegime).async {
+    user => request => Future(Ok(views.html.opted_back_into_paper_thank_you(user)))
+  }
+
+  private[bt] def confirmOptOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]) = {
+    lookupCurrentEmail{email =>
+      preferencesConnector.savePreferences(user.getSa.utr, false, Some(email))
+      Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou())
+    }
+  }
+
+  private[bt] def optOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]) = {
+    lookupCurrentEmail(email =>
+      Ok(views.html.confirm_opt_back_into_paper(email))
+    )
   }
 
   private[bt] def accountDetailsPage(implicit user: User, request: Request[AnyRef]) = {

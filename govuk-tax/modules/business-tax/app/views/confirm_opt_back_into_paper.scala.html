@@ -1,0 +1,19 @@
+@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@main(title = "My Preferences", user = Some(user)) {
+
+<h1>Account details</h1>
+
+<h2 id="emailAddress">@emailAddress</h2>
+
+<p>Are you sure you do not wish to receive reminders to this email address?</p>
+
+@helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
+<div class="form-field">
+    <button id="confirm-opt-out" class="button" type="submit">Yes</button>
+</div>
+<div class="form-field">
+    <button id="cancel-opt-out" class="button" type="submit">No</button>
+</div>
+}
+}

@@ -44,11 +44,17 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      page.getElementById("changeEmailAddressLink").text shouldBe "Change your email address"
-      page.getElementById("changeEmailAddressLink").attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
+      val changeEmailAddressLink = page.getElementById("changeEmailAddressLink")
+      changeEmailAddressLink should not be null
+      changeEmailAddressLink.text shouldBe "Change your email address"
+      changeEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
+
+      val optOutOfEmailLink = page.getElementById("optOutOfEmailLink")
+      optOutOfEmailLink should not be null
+      optOutOfEmailLink.text shouldBe "Opt-out of email reminders"
+      optOutOfEmailLink.attr("href") shouldBe routes.AccountDetailsController.optOutOfEmailReminders.url
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
-
     }
 
     "not include Change email address section for non-SA customer" in new Setup {
@@ -60,6 +66,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
       page.getElementById("changeEmailAddressLink") shouldBe null
+      page.getElementById("optOutOfEmailLink") shouldBe null
 
       verifyZeroInteractions(mockPreferencesConnector)
     }
@@ -109,13 +116,6 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       page.getElementById("email.confirm").attr("value") shouldBe ""
     }
 
-    "fail to validate if two different email addresses are entered." in new Setup {
-      val saPreferences = SaPreference(true, Some("test@test.com"))
-      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
-
-      controller.submitEmailAddress()
-
-    }
 
     "display update email address form with the email input field prepopulated when coming back from the warning page" in new Setup {
       val saPreferences = SaPreference(true, Some("test@test.com"))
@@ -177,6 +177,14 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val document = Jsoup.parse(contentAsString(page))
       document.select(".error-notification").text shouldBe "The email addresses entered do not match"
       verifyZeroInteractions(mockEmailConnector)
+    }
+
+    "fail to validate if two different email addresses are entered." ignore new Setup {
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      controller.submitEmailAddress()
+
     }
 
     "show error if the email address is not syntactically valid" in new Setup {
@@ -308,4 +316,58 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       verify(mockEmailConnector).validateEmailAddress(emailAddress)
     }
   }
+
+  "clicking on opt-out of email reminders link in the account details page" should {
+
+    "display the <are you sure> page" in new Setup {
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.optOutOfEmailRemindersPage(user, request))
+
+      status(result) shouldBe 200
+      val page = Jsoup.parse(contentAsString(result))
+
+      page.getElementById("confirm-opt-out") shouldNot be(null)
+      page.getElementById("confirm-opt-out").text shouldBe "Yes"
+      page.getElementById("cancel-opt-out") shouldNot be(null)
+      page.getElementById("cancel-opt-out").text shouldBe "No"
+    }
+
+    "return bad request if the user has not opted into digital" in new Setup{
+      val saPreferences = SaPreference(false, None)
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.optOutOfEmailRemindersPage(user, request))
+
+      status(result) shouldBe 400
+    }
+  }
+
+  "A post to confirm opt out of email reminders" should {
+
+    "return a redirect to thank you page" in new Setup {
+      val saPreferences = SaPreference(true, Some("test@test.com"))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request))
+
+      status(result) shouldBe 303
+      header("Location", result).get should include(routes.AccountDetailsController.optedBackIntoPaperThankYou().url)
+      val page = Jsoup.parse(contentAsString(result))
+
+      verify(mockPreferencesConnector).savePreferences(validUtr, false, Some("test@test.com"))
+    }
+
+    "return bad request if the user has not opted into digital" in new Setup {
+      val saPreferences = SaPreference(false, None)
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request))
+
+      status(result) shouldBe 400
+      val page = Jsoup.parse(contentAsString(result))
+    }
+  }
+
 }
