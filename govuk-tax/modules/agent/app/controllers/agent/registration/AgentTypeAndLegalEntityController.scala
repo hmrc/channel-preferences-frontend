@@ -63,7 +63,7 @@ class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnec
       _ => {
         implicit val hc = HeaderCarrier(request)
         val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest()(request).data
-        keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails)
+        keyStoreConnector.addKeyStoreEntry(actionId(), agent, agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails, true)
         Redirect(routes.AgentCompanyDetailsController.companyDetails())
       }
     )

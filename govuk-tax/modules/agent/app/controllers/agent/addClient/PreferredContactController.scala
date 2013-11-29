@@ -42,7 +42,7 @@ class PreferredContactController(keyStoreConnector: KeyStoreConnector,
 
   private[agent] def preferredContactAction(user: User)(implicit request: Request[_]): SimpleResult = {
     val form = preferredContactForm(request).bindFromRequest()(request)
-    val ksId = keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound"))
+    val ksId = actionId(form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound"))
     keyStoreConnector.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) match {
       case Some(pc@PotentialClient(Some(_), Some(_), _)) => {
         //FIXME we should trim contact details before saving them here

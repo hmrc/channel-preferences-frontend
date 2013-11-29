@@ -65,7 +65,7 @@ class AgentContactDetailsController(override val auditConnector: AuditConnector,
         val paye: PayeRoot = user.regimes.paye.get
         var agentDetails = contactForm.bindFromRequest()(request).data
         agentDetails +=((title, paye.title), (firstName, paye.firstName), (lastName, paye.surname), (dateOfBirth, paye.dateOfBirth), (nino, paye.nino))
-        keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, contactFormName, agentDetails)
+        keyStoreConnector.addKeyStoreEntry(actionId(), agent, contactFormName, agentDetails, true)
         Redirect(routes.AgentTypeAndLegalEntityController.agentType())
       }
     )

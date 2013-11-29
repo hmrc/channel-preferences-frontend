@@ -187,10 +187,11 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postCompanyDetailsAction(user, request))
       status(result) shouldBe 303
       verify(controller.keyStoreConnector).addKeyStoreEntry(
-        Matchers.eq(controller.registrationId(user)),
+        Matchers.eq(controller.actionId()),
         Matchers.eq(controller.agent),
         Matchers.eq(companyDetailsFormName),
-        keyStoreDataCaptor.capture())(Matchers.any(), Matchers.any())
+        keyStoreDataCaptor.capture(),
+        Matchers.eq(true))(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(companyName) should be("Alvaro Ltd")
       keyStoreData(tradingName) should be("Alvarito")

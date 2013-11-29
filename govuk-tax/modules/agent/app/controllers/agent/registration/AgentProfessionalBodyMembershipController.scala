@@ -70,7 +70,7 @@ class AgentProfessionalBodyMembershipController(override val auditConnector: Aud
       _ => {
         implicit val hc = HeaderCarrier(request)
         val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest()(request).data
-        keyStoreConnector.addKeyStoreEntry(registrationId(user), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership)
+        keyStoreConnector.addKeyStoreEntry(actionId(), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership, true)
         Redirect(routes.AgentThankYouController.thankYou())
       }
     )

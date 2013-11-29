@@ -10,7 +10,7 @@ trait MultiFormWrapper {
 
 }
 
-case class MultiFormConfiguration(id: String, source: String, stepsList: List[MultiFormStep], currentStep: String, unauthorisedStep: MultiFormStep)
+case class MultiFormConfiguration(actionId: String, source: String, stepsList: List[MultiFormStep], currentStep: String, unauthorisedStep: MultiFormStep, ignoreSession: Boolean)
 
 case class MultiFormStep(stepName: String, stepCall: Call)
 
@@ -18,11 +18,10 @@ class MultiFormAction(keyStore: KeyStoreConnector) extends Results {
 
   import uk.gov.hmrc.common.microservice.domain.User
 
-  def apply(config: User => MultiFormConfiguration)(action: (User => Request[AnyContent] => SimpleResult)): (User => Request[AnyContent] => SimpleResult) = {
+  def apply(conf: MultiFormConfiguration)(action: (User => Request[AnyContent] => SimpleResult)): (User => Request[AnyContent] => SimpleResult) = {
     implicit user =>
       implicit request =>
-        val conf = config(user)
-        keyStore.getDataKeys(conf.id, conf.source)(HeaderCarrier(request)) match {
+        keyStore.getDataKeys(conf.actionId, conf.source, conf.ignoreSession)(HeaderCarrier(request)) match {
           case None => if (conf.currentStep == conf.stepsList.head.stepName) action(user)(request) else Redirect(conf.unauthorisedStep.stepCall)
           case Some(dataKeys) =>
             val next = nextStep(conf.stepsList, dataKeys)

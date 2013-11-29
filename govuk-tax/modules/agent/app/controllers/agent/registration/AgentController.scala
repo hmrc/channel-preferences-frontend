@@ -5,16 +5,18 @@ import controllers.common.actions.{ MultiFormStep, MultiFormConfiguration }
 
 trait AgentController {
 
-  def registrationId(user: User) = "Registration:" + user.oid
+  def actionId() = "AgentRegistration"
 
   def uar(user: User) = "UAR:" + user.oid
 
-  def multiFormConfig(user: User) = MultiFormConfiguration(
-    id = registrationId(user),
+  def multiFormConfig = MultiFormConfiguration(
+    actionId = actionId(),
     source = agent,
     stepsList = FormNames.stepsOrder,
     currentStep = step,
-    unauthorisedStep = FormNames.stepsOrder.head)
+    unauthorisedStep = FormNames.stepsOrder.head,
+    ignoreSession = true
+  )
 
   def step: String
 

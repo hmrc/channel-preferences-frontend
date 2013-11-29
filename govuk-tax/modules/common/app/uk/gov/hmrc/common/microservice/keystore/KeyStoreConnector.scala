@@ -14,30 +14,49 @@ case class KeyStore[T](id: String, dateCreated: DateTime, dateUpdated: DateTime,
 
 class KeyStoreConnector(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends Connector {
 
-  def addKeyStoreEntry[T](id: String, source: String, key: String, data: T)(implicit manifest: Manifest[T], headerCarrier:HeaderCarrier) {
-    val uri = buildUri(id, source) + s"/data/${key}"
+  def addKeyStoreEntry[T](actionId: String, source: String, formId: String, data: T, ignoreSession: Boolean = false)(implicit manifest: Manifest[T], headerCarrier:HeaderCarrier) {
+    val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
+    val uri = buildUri(keyStoreId, source) + s"/data/$formId"
     httpPut[KeyStore[T]](uri, Json.parse(toRequestBody(data)))
   }
 
-  def getEntry[T](id: String, source: String, key: String)(implicit manifest: Manifest[T], hc: HeaderCarrier): Option[T] = {
+  def getEntry[T](actionId: String, source: String, formId: String, ignoreSession: Boolean = false)(implicit manifest: Manifest[T], hc: HeaderCarrier): Option[T] = {
+    val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
     for {
-      keyStore <- httpGet[KeyStore[T]](buildUri(id, source))
-      value <- keyStore.get(key)
+      keyStore <- httpGet[KeyStore[T]](buildUri(keyStoreId, source))
+      value <- keyStore.get(formId)
     } yield value
   }
 
-  def getKeyStore[T](id: String, source: String)(implicit manifest: Manifest[T], hc: HeaderCarrier): Option[KeyStore[T]] = {
-    httpGet[KeyStore[T]](buildUri(id, source))
+  def getKeyStore[T](actionId: String, source: String, ignoreSession: Boolean = false)(implicit manifest: Manifest[T], hc: HeaderCarrier): Option[KeyStore[T]] = {
+    val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
+    httpGet[KeyStore[T]](buildUri(keyStoreId, source))
   }
 
-  def deleteKeyStore(id: String, source: String)(implicit hc: HeaderCarrier) {
-    httpDeleteAndForget(buildUri(id, source))
+  def deleteKeyStore(actionId: String, source: String, ignoreSession: Boolean = false)(implicit hc: HeaderCarrier) {
+    val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
+    httpDeleteAndForget(buildUri(keyStoreId, source))
   }
 
-  def getDataKeys(id: String, source: String)(implicit hc: HeaderCarrier): Option[Set[String]] = {
-    httpGet[Set[String]](buildUri(id, source) + "/data/keys")
+  def getDataKeys(actionId: String, source: String, ignoreSession: Boolean = false)(implicit hc: HeaderCarrier): Option[Set[String]] = {
+    val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
+    httpGet[Set[String]](buildUri(keyStoreId, source) + "/data/keys")
   }
 
   private def buildUri(id: String, source: String) = s"/keystore/$source/$id"
+
+  private def generateKeyStoreId(actionId: String, ignoreSession: Boolean)(implicit headerCarrier: HeaderCarrier) = {
+    val userId = headerCarrier.userId.map{userId => userId.substring(userId.lastIndexOf("/") + 1)}.getOrElse("unknownUserId")
+    val sessionId = generateSessionIdForKeyStoreId(ignoreSession)
+    s"$userId:$actionId$sessionId"
+  }
+
+  private def generateSessionIdForKeyStoreId(ignoreSession: Boolean)(implicit headerCarrier: HeaderCarrier) = {
+    if(ignoreSession == false) {
+      val sessionId = headerCarrier.sessionId.getOrElse("unknownSessionId")
+      s":$sessionId"
+    }
+    else ""
+  }
 
 }

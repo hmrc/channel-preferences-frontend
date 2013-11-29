@@ -11,7 +11,6 @@ import models.paye._
 import controllers.common.{BaseController, SessionTimeoutWrapper}
 import controllers.paye.validation.RemoveBenefitValidator._
 import org.joda.time.format.DateTimeFormat
-import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.service.Connectors
@@ -109,7 +108,7 @@ with PayeRegimeRoots {
               case FUEL if differentDateForFuel(removeBenefitData.fuelDateChoice) => calculateRevisedAmount(benefit, removeBenefitData.fuelWithdrawDate.get)
               case _ => calculateRevisedAmount(benefit, removeBenefitData.withdrawDate)
             }
-            (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2 + ((benefit.benefitType.toString -> revisedAmount)))
+            (runningAmounts._1 + (benefit.grossAmount - revisedAmount), runningAmounts._2 + (benefit.benefitType.toString -> revisedAmount))
           })
 
           val secondWithdrawDate = removeBenefitData.fuelWithdrawDate.getOrElse(removeBenefitData.withdrawDate)
@@ -117,11 +116,17 @@ with PayeRegimeRoots {
           val benefitsInfo: Map[String, BenefitInfo] = mapBenefitsInfo(benefit.benefits(0), removeBenefitData.withdrawDate, apportionedValues) ++
             secondBenefit.map(mapBenefitsInfo(_, secondWithdrawDate, apportionedValues)).getOrElse(Nil)
 
-          keyStoreService.addKeyStoreEntry(user.oid, KeystoreUtils.source, keystoreKey, RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues))
+
+          val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
+          keyStoreService.addKeyStoreEntry(
+            generateKeystoreActionId(updatedBenefit.allBenefitsToString, updatedBenefit.benefit.taxYear, updatedBenefit.benefit.employmentSequenceNumber),
+            KeystoreUtils.source,
+            keystoreKey,
+            RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues)
+          )
 
           mainBenefitType match {
             case CAR | FUEL => {
-              val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
               Ok(remove_benefit_confirm(aggregateSumOfRevisedBenefitAmounts, updatedBenefit)(user))
             }
             case _ => Logger.error(s"Unsupported type of the main benefit: $mainBenefitType, redirecting to car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
@@ -163,7 +168,7 @@ with PayeRegimeRoots {
       if (carRemovalMissesFuelRemoval(payeRootData, displayBenefit)) {
         BadRequest
       } else {
-        loadFormDataFor(user) match {
+        loadFormDataFor(user, displayBenefit) match {
           case Some(formData) => {
             val uri = displayBenefit.benefit.actions.getOrElse("remove",
               throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
@@ -189,7 +194,10 @@ with PayeRegimeRoots {
     if (txQueueConnector.transaction(oid, user.regimes.paye.get).isEmpty) {
       NotFound
     } else {
-      keyStoreService.deleteKeyStore(user.oid, KeystoreUtils.source)
+      keyStoreService.deleteKeyStore(
+        generateKeystoreActionId(kinds, year, employmentSequenceNumber),
+        KeystoreUtils.source
+      )
       val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
       if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
         val removalData = BenefitUpdatedConfirmationData(TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year),
@@ -242,8 +250,13 @@ with PayeRegimeRoots {
     payeRootData.findExistingBenefit(employmentNumber, CAR).isDefined
   }
 
-  private def loadFormDataFor(user: User)(implicit hc: HeaderCarrier) = {
-    keyStoreService.getEntry[RemoveBenefitData](user.oid, KeystoreUtils.source, keystoreKey)
+  private def loadFormDataFor(user: User, benefit: DisplayBenefit)(implicit hc: HeaderCarrier) = {
+    val actionId = generateKeystoreActionId(benefit.allBenefitsToString, benefit.benefit.taxYear, benefit.benefit.employmentSequenceNumber)
+    keyStoreService.getEntry[RemoveBenefitData](actionId, KeystoreUtils.source, keystoreKey)
+  }
+
+  private def generateKeystoreActionId(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = {
+    s"RemoveBenefit:$benefitTypes:$taxYear:$employmentSequenceNumber"
   }
 
   object WithValidatedRequest {

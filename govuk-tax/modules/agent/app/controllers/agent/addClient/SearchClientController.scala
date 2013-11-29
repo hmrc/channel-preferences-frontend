@@ -2,7 +2,7 @@ package controllers.agent.addClient
 
 import play.api.mvc.{SimpleResult, Request}
 import views.html.agents.addClient._
-import controllers.common.{BaseController}
+import controllers.common.BaseController
 import play.api.data.{Form, Forms}
 import Forms._
 import org.joda.time.LocalDate
@@ -21,7 +21,7 @@ import models.agent.{SearchRequest, MatchingPerson}
 import service.agent.AgentConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.Actions
 import controllers.agent.AgentsRegimeRoots
 
 class SearchClientController(val keyStoreConnector: KeyStoreConnector,
@@ -78,7 +78,7 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
-                keyStoreConnector.addKeyStoreEntry(keystoreId(user.oid, instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
+                keyStoreConnector.addKeyStoreEntry(actionId(instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
                 Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
               }
             }
@@ -155,7 +155,7 @@ object SearchClientController {
   private[addClient] object KeyStoreKeys {
     val serviceSourceKey = "agentFrontEnd"
 
-    def keystoreId(userId: String, instanceId: String) = s"AddClient:$userId:$instanceId"
+    def actionId(instanceId: String) = s"AddClient-$instanceId"
 
     val addClientKey = "addClient"
   }

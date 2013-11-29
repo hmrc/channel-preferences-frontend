@@ -93,10 +93,8 @@ with PayeRegimeRoots {
     }
   }
 
-  private val fuelBenefitFormPrefix = "AddFuelBenefit"
-
   def initialFuelBenefitValues(user: User, taxYear: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): FuelBenefitDataWithGrossBenefit = {
-    keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey)
+    keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey)
       .getOrElse((FuelBenefitData(None, None), 0))
   }
 
@@ -121,7 +119,7 @@ with PayeRegimeRoots {
 
               val carBenefitStartDate = getDateInTaxYear(carBenefit.car.flatMap(_.dateCarMadeAvailable))
 
-              keyStoreService.addKeyStoreEntry(KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData, fuelBenefitValue))
+              keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData, fuelBenefitValue))
 
               val fuelData = AddFuelBenefitConfirmationData(employment.employerName, carBenefitStartDate, addFuelBenefitData.employerPayFuel.get,
                 addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = BenefitValue(fuelBenefitValue))
@@ -139,7 +137,7 @@ with PayeRegimeRoots {
   private[paye] def confirmAddFuelBenefitAction: ( User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
     (request: Request[_], user : User, taxYear : Int, employmentSequenceNumber: Int, taxYearData : TaxYearData) => {
       implicit val hc = HeaderCarrier(request)
-      val keystoreId = KeystoreUtils.formId(fuelBenefitFormPrefix, user, taxYear, employmentSequenceNumber)
+      val keystoreId = generateKeystoreActionId(taxYear, employmentSequenceNumber)
 
       val (fuelBenefitData,fuelBenefitValue) = keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](keystoreId, KeystoreUtils.source, keystoreKey).
         getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddFuelBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
@@ -185,6 +183,10 @@ with PayeRegimeRoots {
 
   private def findEmployment(employmentSequenceNumber: Int, payeRootData: TaxYearData) = {
     payeRootData.employments.find(_.sequenceNumber == employmentSequenceNumber)
+  }
+
+  private def generateKeystoreActionId(taxYear: Int, employmentSequenceNumber: Int) = {
+    s"AddFuelBenefit:$taxYear:$employmentSequenceNumber"
   }
 }
 

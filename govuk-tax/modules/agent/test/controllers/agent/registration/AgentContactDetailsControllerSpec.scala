@@ -95,7 +95,7 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
       val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a")))
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/agent-type")
-      verify(keyStoreConnector).addKeyStoreEntry(Matchers.eq(s"Registration:$id"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture())(Matchers.any(), Matchers.any())
+      verify(keyStoreConnector).addKeyStoreEntry(Matchers.eq("AgentRegistration"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture(), Matchers.eq(true))(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(title) should be(payeRoot.title)
       keyStoreData(firstName) should be(payeRoot.firstName)

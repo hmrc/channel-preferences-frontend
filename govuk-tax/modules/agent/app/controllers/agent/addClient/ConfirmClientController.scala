@@ -39,7 +39,7 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
 
   private[agent] def confirmAction(user: User)(implicit request: Request[_]): SimpleResult = {
     val form = confirmClientForm().bindFromRequest()(request)
-    keyStoreConnector.getEntry[PotentialClient](keystoreId(user.oid, form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
+    keyStoreConnector.getEntry[PotentialClient](actionId(form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
       case Some(potentialClient@PotentialClient(Some(searchedClient), _, _)) => {
         form.fold(
           errors => BadRequest(search_client_result(searchedClient, form)),
@@ -47,10 +47,10 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
             val (confirmation, instanceId) = confirmationWithInstanceId
 
             keyStoreConnector.addKeyStoreEntry(
-              id = keystoreId(user.oid, instanceId),
-              source = serviceSourceKey,
-              key = addClientKey,
-              data = potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference)))))
+              actionId(instanceId),
+              serviceSourceKey,
+              addClientKey,
+              potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference)))))
 
             Ok(preferred_contact(emptyUnValidatedPreferredContactForm().fill((PreferredContactData.empty, instanceId))))
           }

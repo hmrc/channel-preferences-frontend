@@ -47,6 +47,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     override def now = () => dateToday
   }
 
+  private def generateKeystoreActionId(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = {
+    s"RemoveBenefit:$benefitTypes:$taxYear:$employmentSequenceNumber"
+  }
+
   private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
 
   override protected def beforeEach(testData: TestData) {
@@ -579,14 +583,14 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("#allowance-increase").text shouldBe "£197"
     }
 
-       "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
+      "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       when(mockPayeConnector.removeBenefits(Matchers.any[String], Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())(Matchers.any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), Some("123L"), Some(9999))))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
       val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      when(mockKeyStoreService.getEntry[RemoveBenefitData](generateKeystoreActionId(s"${carBenefit.benefitType.toString},${fuelBenefit.benefitType.toString}", carBenefit.taxYear, carBenefit.employmentSequenceNumber), "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
       val result = Future.successful(controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), s"$CAR,$FUEL", 2013, 2))
 
@@ -608,7 +612,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val withdrawDate = new LocalDate(2013, 7, 18)
       val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
 
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      when(mockKeyStoreService.getEntry[RemoveBenefitData](generateKeystoreActionId(carBenefit.benefitType.toString, carBenefit.taxYear, carBenefit.employmentSequenceNumber), "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
       val result = Future.successful(controller.benefitRemovedAction(johnDensmore, FakeRequest(), s"$CAR,$FUEL", 2013, 1, "210", Some("newTaxCode"), Some(9988)))
 
@@ -630,7 +634,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val withdrawDate = new LocalDate(2013, 7, 18)
       val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
 
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      when(mockKeyStoreService.getEntry[RemoveBenefitData](generateKeystoreActionId(carBenefit.benefitType.toString, carBenefit.taxYear, carBenefit.employmentSequenceNumber), "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
       val result = Future.successful(controller.benefitRemovedAction(johnDensmore, FakeRequest(), s"$CAR,$FUEL", 2013, 1, "210", None, None))
 
@@ -751,7 +755,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = Future.successful(controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true), s"$CAR", 2013, 2))
 
       val revisedAmounts = Map("31" -> BigDecimal(123.46))
-      verify(mockKeyStoreService, times(1)).addKeyStoreEntry(johnDensmore.oid, "paye", "remove_benefit", RemoveBenefitData(withdrawDate, revisedAmounts))
+      verify(mockKeyStoreService, times(1)).addKeyStoreEntry(generateKeystoreActionId(carBenefit.benefitType.toString, carBenefit.taxYear, carBenefit.employmentSequenceNumber), "paye", "remove_benefit", RemoveBenefitData(withdrawDate, revisedAmounts), false)
     }
 
     "in step 2 call the paye service to remove the benefit and render the success page" in new WithApplication(FakeApplication()) {
@@ -761,7 +765,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val withdrawDate = new LocalDate(2013, 7, 18)
       val revisedAmounts = Map("29" -> BigDecimal(123.45))
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      when(mockKeyStoreService.getEntry[RemoveBenefitData](generateKeystoreActionId(fuelBenefit.benefitType.toString, fuelBenefit.taxYear, fuelBenefit.employmentSequenceNumber), "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
       val result = Future.successful(controller.confirmBenefitRemovalAction(johnDensmore, FakeRequest(), s"$FUEL", 2013, 2))
 
@@ -811,7 +815,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       when(mockTxQueueConnector.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])(Matchers.eq(hc))).thenReturn(None)
       val revisedAmounts = Map("31" -> BigDecimal(555))
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](johnDensmore.oid, "paye", "remove_benefit")).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      when(mockKeyStoreService.getEntry[RemoveBenefitData](generateKeystoreActionId(carBenefit.benefitType.toString, carBenefit.taxYear, carBenefit.employmentSequenceNumber), "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
       val result = Future.successful(controller.benefitRemovedAction(johnDensmore, FakeRequest(), s"$CAR", 2013, 1, "123", Some("newCode"), Some(9998)))

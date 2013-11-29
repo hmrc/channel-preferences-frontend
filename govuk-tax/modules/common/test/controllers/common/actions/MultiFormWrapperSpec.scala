@@ -1,27 +1,29 @@
 package controllers.common.actions
 
-import play.api.mvc.{ Call, Controller }
+import play.api.mvc.Call
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.test.{ FakeRequest, FakeApplication, WithApplication }
+import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import controllers.common.BaseController
+import org.mockito.Matchers
 
 sealed class MultiFormSpecController(override val keyStoreConnector: KeyStoreConnector)
-  extends Controller 
-  with MultiFormWrapper 
+  extends BaseController
+  with MultiFormWrapper
   with MockitoSugar {
 
   val call1: Call = mock[Call]
   val call2: Call = mock[Call]
   val call3: Call = mock[Call]
 
-  def multiformConfiguration(user: User) = {
+  def multiformConfiguration() = {
     MultiFormConfiguration(
-      "userId",
+      "actionId",
       "source",
       List(
         MultiFormStep("step1", call1),
@@ -29,13 +31,14 @@ sealed class MultiFormSpecController(override val keyStoreConnector: KeyStoreCon
         MultiFormStep("step3", call3)
       ),
       "step3",
-      MultiFormStep("step1", call1)
+      MultiFormStep("step1", call1),
+      ignoreSession = true
     )
   }
 
-  def multiformConfigurationHomePage(user: User) = {
+  def multiformConfigurationHomePage() = {
     MultiFormConfiguration(
-      "userId",
+      "actionId",
       "source",
       List(
         MultiFormStep("step1", call1),
@@ -43,19 +46,20 @@ sealed class MultiFormSpecController(override val keyStoreConnector: KeyStoreCon
         MultiFormStep("step3", call3)
       ),
       "step1",
-      MultiFormStep("step1", call1)
+      MultiFormStep("step1", call1),
+      ignoreSession = true
     )
   }
 
   def testJumpAhead() =
-    MultiFormAction(user => multiformConfiguration(user)) {
+    MultiFormAction(multiformConfiguration()) {
       user =>
         request =>
           Ok("You are in step 3!")
     }
 
   def testHomePage() =
-    MultiFormAction(user => multiformConfigurationHomePage(user)) {
+    MultiFormAction(multiformConfigurationHomePage()) {
       user =>
         request =>
           Ok("You are in home page")
@@ -70,8 +74,8 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       val user: User = mock[User]
       val keyStoreConnector = mock[KeyStoreConnector]
       val controller = new MultiFormSpecController(keyStoreConnector)
-      
-      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(None)
+
+      when(keyStoreConnector.getDataKeys(Matchers.eq("actionId"), Matchers.eq("source"), Matchers.eq(true))(Matchers.any[HeaderCarrier])).thenReturn(None)
       when(controller.call1.url).thenReturn("/step1")
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
@@ -84,7 +88,7 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       val keyStoreConnector = mock[KeyStoreConnector]
       val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(None)
+      when(keyStoreConnector.getDataKeys(Matchers.eq("actionId"), Matchers.eq("source"), Matchers.eq(true))(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = Future.successful(controller.testHomePage()(user)(FakeRequest()))
       status(result) should be(200)
@@ -97,7 +101,7 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       val keyStoreConnector = mock[KeyStoreConnector]
       val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(Some(Set.empty[String]))
+      when(keyStoreConnector.getDataKeys(Matchers.eq("actionId"), Matchers.eq("source"), Matchers.eq(true))(Matchers.any[HeaderCarrier])).thenReturn(Some(Set.empty[String]))
       when(controller.call1.url).thenReturn("/step1")
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
@@ -111,7 +115,7 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       val keyStoreConnector = mock[KeyStoreConnector]
       val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(Some(Set("step1", "step2")))
+      when(keyStoreConnector.getDataKeys(Matchers.eq("actionId"), Matchers.eq("source"), Matchers.eq(true))(Matchers.any[HeaderCarrier])).thenReturn(Some(Set("step1", "step2")))
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))
       status(result) should be(200)
@@ -124,7 +128,7 @@ class MultiFormWrapperSpec extends BaseSpec with MockitoSugar {
       val keyStoreConnector = mock[KeyStoreConnector]
       val controller = new MultiFormSpecController(keyStoreConnector)
 
-      when(keyStoreConnector.getDataKeys("userId", "source")).thenReturn(Some(Set("step1")))
+      when(keyStoreConnector.getDataKeys(Matchers.eq("actionId"), Matchers.eq("source"), Matchers.eq(true))(Matchers.any[HeaderCarrier])).thenReturn(Some(Set("step1")))
       when(controller.call2.url).thenReturn("/step2")
 
       val result = Future.successful(controller.testJumpAhead()(user)(FakeRequest()))

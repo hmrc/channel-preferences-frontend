@@ -61,7 +61,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "have the default radio button selected" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(confirmKeyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(confirmKeyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
 
       val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
@@ -75,7 +75,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "have the passed in instanceId in the page" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(confirmKeyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(confirmKeyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
 
       val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
@@ -87,7 +87,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "not show any errors" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(confirmKeyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(confirmKeyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
 
       val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
@@ -117,7 +117,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "have the other radio button selected when entering invalid data via the preferredContactAction" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(keyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
       val result = executePreferredContactActionPostWithValues(FieldIds.other, "", "123456", "v@v.com", instanceId)
       status(result) shouldBe 400
@@ -130,7 +130,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "fail when no phone number is provided provided" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(keyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
       val result = executePreferredContactActionPostWithValues(FieldIds.other, "firstName", "", "email@email.com", instanceId)
       status(result) shouldBe 400
@@ -141,7 +141,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "fail when an invalid phone number is provided provided" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(keyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
       val result = executePreferredContactActionPostWithValues(FieldIds.other, "firstName", "aefwefw", "email@email.com", instanceId)
       status(result) shouldBe 400
@@ -152,7 +152,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "pass when suppling other contact and all data is correctly provided" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(keyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
       val result = executePreferredContactActionPostWithValues(FieldIds.other, "firstName", "1123", "email@email.com", instanceId)
       status(result) shouldBe 200
@@ -163,7 +163,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "pass when user is preferred contact and all data is correctly provided" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(keyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
       val result = executePreferredContactActionPostWithValues(FieldIds.me, "firstName", "lastName", "email@email.com", instanceId)
       status(result) shouldBe 200
@@ -174,7 +174,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "pass when not us is selected and all data is correctly provided" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
-      when(keyStoreConnector.getEntry[PotentialClient](keystoreId(id, instanceId), serviceSourceKey, addClientKey))
+      when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
       val result = executePreferredContactActionPostWithValues(FieldIds.notUs, "", "", "", instanceId)
       status(result) shouldBe 200

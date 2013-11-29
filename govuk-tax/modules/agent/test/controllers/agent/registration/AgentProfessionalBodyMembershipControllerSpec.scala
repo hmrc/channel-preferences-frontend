@@ -72,10 +72,11 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/thank-you")
       verify(controller.keyStoreConnector).addKeyStoreEntry(
-        Matchers.eq(controller.registrationId(user)),
+        Matchers.eq(controller.actionId()),
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),
-        keyStoreDataCaptor.capture()
+        keyStoreDataCaptor.capture(),
+        Matchers.eq(true)
       )(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) should be("")
@@ -88,10 +89,11 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/thank-you")
       verify(controller.keyStoreConnector).addKeyStoreEntry(
-        Matchers.eq(controller.registrationId(user)),
+        Matchers.eq(controller.actionId()),
         Matchers.eq(controller.agent),
         Matchers.eq(professionalBodyMembershipFormName),
-        keyStoreDataCaptor.capture()
+        keyStoreDataCaptor.capture(),
+        Matchers.eq(true)
       )(Matchers.any(), Matchers.any())
       val keyStoreData: Map[String, String] = keyStoreDataCaptor.getAllValues.get(0)
       keyStoreData(qualifiedProfessionalBody) should be("charteredInstituteOfManagementAccountants")

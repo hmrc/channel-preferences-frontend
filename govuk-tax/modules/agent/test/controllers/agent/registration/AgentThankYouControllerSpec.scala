@@ -51,22 +51,22 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
     "get the keystore, save the agent, delete the keystore and go to the thank you page" in new WithApplication(FakeApplication()) {
 
-      when(keyStoreConnector.getKeyStore[Map[String, String]](controller.registrationId(user), controller.agent)).thenReturn(Some(mockKeyStore))
+      when(keyStoreConnector.getKeyStore[Map[String, String]](controller.actionId(), controller.agent, true)).thenReturn(Some(mockKeyStore))
       when(agentMicroService.create("CE927349E", agentRegistrationRequest)).thenReturn(Uar("12345"))
       when(agentRoot.uar).thenReturn("12345")
 
       val result = Future.successful(controller.thankYouAction(user, FakeRequest()))
       status(result) shouldBe 200
 
-      verify(keyStoreConnector).getKeyStore[Map[String, String]](controller.registrationId(user), controller.agent)
+      verify(keyStoreConnector).getKeyStore[Map[String, String]](controller.actionId(), controller.agent, true)
       verify(agentMicroService).create("CE927349E", agentRegistrationRequest)
-      verify(keyStoreConnector).deleteKeyStore(controller.registrationId(user), controller.agent)
+      verify(keyStoreConnector).deleteKeyStore(controller.actionId(), controller.agent, true)
 
     }
 
     "redirect user to contact details page when keystore is not found" in new WithApplication(FakeApplication()) {
 
-      when(keyStoreConnector.getKeyStore[Map[String, String]](controller.registrationId(user), controller.agent)).thenReturn(None)
+      when(keyStoreConnector.getKeyStore[Map[String, String]](controller.actionId(), controller.agent, true)).thenReturn(None)
 
       val result = Future.successful(controller.thankYouAction(user, FakeRequest()))
       status(result) shouldBe 303
