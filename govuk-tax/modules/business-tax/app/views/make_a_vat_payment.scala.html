@@ -1,4 +1,5 @@
 @(vatOnlineAccountLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(vatOnlineAccountLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.RenderableMessageProperty.Link._
 
@@ -30,7 +31,7 @@
 
 <h2>Online with a debit or credit card</h2>
 
-<p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online", true) - you’ll need your VAT registration number @user.userAuthority.vrn.</p>
+<p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online", true) - you’ll need your VAT registration number @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
 
 <p>You must use a card from a UK card issuer - not American Express or Diners Club. Allow 3 working days for payments to reach HMRC.</p>
 
@@ -46,7 +47,7 @@
 
 <p>You need HMRC’s bank details or you can use the <a id="chapsFormHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm">CHAPS form</a> or
     @helpers.link("standingOrderFormHref", "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028", "standing order form", true).
-    Use your VAT registration number as the payment reference @user.userAuthority.vrn.</p>
+    Use your VAT registration number as the payment reference @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
 
 <table>
     <thead><tr>

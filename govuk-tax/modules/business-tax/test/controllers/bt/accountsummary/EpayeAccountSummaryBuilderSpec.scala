@@ -13,13 +13,12 @@ import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.EmpRef
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.util.{Failure, Try, Success}
 import CommonBusinessMessageKeys._
 import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeRoot, NonRTI, EpayeAccountSummary, RTI}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 trait DummyPortalUrlBuilder {
   def build(a: String): String
@@ -168,7 +167,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Try[Option[EpayeAccountSummary]], expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage]) {
     val mockUser = mock[User]
-    val mockUserAuthority = mock[UserAuthority]
+    val mockUserAuthority = mock[Authority]
     val mockEpayeConnector = mock[EpayeConnector]
     val mockRegimeRoots = mock[RegimeRoots]
     val mockEpayeRoot = mock[EpayeRoot]

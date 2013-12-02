@@ -8,7 +8,6 @@ import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import java.net.URI
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import org.scalatest.TestData
@@ -21,15 +20,16 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors._
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import uk.gov.hmrc.common.microservice.agent.AgentRoot
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 
 class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+
+  import controllers.domain.AuthorityUtils._
 
   val mockAuthConnector = mock[AuthConnector]
   val mockPayeConnector = mock[PayeConnector]
@@ -57,8 +57,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
         actions = Map("calculateBenefitValue" -> "/calculation/paye/benefit/new/value-calculation")
       )
     )
-    when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenReturn(
-      Some(UserAuthority("/auth/oid/jfisher", Regimes(paye = Some(URI.create("/paye/AB123456C"))), None)))
+    when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenReturn(Some(payeAuthority("jdensmore", "AB123456C")))
   }
 
   "basic homepage test" should {
@@ -112,8 +111,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     }
 
     "return 200 in case the agent is successfully authorised" ignore new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/goeff")).thenReturn(
-        Some(UserAuthority("/auth/oid/goeff", Regimes(agent = Some(URI.create("/agent/uar-for-goeff"))))))
+      when(mockAuthConnector.authority("/auth/oid/goeff")).thenReturn(Some(agentAuthority("goeff", "uar-for-goeff")))
 
       val agent = AgentRoot("uar-for-goeff", Map.empty, Map.empty)
       val request = FakeRequest().withSession(
@@ -128,8 +126,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(
-        Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))))))
+      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(Some(saAuthority("john", "12345678")))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -142,8 +139,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
     }
 
     "redirect to the Tax Regime landing page if the agent is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(
-        Some(UserAuthority("/auth/oid/john", Regimes(paye = None, sa = Some(URI.create("/sa/individual/12345678"))), None)))
+      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(Some(saAuthority("john", "12345678")))
 
       val result = testController.testAgentAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
@@ -203,7 +199,7 @@ sealed class TestController(payeConnector: PayeConnector,
   with RegimeRootBase {
 
 
-  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
+  override def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
     for {
       paye <- payeRoot(authority)
       agent <- agentRoot(authority)

@@ -2,25 +2,29 @@ package controllers.sa
 
 import play.api.test._
 import org.joda.time.{ DateTimeZone, DateTime }
-import java.net.{ URLDecoder, URI }
+import java.net.URLDecoder
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import controllers.common.CookieEncryption
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.domain.User
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.domain.SaUtr
 import java.util.UUID
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import org.scalatest.TestData
-import uk.gov.hmrc.common.microservice.sa.domain.{SaIndividualAddress, SaPerson, SaName, SaRoot}
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import controllers.common.actions.HeaderCarrier
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
+import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
+import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.sa.domain.SaName
+import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -35,7 +39,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
   }
 
   private def setupUser(id: String, saUtr: String, name: String, nameFromGovernmentGateway: String): User = {
-    val ua = UserAuthority(s"/personal/$saUtr", Regimes(sa = Some(URI.create(s"/personal/utr/$saUtr"))), None, Some(SaUtr("123456789012")))
 
     val saRoot = SaRoot(
       utr = SaUtr("123456789012"),
@@ -44,7 +47,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
         "individual/details/main-address" -> "/sa/individual/123456789012/details/main-address")
     )
 
-    User(id, ua, RegimeRoots(None, Some(saRoot), None, None, None), Some(nameFromGovernmentGateway), None)
+    User(id, saAuthority(id, saUtr), RegimeRoots(None, Some(saRoot), None, None, None), Some(nameFromGovernmentGateway), None)
   }
 
   private val nameFromSa = SaName("Mr.", "Geoff", None, "Fisher", Some("From SA"))

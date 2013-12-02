@@ -21,11 +21,10 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors._
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.{Authority, UserAuthority, Regimes}
 import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -39,6 +38,7 @@ class AuthorisedForGovernmentGatewayActionSpec
   with HeaderNames {
 
   import config.DateTimeProvider._
+  import controllers.domain.AuthorityUtils._
 
   private val tokenValue = "someToken"
 
@@ -62,29 +62,18 @@ class AuthorisedForGovernmentGatewayActionSpec
       SaJsonRoot(Map("link1" -> "http://somelink/1"))
     )
 
-    when(authConnector.authority("/auth/oid/gfisher")).thenReturn(
-      Some(
-        UserAuthority(
-          id = "/auth/oid/gfisher",
-          saUtr = Some(SaUtr("3333333333")),
-          regimes = Regimes(
-            sa = Some(URI.create("/sa/detail/3333333333")
-            )
-          )
-        )
-      )
-    )
-
-    when(authConnector.authority("/auth/oid/lottyRegimes")).thenReturn(
-      Some(UserAuthority("/auth/oid/lottyRegimes",
-        regimes = Regimes(sa = Some(URI.create("/saDetailEndpoint")),
-          epaye = Some(URI.create("/epayeDetailEndpoint")),
-          vat = Some(URI.create("/vatDetailEndpoint")),
-          ct = Some(URI.create("/ctDetailEndpoint"))),
-        vrn = Some(lottyRegime_vrn),
-        empRef = Some(lottyRegime_empRef),
-        ctUtr = Some(lottyRegime_ctUtr),
-        saUtr = Some(lottyRegime_saUtr))))
+    when(authConnector.authority("/auth/oid/gfisher")).thenReturn(Some(saAuthority("gfisher", "3333333333")))
+//
+//    when(authConnector.authority("/auth/oid/lottyRegimes")).thenReturn(
+//      Some(UserAuthority("/auth/oid/lottyRegimes",
+//        regimes = Regimes(sa = Some(URI.create("/saDetailEndpoint")),
+//          epaye = Some(URI.create("/epayeDetailEndpoint")),
+//          vat = Some(URI.create("/vatDetailEndpoint")),
+//          ct = Some(URI.create("/ctDetailEndpoint"))),
+//        vrn = Some(lottyRegime_vrn),
+//        empRef = Some(lottyRegime_empRef),
+//        ctUtr = Some(lottyRegime_ctUtr),
+//        saUtr = Some(lottyRegime_saUtr))))
   }
 
   "basic homepage test" should {
@@ -138,8 +127,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
-      when(authConnector.authority("/auth/oid/bob")).thenReturn(
-        Some(UserAuthority("bob", Regimes(sa = None, paye = Some(URI.create("/personal/paye/12345678"))), None)))
+      when(authConnector.authority("/auth/oid/bob")).thenReturn(Some(payeAuthority("bob","12345678")))
       val result = testController.testAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now().getMillis.toString,
@@ -199,7 +187,7 @@ sealed class AuthorisedForGovernmentGatewayActionSpecController(saConnector: SaC
   with Actions
   with RegimeRootBase {
 
-  override def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
+  override def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
     for {
       sa <- saRoot(authority)
       vat <- vatRoot(authority)

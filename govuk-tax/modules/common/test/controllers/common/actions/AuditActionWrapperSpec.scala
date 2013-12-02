@@ -17,7 +17,16 @@ import scala.collection.JavaConverters._
 import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.utils.DateTimeUtils._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain._
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
+import play.api.mvc.Cookie
 import uk.gov.hmrc.common.microservice.auth.domain.Pid
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
@@ -31,6 +40,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import play.api.mvc.Cookie
+import uk.gov.hmrc.utils.DateTimeUtils
 
 class AuditTestController(override val auditConnector: AuditConnector) extends Controller with AuditActionWrapper {
 
@@ -282,13 +292,11 @@ class TestCase(traceRequests: Boolean)
   val exampleSessionId = ObjectId.get().toString
 
 
-  val userAuth = UserAuthority("exAuthId", Regimes(),
-    saUtr = Some(SaUtr("exampleUtr")),
-    nino = Some(Nino("AB123456C")),
-    ctUtr = Some(CtUtr("asdfa")),
-    vrn = Some(Vrn("123")),
-    governmentGatewayCredential = Some(GovernmentGatewayCredentialResponse("ggCred")),
-    idaCredential = Some(IdaCredentialResponse(List(Pid("idCred")))))
+  val userAuth = Authority("exAuthId", Credentials(Some("ggCred"), Set(IdaPid(Pid("idCred"), DateTimeUtils.now, DateTimeUtils.now))), Accounts(
+    Some(PayeAccount("/paye/AB123456C", Nino("AB123456C"))),
+    Some(SaAccount("/sa/individual/exampleUtr", SaUtr("exampleUtr"))),
+    Some(CtAccount("/ct/asdfa", CtUtr("asdfa"))),
+    Some(VatAccount("/vat/123", Vrn("123")))), Some(DateTimeUtils.now), Some(DateTimeUtils.now), CreationAndLastModifiedDetail())
   val user = User("exUid", userAuth, RegimeRoots(), None, None)
   when(auditConnector.enabled).thenReturn(true)
 

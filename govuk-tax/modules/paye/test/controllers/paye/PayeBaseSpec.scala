@@ -18,6 +18,7 @@ import BenefitTypes._
 
 trait PayeBaseSpec extends BaseSpec {
 
+  import controllers.domain.AuthorityUtils._
   lazy val testTaxYear = 2013
 
   val currentTestDate = new DateTime(testTaxYear - 1, 12, 2, 12, 1, ISOChronology.getInstanceUTC)
@@ -34,9 +35,6 @@ trait PayeBaseSpec extends BaseSpec {
   }
 
   private def setupUser(id: String, nino: String, name: String, transactionLinks: Map[String, String], actions: Map[String, String], year:Int): User = {
-
-    val ua = UserAuthority(s"/personal/paye/$nino", Regimes(paye = Some(URI.create(s"/personal/paye/$nino"))), None)
-
 
     val payeRoot = PayeRoot(
       name = name,
@@ -58,7 +56,7 @@ trait PayeBaseSpec extends BaseSpec {
 
     User(
       userId = id,
-      userAuthority = ua,
+      userAuthority = payeAuthority(id, nino),
       regimes = RegimeRoots(paye = Some(payeRoot)),
       nameFromGovernmentGateway = None,
       decryptedToken = None

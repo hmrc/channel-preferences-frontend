@@ -7,15 +7,15 @@ import controllers.common.FrontEndRedirect
 
 class VatRegimeSpec extends BaseSpec {
 
+  import controllers.domain.AuthorityUtils._
+
   "The Is Authorised function" should {
     "return true when the user has a VAT enrolment" in {
-      val regimesWithVatEnrolment = Regimes(paye = Some(new URI("/dummyPayeRegimeRoot")), vat=Some(new URI("/dummyVatRegimeRoot")))
-      VatRegime.isAuthorised(regimesWithVatEnrolment) shouldBe true
+      VatRegime.isAuthorised(vatAuthority("dummy", "dymmy").accounts) shouldBe true
     }
 
     "return false when the user does not have a VAT enrolment" in {
-      val regimesWithoutVatEnrolment = Regimes(paye = Some(new URI("/dummyPayeRegimeRoot")), ct=Some(new URI("/dummyCtRegimeRoot")))
-      VatRegime.isAuthorised(regimesWithoutVatEnrolment) shouldBe false
+      VatRegime.isAuthorised(ctAuthority("dummy", "dummy").accounts) shouldBe false
     }
 
   }

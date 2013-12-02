@@ -6,7 +6,7 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import scala.concurrent._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
@@ -22,17 +22,17 @@ trait RegimeRootBase {
    */
   implicit def sequence[T](of: Option[Future[T]]): Future[Option[T]] = of.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
 
-  def payeRoot(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[Option[PayeRoot]] = authority.regimes.paye.map(uri => payeConnector.root(uri.toString))
+  def payeRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[PayeRoot]] = authority.accounts.paye.map(paye => payeConnector.root(paye.link))
 
-  def saRoot(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[Option[SaRoot]] = authority.regimes.sa.flatMap(uri => authority.saUtr.map (utr => saConnector.root(uri.toString).map(SaRoot(utr, _))))
+  def saRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[SaRoot]] = authority.accounts.sa.map(sa => saConnector.root(sa.link).map(SaRoot(sa.utr, _)))
 
-  def vatRoot(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[Option[VatRoot]] = authority.regimes.vat.flatMap(uri => authority.vrn.map (utr => vatConnector.root(uri.toString).map(VatRoot(utr, _))))
+  def vatRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[VatRoot]] = authority.accounts.vat.map(vat => vatConnector.root(vat.link).map(VatRoot(vat.vrn, _)))
 
-  def epayeRoot(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[Option[EpayeRoot]] = authority.regimes.epaye.flatMap(uri => authority.empRef.map (utr => epayeConnector.root(uri.toString).map(EpayeRoot(utr, _))))
+  def epayeRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[EpayeRoot]] = authority.accounts.epaye.map(epaye => epayeConnector.root(epaye.link).map(EpayeRoot(epaye.empRef, _)))
 
-  def ctRoot(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[Option[CtRoot]] = authority.regimes.ct.flatMap(uri => authority.ctUtr.map (utr => ctConnector.root(uri.toString).map(CtRoot(utr, _))))
+  def ctRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[CtRoot]] = authority.accounts.ct.map(ct => ctConnector.root(ct.link).map(CtRoot(ct.utr, _)))
 
-  def agentRoot(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[Option[AgentRoot]] = authority.regimes.agent.map(uri => agentConnectorRoot.root(uri.toString))
+  def agentRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[AgentRoot]] = authority.accounts.agent.map(uri => agentConnectorRoot.root(uri.toString))
 
-  def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
+  def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
 }

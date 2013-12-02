@@ -6,10 +6,10 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }
 import play.api.mvc.{ Session, Request }
-import uk.gov.hmrc.domain.{CtUtr, Vrn, SaUtr}
 
 class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
 
+  import controllers.domain.AuthorityUtils._
 
   val portalUrlBuilder = new PortalUrlBuilder {}
   
@@ -27,11 +27,9 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return a resolved dynamic full URL with parameters year and saUtr resolved using a request and user object" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
       val saUtr = "someUtr"
 
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.saUtr).thenReturn(Some(SaUtr(saUtr)))
+       when(mockUser.userAuthority).thenReturn(saAuthority("123", saUtr))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("anotherDestinationPathKey")
 
@@ -43,10 +41,8 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
       val mockSession = mock[Session]
-      val mockUserAuthority = mock[UserAuthority]
 
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.saUtr).thenReturn(None)
+      when(mockUser.userAuthority).thenReturn(payeAuthority("", "someNino"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("anotherDestinationPathKey")
 
@@ -57,11 +53,7 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return a URL which is resolved using a vrn parameter" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
-      val vrn = "someVrn"
-
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.vrn).thenReturn(Some(Vrn(vrn)))
+      when(mockUser.userAuthority).thenReturn(vatAuthority("", "someVrn"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testVatAccountDetails")
 
@@ -71,11 +63,8 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return an invalid URL when we request a link requiring a vrn parameter but the vrn is missing" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
-      val vrn = "someVrn"
 
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.vrn).thenReturn(None)
+      when(mockUser.userAuthority).thenReturn(saAuthority("", ""))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testVatAccountDetails")
 
@@ -85,11 +74,7 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return a URL which is resolved using a ctUtr parameter" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
-      val ctUtr = "someCtUtr"
-
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.ctUtr).thenReturn(Some(CtUtr(ctUtr)))
+      when(mockUser.userAuthority).thenReturn(ctAuthority("", "someCtUtr"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testCtAccountDetails")
 
@@ -99,11 +84,9 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return an invalid URL when we request a link requiring a ctUtr parameter but the ctUtr is missing" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
       val ctUtr = "someCtUtr"
 
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.ctUtr).thenReturn(None)
+      when(mockUser.userAuthority).thenReturn(vatAuthority("", "vrn"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testCtAccountDetails")
 

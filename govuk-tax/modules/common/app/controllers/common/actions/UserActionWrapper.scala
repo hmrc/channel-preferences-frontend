@@ -11,7 +11,7 @@ import play.api.mvc.SimpleResult
 import views.html.login
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.{Authority, UserAuthority}
 
 
 trait UserActionWrapper
@@ -39,12 +39,12 @@ trait UserActionWrapper
       implicit val hc = HeaderCarrier(request)
       val userId = decrypt(encryptedUserId)
       val token = tokenOption.map(decrypt)
-      val userAuthority = authConnector.authority(userId)
-      Logger.debug(s"Received user authority: $userAuthority")
+      val authority = authConnector.authority(userId)
+      Logger.debug(s"Received user authority: $authority")
 
-      userAuthority.flatMap {
+      authority.flatMap {
         case Some(ua) => taxRegime match {
-          case Some(regime) if !regime.isAuthorised(ua.regimes) =>
+          case Some(regime) if !regime.isAuthorised(ua.accounts) =>
             Logger.info("user not authorised for " + regime.getClass)
             Future.successful(Right(Redirect(regime.unauthorisedLandingPage)))
           case _ =>
@@ -64,5 +64,5 @@ trait UserActionWrapper
       }
   }
 
-  def regimeRoots(authority: UserAuthority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
+  def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
 }

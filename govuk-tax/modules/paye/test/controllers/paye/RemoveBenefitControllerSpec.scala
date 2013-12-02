@@ -22,8 +22,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
-import java.net.URI
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import org.joda.time.format.DateTimeFormat
 import concurrent.Future
@@ -37,6 +35,8 @@ import controllers.common.actions.HeaderCarrier
 import org.scalatest.concurrent.ScalaFutures
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper with ScalaFutures {
+
+  import controllers.domain.AuthorityUtils._
 
   val mockKeyStoreService = mock[KeyStoreConnector]
   val mockPayeConnector = mock[PayeConnector]
@@ -874,9 +874,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val ua = UserAuthority(s"/personal/paye/CE927349E", Regimes(paye = Some(URI.create(s"/personal/paye/CE927349E"))), None)
-
-      val user = User("wshakespeare", ua, RegimeRoots(paye = Some(payeRoot)), None, None)
+      val user = User("wshakespeare", payeAuthority("someId", "CE927349E"), RegimeRoots(paye = Some(payeRoot)), None, None)
 
       val request = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 
@@ -888,6 +886,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     }
 
     "Contain correct employee names" in new WithApplication(FakeApplication()) {
+
 
       val car = Car(None, None, Some(new LocalDate()), Some(BigDecimal(10)), Some("diesel"), Some(10), Some(1400), None, Some(BigDecimal("1432")), None, None)
 
@@ -901,9 +900,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val ua = UserAuthority(s"/personal/paye/CE927349E", Regimes(paye = Some(URI.create(s"/personal/paye/CE927349E"))), None)
-
-      val user = User("wshakespeare", ua, RegimeRoots(paye = Some(payeRoot)), None, None)
+      val user = User("wshakespeare", payeAuthority("someId", "CE927349E"), RegimeRoots(paye = Some(payeRoot)), None, None)
 
       val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true")
 

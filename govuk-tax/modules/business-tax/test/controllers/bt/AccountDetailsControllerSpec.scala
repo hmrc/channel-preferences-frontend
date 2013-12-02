@@ -28,10 +28,11 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
 }
 
 class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
+  import controllers.domain.AuthorityUtils._
 
   val validUtr = SaUtr("1234567890")
   val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
-  val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
   "show account details" should {
 
@@ -59,7 +60,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
     "not include Change email address section for non-SA customer" in new Setup {
 
-      val nonSaUser = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(), decryptedToken = None)
+      val nonSaUser = User(userId = "userId", userAuthority = ctAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(), decryptedToken = None)
 
       val result = Future.successful(controller.accountDetailsPage(nonSaUser, request))
 

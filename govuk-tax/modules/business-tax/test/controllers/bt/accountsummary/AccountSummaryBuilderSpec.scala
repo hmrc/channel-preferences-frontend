@@ -2,14 +2,15 @@ package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import duration._
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import scala.Some
 
 class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -24,15 +25,12 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     val buildPortalUrl = mock[String => String]
     val saUtr = SaUtr("223333333")
 
-    val mockUserAuthority = mock[UserAuthority]
-    when(mockUserAuthority.saUtr).thenReturn(Some(saUtr))
-
     val saRoot = SaRoot(saUtr, Map("accountSummary" -> "/some/sa/root"))
 
     lazy val regimeRoot: Option[SaRoot] = Some(saRoot)
     lazy val regimeRoots = RegimeRoots(sa = regimeRoot)
 
-    lazy val user = User(userId = "john", userAuthority = mockUserAuthority, regimes = regimeRoots, decryptedToken = None)
+    lazy val user = User(userId = "john", userAuthority = saAuthority("john", "223333333"), regimes = regimeRoots, decryptedToken = None)
 
     val mockBuilder = mock[MockableBuilder]
 

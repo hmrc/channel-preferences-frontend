@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.vat.domain
 
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.auth.domain.{Accounts, Regimes}
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoot, TaxRegime}
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.Vrn
@@ -10,7 +10,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 
 object VatRegime extends TaxRegime {
-  def isAuthorised(regimes: Regimes) = regimes.vat.isDefined
+  def isAuthorised(accounts: Accounts) = accounts.vat.isDefined
 
   def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
 

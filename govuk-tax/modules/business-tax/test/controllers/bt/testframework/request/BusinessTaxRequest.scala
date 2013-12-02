@@ -6,15 +6,7 @@ import controllers.bt.testframework.fixtures.BusinessUserFixture
 import controllers.common.CookieEncryption
 import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeRequest
-import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
-import uk.gov.hmrc.common.microservice.vat.domain.VatJsonRoot
-import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeJsonRoot
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -23,16 +15,15 @@ import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
+import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
+import scala.Some
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeJsonRoot
+import uk.gov.hmrc.common.microservice.vat.domain.VatJsonRoot
 
 trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with MockitoSugar {
-
-  private def saUtrOpt = saRoot.map(_.utr)
-
-  private def empRefOpt = epayeRoot.map(_.empRef)
-
-  private def ctUtrOpt = ctRoot.map(_.utr)
-
-  private def vrnOpt = vatRoot.map(_.vrn)
 
   private def saRootLink = saRoot.map(root => URI.create("/sa/" + root.utr.toString))
 
@@ -59,21 +50,7 @@ trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with 
 
   implicit val hc = HeaderCarrier()
 
-
-  private def userAuthority = UserAuthority(
-    id = userId,
-    regimes = Regimes(
-      sa = saRootLink,
-      vat = vatRootLink,
-      epaye = epayeRootLink,
-      ct = ctRootLink),
-    previouslyLoggedInAt = lastLoginTimestamp,
-    saUtr = saUtrOpt,
-    vrn = vrnOpt,
-    ctUtr = ctUtrOpt,
-    empRef = empRefOpt)
-
-  when(mockAuthConnector.authority(userId)).thenReturn(Future.successful(Some(userAuthority)))
+  when(mockAuthConnector.authority(userId)).thenReturn(Future.successful(Some(authority)))
 
   saRootLink.map(link => when(mockSaConnector.root(link.toString)).thenReturn(Future.successful(saJsonRoot.get)))
   vatRootLink.map(link => when(mockVatConnector.root(link.toString)).thenReturn(Future.successful(vatJsonRoot.get)))
@@ -81,8 +58,8 @@ trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with 
   ctRootLink.map(link => when(mockCtConnector.root(link.toString)).thenReturn(Future.successful(ctJsonRoot.get)))
 
   implicit lazy val user = User(
-    userId = userAuthority.id,
-    userAuthority = userAuthority,
+    userId = authority.id,
+    userAuthority = authority,
     regimes = RegimeRoots(
       paye = None,
       sa = saRoot,

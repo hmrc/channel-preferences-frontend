@@ -9,7 +9,7 @@ import play.api.test.FakeApplication
 import play.api.mvc.{Session, SimpleResult, Cookies}
 import controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.{Authority, Regimes}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
@@ -138,7 +138,7 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryptio
 
     User(
       userId = "/auth/oid/someUser",
-      userAuthority = mock[UserAuthority],
+      userAuthority = mock[Authority],
       regimes = RegimeRoots(
         paye = regimes.paye.map(_ => mock[PayeRoot]),
         sa = regimes.sa.map(_ => mock[SaRoot]),

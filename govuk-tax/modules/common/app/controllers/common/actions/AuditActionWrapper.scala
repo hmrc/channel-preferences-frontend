@@ -66,12 +66,12 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
 
     userLoggedIn foreach { user =>
       tags.put("authId", user.userAuthority.id)
-      user.userAuthority.nino.foreach(nino => tags.put("nino", nino.toString))
-      user.userAuthority.ctUtr.foreach(utr => tags.put("ctUtr", utr.toString))
-      user.userAuthority.saUtr.foreach(utr => tags.put("saUtr", utr.toString))
-      user.userAuthority.vrn.foreach(vrn => tags.put("vatNo", vrn.toString))
-      user.userAuthority.governmentGatewayCredential.foreach(ggwid => tags.put("governmentGatewayId", ggwid.credentialId))
-      user.userAuthority.idaCredential.foreach(ida => tags.put("idaPid", ida.pids.mkString("[", ",", "]")))
+      user.userAuthority.accounts.paye.foreach(paye => tags.put("nino", paye.nino.nino.toString))
+      user.userAuthority.accounts.ct.foreach(ct => tags.put("ctUtr", ct.utr.utr.toString))
+      user.userAuthority.accounts.sa.foreach(sa => tags.put("saUtr", sa.utr.utr.toString))
+      user.userAuthority.accounts.vat.foreach(vat => tags.put("vatNo", vat.vrn.vrn.toString))
+      user.userAuthority.credentials.gatewayId.foreach(ggwid => tags.put("governmentGatewayId", ggwid))
+      if(!user.userAuthority.credentials.idaPids.isEmpty) tags.put("idaPid", user.userAuthority.credentials.idaPids.map(idaPid => idaPid.pid.pid).mkString("[", ",", "]"))
     }
 
     val details = new collection.mutable.HashMap[String, String]
@@ -95,7 +95,7 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
           val (key, values) = entry
           s"$key: " + (values match {
             case Seq() | Seq(null) | Seq("") => "<no values>"
-            case values => s"{${values.mkString(", ")}}"
+            case theValues => s"{${theValues.mkString(", ")}}"
           })
         }).toSeq.sorted.mkString("[", ", ", "]"))
       case _ => Map[String,String]().empty

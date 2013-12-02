@@ -1,11 +1,11 @@
 package uk.gov.hmrc.common.microservice.agent
 
 import uk.gov.hmrc.common.microservice.domain.TaxRegime
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.auth.domain.{Accounts, Regimes}
 import controllers.common.{Ida, routes}
 
 object AgentRegime extends TaxRegime {
-  def isAuthorised(regimes: Regimes) = regimes.agent.isDefined
+  def isAuthorised(accounts: Accounts) = accounts.agent.isDefined
 
   def unauthorisedLandingPage = routes.LoginController.login().url
 

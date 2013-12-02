@@ -11,9 +11,9 @@ trait PortalUrlBuilder {
 
   def buildPortalUrl(destinationPathKey: String)(implicit request: Request[AnyRef], user: User): String = {
     val currentTaxYear = TaxYearResolver.currentTaxYear
-    val saUtr = user.userAuthority.saUtr
-    val vrn = user.userAuthority.vrn
-    val ctUtr = user.userAuthority.ctUtr
+    val saUtr = user.userAuthority.accounts.sa.map(_.utr)
+    val vrn = user.userAuthority.accounts.vat.map(_.vrn)
+    val ctUtr = user.userAuthority.accounts.ct.map(_.utr)
     val destinationUrl = PortalConfig.getDestinationUrl(destinationPathKey)
     val tagsToBeReplacedWithData = Seq(
       ("<year>", Some(currentTaxYear)),

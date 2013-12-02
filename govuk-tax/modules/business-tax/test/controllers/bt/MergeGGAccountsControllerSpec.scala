@@ -6,8 +6,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.Helpers._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import controllers.domain.AuthorityUtils._
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -23,7 +22,7 @@ class MergeGGAccountsControllerSpec extends BaseSpec {
       val controllerUnderTest = new MergeGGAccountsController with MockedPortalUrlBuilder
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = saAuthority("userId", "sa-utr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
