@@ -2,7 +2,7 @@ package uk.gov.hmrc.common.microservice.domain
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.auth.domain.{Authority, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import org.mockito.Mockito._
 

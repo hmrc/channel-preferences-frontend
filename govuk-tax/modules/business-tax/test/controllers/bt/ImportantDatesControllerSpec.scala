@@ -48,7 +48,7 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       val ctRegime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar" -> ctCalendarUrl)))
       val vatRegime = Some(VatRoot(Vrn("someVrn"), Map("calendar" -> vatCalendarUrl)))
       val user = User(userId = "userId",
-        userAuthority = Authority("userId", Credentials(), Accounts(ct = Some(CtAccount("/ct/someCtUtr", CtUtr("someCtUtr"))), vat = Some(VatAccount("/vat/someVrn", Vrn("someVrn")))),
+        userAuthority = Authority("/auth/oid/userId", Credentials(), Accounts(ct = Some(CtAccount("/ct/someCtUtr", CtUtr("someCtUtr"))), vat = Some(VatAccount("/vat/someVrn", Vrn("someVrn")))),
           None, None, CreationAndLastModifiedDetail()),
         nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime, vat = vatRegime), decryptedToken = None)
 

@@ -4,7 +4,7 @@ import scala.concurrent._
 import controllers.common.RegimeRootBase
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.common.microservice.auth.domain.{Authority, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 
 trait SaRegimeRoots extends RegimeRootBase {

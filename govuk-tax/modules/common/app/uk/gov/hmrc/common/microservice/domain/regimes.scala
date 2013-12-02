@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.domain
 
-import uk.gov.hmrc.common.microservice.auth.domain.{Authority, Accounts, Regimes, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.{Authority, Accounts}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import controllers.common.AuthenticationProvider

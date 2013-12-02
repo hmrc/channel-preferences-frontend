@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.auth
 
 import uk.gov.hmrc.microservice.{ Connector, MicroServiceConfig }
-import uk.gov.hmrc.common.microservice.auth.domain.{Authority, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import play.api.libs.json.JsNull
 import controllers.common.actions.HeaderCarrier
 
@@ -9,5 +9,5 @@ class AuthConnector(override val serviceUrl: String = MicroServiceConfig.authSer
 
   def authority(path: String)(implicit hc: HeaderCarrier) = httpGetF[Authority](path)
 
-  def authorityByPidAndUpdateLoginTime(pid: String)(implicit hc: HeaderCarrier) = httpPost[UserAuthority](s"/auth/pid/${pid}", JsNull)
+  def authorityByPidAndUpdateLoginTime(pid: String)(implicit hc: HeaderCarrier) = httpPost[Authority](s"/auth/pid/$pid", JsNull)
 }

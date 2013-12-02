@@ -11,7 +11,7 @@ import play.api.mvc.SimpleResult
 import views.html.login
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import uk.gov.hmrc.common.microservice.auth.domain.{Authority, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 
 trait UserActionWrapper

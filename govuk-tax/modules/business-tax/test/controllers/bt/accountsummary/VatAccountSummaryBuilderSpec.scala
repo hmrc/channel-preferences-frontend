@@ -2,37 +2,27 @@ package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.vat.VatConnector
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.mockito.Mockito._
-import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import uk.gov.hmrc.domain.Vrn
+import views.helpers.{RenderableMessage, LinkMessage}
 import VatMessageKeys._
 import VatPortalUrls._
 import CommonBusinessMessageKeys._
-import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatRoot}
-import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import scala.concurrent.Future
 import controllers.domain.AuthorityUtils._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.vat.domain.VatAccountSummary
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
-import controllers.bt.accountsummary.VatAccountSummaryBuilder
 import uk.gov.hmrc.common.microservice.vat.domain.VatAccountBalance
 import views.helpers.MoneyPounds
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import controllers.bt.accountsummary.AccountSummary
-import controllers.bt.accountsummary.Msg
 
 class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   val buildPortalUrl: (String) => String = (value: String) => value
   val vrn = Vrn("12345")
-  val userAuthorityWithVrn = UserAuthority("123", Regimes(), vrn = Some(vrn))
   val aDate = "2012-06-06"
   val regimeRootsWithVat = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}"))))
   val userEnrolledForVat = User("jim", vatAuthority("jim", "12345"), regimeRootsWithVat, None, None)

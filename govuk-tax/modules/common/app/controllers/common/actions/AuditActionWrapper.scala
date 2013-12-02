@@ -65,13 +65,13 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
     val tags = new collection.mutable.HashMap[String, String]
 
     userLoggedIn foreach { user =>
-      tags.put("authId", user.userAuthority.id)
+      tags.put("authId", user.userAuthority.uri)
       user.userAuthority.accounts.paye.foreach(paye => tags.put("nino", paye.nino.nino.toString))
       user.userAuthority.accounts.ct.foreach(ct => tags.put("ctUtr", ct.utr.utr.toString))
       user.userAuthority.accounts.sa.foreach(sa => tags.put("saUtr", sa.utr.utr.toString))
       user.userAuthority.accounts.vat.foreach(vat => tags.put("vatNo", vat.vrn.vrn.toString))
       user.userAuthority.credentials.gatewayId.foreach(ggwid => tags.put("governmentGatewayId", ggwid))
-      if(!user.userAuthority.credentials.idaPids.isEmpty) tags.put("idaPid", user.userAuthority.credentials.idaPids.map(idaPid => idaPid.pid.pid).mkString("[", ",", "]"))
+      if(!user.userAuthority.credentials.idaPids.isEmpty) tags.put("idaPid", user.userAuthority.credentials.idaPids.map(idaPid => idaPid.pid).mkString("[", ",", "]"))
     }
 
     val details = new collection.mutable.HashMap[String, String]

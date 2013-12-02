@@ -5,23 +5,32 @@ import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import org.mockito.Mockito._
 import play.api.test.{ WithApplication, FakeRequest }
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.governmentgateway.{GatewayToken, GovernmentGatewayConnector, GovernmentGatewayResponse, Credentials}
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnector
 import play.api.http._
 import controllers.common._
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import play.api.templates.Html
+import uk.gov.hmrc.utils.DateTimeUtils
+import org.mockito.{ArgumentCaptor, Matchers}
+import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import controllers.domain.AuthorityUtils._
 import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
-import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayResponse
+import uk.gov.hmrc.microservice.UnauthorizedException
 import play.api.libs.ws.Response
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import scala.Some
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.governmentgateway.Credentials
+import uk.gov.hmrc.microservice.ForbiddenException
 import play.api.test.FakeApplication
 import play.api.templates.Html
 import uk.gov.hmrc.utils.DateTimeUtils
 import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
+import uk.gov.hmrc.common.microservice.governmentgateway.GatewayToken
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -96,7 +105,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       def setupValidRequest() = {
         when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-        when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Some(UserAuthority(id, Regimes(), None)))
+        when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Some(emptyAuthority(oid)))
         FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse))
       }
     }

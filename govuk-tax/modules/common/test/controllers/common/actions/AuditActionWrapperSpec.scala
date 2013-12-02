@@ -18,22 +18,10 @@ import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.utils.DateTimeUtils._
 import uk.gov.hmrc.common.microservice.auth.domain._
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import scala.Some
-import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.domain.CtUtr
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import play.api.test.FakeApplication
-import play.api.mvc.Cookie
 import uk.gov.hmrc.common.microservice.auth.domain.Pid
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import uk.gov.hmrc.common.microservice.auth.domain.GovernmentGatewayCredentialResponse
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.IdaCredentialResponse
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
@@ -230,7 +218,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
               tags should contain("path" -> "/foo")
               tags(xRequestId) contains "govuk-tax-"
               tags should contain(xSessionId -> sessionId)
-              tags should contain("authId" -> "exAuthId")
+              tags should contain("authId" -> "/auth/oid/exAuthId")
               tags should contain("saUtr" -> "exampleUtr")
               tags should contain("nino" -> "AB123456C")
               tags should contain("vatNo" -> "123")
@@ -254,7 +242,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
               tags should contain("statusCode" -> "200")
               tags(xRequestId) contains "govuk-tax-"
               tags should contain(xSessionId -> sessionId)
-              tags should contain("authId" -> "exAuthId")
+              tags should contain("authId" -> "/auth/oid/exAuthId")
               tags should contain("saUtr" -> "exampleUtr")
               tags should contain("nino" -> "AB123456C")
               tags should contain("vatNo" -> "123")
@@ -292,7 +280,7 @@ class TestCase(traceRequests: Boolean)
   val exampleSessionId = ObjectId.get().toString
 
 
-  val userAuth = Authority("exAuthId", Credentials(Some("ggCred"), Set(IdaPid(Pid("idCred"), DateTimeUtils.now, DateTimeUtils.now))), Accounts(
+  val userAuth = Authority("/auth/oid/exAuthId", Credentials(Some("ggCred"), Set(IdaPid("idCred", DateTimeUtils.now, DateTimeUtils.now))), Accounts(
     Some(PayeAccount("/paye/AB123456C", Nino("AB123456C"))),
     Some(SaAccount("/sa/individual/exampleUtr", SaUtr("exampleUtr"))),
     Some(CtAccount("/ct/asdfa", CtUtr("asdfa"))),

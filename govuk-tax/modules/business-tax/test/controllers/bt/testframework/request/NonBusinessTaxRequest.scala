@@ -20,10 +20,10 @@ import scala.Some
 
 trait NonBusinessTaxRequest extends CookieEncryption with NonBusinessUserFixture with MockitoSugar {
 
-  private val userAuthority = Authority(userId, Credentials(), Accounts(), lastLoginTimestamp, lastLoginTimestamp, CreationAndLastModifiedDetail())
+  private val userAuthority = Authority(s"/auth/oid/$userId", Credentials(), Accounts(), lastLoginTimestamp, lastLoginTimestamp, CreationAndLastModifiedDetail())
 
   implicit val user = User(
-    userId = userAuthority.id,
+    userId = userAuthority.uri,
     userAuthority = userAuthority,
     regimes = RegimeRoots())
 

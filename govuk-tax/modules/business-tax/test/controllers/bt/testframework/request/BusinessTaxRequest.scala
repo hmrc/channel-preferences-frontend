@@ -58,7 +58,7 @@ trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with 
   ctRootLink.map(link => when(mockCtConnector.root(link.toString)).thenReturn(Future.successful(ctJsonRoot.get)))
 
   implicit lazy val user = User(
-    userId = authority.id,
+    userId = authority.uri,
     userAuthority = authority,
     regimes = RegimeRoots(
       paye = None,

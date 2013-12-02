@@ -8,7 +8,7 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.domain.Vrn
 
-case class UserAuthority(id: String,
+case class UserAuthorityA(id: String,
   regimes: Regimes,
   previouslyLoggedInAt: Option[DateTime] = None,
   saUtr: Option[SaUtr] = None,
@@ -31,7 +31,7 @@ case class Regimes(
 case class GovernmentGatewayCredentialResponse(credentialId: String)
 
 case class IdaCredentialResponse(pids: List[Pid])
-//
-//case class Pid(pid: String) {
-//  override lazy val toString = pid
-//}
+
+case class Pid(pid: String) {
+  override lazy val toString = pid
+}

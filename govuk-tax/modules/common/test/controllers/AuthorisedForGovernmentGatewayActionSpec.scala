@@ -5,7 +5,6 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
-import java.net.URI
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.BaseSpec
@@ -21,7 +20,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors._
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
-import uk.gov.hmrc.common.microservice.auth.domain.{Authority, UserAuthority, Regimes}
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
