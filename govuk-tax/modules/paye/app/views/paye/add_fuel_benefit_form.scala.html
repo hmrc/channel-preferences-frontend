@@ -29,7 +29,7 @@
                     ),
                     FormField(
                         fuelBenefitForm(dateFuelWithdrawn),
-                        Seq(DateControl((2013 to 2014), Some("input--contextual")))
+                        Seq(DateControl((2013 to 2014), Some("js-input--contextual")))
                     ),
                     FormField(
                         fuelBenefitForm(employerPayFuel),
@@ -39,7 +39,7 @@
                     )
                 ),
                 '_label -> Messages("paye.add_car_benefit.employer_pay_fuel.label", employerNameString),
-                '_groupDivClass -> "form-field includes-contextual",
+                '_groupDivClass -> "form-field js-includes-contextual",
                 '_valueAfter -> true
             )
         </li>

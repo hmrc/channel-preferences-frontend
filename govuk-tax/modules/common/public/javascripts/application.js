@@ -1,4 +1,4 @@
-
+"use strict";
 var GOVUK = GOVUK || {};
 
 GOVUK.toggleDefaultOptions = function ( $form, $options, bool ) {
@@ -21,10 +21,10 @@ GOVUK.toggleContextualFields = function(){
     var $DOM = $( "#content" ),
     setup = function(){
         //select 'yes' option when user selects a contextual input
-        $DOM.on('click', '.includes-contextual .input--contextual input', function(e){
+        $DOM.on('click', '.js-includes-contextual .js-input--contextual input', function(e){
             preselect($(e.currentTarget));
         });
-        $DOM.on('change', '.includes-contextual .input--contextual select', function(e){
+        $DOM.on('change', '.js-includes-contextual .js-input--contextual select', function(e){
             preselect($(e.currentTarget));
         });
         $DOM.on( 'click', '*[data-contextual-helper]',function( e ){
@@ -32,16 +32,16 @@ GOVUK.toggleContextualFields = function(){
         });
     },
     preselect =function ($el) {
-        $el.parents('.includes-contextual').find('*[data-contextual-helper="enable"]').trigger('click');
+        $el.parents('.js-includes-contextual').find('*[data-contextual-helper="enable"]').trigger('click');
     },
     toggle = function( $el ) {
         if( $el.data('contextual-helper') === "disable" ){
             //clear value inputs
-            $el.parents('.includes-contextual').find( '.input--contextual' ).find(':input').each(function (i, el){
+            $el.parents('.js-includes-contextual').find( '.js-input--contextual' ).find(':input').each(function (i, el){
                el.value = '';
             });
         } else {
-            var $inputs = $el.parents('.includes-contextual').find('.input--contextual').find(':input');
+            var $inputs = $el.parents('.js-includes-contextual').find('.js-input--contextual').find(':input');
             //set focus on first input if its a text box
             $.each($inputs, function(index, element) {
                 if(index == 0 && element.type === "text") {
@@ -112,7 +112,7 @@ $(document).on('click', 'a', function(e) {
       a = document.createElement('a');
 
   a.href = ssoUrl;
-  ssoHost = a.host;
+  var ssoHost = a.host;
 
   if(linkHost) {
     var successful = true;
