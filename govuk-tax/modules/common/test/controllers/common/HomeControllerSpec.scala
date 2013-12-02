@@ -5,18 +5,21 @@ import java.util.UUID
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.WithApplication
 import play.api.test.Helpers._
-import play.api.test.FakeApplication
-import play.api.mvc.{Session, SimpleResult, Cookies}
+import play.api.mvc.{Session, Cookies}
 import controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{Authority, Regimes}
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
+import scala.Some
+import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.agent.AgentRoot
-import java.net.URI
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
 
 class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -35,117 +38,94 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryptio
   "Calling redirectToHomepage" should {
 
     "end the session and redirect to the login page if the user has no regimes and is not a Government Gateway user" in new WithSetup {
-      val user = makeUser(Regimes())
+      val user = makeUser(emptyAuthority("userId"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirectedToLoginWithNewSession(result)
     }
 
     "redirect to the PAYE homepage if the user is in PAYE (only) and has no redirect in the session" in new WithSetup {
-      val user = makeUser(Regimes(paye = Some(URI.create("/paye/nino/AB123456C"))))
+      val user = makeUser(payeAuthority("userId","AB123456C"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.payeHome)
     }
 
     "redirect to the page in the session if the user is in PAYE (only) and has a redirect in the session" in new WithSetup {
-      val user = makeUser(Regimes(paye = Some(URI.create("/paye/nino/AB123456C"))))
+      val user = makeUser(payeAuthority("userId","AB123456C"))
       val result = controller.redirectToHomepage(user, sessionFor(user, Some("/some/page")))
       assertRedirected(result, "/some/page")
     }
 
     "redirect to the PAYE homepage if the user is in PAYE and Agent and has no redirect in the session" in new WithSetup {
-      val user = makeUser(Regimes(paye = Some(URI.create("/paye/nino/AB123456C")), agent = Some(URI.create("/agent/1234"))))
+      val user = makeUser(payeAndAgentAuthority("userId","AB123456C", "1234"))
       val result = controller.redirectToHomepage(user, sessionFor(user, Some("/some/page")))
       assertRedirected(result, "/some/page")
     }
 
     "redirect to the page in the session if the user is in PAYE and Agent and has a redirect in the session" in new WithSetup {
-      val user = makeUser(Regimes(paye = Some(URI.create("/paye/nino/AB123456C")), agent = Some(URI.create("/agent/1234"))))
+      val user = makeUser(payeAndAgentAuthority("userId","AB123456C", "1234"))
       val result = controller.redirectToHomepage(user, sessionFor(user, Some("/some/page")))
       assertRedirected(result, "/some/page")
     }
 
     "redirect to the business tax homepage if the user is in SA (only)" in new WithSetup {
-      val user = makeUser(Regimes(sa = Some(URI.create("/sa/individual/1234543210"))))
+
+      val user = makeUser(saAuthority("userId", "1234543210"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.businessTaxHome)
     }
 
     "redirect to the business tax homepage if the user is in VAT (only)" in new WithSetup {
-      val user = makeUser(Regimes(vat = Some(URI.create("/vat/234543210"))))
+      val user = makeUser(vatAuthority("userId", "234543210"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.businessTaxHome)
     }
 
     "redirect to the business tax homepage if the user is in CT (only)" in new WithSetup {
-      val user = makeUser(Regimes(ct = Some(URI.create("/ct/1234543210"))))
+      val user = makeUser( ctAuthority("userId", "1234543210"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.businessTaxHome)
     }
 
     "redirect to the business tax homepage if the user is in EPAYE (only)" in new WithSetup {
-      val user = makeUser(Regimes(epaye = Some(URI.create("/epaye/abc/123"))))
+      val user = makeUser(epayeAuthority("userId", "some/epaye"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.businessTaxHome)
     }
 
     "redirect to the agent homepage if the user is an Agent (only)" in new WithSetup {
-      val user = makeUser(Regimes(agent = Some(URI.create("/agent/12365"))))
+      val user = makeUser(agentAuthority("userId", "12365"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.agentHome)
     }
 
     "redirect to the business tax homepage if the user has a combination of business tax enrolments" in new WithSetup {
 
-      val user = makeUser(Regimes(
-        epaye = Some(URI.create("/epaye/abc/123")),
-        ct = Some(URI.create("/ct/1234543210")),
-        vat = Some(URI.create("/vat/234543210")),
-        sa = Some(URI.create("/sa/individual/1234543210"))))
-
+      val user = makeUser(allBizTaxAuthority("userId", "1234543210", "1234543210", "234543210", "abc/123"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.businessTaxHome)
     }
 
     "redirect to the business tax homepage if the user has no enrolments, but is a Government Gateway user" in new WithSetup {
-      val user = makeUser(Regimes(), Some("Geoff Fisher"))
+      val user = makeUser(emptyAuthority("userId"), Some("Geoff Fisher"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.businessTaxHome)
     }
-
-    "redirect to the business tax homepage if the user has a combination of Agent and business tax enrolments" in new WithSetup {
-      val user1 = makeUser(Regimes(
-        epaye = Some(URI.create("/epaye/abc/123")),
-        ct = Some(URI.create("/ct/1234543210")),
-        vat = Some(URI.create("/vat/234543210")),
-        sa = Some(URI.create("/sa/individual/1234543210")),
-        agent = Some(URI.create("/agent/12365"))))
-
-      val result1 = controller.redirectToHomepage(user1, sessionFor(user1))
-      assertRedirected(result1, FrontEndRedirect.businessTaxHome)
-
-      val user2 = makeUser(Regimes(
-        vat = Some(URI.create("/vat/333222111")),
-        agent = Some(URI.create("/agent/34543"))))
-
-      val result2 = controller.redirectToHomepage(user2, sessionFor(user2))
-      assertRedirected(result2, FrontEndRedirect.businessTaxHome)
-    }
   }
 
-  private def makeUser(regimes: Regimes, nameFromGovernmentGateway: Option[String] = None) = {
+  private def makeUser(authority: Authority, nameFromGovernmentGateway: Option[String] = None) = {
 
     val governmentGatewayToken = nameFromGovernmentGateway.map(_ => "<token>Geoff Fisher</token>")
 
     User(
-      userId = "/auth/oid/someUser",
-      userAuthority = mock[Authority],
+      userId = "/auth/oid/userId",
+      userAuthority = authority,
       regimes = RegimeRoots(
-        paye = regimes.paye.map(_ => mock[PayeRoot]),
-        sa = regimes.sa.map(_ => mock[SaRoot]),
-        ct = regimes.ct.map(_ => mock[CtRoot]),
-        vat = regimes.vat.map(_ => mock[VatRoot]),
-        epaye = regimes.epaye.map(_ => mock[EpayeRoot]),
-        agent = regimes.agent.map(_ => mock[AgentRoot])
+        paye = authority.accounts.paye.map(_ => mock[PayeRoot]),
+        sa = authority.accounts.sa.map(_ => mock[SaRoot]),
+        ct = authority.accounts.ct.map(_ => mock[CtRoot]),
+        vat = authority.accounts.vat.map(_ => mock[VatRoot]),
+        epaye = authority.accounts.epaye.map(_ => mock[EpayeRoot]),
+        agent = authority.accounts.agent.map(_ => mock[AgentRoot])
       ),
       nameFromGovernmentGateway = nameFromGovernmentGateway,
       decryptedToken = governmentGatewayToken

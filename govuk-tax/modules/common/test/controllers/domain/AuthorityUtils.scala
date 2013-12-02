@@ -23,6 +23,9 @@ object AuthorityUtils {
   def agentAuthority(id: String, uar: String): Authority =
     Authority(s"/auth/oid/$id", Credentials(), Accounts(agent = Some(AgentAccount(s"/agent/$uar", Uar(uar)))), None, None, CreationAndLastModifiedDetail())
 
+  def payeAndAgentAuthority(id: String, nino: String, uar: String): Authority =
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(paye = Some(PayeAccount(s"/paye/$nino", Nino(nino))), agent = Some(AgentAccount(s"/agent/$uar", Uar(uar)))), None, None, CreationAndLastModifiedDetail())
+
   def saAuthority(id: String, utr: String): Authority =
     Authority(s"/auth/oid/$id", Credentials(), Accounts(sa = Some(SaAccount(s"/sa/individual/$utr", SaUtr(utr)))), None, None, CreationAndLastModifiedDetail())
 

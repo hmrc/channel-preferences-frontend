@@ -18,7 +18,6 @@ import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.utils.DateTimeUtils._
 import uk.gov.hmrc.common.microservice.auth.domain._
-import uk.gov.hmrc.common.microservice.auth.domain.Pid
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import scala.Some
 import uk.gov.hmrc.domain.Vrn

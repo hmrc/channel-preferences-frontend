@@ -4,10 +4,8 @@ import uk.gov.hmrc.common.BaseSpec
 import java.net.URI
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.{DateTime, LocalDate}
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit

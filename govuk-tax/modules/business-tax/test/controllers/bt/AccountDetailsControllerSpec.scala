@@ -8,7 +8,6 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import scala.concurrent.Future
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
