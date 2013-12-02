@@ -41,9 +41,9 @@ class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnec
 
     implicit val hc = HeaderCarrier(request)
     val eventsLF = regimes.map {
-      case ctRoot: CtRoot if ctRoot.links.get("calendar").isDefined => ctConnector.calendar(ctRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent]))
-      case vatRoot: VatRoot if vatRoot.links.get("calendar").isDefined => vatConnector.calendar(vatRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent]))
-      case _ => Future(List.empty[CalendarEvent])
+      case ctRoot: CtRoot if ctRoot.links.get("calendar").isDefined => getCalendarEvents(ctConnector.calendar(ctRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent])))
+      case vatRoot: VatRoot if vatRoot.links.get("calendar").isDefined => getCalendarEvents(vatConnector.calendar(vatRoot.links("calendar")).map(_.getOrElse(List.empty[CalendarEvent])))
+      case _ => Future(List.empty[CalendarEventWithShowLink])
     }
 
     val eventsF = Future.sequence(eventsLF).map(_.flatten)
@@ -51,31 +51,63 @@ class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnec
 
     datesF.map(dates => Ok(views.html.important_dates(dates.sortBy(_.date.toDate))(user)))
   }
+  
+  private def getCalendarEvents(calendarEvents: Future[List[CalendarEvent]]):Future[List[CalendarEventWithShowLink]] = {
+    calendarEvents.map{CalendarEventWithShowLink.addShowLinkToCalendarEvents(_)}
+  }
+
 }
 
-case class ImportantDate(service: String, eventType: String, date: LocalDate, text: String, args: Seq[String] = Seq.empty, grayedoutText: Option[String] = None, link: Option[Link] = None)
+case class CalendarEventWithShowLink(info: CalendarEvent, showLink: Boolean)
+object CalendarEventWithShowLink {
 
+  private val eventTypes = List("filing", "payment", "payment-card", "payment-online")
+
+  def addShowLinkToCalendarEvents(events: List[CalendarEvent]): List[CalendarEventWithShowLink] = {
+    val result = addShowLinkToCalendarEventsHelper(events, List.empty)
+    result
+  }
+
+  private def addShowLinkToCalendarEventsHelper(events: List[CalendarEvent], paymentsSelected: List[String], newEvents: List[CalendarEventWithShowLink] = List.empty): List[CalendarEventWithShowLink] = {
+    events match {
+      case Nil =>
+        newEvents
+      case e::es if !e.accountingPeriod.returnFiled && !paymentsSelected.contains(e.eventType.toLowerCase) && eventTypes.contains(e.eventType.toLowerCase) =>
+        addShowLinkToCalendarEventsHelper(es, paymentsSelected :+ e.eventType.toLowerCase, newEvents :+ CalendarEventWithShowLink(e, true))
+      case e::es =>
+        addShowLinkToCalendarEventsHelper(es, paymentsSelected, newEvents :+ CalendarEventWithShowLink(e, false))
+    }
+  }
+
+}
+
+case class ImportantDate(service: String, eventType: String, date: LocalDate, text: String, args: Seq[String] = Seq.empty, grayedoutText: Option[String] = None, link: Option[Link] = None, linkId: Option[String] = None)
 object ImportantDate {
-  def create(event: CalendarEvent, buildPortalUrl: (String) => String)(implicit user: User): ImportantDate = {
+  def create(event: CalendarEventWithShowLink, buildPortalUrl: (String) => String)(implicit user: User): ImportantDate = {
 
-    val args = Seq(Dates.formatDate(event.accountingPeriod.startDate), Dates.formatDate(event.accountingPeriod.endDate))
-    val service: String = event.regime.toLowerCase
-    val eventType: String = event.eventType.toLowerCase
+    val args = Seq(Dates.formatDate(event.info.accountingPeriod.startDate), Dates.formatDate(event.info.accountingPeriod.endDate))
+    val service: String = event.info.regime.toLowerCase
+    val eventType: String = event.info.eventType.toLowerCase
 
     val textMessageKey = s"$service.message.importantDates.text.$eventType"
     val additionalTextMessageKey = s"$service.message.importantDates.additionalText.$eventType"
 
-    val (link, text, additionalText): (Option[Link], String, Option[String]) = (service, eventType, event.accountingPeriod.returnFiled) match {
-      case ("ct", "payment", _) => (Some(InternalLink(routes.PaymentController.makeCtPayment().url)), textMessageKey, None)
-      case ("vat", "payment-directdebit", _) => (None, additionalTextMessageKey, Some(textMessageKey))
-      case ("vat", "payment-cheque", _) => (None, textMessageKey, None)
-      case ("vat", "payment-card", _) | ("vat", "payment-online", _) => (Some(InternalLink(routes.PaymentController.makeVatPayment().url)), textMessageKey, None)
-      case (serviceKey, "filing", true) => (None, additionalTextMessageKey, Some(textMessageKey))
-      case (serviceKey, "filing", false) => (Some(PortalLink(buildPortalUrl(s"${service}FileAReturn"))), textMessageKey, None)
+    val (link, text, additionalText, linkId): (Option[Link], String, Option[String], Option[String]) = (service, eventType, event.info.accountingPeriod.returnFiled, event.showLink) match {
+      case ("ct", "payment", _, true) => (Some(InternalLink(routes.PaymentController.makeCtPayment().url)), textMessageKey, None, generateLinkId(service, eventType))
+      case ("ct", "payment", _, false) => (None, textMessageKey, None, None)
+      case ("vat", "payment-directdebit", _, _) => (None, additionalTextMessageKey, Some(textMessageKey), None)
+      case ("vat", "payment-cheque", _, _) => (None, textMessageKey, None, None)
+      case ("vat", "payment-card", _, true) | ("vat", "payment-online", _, true) => (Some(InternalLink(routes.PaymentController.makeVatPayment().url)), textMessageKey, None, generateLinkId(service, eventType))
+      case ("vat", "payment-card", _, false) | ("vat", "payment-online", _, false) => (None, textMessageKey, None, generateLinkId(service, eventType))
+      case (serviceKey, "filing", true, _) => (None, additionalTextMessageKey, Some(textMessageKey), None)
+      case (serviceKey, "filing", false, true) => (Some(PortalLink(buildPortalUrl(s"${service}FileAReturn"))), textMessageKey, None, generateLinkId(service, eventType))
+      case (serviceKey, "filing", false, false) => (None, textMessageKey, None, None)
       case _ => Logger.error(s"Could not render $event"); throw new MatchError(event.toString)
     }
 
-    ImportantDate(service, eventType, event.eventDate, text, args, additionalText, link)
+    ImportantDate(service, eventType, event.info.eventDate, text, args, additionalText, link, linkId)
 
   }
+
+  private def generateLinkId(regime: String, eventType: String) = Some(s"$regime-$eventType-href")
 }
