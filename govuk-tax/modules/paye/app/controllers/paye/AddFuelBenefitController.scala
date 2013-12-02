@@ -28,6 +28,7 @@ import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData, CarAndFuelB
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
+import scala.concurrent.Future
 
 
 object AddFuelBenefitController {
@@ -46,17 +47,17 @@ with PayeRegimeRoots {
   private val keystoreKey = "AddFuelBenefitForm"
 
   def startAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
+    AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
       user => request => startAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
   def reviewAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    AuthorisedFor(PayeRegime) {
+    AuthorisedFor(PayeRegime).async {
       user => request => reviewAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
   def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    AuthorisedFor(PayeRegime) {
+    AuthorisedFor(PayeRegime).async {
       user => request => confirmAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 
@@ -73,13 +74,13 @@ with PayeRegimeRoots {
     )(EmployerPayeFuelString.apply)(EmployerPayeFuelString.unapply)
   )
 
-  private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
+  private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedFuelRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       implicit def hc = HeaderCarrier(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
 
-          val (initialFuelValues,_) = initialFuelBenefitValues(user, taxYear, employmentSequenceNumber)
+          val (initialFuelValues, _) = initialFuelBenefitValues(user, taxYear, employmentSequenceNumber)
 
           val form = fuelBenefitForm(CarBenefitValues(employerPayFuel = initialFuelValues.employerPayFuel)).fill(initialFuelValues)
 
@@ -98,7 +99,7 @@ with PayeRegimeRoots {
       .getOrElse((FuelBenefitData(None, None), 0))
   }
 
-  private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
+  private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedFuelRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
@@ -134,15 +135,15 @@ with PayeRegimeRoots {
     }
   }
 
-  private[paye] def confirmAddFuelBenefitAction: ( User, Request[_], Int, Int) => SimpleResult = WithValidatedFuelRequest {
-    (request: Request[_], user : User, taxYear : Int, employmentSequenceNumber: Int, taxYearData : TaxYearData) => {
+  private[paye] def confirmAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedFuelRequest.async {
+    (request: Request[_], user: User, taxYear: Int, employmentSequenceNumber: Int, taxYearData: TaxYearData) => {
       implicit val hc = HeaderCarrier(request)
       val keystoreId = generateKeystoreActionId(taxYear, employmentSequenceNumber)
 
-      val (fuelBenefitData,fuelBenefitValue) = keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](keystoreId, KeystoreUtils.source, keystoreKey).
+      val (fuelBenefitData, fuelBenefitValue) = keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](keystoreId, KeystoreUtils.source, keystoreKey).
         getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddFuelBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
-      val carBenefit  = retrieveCarBenefit(taxYearData, employmentSequenceNumber)
+      val carBenefit = retrieveCarBenefit(taxYearData, employmentSequenceNumber)
 
       val carAndFuel = CarAndFuelBuilder(addFuelBenefit = fuelBenefitData, fuelBenefitValue, carBenefit, taxYear, employmentSequenceNumber)
 
@@ -152,15 +153,16 @@ with PayeRegimeRoots {
 
       keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 
-      val currentTaxYearCode = TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear)
-      val newTaxCode = addBenefitsResponse.get.newTaxCode
-      val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
-      val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-      Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData))
+      TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).map { currentTaxYearCode =>
+        val newTaxCode = addBenefitsResponse.get.newTaxCode
+        val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
+        val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+        Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData))
+      }
     }
   }
 
-  private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int) : Benefit = {
+  private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): Benefit = {
     taxYearData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR) match {
       case Some(carBenefit) => carBenefit
       case _ => throw new StaleHodDataException("No Car benefit found!") //TODO: Refine this error scenario

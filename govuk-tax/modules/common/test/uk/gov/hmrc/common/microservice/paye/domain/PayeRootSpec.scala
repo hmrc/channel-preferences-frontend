@@ -6,8 +6,10 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
-class PayeRootSpec extends BaseSpec with MockitoSugar {
+class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
   "The fetchTaxYearData service" should {
     "return the expected data " in {
 
@@ -20,12 +22,13 @@ class PayeRootSpec extends BaseSpec with MockitoSugar {
       implicit val payeConnector = mock[PayeConnector]
       implicit val txQueueConnector = mock[TxQueueConnector]
       val stubPayeRoot = new PayeRoot("NM439085B", 1, "Mr", "John", None, "Densmore", "johnnyBoy", "1960-12-01", Map.empty, Map.empty, Map.empty) {
-        override def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier): Seq[Benefit] = if (taxYear == 2013) Seq(benefit) else Seq.empty
+        override def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Seq[Benefit] = if (taxYear == 2013) Seq(benefit) else Seq.empty
 
-        override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier:HeaderCarrier): Seq[Employment] = if (taxYear == 2013) Seq(employment) else Seq.empty
+        override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
+          Future.successful(if (taxYear == 2013) Seq(employment) else Seq.empty)
 
       }
-      stubPayeRoot.fetchTaxYearData(2013) shouldBe TaxYearData(Seq(benefit), Seq(employment))
+      whenReady(stubPayeRoot.fetchTaxYearData(2013))(_ shouldBe TaxYearData(Seq(benefit), Seq(employment)))
     }
   }
 

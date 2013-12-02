@@ -41,11 +41,7 @@ case class User(userId: String,
   def getEPaye = regimes.epaye.get
 
   def displayName : Option[String] = {
-    regimes.paye match {
-      case Some(payeRoot) => Some(payeRoot.name)
-      case None => nameFromGovernmentGateway
-    }
-
+    regimes.paye.map(_.name).orElse(nameFromGovernmentGateway)
   }
 
 }

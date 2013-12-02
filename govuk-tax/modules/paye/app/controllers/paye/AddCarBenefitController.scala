@@ -29,6 +29,7 @@ import models.paye.BenefitUpdatedConfirmationData
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
+import scala.concurrent.Future
 
 class AddCarBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
@@ -43,17 +44,17 @@ with PayeRegimeRoots {
 
   def timeSource() = new LocalDate(DateTimeZone.UTC)
 
-  def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
+  def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     user =>
       request =>
         startAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
   }
 
-  def reviewAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
+  def reviewAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
     user => request => reviewAddCarBenefitAction(user, request, taxYear, employmentSequenceNumber)
   }
 
-  def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime) {
+  def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
     user => request => confirmAddingBenefitAction(user, request, taxYear, employmentSequenceNumber)
   }
 
@@ -87,7 +88,7 @@ with PayeRegimeRoots {
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
-  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedCarRequest {
+  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedCarRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       implicit def hc = HeaderCarrier(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
@@ -131,10 +132,11 @@ with PayeRegimeRoots {
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
       employerPayFuel = defaults.employerPayFuel)
 
-  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedCarRequest {
+  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedCarRequest.async {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
 
       implicit val hc = HeaderCarrier(request)
+
       val payeRoot = user.getPaye
       val carBenefitDataAndCalculation = savedValuesFromKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber)).getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
@@ -143,16 +145,17 @@ with PayeRegimeRoots {
       val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
       keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
 
-      val currentTaxYearCode = TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear)
-      val newTaxCode = addBenefitsResponse.get.newTaxCode
-      val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
-      val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+      TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).map { currentTaxYearCode =>
+        val newTaxCode = addBenefitsResponse.get.newTaxCode
+        val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
+        val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
 
-      Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
+        Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
+      }
     }
   }
 
-  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => SimpleResult = WithValidatedCarRequest {
+  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedCarRequest {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {

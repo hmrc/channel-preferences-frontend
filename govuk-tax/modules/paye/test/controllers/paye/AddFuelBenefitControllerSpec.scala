@@ -16,9 +16,6 @@ import FuelBenefitFormFields._
 import controllers.DateFieldsHelper
 import play.api.i18n.Messages
 import org.mockito.{ArgumentCaptor, Matchers}
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
-import ExecutionContext.Implicits.global
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.BaseSpec
@@ -31,8 +28,9 @@ import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationResponse
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
+import org.scalatest.concurrent.ScalaFutures
 
-class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
+class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper with ScalaFutures {
 
   private val employmentSeqNumberOne = 1
 
@@ -43,9 +41,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(None)
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
       doc.select("#heading").text should include("company fuel")
@@ -60,9 +58,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val fuelBenefitData = FuelBenefitData(Some("true"), None)
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData, 0)))
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
 
       doc.select("#employerPayFuel-true").attr("checked") shouldBe "checked"
@@ -79,9 +77,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val fuelBenefitData = FuelBenefitData(Some("date"), Some(dateWithdrawn))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData, 0)))
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), currentTaxYear, employmentSeqNumberOne))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), currentTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
 
       doc.select("#employerPayFuel-true").attr("checked") shouldBe empty
@@ -100,9 +98,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val fuelBenefitData = FuelBenefitData(Some("again"), None)
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData, 0)))
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
 
       doc.select("#employerPayFuel-true").attr("checked") shouldBe empty
@@ -116,9 +114,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       setupMocksForJohnDensmore()
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(None)
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#employerPayFuel-false") shouldBe empty
@@ -136,9 +134,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       setupMocksForJohnDensmore(employments = johnDensmoresNamelessEmployments)
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(None)
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "your employer"
     }
@@ -147,17 +145,17 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, 5))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, 5)
 
-      result should haveStatus(400)
+      status(result) shouldBe 400
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new TestCaseIn2012 {
 
       setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
-      result should haveStatus(303)
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
     }
 
@@ -165,18 +163,18 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear + 1, employmentSeqNumberOne))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear + 1, employmentSeqNumberOne)
 
-      result should haveStatus(400)
+      status(result) shouldBe 400
     }
 
     "return 400 if the employer is not the primary employer" in new TestCaseIn2012 {
 
       setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, 2))
+      val result = controller.startAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, 2)
 
-      result should haveStatus(400)
+      status(result) shouldBe 400
     }
   }
 
@@ -197,9 +195,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val employerPayFuelFormData = "date"
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some(employerPayFuelFormData), dateFuelWithdrawnVal = Some((testTaxYear.toString, "6", "3")))
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
 
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[(FuelBenefitData, Int)])
 
@@ -228,9 +226,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val employerPayFuelFormData = "date"
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some(employerPayFuelFormData), dateFuelWithdrawnVal = Some((testTaxYear.toString, "6", "3")))
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#second-heading").text should include("Check your private fuel details")
@@ -251,9 +249,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("true"))
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#second-heading").text should include("Check your private fuel details")
@@ -268,9 +266,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("true"))
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
 
-      result should haveStatus(200)
+      status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#fuelBenefitTaxableValue").text shouldBe "£1,234"
@@ -279,8 +277,8 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
     "return to the car benefit home page if the user already has a fuel benefit" in new TestCaseIn2012 {
       setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear, employmentSeqNumberOne))
-      result should haveStatus(303)
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
     }
 
@@ -288,16 +286,16 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       setupMocksForJohnDensmore(benefits = Seq(carBenefitEmployer1))
       setupCalculationMock(calculationResult = 1234)
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"), dateFuelWithdrawnVal = Some(("isdufgpsiuf", "6", "3"))), testTaxYear, employmentSeqNumberOne))
-      result should haveStatus(200)
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"), dateFuelWithdrawnVal = Some(("isdufgpsiuf", "6", "3"))), testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 200
     }
 
     "return 400 and display error when values form data fails validation" in new TestCaseIn2012 {
       setupMocksForJohnDensmore()
 
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(("jkhasgdkhsa", "05", "30")))
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
-      result should haveStatus(400)
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
       doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
@@ -308,18 +306,18 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
     "return 400 if the year submitted is not the current tax year" in new TestCaseIn2012 {
       setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear + 1, employmentSeqNumberOne))
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear + 1, employmentSeqNumberOne)
 
-      result should haveStatus(400)
+      status(result) shouldBe 400
       verifyNoSaveToKeyStore()
     }
 
     "return 400 if the submitting employment number is not the primary employment" in new TestCaseIn2012 {
       setupMocksForJohnDensmore()
 
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear, 2))
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(), testTaxYear, 2)
 
-      result should haveStatus(400)
+      status(result) shouldBe 400
       verifyNoSaveToKeyStore()
     }
 
@@ -328,15 +326,15 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       setupCalculationMock(calculationResult = 1234)
 
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"))
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
-      result should haveStatus(200)
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 200
     }
 
     "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new TestCaseIn2012 {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = None)
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
-      result should haveStatus(400)
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text should be(Messages("error.paye.answer_mandatory"))
     }
@@ -344,8 +342,8 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
     "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new TestCaseIn2012 {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("hacking!"))
-      val result = Future.successful(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
-      result should haveStatus(400)
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 400
 
       verifyNoSaveToKeyStore()
     }
@@ -355,10 +353,9 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("true"))
 
-      val result = Future(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
-
-      val ex = Await.result(result.failed, Duration(3, TimeUnit.SECONDS))
-      ex shouldBe a[StaleHodDataException]
+      evaluating {
+        await(controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne))
+      } should produce[StaleHodDataException]
 
       verifyNoSaveToKeyStore()
     }
@@ -376,27 +373,35 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
       when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), benefitsCapture.capture())(Matchers.any())).thenReturn(Some(addBenefitResponse))
 
-      val result = Future.successful(controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      val resultF = controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
 
-      val benefitsSentToPaye = benefitsCapture.getValue
-      benefitsSentToPaye should have length 1
-      val expectedFuelBenefit = Some(Benefit(29, 2012, grossFuelBenefit, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map()))
-      Some(benefitsSentToPaye.head) shouldBe expectedFuelBenefit
+      whenReady(resultF) { result =>
 
-      result should haveStatus(200)
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#old-tax-code").text shouldBe "oldTaxCode"
-      doc.select("#new-tax-code").text shouldBe "newTaxCode"
-      doc.select("#personal-allowance").text shouldBe "£5"
-      doc.select("#start-date").text shouldBe "6 Apr 2012"
-      doc.select("#end-date").text shouldBe "5 Apr 2013"
+        val benefitsSentToPaye = benefitsCapture.getValue
+        benefitsSentToPaye should have length 1
+        val expectedFuelBenefit = Some(Benefit(29, 2012, grossFuelBenefit, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map()))
+        Some(benefitsSentToPaye.head) shouldBe expectedFuelBenefit
+
+        status(result) shouldBe 200
+        val doc = Jsoup.parse(contentAsString(result))
+        doc.select("#old-tax-code").text shouldBe "oldTaxCode"
+        doc.select("#new-tax-code").text shouldBe "newTaxCode"
+        doc.select("#personal-allowance").text shouldBe "£5"
+        doc.select("#start-date").text shouldBe "6 Apr 2012"
+        doc.select("#end-date").text shouldBe "5 Apr 2013"
+      }
     }
 
     "show an error if the keystore data cannot be found" in new TestCaseIn2012 {
       setupMocksForJohnDensmore(benefits = Seq.empty, taxCodes = Seq(TaxCode(employmentSeqNumberOne, Some(1), testTaxYear, "oldTaxCode", List.empty)))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(None)
-      val thrown = the[IllegalStateException] thrownBy controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
-      thrown should have message "No value was returned from the keystore for AddFuelBenefit:jdensmore:2012:1"
+
+      val actualMessage = (evaluating {
+        await(controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      } should produce[IllegalStateException]).getMessage
+
+      actualMessage shouldBe "No value was returned from the keystore for AddFuelBenefit:jdensmore:2012:1"
+
     }
 
     "show an error if the user does not have a car benefit" in new TestCaseIn2012 {
@@ -406,8 +411,13 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
 
       val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
       when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), Matchers.any(classOf[Seq[Benefit]]))(Matchers.any())).thenReturn(Some(addBenefitResponse))
-      val thrown = the[StaleHodDataException] thrownBy controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
-      thrown should have message "No Car benefit found!"
+
+      val actualMessage = (evaluating {
+        await(controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      } should produce[StaleHodDataException]).getMessage
+
+      actualMessage shouldBe "No Car benefit found!"
+
     }
 
     "propagates any exceptions thrown by the paye microservice" in new TestCaseIn2012 {
@@ -419,8 +429,12 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper {
       val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
 
       when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), Matchers.any(classOf[Seq[Benefit]]))(Matchers.any())).thenThrow(new RuntimeException("Timeout!"))
-      val thrown = the[RuntimeException] thrownBy controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne)
-      thrown should have message "Timeout!"
+
+      val actualMessage = (evaluating {
+        await(controller.confirmAddFuelBenefitAction(johnDensmore, FakeRequest(), testTaxYear, employmentSeqNumberOne))
+      } should produce[RuntimeException]).getMessage
+
+      actualMessage shouldBe "Timeout!"
     }
   }
 
