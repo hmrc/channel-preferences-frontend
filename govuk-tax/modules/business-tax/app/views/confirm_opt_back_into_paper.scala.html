@@ -6,14 +6,23 @@
 
 <h2 id="emailAddress">@emailAddress</h2>
 
-<p>Are you sure you do not wish to receive reminders to this email address?</p>
+<p>
+    You are currently opted into receiving email notifications from HMRC at the address above, we send you notifications
+    when there is an action for you to complete.
+</p>
+<p>
+    Please confirm below that you would like to opt out this email notification and instead, receive paper notifications.
+</p>
 
-@helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
+@helper.form(action = controllers.bt.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
 <div class="form-field">
     <button id="confirm-opt-out" class="button" type="submit">Yes</button>
 </div>
+}
+@helper.form(action = controllers.bt.routes.AccountDetailsController.accountDetails) {
 <div class="form-field">
-    <button id="cancel-opt-out" class="button" type="submit">No</button>
+    <button id="cancel-opt-out" class="button" type="submit" >No</button>
 </div>
+
 }
 }

@@ -356,7 +356,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       header("Location", result).get should include(routes.AccountDetailsController.optedBackIntoPaperThankYou().url)
       val page = Jsoup.parse(contentAsString(result))
 
-      verify(mockPreferencesConnector).savePreferences(validUtr, false, Some("test@test.com"))
+      verify(mockPreferencesConnector).savePreferences(validUtr, false, None)
     }
 
     "return bad request if the user has not opted into digital" in new Setup {

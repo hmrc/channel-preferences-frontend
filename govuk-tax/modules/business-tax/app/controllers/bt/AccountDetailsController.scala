@@ -53,7 +53,7 @@ with EmailControllerHelper {
 
   private[bt] def confirmOptOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]) = {
     lookupCurrentEmail{email =>
-      preferencesConnector.savePreferences(user.getSa.utr, false, Some(email))
+      preferencesConnector.savePreferences(user.getSa.utr, false, None)
       Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou())
     }
   }
