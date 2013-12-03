@@ -32,7 +32,7 @@ trait RegimeRootBase {
 
   def ctRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[CtRoot]] = authority.accounts.ct.map(ct => ctConnector.root(ct.link).map(CtRoot(ct.utr, _)))
 
-  def agentRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[AgentRoot]] = authority.accounts.agent.map(uri => agentConnectorRoot.root(uri.toString))
+  def agentRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[AgentRoot]] = authority.accounts.agent.map(agent => agentConnectorRoot.root(agent.link))
 
   def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
 }
