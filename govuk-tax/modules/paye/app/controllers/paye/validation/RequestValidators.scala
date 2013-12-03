@@ -2,7 +2,7 @@ package controllers.paye.validation
 
 import play.api.mvc.{Request, SimpleResult}
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.paye.domain.{BenefitTypes, Employment, TaxYearData}
+import uk.gov.hmrc.common.microservice.paye.domain.{Employment, TaxYearData}
 import play.api.Logger
 import controllers.paye.routes
 import play.api.mvc.Results._
@@ -12,7 +12,11 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import scala.util.Try
 
+object Int {
+  def unapply(s: String): Option[Int] = Try {s.toInt}.toOption
+}
 
 /**
  * A controller wrapper that will check that there is an NPS version number in the play session, and
@@ -26,7 +30,7 @@ private[paye] object WithValidVersionNumber {
   val npsVersionKey: String = "nps-version"
 
   def apply(benefitType: Int)(action: (Request[_], User, Int, Int, TaxYearData) => Future[SimpleResult])
-  (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector, currentTaxYear: Int): (User, Request[_], Int, Int) => Future[SimpleResult] = {
+           (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector, currentTaxYear: Int): (User, Request[_], Int, Int) => Future[SimpleResult] = {
 
     val noVersion = (user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int) => redirectToCarBenefitHome(user, request)
     val versionMismatch = (user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int) => redirectToVersionError(user, request)
@@ -35,8 +39,8 @@ private[paye] object WithValidVersionNumber {
       val sessionVersion = request.session.get(npsVersionKey)
 
       sessionVersion match {
-        case None => noVersion(user, request, taxYear, employmentSequenceNumber)
-        case Some(version) => {
+        case None =>  noVersion(user, request, taxYear, employmentSequenceNumber)
+        case Some(Int(version)) => {
           if (version != user.getPaye.version) {
             versionMismatch(user, request, taxYear, employmentSequenceNumber)
           } else {
@@ -82,32 +86,21 @@ private object WithValidatedRequest {
   def async(benefitType: Int, action: (Request[_], User, Int, Int, TaxYearData) => Future[SimpleResult])
            (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector, currentTaxYear: Int): (User, Request[_], Int, Int) => Future[SimpleResult] = {
     (user, request, taxYear, employmentSequenceNumber) => {
-      val sessionVersion = request.session.get("nps-version")
 
-      sessionVersion match {
-        case None => Future.successful(redirectToCarBenefitHome(request, user))
-
-        case Some(version) => {
-          if (version != user.getPaye.version) {
-            Future.successful(redirectToVersionError(request, user))
+      if (currentTaxYear != taxYear) {
+        Logger.error("Adding fuel benefit is only allowed for the current tax year")
+        Future.successful(BadRequest)
+      } else {
+        implicit val hc = HeaderCarrier(request)
+        user.regimes.paye.get.fetchTaxYearData(currentTaxYear).flatMap { payeRootData =>
+          if (employmentSequenceNumber != findPrimaryEmployment(payeRootData).get.sequenceNumber) {
+            Logger.error("Adding fuel benefit is only allowed for the primary employment")
+            Future.successful(BadRequest)
           } else {
-            implicit val hc = HeaderCarrier(request)
-            if (currentTaxYear != taxYear) {
-              Logger.error("Adding fuel benefit is only allowed for the current tax year")
-              Future.successful(BadRequest)
+            if (payeRootData.findExistingBenefit(employmentSequenceNumber, benefitType).isDefined) {
+              Future.successful(redirectToCarBenefitHome(request, user))
             } else {
-              user.regimes.paye.get.fetchTaxYearData(currentTaxYear).flatMap { payeRootData =>
-                if (employmentSequenceNumber != findPrimaryEmployment(payeRootData).get.sequenceNumber) {
-                  Logger.error("Adding fuel benefit is only allowed for the primary employment")
-                  Future.successful(BadRequest)
-                } else {
-                  if (payeRootData.findExistingBenefit(employmentSequenceNumber, benefitType).isDefined) {
-                    Future.successful(redirectToCarBenefitHome(request, user))
-                  } else {
-                    action(request, user, taxYear, employmentSequenceNumber, payeRootData)
-                  }
-                }
-              }
+              action(request, user, taxYear, employmentSequenceNumber, payeRootData)
             }
           }
         }
