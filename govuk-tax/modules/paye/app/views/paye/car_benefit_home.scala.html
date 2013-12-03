@@ -108,23 +108,26 @@
         </p>
         @if( carBenefit.isDefined ) {
         <ul>
-            <li><a id="rmCarLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)">remove your company car</a></li>
+            <li>
+                @helpers.link("rm-car-link", s"${controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)}", "remove your company car")
+            </li>
             <li>@if( fuelBenefit.isDefined ) {
-                <a id="rmFuelLink" href="@controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)">remove your car fuel benefit</a>
-            } else {
+                    @helpers.link("rm-fuel-link", s"${controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)}", "remove your car fuel benefit")
+                } else {
                 @if(carBenefit.get.car.get.fuelType != Some("electricity") ) {
-                    <a id="addFuelLink" href="@controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employerSequenceNumber)">add a car fuel benefit</a>
-                 }
+                    @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employerSequenceNumber)}", "add a car fuel benefit")
+                }
             }</li>
         </ul>
         } else {
             <div id="no-car-benefit-container">
                 <ul>
-                    <li><a id="addCarLink" href="@controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)">add a company car (including any fuel benefit you may have)</a></li>
+                    <li>
+                        @helpers.link("add-car-link", s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)}", "add a company car (including any fuel benefit you may have)")
+                    </li>
                 </ul>
             </div>
         }
-
-        <p>If you do not need to make any changes you can <a href="@common.routes.LoginController.logout">log out from your account</a>.</p>
+        <p>If you do not need to make any changes you can @helpers.link("", s"${common.routes.LoginController.logout}", "log out from your account").</p>
     }
 }

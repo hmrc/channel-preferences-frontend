@@ -234,7 +234,7 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper with S
       doc.select("#second-heading").text should include("Check your private fuel details")
       doc.select("#private-fuel").text should include(s"3 June $testTaxYear")
       doc.select("#provided-from").text should include(s"12 May $testTaxYear")
-      doc.select("#fuelBenefitTaxableValue").text should include("£1,234")
+      doc.select("#fuel-benefit-taxable-value").text should include("£1,234")
 
     }
 
@@ -271,7 +271,7 @@ class AddFuelBenefitControllerSpec extends BaseSpec with DateFieldsHelper with S
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#fuelBenefitTaxableValue").text shouldBe "£1,234"
+      doc.select("#fuel-benefit-taxable-value").text shouldBe "£1,234"
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new TestCaseIn2012 {

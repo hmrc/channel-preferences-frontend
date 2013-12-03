@@ -724,8 +724,8 @@ AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       verify(mockPayeConnector).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", carAndFuel)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#carBenefitTaxableValue").text shouldBe "£999"
-      doc.select("#fuelBenefitTaxableValue").isEmpty shouldBe true
+      doc.select("#car-benefit-taxable-value").text shouldBe "£999"
+      doc.select("#fuel-benefit-taxable-value").isEmpty shouldBe true
     }
 
     "render car and fuel benefits when the user has both, car and fuel benefits and provide link to edit data" in new WithApplication(FakeApplication()) with WithCarAndFuelBenefit {
@@ -761,8 +761,8 @@ AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
       verify(mockPayeConnector).calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", updatedCarAndFuel)
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#carBenefitTaxableValue").text shouldBe "£999"
-      doc.select("#fuelBenefitTaxableValue").text shouldBe "£444"
+      doc.select("#car-benefit-taxable-value").text shouldBe "£999"
+      doc.select("#fuel-benefit-taxable-value").text shouldBe "£444"
       doc.select("#edit-data").text shouldBe "This information is wrong"
       doc.select("#edit-data").attr("href") shouldBe uri
     }
