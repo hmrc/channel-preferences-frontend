@@ -1,5 +1,5 @@
 /*global _gaq, B64, Mdtpdf, $  */
-(function () {
+(function ($, window, document) {
   "use strict";
   var GOVUK = GOVUK || {};
   GOVUK.toggleDefaultOptions = function ($form, $options, bool) {
@@ -22,13 +22,16 @@
         $DOM.on('click', '.js-includes-contextual .js-input--contextual input', function (e) {
           preselect($(e.currentTarget));
         });
+        // select 'yes' option if its a select input
         $DOM.on('change', '.js-includes-contextual .js-input--contextual select', function (e) {
           preselect($(e.currentTarget));
         });
+        // if we select 'no' the contextual input values should be cleared
         $DOM.on('click', '*[data-contextual-helper]', function () {
           toggle($(this));
         });
       },
+      //useful if form validation had previously failed.
       preselect = function ($el) {
         $el.parents('.js-includes-contextual').find('*[data-contextual-helper="enable"]').trigger('click');
       },
@@ -80,6 +83,7 @@
   GOVUK.eraseCookie = function (name) {
     GOVUK.setCookie(name, "", -1);
   };
+
   GOVUK.preventDoubleSubmit = function () {
     $('form').on('submit', function () {
       if (typeof $.data(this, "disabledOnSubmit") === 'undefined') {
@@ -96,10 +100,10 @@
     });
   };
   var fingerprint = new Mdtpdf({
-    screen_resolution: true
-  }).get();
-  var encodedFingerPrint = B64.encode(fingerprint);
-  var mdtpdfCookie = GOVUK.getCookie("mdtpdf");
+        screen_resolution: true
+      }),
+      encodedFingerPrint = B64.encode(fingerprint.get()),
+      mdtpdfCookie = GOVUK.getCookie("mdtpdf");
   if (!mdtpdfCookie) {
     GOVUK.setCookie("mdtpdf", encodedFingerPrint);
   }
@@ -253,4 +257,4 @@
     }
     GOVUK.preventDoubleSubmit();
   });
-})();
+})(jQuery, window, document);
