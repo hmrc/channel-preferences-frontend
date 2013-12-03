@@ -12,12 +12,11 @@
         <hr>
        <p>
            @helpers.link(
-                "changeEmailAddressLink",
+                "change-email-address-link",
                  controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
                  "Change your email address"
             )
        </p>
-       <hr>
        <p>
            @helpers.link(
                "optOutOfEmailLink",
@@ -25,7 +24,6 @@
                "Opt-out of email reminders"
            )
       </p>
-       <p><a id="change-email-address-link" href=@controllers.bt.routes.AccountDetailsController.changeEmailAddress(None)>Change your email address</a></p>
    }
 
 }
