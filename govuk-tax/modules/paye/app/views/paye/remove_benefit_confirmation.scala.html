@@ -23,7 +23,7 @@
 
       <p>HMRC will send you a confirmation by post within a week.</p>
 
-      <p>If you have finished, you can <a href="@common.routes.LoginController.logout">log out of your GOV.UK account.</a></p>
+      <p>If you have finished, you can @helpers.link("", s"${common.routes.LoginController.logout}", "log out of your GOV.UK account.")</p>
 
 }
 
