@@ -42,11 +42,8 @@ case class EpayeAccount(link: String, empRef: EmpRef) extends Account
 
 sealed abstract class Account {
 
-  import java.net.URI
 
   val link: String
-
-  lazy val uri = URI.create(link)
 }
 
 case class CreationAndLastModifiedDetail(createdAt: DateTime, lastUpdated: DateTime)

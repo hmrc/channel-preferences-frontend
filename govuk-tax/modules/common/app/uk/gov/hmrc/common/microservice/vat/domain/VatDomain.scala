@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.vat.domain
 
-import uk.gov.hmrc.common.microservice.auth.domain.{Accounts, Regimes}
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoot, TaxRegime}
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.Vrn

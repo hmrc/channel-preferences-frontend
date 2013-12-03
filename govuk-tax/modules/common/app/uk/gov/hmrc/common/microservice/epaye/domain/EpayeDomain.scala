@@ -3,7 +3,7 @@ package uk.gov.hmrc.common.microservice.epaye.domain
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import uk.gov.hmrc.domain.EmpRef
-import uk.gov.hmrc.common.microservice.auth.domain.{Accounts, Regimes}
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._

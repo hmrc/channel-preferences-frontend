@@ -5,7 +5,7 @@ import org.joda.time.format.DateTimeFormat
 import controllers.common.{Ida, routes}
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
-import uk.gov.hmrc.common.microservice.auth.domain.{Accounts, Regimes}
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector

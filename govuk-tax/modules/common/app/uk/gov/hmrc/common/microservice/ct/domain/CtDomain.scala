@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.ct.domain
 
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoot, TaxRegime}
-import uk.gov.hmrc.common.microservice.auth.domain.{Accounts, Regimes}
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.ct.CtConnector
