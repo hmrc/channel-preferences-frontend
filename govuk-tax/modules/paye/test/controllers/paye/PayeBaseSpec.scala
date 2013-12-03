@@ -46,7 +46,7 @@ trait PayeBaseSpec extends BaseSpec {
       links = Map(
         "taxCode" -> s"/paye/$nino/tax-codes/$year",
         "employments" -> s"/paye/$nino/employments/$year",
-        "benefits" -> s"/paye/$nino/benefits/$year",
+        "benefit-car" -> s"/paye/$nino/benefit-car/$year",
         "addBenefits" -> s"/paye/$nino/benefits/$year"),
       transactionLinks = transactionLinks,
       actions = actions

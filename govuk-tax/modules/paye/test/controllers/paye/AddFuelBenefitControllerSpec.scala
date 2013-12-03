@@ -473,7 +473,7 @@ class TestCase(protected val taxYear: Int = 2012) extends WithApplication(FakeAp
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$taxYear")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$taxYear")).thenReturn(Some(employments))
-    when(mockPayeConnector.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefits/$taxYear")).thenReturn(Some(benefits))
+    when(mockPayeConnector.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefit-car/$taxYear")).thenReturn(Some(benefits))
   }
 
   def setupCalculationMock(calculationResult: Int) = {

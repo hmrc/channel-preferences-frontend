@@ -72,7 +72,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
-    when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
+    when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefit-car/2013")).thenReturn(Some(benefits))
     when(mockPayeConnector.calculationWithdrawKey()).thenReturn("withdraw")
   }
 
