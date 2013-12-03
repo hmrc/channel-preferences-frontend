@@ -155,6 +155,9 @@
    * DOM ready
    */
   $(document).ready(function () {
+    GOVUK.preventDoubleSubmit();
+    //initialise stageprompt for Analytics
+    GOVUK.performance.stageprompt.setupForGoogleAnalytics();
     $('.print-link a').attr('target', '_blank');
     // header search toggle
     $('.js-header-toggle').on('click', function (e) {
@@ -255,6 +258,5 @@
         }
       });
     }
-    GOVUK.preventDoubleSubmit();
   });
 })(jQuery, window, document);
