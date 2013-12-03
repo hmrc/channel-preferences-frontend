@@ -4,6 +4,7 @@ POST        /benefits/:kinds/:year/:employmentSequenceNumber/confirm            
 GET         /benefits/:kinds/:year/:employmentSequenceNumber/confirmation/:oid  @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 
 GET         /car-benefit/home                                                   @controllers.paye.CarBenefitHomeController.carBenefitHome
+GET         /car-benefit/version-changed                                        controllers.paye.VersionChangedController.versionChanged
 
 GET         /car-benefit/:year/:employmentSequenceNumber/add                    @controllers.paye.AddCarBenefitController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
 POST        /car-benefit/:year/:employmentSequenceNumber/add                    @controllers.paye.AddCarBenefitController.reviewAddCarBenefit(year: Int, employmentSequenceNumber: Int)

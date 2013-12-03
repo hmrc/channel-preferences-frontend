@@ -62,7 +62,7 @@ private[paye] object WithValidVersionNumber {
 
   private val redirectToCarBenefitHome: (User, Request[_]) => Future[SimpleResult] = (u, r) => Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome().url))
 
-  private val redirectToVersionError: (User, Request[_]) => Future[SimpleResult] = (u, r) => Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome().url))
+  private val redirectToVersionError: (User, Request[_]) => Future[SimpleResult] = (u, r) => Future.successful(Redirect(routes.VersionChangedController.versionChanged().url))
 }
 
 private object WithValidatedRequest {
