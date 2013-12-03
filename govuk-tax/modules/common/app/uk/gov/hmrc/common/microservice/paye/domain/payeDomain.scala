@@ -54,7 +54,7 @@ case class PayeRoot(nino: String,
     Future {valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)}
 
   def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Seq[Benefit] =
-    valuesForTaxYear[Benefit](resource = "benefits", taxYear = taxYear)
+    valuesForTaxYear[Benefit](resource = "benefit-car", taxYear = taxYear)
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
     Future {valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)}
