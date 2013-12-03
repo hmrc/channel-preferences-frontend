@@ -329,9 +329,9 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val page = Jsoup.parse(contentAsString(result))
 
       page.getElementById("confirm-opt-out") shouldNot be(null)
-      page.getElementById("confirm-opt-out").text shouldBe "Yes"
-      page.getElementById("cancel-opt-out") shouldNot be(null)
-      page.getElementById("cancel-opt-out").text shouldBe "No"
+      page.getElementById("confirm-opt-out").text shouldBe "Opt me out of digital"
+      page.getElementById("accountDetailsLink") shouldNot be(null)
+      page.getElementById("accountDetailsLink").text shouldBe "Never mind - I want to stay digital"
     }
 
     "return bad request if the user has not opted into digital" in new Setup{
