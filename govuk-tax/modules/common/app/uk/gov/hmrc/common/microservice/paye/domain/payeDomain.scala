@@ -67,7 +67,7 @@ case class PayeRoot(nino: String,
     Future {transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))}
   }
 
-  def addBenefitLink(taxYear: Int): Option[String] = links.get("addBenefits").map(_.replace("{taxYear}", taxYear.toString))
+  def addBenefitLink(taxYear: Int): Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
 
   private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Seq[TxQueueTransaction] =
     transactionLinks.get(status) match {

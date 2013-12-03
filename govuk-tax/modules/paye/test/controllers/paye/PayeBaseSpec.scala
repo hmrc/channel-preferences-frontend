@@ -47,7 +47,7 @@ trait PayeBaseSpec extends BaseSpec {
         "taxCode" -> s"/paye/$nino/tax-codes/$year",
         "employments" -> s"/paye/$nino/employments/$year",
         "benefit-car" -> s"/paye/$nino/benefit-car/$year",
-        "addBenefits" -> s"/paye/$nino/benefits/$year"),
+        "benefits" -> s"/paye/$nino/benefits/$year"),
       transactionLinks = transactionLinks,
       actions = actions
     )

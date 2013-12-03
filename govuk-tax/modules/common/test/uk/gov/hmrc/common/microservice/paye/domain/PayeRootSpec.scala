@@ -33,8 +33,8 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
   }
 
   "addBenefitLink " should {
-    "look for a link called addBenefits " in {
-      val linkMap = Map("nonsenseLink" -> "/a/nonsense/link", "addBenefits" -> "/addBenefit/link")
+    "look for a link called benefits " in {
+      val linkMap = Map("nonsenseLink" -> "/a/nonsense/link", "benefits" -> "/addBenefit/link")
       val payeRoot = PayeRoot(nino = "NM439085B", version = 1, title = "Mr", firstName = "John", secondName = None,
         surname = "Densmore", name = "johnnyBoy", dateOfBirth = "1960-12-01", links = linkMap, Map.empty, Map.empty)
       payeRoot.addBenefitLink(2013) shouldBe Some("/addBenefit/link")
