@@ -10,9 +10,8 @@
 
 <h2> Change email address </h2>
 
-   <p>
-      Your current email address is <span id="currentEmailAddress">@{currentEmail}</span>
-   </p>
+   <p>Your current email address is <span id="current-email-address">@{currentEmail}</span></p>
+
     @helper.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
 
         <p>Email address</p>
@@ -34,7 +33,7 @@
 
 
         <div class="form-field">
-            <button id="submitEmailButton" class="button" type="submit">Submit</button>
+            <button id="submit-email-button" class="button" type="submit">Submit</button>
         </div>
 
     }

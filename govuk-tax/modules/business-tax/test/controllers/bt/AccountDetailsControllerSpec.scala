@@ -44,7 +44,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      val changeEmailAddressLink = page.getElementById("changeEmailAddressLink")
+      val changeEmailAddressLink = page.getElementById("change-email-address-link")
       changeEmailAddressLink should not be null
       changeEmailAddressLink.text shouldBe "Change your email address"
       changeEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
@@ -65,7 +65,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      page.getElementById("changeEmailAddressLink") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
       page.getElementById("optOutOfEmailLink") shouldBe null
 
       verifyZeroInteractions(mockPreferencesConnector)
@@ -79,7 +79,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      page.getElementById("changeEmailAddressLink") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
     }
@@ -93,7 +93,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      page.getElementById("changeEmailAddressLink") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
     }
@@ -109,7 +109,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
 
-      page.getElementById("currentEmailAddress").text shouldBe "test@test.com"
+      page.getElementById("current-email-address").text shouldBe "test@test.com"
       page.getElementById("email.main") shouldNot be(null)
       page.getElementById("email.main").attr("value") shouldBe ""
       page.getElementById("email.confirm") shouldNot be(null)
@@ -127,7 +127,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
 
-      page.getElementById("currentEmailAddress").text shouldBe "test@test.com"
+      page.getElementById("current-email-address").text shouldBe "test@test.com"
       page.getElementById("email.main") shouldNot be(null)
       page.getElementById("email.main").attr("value") shouldBe existingEmailAddress
       page.getElementById("email.confirm") shouldNot be(null)

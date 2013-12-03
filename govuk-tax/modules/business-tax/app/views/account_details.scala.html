@@ -7,12 +7,8 @@
 <h2> Self Assessment emails reminders </h2>
 
    @if(saPreferences.isDefined && saPreferences.get.email.isDefined) {
-       <p>
-          You have signed up for email reminders.
-       </p>
-       <p>
-          Email address: @{saPreferences.get.email.get}
-       </p>
+       <p>You have signed up for email reminders.</p>
+       <p>Email address: <span id="email-address">@{saPreferences.get.email.get}</span></p>
         <hr>
        <p>
            @helpers.link(
@@ -29,6 +25,7 @@
                "Opt-out of email reminders"
            )
       </p>
+       <p><a id="change-email-address-link" href=@controllers.bt.routes.AccountDetailsController.changeEmailAddress(None)>Change your email address</a></p>
    }
 
 }
