@@ -19,7 +19,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
-import controllers.paye.validation.WithValidatedCarRequest
+import controllers.paye.validation.WithValidVersionNumber
 import models.paye.CarBenefitData
 import models.paye.CarBenefitDataAndCalculations
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
@@ -29,7 +29,7 @@ import models.paye.BenefitUpdatedConfirmationData
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
-import scala.concurrent.Future
+import scala.concurrent._
 
 class AddCarBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
@@ -88,8 +88,8 @@ with PayeRegimeRoots {
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
-  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedCarRequest {
-    (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
+  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidVersionNumber(BenefitTypes.CAR) {
+    (request, user, taxYear, employmentSequenceNumber, payeRootData) => future {
       implicit def hc = HeaderCarrier(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
@@ -132,7 +132,7 @@ with PayeRegimeRoots {
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
       employerPayFuel = defaults.employerPayFuel)
 
-  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedCarRequest.async {
+  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidVersionNumber(BenefitTypes.CAR) {
     (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
 
       implicit val hc = HeaderCarrier(request)
@@ -155,8 +155,8 @@ with PayeRegimeRoots {
     }
   }
 
-  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedCarRequest {
-    (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
+  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidVersionNumber(BenefitTypes.CAR) {
+    (request, user, taxYear, employmentSequenceNumber, payeRootData) => future {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)

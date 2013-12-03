@@ -7,7 +7,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import play.api.mvc.Request
-import controllers.paye.validation.WithValidatedFuelRequest
+import controllers.paye.validation.WithValidVersionNumber
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import play.api.Logger
@@ -28,7 +28,7 @@ import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData, CarAndFuelB
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
-import scala.concurrent.Future
+import scala.concurrent._
 
 
 object AddFuelBenefitController {
@@ -74,8 +74,8 @@ with PayeRegimeRoots {
     )(EmployerPayeFuelString.apply)(EmployerPayeFuelString.unapply)
   )
 
-  private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedFuelRequest {
-    (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
+  private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidVersionNumber(BenefitTypes.FUEL) {
+    (request, user, taxYear, employmentSequenceNumber, payeRootData) => future {
       implicit def hc = HeaderCarrier(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
@@ -99,8 +99,8 @@ with PayeRegimeRoots {
       .getOrElse((FuelBenefitData(None, None), 0))
   }
 
-  private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedFuelRequest {
-    (request, user, taxYear, employmentSequenceNumber, payeRootData) => {
+  private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidVersionNumber(BenefitTypes.FUEL) {
+    (request, user, taxYear, employmentSequenceNumber, payeRootData) => future {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
           val validationLesForm = validationLessForm().bindFromRequest()(request)
@@ -122,7 +122,7 @@ with PayeRegimeRoots {
 
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData, fuelBenefitValue))
 
-              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, carBenefitStartDate, addFuelBenefitData.employerPayFuel.get,
+              val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get,
                 addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = BenefitValue(fuelBenefitValue))
               Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
             })
@@ -135,7 +135,7 @@ with PayeRegimeRoots {
     }
   }
 
-  private[paye] def confirmAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidatedFuelRequest.async {
+  private[paye] def confirmAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = WithValidVersionNumber(BenefitTypes.FUEL) {
     (request: Request[_], user: User, taxYear: Int, employmentSequenceNumber: Int, taxYearData: TaxYearData) => {
       implicit val hc = HeaderCarrier(request)
       val keystoreId = generateKeystoreActionId(taxYear, employmentSequenceNumber)
@@ -176,10 +176,10 @@ with PayeRegimeRoots {
     benefitCalculations.fuelBenefitValue.getOrElse(throw new IllegalStateException("We must have a fuel benefit value"))
   }
 
-  private def getDateInTaxYear(benefitDate: Option[LocalDate]) = {
+  private def getDateInTaxYear(benefitDate: Option[LocalDate]):LocalDate = {
     benefitDate match {
-      case Some(date) if date.isAfter(startOfCurrentTaxYear) => benefitDate
-      case _ => Some(startOfCurrentTaxYear)
+      case Some(suppliedDate) if suppliedDate.isAfter(startOfCurrentTaxYear) => suppliedDate
+      case _ => startOfCurrentTaxYear
     }
   }
 
