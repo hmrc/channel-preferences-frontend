@@ -100,8 +100,7 @@ trait BusinessTaxRequest extends CookieEncryption with BusinessUserFixture with 
       lastRequestTimestampKey -> lastRequestTimestamp.map(_.getMillis.toString),
       "userId" -> Some(encrypt(userId)),
       "name" -> nameFromGovernmentGateway.map(encrypt),
-      "token" -> governmentGatewayToken.map(encrypt),
-      "affinityGroup" -> affinityGroup.map(encrypt))
+      "token" -> governmentGatewayToken.map(encrypt))
 
     val cleanSession = session.collect {
       case (paramName, Some(paramValue)) => (paramName, paramValue)

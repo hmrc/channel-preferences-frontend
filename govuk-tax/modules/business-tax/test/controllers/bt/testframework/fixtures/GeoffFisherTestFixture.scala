@@ -30,7 +30,6 @@ trait GeoffFisherTestFixture extends BusinessUserFixture {
 
   override val lastLoginTimestamp = Some(currentTime.minus(Duration.standardDays(14)))
   override val lastRequestTimestamp = Some(currentTime.minus(Duration.standardMinutes(1)))
-  override val affinityGroup = Some("someAffinityGroup")
   override val nameFromGovernmentGateway: Option[String] = Some("Geoffrey From Government Gateway")
   override val governmentGatewayToken: Option[String] = Some("someToken")
 

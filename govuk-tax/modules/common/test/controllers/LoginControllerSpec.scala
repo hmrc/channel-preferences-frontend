@@ -21,7 +21,6 @@ import play.api.templates.Html
 import uk.gov.hmrc.utils.DateTimeUtils
 import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
-import scalaz.Alpha.M
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
@@ -105,7 +104,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "redirect to the home page if the response is valid and not registering an agent" in new TestCase {
       val result = loginController.idaLogin()(setupValidRequest())
 
-      status(result) shouldBe(303)
+      status(result) shouldBe 303
       redirectLocation(result).get shouldBe FrontEndRedirect.payeHome
 
       val sess = session(result)
@@ -191,7 +190,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val password = "passw0rd"
       val nameFromGovernmentGateway = "Geoff G.G.W. Nott-Fisher"
       val userId = "/auth/oid/notGeoff"
-      val affinityGroup = "Organisation"
       val encodedGovernmentGatewayToken = GatewayToken("someencodedtoken", DateTimeUtils.now, DateTimeUtils.now)
     }
 
@@ -265,7 +263,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name" in new WithSetup {
 
-      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, geoff.affinityGroup, geoff.encodedGovernmentGatewayToken))
+      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, "affinityGroup", geoff.encodedGovernmentGatewayToken))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
@@ -276,7 +274,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       decrypt(sess("name")) shouldBe geoff.nameFromGovernmentGateway
       decrypt(sess("userId")) shouldBe geoff.userId
       decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
-      decrypt(sess("affinityGroup")) shouldBe geoff.affinityGroup
 
     }
   }

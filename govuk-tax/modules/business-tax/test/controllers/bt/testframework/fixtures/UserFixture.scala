@@ -21,7 +21,6 @@ trait BusinessUserFixture extends UserFixture {
   def epayeRoot: Option[EpayeRoot]
   def vatRoot: Option[VatRoot]
 
-  def affinityGroup: Option[String]
   def nameFromGovernmentGateway: Option[String]
   def governmentGatewayToken: Option[String]
 }

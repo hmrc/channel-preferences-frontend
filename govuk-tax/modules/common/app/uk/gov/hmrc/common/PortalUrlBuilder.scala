@@ -7,19 +7,17 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.TaxYearResolver
 import scala.annotation.tailrec
 
-trait PortalUrlBuilder extends AffinityGroupParser {
+trait PortalUrlBuilder {
 
   def buildPortalUrl(destinationPathKey: String)(implicit request: Request[AnyRef], user: User): String = {
     val currentTaxYear = TaxYearResolver.currentTaxYear
     val saUtr = user.userAuthority.saUtr
     val vrn = user.userAuthority.vrn
     val ctUtr = user.userAuthority.ctUtr
-    val affinityGroup = parseAffinityGroup
     val destinationUrl = PortalConfig.getDestinationUrl(destinationPathKey)
     val tagsToBeReplacedWithData = Seq(
       ("<year>", Some(currentTaxYear)),
       ("<utr>", saUtr),
-      ("<affinitygroup>", Some(affinityGroup)),
       ("<vrn>", vrn), ("<ctutr>", ctUtr)
     )
 
