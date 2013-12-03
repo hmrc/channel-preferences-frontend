@@ -157,7 +157,8 @@
   $(document).ready(function () {
     GOVUK.preventDoubleSubmit();
     //initialise stageprompt for Analytics
-    GOVUK.performance.stageprompt.setupForGoogleAnalytics();
+    //TODO: Enable once we set up Goggle Analytics
+    //GOVUK.performance.stageprompt.setupForGoogleAnalytics();
     $('.print-link a').attr('target', '_blank');
     // header search toggle
     $('.js-header-toggle').on('click', function (e) {
