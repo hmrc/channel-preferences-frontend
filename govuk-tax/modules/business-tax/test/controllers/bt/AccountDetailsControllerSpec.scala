@@ -179,14 +179,6 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       verifyZeroInteractions(mockEmailConnector)
     }
 
-    "fail to validate if two different email addresses are entered." ignore new Setup {
-      val saPreferences = SaPreference(true, Some("test@test.com"))
-      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
-
-      controller.submitEmailAddress()
-
-    }
-
     "show error if the email address is not syntactically valid" in new Setup {
       val emailAddress = "invalid-email"
       val saPreferences = SaPreference(true, Some("test@test.com"))
