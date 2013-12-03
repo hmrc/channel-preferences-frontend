@@ -25,9 +25,10 @@ import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import BenefitTypes._
-import scala.concurrent.Future
+import scala.concurrent._
 import play.api.data._
 import play.api.data.Forms._
+import controllers.paye.validation.RemoveBenefitFlow
 
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
 with Actions
@@ -57,19 +58,20 @@ with PayeRegimeRoots {
       user => request => benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance)
     }
 
-  private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = WithValidatedRequest {
-    (request, user, benefit, payeRootData) => {
-      val benefitStartDate = getStartDate(benefit.benefit)
-      val dates = getCarFuelBenefitDates(request)
+  private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
+    (user, request, benefit, payeRootData) =>
+      future {
+        val benefitStartDate = getStartDate(benefit.benefit)
+        val dates = getCarFuelBenefitDates(request)
 
-      benefit.benefit.benefitType match {
-        case CAR => {
-          val carWithUnremovedFuel = hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
-          Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel, updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), currentTaxYearYearsRange)(user))
+        benefit.benefit.benefitType match {
+          case CAR => {
+            val carWithUnremovedFuel = hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
+            Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel, updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), currentTaxYearYearsRange)(user))
+          }
+          case _ => Ok(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), currentTaxYearYearsRange)(user))
         }
-        case _ => Ok(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), currentTaxYearYearsRange)(user))
       }
-    }
   }
 
   private def getSecondBenefit(payeRootData: TaxYearData, mainBenefit: Benefit, removeCar: Boolean): Option[Benefit] = {
@@ -81,23 +83,24 @@ with PayeRegimeRoots {
     }
   }
 
-  private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = WithValidatedRequest {
-    (request, user, benefit, payeRootData) => {
-      val benefitStartDate = getStartDate(benefit.benefit)
-      val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
-      implicit def hc = HeaderCarrier(request)
+  private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
+    (user, request, benefit, payeRootData) =>
+      future {
+        val benefitStartDate = getStartDate(benefit.benefit)
+        val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
+        implicit def hc = HeaderCarrier(request)
 
-      updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
-        errors => {
-          benefit.benefit.benefitType match {
-            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
-            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
-            case _ => Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to the car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
-          }
-        },
-        removeBenefitData => removeBenefit(user, benefit, payeRootData, removeBenefitData)
-      )
-    }
+        updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request)).bindFromRequest()(request).fold(
+          errors => {
+            benefit.benefit.benefitType match {
+              case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
+              case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
+              case _ => Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to the car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
+            }
+          },
+          removeBenefitData => removeBenefit(user, benefit, payeRootData, removeBenefitData)
+        )
+      }
   }
 
   def removeBenefit(user: User, benefit: DisplayBenefit, payeRootData: TaxYearData, removeBenefitData: RemoveBenefitFormData)(implicit hc: HeaderCarrier): SimpleResult = {
@@ -162,31 +165,32 @@ with PayeRegimeRoots {
     }
   }
 
-  private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = WithValidatedRequest {
-    (request, user, displayBenefit, payeRootData) => {
-      val payeRoot = user.regimes.paye.get
-      implicit def hc = HeaderCarrier(request)
-      if (carRemovalMissesFuelRemoval(payeRootData, displayBenefit)) {
-        BadRequest
-      } else {
-        loadFormDataFor(user, displayBenefit) match {
-          case Some(formData) => {
-            val uri = displayBenefit.benefit.actions.getOrElse("remove",
-              throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
+  private[paye] val confirmBenefitRemovalAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
+    (user, request, displayBenefit, payeRootData) =>
+      future {
+        val payeRoot = user.regimes.paye.get
+        implicit def hc = HeaderCarrier(request)
+        if (carRemovalMissesFuelRemoval(payeRootData, displayBenefit)) {
+          BadRequest
+        } else {
+          loadFormDataFor(user, displayBenefit) match {
+            case Some(formData) => {
+              val uri = displayBenefit.benefit.actions.getOrElse("remove",
+                throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
 
-            val revisedBenefits = displayBenefit.benefits.map(b =>
-              RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
-                throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
+              val revisedBenefits = displayBenefit.benefits.map(b =>
+                RevisedBenefit(b, formData.revisedAmounts.getOrElse(b.benefitType.toString,
+                  throw new IllegalArgumentException(s"Unknown revised amount for benefit ${b.benefitType}"))))
 
-            val removeBenefitResponse = payeConnector.removeBenefits(uri, payeRoot.version, revisedBenefits, formData.withdrawDate).get
-            Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString,
-              displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
-              removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
+              val removeBenefitResponse = payeConnector.removeBenefits(uri, payeRoot.version, revisedBenefits, formData.withdrawDate).get
+              Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString,
+                displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
+                removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
+            }
+            case _ => Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
           }
-          case _ => Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
         }
       }
-    }
   }
 
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
@@ -262,89 +266,8 @@ with PayeRegimeRoots {
     s"RemoveBenefit:$benefitTypes:$taxYear:$employmentSequenceNumber"
   }
 
-  object WithValidatedRequest {
-    def apply(action: (Request[_], User, DisplayBenefit, TaxYearData) => SimpleResult): (User, Request[_], String, Int, Int) => Future[SimpleResult] = {
-      (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
-
-        implicit val hc = HeaderCarrier(request)
-        user.regimes.paye.get.fetchTaxYearData(currentTaxYear).map { taxData =>
-
-          val emptyBenefit = DisplayBenefit(null, Seq.empty, None)
-          val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
-            kind => getBenefit(kind, taxYear, employmentSequenceNumber, taxData)
-          }
-
-          if (!validBenefits.contains(None)) {
-            val validMergedBenefit = validBenefits.map(_.get).foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
-            action(request, user, validMergedBenefit, taxData)
-          } else {
-            Logger.error(s"The requested benefit is not a valid benefit (year: $taxYear, empl: $employmentSequenceNumber, types: $benefitTypes), redirecting to benefit list")
-            redirectToBenefitHome(request, user)
-          }
-        }
-      }
-    }
-
-    def async(action: (Request[_], User, DisplayBenefit, TaxYearData) => Future[SimpleResult]): (User, Request[_], String, Int, Int) => Future[SimpleResult] = {
-      (user, request, benefitTypes, taxYear, employmentSequenceNumber) => {
-
-        implicit val hc = HeaderCarrier(request)
-        user.regimes.paye.get.fetchTaxYearData(currentTaxYear).flatMap { taxData =>
-          val emptyBenefit = DisplayBenefit(null, Seq.empty, None)
-          val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
-            kind => getBenefit(kind, taxYear, employmentSequenceNumber, taxData)
-          }
-
-          if (!validBenefits.contains(None)) {
-            val validMergedBenefit = validBenefits.map(_.get).foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
-            action(request, user, validMergedBenefit, taxData)
-          } else {
-            Logger.error(s"The requested benefit is not a valid benefit (year: $taxYear, empl: $employmentSequenceNumber, types: $benefitTypes), redirecting to benefit list")
-            Future.successful(redirectToBenefitHome(request, user))
-          }
-        }
-      }
-    }
-
-    private def getBenefit(kind: Int, taxYear: Int, employmentSequenceNumber: Int, payeRootData: TaxYearData): Option[DisplayBenefit] = {
-
-      kind match {
-        case CAR | FUEL => {
-          getBenefitMatching(kind, employmentSequenceNumber, payeRootData)
-        }
-        case _ => None
-      }
-    }
-
-    private def getBenefitMatching(kind: Int, employmentSequenceNumber: Int, payeRootData: TaxYearData): Option[DisplayBenefit] = {
-
-      val benefit = payeRootData.benefits.find(
-        b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
-
-      val matchedBenefits = DisplayBenefits(benefit.toList, payeRootData.employments)
-
-      if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
-    }
-
-    private def mergeDisplayBenefits(db1: DisplayBenefit, db2: DisplayBenefit): DisplayBenefit = {
-
-      def validOption[A](option1: Option[A], option2: Option[A]): Option[A] = {
-        option1 match {
-          case Some(value) => option1
-          case None => option2
-        }
-      }
-
-      db1.copy(
-        benefits = db1.benefits ++ db2.benefits,
-        car = validOption(db1.car, db2.car),
-        employment = if (db1.employment != null) db1.employment else db2.employment
-      )
-    }
 
 
-    private val redirectToBenefitHome: (Request[_], User) => SimpleResult = (r, u) => Redirect(routes.CarBenefitHomeController.carBenefitHome())
-  }
 
 }
 

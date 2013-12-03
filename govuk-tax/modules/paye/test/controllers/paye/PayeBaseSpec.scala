@@ -16,7 +16,7 @@ import org.joda.time.chrono.ISOChronology
 import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 import BenefitTypes._
 import play.api.test.FakeRequest
-import controllers.paye.validation.WithValidVersionNumber
+import controllers.paye.validation.AddBenefitFlow
 
 trait PayeBaseSpec extends BaseSpec {
 
@@ -83,9 +83,9 @@ trait PayeBaseSpec extends BaseSpec {
 
   val johnDensmoreVersionNumber = 22
 
-  def requestWithCorrectVersion = FakeRequest().withSession((WithValidVersionNumber.npsVersionKey, johnDensmoreVersionNumber.toString))
+  def requestWithCorrectVersion = FakeRequest().withSession((AddBenefitFlow.npsVersionKey, johnDensmoreVersionNumber.toString))
 
-  def requestWithIncorrectVersion = FakeRequest().withSession((WithValidVersionNumber.npsVersionKey, "20"))
+  def requestWithIncorrectVersion = FakeRequest().withSession((AddBenefitFlow.npsVersionKey, "20"))
 
   val userWithRemovedCar = setupUser("/auth/oid/removedCar", "RC123456B", "User With Removed Car")
 

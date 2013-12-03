@@ -16,16 +16,11 @@ import uk.gov.hmrc.common.microservice.domain.User
 import scala.Int
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 
-object Int {
-  def unapply(s: String): Option[Int] = Try {s.toInt}.toOption
-}
 
-object BenefitUpdateFlow {
+object AddBenefitFlow {
   def apply(benefitType: Int)(action: (User, Request[_], Int, Int, TaxYearData) => Future[SimpleResult])
            (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector, currentTaxYear: Int): (User, Request[_], Int, Int) => Future[SimpleResult] =
-    WithValidVersionNumber {
-      WithValidatedRequest.async(benefitType, action)
-    }
+    WithValidVersionNumber {WithValidatedRequest.async(benefitType, action)}
 }
 
 /**
@@ -37,6 +32,9 @@ object BenefitUpdateFlow {
  * directly, outside of the normal flow, or that the session timed out.
  */
 private[paye] object WithValidVersionNumber {
+
+  object Int {def unapply(s: String): Option[Int] = Try {s.toInt}.toOption}
+
   val npsVersionKey: String = "nps-version"
 
   def apply(action: (User, Request[_], Int, Int) => Future[SimpleResult]): (User, Request[_], Int, Int) => Future[SimpleResult] = {

@@ -4,15 +4,16 @@ import uk.gov.hmrc.common.BaseSpec
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import scala.Int
-import uk.gov.hmrc.common.microservice.paye.domain.{PayeRoot, TaxYearData}
-import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import play.api.test.Helpers._
 import controllers.paye.routes
 import scala.concurrent.Future
 
-class WithValidVersionNumberSpec extends BaseSpec  {
+import AddBenefitFlow._
+
+class WithValidVersionNumberSpec extends BaseSpec {
   val validVersion: Int = 22
   val invalidVersion: Int = 21
   val payeRoot = PayeRoot("", validVersion, "", "", None, "", "", "", Map(), Map(), Map())
@@ -32,7 +33,7 @@ class WithValidVersionNumberSpec extends BaseSpec  {
       def action(user: User, request: Request[_], taxYear: Int, sequenceNumber: Int) = { successfulResult }
 
       val f = WithValidVersionNumber(action)
-      val result = f(user, FakeRequest().withSession((WithValidVersionNumber.npsVersionKey, validVersion.toString)), 0, 0)
+      val result = f(user, FakeRequest().withSession((npsVersionKey, validVersion.toString)), 0, 0)
       status(result) shouldBe 200
       contentAsString(result) shouldBe successBody
     }
@@ -45,11 +46,12 @@ class WithValidVersionNumberSpec extends BaseSpec  {
     }
 
     "redirect to an error page when the version in the session does not match the version of the user" in new WithApplication(FakeApplication()) {
-      val result = WithValidVersionNumber(dummyAction)(user, FakeRequest().withSession((WithValidVersionNumber.npsVersionKey, invalidVersion.toString)), 0, 0)
+      val result = WithValidVersionNumber(dummyAction)(user, FakeRequest().withSession((npsVersionKey, invalidVersion.toString)), 0, 0)
 
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.VersionChangedController.versionChanged().url)
     }
   }
+
   def dummyAction(user: User, request: Request[_], taxYear: Int, sequenceNumber: Int) = { ??? }
 }

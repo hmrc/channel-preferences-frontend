@@ -19,7 +19,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
-import controllers.paye.validation.{BenefitUpdateFlow, WithValidVersionNumber}
+import controllers.paye.validation.AddBenefitFlow
 import models.paye.CarBenefitData
 import models.paye.CarBenefitDataAndCalculations
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
@@ -88,7 +88,7 @@ with PayeRegimeRoots {
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
-  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = BenefitUpdateFlow(BenefitTypes.CAR) {
+  private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
     (user,request,  taxYear, employmentSequenceNumber, payeRootData) => future {
       implicit def hc = HeaderCarrier(request)
       findEmployment(employmentSequenceNumber, payeRootData) match {
@@ -132,7 +132,7 @@ with PayeRegimeRoots {
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
       employerPayFuel = defaults.employerPayFuel)
 
-  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = BenefitUpdateFlow(BenefitTypes.CAR) {
+  private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
     (user,request, taxYear, employmentSequenceNumber, payeRootData) => {
 
       implicit val hc = HeaderCarrier(request)
@@ -155,7 +155,7 @@ with PayeRegimeRoots {
     }
   }
 
-  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = BenefitUpdateFlow(BenefitTypes.CAR) {
+  private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
     (user, request, taxYear, employmentSequenceNumber, payeRootData) => future {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {

@@ -7,7 +7,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import play.api.mvc.Request
-import controllers.paye.validation.BenefitUpdateFlow
+import controllers.paye.validation.AddBenefitFlow
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import play.api.Logger
@@ -74,7 +74,7 @@ with PayeRegimeRoots {
     )(EmployerPayeFuelString.apply)(EmployerPayeFuelString.unapply)
   )
 
-  private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = BenefitUpdateFlow(BenefitTypes.FUEL) {
+  private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.FUEL) {
     (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
       future {
         implicit def hc = HeaderCarrier(request)
@@ -100,7 +100,7 @@ with PayeRegimeRoots {
       .getOrElse((FuelBenefitData(None, None), 0))
   }
 
-  private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = BenefitUpdateFlow(BenefitTypes.FUEL) {
+  private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.FUEL) {
     (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
       future {
         findEmployment(employmentSequenceNumber, payeRootData) match {
@@ -137,7 +137,7 @@ with PayeRegimeRoots {
       }
   }
 
-  private[paye] def confirmAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = BenefitUpdateFlow(BenefitTypes.FUEL) {
+  private[paye] def confirmAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.FUEL) {
     (user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int, taxYearData: TaxYearData) => {
       implicit val hc = HeaderCarrier(request)
       val keystoreId = generateKeystoreActionId(taxYear, employmentSequenceNumber)
