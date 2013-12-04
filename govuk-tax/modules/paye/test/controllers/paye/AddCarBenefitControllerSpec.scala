@@ -31,7 +31,7 @@ import org.joda.time.chrono.ISOChronology
 import models.paye.{CarAndFuelBuilder, CarBenefitData, CarBenefitDataAndCalculations}
 import org.scalatest.TestData
 import controllers.common.actions.HeaderCarrier
-import controllers.paye.validation.AddBenefitFlow
+import controllers.paye.validation.{BenefitFlowHelper, AddBenefitFlow}
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
@@ -1169,7 +1169,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal)
       ++ buildDateFormField(providedTo, providedToVal)
       ++ buildDateFormField(carRegistrationDate, carRegistrationDateVal): _*).
-      withSession((AddBenefitFlow.npsVersionKey, johnDensmoreVersionNumber.toString))
+      withSession((BenefitFlowHelper.npsVersionKey, johnDensmoreVersionNumber.toString))
   }
 
   private def generateKeystoreActionId(taxYear: Int, employmentSequenceNumber: Int) = {

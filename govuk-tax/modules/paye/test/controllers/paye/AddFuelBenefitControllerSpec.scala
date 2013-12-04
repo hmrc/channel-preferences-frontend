@@ -28,7 +28,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationResponse
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
 import org.scalatest.concurrent.ScalaFutures
-import controllers.paye.validation.AddBenefitFlow
+import controllers.paye.validation.{BenefitFlowHelper, AddBenefitFlow}
 
 class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper with ScalaFutures {
 
@@ -446,7 +446,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
   private def newRequestForSaveAddFuelBenefit(employerPayFuelVal: Option[String] = None, dateFuelWithdrawnVal: Option[(String, String, String)] = None, path: String = "") =
     FakeRequest("GET", path).withFormUrlEncodedBody(Seq(employerPayFuel -> employerPayFuelVal.getOrElse("")) ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal): _*).
-      withSession((AddBenefitFlow.npsVersionKey, johnDensmoreVersionNumber.toString))
+      withSession((BenefitFlowHelper.npsVersionKey, johnDensmoreVersionNumber.toString))
 
   private def haveStatus(expectedStatus: Int) = new Matcher[Future[SimpleResult]] {
     def apply(response: Future[SimpleResult]) = {
