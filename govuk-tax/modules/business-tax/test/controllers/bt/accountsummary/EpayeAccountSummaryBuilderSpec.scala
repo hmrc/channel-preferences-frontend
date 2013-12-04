@@ -7,8 +7,6 @@ import controllers.bt.accountsummary.EpayeMessageKeys._
 import controllers.bt.accountsummary.EpayePortalUrlKeys._
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
-import views.helpers.LinkMessage
-import views.helpers.RenderableLinkMessage
 import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -33,13 +31,13 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val empRefMessageString: Msg = Msg(epayeEmpRefMessage, Seq(dummyEmpRef.toString))
 
   private val expectedRtiLinks = Seq(
-    RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, "epayeAccountDetailsHref", sso = true)),
-    RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage, "epayeMakePaymentHref", sso = false))
+    AccountSummaryLink("epaye-account-details-href", homeUrl, viewAccountDetailsLinkMessage, sso = true),
+    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, makeAPaymentLinkMessage, sso = false)
   )
 
   private val expectedNonRtiLinks = Seq(
-    RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, "epayeAccountDetailsHref", sso = true)),
-    RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage, "epayeMakePaymentHref", sso = false))
+    AccountSummaryLink("epaye-account-details-href", homeUrl, viewAccountDetailsLinkMessage, sso = true),
+    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, makeAPaymentLinkMessage, sso = false)
   )
 
   "EpayeAccountSummaryViewBuilder with RTI" should {
@@ -165,7 +163,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Try[Option[EpayeAccountSummary]], expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage]) {
+  private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Try[Option[EpayeAccountSummary]], expectedMessages: Seq[Msg], expectedLinks: Seq[AccountSummaryLink]) {
     val mockUser = mock[User]
     val mockUserAuthority = mock[Authority]
     val mockEpayeConnector = mock[EpayeConnector]

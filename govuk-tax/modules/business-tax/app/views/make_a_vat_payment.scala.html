@@ -45,7 +45,7 @@
     <p>Check your bank’s transaction limits and processing times.</p>
 </div>
 
-<p>You need HMRC’s bank details or you can use the <a id="chapsFormHref" target="_blank" href="http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm">CHAPS form</a> or
+<p>You need HMRC’s bank details or you can use the @helpers.link("chapsFormHref", "http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm", "CHAPS form", true) or
     @helpers.link("standingOrderFormHref", "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028", "standing order form", true).
     Use your VAT registration number as the payment reference @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
 

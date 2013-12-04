@@ -18,7 +18,8 @@
             }
                 <p>
                 @for(addendum <- ac.addenda) {
-                 @addendum.render<br />
+                 @helpers.link(addendum.id, addendum.url, addendum.text, addendum.newWindow, addendum.sso)
+                 <br />
                 }
             </p>
         </div>

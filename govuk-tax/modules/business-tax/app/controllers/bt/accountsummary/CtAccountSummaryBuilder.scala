@@ -1,6 +1,6 @@
 package controllers.bt.accountsummary
 
-import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
+import views.helpers.MoneyPounds
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.DateConverter
@@ -58,10 +58,10 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
                                         dateOfBalance: String): AccountSummary = {
     val makeAPaymentUri = routes.PaymentController.makeCtPayment().url
 
-    val links = Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, "ctAccountDetailsHref"),
-      LinkMessage.internalLink(makeAPaymentUri, makeAPaymentLinkMessage, "ctMakePaymentHref"),
-      LinkMessage.portalLink(buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage, "ctFileReturnHref")
+    val links = Seq[AccountSummaryLink](
+      AccountSummaryLink("ct-account-details-href", buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, true),
+      AccountSummaryLink("ct-make-payment-href", makeAPaymentUri, makeAPaymentLinkMessage, false),
+      AccountSummaryLink("ct-file-return-href", buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage, true)
     )
 
     val messages = Seq(

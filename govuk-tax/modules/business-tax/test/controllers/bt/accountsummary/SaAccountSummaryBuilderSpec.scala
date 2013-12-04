@@ -6,7 +6,7 @@ import uk.gov.hmrc.common.BaseSpec
 import controllers.bt.routes
 import controllers.bt.accountsummary.SaMessageKeys._
 import controllers.bt.accountsummary.CommonBusinessMessageKeys._
-import views.helpers.{MoneyPounds, LinkMessage, RenderableLinkMessage}
+import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.sa.domain.Liability
 import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
 import uk.gov.hmrc.common.microservice.sa.domain.AmountDue
@@ -139,15 +139,15 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
   }
 
   val goodLinks = Seq(
-    RenderableLinkMessage(LinkMessage(homeUrl, viewAccountDetailsLinkMessage, "saAccountDetailsHref", sso = true)),
-    RenderableLinkMessage(LinkMessage(makeAPaymentUrl, makeAPaymentLinkMessage, "saMakePaymentHref", sso = false)),
-    RenderableLinkMessage(LinkMessage(homeUrl, fileAReturnLinkMessage, "saFileReturnHref", sso = true))
+    AccountSummaryLink("sa-account-details-href", homeUrl, viewAccountDetailsLinkMessage, sso = true),
+    AccountSummaryLink("sa-make-payment-href", makeAPaymentUrl, makeAPaymentLinkMessage, sso = false),
+    AccountSummaryLink("sa-file-return-href", homeUrl, fileAReturnLinkMessage, sso = true)
   )
 
-  def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage] = goodLinks): Unit =
+  def testSaAccountSummaryBuilder(accountSummary: SaAccountSummary, expectedMessages: Seq[Msg], expectedLinks: Seq[AccountSummaryLink] = goodLinks): Unit =
     testSaAccountSummaryBuilder(Some(accountSummary), expectedMessages, expectedLinks)
 
-  def testSaAccountSummaryBuilder(aso: Option[SaAccountSummary], expectedMessages: Seq[Msg], expectedLinks: Seq[RenderableLinkMessage]): Unit = {
+  def testSaAccountSummaryBuilder(aso: Option[SaAccountSummary], expectedMessages: Seq[Msg], expectedLinks: Seq[AccountSummaryLink]): Unit = {
     val actualAccountSummary = saAsBuilder.build(aso, saUtr)
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName

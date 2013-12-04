@@ -8,8 +8,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import controllers.common.actions.Actions
-import views.helpers.{PortalLink, LinkMessage}
-import play.api.i18n.Messages
+import views.helpers.PortalLink
 
 class MergeGGAccountsController(override val auditConnector: AuditConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController

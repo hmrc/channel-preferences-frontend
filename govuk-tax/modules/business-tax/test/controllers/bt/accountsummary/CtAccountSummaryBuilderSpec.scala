@@ -3,7 +3,6 @@ package controllers.bt.accountsummary
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import views.helpers.{LinkMessage, RenderableMessage}
 import org.joda.time.LocalDate
 import org.joda.time.chrono.ISOChronology
 import CommonBusinessMessageKeys._
@@ -49,9 +48,11 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummary = await(accountSummaryOption.get)
       accountSummary.regimeName shouldBe ctRegimeNameMessage
       accountSummary.messages shouldBe Seq[Msg](Msg(ctUtrMessage, Seq("12347")), Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC))))
-      accountSummary.addenda shouldBe Seq[RenderableMessage](LinkMessage(ctAccountDetailsPortalUrl, viewAccountDetailsLinkMessage, "ctAccountDetailsHref", sso = true),
-        LinkMessage("/ct/makeAPayment", makeAPaymentLinkMessage, "ctMakePaymentHref", sso = false),
-        LinkMessage(ctFileAReturnPortalUrl, fileAReturnLinkMessage, "ctFileReturnHref", sso = true))
+      accountSummary.addenda shouldBe Seq[AccountSummaryLink](
+        AccountSummaryLink("ct-account-details-href", ctAccountDetailsPortalUrl, viewAccountDetailsLinkMessage, sso = true),
+        AccountSummaryLink("ct-make-payment-href", "/ct/makeAPayment", makeAPaymentLinkMessage, sso = false),
+        AccountSummaryLink("ct-file-return-href", ctFileAReturnPortalUrl, fileAReturnLinkMessage, sso = true)
+      )
       accountSummary.status shouldBe success
 
     }

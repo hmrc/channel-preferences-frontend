@@ -9,6 +9,6 @@
 
     <p>Transaction ID: <b>@transactionId.oid</b></p>
 
-    <p><a href="@controllers.sa.routes.SaController.details">Back to your tax account homepage</a></p>
+    <p>@helpers.link("", controllers.sa.routes.SaController.details.url, "Back to your tax account homepage")</p>
 
 }
