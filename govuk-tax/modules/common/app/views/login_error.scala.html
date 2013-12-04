@@ -4,7 +4,7 @@
 
     <p id="error-reason">Your credentials have not been recognised by HMRC.</p>
 
-    <p>Please try again by clicking <a href="@common.routes.LoginController.samlLogin">here</a></p>
+    <p>Please try again by clicking @helpers.link("login-again-on-error", common.routes.LoginController.samlLogin.url, "here")</p>
     
     <p>If the problem persists please contact the HM Revenue &amp; Customs Online Services Helpdesk.</p>
 }
