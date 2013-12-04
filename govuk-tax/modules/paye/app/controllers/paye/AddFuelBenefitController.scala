@@ -7,7 +7,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import play.api.mvc.Request
-import controllers.paye.validation.AddBenefitFlow
+import controllers.paye.validation.{BenefitFlowHelper, AddBenefitFlow}
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import play.api.Logger
@@ -58,7 +58,9 @@ with PayeRegimeRoots {
 
   def confirmAddingBenefit(taxYear: Int, employmentSequenceNumber: Int) =
     AuthorisedFor(PayeRegime).async {
-      user => request => confirmAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
+      user =>
+        implicit request =>
+          confirmAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber).removeSessionKey(BenefitFlowHelper.npsVersionKey)
     }
 
   private def fuelBenefitForm(values: CarBenefitValues) = Form[FuelBenefitData](

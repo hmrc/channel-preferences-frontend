@@ -28,7 +28,7 @@ import BenefitTypes._
 import scala.concurrent._
 import play.api.data._
 import play.api.data.Forms._
-import controllers.paye.validation.RemoveBenefitFlow
+import controllers.paye.validation.{BenefitFlowHelper, RemoveBenefitFlow}
 
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)(implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
 with Actions
@@ -55,7 +55,9 @@ with PayeRegimeRoots {
 
   def benefitRemoved(benefitTypes: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]) =
     AuthorisedFor(PayeRegime).async {
-      user => request => benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance)
+      user =>
+        implicit request =>
+          benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance).removeSessionKey(BenefitFlowHelper.npsVersionKey)
     }
 
   private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
@@ -193,6 +195,7 @@ with PayeRegimeRoots {
       }
   }
 
+
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
     Future[SimpleResult] = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) => {
     implicit def hc = HeaderCarrier(request)
@@ -265,8 +268,6 @@ with PayeRegimeRoots {
   private def generateKeystoreActionId(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = {
     s"RemoveBenefit:$benefitTypes:$taxYear:$employmentSequenceNumber"
   }
-
-
 
 
 }
