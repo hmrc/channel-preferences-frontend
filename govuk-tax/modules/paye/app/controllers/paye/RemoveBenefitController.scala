@@ -71,7 +71,7 @@ with PayeRegimeRoots {
             val carWithUnremovedFuel = hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
             Ok(remove_car_benefit_form(benefit, carWithUnremovedFuel, updateBenefitForm(benefitStartDate, carWithUnremovedFuel, dates), currentTaxYearYearsRange)(user))
           }
-          case _ => Ok(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), currentTaxYearYearsRange)(user))
+          case _ => Ok(content = remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), updateBenefitForm(benefitStartDate, false, dates), currentTaxYearYearsRange)(user))
         }
       }
   }
@@ -106,50 +106,52 @@ with PayeRegimeRoots {
     }
   }
 
+  // TODO: Break this up into smaller chunks and test them
   def removeBenefit(user: User, benefit: DisplayBenefit, payeRootData: TaxYearData, removeBenefitData: RemoveBenefitFormData)(implicit hc: HeaderCarrier): Future[SimpleResult] = {
     val mainBenefitType = benefit.benefit.benefitType
-    val secondBenefit = getSecondBenefit(payeRootData, benefit.benefit, removeBenefitData.removeCar)
+    mainBenefitType match {
+      case CAR | FUEL => {
+        val secondBenefit = getSecondBenefit(payeRootData, benefit.benefit, removeBenefitData.removeCar)
+        val benefits = benefit.benefits ++ Seq(secondBenefit).filter(_.isDefined).map(_.get)
 
-    val benefits = benefit.benefits ++ Seq(secondBenefit).filter(_.isDefined).map(_.get)
+        val revisedAmountsF = benefits.map { benefit =>
+          benefit.benefitType match {
+            case FUEL if differentDateForFuel(removeBenefitData.fuelDateChoice) => calculateRevisedAmount(benefit, removeBenefitData.fuelWithdrawDate.get)
+            case _ => calculateRevisedAmount(benefit, removeBenefitData.withdrawDate)
+          }
+        }
 
-    val revisedAmountsF = benefits.map { benefit =>
-      benefit.benefitType match {
-        case FUEL if differentDateForFuel(removeBenefitData.fuelDateChoice) => calculateRevisedAmount(benefit, removeBenefitData.fuelWithdrawDate.get)
-        case _ => calculateRevisedAmount(benefit, removeBenefitData.withdrawDate)
-      }
-    }
+        val valuesF = Future.sequence(revisedAmountsF).map { revisedAmounts =>
+          benefits.zip(revisedAmounts).foldLeft(BigDecimal(0), Map[String, BigDecimal]()) {
+            (runningAmounts, benefitsAndRevisedAmounts) =>
+              val (runningTotal, apportionedAmounts) = runningAmounts
+              val (benefit, revisedAmount) = benefitsAndRevisedAmounts
+              (runningTotal + (benefit.grossAmount - revisedAmount), apportionedAmounts + (benefit.benefitType.toString -> revisedAmount))
+          }
+        }
 
-    val valuesF = Future.sequence(revisedAmountsF).map { revisedAmounts =>
-      benefits.zip(revisedAmounts).foldLeft(BigDecimal(0), Map[String, BigDecimal]()) {
-        (runningAmounts, benefitsAndRevisedAmounts) =>
-          val (runningTotal, apportionedAmounts) = runningAmounts
-          val (benefit, revisedAmount) = benefitsAndRevisedAmounts
-          (runningTotal + (benefit.grossAmount - revisedAmount), apportionedAmounts + (benefit.benefitType.toString -> revisedAmount))
-      }
-    }
+        valuesF.map { sumAndApportioned =>
+          val (aggregateSumOfRevisedBenefitAmounts, apportionedValues) = sumAndApportioned
 
-    valuesF.map { sumAndApportioned =>
-      val (aggregateSumOfRevisedBenefitAmounts, apportionedValues) = sumAndApportioned
+          val secondWithdrawDate = removeBenefitData.fuelWithdrawDate.getOrElse(removeBenefitData.withdrawDate)
 
-      val secondWithdrawDate = removeBenefitData.fuelWithdrawDate.getOrElse(removeBenefitData.withdrawDate)
+          val benefitsInfo: Map[String, BenefitInfo] = mapBenefitsInfo(benefit.benefits(0), removeBenefitData.withdrawDate, apportionedValues) ++
+            secondBenefit.map(mapBenefitsInfo(_, secondWithdrawDate, apportionedValues)).getOrElse(Nil)
 
-      val benefitsInfo: Map[String, BenefitInfo] = mapBenefitsInfo(benefit.benefits(0), removeBenefitData.withdrawDate, apportionedValues) ++
-        secondBenefit.map(mapBenefitsInfo(_, secondWithdrawDate, apportionedValues)).getOrElse(Nil)
+          val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
 
-      val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
-
-      keyStoreService.addKeyStoreEntry(
-        generateKeystoreActionId(updatedBenefit.allBenefitsToString, updatedBenefit.benefit.taxYear, updatedBenefit.benefit.employmentSequenceNumber),
-        KeystoreUtils.source,
-        keystoreKey,
-        RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues)
-      )
-
-      mainBenefitType match {
-        case CAR | FUEL => {
+          keyStoreService.addKeyStoreEntry(
+            generateKeystoreActionId(updatedBenefit.allBenefitsToString, updatedBenefit.benefit.taxYear, updatedBenefit.benefit.employmentSequenceNumber),
+            KeystoreUtils.source,
+            keystoreKey,
+            RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues)
+          )
           Ok(remove_benefit_confirm(aggregateSumOfRevisedBenefitAmounts, updatedBenefit)(user))
         }
-        case _ => Logger.error(s"Unsupported type of the main benefit: $mainBenefitType, redirecting to car benefit homepage"); Redirect(routes.CarBenefitHomeController.carBenefitHome())
+      }
+      case _ => {
+        Logger.error(s"Unsupported type of the main benefit: $mainBenefitType, redirecting to car benefit homepage")
+        Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
       }
     }
   }
@@ -205,7 +207,7 @@ with PayeRegimeRoots {
             }
           }
           case _ => {
-            Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to car benefit homepage");
+            Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to car benefit homepage")
             Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
           }
         }
@@ -218,24 +220,22 @@ with PayeRegimeRoots {
     Future[SimpleResult] = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) => {
     implicit def hc = HeaderCarrier(request)
 
-    txQueueConnector.transaction(oid, user.regimes.paye.get).flatMap { txo =>
-      txo match {
-        case None => Future.successful(NotFound)
-        case Some(tx) => {
-          keyStoreService.deleteKeyStore(
-            generateKeystoreActionId(kinds, year, employmentSequenceNumber),
-            KeystoreUtils.source
-          )
-          val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
-          if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
-            TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>
-              val removalData = BenefitUpdatedConfirmationData(taxCode, newTaxCode, personalAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-              Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
-            }
-          } else {
-            Logger.error(s"Unsupported type of removed benefits: $kinds, redirecting to benefit list")
-            Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
+    txQueueConnector.transaction(oid, user.regimes.paye.get).flatMap {
+      case None => Future.successful(NotFound)
+      case Some(tx) => {
+        keyStoreService.deleteKeyStore(
+          generateKeystoreActionId(kinds, year, employmentSequenceNumber),
+          KeystoreUtils.source
+        )
+        val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
+        if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
+          TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>
+            val removalData = BenefitUpdatedConfirmationData(taxCode, newTaxCode, personalAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+            Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
           }
+        } else {
+          Logger.error(s"Unsupported type of removed benefits: $kinds, redirecting to benefit list")
+          Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
         }
       }
     }
@@ -289,8 +289,6 @@ with PayeRegimeRoots {
   private def generateKeystoreActionId(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = {
     s"RemoveBenefit:$benefitTypes:$taxYear:$employmentSequenceNumber"
   }
-
-
 }
 
 case class RemoveBenefitData(withdrawDate: LocalDate, revisedAmounts: Map[String, BigDecimal])
