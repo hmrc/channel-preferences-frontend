@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.domain
 
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain.{Authority, Accounts}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import controllers.common.AuthenticationProvider
@@ -11,7 +11,7 @@ import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 
 abstract class TaxRegime {
 
-  def isAuthorised(regimes: Regimes): Boolean
+  def isAuthorised(accounts: Accounts): Boolean
 
   def unauthorisedLandingPage: String
 
@@ -23,7 +23,7 @@ abstract class RegimeRoot[I] {
 }
 
 case class User(userId: String,
-                userAuthority: UserAuthority,
+                userAuthority: Authority,
                 regimes: RegimeRoots,
                 nameFromGovernmentGateway: Option[String] = None,
                 decryptedToken: Option[String] = None) {

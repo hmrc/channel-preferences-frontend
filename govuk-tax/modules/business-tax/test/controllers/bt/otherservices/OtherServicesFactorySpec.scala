@@ -10,11 +10,9 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 import org.scalatest.concurrent.ScalaFutures
 import scala._
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeLinks
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
@@ -24,10 +22,12 @@ import play.api.test.FakeApplication
 
 class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
+  import controllers.domain.AuthorityUtils._
+  
   "createBusinessTaxesRegistration" should {
     "return a BusinessTaxRegistration object containing only the link to the hmrc website if epaye, vat and sa are defined" in new OtherServicesFactoryForTest {
 
-      val user = User("userId", UserAuthority("userId", Regimes()), RegimeRoots(sa = saRoot, vat = vatRoot, epaye = epayeRoot), decryptedToken = None)
+      val user = User("userId", emptyAuthority("userId"), RegimeRoots(sa = saRoot, vat = vatRoot, epaye = epayeRoot), decryptedToken = None)
       OtherServicesFactory.createRegistrationText(user) shouldBe None
     }
 
@@ -35,7 +35,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(ct = ctRoot, vat = vatRoot, epaye = epayeRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe None
     }
@@ -44,7 +44,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot, epaye = epayeRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
       OtherServicesFactory.createRegistrationText(user) shouldBe None
     }
 
@@ -52,7 +52,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots()
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for SA, CT, employers PAYE, or VAT")
     }
@@ -61,7 +61,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(vat = vatRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for SA, CT, or employers PAYE")
     }
@@ -70,7 +70,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(epaye = epayeRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for SA, CT, or VAT")
     }
@@ -79,7 +79,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(epaye = epayeRoot, vat = vatRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for SA, or CT")
     }
@@ -88,7 +88,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(ct = ctRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for SA, employers PAYE, or VAT")
     }
@@ -97,7 +97,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(ct = ctRoot, vat = vatRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for SA, or employers PAYE")
     }
@@ -106,7 +106,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(ct = ctRoot, epaye = epayeRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for SA, or VAT")
     }
@@ -115,7 +115,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(sa = saRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for CT, employers PAYE, or VAT")
     }
@@ -124,7 +124,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(sa = saRoot, vat = vatRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for CT, or employers PAYE")
     }
@@ -133,7 +133,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(sa = saRoot, epaye = epayeRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for CT, or VAT")
     }
@@ -142,7 +142,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for employers PAYE, or VAT")
     }
@@ -151,7 +151,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, vat = vatRoot)
 
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for employers PAYE")
     }
@@ -159,7 +159,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
     "return a BusinessTaxRegistration object containing registration link for vat  if sa, ct and epaye are defined" in new OtherServicesFactoryForTest {
 
       val regimes = RegimeRoots(sa = saRoot, ct = ctRoot, epaye = epayeRoot)
-      implicit val user = User("userId", UserAuthority("userId", Regimes()), regimes, decryptedToken = None)
+      implicit val user = User("userId", emptyAuthority("userId"), regimes, decryptedToken = None)
 
       OtherServicesFactory.createRegistrationText(user) shouldBe Some("Register for VAT")
     }

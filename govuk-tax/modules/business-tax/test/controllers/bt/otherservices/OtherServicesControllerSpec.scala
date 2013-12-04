@@ -3,18 +3,22 @@ package controllers.bt.otherservices
 import uk.gov.hmrc.common.BaseSpec
 import org.mockito.Mockito._
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import controllers.bt.testframework.mocks.PortalUrlBuilderMock
 import controllers.bt.OtherServicesController
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.governmentgateway.{ProfileResponse, GovernmentGatewayConnector}
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnector
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.common.microservice.governmentgateway.ProfileResponse
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
+import scala.Some
 
 class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -26,7 +30,7 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
       val controllerUnderTest = new OtherServicesController(ggw, null)(null)
 
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = saAuthority("userId", "sa-utr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 
       when(ggw.profile("userId")).thenReturn(ProfileResponse("Individual", List("HMCE-ECSL-ORG", "HMRC-EU-REF-ORG", "hmce-vatrsl-org")))
@@ -50,7 +54,7 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
       val saRoot = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))
       val epaye = Some(mock[EpayeRoot])
       val vat = Some(mock[VatRoot])
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot, vat = vat, epaye = epaye), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = saAuthority("userId", "sa-utr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot, vat = vat, epaye = epaye), decryptedToken = None)
 
       when(ggw.profile("userId")).thenReturn(ProfileResponse("Individual", List("HMCE-ECSL-ORG", "HMRC-EU-REF-ORG", "hmce-vatrsl-org")))
 

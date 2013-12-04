@@ -2,7 +2,7 @@ package uk.gov.hmrc.common.microservice.domain
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import org.mockito.Mockito._
 
@@ -14,7 +14,7 @@ class UserSpec extends BaseSpec with MockitoSugar {
 
       val regimes = RegimeRoots()
 
-      val user = User("id", mock[UserAuthority], regimes, Some("John Small"), None)
+      val user = User("id", mock[Authority], regimes, Some("John Small"), None)
 
       user.displayName shouldBe Some("John Small")
 
@@ -30,7 +30,7 @@ class UserSpec extends BaseSpec with MockitoSugar {
 
       val regimes = RegimeRoots(paye = Some(payeRoot))
 
-      val user = User("id", mock[UserAuthority], regimes, None, None)
+      val user = User("id", mock[Authority], regimes, None, None)
 
       when(payeRoot.name).thenReturn("John Densmore")
 

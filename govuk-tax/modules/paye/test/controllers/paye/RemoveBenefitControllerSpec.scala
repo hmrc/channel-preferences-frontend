@@ -22,8 +22,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
-import java.net.URI
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import org.joda.time.format.DateTimeFormat
 import concurrent.Future
@@ -38,6 +36,8 @@ import org.scalatest.concurrent.ScalaFutures
 import controllers.paye.validation.BenefitFlowHelper
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper with ScalaFutures {
+
+  import controllers.domain.AuthorityUtils._
 
   val mockKeyStoreService = mock[KeyStoreConnector]
   val mockPayeConnector = mock[PayeConnector]
@@ -73,7 +73,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
-    when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefits/2013")).thenReturn(Some(benefits))
+    when(mockPayeConnector.linkedResource[Seq[Benefit]]("/paye/AB123456C/benefit-car/2013")).thenReturn(Some(benefits))
     when(mockPayeConnector.calculationWithdrawKey()).thenReturn("withdraw")
   }
 
@@ -876,9 +876,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val ua = UserAuthority(s"/personal/paye/CE927349E", Regimes(paye = Some(URI.create(s"/personal/paye/CE927349E"))), None)
-
-      val user = User("wshakespeare", ua, RegimeRoots(paye = Some(payeRoot)), None, None)
+      val user = User("wshakespeare", payeAuthority("someId", "CE927349E"), RegimeRoots(paye = Some(payeRoot)), None, None)
 
       val request = FakeRequest().
         withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true").
@@ -894,6 +892,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
     "Contain correct employee names" in new WithApplication(FakeApplication()) {
 
+
       val car = Car(None, None, Some(new LocalDate()), Some(BigDecimal(10)), Some("diesel"), Some(10), Some(1400), None, Some(BigDecimal("1432")), None, None)
       val versionNumber = 1
       val payeRoot = new PayeRoot("CE927349E", versionNumber, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
@@ -906,9 +905,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
       }
 
-      val ua = UserAuthority(s"/personal/paye/CE927349E", Regimes(paye = Some(URI.create(s"/personal/paye/CE927349E"))), None)
-
-      val user = User("wshakespeare", ua, RegimeRoots(paye = Some(payeRoot)), None, None)
+      val user = User("wshakespeare", payeAuthority("someId", "CE927349E"), RegimeRoots(paye = Some(payeRoot)), None, None)
 
       val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true").
         withSession((BenefitFlowHelper.npsVersionKey, versionNumber.toString))

@@ -2,12 +2,10 @@ package controllers.bt
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
-import uk.gov.hmrc.domain.{AccountingPeriod, CalendarEvent, Vrn, CtUtr}
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain._
 import org.mockito.Mockito._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -18,7 +16,19 @@ import uk.gov.hmrc.utils.DateTimeUtils
 import controllers.bt.testframework.mocks.PortalUrlBuilderMock
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
-import controllers.common.actions.HeaderCarrier
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
+import uk.gov.hmrc.domain.CalendarEvent
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.domain.AccountingPeriod
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.auth.domain.Credentials
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.auth.domain.CtAccount
+import play.api.test.FakeApplication
 
 class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -26,23 +36,21 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
   private val ctCalendarUrl = "/ct/someCtUtr/calendar"
   private val vatCalendarUrl = "/vat/someVrn/calendar"
 
-  private def ctAndVatUser = {
-    val ctRegime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar" -> ctCalendarUrl)))
-    val vatRegime = Some(VatRoot(Vrn("someVrn"), Map("calendar" -> vatCalendarUrl)))
-    User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
-      nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime, vat = vatRegime), decryptedToken = None)
-  }
-
   private def ctUser = {
     val ctRegime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar" -> ctCalendarUrl)))
-    User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()),
+    User(userId = "userId", userAuthority = ctAuthority("userId", "someCtUtr"),
       nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime), decryptedToken = None)
   }
 
   "important dates page" should {
 
     "render view with CT payment and filing dates" in new WithApplication(FakeApplication()) with PortalUrlBuilderMock {
-      val user = ctAndVatUser
+      val ctRegime = Some(CtRoot(CtUtr("someCtUtr"), Map("calendar" -> ctCalendarUrl)))
+      val vatRegime = Some(VatRoot(Vrn("someVrn"), Map("calendar" -> vatCalendarUrl)))
+      val user = User(userId = "userId",
+        userAuthority = Authority("/auth/oid/userId", Credentials(), Accounts(ct = Some(CtAccount("/ct/someCtUtr", CtUtr("someCtUtr"))), vat = Some(VatAccount("/vat/someVrn", Vrn("someVrn")))),
+          None, None, CreationAndLastModifiedDetail()),
+        nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRegime, vat = vatRegime), decryptedToken = None)
 
       val mockCtConnector = mock[CtConnector]
       val mockVatConnector = mock[VatConnector]

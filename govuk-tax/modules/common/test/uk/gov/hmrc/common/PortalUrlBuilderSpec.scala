@@ -1,24 +1,20 @@
 package uk.gov.hmrc.common
 
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }
 import play.api.mvc.{ Session, Request }
-import uk.gov.hmrc.domain.{CtUtr, Vrn, SaUtr}
 
 class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
 
-  val mockAffinityGroupParser = mock[AffinityGroupParser]
+  import controllers.domain.AuthorityUtils._
 
-  val portalUrlBuilder = new PortalUrlBuilder {
-    override def parseAffinityGroup(implicit request: Request[AnyRef]): String = mockAffinityGroupParser.parseAffinityGroup
-  }
+  val portalUrlBuilder = new PortalUrlBuilder {}
   
   val testConfig = Map(
     "govuk-tax.Test.portal.destinationPath.someDestinationPathKey" -> "http://someserver:8080/utr/<utr>/year/<year>",
-    "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "http://someserver:8080/utr/<utr>/affinitygroup/<affinitygroup>/year/<year>",
+    "govuk-tax.Test.portal.destinationPath.anotherDestinationPathKey" -> "http://someserver:8080/utr/<utr>/year/<year>",
     "govuk-tax.Test.portal.destinationPath.testVatAccountDetails" -> "http://someserver:8080/vat/trader/<vrn>/account",
     "govuk-tax.Test.portal.destinationPath.testCtAccountDetails" -> "http://someserver:8080/corporation-tax/org/<ctutr>/account",
     "govuk-tax.Test.portal.destinationRoot" -> "http://someOtherserver:8080",
@@ -27,60 +23,36 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
   
   "PortalUrlBuilder " should {
 
-    "return a resolved dynamic full URL with parameters year, saUtr and affinity group resolved using a request and user object" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
+    "return a resolved dynamic full URL with parameters year and saUtr resolved using a request and user object" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
       val saUtr = "someUtr"
 
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn("someaffinitygroup")
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.saUtr).thenReturn(Some(SaUtr(saUtr)))
+       when(mockUser.userAuthority).thenReturn(saAuthority("123", saUtr))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("anotherDestinationPathKey")
 
-      actualDestinationUrl should startWith("""http://someserver:8080/utr/someUtr/affinitygroup/someaffinitygroup/year""")
+      actualDestinationUrl should startWith("""http://someserver:8080/utr/someUtr/year""")
       actualDestinationUrl should not endWith """<year>"""
-    }
-
-    "throw an exception when the affinity group is missing" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
-      implicit val mockRequest= mock[Request[AnyRef]]
-      implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
-      val saUtr = "someUtr"
-
-      when(mockAffinityGroupParser.parseAffinityGroup).thenThrow(new RuntimeException)
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.saUtr).thenReturn(Some(SaUtr(saUtr)))
-
-      evaluating(portalUrlBuilder.buildPortalUrl("anotherDestinationPathKey")) should produce[RuntimeException]
     }
 
     "return a URL without the UTR resolved when the utr is missing" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
       val mockSession = mock[Session]
-      val mockUserAuthority = mock[UserAuthority]
 
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn("someaffinitygroup")
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.saUtr).thenReturn(None)
+      when(mockUser.userAuthority).thenReturn(payeAuthority("", "someNino"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("anotherDestinationPathKey")
 
-      actualDestinationUrl should startWith("""http://someserver:8080/utr/<utr>/affinitygroup/someaffinitygroup/year""")
+      actualDestinationUrl should startWith("""http://someserver:8080/utr/<utr>/year""")
       actualDestinationUrl should not endWith """<year>"""
     }
 
     "return a URL which is resolved using a vrn parameter" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
-      val vrn = "someVrn"
-
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn("someaffinitygroup")
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.vrn).thenReturn(Some(Vrn(vrn)))
+      when(mockUser.userAuthority).thenReturn(vatAuthority("", "someVrn"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testVatAccountDetails")
 
@@ -90,12 +62,8 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return an invalid URL when we request a link requiring a vrn parameter but the vrn is missing" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
-      val vrn = "someVrn"
 
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn("someaffinitygroup")
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.vrn).thenReturn(None)
+      when(mockUser.userAuthority).thenReturn(saAuthority("", ""))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testVatAccountDetails")
 
@@ -105,12 +73,7 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return a URL which is resolved using a ctUtr parameter" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
-      val ctUtr = "someCtUtr"
-
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn("someaffinitygroup")
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.ctUtr).thenReturn(Some(CtUtr(ctUtr)))
+      when(mockUser.userAuthority).thenReturn(ctAuthority("", "someCtUtr"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testCtAccountDetails")
 
@@ -120,12 +83,9 @@ class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
     "return an invalid URL when we request a link requiring a ctUtr parameter but the ctUtr is missing" in new WithApplication(FakeApplication(additionalConfiguration = testConfig)) {
       implicit val mockRequest= mock[Request[AnyRef]]
       implicit val mockUser = mock[User]
-      val mockUserAuthority = mock[UserAuthority]
       val ctUtr = "someCtUtr"
 
-      when(mockAffinityGroupParser.parseAffinityGroup).thenReturn("someaffinitygroup")
-      when(mockUser.userAuthority).thenReturn(mockUserAuthority)
-      when(mockUserAuthority.ctUtr).thenReturn(None)
+      when(mockUser.userAuthority).thenReturn(vatAuthority("", "vrn"))
 
       val actualDestinationUrl = portalUrlBuilder.buildPortalUrl("testCtAccountDetails")
 

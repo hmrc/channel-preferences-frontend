@@ -13,15 +13,14 @@ import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
+import controllers.common.actions.HeaderCarrier
+import controllers.domain.AuthorityUtils._
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import scala.Some
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import controllers.common.actions.HeaderCarrier
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -39,7 +38,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
   val validUtr = SaUtr("1234567890")
   val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
-  val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
   "Preferences pages" should {
 

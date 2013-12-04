@@ -5,6 +5,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 trait UserFixture {
 
@@ -12,6 +13,7 @@ trait UserFixture {
   def currentTime: DateTime
   def lastRequestTimestamp: Option[DateTime]
   def lastLoginTimestamp: Option[DateTime]
+  def authority: Authority
 }
 
 trait BusinessUserFixture extends UserFixture {
@@ -21,7 +23,6 @@ trait BusinessUserFixture extends UserFixture {
   def epayeRoot: Option[EpayeRoot]
   def vatRoot: Option[VatRoot]
 
-  def affinityGroup: Option[String]
   def nameFromGovernmentGateway: Option[String]
   def governmentGatewayToken: Option[String]
 }

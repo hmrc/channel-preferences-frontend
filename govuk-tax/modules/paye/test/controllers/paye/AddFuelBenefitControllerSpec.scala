@@ -236,7 +236,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       doc.select("#second-heading").text should include("Check your private fuel details")
       doc.select("#private-fuel").text should include(s"3 June $testTaxYear")
       doc.select("#provided-from").text should include(s"12 May $testTaxYear")
-      doc.select("#fuelBenefitTaxableValue").text should include("£1,234")
+      doc.select("#fuel-benefit-taxable-value").text should include("£1,234")
 
     }
 
@@ -273,7 +273,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#fuelBenefitTaxableValue").text shouldBe "£1,234"
+      doc.select("#fuel-benefit-taxable-value").text shouldBe "£1,234"
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new TestCaseIn2012 {
@@ -475,7 +475,7 @@ class TestCase(protected val taxYear: Int = 2012) extends WithApplication(FakeAp
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$taxYear")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$taxYear")).thenReturn(Some(employments))
-    when(mockPayeConnector.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefits/$taxYear")).thenReturn(Some(benefits))
+    when(mockPayeConnector.linkedResource[Seq[Benefit]](s"/paye/AB123456C/benefit-car/$taxYear")).thenReturn(Some(benefits))
   }
 
   def setupCalculationMock(calculationResult: Int) = {

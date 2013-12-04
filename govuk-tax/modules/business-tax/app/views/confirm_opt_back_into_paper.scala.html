@@ -16,13 +16,11 @@
 
 @helper.form(action = controllers.bt.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
 <div class="form-field">
-    <button id="confirm-opt-out" class="button" type="submit">Yes</button>
+    <button id="confirm-opt-out" class="button" type="submit">Opt me out of digital</button>
 </div>
 }
 @helper.form(action = controllers.bt.routes.AccountDetailsController.accountDetails) {
-<div class="form-field">
-    <button id="cancel-opt-out" class="button" type="submit" >No</button>
-</div>
 
+    @helpers.link("accountDetailsLink", controllers.bt.routes.AccountDetailsController.accountDetails.url, "Never mind - I want to stay digital")
 }
 }

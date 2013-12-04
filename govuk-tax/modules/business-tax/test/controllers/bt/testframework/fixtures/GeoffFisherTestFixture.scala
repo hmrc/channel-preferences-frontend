@@ -6,6 +6,12 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeRoot, EpayeLinks}
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeLinks
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
 
 trait GeoffFisherTestFixture extends BusinessUserFixture {
 
@@ -17,11 +23,13 @@ trait GeoffFisherTestFixture extends BusinessUserFixture {
   val vrn = Vrn("456345576")
 
   val saLinks = Map("something" -> s"/sa/some/path/$saUtr/stuff")
+
   val ctLinks = Map("something" -> s"/ct/some/path/in/ct/$ctUtr/dsffds")
   val epayeLinks = EpayeLinks(accountSummary = Some(s"/epaye/wherever/$empRef/blah"))
   val vatLinks = Map("something" -> s"/vat/inside/vat/$vrn/stuff")
-
   override val userId = "/auth/oid/geoff"
+
+  val authority = allBizTaxAuthority(userId, saUtr.utr, ctUtr.utr, vrn.vrn, empRef.toString)
 
   override val saRoot = Some(SaRoot(saUtr, saLinks))
   override val ctRoot = Some(CtRoot(ctUtr, ctLinks))
@@ -30,7 +38,6 @@ trait GeoffFisherTestFixture extends BusinessUserFixture {
 
   override val lastLoginTimestamp = Some(currentTime.minus(Duration.standardDays(14)))
   override val lastRequestTimestamp = Some(currentTime.minus(Duration.standardMinutes(1)))
-  override val affinityGroup = Some("someAffinityGroup")
   override val nameFromGovernmentGateway: Option[String] = Some("Geoffrey From Government Gateway")
   override val governmentGatewayToken: Option[String] = Some("someToken")
 

@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.sa.domain
 
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoot, TaxRegime}
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.SaConnector
@@ -13,7 +13,7 @@ import controllers.common.actions.HeaderCarrier
 
 object SaRegime extends TaxRegime {
 
-  def isAuthorised(regimes: Regimes) = regimes.sa.isDefined
+  def isAuthorised(accounts: Accounts) = accounts.sa.isDefined
 
   def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
 

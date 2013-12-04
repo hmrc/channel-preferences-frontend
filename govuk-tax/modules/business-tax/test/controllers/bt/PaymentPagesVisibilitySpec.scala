@@ -5,26 +5,30 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.epaye.domain._
-import uk.gov.hmrc.domain.{Vrn, CtUtr, SaUtr, EmpRef}
+import uk.gov.hmrc.domain.EmpRef
 import play.api.test.FakeRequest
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeAccountSummary
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.epaye.domain.EpayeLinks
-import uk.gov.hmrc.common.microservice.epaye.domain.RTI
-import scala.Some
-import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, SaRoot}
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.sa.SaConnector
-import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountBalance, CtAccountSummary, CtRoot}
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
-import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatRoot}
-import controllers.common.actions.HeaderCarrier
-import scala.concurrent._
-import duration._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeLinks
+import uk.gov.hmrc.common.microservice.epaye.domain.NonRTI
+import uk.gov.hmrc.common.microservice.vat.domain.VatAccountSummary
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.vat.domain.VatAccountBalance
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.sa.domain.SaAccountSummary
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.epaye.domain.EpayeAccountSummary
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.epaye.domain.RTI
+import uk.gov.hmrc.common.microservice.ct.domain.CtAccountSummary
+import uk.gov.hmrc.common.microservice.ct.domain.CtAccountBalance
 
 class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
@@ -34,7 +38,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val epayeConnectorMock = mock[EpayeConnector]
       val epayeRoot = Some(EpayeRoot(EmpRef("emp/6353"), EpayeLinks(Some("someUri"))))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = epayeAuthority("userId", "emp/6353"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
 
       when(epayeConnectorMock.accountSummary("someUri")).thenReturn(Some(EpayeAccountSummary(Some(RTI(35.38)), None)))
 
@@ -49,7 +53,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val epayeConnectorMock = mock[EpayeConnector]
       val epayeRoot = Some(EpayeRoot(EmpRef("emp/6353"), EpayeLinks(Some("someUri"))))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = epayeAuthority("userId", "emp/6353"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
 
       when(epayeConnectorMock.accountSummary("someUri")).thenReturn(Some(EpayeAccountSummary(None, Some(NonRTI(736, 2013)))))
 
@@ -64,7 +68,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val epayeConnectorMock = mock[EpayeConnector]
       val epayeRoot = Some(EpayeRoot(EmpRef("emp/6353"), EpayeLinks(None)))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = epayeAuthority("userId", "emp/6353"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
 
       val predicate = new EpayePaymentPredicate(epayeConnectorMock)
 
@@ -81,7 +85,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val saConnectorMock = mock[SaConnector]
       val saRoot = Some(SaRoot(SaUtr("saUtr"), Map("individual/account-summary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = saAuthority("userId", "saUtr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
       when(saConnectorMock.accountSummary("someUri")).thenReturn(Some(SaAccountSummary(None, None, None)))
 
@@ -96,7 +100,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val saConnectorMock = mock[SaConnector]
       val saRoot = Some(SaRoot(SaUtr("saUtr"), links = Map.empty[String, String]))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = saAuthority("userId", "saUtr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
 
       val predicate = new SaPaymentPredicate(saConnectorMock)
@@ -114,7 +118,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val ctConnectorMock = mock[CtConnector]
       val ctRoot = Some(CtRoot(CtUtr("ctUtr"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = ctAuthority("userId", "ctUtr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
 
       when(ctConnectorMock.accountSummary("someUri")).thenReturn(Some(CtAccountSummary(Some(CtAccountBalance(Some(3222))), Some("2013-03-23"))))
 
@@ -129,7 +133,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val ctConnectorMock = mock[CtConnector]
       val ctRoot = Some(CtRoot(CtUtr("ctUtr"), Map("anyOtherKey"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = ctAuthority("userId", "ctUtr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
 
       val predicate = new CtPaymentPredicate(ctConnectorMock)
 
@@ -142,7 +146,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val ctConnectorMock = mock[CtConnector]
       val ctRoot = Some(CtRoot(CtUtr("ctUtr"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = ctAuthority("userId", "ctUtr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
 
       when(ctConnectorMock.accountSummary("someUri")).thenReturn(Some(CtAccountSummary(None, Some("2013-03-23"))))
 
@@ -157,7 +161,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val ctConnectorMock = mock[CtConnector]
       val ctRoot = Some(CtRoot(CtUtr("ctUtr"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = ctAuthority("userId", "ctUtr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
 
       when(ctConnectorMock.accountSummary("someUri")).thenReturn(Some(CtAccountSummary(Some(CtAccountBalance(Some(3222))), None)))
 
@@ -172,7 +176,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val ctConnectorMock = mock[CtConnector]
       val ctRoot = Some(CtRoot(CtUtr("ctUtr"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = ctAuthority("userId", "ctUtr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None)
 
       when(ctConnectorMock.accountSummary("someUri")).thenReturn(Some(CtAccountSummary(None, None)))
 
@@ -191,7 +195,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val vatConnectorMock = mock[VatConnector]
       val vatRoot = Some(VatRoot(Vrn("vrn"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = vatAuthority("userId", "vrn"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
 
       when(vatConnectorMock.accountSummary("someUri")).thenReturn(Some(VatAccountSummary(Some(VatAccountBalance(Some(333))), Some("2013-08-23"))))
 
@@ -206,7 +210,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val vatConnectorMock = mock[VatConnector]
       val vatRoot = Some(VatRoot(Vrn("vrn"), Map.empty[String, String]))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = vatAuthority("userId", "vrn"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
 
       val predicate = new VatPaymentPredicate(vatConnectorMock)
 
@@ -220,7 +224,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val vatConnectorMock = mock[VatConnector]
       val vatRoot = Some(VatRoot(Vrn("vrn"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = vatAuthority("userId", "vrn"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
 
       when(vatConnectorMock.accountSummary("someUri")).thenReturn(Some(VatAccountSummary(Some(VatAccountBalance(None)), Some("2013-08-23"))))
 
@@ -235,7 +239,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val vatConnectorMock = mock[VatConnector]
       val vatRoot = Some(VatRoot(Vrn("vrn"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = vatAuthority("userId", "vrn"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
 
       when(vatConnectorMock.accountSummary("someUri")).thenReturn(Some(VatAccountSummary(Some(VatAccountBalance(Some(323))), None)))
 
@@ -250,7 +254,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
 
       implicit val vatConnectorMock = mock[VatConnector]
       val vatRoot = Some(VatRoot(Vrn("vrn"), Map("accountSummary"->"someUri")))
-      val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
+      val user = User(userId = "userId", userAuthority = vatAuthority("userId", "vrn"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(vat = vatRoot), decryptedToken = None)
 
       when(vatConnectorMock.accountSummary("someUri")).thenReturn(Some(VatAccountSummary(None, None)))
 

@@ -8,7 +8,6 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import scala.concurrent.Future
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
@@ -28,10 +27,11 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
 }
 
 class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
+  import controllers.domain.AuthorityUtils._
 
   val validUtr = SaUtr("1234567890")
   val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
-  val user = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
   "show account details" should {
 
@@ -44,7 +44,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      val changeEmailAddressLink = page.getElementById("changeEmailAddressLink")
+      val changeEmailAddressLink = page.getElementById("change-email-address-link")
       changeEmailAddressLink should not be null
       changeEmailAddressLink.text shouldBe "Change your email address"
       changeEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
@@ -59,13 +59,13 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
     "not include Change email address section for non-SA customer" in new Setup {
 
-      val nonSaUser = User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(), decryptedToken = None)
+      val nonSaUser = User(userId = "userId", userAuthority = ctAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(), decryptedToken = None)
 
       val result = Future.successful(controller.accountDetailsPage(nonSaUser, request))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      page.getElementById("changeEmailAddressLink") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
       page.getElementById("optOutOfEmailLink") shouldBe null
 
       verifyZeroInteractions(mockPreferencesConnector)
@@ -79,7 +79,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      page.getElementById("changeEmailAddressLink") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
     }
@@ -93,7 +93,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      page.getElementById("changeEmailAddressLink") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
     }
@@ -109,7 +109,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
 
-      page.getElementById("currentEmailAddress").text shouldBe "test@test.com"
+      page.getElementById("current-email-address").text shouldBe "test@test.com"
       page.getElementById("email.main") shouldNot be(null)
       page.getElementById("email.main").attr("value") shouldBe ""
       page.getElementById("email.confirm") shouldNot be(null)
@@ -127,7 +127,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
 
-      page.getElementById("currentEmailAddress").text shouldBe "test@test.com"
+      page.getElementById("current-email-address").text shouldBe "test@test.com"
       page.getElementById("email.main") shouldNot be(null)
       page.getElementById("email.main").attr("value") shouldBe existingEmailAddress
       page.getElementById("email.confirm") shouldNot be(null)
@@ -177,14 +177,6 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val document = Jsoup.parse(contentAsString(page))
       document.select(".error-notification").text shouldBe "The email addresses entered do not match"
       verifyZeroInteractions(mockEmailConnector)
-    }
-
-    "fail to validate if two different email addresses are entered." ignore new Setup {
-      val saPreferences = SaPreference(true, Some("test@test.com"))
-      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
-
-      controller.submitEmailAddress()
-
     }
 
     "show error if the email address is not syntactically valid" in new Setup {
@@ -329,9 +321,9 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val page = Jsoup.parse(contentAsString(result))
 
       page.getElementById("confirm-opt-out") shouldNot be(null)
-      page.getElementById("confirm-opt-out").text shouldBe "Yes"
-      page.getElementById("cancel-opt-out") shouldNot be(null)
-      page.getElementById("cancel-opt-out").text shouldBe "No"
+      page.getElementById("confirm-opt-out").text shouldBe "Opt me out of digital"
+      page.getElementById("accountDetailsLink") shouldNot be(null)
+      page.getElementById("accountDetailsLink").text shouldBe "Never mind - I want to stay digital"
     }
 
     "return bad request if the user has not opted into digital" in new Setup{

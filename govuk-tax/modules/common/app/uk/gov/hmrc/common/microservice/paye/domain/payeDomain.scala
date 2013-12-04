@@ -5,7 +5,7 @@ import org.joda.time.format.DateTimeFormat
 import controllers.common.{Ida, routes}
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
@@ -15,7 +15,7 @@ import ExecutionContext.Implicits.global
 
 object PayeRegime extends TaxRegime {
 
-  def isAuthorised(regimes: Regimes) = regimes.paye.isDefined
+  def isAuthorised(accounts: Accounts) = accounts.paye.isDefined
 
   def unauthorisedLandingPage: String = routes.LoginController.login().url
 
@@ -54,7 +54,7 @@ case class PayeRoot(nino: String,
     Future {valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)}
 
   def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Seq[Benefit] =
-    valuesForTaxYear[Benefit](resource = "benefits", taxYear = taxYear)
+    valuesForTaxYear[Benefit](resource = "benefit-car", taxYear = taxYear)
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
     Future {valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)}

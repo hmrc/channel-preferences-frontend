@@ -56,7 +56,7 @@ class LoginController(samlConnector: SamlConnector,
         try {
           val response: GovernmentGatewayResponse = governmentGatewayConnector.login(boundForm.value.get)(HeaderCarrier(request))
           FrontEndRedirect.toBusinessTax
-            .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "affinityGroup" -> encrypt(response.affinityGroup), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
+            .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
         } catch {
           case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid username or password. Try again.")))
           case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
@@ -92,20 +92,20 @@ class LoginController(samlConnector: SamlConnector,
                   AuditEvent(
                     auditType = "TxSucceded",
                     tags = Map("transactionName" -> "IDA Login Completion", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
-                    detail = Map("hashPid" -> hashPid, "authId" -> authority.id)
-                      ++ authority.saUtr.map("saUtr" -> _.utr).toMap
-                      ++ authority.vrn.map("vrn" -> _.vrn).toMap
-                      ++ authority.ctUtr.map("ctUtr" -> _.utr).toMap
-                      ++ authority.empRef.map("empRef" -> _.toString).toMap
-                      ++ authority.nino.map("nino" -> _.nino).toMap
-                      ++ authority.uar.map("uar" -> _.uar).toMap
+                    detail = Map("hashPid" -> hashPid, "authId" -> authority.uri)
+                      ++ authority.accounts.sa.map("saUtr" -> _.utr.utr).toMap
+                      ++ authority.accounts.vat.map("vrn" -> _.vrn.vrn).toMap
+                      ++ authority.accounts.ct.map("ctUtr" -> _.utr.utr).toMap
+                      ++ authority.accounts.epaye.map("empRef" -> _.empRef.toString).toMap
+                      ++ authority.accounts.paye.map("nino" -> _.nino.nino).toMap
+                      ++ authority.accounts.agent.map("uar" -> _.uar.uar).toMap
                   )
                 )
                 val target = FrontEndRedirect.forSession(session)
-                target.withSession("userId" -> encrypt(authority.id), "sessionId" -> encrypt(updatedHC.sessionId.get))
+                target.withSession("userId" -> encrypt(authority.uri), "sessionId" -> encrypt(updatedHC.sessionId.get))
               }
               case _ => {
-                Logger.warn(s"No record found in Auth for the PID ${hashPid}")
+                Logger.warn(s"No record found in Auth for the PID $hashPid")
                 Unauthorized(views.html.login_error())
               }
             }

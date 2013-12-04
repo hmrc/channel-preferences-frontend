@@ -21,10 +21,10 @@ import models.paye.EmploymentViews
 class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with DateFieldsHelper {
 
 
-  val removeFuelLinkId = "rmFuelLink"
-  val removeCarLinkId = "rmCarLink"
-  val addCarLinkId = "addCarLink"
-  val addFuelLinkId = "addFuelLink"
+  val removeFuelLinkId = "rm-fuel-link"
+  val removeCarLinkId = "rm-car-link"
+  val addCarLinkId = "add-car-link"
+  val addFuelLinkId = "add-fuel-link"
   val taxYear = 2013
   val employmentSeqNumber = 1
 

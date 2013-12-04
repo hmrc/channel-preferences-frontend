@@ -17,10 +17,8 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import scala.Some
 import controllers.bt.accountsummary.AccountSummaries
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -33,16 +31,17 @@ import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesCon
 import controllers.common.actions.HeaderCarrier
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
+  import controllers.domain.AuthorityUtils._
 
   val utr = SaUtr("sa-utr")
   val saRegime = Some(SaRoot(utr, Map.empty[String, String]))
-  val ctRegime = Some(CtRoot(CtUtr("some ct utr"), Map.empty[String, String]))
-  val vatRegime = Some(VatRoot(Vrn("some vrn"), Map.empty[String, String]))
-  val epayeRegime = Some(EpayeRoot(EmpRef("some emp/ref"), EpayeLinks(Some("link"))))
+  val ctRegime = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))
+  val vatRegime = Some(VatRoot(Vrn("vrn"), Map.empty[String, String]))
+  val epayeRegime = Some(EpayeRoot(EmpRef("emp/ref"), EpayeLinks(Some("link"))))
   val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
 
   def createUser(saRegime: Option[SaRoot] = None, ctRegime: Option[CtRoot] = None, vatRegime: Option[VatRoot] = None, epayeRegime: Option[EpayeRoot] = None) = {
-    User(userId = "userId", userAuthority = UserAuthority("userId", Regimes()), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRegime, ct = ctRegime, vat = vatRegime, epaye = epayeRegime), decryptedToken = None)
+    User(userId = "userId", userAuthority = allBizTaxAuthority("userId", "sa-utr", "ct-utr", "vrn", "emp/ref"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRegime, ct = ctRegime, vat = vatRegime, epaye = epayeRegime), decryptedToken = None)
   }
   
   val request = FakeRequest()

@@ -2,27 +2,30 @@ package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.vat.VatConnector
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
 import org.mockito.Mockito._
-import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
-import uk.gov.hmrc.domain.Vrn
+import views.helpers.{RenderableMessage, LinkMessage}
 import VatMessageKeys._
 import VatPortalUrls._
 import CommonBusinessMessageKeys._
-import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary, VatRoot}
-import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import scala.concurrent.Future
+import controllers.domain.AuthorityUtils._
+import uk.gov.hmrc.common.microservice.vat.domain.VatAccountSummary
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import uk.gov.hmrc.common.microservice.vat.domain.VatAccountBalance
+import views.helpers.MoneyPounds
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 
 class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   val buildPortalUrl: (String) => String = (value: String) => value
   val vrn = Vrn("12345")
-  val userAuthorityWithVrn = UserAuthority("123", Regimes(), vrn = Some(vrn))
   val aDate = "2012-06-06"
   val regimeRootsWithVat = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/${vrn.vrn}"))))
-  val userEnrolledForVat = User("jim", userAuthorityWithVrn, regimeRootsWithVat, None, None)
+  val userEnrolledForVat = User("jim", vatAuthority("jim", "12345"), regimeRootsWithVat, None, None)
 
   "VatAccountSummaryViewBuilder" should {
     "return the correct account summary for complete data" in {
@@ -88,9 +91,8 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     "return None if the user is not enrolled for VAT" in {
 
-      val userAuthority = UserAuthority("123", Regimes())
       val regimeRoots = RegimeRoots(None, None, None, None, None)
-      val user = User("jim", userAuthority, regimeRoots, None, None)
+      val user = User("jim", ctAuthority("jim", "123"), regimeRoots, None, None)
       val mockVatConnector = mock[VatConnector]
       val builder: VatAccountSummaryBuilder = VatAccountSummaryBuilder(mockVatConnector)
       val accountSummaryViewOption = builder.build(buildPortalUrl, user)

@@ -4,10 +4,8 @@ import uk.gov.hmrc.common.BaseSpec
 import java.net.URI
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.{DateTime, LocalDate}
-import uk.gov.hmrc.common.microservice.auth.domain.UserAuthority
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
@@ -20,6 +18,7 @@ import controllers.paye.validation.BenefitFlowHelper
 
 trait PayeBaseSpec extends BaseSpec {
 
+  import controllers.domain.AuthorityUtils._
   lazy val testTaxYear = 2013
 
   val currentTestDate = new DateTime(testTaxYear - 1, 12, 2, 12, 1, ISOChronology.getInstanceUTC)
@@ -37,9 +36,6 @@ trait PayeBaseSpec extends BaseSpec {
 
   private def setupUser(id: String, nino: String, name: String, transactionLinks: Map[String, String], actions: Map[String, String], year:Int): User = {
 
-    val ua = UserAuthority(s"/personal/paye/$nino", Regimes(paye = Some(URI.create(s"/personal/paye/$nino"))), None)
-
-
     val payeRoot = PayeRoot(
       name = name,
       firstName = "Barney",
@@ -52,15 +48,15 @@ trait PayeBaseSpec extends BaseSpec {
       links = Map(
         "taxCode" -> s"/paye/$nino/tax-codes/$year",
         "employments" -> s"/paye/$nino/employments/$year",
-        "benefits" -> s"/paye/$nino/benefits/$year",
-        "addBenefits" -> s"/paye/$nino/benefits/$year"),
+        "benefit-car" -> s"/paye/$nino/benefit-car/$year",
+        "benefits" -> s"/paye/$nino/benefits/$year"),
       transactionLinks = transactionLinks,
       actions = actions
     )
 
     User(
       userId = id,
-      userAuthority = ua,
+      userAuthority = payeAuthority(id, nino),
       regimes = RegimeRoots(paye = Some(payeRoot)),
       nameFromGovernmentGateway = None,
       decryptedToken = None

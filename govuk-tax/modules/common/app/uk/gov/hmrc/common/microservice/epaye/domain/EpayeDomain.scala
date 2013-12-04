@@ -3,7 +3,7 @@ package uk.gov.hmrc.common.microservice.epaye.domain
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import uk.gov.hmrc.domain.EmpRef
-import uk.gov.hmrc.common.microservice.auth.domain.Regimes
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
@@ -11,7 +11,7 @@ import ExecutionContext.Implicits.global
 
 object EpayeRegime extends TaxRegime {
 
-  def isAuthorised(regimes: Regimes) = regimes.epaye.isDefined
+  def isAuthorised(accounts: Accounts) = accounts.epaye.isDefined
 
   def unauthorisedLandingPage = FrontEndRedirect.businessTaxHome
 

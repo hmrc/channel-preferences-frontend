@@ -1,14 +1,9 @@
 package controllers.bt.accountsummary
 
-import uk.gov.hmrc.domain.{Vrn, CtUtr}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
-import java.net.URI
-import views.helpers.{LinkMessage, MoneyPounds, RenderableMessage}
+import views.helpers.{LinkMessage, RenderableMessage}
 import org.joda.time.LocalDate
 import org.joda.time.chrono.ISOChronology
 import CommonBusinessMessageKeys._
@@ -16,25 +11,30 @@ import CtMessageKeys._
 import CtPortalUrlKeys._
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import controllers.bt.accountsummary.SummaryStatus._
-import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountBalance, CtAccountSummary, CtRoot}
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
-import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
+import controllers.domain.AuthorityUtils._
+import scala.Some
+import uk.gov.hmrc.domain.Vrn
+import views.helpers.MoneyPounds
+import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.ct.domain.CtAccountSummary
+import uk.gov.hmrc.common.microservice.ct.domain.CtAccountBalance
 
 class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
   private val buildPortalUrl: (String) => String = (value: String) => value
   private val ctUtr = CtUtr("12347")
 
-  private val userAuthorityWithCt = UserAuthority("123", Regimes(ct = Some(new URI(s"/ct/${ctUtr.utr}"))), ctUtr = Some(ctUtr))
-
   private val regimeRootsWithCt = RegimeRoots(ct = Some(CtRoot(ctUtr, Map("accountSummary" -> s"/ct/${ctUtr.utr}/account-summary"))))
-  private val userEnrolledForCt = User("tim", userAuthorityWithCt, regimeRootsWithCt, None, None)
+  private val userEnrolledForCt = User("tim",  ctAuthority("tim", "12347"), regimeRootsWithCt, None, None)
 
   private val vrn = Vrn("123")
-  private val userAuthorityWithoutCt = UserAuthority("123", Regimes(), vrn = Some(vrn))
   private val regimeRootsWithoutCt = RegimeRoots(vat = Some(VatRoot(vrn, Map("accountSummary" -> s"/vat/vrn/${vrn.vrn}"))))
-  private val userNotEnrolledForCt = User("jim", userAuthorityWithoutCt, regimeRootsWithoutCt, None, None)
+  private val userNotEnrolledForCt = User("jim", saAuthority("jim", "123"), regimeRootsWithoutCt, None, None)
 
   "The CtAccountSummaryBuilder build method" should {
 
@@ -58,7 +58,7 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     "return the default summary if the account summary link is missing" in {
       val regimeRootsWithNoCtAccountSummary = RegimeRoots(ct = Some(CtRoot(ctUtr, Map[String, String]())))
-      val userEnrolledForCtWithNoAccountSummary = User("tim", userAuthorityWithCt, regimeRootsWithNoCtAccountSummary, None, None)
+      val userEnrolledForCtWithNoAccountSummary = User("tim", ctAuthority("tim", "12347"), regimeRootsWithNoCtAccountSummary, None, None)
       val mockCtConnector = mock[CtConnector]
       val builder = new CtAccountSummaryBuilder(mockCtConnector)
 
