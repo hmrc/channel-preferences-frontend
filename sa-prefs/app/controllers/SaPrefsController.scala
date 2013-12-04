@@ -4,16 +4,17 @@ import play.api.data._
 import play.api.mvc.Results._
 import play.mvc._
 import play.api.data.Forms._
-import play.api.mvc.{ AnyContent, Request, Action }
-import uk.gov.hmrc.{ TokenExpiredException, PreferencesMicroService, TokenEncryption }
-import play.api.{ Logger, Play }
+import play.api.mvc.{AnyContent, Request, Action}
+import uk.gov.hmrc.{EmailConnector, TokenExpiredException, PreferencesConnector, TokenEncryption}
+import play.api.{Logger, Play}
 import java.net.URLDecoder
-import controllers.service.{ RedirectWhiteListService, FrontEndConfig }
+import controllers.service.{RedirectWhiteListService, FrontEndConfig}
 import concurrent.Future
 
 class SaPrefsController extends Controller {
 
-  implicit lazy val preferencesMicroService = new PreferencesMicroService()
+  implicit lazy val preferencesConnector = new PreferencesConnector()
+  implicit lazy val emailConnector = new EmailConnector()
 
   private[controllers] val redirectWhiteListService = new RedirectWhiteListService(FrontEndConfig.redirectDomainWhiteList)
 
@@ -52,7 +53,7 @@ class SaPrefsController extends Controller {
     utr =>
       Action {
         implicit request =>
-          preferencesMicroService.getPreferences(utr) match {
+          preferencesConnector.getPreferences(utr) match {
             case Some(saPreference) => Redirect(return_url)
             case _ => Ok(views.html.sa_printing_preference(emailForm, token, return_url))
           }
@@ -67,38 +68,52 @@ class SaPrefsController extends Controller {
     Ok(views.html.sa_printing_preference_no_action(return_url, digital))
   }
 
-  val emailForm: Form[String] = Form[String](single("email" -> email))
+  private val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(
+    "email" -> tuple(
+      "main" -> email,
+      "confirm" -> optional(text)
+    ).verifying(
+      "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")
+    ),
+    "emailVerified" -> optional(text)
+  )(EmailPreferenceData.apply)(EmailPreferenceData.unapply))
 
-  def submitPrefsForm(token: String, return_url: String) = WithValidReturnUrl(return_url)(WithValidToken(token, return_url)(
-    utr =>
-      Action {
-        request =>
-          emailForm.bindFromRequest()(request).fold(
-            errors => BadRequest(views.html.sa_printing_preference(errors, token, return_url)),
-            email => {
+  //  val emailForm: Form[String] = Form[String](single("email" -> email))
 
-              preferencesMicroService.getPreferences(utr) match {
-                case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
-                case None => {
-                  preferencesMicroService.savePreferences(utr, true, Some(email))
-                  //Play redirect is encoding query params, we need to decode the url to avoid double encoding
-                  Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
+  def submitPrefsForm(token: String, return_url: String) = WithValidReturnUrl(return_url) {
+    WithValidToken(token, return_url) {
+      utr =>
+        Action {
+          request =>
+            emailForm.bindFromRequest()(request).fold(
+              errors => BadRequest(views.html.sa_printing_preference(errors, token, return_url)),
+              emailForm => {
+                if (emailForm.isEmailVerified || emailConnector.validateEmailAddress(emailForm.mainEmail)) {
+                  preferencesConnector.getPreferences(utr) match {
+                    case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
+                    case None => {
+                      preferencesConnector.savePreferences(utr, true, Some(emailForm.mainEmail))
+                      //Play redirect is encoding query params, we need to decode the url to avoid double encoding
+                      Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
+                    }
+                  }
                 }
+                else Ok(views.html.sa_printing_preference_verify_email_address(emailForm.mainEmail, token, return_url))
               }
+            )
+        }
+    }
+  }
 
-            }
-          )
-      })
-  )
 
   def submitKeepPaperForm(token: String, return_url: String) = WithValidReturnUrl(return_url)(WithValidToken(token, return_url)(
     utr =>
       Action {
         request =>
-          preferencesMicroService.getPreferences(utr) match {
+          preferencesConnector.getPreferences(utr) match {
             case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
             case None => {
-              preferencesMicroService.savePreferences(utr, false)
+              preferencesConnector.savePreferences(utr, false)
               Redirect(return_url)
             }
           }
@@ -111,3 +126,8 @@ object SsoPayloadEncryptor extends TokenEncryption {
   val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
 }
 
+case class EmailPreferenceData(email: (String, Option[String]), emailVerified: Option[String]) {
+  lazy val isEmailVerified = emailVerified == Some("true")
+
+  def mainEmail = email._1
+}
