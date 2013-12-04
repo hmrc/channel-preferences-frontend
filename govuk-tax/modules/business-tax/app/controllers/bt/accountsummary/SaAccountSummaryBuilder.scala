@@ -5,7 +5,7 @@ import CommonBusinessMessageKeys._
 import SaMessageKeys._
 import SaPortalUrlKeys._
 import uk.gov.hmrc.common.microservice.domain.User
-import views.helpers.{MoneyPounds, RenderableMessage, LinkMessage}
+import views.helpers.{MoneyPounds, RenderableMessage}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.{Liability, SaAccountSummary, SaRoot}
 import controllers.common.actions.HeaderCarrier
@@ -45,9 +45,10 @@ trait SaASBuild {
     regimeName = saRegimeName,
     messages = utrMessage(utr) +: buildMessages(saSummary),
     addenda = Seq(
-      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, "saAccountDetailsHref"),
-      LinkMessage.internalLink(saPaymentUrl, makeAPaymentLinkMessage, "saMakePaymentHref"),
-      LinkMessage.portalLink(buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage, "saFileReturnHref")),
+      AccountSummaryLink("sa-account-details-href", buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("sa-make-payment-href", saPaymentUrl, makeAPaymentLinkMessage, sso = false),
+      AccountSummaryLink("sa-file-return-href", buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage, sso = true)
+    ),
     status = SummaryStatus.success
   )
 

@@ -5,7 +5,7 @@ import controllers.bt.routes
 import CommonBusinessMessageKeys._
 import EpayeMessageKeys._
 import EpayePortalUrlKeys._
-import views.helpers.{RenderableMessage, LinkMessage, MoneyPounds}
+import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSummary, EpayeRoot}
@@ -43,16 +43,17 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
     }
   }
 
-  private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[RenderableMessage] = {
-    def expectedRtiLinks = Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, "epayeAccountDetailsHref"),
-      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, "epayeMakePaymentHref")
+  private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[AccountSummaryLink] = {
+    def expectedRtiLinks = Seq[AccountSummaryLink](
+      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, sso = false)
     )
 
 
-    def expectedNonRtiLinks = Seq[RenderableMessage](
-      LinkMessage.portalLink(buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, "epayeAccountDetailsHref"),
-      LinkMessage.internalLink(routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, "epayeMakePaymentHref"))
+    def expectedNonRtiLinks = Seq[AccountSummaryLink](
+      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, sso = false)
+    )
 
     accountSummary match {
       case Some(EpayeAccountSummary(Some(rti), None)) => expectedRtiLinks

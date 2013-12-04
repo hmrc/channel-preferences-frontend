@@ -4,7 +4,6 @@ import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import org.mockito.Mockito._
-import views.helpers.{RenderableMessage, LinkMessage}
 import VatMessageKeys._
 import VatPortalUrls._
 import CommonBusinessMessageKeys._
@@ -39,9 +38,11 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
       accountSummaryView.messages shouldBe Seq[Msg](Msg(vatRegistrationNumberMessage ,Seq("12345")), Msg(vatAccountBalanceMessage,Seq(MoneyPounds(BigDecimal(6.1)))) )
-      accountSummaryView.addenda shouldBe Seq[RenderableMessage](LinkMessage(vatAccountDetailsPortalUrl, viewAccountDetailsLinkMessage, "vatAccountDetailsHref", sso = true),
-        LinkMessage("/vat/makeAPayment", makeAPaymentLinkMessage, "vatMakePaymentHref", sso = false),
-        LinkMessage(vatFileAReturnPortalUrl, fileAReturnLinkMessage, "vatFileReturnHref", sso = true))
+      accountSummaryView.addenda shouldBe Seq[AccountSummaryLink](
+        AccountSummaryLink("vat-account-details-href", vatAccountDetailsPortalUrl, viewAccountDetailsLinkMessage, sso = true),
+        AccountSummaryLink("vat-make-payment-href", "/vat/makeAPayment", makeAPaymentLinkMessage, sso = false),
+        AccountSummaryLink("vat-file-return-href", vatFileAReturnPortalUrl, fileAReturnLinkMessage, sso = true)
+      )
       accountSummaryView.status shouldBe SummaryStatus.success
     }
 
