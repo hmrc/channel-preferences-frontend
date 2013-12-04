@@ -17,15 +17,15 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
-  def root(uri: String)(implicit hc: HeaderCarrier) : Future[PayeRoot] =
+  def root(uri: String)(implicit hc: HeaderCarrier): Future[PayeRoot] =
     httpGetF[PayeRoot](uri).map(_.getOrElse(throw new IllegalStateException(s"Expected Paye root not found at URI '$uri'")))
 
   def addBenefits(uri: String,
-    version: Int,
-    employmentSequenceNumber:Int,
-    benefits: Seq[Benefit])(implicit hc: HeaderCarrier) : Option[AddBenefitResponse] = {
+                  version: Int,
+                  employmentSequenceNumber: Int,
+                  benefits: Seq[Benefit])(implicit hc: HeaderCarrier): Future[Option[AddBenefitResponse]] = {
 
-    httpPost[AddBenefitResponse](
+    httpPostF[AddBenefitResponse](
       uri,
       body = Json.parse(
         toRequestBody(
@@ -39,10 +39,10 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   }
 
   def removeBenefits(uri: String,
-    version: Int,
-    benefits: Seq[RevisedBenefit],
-    dateCarWithdrawn: LocalDate)(implicit hc: HeaderCarrier) = {
-    httpPost[RemoveBenefitResponse](
+                     version: Int,
+                     benefits: Seq[RevisedBenefit],
+                     dateCarWithdrawn: LocalDate)(implicit hc: HeaderCarrier) = {
+    httpPostF[RemoveBenefitResponse](
       uri,
       body = Json.parse(
         toRequestBody(
@@ -55,8 +55,8 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel)(implicit hc: HeaderCarrier): Option[NewBenefitCalculationResponse] = {
-    httpPost[NewBenefitCalculationResponse](
+  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel)(implicit hc: HeaderCarrier): Future[Option[NewBenefitCalculationResponse]] = {
+    httpPostF[NewBenefitCalculationResponse](
       uri,
       body = Json.parse(
         toRequestBody(
@@ -66,8 +66,9 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-  def calculationWithdrawKey():String = "withdraw"
-  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier) = {
-    httpGet[RemoveBenefitCalculationResponse](benefit.calculations(calculationWithdrawKey()).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).get
+  val calculationWithdrawKey: String = "withdraw"
+
+  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier): Future[RemoveBenefitCalculationResponse] = {
+    httpGetF[RemoveBenefitCalculationResponse](benefit.calculations(calculationWithdrawKey).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).map(_.get)
   }
 }

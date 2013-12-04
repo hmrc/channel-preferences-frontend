@@ -12,7 +12,7 @@ import CarBenefitFormFields._
 import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
 import controllers.common.service.Connectors
-import views.html.paye.add_car_benefit_review
+import views.html.paye.{add_car_benefit_form, add_car_benefit_review}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
@@ -89,19 +89,20 @@ with PayeRegimeRoots {
   )
 
   private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
-    (user,request,  taxYear, employmentSequenceNumber, payeRootData) => future {
-      implicit def hc = HeaderCarrier(request)
-      findEmployment(employmentSequenceNumber, payeRootData) match {
-        case Some(employment) => {
-          val benefitFormWithSavedValues = lookupValuesFromKeystoreAndBuildForm(generateKeystoreActionId(taxYear, employmentSequenceNumber))
-          Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
-        }
-        case None => {
-          Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
-          BadRequest
+    (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
+      future {
+        implicit def hc = HeaderCarrier(request)
+        findEmployment(employmentSequenceNumber, payeRootData) match {
+          case Some(employment) => {
+            val benefitFormWithSavedValues = lookupValuesFromKeystoreAndBuildForm(generateKeystoreActionId(taxYear, employmentSequenceNumber))
+            Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
+          }
+          case None => {
+            Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
+            BadRequest
+          }
         }
       }
-    }
   }
 
   private def lookupValuesFromKeystoreAndBuildForm(keyStoreId: String)(implicit hc: HeaderCarrier) = {
@@ -133,7 +134,7 @@ with PayeRegimeRoots {
       employerPayFuel = defaults.employerPayFuel)
 
   private[paye] val confirmAddingBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
-    (user,request, taxYear, employmentSequenceNumber, payeRootData) => {
+    (user, request, taxYear, employmentSequenceNumber, payeRootData) => {
 
       implicit val hc = HeaderCarrier(request)
 
@@ -145,57 +146,60 @@ with PayeRegimeRoots {
       val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
       keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
 
-      TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).map { currentTaxYearCode =>
-        val newTaxCode = addBenefitsResponse.get.newTaxCode
-        val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
-        val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+      TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap { currentTaxYearCode =>
+        val f1 = addBenefitsResponse.map(_.get.newTaxCode)
+        val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
 
-        Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
+        for {
+          newTaxCode <- f1
+          netCodedAllowance <- f2
+        } yield {
+          val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+          Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
+        }
       }
     }
   }
 
   private[paye] val reviewAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
-    (user, request, taxYear, employmentSequenceNumber, payeRootData) => future {
+    (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)
           val payeRoot = user.regimes.paye.get
-          carBenefitForm(dates).bindFromRequest()(request).fold(
-            errors => {
-              BadRequest(views.html.paye.add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
-            },
-            (addCarBenefitData: CarBenefitData) => {
 
+          carBenefitForm(dates).bindFromRequest()(request).fold(
+            errors => Future.successful(BadRequest(add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))),
+            (addCarBenefitData: CarBenefitData) => {
               implicit val hc = HeaderCarrier(request)
               val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
               val carAndFuelBenefit = CarAndFuelBuilder(CarBenefitDataAndCalculations(addCarBenefitData.copy(co2Figure = emission), 0, Some(0)), taxYear, employmentSequenceNumber)
               val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
-              val benefitCalculations = payeConnector.calculateBenefitValue(uri, carAndFuelBenefit).get
-              val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
-              val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
 
-              keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue)))
-              val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
-                addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-                addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)
-              Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
+              payeConnector.calculateBenefitValue(uri, carAndFuelBenefit).map(_.get).map { benefitCalculations =>
+                val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
+                val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
+
+                keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue)))
+
+                val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
+                  addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
+                  addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)
+                Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
+              }
             }
           )
         }
         case None => {
           Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
-          BadRequest
+          Future.successful(BadRequest)
         }
       }
-    }
-
   }
 
   private def generateKeystoreActionId(taxYear: Int, employmentSequenceNumber: Int) = {
     s"AddCarBenefit:$taxYear:$employmentSequenceNumber"
   }
-
 }
 
 

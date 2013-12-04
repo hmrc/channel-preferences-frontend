@@ -14,10 +14,9 @@ import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
-
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
     Logger.debug(s"Loading linked resource uri: $uri")
-    httpGet[T](uri)
+    httpGetF[T](uri)
   }
 }
 

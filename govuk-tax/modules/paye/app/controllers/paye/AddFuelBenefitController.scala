@@ -104,37 +104,34 @@ with PayeRegimeRoots {
 
   private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.FUEL) {
     (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
-      future {
-        findEmployment(employmentSequenceNumber, payeRootData) match {
-          case Some(employment) => {
-            val validationLesForm = validationLessForm().bindFromRequest()(request)
+      findEmployment(employmentSequenceNumber, payeRootData) match {
+        case Some(employment) => {
+          val validationLesForm = validationLessForm().bindFromRequest()(request)
 
-            //TODO: Why is the car provided from the start of the tax year?
-            val values = CarBenefitValues(providedFromVal = Some(startOfCurrentTaxYear), employerPayFuel = validationLesForm.get.employerPayFuel)
-            fuelBenefitForm(values).bindFromRequest()(request).fold(
-              errors => {
-                BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName)(user))
-              },
+          //TODO: Why is the car provided from the start of the tax year?
+          val values = CarBenefitValues(providedFromVal = Some(startOfCurrentTaxYear), employerPayFuel = validationLesForm.get.employerPayFuel)
+          fuelBenefitForm(values).bindFromRequest()(request).fold(
+            errors =>
+              Future.successful(BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName)(user))),
+            addFuelBenefitData => {
+              implicit val hc = HeaderCarrier(request)
+              val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
 
-              (addFuelBenefitData: FuelBenefitData) => {
-                implicit val hc = HeaderCarrier(request)
-                val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
-
-                val fuelBenefitValue = fuelCalculation(user, addFuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)
-
+              fuelCalculation(user, addFuelBenefitData, carBenefit, taxYear, employmentSequenceNumber).map { fuelBenefitValue =>
                 val carBenefitStartDate = getDateInTaxYear(carBenefit.car.flatMap(_.dateCarMadeAvailable))
 
                 keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData, fuelBenefitValue))
 
                 val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get,
                   addFuelBenefitData.dateFuelWithdrawn, carFuelBenefitValue = BenefitValue(fuelBenefitValue))
+
                 Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, currentTaxYearYearsRange, taxYear, employmentSequenceNumber, user))
-              })
-          }
-          case None => {
-            Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
-            BadRequest
-          }
+              }
+            })
+        }
+        case None => {
+          Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
+          Future.successful(BadRequest)
         }
       }
   }
@@ -157,11 +154,17 @@ with PayeRegimeRoots {
 
       keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 
-      TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).map { currentTaxYearCode =>
-        val newTaxCode = addBenefitsResponse.get.newTaxCode
-        val netCodedAllowance = addBenefitsResponse.get.netCodedAllowance
-        val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-        Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData))
+      TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap { currentTaxYearCode =>
+        val f1 = addBenefitsResponse.map(_.get.newTaxCode)
+        val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
+
+        for {
+          newTaxCode <- f1
+          netCodedAllowance <- f2
+        } yield {
+          val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+          Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData))
+        }
       }
     }
   }
@@ -173,11 +176,13 @@ with PayeRegimeRoots {
     }
   }
 
-  private def fuelCalculation(user: User, addFuelBenefitData: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): Int = {
+  private def fuelCalculation(user: User, addFuelBenefitData: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): Future[Int] = {
     val payeRoot = user.regimes.paye.get
     val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
-    val benefitCalculations = payeConnector.calculateBenefitValue(uri, CarAndFuelBuilder(addFuelBenefit = addFuelBenefitData, 0, carBenefit, taxYear, employmentSequenceNumber)).get
-    benefitCalculations.fuelBenefitValue.getOrElse(throw new IllegalStateException("We must have a fuel benefit value"))
+
+    payeConnector.calculateBenefitValue(uri, CarAndFuelBuilder(addFuelBenefit = addFuelBenefitData, 0, carBenefit, taxYear, employmentSequenceNumber)).map(_.get).map { benefitCalculations =>
+      benefitCalculations.fuelBenefitValue.getOrElse(throw new IllegalStateException("We must have a fuel benefit value"))
+    }
   }
 
   private def getDateInTaxYear(benefitDate: Option[LocalDate]): LocalDate = {

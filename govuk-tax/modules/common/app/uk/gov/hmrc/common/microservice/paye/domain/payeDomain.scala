@@ -41,7 +41,7 @@ case class PayeRoot(nino: String,
   def currentDate = new DateTime(DateTimeZone.UTC)
 
   def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector, headerCarrier: HeaderCarrier): Future[TaxYearData] = {
-    val f1 = Future {fetchBenefits(taxYear)}
+    val f1 = fetchBenefits(taxYear)
     val f2 = fetchEmployments(taxYear)
 
     for {
@@ -50,42 +50,42 @@ case class PayeRoot(nino: String,
     } yield TaxYearData(benefits, employments)
   }
 
-  def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier) =
-    Future {valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)}
+  def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier) :Future[Seq[TaxCode]] =
+    valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-  def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Seq[Benefit] =
+  def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Benefit]] =
     valuesForTaxYear[Benefit](resource = "benefit-car", taxYear = taxYear)
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
-    Future {valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)}
+    valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
   def fetchRecentAcceptedTransactions(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {
-    Future {transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))}
+    transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
   }
 
   def fetchRecentCompletedTransactions(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {
-    Future {transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))}
+    transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
   }
 
   def addBenefitLink(taxYear: Int): Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
 
-  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Seq[TxQueueTransaction] =
+  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] =
     transactionLinks.get(status) match {
       case Some(uri) =>
         val uri = transactionLinks(status).replace("{from}", date.toString(dateFormat))
         val tx = txQueueConnector.transaction(uri)
-        tx.getOrElse(Seq.empty)
+        tx.map(_.getOrElse(Seq.empty))
       case _ =>
-        Seq.empty[TxQueueTransaction]
+        Future.successful(Seq.empty[TxQueueTransaction])
     }
 
-  private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Seq[T] =
+  private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Seq[T]] =
     links.get(resource) match {
-      case Some(uri) => resourceFor[Seq[T]](uri.replace("{taxYear}", taxYear.toString)).getOrElse(Seq.empty)
-      case _ => Seq.empty
+      case Some(uri) => resourceFor[Seq[T]](uri.replace("{taxYear}", taxYear.toString)).map(_.getOrElse(Seq.empty))
+      case _ => Future.successful(Seq.empty)
     }
 
-  private def resourceFor[T](uri: String)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Option[T] =
+  private def resourceFor[T](uri: String)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Option[T]] =
     payeConnector.linkedResource[T](uri)
 }
 
