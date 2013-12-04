@@ -1,10 +1,12 @@
 package controllers.paye.validation
 
+import play.api.test.{FakeApplication, WithApplication, FakeRequest}
+
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import play.api.test.{FakeApplication, WithApplication, FakeRequest}
-import uk.gov.hmrc.common.microservice.auth.domain.{Regimes, UserAuthority}
+import uk.gov.hmrc.common.microservice.auth.domain._
+
 import controllers.paye.routes
 
 import BenefitFlowHelper._
@@ -13,7 +15,7 @@ class BenefitFlowHelperSpec extends BaseSpec {
   val validVersion: Int = 22
   val invalidVersion: Int = 21
   val payeRoot = PayeRoot("", validVersion, "", "", None, "", "", "", Map(), Map(), Map())
-  val ua = UserAuthority("dummyAuth", Regimes())
+  val ua = Authority("dummyAuth", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail())
   val user = User("dummy", ua, RegimeRoots(paye = Some(payeRoot)))
 
   "validateVersionNumber" should {
