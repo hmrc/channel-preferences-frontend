@@ -1,0 +1,24 @@
+@(emailAddress: String, token: String, redirectUrl: String)
+
+@main(title = "My Preferences") {
+
+    <h1>Sign up for email reminders</h1>
+
+    <h2 id="emailAddress">@emailAddress</h2>
+
+    <p>We have checked the address you have entered and we can't validate that it is correct - are you sure it is right?</p>
+
+    <p>Please confirm below that you are happy to continue.</p>
+
+    @helper.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
+        <div class="form-field">
+            <button id="email-is-correct-link" class="button" type="submit">My email is correct</button>
+        </div>
+        <input type="hidden" name="email.main" value="@emailAddress" />
+        <input type="hidden" name="email.confirm" value="@emailAddress" />
+        <input type="hidden" name="emailVerified" value="true" />
+    }
+
+    <a id="email-is-not-correct-link" href="@controllers.routes.SaPrefsController.index(token, redirectUrl)">No, my email address is not correct</a>
+
+}

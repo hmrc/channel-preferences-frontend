@@ -9,8 +9,8 @@ import ExecutionContext.Implicits.global
 import play.api.{ Logger, Play }
 import scala.concurrent.Future
 import play.api.libs.json.{ Json, JsValue }
-import org.slf4j.MDC
 import com.google.common.net.HttpHeaders
+import java.net.URLEncoder
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -120,11 +120,13 @@ object MicroServiceConfig {
 
   lazy val preferenceServiceUrl = s"$protocol://${Play.configuration.getString(s"sa-prefs.$env.services.preferences.host").getOrElse("localhost")}:${Play.configuration.getInt(s"sa-prefs.$env.services.preferences.port").getOrElse(8900)}"
 
+  lazy val emailServiceUrl = s"$protocol://${Play.configuration.getString(s"sa-prefs.$env.services.email.host").getOrElse("localhost")}:${Play.configuration.getInt(s"sa-prefs.$env.services.email.port").getOrElse(8300)}"
+
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 
 }
 
-class PreferencesMicroService extends MicroService {
+class PreferencesConnector extends MicroService {
 
   override val serviceUrl = MicroServiceConfig.preferenceServiceUrl
 
@@ -161,6 +163,17 @@ object EmailVerificationLinkResponse extends Enumeration {
   val OK, EXPIRED, ERROR = Value
 }
 
+class EmailConnector extends MicroService {
+
+  protected val serviceUrl = MicroServiceConfig.emailServiceUrl
+
+  def validateEmailAddress(emailAddress: String): Boolean = {
+    val v = httpGet[ValidateEmailResponse](s"/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}")
+    v.map(_.valid).getOrElse(throw new RuntimeException(s"Access to resource: '/validate-email-address' gave an invalid response"))
+  }
+}
+
+case class ValidateEmailResponse(valid: Boolean)
 case class ValidateEmail(token: String)
 case class SaPreference(digital: Boolean, email: Option[String] = None)
 
