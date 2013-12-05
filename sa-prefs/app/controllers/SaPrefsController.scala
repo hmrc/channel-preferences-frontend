@@ -98,7 +98,7 @@ class SaPrefsController extends Controller {
                     }
                   }
                 }
-                else Ok(views.html.sa_printing_preference_verify_email_address(emailForm.mainEmail, token, return_url))
+                else Ok(views.html.sa_printing_preference_warning_email(emailForm.mainEmail, token, return_url))
               }
             )
         }

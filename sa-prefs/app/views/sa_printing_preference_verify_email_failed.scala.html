@@ -1,0 +1,14 @@
+@(redirectUrl: String)
+
+@main(title = "Sorry") {
+
+<h2>Go paperless</h2>
+<div id="print-prefs">
+    <p id="failureHeading"><b>Ooops, something went wrong!</b></p>
+    <p id="failureMessage">We could not process your request; it's possible that you've already verified your email address.</p>
+
+    <p><a class="button" href="@redirectUrl">Log in to Self Assessment</a></p>
+
+</div>
+
+}
