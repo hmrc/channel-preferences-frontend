@@ -47,7 +47,8 @@ object RemoveBenefitFlow {
       }
 
       if (!validBenefits.contains(None)) {
-        val validMergedBenefit = validBenefits.map(_.get).foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) => mergeDisplayBenefits(a, b))
+        val validMergedBenefit = validBenefits.map(_.get).foldLeft(emptyBenefit)((a: DisplayBenefit, b: DisplayBenefit) =>
+          mergeDisplayBenefits(a, b))
         Right((validMergedBenefit, taxData))
       } else {
         Logger.error(s"The requested benefit is not a valid benefit (year: $taxYear, empl: $employmentSequenceNumber, types: $benefitTypes), redirecting to benefit list")

@@ -34,7 +34,22 @@ import BenefitTypes._
 import controllers.common.actions.HeaderCarrier
 import org.scalatest.concurrent.ScalaFutures
 import controllers.paye.validation.BenefitFlowHelper
+import controllers.paye.RemovalUtils._
+import models.paye.{CarFuelBenefitDates, DisplayBenefit}
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.Car
+import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.RemovalUtils.RemoveBenefitData
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
+import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitResponse
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
+import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
+import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
+import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper with ScalaFutures {
 
@@ -82,16 +97,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   }
 
   "Removing FUEL benefit only" should {
-
-    "notify the user the fuel benefit will be removed for benefit with no company name" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, FUEL.toString, 2013, 2)
-
-      val doc = Jsoup.parse(contentAsString(result))
-
-      doc.select(".benefit-type").text shouldBe "Your old company fuel benefit"
-      doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
-    }
 
     "not show the car checkbox when the user has no car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(fuelBenefit))
