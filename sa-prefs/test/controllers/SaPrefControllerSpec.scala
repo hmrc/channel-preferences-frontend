@@ -134,7 +134,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", "invalid-email"), ("email.confirm", "")))
 
       status(page) shouldBe 400
-      contentAsString(page) should include("Valid email required")
+      contentAsString(page) should include("Please provide a valid email address")
       verifyZeroInteractions(controller.preferencesConnector, controller.emailConnector)
     }
 
@@ -145,7 +145,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", ""), ("email.confirm", "")))
 
       status(page) shouldBe 400
-      contentAsString(page) should include("Valid email required")
+      contentAsString(page) should include("Please provide a valid email address")
       verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
     }
 
