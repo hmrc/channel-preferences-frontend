@@ -10,8 +10,10 @@ import play.api.test.Helpers._
 import models.paye.CarFuelBenefitDates
 import play.api.test.FakeApplication
 import scala.Some
+import org.joda.time.chrono.ISOChronology
 
 class DisplayRemoveBenefitFormControllerSpec extends PayeBaseSpec {
+  private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
   "Removing FUEL benefit only" should {
 
     import views.html.paye.remove_benefit_form
@@ -20,7 +22,7 @@ class DisplayRemoveBenefitFormControllerSpec extends PayeBaseSpec {
 
       val benefit = DisplayBenefit(johnDensmoresEmployments(0), johnDensmoresBenefits, None, Map.empty)
       val dates = Some(CarFuelBenefitDates(None, None))
-      val form = updateBenefitForm(getStartDate(benefit.benefit), carBenefitWithUnremovedFuelBenefit = true, dates, new DateTime)
+      val form = updateBenefitForm(getStartDate(benefit.benefit), carBenefitWithUnremovedFuelBenefit = true, dates, dateToday)
 
       val result = remove_benefit_form(benefit, hasUnremovedCar = true, form, TaxYearResolver.currentTaxYearYearsRange)(johnDensmore)
 

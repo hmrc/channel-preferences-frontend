@@ -84,6 +84,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         },
         removeBenefitData => {
           implicit def hc = HeaderCarrier(request)
+          storeBenefitFormData(keyStoreService, benefit, removeBenefitData)
           removeBenefit(user, benefit, payeRootData, removeBenefitData)
         }
       )
@@ -181,6 +182,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
             }
 
             payeConnector.removeBenefits(uri, payeRoot.version, revisedBenefits, formData.withdrawDate).map(_.get).map { removeBenefitResponse =>
+              clearBenefitData(keyStoreService, displayBenefit)
+              clearBenefitFormData(keyStoreService, displayBenefit)
+
               Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString,
                 displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
                 removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
@@ -203,10 +207,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     txQueueConnector.transaction(oid, user.regimes.paye.get).flatMap {
       case None => Future.successful(NotFound)
       case Some(tx) => {
-        keyStoreService.deleteKeyStore(
-          genBenefitDataId(kinds, year, employmentSequenceNumber),
-          KeystoreUtils.source
-        )
+        clearBenefitData(keyStoreService, kinds, year, employmentSequenceNumber)
         val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
         if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
           TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>

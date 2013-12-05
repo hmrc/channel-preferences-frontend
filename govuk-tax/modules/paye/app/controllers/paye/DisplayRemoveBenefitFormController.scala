@@ -72,6 +72,4 @@ class DisplayRemoveBenefitFormController(keyStoreService: KeyStoreConnector, ove
 
     remove_benefit_form(benefit, hasUnremovedCar, filledForm, currentTaxYearYearsRange)(user)
   }
-
-
 }

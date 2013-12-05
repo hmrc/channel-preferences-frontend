@@ -70,7 +70,6 @@ object RemovalUtils {
     datesForm().bindFromRequest()(request).value
   }
 
-
   def storeBenefitFormData(keyStoreService: KeyStoreConnector, benefit: DisplayBenefit, benefitFormData: RemoveBenefitFormData)(implicit hc: HeaderCarrier) = {
     val id: String = genBenefitFormDataId(benefit.allBenefitsToString, benefit.benefit.taxYear, benefit.benefit.employmentSequenceNumber)
     keyStoreService.addKeyStoreEntry(id, KeystoreUtils.source, keystoreKey, benefitFormData)
@@ -80,6 +79,17 @@ object RemovalUtils {
     val id = genBenefitFormDataId(benefit.allBenefitsToString, benefit.benefit.taxYear, benefit.benefit.employmentSequenceNumber)
     keyStoreService.getEntry[RemoveBenefitFormData](id, KeystoreUtils.source, keystoreKey)
   }
+
+  def clearBenefitFormData(keyStoreService: KeyStoreConnector, benefit: DisplayBenefit)(implicit hc: HeaderCarrier): Unit = {
+    clearBenefitFormData(keyStoreService, benefit.allBenefitsToString, benefit.benefit.taxYear, benefit.benefit.employmentSequenceNumber)
+  }
+
+  def clearBenefitFormData(keyStoreService: KeyStoreConnector, kinds: String, year: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): Unit = {
+    keyStoreService.deleteKeyStore(genBenefitFormDataId(kinds, year, employmentSequenceNumber), KeystoreUtils.source)
+  }
+
+  def genBenefitFormDataId(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) =
+    s"RemoveBenefitForm:$benefitTypes:$taxYear:$employmentSequenceNumber"
 
   def storeBenefitData(keyStoreService: KeyStoreConnector, benefit: DisplayBenefit, benefitData: RemoveBenefitData)(implicit hc: HeaderCarrier) = {
     val id: String = genBenefitDataId(benefit.allBenefitsToString, benefit.benefit.taxYear, benefit.benefit.employmentSequenceNumber)
@@ -91,10 +101,16 @@ object RemovalUtils {
     keyStoreService.getEntry[RemoveBenefitData](id, KeystoreUtils.source, keystoreKey)
   }
 
+  def clearBenefitData(keyStoreService: KeyStoreConnector, benefit: DisplayBenefit)(implicit hc: HeaderCarrier): Unit = {
+    clearBenefitData(keyStoreService, benefit.allBenefitsToString, benefit.benefit.taxYear, benefit.benefit.employmentSequenceNumber)
+  }
+
+  def clearBenefitData(keyStoreService: KeyStoreConnector, kinds: String, year: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): Unit = {
+    keyStoreService.deleteKeyStore(genBenefitDataId(kinds, year, employmentSequenceNumber), KeystoreUtils.source)
+  }
+
   def genBenefitDataId(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) =
     s"RemoveBenefit:$benefitTypes:$taxYear:$employmentSequenceNumber"
 
 
-  def genBenefitFormDataId(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) =
-    s"RemoveBenefitForm:$benefitTypes:$taxYear:$employmentSequenceNumber"
 }
