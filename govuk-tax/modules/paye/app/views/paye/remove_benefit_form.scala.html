@@ -1,31 +1,31 @@
-@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar: Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@import views.formatting.Dates._
-@import views.formatting.Strings._
-@import views.formatting.Money._
-@import config.RefData._
-@import org.joda.time.LocalDate
-@import views.html.helpers.singleCheckbox
+    @import views.formatting.Strings._
+    @import config.RefData._
+    @import views.html.helpers.singleCheckbox
+    @import controllers.paye.routes._
 
-@main(title = "Remove your company benefit", user = Some(user)) {
-    <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
-    <h2><span class="employer-name">@displayBenefit.employment.employerName</span> no longer supply private fuel</h2>
-    @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-    <h2 class="benefit-type">Your old company @benefitsTitle benefit</h2>
-    }
+    @main(title = "Remove your company benefit", user = Some(user)) {
+        <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 
-    <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with @sentence(iabdTypeFor(displayBenefit.benefit.benefitType)), you can remove it from your taxable benefits.</p>
+        <h2><span class="employer-name">@displayBenefit.employment.employerName</span> no longer supply private fuel</h2>
 
-        @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+        @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+            <h2 class="benefit-type">Your old company @benefitsTitle benefit</h2>
+        }
 
-           @helpers.dateFields(updateForm,
-                                "withdrawDate",
-                                "Date you stopped receiving the benefit:",
-                                currentTaxYearYearsRange,
-				Some(""),
-                                '_groupDivClass -> "form-field")
+        <p>If <span class="employer-name">@displayBenefit.employment.employerName</span>
+            have stopped providing you with @sentence(iabdTypeFor(displayBenefit.benefit.benefitType)), you can remove it from your taxable benefits.</p>
 
-        <div>
+        @helper.form(action = RemoveBenefitController.requestBenefitRemoval(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+            @helpers.dateFields(updateForm,
+                "withdrawDate",
+                "Date you stopped receiving the benefit:",
+                currentTaxYearYearsRange,
+                Some(""),
+                '_groupDivClass -> "form-field")
+
+            <div>
 
             @if(displayBenefit.benefit.benefitType == uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes.FUEL && hasUnremovedCar) {
                 @singleCheckbox(
@@ -35,10 +35,10 @@
                     '_label -> "I would also like to remove my car benefit.",
                     '_showConstraints -> false)
             }
-        </div>
-        <div class="form-field">
-            <input class="button button--next flush--left" type="submit" value="Next" />
-        </div>
+            </div>
+            <div class="form-field">
+                <input class="button button--next flush--left" type="submit" value="Next" />
+            </div>
+        }
     }
-}
 

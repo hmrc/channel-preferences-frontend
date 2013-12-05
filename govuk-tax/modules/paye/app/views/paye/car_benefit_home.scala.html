@@ -109,10 +109,10 @@
         @if( carBenefit.isDefined ) {
         <ul>
             <li>
-                @helpers.link("rm-car-link", s"${controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)}", "remove your company car")
+                @helpers.link("rm-car-link", s"${controllers.paye.routes.DisplayRemoveBenefitFormController.benefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)}", "remove your company car")
             </li>
             <li>@if( fuelBenefit.isDefined ) {
-                    @helpers.link("rm-fuel-link", s"${controllers.paye.routes.RemoveBenefitController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)}", "remove your car fuel benefit")
+                    @helpers.link("rm-fuel-link", s"${controllers.paye.routes.DisplayRemoveBenefitFormController.benefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)}", "remove your car fuel benefit")
                 } else {
                 @if(carBenefit.get.car.get.fuelType != Some("electricity") ) {
                     @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employerSequenceNumber)}", "add a car fuel benefit")

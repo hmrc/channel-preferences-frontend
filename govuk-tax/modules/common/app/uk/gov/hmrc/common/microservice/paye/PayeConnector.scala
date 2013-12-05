@@ -14,6 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class PayeConnector extends TaxRegimeConnector[PayeRoot] {
+  import PayeConnector._
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
@@ -66,9 +67,12 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-  val calculationWithdrawKey: String = "withdraw"
 
   def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier): Future[RemoveBenefitCalculationResponse] = {
     httpGetF[RemoveBenefitCalculationResponse](benefit.calculations(calculationWithdrawKey).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).map(_.get)
   }
+}
+
+object PayeConnector {
+  val calculationWithdrawKey: String = "withdraw"
 }
