@@ -12,13 +12,13 @@
 
     @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
         <div class="form-field">
-            <button id="emailIsCorrectLink" class="button" type="submit">My email is correct</button>
+            <button id="email-is-correct-link" class="button" type="submit">My email is correct</button>
         </div>
         <input type="hidden" name="email.main" value="@emailAddress" />
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    @helpers.link("emailIsNotCorrectLink", controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress)).url, "No, my email address is not correct")
+    @helpers.link("email-is-not-correct-link", controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress)).url, "No, my email address is not correct")
 
 }
