@@ -27,7 +27,7 @@
                                 "Date you gave back the car:",
                                 currentTaxYearYearsRange,
 				Some(""),
-                                '_groupDivClass -> "form-field")
+                                '_groupDivClass -> "form-field-group")
         @if(hasFuelBenefit){
 
                 <p class="fuel-benefit-info" >We will also remove your fuel benefit.</p>
@@ -41,7 +41,7 @@
                         FormField(updateForm("fuelWithdrawDate"), Seq(DateControl(currentTaxYearYearsRange)))
                     ),
                     '_label -> "Did you give back your fuel before you gave back the car?",
-                    '_groupDivClass -> "form-field",
+                    '_groupDivClass -> "form-field-group",
                     '_valueAfter -> true
                 )
         }

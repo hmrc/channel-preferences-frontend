@@ -23,9 +23,8 @@
                 "Date you stopped receiving the benefit:",
                 currentTaxYearYearsRange,
                 Some(""),
-                '_groupDivClass -> "form-field")
+                '_groupDivClass -> "form-field-group")
 
-            <div>
 
             @if(displayBenefit.benefit.benefitType == uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes.FUEL && hasUnremovedCar) {
                 @singleCheckbox(
@@ -35,7 +34,6 @@
                     '_label -> "I would also like to remove my car benefit.",
                     '_showConstraints -> false)
             }
-            </div>
             <div class="form-field">
                 <input class="button button--next flush--left" type="submit" value="Next" />
             </div>

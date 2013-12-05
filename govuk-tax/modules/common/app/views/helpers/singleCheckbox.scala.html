@@ -5,7 +5,7 @@
 
 @elements = @{ new FieldElements(field.id, field, null, args.toMap, lang) }
 @value = @{ field.value match { case Some(x) => x case None => "false" case x => x }}
-<div class=" form-field @if(elements.hasErrors) {error}">
+<div class=" form-field-single @if(elements.hasErrors) {error}">
     @elements.errors(elements.lang).map { error =>
     <span style="display: block" class="error-notification">@Messages(error)</span>
     }

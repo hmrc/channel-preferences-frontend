@@ -3271,7 +3271,7 @@ div.email {
 /*------------------------------------*\
     form validations
 \*------------------------------------*/
-.form-field.error, .error.form-field--inline, .error.form-field--inline-text-input, .error.form-field--inline-spaced-right, .error.form-field--inline-spaced-left, .error.form-field--error {
+.form-field.error, .error.form-field--inline, .error.form-field--inline-text-input, .error.form-field--inline-spaced-right, .error.form-field--inline-spaced-left, .error.form-field--error, .form-field-group.error, .error.form-field-single {
   background-color: #fef7f7;
   border-left: 3px solid #df3034;
   margin: 0 -1em 0.5em -1em;
