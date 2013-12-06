@@ -2,23 +2,22 @@ package controllers
 
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.PreferencesMicroService
+import uk.gov.hmrc.PreferencesConnector
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import controllers.service.FrontEndConfig
-import play.GlobalSettings
 import org.jsoup.Jsoup
 
 class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar {
 
   import uk.gov.hmrc.EmailVerificationLinkResponse._
 
-   val additionalConfig = Map("sa-prefs.Test.portal.destinationRoot" -> "portalHomeLink", "sa-prefs.Test.portal.destinationPath.home" -> "/home")
+  val additionalConfig = Map("sa-prefs.Test.portal.destinationRoot" -> "portalHomeLink", "sa-prefs.Test.portal.destinationPath.home" -> "/home")
 
-   def createController = new EmailValidation {
-     override lazy val preferencesMicroService = mock[PreferencesMicroService]
-   }
+  def createController = new EmailValidation {
+    override lazy val preferencesMicroService = mock[PreferencesConnector]
+  }
 
   val wellFormattedToken: String = "12345678-abcd-4abc-abcd-123456789012"
   val tokenWithSomeExtraStuff: String = "12345678-abcd-4abc-abcd-123456789012423"

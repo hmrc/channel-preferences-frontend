@@ -4,7 +4,7 @@
 
 <h1>Account details</h1>
 
-<h2 id="emailAddress">@emailAddress</h2>
+<h2 id="email-address">@emailAddress</h2>
 
 <p>
     You are currently opted into receiving email notifications from HMRC at the address above, we send you notifications
@@ -21,6 +21,6 @@
 }
 @helper.form(action = controllers.bt.routes.AccountDetailsController.accountDetails) {
 
-    @helpers.link("accountDetailsLink", controllers.bt.routes.AccountDetailsController.accountDetails.url, "Never mind - I want to stay digital")
+    @helpers.link("cancel-opt-out-link", controllers.bt.routes.AccountDetailsController.accountDetails.url, "Never mind - I want to stay digital")
 }
 }

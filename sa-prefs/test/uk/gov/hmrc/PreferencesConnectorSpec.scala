@@ -12,7 +12,7 @@ import play.api.test.FakeApplication
 import play.api.libs.json.JsBoolean
 import scala.Some
 
-class TestPreferencesMicroservice extends PreferencesMicroService with MockitoSugar {
+class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
@@ -42,12 +42,12 @@ class TestPreferencesMicroservice extends PreferencesMicroService with MockitoSu
 
 }
 
-class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach {
+class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach {
   //
 
-  lazy val preferenceMicroService: TestPreferencesMicroservice = new TestPreferencesMicroservice
+  lazy val preferenceConnector = new TestPreferencesConnector
 
-  override def afterEach = reset(preferenceMicroService.httpWrapper)
+  override def afterEach = reset(preferenceConnector.httpWrapper)
 
   val utr = "2134567"
 
@@ -55,10 +55,10 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
   "SaMicroService" should {
     "save preferences for a user that wants email notifications" in new WithApplication(FakeApplication()) {
 
-      preferenceMicroService.savePreferences(utr, true, Some(email))
+      preferenceConnector.savePreferences(utr, true, Some(email))
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceMicroService.httpWrapper).post(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(preferenceConnector.httpWrapper).post(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe (true)
@@ -67,10 +67,10 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
 
     "save preferences for a user that wants paper notifications" in new WithApplication(FakeApplication()) {
 
-      preferenceMicroService.savePreferences(utr, false)
+      preferenceConnector.savePreferences(utr, false)
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceMicroService.httpWrapper).post(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(preferenceConnector.httpWrapper).post(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe (false)
@@ -80,9 +80,9 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceMicroService.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(true, Some("someEmail@email.com"))))
-      val result = preferenceMicroService.getPreferences(utr).get
-      verify(preferenceMicroService.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(true, Some("someEmail@email.com"))))
+      val result = preferenceConnector.getPreferences(utr).get
+      verify(preferenceConnector.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital shouldBe (true)
       result.email shouldBe (Some("someEmail@email.com"))
@@ -90,9 +90,9 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
 
     "get preferences for a user who opted for paper notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceMicroService.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(false)))
-      val result = preferenceMicroService.getPreferences(utr).get
-      verify(preferenceMicroService.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(false)))
+      val result = preferenceConnector.getPreferences(utr).get
+      verify(preferenceConnector.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital shouldBe (false)
       result.email shouldBe (None)
@@ -101,10 +101,10 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
     "return none for a user who has not set preferences" in new WithApplication(FakeApplication()) {
       val mockPlayResponse = mock[Response]
       when(mockPlayResponse.status).thenReturn(404)
-      when(preferenceMicroService.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenThrow(new MicroServiceException("Not Found", mockPlayResponse))
-      preferenceMicroService.getPreferences(utr) shouldBe (None)
+      when(preferenceConnector.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenThrow(new MicroServiceException("Not Found", mockPlayResponse))
+      preferenceConnector.getPreferences(utr) shouldBe (None)
       verify(mockPlayResponse).status
-      verify(preferenceMicroService.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      verify(preferenceConnector.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
     }
 
   }
@@ -118,11 +118,11 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(200)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceMicroService.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatus(token)
 
       result shouldBe OK
     }
@@ -133,11 +133,11 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(204)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceMicroService.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatus(token)
 
       result shouldBe OK
     }
@@ -148,11 +148,11 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(400)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceMicroService.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatus(token)
 
       result shouldBe ERROR
     }
@@ -163,11 +163,11 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(404)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceMicroService.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatus(token)
 
       result shouldBe ERROR
     }
@@ -178,11 +178,11 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(500)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceMicroService.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatus(token)
 
       result shouldBe ERROR
     }
@@ -193,11 +193,11 @@ class SaMicroServiceSpec extends WordSpec with MockitoSugar with ShouldMatchers 
       val response = mock[Response]
 
       when(response.status).thenReturn(410)
-      when(preferenceMicroService.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
                                                                   Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceMicroService.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatus(token)
 
       result shouldBe EXPIRED
     }

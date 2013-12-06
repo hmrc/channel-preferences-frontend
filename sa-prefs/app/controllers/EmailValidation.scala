@@ -3,12 +3,12 @@ package controllers
 import play.api.mvc.Results._
 import play.api.mvc.Action
 import play.mvc.Controller
-import uk.gov.hmrc.{EmailVerificationLinkResponse, PreferencesMicroService}
+import uk.gov.hmrc.{EmailVerificationLinkResponse, PreferencesConnector}
 import controllers.service.FrontEndConfig
 
 class EmailValidation extends Controller {
 
-  implicit lazy val preferencesMicroService = new PreferencesMicroService()
+  implicit lazy val preferencesMicroService = new PreferencesConnector()
 
   val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 

@@ -27,8 +27,11 @@
 
     <h2>@Messages("bt.home.otherTaxes")</h2>
     <p>@Messages("bt.home.mergeAccounts.1")</p>
-    <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
-    <p>@helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts")</p>
+
+    @if(accountSummaries.regimes.size != 4) {
+        <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
+        <p>@helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts")</p>
+    }
     <p>
         @Messages("bt.home.everythingElse.1")
         @helpers.link("otherServicesHref", controllers.bt.routes.OtherServicesController.otherServices.url, "bt.home.everythingElse.linkText")

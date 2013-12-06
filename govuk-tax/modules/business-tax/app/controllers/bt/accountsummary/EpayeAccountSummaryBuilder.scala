@@ -20,20 +20,11 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
     accountSummaryOF map { accountSummary =>
       val messages = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
       val links = createLinks(buildPortalUrl, accountSummary)
-      AccountSummary(regimeName(accountSummary), messages, links, SummaryStatus.success)
+      AccountSummary(epayeRegimeNameMessage, messages, links, SummaryStatus.success)
     }
   }
 
   override def rootForRegime(user: User): Option[EpayeRoot] = user.regimes.epaye
-
-
-  private def regimeName(accountSummary: Option[EpayeAccountSummary]): String = {
-    accountSummary match {
-      case Some(EpayeAccountSummary(Some(rti), None)) => epayeRtiRegimeNameMessage
-      case Some(EpayeAccountSummary(None, Some(nonRti))) => epayeNonRtiRegimeNameMessage
-      case _ => epayeUnknownRegimeName
-    }
-  }
 
   private def messageStrategy(accountSummary: Option[EpayeAccountSummary]): () => Seq[Msg] = {
     accountSummary match {
@@ -44,20 +35,15 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   }
 
   private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[AccountSummaryLink] = {
-    def expectedRtiLinks = Seq[AccountSummaryLink](
-      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, sso = true),
-      AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, sso = false)
-    )
 
-
-    def expectedNonRtiLinks = Seq[AccountSummaryLink](
+    def links = Seq[AccountSummaryLink](
       AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, sso = true),
       AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, sso = false)
     )
 
     accountSummary match {
-      case Some(EpayeAccountSummary(Some(rti), None)) => expectedRtiLinks
-      case Some(EpayeAccountSummary(None, Some(nonRti))) => expectedNonRtiLinks
+      case Some(EpayeAccountSummary(Some(rti), None)) => links
+      case Some(EpayeAccountSummary(None, Some(nonRti))) => links
       case _ => Seq.empty
     }
   }
@@ -104,8 +90,7 @@ object EpayePortalUrlKeys {
 
 object EpayeMessageKeys {
 
-  val epayeRtiRegimeNameMessage = "epaye.regimeName.rti"
-  val epayeNonRtiRegimeNameMessage = "epaye.regimeName.nonRti"
+  val epayeRegimeNameMessage = "epaye.regimeName"
   val epayeUnknownRegimeName = "epaye.regimeName.unknown"
 
   val epayeNothingToPayMessage = "epaye.message.nothingToPay"

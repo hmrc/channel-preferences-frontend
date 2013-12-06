@@ -1,51 +1,56 @@
-@(emailForm: Form[String], token: String, redirectUrl: String)
+@(emailForm: Form[controllers.EmailPreferenceData], token: String, redirectUrl: String)
 
 @import views.helpers.CustomHelpers._
 @import helper._
 
 @main(title = "My Preferences") {
 
-    <h1>Go paperless.<br>Save taxpayers money.</h1>
+    <h1>Sign up for email reminders</h1>
 
-    <p>HMRC sends out 44 million letters to their customers each year. This costs the taxpayer £11.5 million and isn’t environmentally friendly.</p>
-
-    <p>You might, for example, get one of these letters to remind to file a Self Assessment return or payment is due.</p>
-
-    <p>You can now sign up to stop letters and get emails instead.</p>
-
-    <h2>How email reminders work</h2>
-
-    <p>Emails from HMRC are secure and won’t include any sensitive information about your tax. They simply alert you to check your online account for further information, for example the amount of tax that’s due.</p>
-
-    <h2>Benefits of emails</h2>
-
+    <p>You can soon get Self Assessment email reminders when:</p>
     <ul class="bullets">
-	<li>we do the filing for you - all Self Assessment statements and reminders are kept in your online tax account</li>
-
-	<li>be up to date quicker - you don’t have to wait for letters to arrive in the post</li>
-
-	<li>more secure - emails don’t contain personal information about your tax</li>
+        <li>tax returns are due</li>
+        <li>payments are due</li>
+        <li>new tax statements are online</li>
     </ul>
+    <p>Email reminders will replace letters you currently get about these updates from HMRC.</p>
 
-    <p>Enter your email address to sign up for emails.</p>
+    <h2>What’s in the email</h2>
+    <p>The reminders will ask you to log into your online tax account and check for updates.</p>
+
+    <p>They're secure and will never include any information about your personal tax affairs.</p>
+
+    <p>Enter your email address to sign up for email reminders.</p>
 
     @helper.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
 
 	@helpers.input(
-	    emailForm("email"),
-            '_label -> "",
+	    emailForm("email.main"),
+        '_label -> "",
 	    '_divClass -> "form-field",
-	    '_inputClass -> "input--medium"
+	    '_inputClass -> "input--medium",
+        'parentField -> emailForm("email")
 	)
 
-	<div class="form-field">
-            <button class="button" type="submit">Submit</button>
-	</div>
+    <p>Confirm email address</p>
+    @helpers.input(
+        emailForm("email.confirm"),
+        '_label -> "",
+        '_divClass -> "form-field",
+        '_inputClass -> "input--medium"
+    )
+
+    <div class="form-field">
+        <button id="submitEmailButton" class="button" type="submit">Submit</button>
+    </div>
 
     }
 
     @helper.form(action = controllers.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl)) {
-	<p><input class="input--link" type="submit" value="No thanks, I don’t want to switch to email" /></p>
+    <div class="form-field">
+        <input id="keep-paper-link" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" />
+    </div>
+
     }
 
 }

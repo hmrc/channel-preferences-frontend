@@ -49,7 +49,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       changeEmailAddressLink.text shouldBe "Change your email address"
       changeEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
 
-      val optOutOfEmailLink = page.getElementById("optOutOfEmailLink")
+      val optOutOfEmailLink = page.getElementById("opt-out-of-email-link")
       optOutOfEmailLink should not be null
       optOutOfEmailLink.text shouldBe "Opt-out of email reminders"
       optOutOfEmailLink.attr("href") shouldBe routes.AccountDetailsController.optOutOfEmailReminders.url
@@ -66,7 +66,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
       page.getElementById("change-email-address-link") shouldBe null
-      page.getElementById("optOutOfEmailLink") shouldBe null
+      page.getElementById("opt-out-of-email-link") shouldBe null
 
       verifyZeroInteractions(mockPreferencesConnector)
     }
@@ -322,8 +322,8 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       page.getElementById("confirm-opt-out") shouldNot be(null)
       page.getElementById("confirm-opt-out").text shouldBe "Opt me out of digital"
-      page.getElementById("accountDetailsLink") shouldNot be(null)
-      page.getElementById("accountDetailsLink").text shouldBe "Never mind - I want to stay digital"
+      page.getElementById("cancel-opt-out-link") shouldNot be(null)
+      page.getElementById("cancel-opt-out-link").text shouldBe "Never mind - I want to stay digital"
     }
 
     "return bad request if the user has not opted into digital" in new Setup{
