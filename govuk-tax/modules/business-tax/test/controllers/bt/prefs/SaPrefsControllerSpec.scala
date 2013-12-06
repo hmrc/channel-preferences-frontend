@@ -162,6 +162,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "validate the email address, save the preference and redirect to the thank you page" in new Setup {
       val emailAddress = "someone@email.com"
       when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
+      when(preferencesConnector.savePreferences(validUtr, true, Some(emailAddress))).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
@@ -178,6 +179,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new Setup {
       val emailAddress = "someone@email.com"
+      when(preferencesConnector.savePreferences(validUtr, true, Some(emailAddress))).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
 

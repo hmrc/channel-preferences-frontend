@@ -153,6 +153,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       when(mockEmailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
       when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.savePreferences(validUtr, true, Some(emailAddress))).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
@@ -250,6 +251,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some("oldEmailAddress@test.com"))
 
       when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.savePreferences(validUtr, true, Some(emailAddress))).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody
         (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))

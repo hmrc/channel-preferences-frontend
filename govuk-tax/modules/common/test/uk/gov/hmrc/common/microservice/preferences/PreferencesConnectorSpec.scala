@@ -22,15 +22,15 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
     httpWrapper.getF(uri)
   }
 
-  override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
-    httpWrapper.post(uri, body, headers)
+  override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+    httpWrapper.postF(uri, body, headers)
   }
 
   class HttpWrapper {
 
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
 
-    def post[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
+    def postF[T](uri: String, body: JsValue, headers: Map[String, String]): Future[Option[T]] = Future.successful(None)
 
   }
 
@@ -52,7 +52,7 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
       preferenceMicroService.savePreferences(utr, digital = true, Some(email))
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceMicroService.httpWrapper).post(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(preferenceMicroService.httpWrapper).postF(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe true
@@ -64,7 +64,7 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
       preferenceMicroService.savePreferences(utr, digital = false)
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceMicroService.httpWrapper).post(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(preferenceMicroService.httpWrapper).postF(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe false

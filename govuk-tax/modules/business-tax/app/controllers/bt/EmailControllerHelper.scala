@@ -1,13 +1,15 @@
 package controllers.bt
 
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{Call, Request}
+import play.api.mvc.{SimpleResult, Call, Request}
 import controllers.common.actions.HeaderCarrier
 import play.api.data._
 import play.api.mvc.Results._
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 trait EmailControllerHelper {
 
@@ -27,16 +29,17 @@ trait EmailControllerHelper {
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                       successRedirect: () => Call,
                                       emailConnector: EmailConnector,
-                                      preferencesConnector: PreferencesConnector)(implicit user: User, request: Request[AnyRef]) = {
+                                      preferencesConnector: PreferencesConnector)(implicit user: User, request: Request[AnyRef]) : Future[SimpleResult] = {
     implicit def hc = HeaderCarrier(request)
     emailForm.bindFromRequest()(request).fold(
-      errors => BadRequest(errorsView(errors)),
+      errors => Future.successful(BadRequest(errorsView(errors))),
       emailForm => {
         if (emailForm.isEmailVerified || emailConnector.validateEmailAddress(emailForm.mainEmail)) {
-          preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.mainEmail))
-          Redirect(successRedirect())
+          preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.mainEmail)).map { uri =>
+            Redirect(successRedirect())
+          }
         } else {
-          Ok(emailWarningView(emailForm.mainEmail))
+          Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }
       }
     )
