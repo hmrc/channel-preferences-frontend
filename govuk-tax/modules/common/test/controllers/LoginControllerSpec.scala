@@ -270,7 +270,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should include("NOT IN WHITELIST")
     }
 
-    "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name" in new WithSetup {
+    "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name and generate an audit event" in new WithSetup {
 
       when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, "affinityGroup", geoff.encodedGovernmentGatewayToken))
 
@@ -284,6 +284,19 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       decrypt(sess("userId")) shouldBe geoff.userId
       decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
 
+      val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
+
+      val event = captor.getValue
+
+      event.auditSource should be ("frontend")
+      event.auditType should be ("TxSucceded")
+      event.tags should (
+        contain ("transactionName" -> "GG Login Completion") and
+        contain key ("X-Request-ID") and
+        contain key ("X-Session-ID")
+      )
+      event.detail should contain ("authId" -> geoff.userId)
     }
   }
 

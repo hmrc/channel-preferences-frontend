@@ -1,6 +1,6 @@
 package controllers.common
 
-import play.api.mvc.{AnyContent, Action}
+import play.api.mvc.{Session, AnyContent, Action}
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
@@ -54,9 +54,24 @@ class LoginController(samlConnector: SamlConnector,
         erroredForm => Ok(views.html.ggw_login_form(erroredForm)),
         credentials => {
           try {
-            val response: GovernmentGatewayResponse = governmentGatewayConnector.login(credentials)(HeaderCarrier(request))
-            FrontEndRedirect.toBusinessTax
-              .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
+            val response = governmentGatewayConnector.login(credentials)(HeaderCarrier(request))
+            val sessionId = s"session-${UUID.randomUUID().toString}"
+            auditConnector.audit(
+              AuditEvent(
+                auditType = "TxSucceded",
+                tags = Map(
+                  "transactionName" -> "GG Login Completion",
+                  HeaderNames.xSessionId -> sessionId
+                ) ++ hc.headers.toMap,
+                detail = Map("authId" -> response.authId)
+              )
+            )
+            FrontEndRedirect.toBusinessTax.withSession(Session(Map(
+              "sessionId" -> sessionId,
+              "userId" -> response.authId,
+              "name" -> response.name,
+              "token" -> response.encodedGovernmentGatewayToken.encodeBase64
+            ).mapValues(encrypt)))
           } catch {
             case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
             case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
@@ -90,7 +105,7 @@ class LoginController(samlConnector: SamlConnector,
             authConnector.authorityByPidAndUpdateLoginTime(hashPid)(updatedHC) match {
               case Some(authority) => {
                 auditConnector.audit(
-                  AuditEvent(
+                  AuditEvent( 
                     auditType = "TxSucceded",
                     tags = Map("transactionName" -> "IDA Login Completion", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
                     detail = Map("hashPid" -> hashPid, "authId" -> authority.uri)
