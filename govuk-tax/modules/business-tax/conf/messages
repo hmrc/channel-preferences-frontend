@@ -50,9 +50,7 @@ sa.message.summaryUnavailable.2=- there is no information to view at this time
 sa.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available
 sa.message.summaryUnavailable.4=For any other problems, contact the <a id="sa.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
 
-epaye.regimeName.rti=Employers PAYE (RTI)
-epaye.regimeName.nonRti=Employers PAYE (not RTI)
-epaye.regimeName.unknown=Employers PAYE
+epaye.regimeName=Employers PAYE
 epaye.message.empRef=Your PAYE employer reference is: {0}.
 epaye.message.nothingToPay=You have nothing to pay.
 epaye.message.youHaveOverPaid=You have overpaid by {0}.
