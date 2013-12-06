@@ -18,7 +18,7 @@ class ShowRemoveBenefitFormControllerSpec extends PayeBaseSpec {
 
     import views.html.paye.remove_benefit_form
 
-    "notify the user the fuel benefit will be removed for benefit with no company name" in new WithApplication(FakeApplication()) {
+    "notify the user the fuel benefit will be removed for benefit with no company name" ignore new WithApplication(FakeApplication()) {
 
       val benefit = DisplayBenefit(johnDensmoresEmployments(0), johnDensmoresBenefits, None, Map.empty)
       val dates = Some(CarFuelBenefitDates(None, None))

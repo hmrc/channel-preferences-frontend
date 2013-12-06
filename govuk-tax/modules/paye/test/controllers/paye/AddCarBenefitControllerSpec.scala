@@ -1,37 +1,39 @@
 package controllers.paye
 
+import scala.concurrent.Future
+
+import play.api.mvc.SimpleResult
+import play.api.i18n.Messages
+
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
-import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.paye.domain._
+import play.api.test.FakeApplication
+
 import org.joda.time.LocalDate
-import controllers.DateFieldsHelper
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import org.joda.time.chrono.ISOChronology
+
+import org.jsoup.Jsoup
 import org.mockito.{Matchers, ArgumentCaptor}
 import org.mockito.Mockito._
-import controllers.paye.CarBenefitFormFields._
-import CarBenefitDataBuilder._
-import play.api.i18n.Messages
-import uk.gov.hmrc.common.microservice.paye.{domain, PayeConnector}
 import org.scalatest.matchers.{MatchResult, Matcher}
-import concurrent.Future
+import org.scalatest.TestData
+
+import uk.gov.hmrc.common.microservice.paye.domain._
+import BenefitTypes._
+import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import uk.gov.hmrc.common.microservice.paye.{domain, PayeConnector}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import BenefitTypes._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
-import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.paye.domain.Car
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
-import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationResponse
-import org.joda.time.chrono.ISOChronology
-import models.paye.{CarAndFuelBuilder, CarBenefitData, CarBenefitDataAndCalculations}
-import org.scalatest.TestData
+
+import controllers.DateFieldsHelper
+import controllers.paye.CarBenefitFormFields._
+import CarBenefitDataBuilder._
 import controllers.common.actions.HeaderCarrier
 import controllers.paye.validation.{BenefitFlowHelper, AddBenefitFlow}
+
+import models.paye.{CarAndFuelBuilder, CarBenefitData, CarBenefitDataAndCalculations}
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 

@@ -84,7 +84,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         },
         removeBenefitData => {
           implicit def hc = HeaderCarrier(request)
-          storeBenefitFormData(keyStoreService, benefit, removeBenefitData)
+          keyStoreService.storeBenefitFormData(removeBenefitData)
           removeBenefit(user, benefit, payeRootData, removeBenefitData)
         }
       )
@@ -125,7 +125,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
           val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
 
-          storeBenefitData(keyStoreService, updatedBenefit, RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues))
+          keyStoreService.storeBenefitData(RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues))
 
           Ok(remove_benefit_confirm(aggregateSumOfRevisedBenefitAmounts, updatedBenefit)(user))
         }
@@ -171,7 +171,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       if (carRemovalMissesFuelRemoval(payeRootData, displayBenefit)) {
         Future.successful(BadRequest)
       } else {
-        loadBenefitData(keyStoreService, displayBenefit) match {
+        keyStoreService.loadBenefitData match {
           case Some(formData) => {
             val uri = displayBenefit.benefit.actions.getOrElse("remove",
               throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))
@@ -182,8 +182,8 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
             }
 
             payeConnector.removeBenefits(uri, payeRoot.version, revisedBenefits, formData.withdrawDate).map(_.get).map { removeBenefitResponse =>
-              clearBenefitData(keyStoreService, displayBenefit)
-              clearBenefitFormData(keyStoreService, displayBenefit)
+              keyStoreService.clearBenefitData
+              keyStoreService.clearBenefitFormData
 
               Redirect(routes.RemoveBenefitController.benefitRemoved(displayBenefit.allBenefitsToString,
                 displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber, removeBenefitResponse.transaction.oid,
@@ -207,7 +207,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     txQueueConnector.transaction(oid, user.regimes.paye.get).flatMap {
       case None => Future.successful(NotFound)
       case Some(tx) => {
-        clearBenefitData(keyStoreService, kinds, year, employmentSequenceNumber)
+        keyStoreService.clearBenefitData
         val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
         if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
           TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>

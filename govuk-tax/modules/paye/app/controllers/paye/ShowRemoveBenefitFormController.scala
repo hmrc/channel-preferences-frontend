@@ -23,7 +23,7 @@ import views.html.paye.{remove_benefit_form, remove_car_benefit_form}
 import play.api.data.Form
 
 class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
-                                        (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
+                                     (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
   extends BaseController
   with Actions
   with SessionTimeoutWrapper
@@ -46,7 +46,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
         val dates = getCarFuelBenefitDates(request)
 
         implicit val hc = HeaderCarrier(request)
-        val defaults = loadBenefitFormData(keyStoreService, benefit)
+        val defaults = keyStoreService.loadBenefitFormData
 
         benefit.benefit.benefitType match {
           case BenefitTypes.CAR => Ok(removeCarBenefit(benefit, taxYearData, benefitStartDate, dates, defaults, user))
