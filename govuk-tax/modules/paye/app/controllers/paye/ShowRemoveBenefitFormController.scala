@@ -22,7 +22,7 @@ import models.paye.{RemoveBenefitFormData, DisplayBenefit, CarFuelBenefitDates}
 import views.html.paye.{remove_benefit_form, remove_car_benefit_form}
 import play.api.data.Form
 
-class DisplayRemoveBenefitFormController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
+class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                                         (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
   extends BaseController
   with Actions
@@ -35,11 +35,11 @@ class DisplayRemoveBenefitFormController(keyStoreService: KeyStoreConnector, ove
 
   import RemovalUtils._
 
-  def benefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    user => request => benefitRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
+  def showBenefitRemovalForm(benefitTypes: String, taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
+    user => request => showRemovalFormAction(user, request, benefitTypes, taxYear, employmentSequenceNumber)
   }
 
-  private[paye] val benefitRemovalFormAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
+  private[paye] val showRemovalFormAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
     (user: User, request: Request[_], benefit: DisplayBenefit, taxYearData: TaxYearData) =>
       future {
         val benefitStartDate = getStartDate(benefit.benefit)

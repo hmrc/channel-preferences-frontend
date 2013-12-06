@@ -12,7 +12,7 @@ import play.api.test.FakeApplication
 import scala.Some
 import org.joda.time.chrono.ISOChronology
 
-class DisplayRemoveBenefitFormControllerSpec extends PayeBaseSpec {
+class ShowRemoveBenefitFormControllerSpec extends PayeBaseSpec {
   private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
   "Removing FUEL benefit only" should {
 

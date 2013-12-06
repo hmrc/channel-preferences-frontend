@@ -14,14 +14,6 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.DateFieldsHelper
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.paye.domain.Car
-import uk.gov.hmrc.common.microservice.domain.User
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
-import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import org.joda.time.format.DateTimeFormat
 import concurrent.Future
@@ -29,13 +21,10 @@ import org.joda.time.chrono.ISOChronology
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import BenefitTypes._
 import controllers.common.actions.HeaderCarrier
 import org.scalatest.concurrent.ScalaFutures
 import controllers.paye.validation.BenefitFlowHelper
-import controllers.paye.RemovalUtils._
-import models.paye.{CarFuelBenefitDates, DisplayBenefit}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
@@ -46,7 +35,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitResponse
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -65,7 +53,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     override def now = () => dateToday
   }
 
-  private lazy val formController = new DisplayRemoveBenefitFormController(mockKeyStoreService, mockAuthConnector, mockAuditConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
+  private lazy val formController = new ShowRemoveBenefitFormController(mockKeyStoreService, mockAuthConnector, mockAuditConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
     override def now = () => dateToday
   }
 
@@ -100,7 +88,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
     "not show the car checkbox when the user has no car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(fuelBenefit))
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, FUEL.toString, 2013, 2)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, FUEL.toString, 2013, 2)
 
       val doc = Jsoup.parse(contentAsString(result))
 
@@ -115,7 +103,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "not display car removal checkbox" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 2)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 2)
 
       val doc = Jsoup.parse(contentAsString(result))
 
@@ -268,7 +256,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 2)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 2)
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -519,7 +507,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         Some(car), Map.empty, Map.empty)
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq(Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = primaryEmploymentType)), Seq(specialCarBenefit))
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 3)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 3)
 
       status(result) shouldBe 200
     }
@@ -528,7 +516,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, "31", 2013, 2)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, "31", 2013, 2)
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -539,7 +527,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 1, not notify the user about fuel benefit if the user does not have one" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefit))
 
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, "31", 2013, 2)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, "31", 2013, 2)
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -843,7 +831,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "return the updated benefits list page if the user has gone back in the browser and resubmitted and the benefit has already been removed" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, s"$CAR", 2013, 1)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, s"$CAR", 2013, 1)
       status(result) shouldBe 303
 
       val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
@@ -853,7 +841,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "return the benefits list page if the user modifies the url to include a benefit type that they can not remove" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, "30", 2013, 1)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, "30", 2013, 1)
       status(result) shouldBe 303
       val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
       redirectLocation(result) shouldBe Some(expectedUri)
@@ -862,7 +850,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "return to the benefits list page if the user modifies the url to include an incorrect sequence number" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val result = formController.benefitRemovalFormAction(johnDensmore, requestWithCorrectVersion, s"$CAR", 2013, 3)
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, s"$CAR", 2013, 3)
       status(result) shouldBe 303
       val expectedUri = routes.CarBenefitHomeController.carBenefitHome().url
       redirectLocation(result) shouldBe Some(expectedUri)
@@ -924,7 +912,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       when(mockPayeConnector.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])(Matchers.eq(hc))).thenReturn(RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal("123"))))
 
-      val result = formController.benefitRemovalFormAction(user, request, "31", 2013, 1)
+      val result = formController.showRemovalFormAction(user, request, "31", 2013, 1)
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".checkbox").text should not include "Some("
