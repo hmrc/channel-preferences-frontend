@@ -49,19 +49,20 @@ class LoginController(samlConnector: SamlConnector,
           "password" -> nonEmptyText
         )(Credentials.apply)(Credentials.unapply)
       )
-      val boundForm: Form[Credentials] = loginForm.bindFromRequest()
-      if (boundForm.hasErrors) {
-        Ok(views.html.ggw_login_form(boundForm))
-      } else {
-        try {
-          val response: GovernmentGatewayResponse = governmentGatewayConnector.login(boundForm.value.get)(HeaderCarrier(request))
-          FrontEndRedirect.toBusinessTax
-            .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
-        } catch {
-          case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(boundForm.withGlobalError("Invalid username or password. Try again.")))
-          case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
+      val form = loginForm.bindFromRequest()
+      form.fold (
+        erroredForm => Ok(views.html.ggw_login_form(erroredForm)),
+        credentials => {
+          try {
+            val response: GovernmentGatewayResponse = governmentGatewayConnector.login(credentials)(HeaderCarrier(request))
+            FrontEndRedirect.toBusinessTax
+              .withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt(response.authId), "name" -> encrypt(response.name), "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
+          } catch {
+            case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
+            case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
+          }
         }
-      }
+      )
   })
 
   def notOnBusinessTaxWhitelistPage = views.html.whitelist_notice()
