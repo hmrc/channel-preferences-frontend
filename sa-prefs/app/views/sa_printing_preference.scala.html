@@ -40,14 +40,17 @@
         '_inputClass -> "input--medium"
     )
 
-	<div class="form-field">
-            <button class="button" type="submit">Submit</button>
-	</div>
+    <div class="form-field">
+        <button id="submitEmailButton" class="button" type="submit">Submit</button>
+    </div>
 
     }
 
     @helper.form(action = controllers.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl)) {
-	<p><input class="input--link" type="submit" value="No thanks, I don’t want to switch to email" /></p>
+    <div class="form-field">
+        <input id="keep-paper-link" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" />
+    </div>
+
     }
 
 }
