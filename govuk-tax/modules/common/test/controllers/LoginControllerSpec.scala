@@ -31,6 +31,8 @@ import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import uk.gov.hmrc.common.microservice.governmentgateway.GatewayToken
+import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -131,26 +133,27 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       redirectLocation(result).get shouldBe "/agent/home"
     }
 
-    "generate an audit event if the response is valid" in new TestCase {
-      loginController.idaLogin()(setupValidRequest())
+    "generate an audit event if the response is valid" in new TestCase with ScalaFutures{
+      whenReady( loginController.idaLogin()(setupValidRequest()) ) { _=>
 
-      val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
-      verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
+        val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
+        verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
 
-      val event = captor.getValue
+        val event = captor.getValue
 
-      event.auditSource should be ("frontend")
-      event.auditType should be ("TxSucceded")
-      event.tags should (
-        contain ("transactionName" -> "IDA Login Completion") and
-        contain ("X-Request-ID" -> originalRequestId) and
-        contain key ("X-Request-ID-Original") and
-        contain key ("X-Session-ID")
-      )
-      event.detail should (
-        contain ("hashPid" -> hashPid) and
-        contain ("authId" -> id)
-      )
+        event.auditSource should be ("frontend")
+        event.auditType should be ("TxSucceded")
+        event.tags should (
+          contain ("transactionName" -> "IDA Login Completion") and
+          contain ("X-Request-ID" -> originalRequestId) and
+          contain key ("X-Request-ID-Original") and
+          contain key ("X-Session-ID")
+        )
+        event.detail should (
+          contain ("hashPid" -> hashPid) and
+          contain ("authId" -> id)
+        )
+      }
     }
 
     "return Unauthorised if the post does not contain a saml response" in new WithSetup {
@@ -181,9 +184,9 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "return Unauthorised if there is no Authority record matching the hash pid" in new WithSetup {
 
-      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
+      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId))))
 
-      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(hashPid)).thenReturn(None)
+      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(None))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
@@ -246,7 +249,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "not be able to log in and should return to the login form with an error message on submitting invalid Government Gateway credentials" in new WithSetup {
 
       val mockResponse = mock[Response]
-      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenThrow(UnauthorizedException("Unauthenticated request", mockResponse))
+      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(UnauthorizedException("Unauthenticated request", mockResponse)))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
@@ -260,7 +263,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "not be able to log in and should return to the login form with an error message on submitting valid Government Gateway credentials but not on the whitelist" in new WithSetup {
 
       val mockResponse = mock[Response]
-      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenThrow(ForbiddenException("Not authorised to make this request", mockResponse))
+      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(ForbiddenException("Not authorised to make this request", mockResponse)))
       when(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage).thenReturn("<html>NOT IN WHITELIST</html>")
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))

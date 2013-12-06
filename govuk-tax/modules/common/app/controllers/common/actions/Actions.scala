@@ -42,12 +42,17 @@ trait Actions
                       pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
   = new AuthenticatedBy(authenticationProvider, None, redirectToOrigin, pageVisibility)
 
-  def UnauthorisedAction(body: PlayRequest) =
+  object UnauthorisedAction {
+    def apply(body: PlayRequest): Action[AnyContent]  = unauthedAction(Action(body))
+    def async(body: AsyncPlayRequest): Action[AnyContent] = unauthedAction(Action.async(body))
+
+    private def unauthedAction(body:Action[AnyContent]): Action[AnyContent] =
       logRequest {
         WithRequestAuditing {
-          Action(body)
+          body
         }
       }
+  }
 
   private def authorised(authenticationProvider: AuthenticationProvider,
                          account: Option[TaxRegime],

@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
+import scala.concurrent.Future
 
 
 class LoginController(samlConnector: SamlConnector,
@@ -29,10 +30,10 @@ class LoginController(samlConnector: SamlConnector,
 
   def this() = this(Connectors.samlConnector, Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
-  def samlLogin = WithNewSessionTimeout(UnauthorisedAction {
+  def samlLogin = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
-      val authRequestFormData = samlConnector.create(HeaderCarrier(request))
-      Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
+      samlConnector.create(HeaderCarrier(request)).map(authRequestFormData =>
+        Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest)))
   })
 
   def businessTaxLogin = WithNewSessionTimeout(UnauthorisedAction {
@@ -40,7 +41,7 @@ class LoginController(samlConnector: SamlConnector,
       Ok(views.html.ggw_login_form())
   })
 
-  def governmentGatewayLogin: Action[AnyContent] = WithNewSessionTimeout(UnauthorisedAction {
+  def governmentGatewayLogin: Action[AnyContent] = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
 
       val loginForm = Form(
@@ -51,10 +52,9 @@ class LoginController(samlConnector: SamlConnector,
       )
       val form = loginForm.bindFromRequest()
       form.fold (
-        erroredForm => Ok(views.html.ggw_login_form(erroredForm)),
+        erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
         credentials => {
-          try {
-            val response = governmentGatewayConnector.login(credentials)(HeaderCarrier(request))
+            governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response => 
             val sessionId = s"session-${UUID.randomUUID().toString}"
             auditConnector.audit(
               AuditEvent(
@@ -72,13 +72,12 @@ class LoginController(samlConnector: SamlConnector,
               SessionKeys.name -> response.name,
               SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
             ).mapValues(encrypt)))
-          } catch {
+            }.recover {
             case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
             case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
           }
-        }
-      )
-  })
+        })
+    })
 
   def notOnBusinessTaxWhitelistPage = views.html.whitelist_notice()
 
@@ -90,19 +89,20 @@ class LoginController(samlConnector: SamlConnector,
     )(SAMLResponse.apply)(SAMLResponse.unapply)
   )
 
-  def idaLogin = WithNewSessionTimeout(UnauthorisedAction {
+  def idaLogin = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
       responseForm.bindFromRequest.fold(
         errors => {
           Logger.warn("SAML authentication response received without SAMLResponse data")
-          Unauthorized(views.html.login_error())
+          Future.successful(Unauthorized(views.html.login_error()))
         },
         samlResponse => {
-          val validationResult = samlConnector.validate(samlResponse.response)
+          samlConnector.validate(samlResponse.response).flatMap {
+          validationResult =>
           if (validationResult.valid) {
             val updatedHC = hc.copy(requestId = validationResult.originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
             val hashPid = validationResult.hashPid.get
-            authConnector.authorityByPidAndUpdateLoginTime(hashPid)(updatedHC) match {
+            authConnector.authorityByPidAndUpdateLoginTime(hashPid)(updatedHC).map {
               case Some(authority) => {
                 auditConnector.audit(
                   AuditEvent( 
@@ -130,7 +130,8 @@ class LoginController(samlConnector: SamlConnector,
             }
           } else {
             Logger.warn("SAMLResponse failed validation")
-            Unauthorized(views.html.login_error())
+            Future.successful(Unauthorized(views.html.login_error()))
+          }
           }
         }
       )

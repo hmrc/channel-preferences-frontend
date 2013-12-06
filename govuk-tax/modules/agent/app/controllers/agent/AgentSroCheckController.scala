@@ -8,6 +8,8 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import controllers.common.actions.Actions
+import scala.concurrent.Future
+import play.api.mvc.{Request, SimpleResult}
 
 class AgentSroCheckController(override val auditConnector: AuditConnector)
                              (implicit override val authConnector: AuthConnector)
@@ -18,7 +20,7 @@ class AgentSroCheckController(override val auditConnector: AuditConnector)
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
   def reasonForApplication() = UnauthorisedAction {
-    implicit request =>
+    request =>
       Ok(views.html.agents.reason_for_application())
   }
 
@@ -34,7 +36,7 @@ class AgentSroCheckController(override val auditConnector: AuditConnector)
       Ok(views.html.agents.sro_check(userForm))
   }
 
-  def submitAgreement = UnauthorisedAction {
+  def submitAgreement  = UnauthorisedAction {
     implicit request =>
       userForm.bindFromRequest.fold(
         errors =>

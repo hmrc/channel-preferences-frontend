@@ -21,8 +21,8 @@ class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with Moc
     httpWrapper.get[A](uri)
   }
 
-  override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = {
-    httpWrapper.post[A](uri, body, headers)
+  override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] = {
+    httpWrapper.postF[A](uri, body, headers)
   }
 
 
@@ -33,7 +33,7 @@ class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with Moc
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
-    def post[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = None
+    def postF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Future[Option[A]] = Future.successful(None)
   }
 
 }
@@ -49,23 +49,18 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
       val credentials = Credentials("user", "pw")
       val credentialsJson = JsObject(Seq("userId" -> JsString(credentials.userId), "password" -> JsString(credentials.password)))
       val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", GatewayToken("12343534545454", DateTimeUtils.now, DateTimeUtils.now))
-      when(service.httpWrapper.post[GovernmentGatewayResponse]("/login", credentialsJson, Map.empty)).thenReturn(Some(expectedResponse))
+      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/login", credentialsJson, Map.empty)).thenReturn(Future.successful(Some(expectedResponse)))
 
-      val result = service.login(credentials)
-
-      result shouldBe expectedResponse
+      service.login(credentials).futureValue shouldBe expectedResponse
     }
 
     "throw an exception when no government gateway details are retrieved from Government Gateway"  in new WithApplication(FakeApplication()){
 
       val credentials = Credentials("user", "incorrectPw")
       val credentialsJson = JsObject(Seq("userId" -> JsString(credentials.userId), "password" -> JsString(credentials.password)))
-      when(service.httpWrapper.post[GovernmentGatewayResponse]("/login", credentialsJson, Map.empty)).thenReturn(None)
+      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/login", credentialsJson, Map.empty)).thenReturn(Future.successful(None))
 
-      intercept[IllegalStateException]{
-        service.login(credentials)
-      }
-
+      service.login(credentials).failed.futureValue shouldBe an [IllegalStateException]
     }
 
   }
@@ -77,24 +72,18 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
       val ssoLoginRequest = SsoLoginRequest("3jeih3g3gg3ljkdlh3", 3837636)
       val ssoLoginRequestJson = JsObject(Seq("token" -> JsString(ssoLoginRequest.token), "timestamp" -> JsNumber(ssoLoginRequest.timestamp)))
       val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", GatewayToken("12343534545454", DateTimeUtils.now, DateTimeUtils.now))
-      when(service.httpWrapper.post[GovernmentGatewayResponse]("/sso-login", ssoLoginRequestJson, Map.empty)).thenReturn(Some(expectedResponse))
+      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/sso-login", ssoLoginRequestJson, Map.empty)).thenReturn(Future.successful(Some(expectedResponse)))
 
-      val result = service.ssoLogin(ssoLoginRequest)
-
-      result shouldBe expectedResponse
-      
+      service.ssoLogin(ssoLoginRequest).futureValue shouldBe expectedResponse
     }
 
     "throw an exception when no government gateway details are retrieved from Government Gateway" in new WithApplication(FakeApplication()){
 
       val ssoLoginRequest = SsoLoginRequest("3jeih3g3gg3ljkdlh3", 3837636)
       val ssoLoginRequestJson = JsObject(Seq("token" -> JsString(ssoLoginRequest.token), "timestamp" -> JsNumber(ssoLoginRequest.timestamp)))
-      when(service.httpWrapper.post[GovernmentGatewayResponse]("/sso-login", ssoLoginRequestJson, Map.empty)).thenReturn(None)
+      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/sso-login", ssoLoginRequestJson, Map.empty)).thenReturn(Future.successful(None))
 
-      intercept[IllegalStateException]{
-        service.ssoLogin(ssoLoginRequest)
-      }
-
+      service.ssoLogin(ssoLoginRequest).failed.futureValue shouldBe an [IllegalStateException]
     }
 
   }

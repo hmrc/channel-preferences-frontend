@@ -20,22 +20,17 @@ class GovernmentGatewayConnector extends Connector {
     def writes(g: SsoLoginRequest) = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsNumber(g.timestamp)))
   }
 
-  def login(credentials: Credentials)(implicit hc: HeaderCarrier) = {
-    val loginResponse = httpPost[GovernmentGatewayResponse](
-      uri = "/login",
-      body = Json.toJson(credentials),
-      headers = Map.empty)
+  def login(credentials: Credentials)(implicit hc: HeaderCarrier) = doLogin("/login", credentials)
 
-    loginResponse.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
-  }
+  def ssoLogin(ssoLoginRequest: SsoLoginRequest)(implicit hc: HeaderCarrier) = doLogin("/sso-login", ssoLoginRequest)
 
-  def ssoLogin(ssoLoginRequest: SsoLoginRequest)(implicit hc: HeaderCarrier) = {
-    val ssoResponse = httpPost[GovernmentGatewayResponse](
-      uri = "/sso-login",
-      body = Json.toJson(ssoLoginRequest),
-      headers = Map.empty)
+  def doLogin[T](path: String, body: T)(implicit hc: HeaderCarrier, write: Writes[T]) = {
+    httpPostF[GovernmentGatewayResponse](
+      uri = path,
+      body = Json.toJson(body),
+      headers = Map.empty).map(ssoResponse =>
+        ssoResponse.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned")))
 
-    ssoResponse.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned"))
   }
 
   def profile(userId: String)(implicit hc: HeaderCarrier) =

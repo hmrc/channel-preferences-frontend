@@ -17,6 +17,7 @@ import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.utils.DateTimeUtils
 import org.mockito.Matchers
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption with ScalaFutures {
 
@@ -95,7 +96,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     }
 
     "invalidate the session if a session already exists but the login is incorrect" in new WithApplication(FakeApplication()) {
-      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.invalidEncodedToken, john.loginTimestamp))).thenThrow(new IllegalStateException("error"))
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.invalidEncodedToken, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new IllegalStateException("error")))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
       val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
 
@@ -116,10 +117,11 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "invalidate the session if a session already exists but the login throws an Unauthorised Exception" in new WithApplication(FakeApplication()) {
       val mockResponse = mock[Response]
-      when(mockGovernmentGatewayService.ssoLogin(SsoLoginRequest(john.encodedToken.encodeBase64, john.invalidLoginTimestamp))).thenThrow(new UnauthorizedException("error", mockResponse))
+      private val request: SsoLoginRequest = SsoLoginRequest(john.encodedToken.encodeBase64, john.invalidLoginTimestamp)
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(request))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new UnauthorizedException("error", mockResponse)))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
 
       val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
