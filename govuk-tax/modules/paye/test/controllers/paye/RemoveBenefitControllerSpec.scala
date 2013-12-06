@@ -8,7 +8,8 @@ import play.api.test.{WithApplication, FakeRequest}
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import org.mockito.Mockito._
-import org.mockito.{Mockito, ArgumentMatcher, Matchers}
+import org.mockito.{Matchers, Mockito, ArgumentMatcher}
+import Matchers._
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain.Employment._
@@ -38,6 +39,7 @@ import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import models.paye.RemoveBenefitFormData
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper with ScalaFutures {
 
@@ -85,9 +87,22 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   }
 
   "Removing FUEL benefit only" should {
+    "notify the user the fuel benefit will be removed for benefit with no company name" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
+
+      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, FUEL.toString, 2013, 2)
+
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.select(".benefit-type").text shouldBe "Your old company fuel benefit"
+      doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
+    }
 
     "not show the car checkbox when the user has no car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(fuelBenefit))
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
+
       val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, FUEL.toString, 2013, 2)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -103,6 +118,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "not display car removal checkbox" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
       val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 2)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -255,6 +271,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "In step 1, give the user the option to remove fuel benefit on the same (or different) date as the car" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 
       val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 2)
       status(result) shouldBe 200
@@ -507,6 +524,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         Some(car), Map.empty, Map.empty)
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, Seq(Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = primaryEmploymentType)), Seq(specialCarBenefit))
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
+
       val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, CAR.toString, 2013, 3)
 
       status(result) shouldBe 200
@@ -515,6 +534,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 1, notify the user that the fuel benefit is going to be removed with the car benefit when removing car benefit" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 
       val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, "31", 2013, 2)
       status(result) shouldBe 200
@@ -526,6 +546,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
     "in step 1, not notify the user about fuel benefit if the user does not have one" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(carBenefit))
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 
       val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, "31", 2013, 2)
       status(result) shouldBe 200
@@ -911,6 +932,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         withSession((BenefitFlowHelper.npsVersionKey, versionNumber.toString))
 
       when(mockPayeConnector.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])(Matchers.eq(hc))).thenReturn(RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal("123"))))
+      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 
       val result = formController.showRemovalFormAction(user, request, "31", 2013, 1)
       status(result) shouldBe 200
