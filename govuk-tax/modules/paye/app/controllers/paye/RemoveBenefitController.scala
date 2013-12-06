@@ -69,7 +69,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       val benefitStartDate = getStartDate(benefit.benefit)
       val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
 
-      updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request), now()).bindFromRequest()(request).fold(
+      updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()(request).fold(
         errors => {
           now
           val result = benefit.benefit.benefitType match {
