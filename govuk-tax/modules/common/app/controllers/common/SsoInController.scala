@@ -10,6 +10,7 @@ import java.net.{ MalformedURLException, URISyntaxException, URI }
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
+import play.api.mvc.Session
 
 class SsoInController(ssoWhiteListService : SsoWhiteListService,
                       governmentGatewayConnector : GovernmentGatewayConnector,
@@ -40,11 +41,12 @@ class SsoInController(ssoWhiteListService : SsoWhiteListService,
           try {
             val response = governmentGatewayConnector.ssoLogin(tokenRequest)(HeaderCarrier(request))
             Logger.debug(s"successfully authenticated: $response.name")
-            Redirect(dest.get).withSession(
-              "userId" -> encrypt(response.authId),
-              "name" -> encrypt(response.name),
-              "affinityGroup" -> encrypt(response.affinityGroup),
-              "token" -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
+            Redirect(dest.get).withSession(Session(Map(
+              SessionKeys.userId -> response.authId,
+              SessionKeys.name -> response.name,
+              SessionKeys.affinityGroup -> response.affinityGroup,
+              SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
+            ).mapValues(encrypt)))
           } catch {
             case e: Exception => {
               Logger.info("Failed to validate a token.", e)

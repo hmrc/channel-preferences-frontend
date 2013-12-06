@@ -67,10 +67,10 @@ class LoginController(samlConnector: SamlConnector,
               )
             )
             FrontEndRedirect.toBusinessTax.withSession(Session(Map(
-              "sessionId" -> sessionId,
-              "userId" -> response.authId,
-              "name" -> response.name,
-              "token" -> response.encodedGovernmentGatewayToken.encodeBase64
+              SessionKeys.sessionId -> sessionId,
+              SessionKeys.userId -> response.authId,
+              SessionKeys.name -> response.name,
+              SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
             ).mapValues(encrypt)))
           } catch {
             case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
@@ -118,7 +118,10 @@ class LoginController(samlConnector: SamlConnector,
                   )
                 )
                 val target = FrontEndRedirect.forSession(session)
-                target.withSession("userId" -> encrypt(authority.uri), "sessionId" -> encrypt(updatedHC.sessionId.get))
+                target.withSession(
+                  SessionKeys.userId -> encrypt(authority.uri),
+                  SessionKeys.sessionId -> encrypt(updatedHC.sessionId.get)
+                )
               }
               case _ => {
                 Logger.warn(s"No record found in Auth for the PID $hashPid")

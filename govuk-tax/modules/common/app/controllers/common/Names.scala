@@ -14,3 +14,11 @@ trait CookieNames {
   val deviceFingerprint = "mdtpdf"
 }
 object CookieNames extends CookieNames
+
+object SessionKeys {
+  val sessionId = "sessionId"
+  val userId = "userId"
+  val name = "name"
+  val token = "token"
+  val affinityGroup = "affinityGroup"
+}
