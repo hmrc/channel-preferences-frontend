@@ -2,18 +2,17 @@ package controllers.paye
 
 import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.{Interval, DateTime, LocalDate}
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 import play.api.data.Form
 import play.api.data.Forms._
 import controllers.paye.validation.RemoveBenefitValidator._
-import models.paye.{DisplayBenefit, RemoveBenefitFormData, CarFuelBenefitDates}
+import models.paye.{RemoveBenefitFormData, CarFuelBenefitDates}
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import scala.Some
 import play.api.mvc.Request
 import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
-import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
@@ -30,12 +29,12 @@ object RemovalUtils {
   def updateBenefitForm(benefitStartDate: LocalDate,
                         carBenefitWithUnremovedFuelBenefit: Boolean,
                         dates: Option[CarFuelBenefitDates],
-                        now: DateTime) = Form[RemoveBenefitFormData](
+                        now: DateTime, taxYearInterval:Interval) = Form[RemoveBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate),
+      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval),
       "removeCar" -> boolean,
       "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
-      "fuelWithdrawDate" -> validateFuelDate(dates, Some(benefitStartDate))
+      "fuelWithdrawDate" -> validateFuelDate(dates, Some(benefitStartDate), taxYearInterval)
     )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
   )
 

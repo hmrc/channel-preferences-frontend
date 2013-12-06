@@ -58,7 +58,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
   def removeCarBenefit(benefit: DisplayBenefit, payeRootData: TaxYearData, benefitStartDate: LocalDate, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveBenefitFormData], user: User) = {
     val hasUnremovedFuel = hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
 
-    val benefitForm: Form[RemoveBenefitFormData] = updateBenefitForm(benefitStartDate, hasUnremovedFuel, dates, now())
+    val benefitForm: Form[RemoveBenefitFormData] = updateBenefitForm(benefitStartDate, hasUnremovedFuel, dates, now(), taxYearInterval)
     val filledForm = defaults.map { preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
 
     remove_car_benefit_form(benefit, hasUnremovedFuel, filledForm, currentTaxYearYearsRange)(user)
@@ -67,7 +67,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
   def removeBenefit(benefit: DisplayBenefit, payeRootData: TaxYearData, benefitStartDate: LocalDate, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveBenefitFormData], user: User) = {
     val hasUnremovedCar = hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
 
-    val benefitForm: Form[RemoveBenefitFormData] = updateBenefitForm(benefitStartDate, carBenefitWithUnremovedFuelBenefit = false, dates, now())
+    val benefitForm: Form[RemoveBenefitFormData] = updateBenefitForm(benefitStartDate, carBenefitWithUnremovedFuelBenefit = false, dates, now(), taxYearInterval)
     val filledForm = defaults.map { preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
 
     remove_benefit_form(benefit, hasUnremovedCar, filledForm, currentTaxYearYearsRange)(user)
