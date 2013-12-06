@@ -4,108 +4,120 @@
 @import views.formatting.Money._
 @import views.formatting.Dates._
 @import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
+@import controllers.paye.routes._
 
 @main(title = "Confirm", user = Some(user)) {
 
 
+    @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+        @defining(displayBenefit.benefits.find(b => b.benefitType == FUEL)) { fuelBenefit =>
+            @defining(displayBenefit.benefits.find(b => b.benefitType == CAR)) { carBenefit =>
 
-@defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-@defining(displayBenefit.benefits.find(b => b.benefitType == FUEL)) { fuelBenefit =>
-@defining(displayBenefit.benefits.find(b => b.benefitType == CAR)) { carBenefit =>
+                <h1 id="main-heading"><span class="pre-heading">service</span>
+                    Tell HMRC about a change to your company @{benefitsTitle}</h1>
 
-<h1 id="main-heading"><span class="pre-heading">service</span> Tell HMRC about a change to your company @{benefitsTitle}</h1>
+                <h2 class="title">Check your change before submitting</h2>
 
-<h2 class="title">Check your change before submitting</h2>
+            @if(carBenefit.isDefined) {
+                <table id="company-car-details">
+                    <thead>
+                        <tr>
+                            <th colspan="2" id="company-name">
+                                Company car provided by @{displayBenefit.employment.employerNameOrReference}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(carBenefit.get.car.get.dateCarMadeAvailable.isDefined) {
+                            <tr>
+                                <td>Date Provided </td>
+                                <td id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
 
-@if(carBenefit.isDefined) {
-    <table id="company-car-details">
-        <thead>
-        <tr>
-            <th colspan="2" id="company-name">Company car provided by @{displayBenefit.employment.employerNameOrReference}</th>
-        </tr>
-        </thead>
-        <tbody>
-            @if(carBenefit.get.car.get.dateCarMadeAvailable.isDefined) {
-            <tr>
-                <td>Date Provided </td>
-                <td id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
+                            </tr>
+                        }
+                        @if(carBenefit.get.car.get.carValue.isDefined) {
+                            <tr>
+                                <td>List Price including accessories</td>
+                                <td id="car-benefit-car-value">@pounds(carBenefit.get.car.get.carValue.get)</td>
+                            </tr>
+                        }
+                        @if(carBenefit.get.car.get.fuelType.isDefined) {
+                            <tr>
+                                <td>Fuel type</td>
+                                <td id="car-benefit-fuel-type">@Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.get.car.get.fuelType.get}")</td>
+                            </tr>
+                        }
+                        @if(carBenefit.get.car.get.co2Emissions.isDefined) {
+                            <tr>
+                                <td>Emission figure</td>
+                                <td>@{carBenefit.get.car.get.co2Emissions.get} g/km</td>
+                            </tr>
+                        }
+                        @if(carBenefit.get.car.get.engineSize.isDefined) {
+                            <tr>
+                                <td>Engine capacity</td>
+                                <td id="car-benefit-engine">@Messages(s"paye.add_car_benefit.engine_capacity.${carBenefit.get.car.get.engineSize.get}")</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td>Private Fuel</td>
+                            <td id="private-fuel">
+                            @if(fuelBenefit.isEmpty) {
+                                @Messages("paye.add_car_benefit.employer_pay_fuel.false")
+                            } else {
+                                @if(fuelBenefit.get.dateWithdrawn.isEmpty) {
+                                    @Messages("paye.add_car_benefit.employer_pay_fuel.true")
+                                } else {
+                                    @{Messages("paye.add_car_benefit.employer_pay_fuel.date", displayBenefit.employment.employerNameOrReference) + " " + formatDate(fuelBenefit.get.dateWithdrawn, "")}
+                                }
+                            }
+                            </td>
+                        </tr>
+                        @defining(displayBenefit.benefitsInfo(s"$CAR")) { carBenefitInfo =>
+                            <tr>
+                                <td>Date given back</td>
+                                <td id="car-benefit-date-car-withdrawn">@carBenefitInfo.withdrawDate</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
 
-            </tr>
-            }
-            @if(carBenefit.get.car.get.carValue.isDefined) {
-            <tr>
-                <td>List Price including accessories</td>
-                <td id="car-benefit-car-value">@pounds(carBenefit.get.car.get.carValue.get)</td>
-            </tr>
-            }
-            @if(carBenefit.get.car.get.fuelType.isDefined) {
-            <tr>
-                <td>Fuel type</td>
-                <td id="car-benefit-fuel-type">@Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.get.car.get.fuelType.get}")</td>
-            </tr>
-            }
-            @if(carBenefit.get.car.get.co2Emissions.isDefined) {
-            <tr>
-                <td>Emission figure</td>
-                <td>@{carBenefit.get.car.get.co2Emissions.get} g/km</td>
-            </tr>
-            }
-            @if(carBenefit.get.car.get.engineSize.isDefined) {
-            <tr>
-                <td>Engine capacity</td>
-                <td id="car-benefit-engine">@Messages(s"paye.add_car_benefit.engine_capacity.${carBenefit.get.car.get.engineSize.get}")</td>
-            </tr>
-            }
-            <tr>
-                <td>Private Fuel</td>
-                <td id="private-fuel">
-                    @if(fuelBenefit.isEmpty) {
-                    @Messages("paye.add_car_benefit.employer_pay_fuel.false")
-                    } else {
-                    @if(fuelBenefit.get.dateWithdrawn.isEmpty) {
-                    @Messages("paye.add_car_benefit.employer_pay_fuel.true")
-                    } else {
-                    @{Messages("paye.add_car_benefit.employer_pay_fuel.date", displayBenefit.employment.employerNameOrReference) + " " + formatDate(fuelBenefit.get.dateWithdrawn, "")}
+            @helpers.link("change",
+                s"${ShowRemoveBenefitFormController.showBenefitRemovalForm(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)}",
+                "This information is wrong")
+
+            @defining(displayBenefit.benefitsInfo) { benefitsInfo =>
+                @defining(benefitsInfo.keys.toList) { keys =>
+
+                    <p id="first-section">Removing your company
+                        @for(key <- keys) {
+                            @Messages(s"benefitType.${key}.title") benefit from <span id="withdraw-date-@{key}">@benefitsInfo(key).withdrawDate</span>
+                        @if(keys.length > 1 && keys.indexOf(key) < 1) { and }
                     }
-                    }
-                </td>
-            </tr>
-        @defining(displayBenefit.benefitsInfo(s"$CAR")) { carBenefitInfo =>
-            <tr>
-                <td>Date given back</td>
-                <td id="car-benefit-date-car-withdrawn">@carBenefitInfo.withdrawDate</td>
-            </tr>
+                        , means that you will pay a proportion of the benefit for the time you had the company @benefitsTitle.</p>
+
+                        @for(key <- keys) {
+                    <p>For the period <span id="start-date-@{key}">@benefitsInfo(key).startDate</span>
+                        to @benefitsInfo(key).withdrawDate, the charge will be
+                        <span id="apportioned-value-@{key}">@pounds(benefitsInfo(key).apportionedValue)</span>
+                        for the company <span id="benefit-type-@Messages(s"benefitType.${key}.title")">@Messages(s"benefitType.${key}.title").</
+                            span></p>
+                }
+
+                }
+            }
+
+                <p>This means your tax-free allowance will increase by <span id="allowance-increase" class="amount">@pounds(amount)</span>
+                    . This means we will need to issue you with a new tax code.</p>
+            }
+
+            @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+                <div class="form-field">
+                    <input class="button button--confirm" type="submit" value="Confirm"/>
+                </div>
+            }
+
         }
-        </tbody>
-    </table>
-}
-
-
-
-@defining(displayBenefit.benefitsInfo) { benefitsInfo => @defining(benefitsInfo.keys.toList) { keys =>
-
-    <p id="first-section">Removing your company
-    @for(key <- keys){
-        @Messages(s"benefitType.${key}.title") benefit from <span id="withdraw-date-@{key}">@benefitsInfo(key).withdrawDate</span>
-        @if(keys.length > 1 && keys.indexOf(key) < 1){ and }
     }
-    , means that you will pay a proportion of the benefit for the time you had the company @benefitsTitle.</p>
-
-    @for(key <- keys){
-    <p>For the period <span id="start-date-@{key}">@benefitsInfo(key).startDate</span> to @benefitsInfo(key).withdrawDate, the charge will be
-        <span id="apportioned-value-@{key}">@pounds(benefitsInfo(key).apportionedValue)</span> for the company <span id="benefit-type-@Messages(s"benefitType.${key}.title")">@Messages(s"benefitType.${key}.title").</span></p>
-    }
-
-}}
-
-<p>This means your tax-free allowance will increase by <span id="allowance-increase" class="amount">@pounds(amount)</span>. This means we will need to issue you with a new tax code.</p>
 }
-
-@helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
-    <div class="form-field">
-        <input class="button button--confirm" type="submit" value="Confirm"/>
-    </div>
-}
-
-}    }            }
 
