@@ -83,7 +83,7 @@
             }
 
             @helpers.link("change",
-                s"${ShowRemoveBenefitFormController.showBenefitRemovalForm(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)}",
+                s"${ShowRemoveBenefitFormController.showBenefitRemovalForm(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)}",
                 "This information is wrong")
 
             @defining(displayBenefit.benefitsInfo) { benefitsInfo =>
