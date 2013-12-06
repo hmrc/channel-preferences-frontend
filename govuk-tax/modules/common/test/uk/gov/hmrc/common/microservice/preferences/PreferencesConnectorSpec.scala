@@ -18,19 +18,19 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) = {
-    httpWrapper.postAndForget(uri, body, headers)
-  }
-
   override protected def httpGetF[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Option[A]] = {
     httpWrapper.getF(uri)
+  }
+
+  override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
+    httpWrapper.post(uri, body, headers)
   }
 
   class HttpWrapper {
 
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
 
-    def postAndForget[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
+    def post[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
 
   }
 
@@ -52,7 +52,7 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
       preferenceMicroService.savePreferences(utr, digital = true, Some(email))
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceMicroService.httpWrapper).postAndForget(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(preferenceMicroService.httpWrapper).post(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe true
@@ -64,7 +64,7 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
       preferenceMicroService.savePreferences(utr, digital = false)
 
       val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceMicroService.httpWrapper).postAndForget(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      verify(preferenceMicroService.httpWrapper).post(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
       val body = bodyCaptor.getValue
       (body \ "digital").as[JsBoolean].value shouldBe false

@@ -8,7 +8,6 @@ import play.api.mvc.Results._
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
-import play.api.http.Writeable
 
 trait EmailControllerHelper {
 
