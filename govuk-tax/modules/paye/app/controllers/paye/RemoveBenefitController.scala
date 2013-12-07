@@ -171,7 +171,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       if (carRemovalMissesFuelRemoval(payeRootData, displayBenefit)) {
         Future.successful(BadRequest)
       } else {
-        keyStoreService.loadBenefitData match {
+        keyStoreService.loadBenefitData flatMap {
           case Some(formData) => {
             val uri = displayBenefit.benefit.actions.getOrElse("remove",
               throw new IllegalArgumentException(s"No remove action uri found for benefit type ${displayBenefit.allBenefitsToString}"))

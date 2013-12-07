@@ -20,6 +20,7 @@ import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.agent.AgentsRegimeRoots
+import scala.concurrent.Future
 
 class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
                               override val auditConnector: AuditConnector)
@@ -33,13 +34,13 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
 
   import ConfirmClientController._
 
-  def confirm = AuthorisedFor(AgentRegime) { user => implicit request =>
+  def confirm = AuthorisedFor(AgentRegime).async { user => implicit request =>
     confirmAction(user)
   }
 
-  private[agent] def confirmAction(user: User)(implicit request: Request[_]): SimpleResult = {
+  private[agent] def confirmAction(user: User)(implicit request: Request[_]): Future[SimpleResult] = {
     val form = confirmClientForm().bindFromRequest()(request)
-    keyStoreConnector.getEntry[PotentialClient](actionId(form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) match {
+    keyStoreConnector.getEntry[PotentialClient](actionId(form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) map {
       case Some(potentialClient@PotentialClient(Some(searchedClient), _, _)) => {
         form.fold(
           errors => BadRequest(search_client_result(searchedClient, form)),

@@ -15,6 +15,7 @@ import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import scala.concurrent.Future
 
 
 object RemovalUtils {
@@ -91,7 +92,7 @@ object RemovalUtils {
       keyStoreService.addKeyStoreEntry(benefitDataActionId, KeystoreUtils.source, keystoreKey, benefitData)
     }
 
-    def loadBenefitData(implicit hc: HeaderCarrier): Option[RemoveBenefitData] = {
+    def loadBenefitData(implicit hc: HeaderCarrier): Future[Option[RemoveBenefitData]] = {
       keyStoreService.getEntry[RemoveBenefitData](benefitDataActionId, KeystoreUtils.source, keystoreKey)
     }
 

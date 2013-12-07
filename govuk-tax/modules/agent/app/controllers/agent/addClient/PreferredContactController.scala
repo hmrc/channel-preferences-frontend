@@ -25,6 +25,7 @@ import models.agent.PreferredContact
 import models.agent.Contact
 import controllers.common.actions.Actions
 import controllers.agent.AgentsRegimeRoots
+import scala.concurrent.Future
 
 class PreferredContactController(keyStoreConnector: KeyStoreConnector,
                                  override val auditConnector: AuditConnector)
@@ -36,14 +37,14 @@ class PreferredContactController(keyStoreConnector: KeyStoreConnector,
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector)(AgentConnector(), Connectors.authConnector)
 
-  def preferredContact = AuthorisedFor(PayeRegime) { user => implicit request =>
+  def preferredContact = AuthorisedFor(PayeRegime).async { user => implicit request =>
     preferredContactAction(user)
   }
 
-  private[agent] def preferredContactAction(user: User)(implicit request: Request[_]): SimpleResult = {
+  private[agent] def preferredContactAction(user: User)(implicit request: Request[_]): Future[SimpleResult] = {
     val form = preferredContactForm(request).bindFromRequest()(request)
     val ksId = actionId(form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound"))
-    keyStoreConnector.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) match {
+    keyStoreConnector.getEntry[PotentialClient](ksId, serviceSourceKey, addClientKey) map {
       case Some(pc@PotentialClient(Some(_), Some(_), _)) => {
         //FIXME we should trim contact details before saving them here
         form.fold(

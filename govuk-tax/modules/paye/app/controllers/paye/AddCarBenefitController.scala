@@ -90,23 +90,23 @@ with PayeRegimeRoots {
 
   private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
     (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
-      future {
-        implicit def hc = HeaderCarrier(request)
-        findEmployment(employmentSequenceNumber, payeRootData) match {
-          case Some(employment) => {
-            val benefitFormWithSavedValues = lookupValuesFromKeystoreAndBuildForm(generateKeystoreActionId(taxYear, employmentSequenceNumber))
-            Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
+      findEmployment(employmentSequenceNumber, payeRootData) match {
+        case Some(employment) => {
+          implicit val hc = HeaderCarrier(request)
+          lookupValuesFromKeystoreAndBuildForm(generateKeystoreActionId(taxYear, employmentSequenceNumber)).map {
+            benefitFormWithSavedValues =>
+              Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))
           }
-          case None => {
-            Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
-            BadRequest
-          }
+        }
+        case None => {
+          Logger.debug(s"Unable to find employment for user ${user.oid} with sequence number $employmentSequenceNumber")
+          Future.successful(BadRequest)
         }
       }
   }
 
-  private def lookupValuesFromKeystoreAndBuildForm(keyStoreId: String)(implicit hc: HeaderCarrier) = {
-    savedValuesFromKeyStore(keyStoreId) match {
+  private def lookupValuesFromKeystoreAndBuildForm(keyStoreId: String)(implicit hc: HeaderCarrier): Future[Form[CarBenefitData]] = {
+    savedValuesFromKeyStore(keyStoreId).map {
       case Some(savedValuesAndCalculation) => {
         val savedValues = savedValuesAndCalculation.carBenefitData
         val rawForm = validationlessForm
@@ -139,24 +139,28 @@ with PayeRegimeRoots {
       implicit val hc = HeaderCarrier(request)
 
       val payeRoot = user.getPaye
-      val carBenefitDataAndCalculation = savedValuesFromKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber)).getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
+      savedValuesFromKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber)).flatMap {
+        savedData =>
+          val carBenefitDataAndCalculation = savedData.getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
-      val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
-      val carAndFuel = CarAndFuelBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
-      val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
-      keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
+          val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
+          val carAndFuel = CarAndFuelBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
+          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
+          keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
 
-      TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap { currentTaxYearCode =>
-        val f1 = addBenefitsResponse.map(_.get.newTaxCode)
-        val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
+          TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap {
+            currentTaxYearCode =>
+              val f1 = addBenefitsResponse.map(_.get.newTaxCode)
+              val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
 
-        for {
-          newTaxCode <- f1
-          netCodedAllowance <- f2
-        } yield {
-          val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-          Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
-        }
+              for {
+                newTaxCode <- f1
+                netCodedAllowance <- f2
+              } yield {
+                val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+                Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
+              }
+          }
       }
     }
   }
@@ -176,16 +180,17 @@ with PayeRegimeRoots {
               val carAndFuelBenefit = CarAndFuelBuilder(CarBenefitDataAndCalculations(addCarBenefitData.copy(co2Figure = emission), 0, Some(0)), taxYear, employmentSequenceNumber)
               val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
 
-              payeConnector.calculateBenefitValue(uri, carAndFuelBenefit).map(_.get).map { benefitCalculations =>
-                val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
-                val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
+              payeConnector.calculateBenefitValue(uri, carAndFuelBenefit).map(_.get).map {
+                benefitCalculations =>
+                  val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
+                  val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
 
-                keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue)))
+                  keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue)))
 
-                val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
-                  addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-                  addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)
-                Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
+                  val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
+                    addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
+                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)
+                  Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
               }
             }
           )

@@ -12,6 +12,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import service.agent.AgentConnector
 import controllers.agent.AgentsRegimeRoots
+import scala.concurrent.Future
 
 class AgentThankYouController(override val auditConnector: AuditConnector,
                               override val keyStoreConnector: KeyStoreConnector)
@@ -26,15 +27,15 @@ class AgentThankYouController(override val auditConnector: AuditConnector,
 
   def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(AgentConnector(), Connectors.authConnector)
 
-  def thankYou = AuthorisedFor(PayeRegime) {
-    MultiFormAction(multiFormConfig) {
+  def thankYou = AuthorisedFor(PayeRegime).async {
+    MultiFormAction.async(multiFormConfig) {
       user => request => thankYouAction(user, request)
     }
   }
 
-  private[registration] val thankYouAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
+  private[registration] val thankYouAction: ((User, Request[_]) => Future[SimpleResult]) = (user, request) => {
     implicit def hc = HeaderCarrier(request)
-    keyStoreConnector.getKeyStore[Map[String, String]](actionId(), agent, true) match {
+    keyStoreConnector.getKeyStore[Map[String, String]](actionId(), agent, true) map {
       case Some(x) => {
         val agentId = agentMicroService.create(user.regimes.paye.get.nino, toAgent(x)).uar
 

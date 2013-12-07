@@ -8,12 +8,14 @@ import org.mockito.Mockito._
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common.actions.HeaderCarrier
 import org.specs2.specification.BeforeEach
+import org.scalatest.concurrent.ScalaFutures
+import scala.concurrent.Future
 
 class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = {
-    httpWrapper.get[A](uri)
+  override protected def httpGetF[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Option[A]] = {
+    httpWrapper.getF[A](uri)
   }
 
   override protected def httpDeleteAndForget(uri: String)(implicit hc: HeaderCarrier) {
@@ -26,6 +28,7 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
 
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
+    def getF[T](uri:String) : Future[Option[T]] = Future.successful(None)
 
     def httpDeleteAndForget(uri: String) {}
 
@@ -34,7 +37,7 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
 
 }
 
-class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach {
+class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach with ScalaFutures {
 
   val actionId = "anActionId"
   val source: String = "aSource"
@@ -79,9 +82,10 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach {
 
       val keyStoreConnector = new TestKeyStoreConnector()
 
-      keyStoreConnector.getKeyStore[String](actionId, source)
-
-      verify(keyStoreConnector.httpWrapper, times(1)).get[String](s"/keystore/aSource/$keyStoreId")
+      whenReady(keyStoreConnector.getKeyStore[String](actionId, source)) {
+        keys =>
+          verify(keyStoreConnector.httpWrapper, times(1)).getF[String](s"/keystore/aSource/$keyStoreId")
+      }
     }
 
     case class SomeData(firstName: String, lastName: String)
