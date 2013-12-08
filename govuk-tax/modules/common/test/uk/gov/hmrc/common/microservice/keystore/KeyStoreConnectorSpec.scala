@@ -28,7 +28,8 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
 
   class HttpWrapper {
     def get[T](uri: String): Option[T] = None
-    def getF[T](uri:String) : Future[Option[T]] = Future.successful(None)
+
+    def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
 
     def httpDeleteAndForget(uri: String) {}
 
@@ -82,7 +83,10 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
 
       val keyStoreConnector = new TestKeyStoreConnector()
 
-      whenReady(keyStoreConnector.getKeyStore[String](actionId, source)) {
+      when(keyStoreConnector.httpWrapper.getF[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(None)
+
+      val f = keyStoreConnector.getKeyStore[String](actionId, source)
+      whenReady(f) {
         keys =>
           verify(keyStoreConnector.httpWrapper, times(1)).getF[String](s"/keystore/aSource/$keyStoreId")
       }
@@ -95,15 +99,15 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
       setHeaderCarrierMockToReturnUserAndSession()
       val keyStoreConnector = new TestKeyStoreConnector()
 
-      Mockito.when(keyStoreConnector.httpWrapper.get[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(Some(KeyStore[SomeData](keyStoreId, null, null, Map("entryKey" -> SomeData("John", "Densmore")))))
+      Mockito.when(keyStoreConnector.httpWrapper.getF[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(Some(KeyStore[SomeData](keyStoreId, null, null, Map("entryKey" -> SomeData("John", "Densmore")))))
 
-      val entry = keyStoreConnector.getEntry[SomeData](actionId, source, "entryKey")
-
-      verify(keyStoreConnector.httpWrapper, times(1)).get[String](s"/keystore/$source/$keyStoreId")
-      entry should not be 'empty
-      entry.get.firstName shouldBe "John"
-      entry.get.lastName shouldBe "Densmore"
-
+      whenReady(keyStoreConnector.getEntry[SomeData](actionId, source, "entryKey")) {
+        entry =>
+          verify(keyStoreConnector.httpWrapper, times(1)).getF[String](s"/keystore/$source/$keyStoreId")
+          entry should not be 'empty
+          entry.get.firstName shouldBe "John"
+          entry.get.lastName shouldBe "Densmore"
+      }
     }
 
     "handle existing keystore without an entry" in {
@@ -112,11 +116,12 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
 
       val keyStoreConnector = new TestKeyStoreConnector()
 
-      Mockito.when(keyStoreConnector.httpWrapper.get[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(Some(KeyStore[SomeData](keyStoreId, null, null, Map("anotherEntry" -> SomeData("John", "Densmore")))))
+      Mockito.when(keyStoreConnector.httpWrapper.getF[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(Some(KeyStore[SomeData](keyStoreId, null, null, Map("anotherEntry" -> SomeData("John", "Densmore")))))
 
-      val entry = keyStoreConnector.getEntry[SomeData](actionId, source, "entryKey")
-
-      entry shouldBe None
+      whenReady(keyStoreConnector.getEntry[SomeData](actionId, source, "entryKey")) {
+        entry =>
+          entry shouldBe None
+      }
 
     }
 
@@ -137,9 +142,11 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
 
       val keyStoreConnector = new TestKeyStoreConnector()
 
+      when(keyStoreConnector.httpWrapper.getF[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(None)
+
       keyStoreConnector.getDataKeys(actionId, source)
 
-      verify(keyStoreConnector.httpWrapper, times(1)).get[String](s"/keystore/$source/$keyStoreId/data/keys")
+      verify(keyStoreConnector.httpWrapper, times(1)).getF[String](s"/keystore/$source/$keyStoreId/data/keys")
 
     }
 
