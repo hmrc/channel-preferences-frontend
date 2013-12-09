@@ -29,7 +29,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(OK)
       val response = controller.verify(token)(FakeRequest())
-      contentAsString(response) should include("portalHomeLink/home")
+      contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 200
       verify(controller.preferencesMicroService).updateEmailValidationStatus(token)
     }
@@ -39,7 +39,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(ERROR)
       val response = controller.verify(token)(FakeRequest())
-      contentAsString(response) should include("portalHomeLink/home")
+      contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
       verify(controller.preferencesMicroService).updateEmailValidationStatus(token)
     }
@@ -52,10 +52,11 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       val response = controller.verify(token)(FakeRequest())
 
       status(response) shouldBe 200
-      val page = Jsoup.parse(contentAsString(response))
+      val html = contentAsString(response)
+      html shouldNot include("portalHomeLink/home")
+      val page = Jsoup.parse(html)
       page.getElementsByTag("h2").first.text shouldBe "Looks like we have a problem..."
       page.getElementsByTag("p").text should include("out of date")
-      page.getElementsByClass("button").first.attr("href") shouldBe FrontEndConfig.portalHome
       verify(controller.preferencesMicroService).updateEmailValidationStatus(token)
     }
 
@@ -64,7 +65,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       val token = "badToken"
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(ERROR)
       val response = controller.verify(token)(FakeRequest())
-      contentAsString(response) should include("portalHomeLink/home")
+      contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
       verify(controller.preferencesMicroService, never()).updateEmailValidationStatus(token)
     }
@@ -74,7 +75,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       val token = tokenWithSomeExtraStuff
       when(controller.preferencesMicroService.updateEmailValidationStatus(token)).thenReturn(ERROR)
       val response = controller.verify(token)(FakeRequest())
-      contentAsString(response) should include("portalHomeLink/home")
+      contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
       verify(controller.preferencesMicroService, never()).updateEmailValidationStatus(token)
     }
