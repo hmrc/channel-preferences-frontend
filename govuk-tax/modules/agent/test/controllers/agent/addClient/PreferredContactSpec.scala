@@ -20,8 +20,19 @@ import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.FakeApplication
 import service.agent.AgentConnector
 import concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
+import play.api.mvc.SimpleResult
+import org.mockito.Matchers._
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import models.agent.addClient.PotentialClient
+import scala.Some
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.agent.AgentRoot
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
 
-class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
+class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter with ScalaFutures {
 
   val id = "wshakespeare"
   val instanceId = "exampleInstanceId"
@@ -52,11 +63,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
   }
 
   "When navigating to the preferred contact controller via the add action controller the controller" should {
-    "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
-      val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
-      status(result) shouldBe 303
-      redirectLocation(result) should contain(controllers.agent.addClient.routes.SearchClientController.restart().url)
-    }
+
 
     "have the default radio button selected" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
@@ -90,29 +97,25 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       when(confirmKeyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
 
-      val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error") should be('empty)
+      whenReady(executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)) {
+        result =>
+          status(result) shouldBe 200
+          val doc = Jsoup.parse(contentAsString(result))
+          doc.select(".error") should be('empty)
+      }
     }
 
-    def executeConfirmActionPostWithValues(correctClient: String, authorised: String, internalClientReference: String, instanceId: String) = {
+    def executeConfirmActionPostWithValues(correctClient: String, authorised: String, internalClientReference: String, instanceId: String): Future[SimpleResult] = {
       val request = FakeRequest().withFormUrlEncodedBody(
         (ConfirmClientController.FieldIds.correctClient, correctClient),
         (ConfirmClientController.FieldIds.authorised, authorised),
         (ConfirmClientController.FieldIds.internalClientRef, internalClientReference),
         (ConfirmClientController.FieldIds.instanceId, instanceId))
-      Future.successful(confirmController.confirmAction(user)(request))
+      confirmController.confirmAction(user)(request)
     }
   }
 
   "When hitting the preferred contact controller the result" should {
-
-    "return a 303 when there is no session in play" in new WithApplication(FakeApplication()) {
-      val result = executePreferredContactActionPostWithValues(FieldIds.other, "", "123456", "v@v.com", instanceId)
-      status(result) shouldBe 303
-      redirectLocation(result) should contain(controllers.agent.addClient.routes.SearchClientController.start().url)
-    }
 
     "have the other radio button selected when entering invalid data via the preferredContactAction" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
@@ -175,7 +178,7 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
-        .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
+        .thenReturn(Future.successful(Some(PotentialClient(Some(clientSearch), confirmation, None))))
       val result = executePreferredContactActionPostWithValues(FieldIds.notUs, "", "", "", instanceId)
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
