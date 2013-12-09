@@ -21,6 +21,7 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import models.paye.{RemoveBenefitFormData, DisplayBenefit, CarFuelBenefitDates}
 import views.html.paye.{remove_benefit_form, remove_car_benefit_form}
 import play.api.data.Form
+import play.api.Logger
 
 class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                                      (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
@@ -41,16 +42,20 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
 
   private[paye] val showRemovalFormAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
     (user: User, request: Request[_], benefit: DisplayBenefit, taxYearData: TaxYearData) =>
-      val benefitStartDate = getStartDate(benefit.benefit)
-      val dates = getCarFuelBenefitDates(request)
-
       implicit val hc = HeaderCarrier(request)
-      keyStoreService.loadBenefitFormData.map {
-        defaults =>
-          benefit.benefit.benefitType match {
-            case BenefitTypes.CAR => Ok(removeCarBenefit(benefit, taxYearData, benefitStartDate, dates, defaults, user))
-            case _ => Ok(removeBenefit(benefit, taxYearData, benefitStartDate, dates, defaults, user))
-          }
+
+      keyStoreService.loadBenefitFormData.map { defaults =>
+        val benefitStartDate = getStartDate(benefit.benefit)
+        val dates = defaults.map { formData =>
+          CarFuelBenefitDates(Some(formData.withdrawDate), formData.fuelDateChoice)
+        }.orElse {
+          Some(CarFuelBenefitDates(None, None))
+        }
+
+        benefit.benefit.benefitType match {
+          case BenefitTypes.CAR => Ok(removeCarBenefit(benefit, taxYearData, benefitStartDate, dates, defaults, user))
+          case _ => Ok(removeBenefit(benefit, taxYearData, benefitStartDate, dates, defaults, user))
+        }
       }
   }
 
@@ -58,7 +63,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
     val hasUnremovedFuel = hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
 
     val benefitForm: Form[RemoveBenefitFormData] = updateBenefitForm(benefitStartDate, hasUnremovedFuel, dates, now(), taxYearInterval)
-    val filledForm = defaults.map {preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
+    val filledForm = defaults.map { preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
 
     remove_car_benefit_form(benefit, hasUnremovedFuel, filledForm, currentTaxYearYearsRange)(user)
   }
@@ -67,7 +72,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
     val hasUnremovedCar = hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
 
     val benefitForm: Form[RemoveBenefitFormData] = updateBenefitForm(benefitStartDate, carBenefitWithUnremovedFuelBenefit = false, dates, now(), taxYearInterval)
-    val filledForm = defaults.map {preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
+    val filledForm = defaults.map { preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
 
     remove_benefit_form(benefit, hasUnremovedCar, filledForm, currentTaxYearYearsRange)(user)
   }
