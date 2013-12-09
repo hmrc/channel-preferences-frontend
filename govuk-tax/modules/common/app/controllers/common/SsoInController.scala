@@ -3,17 +3,19 @@ package controllers.common
 import play.api.data.Forms._
 import play.api.data._
 import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, SsoLoginRequest}
-import service.{FrontEndConfig, SsoWhiteListService, Connectors}
+import service.{ FrontEndConfig, SsoWhiteListService, Connectors }
 import play.api.Logger
 import play.api.libs.json.Json
+import java.net.{ MalformedURLException, URISyntaxException, URI }
+import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import java.net.{MalformedURLException, URISyntaxException, URI}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
-import scala.concurrent.Future
+import play.api.mvc.Session
 
-class SsoInController(ssoWhiteListService: SsoWhiteListService,
-                      governmentGatewayConnector: GovernmentGatewayConnector,
+class SsoInController(ssoWhiteListService : SsoWhiteListService,
+                      governmentGatewayConnector : GovernmentGatewayConnector,
                       override val auditConnector: AuditConnector)
                      (implicit override val authConnector: AuthConnector)
   extends BaseController
@@ -23,10 +25,10 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
 
   def this() = this(new SsoWhiteListService(FrontEndConfig.domainWhiteList), Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
-  def in = WithNewSessionTimeout(UnauthorisedAction.async {
+  def in = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
       val form = Form(single("payload" -> text))
-      val payload = form.bindFromRequest.get
+      val (payload) = form.bindFromRequest.get
       val decryptedPayload = SsoPayloadEncryptor.decrypt(payload)
       Logger.debug(s"token: $payload")
       val json = Json.parse(decryptedPayload)
@@ -35,19 +37,30 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       val dest = (json \ "dest").asOpt[String]
 
       checkDestination(dest) match {
-        case false => 
-          Future.successful(BadRequest)
+        case false => BadRequest
         case true => {
           val tokenRequest = SsoLoginRequest(token, time)
-          governmentGatewayConnector.ssoLogin(tokenRequest)(HeaderCarrier(request)).map {
-            response =>
-              Logger.debug(s"successfully authenticated: $response.name")
-              Redirect(dest.get).withSession(
-                SessionKeys.userId -> encrypt(response.authId),
-                SessionKeys.name -> encrypt(response.name),
-                SessionKeys.affinityGroup -> encrypt(response.affinityGroup),
-                SessionKeys.token -> encrypt(response.encodedGovernmentGatewayToken.encodeBase64))
-          }.recover {
+          try {
+            val response = governmentGatewayConnector.ssoLogin(tokenRequest)(HeaderCarrier(request))
+            Logger.debug(s"successfully authenticated: $response.name")
+            auditConnector.audit(
+              AuditEvent(
+                auditType = "TxSucceded",
+                tags = Map("transactionName" -> "SSO Login Completion") ++ hc.headers.toMap,
+                detail = Map(
+                  "authId" -> response.authId,
+                  "name" -> response.name,
+                  "affinityGroup" -> response.affinityGroup
+                )
+              )
+            )
+            Redirect(dest.get).withSession(Session(Map(
+              SessionKeys.userId -> response.authId,
+              SessionKeys.name -> response.name,
+              SessionKeys.affinityGroup -> response.affinityGroup,
+              SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
+            ).mapValues(encrypt)))
+          } catch {
             case e: Exception => {
               Logger.info("Failed to validate a token.", e)
               Redirect(routes.HomeController.landing()).withNewSession
