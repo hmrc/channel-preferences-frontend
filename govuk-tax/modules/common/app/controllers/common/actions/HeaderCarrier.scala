@@ -17,6 +17,9 @@ case class HeaderCarrier(userId: Option[String] = None,
                          sessionId: Option[String] = None,
                          requestId: Option[String] = None) {
 
+  val nsStamp = System.nanoTime()
+  def elapsedNs = System.nanoTime() - nsStamp
+
   val names = HeaderNames
   lazy val headers: Seq[(String, String)] = {
     List(userId.map(u => names.authorisation -> s"Bearer $u"),

@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
+import com.sun.jdi.connect.Connector
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
@@ -20,7 +21,7 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   }
 }
 
-trait Connector extends Status with HeaderNames {
+trait Connector extends Status with HeaderNames with ConnectionLogging {
 
   protected val serviceUrl: String
 
@@ -29,8 +30,9 @@ trait Connector extends Status with HeaderNames {
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
 
-  protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] =
+  protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = withLogging("GetF", uri) {
     response[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
+  }
 
   //FIXME: Why is the body a JsValue? Why do we care what type it is
   protected def httpPutF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
@@ -65,9 +67,8 @@ trait Connector extends Status with HeaderNames {
     try {
       fromResponse[A](response.body)
     } catch {
-      case e: Throwable => {
+      case e: Throwable =>
         throw new Exception("Malformed result", e)
-      }
     }
   }
 

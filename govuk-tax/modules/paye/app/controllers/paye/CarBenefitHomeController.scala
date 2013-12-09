@@ -33,14 +33,15 @@ with PayeRegimeRoots {
   def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
       implicit request =>
-        assembleCarBenefitData(user.getPaye, currentTaxYear).map { details =>
-          buildHomePageResponse(details.map(buildHomePageParams(_, carAndFuelBenefitTypes, currentTaxYear))).
-            withSession(sessionWithNpsVersion(request.session))
+        assembleCarBenefitData(user.getPaye, currentTaxYear).map {
+          details =>
+            buildHomePageResponse(details.map(buildHomePageParams(_, carAndFuelBenefitTypes, currentTaxYear))).
+              withSession(sessionWithNpsVersion(request.session))
         }
   }
 
   private[paye] def sessionWithNpsVersion(session: Session)(implicit user: User) =
-    session +(("nps-version", user.getPaye.version.toString))
+    session + (("nps-version", user.getPaye.version.toString))
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {
@@ -55,12 +56,15 @@ with PayeRegimeRoots {
   }
 
   private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[Option[CarBenefitDetails]] = {
-    payeRoot.fetchTaxYearData(taxYear).flatMap { taxYearData =>
-      taxYearData.findPrimaryEmployment.map { primaryEmployment =>
-        retrieveHomepageData(payeRoot, taxYear).map { data =>
-          CarBenefitDetails(data._1, data._2, data._3, data._4, data._5, taxYearData, primaryEmployment)
+    payeRoot.fetchTaxYearData(taxYear).flatMap {
+      taxYearData =>
+        taxYearData.findPrimaryEmployment.map {
+          primaryEmployment =>
+            retrieveHomepageData(payeRoot, taxYear).map {
+              data =>
+                CarBenefitDetails(data._1, data._2, data._3, data._4, data._5, taxYearData, primaryEmployment)
+            }
         }
-      }
     }
   }
 
