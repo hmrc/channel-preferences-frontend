@@ -1,8 +1,6 @@
 package controllers.bt.prefs
 
-import play.api.data._
-import play.api.data.Forms._
-import play.api.mvc.Request
+import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import controllers.common.{FrontEndRedirect, BaseController}
 import controllers.common.actions.{HeaderCarrier, Actions}
@@ -13,6 +11,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import controllers.bt.{EmailControllerHelper, EmailPreferenceData, BusinessTaxRegimeRoots}
+import scala.concurrent.Future
 
 class SaPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
@@ -33,7 +32,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
       submitPrefsFormAction(user, request)
   }
 
-  def submitKeepPaperForm() = AuthorisedFor(account = SaRegime) {
+  def submitKeepPaperForm() = AuthorisedFor(account = SaRegime).async {
     user => request =>
       submitKeepPaperFormAction(user, request)
   }
@@ -55,8 +54,9 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     emailConnector, preferencesConnector)
   }
 
-  private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]) = {
-    preferencesConnector.savePreferences(user.getSa.utr, false, None)(HeaderCarrier(request))
-    Redirect(FrontEndRedirect.businessTaxHome)
+  private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+    preferencesConnector.savePreferences(user.getSa.utr, false, None)(HeaderCarrier(request)).map(
+      _ => Redirect(FrontEndRedirect.businessTaxHome)
+    )
   }
 }

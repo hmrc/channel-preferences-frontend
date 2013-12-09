@@ -4,7 +4,7 @@ import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
+import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, PreferencesConnector, SaPreference}
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -15,12 +15,12 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import controllers.common.actions.HeaderCarrier
 import controllers.domain.AuthorityUtils._
-import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
+import java.net.URI
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -228,6 +228,8 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
   "Opting to keep paper notifications" should {
 
     "save the preference and redirect to the home page" in new Setup {
+
+      when(preferencesConnector.savePreferences(validUtr, false, None)).thenReturn(Future.successful(Some(FormattedUri(URI.create("/someuri")))))
 
       val page = Future.successful(controller.submitKeepPaperFormAction(user, request))
       status(page) shouldBe 303
