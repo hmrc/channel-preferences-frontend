@@ -135,20 +135,5 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
 
       verify(keyStoreConnector.httpWrapper, times(1)).httpDeleteAndForget(s"/keystore/$source/$keyStoreId")
     }
-
-    "call the key store service when getting the data keys" in new WithApplication(FakeApplication()) {
-
-      setHeaderCarrierMockToReturnUserAndSession()
-
-      val keyStoreConnector = new TestKeyStoreConnector()
-
-      when(keyStoreConnector.httpWrapper.getF[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(None)
-
-      keyStoreConnector.getDataKeys(actionId, source)
-
-      verify(keyStoreConnector.httpWrapper, times(1)).getF[String](s"/keystore/$source/$keyStoreId/data/keys")
-
-    }
-
   }
 }
