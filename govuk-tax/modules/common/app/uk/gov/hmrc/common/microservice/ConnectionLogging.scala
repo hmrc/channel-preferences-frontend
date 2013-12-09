@@ -9,12 +9,12 @@ import ExecutionContext.Implicits.global
 trait ConnectionLogging {
   self: Connector =>
 
-  val connectionLogger = Logger
+  lazy val connectionLogger = Logger(s"connector.$serviceUrl")
 
   import ConnectionLogging.formatNs
 
   def withLogging[T](method: String, uri: String)(body: => Future[T])(implicit hc: HeaderCarrier): Future[T] = {
-    connectionLogger.debug(s"hc elasped ${formatNs(hc.elapsedNs)}")
+    connectionLogger.debug(s"${hc.requestId.getOrElse("")}:${formatNs(hc.elapsedNs)}")
     val startTime = System.nanoTime()
     val f = body
     f.onComplete {logResult(hc.requestId.getOrElse(""), method, uri, startTime)}
@@ -23,10 +23,10 @@ trait ConnectionLogging {
 
   def logResult[A](requestId: String, method: String, uri: String, startTime: Long)(result: Try[A]) = result match {
     case Success(ground) => {
-      connectionLogger.debug(formatMessage(requestId, method, uri, System.nanoTime() - startTime, "success"))
+      connectionLogger.trace(formatMessage(requestId, method, uri, System.nanoTime() - startTime, "success"))
     }
     case Failure(ex) => {
-      connectionLogger.debug(formatMessage(requestId, method, uri, System.nanoTime() - startTime, "failed ${ex.getMessage}"))
+      connectionLogger.trace(formatMessage(requestId, method, uri, System.nanoTime() - startTime, "failed ${ex.getMessage}"))
     }
   }
 
