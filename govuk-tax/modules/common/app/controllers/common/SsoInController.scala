@@ -37,7 +37,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       val time = (json \ "time").as[Long]
       val dest = (json \ "dest").asOpt[String]
 
-      checkDestination(dest) match {
+      destinationIsAllowed(dest) match {
         case false =>
           Future.successful(BadRequest)
         case true => {
@@ -73,19 +73,18 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       Redirect(FrontEndConfig.portalLoggedOutUrl).withNewSession
   })
 
-  private def checkDestination(dest: Option[String]): Boolean = {
-    dest match {
-      case Some(d) => {
-        try {
-          val url = URI.create(d).toURL
-          ssoWhiteListService.check(url)
-        } catch {
-          case e: URISyntaxException => Logger.error(s"Requested destination URL is invalid: ${e.getMessage}"); false
-          case e: MalformedURLException => Logger.error(s"Requested destination URL is invalid: ${e.getMessage}"); false
-          case e: IllegalArgumentException => Logger.error(s"Requested destination URL is invalid: ${e.getMessage}"); false
-        }
+  private def destinationIsAllowed(dest: Option[String]): Boolean =
+    dest map { d =>
+      try {
+        val url = URI.create(d).toURL
+        ssoWhiteListService.check(url)
+      } catch {
+        case e @ (_: URISyntaxException | _: MalformedURLException | _: IllegalArgumentException) =>
+          Logger.error(s"Requested destination URL is invalid: ${e.getMessage}")
+          false
       }
-      case None => Logger.error("Destination field is missing"); false
+    } getOrElse {
+      Logger.error("Destination field is missing")
+      false
     }
-  }
 }
