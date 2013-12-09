@@ -2,7 +2,8 @@ package controllers.common.actions
 
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
-import scala.concurrent.Future
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 trait MultiFormWrapper {
   val keyStoreConnector: KeyStoreConnector
@@ -19,10 +20,10 @@ class MultiFormAction(keyStore: KeyStoreConnector) extends Results {
 
   import uk.gov.hmrc.common.microservice.domain.User
 
-  def apply(conf: MultiFormConfiguration)(action: (User => Request[AnyContent] => SimpleResult)): (User => Request[AnyContent] => SimpleResult) = {
+  def apply(conf: MultiFormConfiguration)(action: (User => Request[AnyContent] => SimpleResult)): (User => Request[AnyContent] => Future[SimpleResult]) = {
     implicit user =>
       implicit request =>
-        keyStore.getDataKeys(conf.actionId, conf.source, conf.ignoreSession)(HeaderCarrier(request)) match {
+        keyStore.getDataKeys(conf.actionId, conf.source, conf.ignoreSession)(HeaderCarrier(request)) map {
           case None => if (conf.currentStep == conf.stepsList.head.stepName) action(user)(request) else Redirect(conf.unauthorisedStep.stepCall)
           case Some(dataKeys) =>
             val next = nextStep(conf.stepsList, dataKeys)
@@ -34,7 +35,7 @@ class MultiFormAction(keyStore: KeyStoreConnector) extends Results {
   def async(conf: MultiFormConfiguration)(action: (User => Request[AnyContent] => Future[SimpleResult])): (User => Request[AnyContent] => Future[SimpleResult]) = {
     implicit user =>
       implicit request =>
-        keyStore.getDataKeys(conf.actionId, conf.source, conf.ignoreSession)(HeaderCarrier(request)) match {
+        keyStore.getDataKeys(conf.actionId, conf.source, conf.ignoreSession)(HeaderCarrier(request)) flatMap {
           case None =>
             if (conf.currentStep == conf.stepsList.head.stepName) action(user)(request)
             else Future.successful(Redirect(conf.unauthorisedStep.stepCall))

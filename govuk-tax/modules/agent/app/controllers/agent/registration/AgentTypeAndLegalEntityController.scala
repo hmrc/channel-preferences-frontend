@@ -38,14 +38,14 @@ class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnec
     )(AgentTypeAndLegalEntity.apply)(AgentTypeAndLegalEntity.unapply)
   )
 
-  def agentType = AuthorisedFor(PayeRegime) {
+  def agentType = AuthorisedFor(PayeRegime).async {
     MultiFormAction(multiFormConfig) {
       user => request => agentTypeAction(user, request)
     }
   }
 
 
-  def postAgentType = AuthorisedFor(PayeRegime) {
+  def postAgentType = AuthorisedFor(PayeRegime).async {
     MultiFormAction(multiFormConfig) {
       user => request => postAgentTypeAction(user, request)
     }

@@ -45,13 +45,13 @@ class AgentProfessionalBodyMembershipController(override val auditConnector: Aud
     }
   )
 
-  def professionalBodyMembership = AuthorisedFor(PayeRegime) {
+  def professionalBodyMembership = AuthorisedFor(PayeRegime).async {
     MultiFormAction(multiFormConfig) {
       user => request => professionalBodyMembershipAction(user, request)
     }
   }
 
-  def postProfessionalBodyMembership = AuthorisedFor(PayeRegime) {
+  def postProfessionalBodyMembership = AuthorisedFor(PayeRegime).async {
     MultiFormAction(multiFormConfig) {
       user => request => postProfessionalBodyMembershipAction(user, request)
     }

@@ -45,15 +45,15 @@ class KeyStoreConnector(override val serviceUrl: String = MicroServiceConfig.key
     httpDeleteAndForget(buildUri(keyStoreId, source))
   }
 
-  def getDataKeys(actionId: String, source: String, ignoreSession: Boolean = false)(implicit hc: HeaderCarrier): Option[Set[String]] = {
+  def getDataKeys(actionId: String, source: String, ignoreSession: Boolean = false)(implicit hc: HeaderCarrier): Future[Option[Set[String]]] = {
     val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
-    httpGet[Set[String]](buildUri(keyStoreId, source) + "/data/keys")
+    httpGetF[Set[String]](buildUri(keyStoreId, source) + "/data/keys")
   }
 
   private def buildUri(id: String, source: String) = s"/keystore/$source/$id"
 
   private def generateKeyStoreId(actionId: String, ignoreSession: Boolean)(implicit headerCarrier: HeaderCarrier) = {
-    val userId = headerCarrier.userId.map {userId => userId.substring(userId.lastIndexOf("/") + 1)}.getOrElse("unknownUserId")
+    val userId = headerCarrier.userId.map { userId => userId.substring(userId.lastIndexOf("/") + 1)}.getOrElse("unknownUserId")
     val sessionId = generateSessionIdForKeyStoreId(ignoreSession)
     s"$userId:$actionId$sessionId"
   }

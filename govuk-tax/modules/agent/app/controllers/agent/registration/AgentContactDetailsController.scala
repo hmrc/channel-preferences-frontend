@@ -37,13 +37,13 @@ class AgentContactDetailsController(override val auditConnector: AuditConnector,
     )(AgentContactDetails.apply)(AgentContactDetails.unapply)
   )
 
-  def contactDetails = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
+  def contactDetails = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     MultiFormAction(multiFormConfig) {
       user => request => contactDetailsAction(user, request)
     }
   }
 
-  def postContactDetails = AuthorisedFor(PayeRegime) {
+  def postContactDetails = AuthorisedFor(PayeRegime).async {
     MultiFormAction(multiFormConfig) {
       user => request => postContactDetailsAction(user, request)
     }

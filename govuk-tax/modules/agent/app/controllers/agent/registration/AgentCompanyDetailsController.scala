@@ -30,13 +30,13 @@ class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
 
   def this() = this(Connectors.auditConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
 
-  def companyDetails = AuthorisedFor(PayeRegime) {
+  def companyDetails = AuthorisedFor(PayeRegime).async {
     MultiFormAction(multiFormConfig) {
       user => request => companyDetailsAction(user, request)
     }
   }
 
-  def postCompanyDetails = AuthorisedFor(PayeRegime) {
+  def postCompanyDetails = AuthorisedFor(PayeRegime).async {
     MultiFormAction(multiFormConfig) {
       user => request => postCompanyDetailsAction(user, request)
     }
