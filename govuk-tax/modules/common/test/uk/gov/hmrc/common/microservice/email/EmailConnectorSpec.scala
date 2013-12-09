@@ -8,8 +8,10 @@ import org.mockito.Mockito._
 import java.net.URLEncoder
 import play.api.test.{FakeApplication, WithApplication}
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
-class EmailConnectorSpec extends BaseSpec {
+class EmailConnectorSpec extends BaseSpec with ScalaFutures {
 
   "Calling validateEmailAddress" should {
 
@@ -17,16 +19,16 @@ class EmailConnectorSpec extends BaseSpec {
       val connector = new HttpMockedEmailConnector
       val address = "bob@somewhere.com"
       val encodedAddress = URLEncoder.encode(address, "UTF-8")
-      when(connector.httpWrapper.get[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Some(ValidateEmailResponse(true)))
-      connector.validateEmailAddress(address) shouldBe true
+      when(connector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(true))))
+      connector.validateEmailAddress(address).futureValue shouldBe true
     }
 
     "correctly invoke the email microservice and return false if the service returns false" in new WithApplication(FakeApplication()) {
       val connector = new HttpMockedEmailConnector
       val address = "bob@somewhere.com"
       val encodedAddress = URLEncoder.encode(address, "UTF-8")
-      when(connector.httpWrapper.get[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Some(ValidateEmailResponse(false)))
-      connector.validateEmailAddress(address) shouldBe false
+      when(connector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(false))))
+      connector.validateEmailAddress(address).futureValue shouldBe false
     }
   }
 }
@@ -36,13 +38,11 @@ class HttpMockedEmailConnector extends EmailConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = httpWrapper.get[A](uri)
+  override def httpGetF[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier):  Future[Option[A]] = httpWrapper.getF[A](uri)
 
-  override def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Option[A] = httpWrapper.post[A](uri, body, headers)
 
   class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
-    def post[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
+    def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
   }
 
 }

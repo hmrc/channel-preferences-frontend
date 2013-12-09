@@ -19,8 +19,8 @@ trait EmailControllerHelper {
       "main" -> email,
       "confirm" -> optional(text)
     ).verifying(
-      "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")
-    ),
+        "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")
+      ),
     "emailVerified" -> optional(text)
   )(EmailPreferenceData.apply)(EmailPreferenceData.unapply))
 
@@ -29,17 +29,25 @@ trait EmailControllerHelper {
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                       successRedirect: () => Call,
                                       emailConnector: EmailConnector,
-                                      preferencesConnector: PreferencesConnector)(implicit user: User, request: Request[AnyRef]) : Future[SimpleResult] = {
+                                      preferencesConnector: PreferencesConnector)(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     implicit def hc = HeaderCarrier(request)
+
+    def savePreferencesAndRedirect(email: String): Future[SimpleResult] =
+      preferencesConnector.savePreferences(user.getSa.utr, true, Some(email)).map { _ =>
+        Redirect(successRedirect())
+    }
+
     emailForm.bindFromRequest()(request).fold(
       errors => Future.successful(BadRequest(errorsView(errors))),
       emailForm => {
-        if (emailForm.isEmailVerified || emailConnector.validateEmailAddress(emailForm.mainEmail)) {
-          preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.mainEmail)).map { uri =>
-            Redirect(successRedirect())
+        if (emailForm.isEmailVerified) {
+          savePreferencesAndRedirect(emailForm.mainEmail)
+        } else  {
+          emailConnector.validateEmailAddress(emailForm.mainEmail).flatMap { isValid =>
+            if (isValid)
+              savePreferencesAndRedirect(emailForm.mainEmail)
+            else Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
           }
-        } else {
-          Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }
       }
     )
