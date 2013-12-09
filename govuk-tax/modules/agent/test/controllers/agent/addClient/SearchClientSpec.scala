@@ -66,7 +66,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error #globalErrors") should not be 'empty
+      doc.select(".error #global-errors") should not be 'empty
     }
   }
 
@@ -129,7 +129,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(s".error #${FieldIds.nino}") should be('empty)
-      doc.select(".error #globalErrors") should not be 'empty
+      doc.select(".error #global-errors") should not be 'empty
     }
 
     "allow a submission with valid nino, firstName, lastName, dob and display all fields" in new WithApplication(FakeApplication()) {
@@ -140,10 +140,11 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include("AB123456C")
-      doc.select(s"#clientSearchResults #${FieldIds.firstName}").text should include("resFirstName")
-      doc.select(s"#clientSearchResults #${FieldIds.lastName}").text should include("resLastName")
-      doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include("1 January 1991")
+      doc.select(s"#client-search-results #${FieldIds.nino}").text should include("AB123456C")
+      doc.select(s"#client-search-results #${FieldIds.firstName}").text should include("resFirstName")
+      doc.select(s"#client-search-results #${FieldIds.firstName}").text should include("resFirstName")
+      doc.select(s"#client-search-results #${FieldIds.lastName}").text should include("resLastName")
+      doc.select(s"#client-search-results #${FieldIds.dob}").text should include("1 January 1991")
     }
 
     "allow a submission with valid nino, firstName, lastName and not display the dob" in new WithApplication(FakeApplication()) {
@@ -154,10 +155,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include("AB123456C")
-      doc.select(s"#clientSearchResults #${FieldIds.firstName}").text should include("resFirstName")
-      doc.select(s"#clientSearchResults #${FieldIds.lastName}").text should include("resLastName")
-      doc.select(s"#clientSearchResults #${FieldIds.dob}") should be('empty)
+      doc.select(s"#client-search-results #${FieldIds.nino}").text should include("AB123456C")
+      doc.select(s"#client-search-results #${FieldIds.firstName}").text should include("resFirstName")
+      doc.select(s"#client-search-results #${FieldIds.lastName}").text should include("resLastName")
+      doc.select(s"#client-search-results #${FieldIds.dob}") should be('empty)
     }
 
     "allow a submission with valid nino, firstName, lastName, and non-matching dob and not display the dob" in new WithApplication(FakeApplication()) {
@@ -168,10 +169,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include("AB123456C")
-      doc.select(s"#clientSearchResults #${FieldIds.firstName}").text should include("resFirstName")
-      doc.select(s"#clientSearchResults #${FieldIds.lastName}").text should include("resLastName")
-      doc.select(s"#clientSearchResults #${FieldIds.dob}") should be('empty)
+      doc.select(s"#client-search-results #${FieldIds.nino}").text should include("AB123456C")
+      doc.select(s"#client-search-results #${FieldIds.firstName}").text should include("resFirstName")
+      doc.select(s"#client-search-results #${FieldIds.lastName}").text should include("resLastName")
+      doc.select(s"#client-search-results #${FieldIds.dob}") should be('empty)
     }
 
     "allow a submission with valid nino, firstName, dob and not display the lastname" in new WithApplication(FakeApplication()) {
@@ -182,10 +183,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include("AB123456C")
-      doc.select(s"#clientSearchResults #${FieldIds.firstName}").text should include("resFirstName")
-      doc.select(s"#clientSearchResults #${FieldIds.lastName}") should be(empty)
-      doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include("1 January 1991")
+      doc.select(s"#client-search-results #${FieldIds.nino}").text should include("AB123456C")
+      doc.select(s"#client-search-results #${FieldIds.firstName}").text should include("resFirstName")
+      doc.select(s"#client-search-results #${FieldIds.lastName}") should be(empty)
+      doc.select(s"#client-search-results #${FieldIds.dob}").text should include("1 January 1991")
     }
 
     "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
@@ -195,10 +196,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include("AB123456C")
-      doc.select(s"#clientSearchResults #${FieldIds.firstName}").text should include("étåtø")
-      doc.select(s"#clientSearchResults #${FieldIds.lastName}").text should include("étåtœ")
-      doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include("1 January 1991")
+      doc.select(s"#client-search-results #${FieldIds.nino}").text should include("AB123456C")
+      doc.select(s"#client-search-results #${FieldIds.firstName}").text should include("étåtø")
+      doc.select(s"#client-search-results #${FieldIds.lastName}").text should include("étåtœ")
+      doc.select(s"#client-search-results #${FieldIds.dob}").text should include("1 January 1991")
     }
 
     "allow a submission with valid nino, lastName, dob and not display the firstname" in new WithApplication(FakeApplication()) {
@@ -209,10 +210,10 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(s"#clientSearchResults #${FieldIds.nino}").text should include("AB123456C")
-      doc.select(s"#clientSearchResults #${FieldIds.firstName}") should be(empty)
-      doc.select(s"#clientSearchResults #${FieldIds.lastName}").text should include("resLastName")
-      doc.select(s"#clientSearchResults #${FieldIds.dob}").text should include("1 January 1991")
+      doc.select(s"#client-search-results #${FieldIds.nino}").text should include("AB123456C")
+      doc.select(s"#client-search-results #${FieldIds.firstName}") should be(empty)
+      doc.select(s"#client-search-results #${FieldIds.lastName}").text should include("resLastName")
+      doc.select(s"#client-search-results #${FieldIds.dob}").text should include("1 January 1991")
     }
 
     "display an error when the client has already been added to the agent and not allow the user to proceed" in new WithApplication(FakeApplication()) {
@@ -262,7 +263,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
       verifyZeroInteractions(keyStoreConnector)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error #globalErrors") should not be 'empty
+      doc.select(".error #global-errors") should not be 'empty
     }
 
     def executeSearchActionWith(nino: String, firstName: String, lastName: String, dob: (String, String, String), instanceId: String = "12637868", agent: User = agent) = {

@@ -9,17 +9,13 @@
     @helper.form(action = controllers.agent.addClient.routes.SearchClientController.search()) {
 
         <div class="@if(form.hasGlobalErrors){error}">
-            <span name="globalErrors" id="globalErrors" class="error-notification">@form.globalError.map(_.message).getOrElse("")</span>
+            <span id="global-errors" class="error-notification">@form.globalError.map(_.message).getOrElse("")</span>
         </div>
-
         <p>
-        @helpers.input(form("nino"), '_label -> "National Insurance Number")
+            @helpers.input(form("nino"), '_label -> "National Insurance Number")
         </p>
-
         <p>@helpers.input(form("firstName"), '_label -> "Client First Name")    </p>
-
         <p>@helpers.input(form("lastName"), '_label -> "Client Last Name")      </p>
-
         <p>@helpers.dateFieldsFreeYear(form,
             "dob",
             "Date Of Birth",
@@ -29,7 +25,5 @@
         <p>
             <input type="submit" value="Search"/>
         </p>
-
-
     }
 }

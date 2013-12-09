@@ -8,18 +8,18 @@
 
     <p>HMRC has found the following tax payer</p>
 
-    <div name="clientSearchResults" id="clientSearchResults">
+    <div id="client-search-results">
         <div class="@if(form.hasGlobalErrors){error}">
-            <span name="globalErrors" id="globalErrors" class="error-notification">@form.globalError.map(_.message).getOrElse("")</span>
+            <span id="global-errors" class="error-notification">@form.globalError.map(_.message).getOrElse("")</span>
         </div>
-        <p name="name" id="name">
+        <p id="name">
             Name:
-            @if(matchingPerson.firstName.isDefined){ <span name="firstName" id="firstName">@matchingPerson.firstName.getOrElse("")</span>  }
-            @if(matchingPerson.lastName.isDefined){ <span name="lastName" id="lastName">@matchingPerson.lastName.getOrElse("")</span>  }
+            @if(matchingPerson.firstName.isDefined){ <span id="firstName">@matchingPerson.firstName.getOrElse("")</span>  }
+            @if(matchingPerson.lastName.isDefined){ <span id="lastName">@matchingPerson.lastName.getOrElse("")</span>  }
         </p>
-    <p name="nino" id="nino">National Insurance Number: @matchingPerson.nino</p>
+    <p id="nino">National Insurance Number: @matchingPerson.nino</p>
 
-    @if(matchingPerson.dob.isDefined){ <p name="dob" id="dob"> Date of birth @views.formatting.Dates.formatDate(matchingPerson.dob.get) </p>  }
+    @if(matchingPerson.dob.isDefined){ <p id="dob"> Date of birth @views.formatting.Dates.formatDate(matchingPerson.dob.get) </p>  }
 
 
     @if(!form.hasGlobalErrors) {
@@ -35,13 +35,10 @@
             </p>
         }
     }
-
-    <a id="goBack" name="goBack" href="../add-client">
-        @{ form.hasGlobalErrors match {
-            case false => "This is not the client I am searching for - return to search"
-            case true => "Return to search"
-        }}
-    </a>
+    @helpers.link("go-back", "../add-client", form.hasGlobalErrors match {
+        case false => "This is not the client I am searching for - return to search"
+        case true => "Return to search"
+        })
 
     </div>
 }
