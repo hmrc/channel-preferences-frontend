@@ -238,6 +238,7 @@
     if ($("*[data-contextual-helper]").length) {
       // setup showing/hiding of contextual fields
       GOVUK.toggleContextualFields.setup();
+    }
       //toggle fuel quesitons depending on if user has selected zero emissions
       var $form = $("#form-add-car-benefit"),
         $defaultOptions = $form.find('*[data-default]');
@@ -258,6 +259,5 @@
           $form.removeData('electricFlagged');
         }
       });
-    }
   });
 })(jQuery, window, document);
