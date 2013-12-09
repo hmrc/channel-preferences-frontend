@@ -49,13 +49,13 @@ class SaPrefsController extends Controller {
       }
   }
 
-  def index(token: String, return_url: String) = WithValidReturnUrl(return_url)(WithValidToken(token, return_url)(
+  def index(token: String, return_url: String, emailAddress: Option[String]) = WithValidReturnUrl(return_url)(WithValidToken(token, return_url)(
     utr =>
       Action {
         implicit request =>
           preferencesConnector.getPreferences(utr) match {
             case Some(saPreference) => Redirect(return_url)
-            case _ => Ok(views.html.sa_printing_preference(emailForm, token, return_url))
+            case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)), token, return_url))
           }
       })
   )

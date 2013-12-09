@@ -11,6 +11,10 @@ import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URLEncoder
 import controllers.service.RedirectWhiteListService
 import org.mockito.Mockito
+import org.jsoup.Jsoup
+import uk.gov.hmrc.SaPreference
+import scala.Some
+import play.api.test.FakeApplication
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 
@@ -41,7 +45,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val preferencesAlreadyCreated = SaPreference(true, Some("test@test.com"))
       when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = controller.index(validToken, validReturnUrl)(FakeRequest())
+      val page = controller.index(validToken, validReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).get should include(validReturnUrl)
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
@@ -52,7 +56,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
       when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(None)
 
-      val page = controller.index(validToken, validReturnUrl)(FakeRequest())
+      val page = controller.index(validToken, validReturnUrl, None)(FakeRequest())
       contentAsString(page) should include("email.main")
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
     }
@@ -61,7 +65,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
 
-      val page = controller.index(expiredToken, validReturnUrl)(FakeRequest())
+      val page = controller.index(expiredToken, validReturnUrl, None)(FakeRequest())
 
       status(page) shouldBe 303
       header("Location", page).get should include(validReturnUrl)
@@ -71,7 +75,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
 
-      val page = controller.index(incorrectToken, validReturnUrl)(FakeRequest())
+      val page = controller.index(incorrectToken, validReturnUrl, None)(FakeRequest())
 
       status(page) shouldBe 303
       header("Location", page).get should include(validReturnUrl)
@@ -82,7 +86,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
       when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(None)
 
-      val page = controller.index(validToken, validReturnUrl)(FakeRequest())
+      val page = controller.index(validToken, validReturnUrl, None)(FakeRequest())
       contentAsString(page) should include("No thanks, I don’t want to switch to email")
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
     }
@@ -91,9 +95,24 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(false)
       val controller = createController
 
-      val page = controller.index(validToken, validReturnUrl)(FakeRequest())
+      val page = controller.index(validToken, validReturnUrl, None)(FakeRequest())
 
       status(page) shouldBe 500
+    }
+
+    "fill the email form if user is coming from the warning page" in {
+      val controller = createController
+      val previouslyEnteredAddress = "some@mail.com"
+
+      when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+      val page = controller.index(validToken, validReturnUrl, Some(previouslyEnteredAddress))(FakeRequest())
+
+      status(page) shouldBe 200
+      val html = Jsoup.parse(contentAsString(page))
+      html.getElementById("email.main") shouldNot be(null)
+      html.getElementById("email.main").`val` shouldBe previouslyEnteredAddress
+      html.getElementById("email.confirm") shouldNot be(null)
+      html.getElementById("email.confirm").`val` shouldBe previouslyEnteredAddress
     }
   }
 

@@ -19,6 +19,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    <a id="email-is-not-correct-link" href="@controllers.routes.SaPrefsController.index(token, redirectUrl)">No, my email address is not correct</a>
+    <a id="email-is-not-correct-link" href="@controllers.routes.SaPrefsController.index(token, redirectUrl, Some(emailAddress))">No, my email address is not correct</a>
 
 }

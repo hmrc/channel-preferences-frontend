@@ -45,11 +45,8 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[String])(implicit user: User, request: Request[AnyRef]) = {
     preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).map {
-      preferences =>
-        preferences match {
-          case Some(saPreference) => FrontEndRedirect.toBusinessTax
-          case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None))))
-        }
+      case Some(saPreference) => FrontEndRedirect.toBusinessTax
+      case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None))))
     }
   }
 
