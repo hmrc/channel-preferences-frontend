@@ -11,6 +11,9 @@ import scala.concurrent.Future
 import play.api.libs.json.{Json, JsValue}
 import com.google.common.net.HttpHeaders
 import java.net.URLEncoder
+import uk.gov.hmrc.EmailVerificationLinkResponse.EmailVerificationLinkResponse
+import scala.collection.immutable.Range
+import scala.Range
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -35,9 +38,9 @@ trait MicroService extends Status with HeaderNames {
   protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] =
     response[A](httpResource(uri).get())(extractJSONResponse[A])
 
-  protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
+  protected def httpPostRawF(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Future[Response] = {
     val wsResource = httpResource(uri)
-    Await.result(wsResource.withHeaders(headers.toSeq: _*).post(body), MicroServiceConfig.defaultTimeoutDuration)
+    wsResource.withHeaders(headers.toSeq: _*).post(body)
   }
 
   protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
@@ -117,15 +120,14 @@ class PreferencesConnector extends MicroService {
     }
   }
 
-  def updateEmailValidationStatus(token: String) = {
-    val response = httpPostSynchronous("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token))))
-    response.status match {
-      case it if 200 to 300 contains it => EmailVerificationLinkResponse.OK
-      case 410 => EmailVerificationLinkResponse.EXPIRED
-      case _ => EmailVerificationLinkResponse.ERROR
+  def updateEmailValidationStatus(token: String) : Future[EmailVerificationLinkResponse] = {
+    httpPostRawF("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token)))).map { _.status match {
+        case success() =>  EmailVerificationLinkResponse.OK
+        case GONE => EmailVerificationLinkResponse.EXPIRED
+        case _ => EmailVerificationLinkResponse.ERROR
+      }
     }
   }
-
 }
 
 object EmailVerificationLinkResponse extends Enumeration {

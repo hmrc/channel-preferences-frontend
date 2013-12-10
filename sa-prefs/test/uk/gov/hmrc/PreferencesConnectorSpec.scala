@@ -26,8 +26,8 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
     httpWrapper.getF(uri)
   }
 
-  override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
-    httpWrapper.httpPostSynchronous(uri, body, headers)
+  override protected def httpPostRawF(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Future[Response] = {
+    httpWrapper.httpPostRawF(uri, body, headers)
   }
 
   class HttpWrapper {
@@ -35,11 +35,7 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
     def post[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
 
-    def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String]): Response = mock[Response]
-
-    def httpDeleteAndForget(uri: String) {}
-
-    def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Option[A] = None
+    def httpPostRawF(uri: String, body: JsValue, headers: Map[String, String]): Future[Response] = Future.successful(mock[Response])
   }
 
 }
@@ -119,13 +115,13 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(200)
-      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(response)
+                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
-      result shouldBe OK
+      result.futureValue shouldBe OK
     }
 
     "return ok if updateEmailValidationStatus returns 204" in {
@@ -134,13 +130,13 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(204)
-      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(response)
+                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
-      result shouldBe OK
+      result.futureValue shouldBe OK
     }
 
     "return error if updateEmailValidationStatus returns 400" in {
@@ -149,13 +145,13 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(400)
-      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(response)
+                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
-      result shouldBe ERROR
+      result.futureValue shouldBe ERROR
     }
 
     "return error if updateEmailValidationStatus returns 404" in {
@@ -164,13 +160,13 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(404)
-      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(response)
+                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
-      result shouldBe ERROR
+      result.futureValue shouldBe ERROR
     }
 
     "return error if updateEmailValidationStatus returns 500" in {
@@ -179,13 +175,13 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(500)
-      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(response)
+                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
-      result shouldBe ERROR
+      result.futureValue shouldBe ERROR
     }
 
     "return expired if updateEmailValidationStatus returns 410" in {
@@ -194,13 +190,13 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(410)
-      when(preferenceConnector.httpWrapper.httpPostSynchronous(Matchers.eq("/preferences/sa/verify-email"),
+      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
                                                                   Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(response)
+                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
-      result shouldBe EXPIRED
+      result.futureValue shouldBe EXPIRED
     }
   }
 }
