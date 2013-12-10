@@ -7,10 +7,10 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import org.mockito.Matchers
 import uk.gov.hmrc.domain.SaUtr
-import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
-class SaRootSpec extends BaseSpec with MockitoSugar {
+class SaRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   private val utr = SaUtr("2222233333")
   private val accountSummaryLink = s"/sa/individual/$utr/account-summary"
@@ -63,7 +63,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
 
       when(saConnector.person(uri)).thenReturn(saPersonalDetails)
 
-      saRoot.personalDetails(saConnector, hc) shouldBe saPersonalDetails
+      saRoot.personalDetails(saConnector, hc).futureValue shouldBe saPersonalDetails
       verify(saConnector).person(Matchers.eq(uri))(Matchers.eq(hc))
     }
 
@@ -71,7 +71,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar {
       val saRoot = SaRoot(SaUtr("12345"), Map[String, String]())
       val saConnector = mock[SaConnector]
 
-      saRoot.personalDetails(saConnector, hc) shouldBe None
+      saRoot.personalDetails(saConnector, hc).futureValue shouldBe None
       verify(saConnector, times(0)).person(Matchers.anyString())(Matchers.eq(hc))
     }
 

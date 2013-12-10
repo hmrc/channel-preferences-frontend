@@ -20,6 +20,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
+import scala.concurrent.Future
 
 @deprecated("This feature will be reactivated soon, HMTB-1912", "18/11/13")
 class SaController(override val auditConnector: AuditConnector)
@@ -74,11 +75,11 @@ class SaController(override val auditConnector: AuditConnector)
     //        changeAddressCompleteAction(id)
   }
 
-  private[sa] def detailsAction(implicit user: User, request: Request[_]): SimpleResult = {
+  private[sa] def detailsAction(implicit user: User, request: Request[_]): Future[SimpleResult] = {
     val userData = user.regimes.sa.get
 
     implicit val hc = HeaderCarrier(request)
-    userData.personalDetails match {
+    userData.personalDetails.map {
       case Some(person: SaPerson) => Ok(sa_personal_details(userData.utr.utr, person, user.nameFromGovernmentGateway.getOrElse("")))
       case _ => NotFound //FIXME: this should really be an error page
     }

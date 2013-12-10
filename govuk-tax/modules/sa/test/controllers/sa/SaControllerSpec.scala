@@ -25,6 +25,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaName
 import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
+import org.mockito.Matchers
 
 class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
 
@@ -78,7 +79,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
         ))
       )
 
-      val result = Future.successful(controller.detailsAction(geoffFisher, FakeRequest()))
+      val result = controller.detailsAction(geoffFisher, FakeRequest())
       status(result) should be(200)
       val content = contentAsString(result)
 
@@ -96,8 +97,8 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption 
 
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
 
-      when(saConnector.person("/sa/individual/123456789012/details")).thenReturn(None)
-      val result = Future.successful(controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), lastRequestTimestampKey -> controller.now().getMillis.toString)))
+      when(saConnector.person(Matchers.eq("/sa/individual/123456789012/details"))(Matchers.any())).thenReturn(None)
+      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), lastRequestTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }

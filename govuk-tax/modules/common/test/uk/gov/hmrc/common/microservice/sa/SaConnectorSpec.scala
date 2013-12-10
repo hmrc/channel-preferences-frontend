@@ -53,12 +53,12 @@ class SaConnectorSpec extends BaseSpec with ScalaFutures {
 
       val saName = SaName("Mr", "Tim", None, "Smith", None)
       val saPerson = Some(SaPerson(saName, SaIndividualAddress("line1", "line2", Some("line3"), Some("line4"), Some("line5"), Some("46353"), Some("Malta"), None)))
-      when(mockHttpClient.get[SaPerson]("/sa/individual/12345/address")).thenReturn(saPerson)
+      when(mockHttpClient.getF[SaPerson]("/sa/individual/12345/address")).thenReturn(saPerson)
 
       val result = connector.person("/sa/individual/12345/address")
 
-      result shouldBe saPerson
-      verify(mockHttpClient).get[SaPerson](Matchers.eq("/sa/individual/12345/address"))
+      result.futureValue shouldBe saPerson
+      verify(mockHttpClient).getF[SaPerson](Matchers.eq("/sa/individual/12345/address"))
 
     }
   }

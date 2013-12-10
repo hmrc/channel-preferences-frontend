@@ -15,7 +15,7 @@ class SaConnector extends Connector {
 
   def root(uri: String)(implicit hc: HeaderCarrier): Future[SaJsonRoot] = httpGetF[SaJsonRoot](uri).map(_.getOrElse(SaJsonRoot(Map.empty)))
 
-  def person(uri: String)(implicit hc: HeaderCarrier): Option[SaPerson] = httpGet[SaPerson](uri)
+  def person(uri: String)(implicit hc: HeaderCarrier): Future[Option[SaPerson]] = httpGetF[SaPerson](uri)
 
   def accountSummary(uri: String)(implicit headerCarrier:HeaderCarrier): Future[Option[SaAccountSummary]] = httpGetF[SaAccountSummary](uri)
 
