@@ -116,6 +116,34 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
           header.headers("Set-Cookie") should not include "affinityGroup"
           header.headers("Set-Cookie") should not include "token"
       }
+
+      expectAnSsoLoginFailedAuditEventFor(johnWithInvalidTimestamp, transactionFailureReason = "Unauthorized")
+    }
+    "invalidate the session if a session already exists but the login throws some other exception" in new WithSsoControllerInFakeApplication {
+      val mockResponse = mock[Response]
+      val request = SsoLoginRequest(john.encodedToken.encodeBase64, john.loginTimestamp)
+      val errorMessage = "something went wrong"
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(request))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new RuntimeException(errorMessage)))
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
+
+      val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
+        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64))
+
+      whenReady(response) {
+        result =>
+          val SimpleResult(header, _, _) = result
+          header.status shouldBe 303
+          header.headers("Location") shouldBe "/"
+          header.headers("Set-Cookie") should not include "userId"
+          header.headers("Set-Cookie") should not include "name"
+          header.headers("Set-Cookie") should not include "affinityGroup"
+          header.headers("Set-Cookie") should not include "token"
+      }
+
+      expectAnSsoLoginFailedAuditEventFor(john, transactionFailureReason = s"Unknown - $errorMessage")
     }
 
     "return 400 if the provided dest field is not a valid URL" in new WithSsoControllerInFakeApplication {

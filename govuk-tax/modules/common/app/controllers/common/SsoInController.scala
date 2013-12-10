@@ -14,6 +14,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
 import play.api.mvc.Session
+import uk.gov.hmrc.microservice.UnauthorizedException
 
 class SsoInController(ssoWhiteListService: SsoWhiteListService,
                       governmentGatewayConnector: GovernmentGatewayConnector,
@@ -59,13 +60,35 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
                 SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
               ).mapValues(encrypt)))
           }.recover {
-            case e: Exception => {
+            case e: IllegalStateException => {
               Logger.info("Failed to validate a token.", e)
               auditConnector.audit(
                 AuditEvent(
                   auditType = "TxFailed",
                   tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
                   detail = Map("token" -> token, "transactionFailureReason" -> "Invalid Token")
+                )
+              )
+              Redirect(routes.HomeController.landing()).withNewSession
+            }
+            case e: UnauthorizedException => {
+              Logger.info("Failed to validate a token.", e)
+              auditConnector.audit(
+                AuditEvent(
+                  auditType = "TxFailed",
+                  tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
+                  detail = Map("token" -> token, "transactionFailureReason" -> "Unauthorized")
+                )
+              )
+              Redirect(routes.HomeController.landing()).withNewSession
+            }
+            case e: Exception => {
+              Logger.info("Failed to validate a token.", e)
+              auditConnector.audit(
+                AuditEvent(
+                  auditType = "TxFailed",
+                  tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
+                  detail = Map("token" -> token, "transactionFailureReason" -> s"Unknown - ${e.getMessage}")
                 )
               )
               Redirect(routes.HomeController.landing()).withNewSession

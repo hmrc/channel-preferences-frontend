@@ -24,7 +24,7 @@ class GovernmentGatewayConnector extends Connector {
 
   def ssoLogin(ssoLoginRequest: SsoLoginRequest)(implicit hc: HeaderCarrier) = doLogin("/sso-login", ssoLoginRequest)
 
-  def doLogin[T](path: String, body: T)(implicit hc: HeaderCarrier, write: Writes[T]) =
+  private def doLogin[T](path: String, body: T)(implicit hc: HeaderCarrier, write: Writes[T]) =
     httpPostF[GovernmentGatewayResponse](
       uri = path,
       body = Json.toJson(body),
