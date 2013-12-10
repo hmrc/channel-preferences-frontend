@@ -148,7 +148,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
     "return 400 if the provided dest field is not a valid URL" in new WithSsoControllerInFakeApplication {
       val invalidUrl = "invalid_url"
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$invalidUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.loginTimestamp}, "dest": "$invalidUrl"}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -156,22 +156,25 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       status(result) shouldBe 400
 
+      expectAnSsoLoginFailedAuditEventFor(john, transactionFailureReason = "Invalid destination")
     }
 
     "return 400 if the dest field is not allowed by the white list" in new WithSsoControllerInFakeApplication {
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(false)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
         .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64))
 
       status(result) shouldBe 400
+
+      expectAnSsoLoginFailedAuditEventFor(john, transactionFailureReason = "Invalid destination")
     }
 
     "return 400 if the dest field is missing" in new WithSsoControllerInFakeApplication {
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.loginTimestamp}}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -179,6 +182,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       status(result) shouldBe 400
 
+      expectAnSsoLoginFailedAuditEventFor(john, transactionFailureReason = "Invalid destination")
     }
 
     "The Single Sign-on logout page" should {
