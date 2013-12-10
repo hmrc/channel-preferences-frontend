@@ -50,6 +50,7 @@ trait PayeBaseSpec extends BaseSpec {
         "taxCode" -> s"/paye/$nino/tax-codes/$year",
         "employments" -> s"/paye/$nino/employments/$year",
         "benefit-car" -> s"/paye/$nino/benefit-car/$year",
+        "benefit-cars" -> s"/paye/$nino/benefit-cars/$year",
         "benefits" -> s"/paye/$nino/benefits/$year"),
       transactionLinks = transactionLinks,
       actions = actions
@@ -70,9 +71,9 @@ trait PayeBaseSpec extends BaseSpec {
   val fuelBenefitEmployer1 = Benefit(29, testTaxYear, 22.22, 1, None, None, None, None, None, None, None,
     None, actions("AB123456C", testTaxYear, 1), Map.empty)
 
-  val johnDensmoresBenefitsForEmployer1 = Seq(
+  val johnDensmoresBenefitsForEmployer1 = Seq(CarAndFuel(
     carBenefitEmployer1,
-    fuelBenefitEmployer1)
+    Some(fuelBenefitEmployer1)))
 
   val johnDensmoreOid = "jdensmore"
 
