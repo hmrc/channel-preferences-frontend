@@ -17,21 +17,15 @@ class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with Moc
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpGet[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Option[A] = {
-    httpWrapper.get[A](uri)
-  }
-
   override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] = {
     httpWrapper.postF[A](uri, body, headers)
   }
-
 
   override protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
     httpWrapper.getF[A](uri)
   }
 
   class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
     def postF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Future[Option[A]] = Future.successful(None)
   }
