@@ -3,14 +3,16 @@ package service.agent
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.domain.Uar
-import play.api.libs.ws.Response
-import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.common.microservice.agent.AgentConnectorRoot
 import models.agent.{Client, MatchingPerson, SearchRequest, AgentRegistrationRequest}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.http.Status
+import play.api.Logger
+
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 import play.api.Logger
 
 class AgentConnector extends AgentConnectorRoot {

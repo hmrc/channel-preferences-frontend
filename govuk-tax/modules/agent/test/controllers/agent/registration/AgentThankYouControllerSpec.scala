@@ -52,10 +52,10 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
     "get the keystore, save the agent, delete the keystore and go to the thank you page" in new WithApplication(FakeApplication()) {
 
       when(keyStoreConnector.getKeyStore[Map[String, String]](controller.actionId(), controller.agent, true)).thenReturn(Some(mockKeyStore))
-      when(agentMicroService.create("CE927349E", agentRegistrationRequest)).thenReturn(Uar("12345"))
+      when(agentMicroService.create("CE927349E", agentRegistrationRequest)).thenReturn(Future.successful(Uar("12345")))
       when(agentRoot.uar).thenReturn("12345")
 
-      val result = Future.successful(controller.thankYouAction(user, FakeRequest()))
+      val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 200
 
       verify(keyStoreConnector).getKeyStore[Map[String, String]](controller.actionId(), controller.agent, true)
@@ -66,9 +66,9 @@ class AgentThankYouControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect user to contact details page when keystore is not found" in new WithApplication(FakeApplication()) {
 
-      when(keyStoreConnector.getKeyStore[Map[String, String]](controller.actionId(), controller.agent, true)).thenReturn(None)
+      when(keyStoreConnector.getKeyStore[Map[String, String]](controller.actionId(), controller.agent, true)).thenReturn(Future.successful(None))
 
-      val result = Future.successful(controller.thankYouAction(user, FakeRequest()))
+      val result = controller.thankYouAction(user, FakeRequest())
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/home")
       verifyZeroInteractions(agentMicroService)

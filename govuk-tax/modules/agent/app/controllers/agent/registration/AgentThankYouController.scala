@@ -38,7 +38,6 @@ class AgentThankYouController(override val auditConnector: AuditConnector,
     keyStoreConnector.getKeyStore[Map[String, String]](actionId(), agent, true) flatMap {
       case Some(x) => {
         agentMicroService.create(user.regimes.paye.get.nino, toAgent(x)) map { uar =>
-
           keyStoreConnector.deleteKeyStore(actionId(), agent, true)
           Ok(views.html.agents.registration.thank_you_page(uar.uar))
         }

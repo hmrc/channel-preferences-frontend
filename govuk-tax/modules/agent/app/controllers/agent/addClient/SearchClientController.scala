@@ -23,7 +23,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.Actions
 import controllers.agent.AgentsRegimeRoots
-import scala.concurrent._
+import scala.concurrent.Future
 
 class SearchClientController(val keyStoreConnector: KeyStoreConnector,
                              override val auditConnector: AuditConnector)
