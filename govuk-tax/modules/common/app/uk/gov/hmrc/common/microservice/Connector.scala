@@ -12,7 +12,6 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import play.api.libs.json.JsValue
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
-import com.sun.jdi.connect.Connector
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
