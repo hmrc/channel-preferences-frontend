@@ -16,10 +16,10 @@ case class KeyStore[T](id: String, dateCreated: DateTime, dateUpdated: DateTime,
 
 class KeyStoreConnector(override val serviceUrl: String = MicroServiceConfig.keyStoreServiceUrl) extends Connector {
 
-  def addKeyStoreEntry[T](actionId: String, source: String, formId: String, data: T, ignoreSession: Boolean = false)(implicit manifest: Manifest[T], headerCarrier: HeaderCarrier) {
+  def addKeyStoreEntry[T](actionId: String, source: String, formId: String, data: T, ignoreSession: Boolean = false)(implicit manifest: Manifest[T], headerCarrier: HeaderCarrier) = {
     val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
     val uri = buildUri(keyStoreId, source) + s"/data/$formId"
-    httpPut[KeyStore[T]](uri, Json.parse(toRequestBody(data)))
+    httpPutF[KeyStore[T]](uri, Json.parse(toRequestBody(data)))
   }
 
   def getEntry[T](actionId: String, source: String, formId: String, ignoreSession: Boolean = false)

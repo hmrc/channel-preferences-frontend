@@ -20,7 +20,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
-import scala.concurrent.Future
+import scala.concurrent._
 
 @deprecated("This feature will be reactivated soon, HMTB-1912", "18/11/13")
 class SaController(override val auditConnector: AuditConnector)
@@ -131,13 +131,13 @@ class SaController(override val auditConnector: AuditConnector)
           changeAddressFormData = formData))
     )
 
-  private[sa] def confirmChangeAddressAction(implicit user: User, request: Request[_]): SimpleResult =
+  private[sa] def confirmChangeAddressAction(implicit user: User, request: Request[_]): Future[SimpleResult] =
     changeAddressForm.bindFromRequest()(request).fold(
       errors =>
-        BadRequest(sa_personal_details_update(errors)),
+        Future.successful(BadRequest(sa_personal_details_update(errors))),
       formData => {
         implicit val hc = HeaderCarrier(request)
-        user.regimes.sa.get.updateIndividualMainAddress(formData.toUpdateAddress) match {
+        user.regimes.sa.get.updateIndividualMainAddress(formData.toUpdateAddress) map {
           case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptParameter(errorMessage)))
           case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(encryptParameter(transactionId.oid)))
         }

@@ -22,8 +22,8 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
     httpWrapper.httpDeleteAndForget(uri)
   }
 
-  override protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
-    httpWrapper.httpPut[A](uri, body)
+  override protected def httpPutF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+    httpWrapper.httpPutF[A](uri, body)
   }
 
   class HttpWrapper {
@@ -33,7 +33,7 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
 
     def httpDeleteAndForget(uri: String) {}
 
-    def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Option[A] = None
+    def httpPutF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Future[Option[A]] = Future.successful(None)
   }
 
 }
@@ -70,7 +70,7 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
       keyStoreConnector.addKeyStoreEntry(actionId, source, formId, data)
 
       private val captor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(keyStoreConnector.httpWrapper, times(1)).httpPut[String](Matchers.eq(s"/keystore/$source/$keyStoreId/data/$formId"), captor.capture(), Matchers.any[Map[String, String]])
+      verify(keyStoreConnector.httpWrapper, times(1)).httpPutF[String](Matchers.eq(s"/keystore/$source/$keyStoreId/data/$formId"), captor.capture(), Matchers.any[Map[String, String]])
 
       val body = captor.getValue
       (body \ "key1").as[String] should be("value1")

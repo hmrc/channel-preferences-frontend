@@ -23,6 +23,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.Actions
 import controllers.agent.AgentsRegimeRoots
+import scala.concurrent._
 
 class SearchClientController(val keyStoreConnector: KeyStoreConnector,
                              override val auditConnector: AuditConnector)
@@ -45,7 +46,7 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
     restartAction
   }
 
-  def search = AuthorisedFor(AgentRegime) { user => request =>
+  def search = AuthorisedFor(AgentRegime).async { user => request =>
     searchAction(user)(request)
   }
 
@@ -57,10 +58,10 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
   private def startViewWith(form: Form[(ClientSearch, String)]) =
     Ok(search_client(form.fill((ClientSearch.empty, ObjectId.get().toString))))
 
-  private[agent] def searchAction(user: User)(implicit request: Request[_]): SimpleResult = {
+  private[agent] def searchAction(user: User)(implicit request: Request[_]): Future[SimpleResult] = {
     val form = searchForm(request).bindFromRequest()(request)
     form.fold(
-      errors => BadRequest(search_client(errors)),
+      errors => Future.successful(BadRequest(search_client(errors))),
       searchWithInstanceId => {
         val (search, instanceId) = searchWithInstanceId
         def restricted(result: MatchingPerson) = ClientSearch(result.nino,
@@ -72,7 +73,7 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
         val agentRoot = user.regimes.agent.get
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         val searchUri: String = agentRoot.actions.get("search").getOrElse(throw new IllegalArgumentException(s"No search action uri found"))
-        agentMicroService.searchClient(searchUri, SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) match {
+        agentMicroService.searchClient(searchUri, SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) map {
           case Some(matchingPerson) => {
             user.regimes.agent.get.clients.find(_._1 == search.nino) match {
               case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))

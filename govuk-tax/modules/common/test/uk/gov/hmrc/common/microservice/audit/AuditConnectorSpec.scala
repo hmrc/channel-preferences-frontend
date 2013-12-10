@@ -11,10 +11,10 @@ class TestAuditConnector extends AuditConnector {
   var body: JsValue = null
   var headers: Map[String, String] = null
 
-  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
-    this.body = body
-    this.headers = headers
-  }
+//  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
+//    this.body = body
+//    this.headers = headers
+//  }
 }
 
 class AuditConnectorSpec extends BaseSpec {

@@ -48,7 +48,7 @@ case class SaRoot(utr: SaUtr, links: Map[String, String]) extends RegimeRoot[SaU
       }
     }.getOrElse(Future.successful(None))
 
-  def updateIndividualMainAddress(address: SaAddressForUpdate)(implicit saConnector: SaConnector, headerCarrier:HeaderCarrier): Either[String, TransactionId] =
+  def updateIndividualMainAddress(address: SaAddressForUpdate)(implicit saConnector: SaConnector, headerCarrier:HeaderCarrier): Future[Either[String, TransactionId]] =
     saConnector.updateMainAddress(uriFor(individualMainAddressKey), address)
 
   private def uriFor(key: String) =

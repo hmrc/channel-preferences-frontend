@@ -22,8 +22,6 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 
 trait Connector extends Status with HeaderNames {
 
-  import MicroServiceConfig.defaultTimeoutDuration
-
   protected val serviceUrl: String
 
   protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = {
@@ -35,45 +33,24 @@ trait Connector extends Status with HeaderNames {
     response[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
 
   //FIXME: Why is the body a JsValue? Why do we care what type it is
-
-  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
+  protected def httpPutF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
     val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
-  }
-
-  protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) = {
-    val wsResource = httpResource(uri)
-    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), defaultTimeoutDuration)
-  }
-
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
-    val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
+    response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A])
   }
 
   protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
     response[A](httpResource(uri).withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A])
   }
 
-  protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier): Response = {
-    val wsResource = httpResource(uri)
-    Await.result(wsResource.withHeaders(headers.toSeq: _*).post(body), defaultTimeoutDuration)
+  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)
+                            (responseProcessor: (Response => A))
+                            (implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[A] = {
+    httpResource(uri).withHeaders(headers.toSeq: _*).post(body).map(responseProcessor)
   }
 
-  protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
+  protected def httpPostResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier): Future[Response] = {
     val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).post(body) onFailure {
-      case throwable =>
-        Logger.error(s"Async post to $uri failed", throwable)
-    }
-  }
-
-  protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
-    val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).put(body) onFailure {
-      case throwable =>
-        Logger.error(s"Async put to $uri failed", throwable)
-    }
+    wsResource.withHeaders(headers.toSeq: _*).post(body)
   }
 
   protected def httpDeleteAndForget(uri: String)(implicit hc: HeaderCarrier) {

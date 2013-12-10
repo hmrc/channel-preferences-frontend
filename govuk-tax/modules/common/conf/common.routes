@@ -26,3 +26,4 @@ GET     /                               @controllers.common.HomeController.landi
 GET     /admin/healthcheck              @controllers.common.HealthCheckController.check
 GET     /admin/details                  @controllers.common.HealthCheckController.details
 GET     /admin/detail/:name             @controllers.common.HealthCheckController.detail(name: String)
+GET     /admin/metrics                  com.kenshoo.play.metrics.MetricsController.metrics

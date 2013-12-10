@@ -35,14 +35,15 @@ class AgentThankYouController(override val auditConnector: AuditConnector,
 
   private[registration] val thankYouAction: ((User, Request[_]) => Future[SimpleResult]) = (user, request) => {
     implicit def hc = HeaderCarrier(request)
-    keyStoreConnector.getKeyStore[Map[String, String]](actionId(), agent, true) map {
+    keyStoreConnector.getKeyStore[Map[String, String]](actionId(), agent, true) flatMap {
       case Some(x) => {
-        val agentId = agentMicroService.create(user.regimes.paye.get.nino, toAgent(x)).uar
+        agentMicroService.create(user.regimes.paye.get.nino, toAgent(x)) map { uar =>
 
-        keyStoreConnector.deleteKeyStore(actionId(), agent, true)
-        Ok(views.html.agents.registration.thank_you_page(agentId))
+          keyStoreConnector.deleteKeyStore(actionId(), agent, true)
+          Ok(views.html.agents.registration.thank_you_page(uar.uar))
+        }
       }
-      case _ => Redirect(routes.AgentContactDetailsController.contactDetails())
+      case _ => Future.successful(Redirect(routes.AgentContactDetailsController.contactDetails()))
     }
   }
 
