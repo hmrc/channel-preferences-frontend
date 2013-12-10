@@ -66,13 +66,9 @@ object RemoveBenefitFlow {
     }
   }
 
-  private def getBenefitMatching(kind: Int, employmentSequenceNumber: Int, payeRootData: TaxYearData): Option[DisplayBenefit] = {
-
-    val benefit = payeRootData.benefits.find(
-      b => b.employmentSequenceNumber == employmentSequenceNumber && b.benefitType == kind)
-
-    val matchedBenefits = DisplayBenefits(benefit.toList, payeRootData.employments)
-
+  private def getBenefitMatching(kind: Int, employmentSequenceNumber: Int, taxYearData: TaxYearData): Option[DisplayBenefit] = {
+    val benefit = taxYearData.findActiveBenefit(employmentSequenceNumber, kind)
+    val matchedBenefits = DisplayBenefits(benefit.toList, taxYearData.employments)
     if (matchedBenefits.size > 0) Some(matchedBenefits(0)) else None
   }
 

@@ -53,11 +53,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
-
 
       when(mockPayeRoot.fetchTaxYearData(testTaxYear)).thenReturn(taxYearData)
       when(mockPayeRoot.fetchRecentAcceptedTransactions).thenReturn(acceptedTransactions)
@@ -90,7 +89,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)

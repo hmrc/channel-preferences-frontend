@@ -8,6 +8,7 @@ import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
+import org.joda.time.LocalDate
 
 class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
   "The fetchTaxYearData service" should {
@@ -15,21 +16,25 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       implicit val hc = HeaderCarrier()
 
-      val benefit = mock[Benefit]
+      val benefit = Benefit(BenefitTypes.CAR, 2013, 0.0, 1, None, None, None, None, None, None, None, Some(Car()), Map.empty, Map.empty)
       val employment = mock[Employment]
-      val tx1 = mock[TxQueueTransaction]
-      val tx2 = mock[TxQueueTransaction]
       implicit val payeConnector = mock[PayeConnector]
       implicit val txQueueConnector = mock[TxQueueConnector]
+
       val stubPayeRoot = new PayeRoot("NM439085B", 1, "Mr", "John", None, "Densmore", "johnnyBoy", "1960-12-01", Map.empty, Map.empty, Map.empty) {
-        override def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Benefit]] =
-          Future.successful(if (taxYear == 2013) Seq(benefit) else Seq.empty)
+        override def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarAndFuel]] =
+          Future.successful(if (taxYear == 2013) Seq(CarAndFuel(benefit)) else Seq.empty)
 
         override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
           Future.successful(if (taxYear == 2013) Seq(employment) else Seq.empty)
 
       }
-      whenReady(stubPayeRoot.fetchTaxYearData(2013))(_ shouldBe TaxYearData(Seq(benefit), Seq(employment)))
+
+      val expectedTaxYearData: TaxYearData = TaxYearData(Seq(CarAndFuel(benefit)), Seq(employment))
+
+      whenReady(stubPayeRoot.fetchTaxYearData(2013)) { taxYearData =>
+        taxYearData shouldBe expectedTaxYearData
+      }
     }
   }
 
