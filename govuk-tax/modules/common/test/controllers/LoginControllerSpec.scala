@@ -61,6 +61,18 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     }
 
     lazy val originalRequestId = "govuk-tax-325-235235-23523"
+
+
+    def expectALoginFailedAuditEventFor(reason: String) = {
+      val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
+
+      val event = captor.getValue
+
+      event.auditType should be ("TxFailed")
+      event.tags should contain ("transactionName" -> "IDA Login")
+      event.detail should contain ("transactionFailureReason" -> reason)
+    }
   }
 
   trait BusinessTaxPages {
@@ -103,7 +115,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     val oid = "0943809346039"
     val id = s"/auth/oid/$oid"
 
-    abstract class TestCase extends WithSetup {
+    abstract class TestCase extends WithSetup with ScalaFutures {
       def setupValidRequest() = {
         when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
@@ -133,7 +145,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       redirectLocation(result).get shouldBe "/agent/home"
     }
 
-    "generate an audit event if the response is valid" in new TestCase with ScalaFutures{
+    "generate an audit event for successful login if the response is valid" in new TestCase with ScalaFutures{
       whenReady( loginController.idaLogin()(setupValidRequest()) ) { _=>
 
         val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
@@ -144,7 +156,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
         event.auditSource should be ("frontend")
         event.auditType should be ("TxSucceded")
         event.tags should (
-          contain ("transactionName" -> "IDA Login Completion") and
+          contain ("transactionName" -> "IDA Login") and
           contain ("X-Request-ID" -> originalRequestId) and
           contain key ("X-Request-ID-Original") and
           contain key ("X-Session-ID")
@@ -156,23 +168,55 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       }
     }
 
-    "return Unauthorised if the post does not contain a saml response" in new WithSetup {
+    "generate an audit event for failed login if the AuthResponseValidationResult is not valid" in new TestCase {
+        when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = false, Some(hashPid), Some(originalRequestId)))
+
+        val request = FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse))
+
+       whenReady( loginController.idaLogin()(request)) { _=>
+
+        val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
+        verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
+
+        val event = captor.getValue
+
+        event.auditSource should be ("frontend")
+        event.auditType should be ("TxFailed")
+        event.tags should (
+          contain ("transactionName" -> "IDA Login") and
+            contain ("X-Request-ID" -> originalRequestId) and
+            contain key ("X-Request-ID-Original")
+          )
+        event.detail should contain ("transactionFailureReason" -> "SAMLResponse failed validation")
+      }
+    }
+
+    "return Unauthorised if the post does not contain a saml response" in new TestCase {
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("Noddy", "BigEars")))
 
       status(result) shouldBe(401)
       contentAsString(result) should include("Login error")
+
+      whenReady (result) { _=>
+        expectALoginFailedAuditEventFor("SAML authentication response received without SAMLResponse data")
+      }
     }
 
-    "return Unauthorised if the post contains an empty saml response" in new WithSetup {
+
+    "return Unauthorised if the post contains an empty saml response" in new TestCase {
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", "")))
 
       status(result) shouldBe 401
       contentAsString(result) should include("Login error")
+
+      whenReady (result) { _=>
+        expectALoginFailedAuditEventFor("SAML authentication response received without SAMLResponse data")
+      }
     }
 
-    "return Unauthorised if the saml response fails validation" in new WithSetup {
+    "return Unauthorised if the saml response fails validation" in new TestCase {
 
       when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = false, None, Some(originalRequestId)))
 
@@ -180,9 +224,13 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       status(result) shouldBe 401
       contentAsString(result) should include("Login error")
+
+      whenReady (result) { _=>
+        expectALoginFailedAuditEventFor("SAMLResponse failed validation")
+      }
     }
 
-    "return Unauthorised if there is no Authority record matching the hash pid" in new WithSetup {
+    "return Unauthorised if there is no Authority record matching the hash pid" in new TestCase {
 
       when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId))))
 
@@ -192,6 +240,10 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       status(result) shouldBe 401
       contentAsString(result) should include("Login error")
+
+      whenReady (result) { _=>
+        expectALoginFailedAuditEventFor("No record found in Auth for the PID")
+      }
     }
   }
 
@@ -243,7 +295,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       session(result).get("userId") shouldBe None
       verifyZeroInteractions(mockGovernmentGatewayConnector)
-
     }
 
     "not be able to log in and should return to the login form with an error message on submitting invalid Government Gateway credentials" in new WithSetup {

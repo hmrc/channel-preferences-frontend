@@ -92,7 +92,7 @@ class LoginController(samlConnector: SamlConnector,
   )
 
   case class LoginSuccess(hashPid: String, authority: Authority, updatedHC: HeaderCarrier)
-  case class LoginFailure(reason: String)
+  case class LoginFailure(reason: String, hashPid: Option[String] = None, originalRequestId: Option[String]  =None)
 
   def idaLogin = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
@@ -103,13 +103,13 @@ class LoginController(samlConnector: SamlConnector,
         samlResponse => {
           samlConnector.validate(samlResponse.response).flatMap {
             case AuthResponseValidationResult(true, Some(hashPid), originalRequestId) =>
-              val updatedHC = hc.copy(requestId = originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
+              val hcWithOriginalRequestIdAndNewSession = hc.copy(requestId = originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
 
-              authConnector.authorityByPidAndUpdateLoginTime(hashPid)(updatedHC).map {
-                case Some(authority) => LoginSuccess(hashPid, authority, updatedHC)
-                case _ => LoginFailure(s"No record found in Auth for the PID $hashPid")
+              authConnector.authorityByPidAndUpdateLoginTime(hashPid)(hcWithOriginalRequestIdAndNewSession).map {
+                case Some(authority) => LoginSuccess(hashPid, authority, hcWithOriginalRequestIdAndNewSession)
+                case _ => LoginFailure(s"No record found in Auth for the PID", Some(hashPid), originalRequestId)
               }
-            case _ => Future.successful(LoginFailure("SAMLResponse failed validation"))
+            case invalidResult => Future.successful(LoginFailure("SAMLResponse failed validation", invalidResult.hashPid, invalidResult.originalRequestId))
           }
         }
       ).map {
@@ -117,7 +117,7 @@ class LoginController(samlConnector: SamlConnector,
           auditConnector.audit(
             AuditEvent(
               auditType = "TxSucceded",
-              tags = Map("transactionName" -> "IDA Login Completion", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
+              tags = Map("transactionName" -> "IDA Login", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
               detail = Map("hashPid" -> hashPid, "authId" -> authority.uri) ++ authority.accounts.toMap
             )
           )
@@ -125,8 +125,15 @@ class LoginController(samlConnector: SamlConnector,
             SessionKeys.userId -> encrypt(authority.uri),
             SessionKeys.sessionId -> encrypt(updatedHC.sessionId.get)
           )
-        case LoginFailure(reason) =>
+        case LoginFailure(reason, hashPid, originalRequestId) =>
           Logger.warn(reason)
+          auditConnector.audit(
+            AuditEvent(
+              auditType = "TxFailed",
+              tags = Map("transactionName" -> "IDA Login", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ originalRequestId.map(xRequestId -> _).toMap ,
+              detail = Map("transactionFailureReason" -> reason) ++ hashPid.map("hashPid" -> _).toMap
+            )
+          )
           Unauthorized(views.html.login_error())
       }
   })
