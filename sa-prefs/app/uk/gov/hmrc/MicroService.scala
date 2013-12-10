@@ -1,14 +1,14 @@
 package uk.gov.hmrc
 
 import scala.concurrent.duration.Duration
-import play.api.libs.ws.{ Response, WS }
+import play.api.libs.ws.{Response, WS}
 import play.api.http.Status
 import uk.gov.hmrc.Transform._
-import scala.concurrent.{ Await, ExecutionContext }
+import scala.concurrent.{Await, ExecutionContext}
 import ExecutionContext.Implicits.global
-import play.api.{ Logger, Play }
+import play.api.{Logger, Play}
 import scala.concurrent.Future
-import play.api.libs.json.{ Json, JsValue }
+import play.api.libs.json.{Json, JsValue}
 import com.google.common.net.HttpHeaders
 import java.net.URLEncoder
 
@@ -32,22 +32,8 @@ trait MicroService extends Status with HeaderNames {
     def unapply(i: Int): Boolean = r contains i
   }
 
-  protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = Await.result(response[A](httpResource(uri).get())(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
-
-  protected def httpPut[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
-    val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
-  }
-
-  protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
-    val wsResource = httpResource(uri)
-    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body))(extractNoResponse), MicroServiceConfig.defaultTimeoutDuration)
-  }
-
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Option[A] = {
-    val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body))(extractJSONResponse[A]), MicroServiceConfig.defaultTimeoutDuration)
-  }
+  protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] =
+    response[A](httpResource(uri).get())(extractJSONResponse[A])
 
   protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
     val wsResource = httpResource(uri)
@@ -57,16 +43,6 @@ trait MicroService extends Status with HeaderNames {
   protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
     val wsResource = httpResource(uri)
     wsResource.withHeaders(headers.toSeq: _*).post(body)
-  }
-
-  protected def httpPutAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) {
-    val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).put(body)
-  }
-
-  protected def httpDeleteAndForget(uri: String) {
-    val wsResource = httpResource(uri)
-    wsResource.delete()
   }
 
   protected def extractJSONResponse[A](response: Response)(implicit m: Manifest[A]): A = {
@@ -134,24 +110,19 @@ class PreferencesConnector extends MicroService {
     httpPostAndForget(s"/portal/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(SaPreference(digital, email))))
   }
 
-  def getPreferences(utr: String): Option[SaPreference] = {
-
-    try {
-      val v = httpGet[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
-      v.map(Predef.identity).orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response"))
-
-    } catch {
+  def getPreferences(utr: String): Future[Option[SaPreference]] = {
+    httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression") map
+      (_.orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response"))) recover {
       case MicroServiceException(errorMessage, response) if response.status == 404 => None
-      case otherException: Exception => throw otherException
     }
   }
 
-  def updateEmailValidationStatus(token : String) = {
+  def updateEmailValidationStatus(token: String) = {
     val response = httpPostSynchronous("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token))))
     response.status match {
       case it if 200 to 300 contains it => EmailVerificationLinkResponse.OK
-      case 410                          => EmailVerificationLinkResponse.EXPIRED
-      case _                            => EmailVerificationLinkResponse.ERROR
+      case 410 => EmailVerificationLinkResponse.EXPIRED
+      case _ => EmailVerificationLinkResponse.ERROR
     }
   }
 
@@ -167,13 +138,15 @@ class EmailConnector extends MicroService {
 
   protected val serviceUrl = MicroServiceConfig.emailServiceUrl
 
-  def validateEmailAddress(emailAddress: String): Boolean = {
-    val v = httpGet[ValidateEmailResponse](s"/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}")
-    v.map(_.valid).getOrElse(throw new RuntimeException(s"Access to resource: '/validate-email-address' gave an invalid response"))
+  def validateEmailAddress(emailAddress: String): Future[Boolean] = {
+    httpGetF[ValidateEmailResponse](s"/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}") map
+      (_.getOrElse(throw new RuntimeException(s"Access to resource: '/validate-email-address' gave an invalid response")).valid)
   }
 }
 
 case class ValidateEmailResponse(valid: Boolean)
+
 case class ValidateEmail(token: String)
+
 case class SaPreference(digital: Boolean, email: Option[String] = None)
 

@@ -5,11 +5,14 @@ import play.api.mvc.Results._
 import play.mvc._
 import play.api.data.Forms._
 import play.api.mvc.{AnyContent, Request, Action}
-import uk.gov.hmrc.{EmailConnector, TokenExpiredException, PreferencesConnector, TokenEncryption}
+import uk.gov.hmrc.{EmailConnector, PreferencesConnector, TokenEncryption}
 import play.api.{Logger, Play}
 import java.net.URLDecoder
 import controllers.service.{RedirectWhiteListService, FrontEndConfig}
 import concurrent.Future
+import scala.Some
+import uk.gov.hmrc.TokenExpiredException
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SaPrefsController extends Controller {
 
@@ -51,9 +54,9 @@ class SaPrefsController extends Controller {
 
   def index(token: String, return_url: String, emailAddress: Option[String]) = WithValidReturnUrl(return_url)(WithValidToken(token, return_url)(
     utr =>
-      Action {
+      Action.async {
         implicit request =>
-          preferencesConnector.getPreferences(utr) match {
+          preferencesConnector.getPreferences(utr) map {
             case Some(saPreference) => Redirect(return_url)
             case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)), token, return_url))
           }
@@ -83,22 +86,28 @@ class SaPrefsController extends Controller {
   def submitPrefsForm(token: String, return_url: String) = WithValidReturnUrl(return_url) {
     WithValidToken(token, return_url) {
       utr =>
-        Action {
+        Action.async {
           request =>
             emailForm.bindFromRequest()(request).fold(
-              errors => BadRequest(views.html.sa_printing_preference(errors, token, return_url)),
+              errors => Future.successful(BadRequest(views.html.sa_printing_preference(errors, token, return_url))),
               emailForm => {
-                if (emailForm.isEmailVerified || emailConnector.validateEmailAddress(emailForm.mainEmail)) {
-                  preferencesConnector.getPreferences(utr) match {
-                    case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
-                    case None => {
-                      preferencesConnector.savePreferences(utr, true, Some(emailForm.mainEmail))
-                      //Play redirect is encoding query params, we need to decode the url to avoid double encoding
-                      Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
+                val isEmailValid = if (emailForm.isEmailVerified)
+                  Future.successful(true)
+                else
+                  emailConnector.validateEmailAddress(emailForm.mainEmail)
+                isEmailValid flatMap {
+                  case true => {
+                    preferencesConnector.getPreferences(utr).map {
+                      case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
+                      case None => {
+                        preferencesConnector.savePreferences(utr, true, Some(emailForm.mainEmail))
+    //                  Play redirect is encoding query params, we need to decode the url to avoid double encoding
+                        Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
+                      }
                     }
                   }
+                  case false => Future.successful(Ok(views.html.sa_printing_preference_warning_email(emailForm.mainEmail, token, return_url)))
                 }
-                else Ok(views.html.sa_printing_preference_warning_email(emailForm.mainEmail, token, return_url))
               }
             )
         }
@@ -108,9 +117,9 @@ class SaPrefsController extends Controller {
 
   def submitKeepPaperForm(token: String, return_url: String) = WithValidReturnUrl(return_url)(WithValidToken(token, return_url)(
     utr =>
-      Action {
+      Action.async {
         request =>
-          preferencesConnector.getPreferences(utr) match {
+          preferencesConnector.getPreferences(utr) map {
             case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
             case None => {
               preferencesConnector.savePreferences(utr, false)

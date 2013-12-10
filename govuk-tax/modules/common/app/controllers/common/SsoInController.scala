@@ -39,20 +39,24 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       val time = (json \ "time").as[Long]
       val destOpt = (json \ "dest").asOpt[String]
 
-      destOpt.map { dest =>
-        if (!destinationIsAllowed(dest))
-          Future.successful(BadRequest)
-        else
-          governmentGatewayConnector.ssoLogin(SsoLoginRequest(token, time))(HeaderCarrier(request)).recover {
-            case e: IllegalStateException => LoginFailure("Invalid Token")
-            case e: UnauthorizedException => LoginFailure("Unauthorized")
-            case e: Exception => LoginFailure(s"Unknown - ${e.getMessage}")
-          }.map {
-            case response: GovernmentGatewayResponse => handleSuccessfulLogin(response, dest)
-            case LoginFailure(reason) => handleFailedLogin(reason, token)
-          }
+      destOpt.filter(destinationIsAllowed).map { dest =>
+        governmentGatewayConnector.ssoLogin(SsoLoginRequest(token, time))(HeaderCarrier(request)).recover {
+          case e: IllegalStateException => LoginFailure("Invalid Token")
+          case e: UnauthorizedException => LoginFailure("Unauthorized")
+          case e: Exception => LoginFailure(s"Unknown - ${e.getMessage}")
+        }.map {
+          case response: GovernmentGatewayResponse => handleSuccessfulLogin(response, dest)
+          case LoginFailure(reason) => handleFailedLogin(reason, token)
+        }
       }.getOrElse {
-        Logger.error("Destination field is missing")
+        Logger.error(s"Destination was invalid: $destOpt.")
+        auditConnector.audit(
+          AuditEvent(
+            auditType = "TxFailed",
+            tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
+            detail = Map("token" -> token, "transactionFailureReason" -> "Invalid destination")
+          )
+        )
         Future.successful(BadRequest)
       }
   })
@@ -75,7 +79,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
   }
 
   private def handleFailedLogin(reason: String, token: String)(implicit request: Request[_]) = {
-    Logger.info(s"Failed to validate a token reason: $reason")
+    Logger.info(s"Failed to validate, reason: $reason")
     auditConnector.audit(
       AuditEvent(
         auditType = "TxFailed",
@@ -96,8 +100,8 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       val url = URI.create(dest).toURL
       ssoWhiteListService.check(url)
     } catch {
-      case e@(_: URISyntaxException | _: MalformedURLException | _: IllegalArgumentException) =>
-        Logger.error(s"Requested destination URL is invalid: ${e.getMessage}")
+      case e @ (_: URISyntaxException | _: MalformedURLException | _: IllegalArgumentException) =>
+        Logger.debug(s"Destination URL failed to validate", e)
         false
     }
 }

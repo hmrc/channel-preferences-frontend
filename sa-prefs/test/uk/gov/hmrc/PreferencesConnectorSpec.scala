@@ -11,6 +11,8 @@ import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import play.api.libs.json.JsBoolean
 import scala.Some
+import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
@@ -20,8 +22,8 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
     httpWrapper.post(uri, body, headers)
   }
 
-  override protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = {
-    httpWrapper.get(uri)
+  override protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] = {
+    httpWrapper.getF(uri)
   }
 
   override protected def httpPostSynchronous(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Response = {
@@ -29,7 +31,7 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
   }
 
   class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
+    def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
 
     def post[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
 
@@ -42,7 +44,7 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
 }
 
-class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach {
+class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach with ScalaFutures {
   //
 
   lazy val preferenceConnector = new TestPreferencesConnector
@@ -80,9 +82,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(true, Some("someEmail@email.com"))))
-      val result = preferenceConnector.getPreferences(utr).get
-      verify(preferenceConnector.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(true, Some("someEmail@email.com")))))
+      val result = preferenceConnector.getPreferences(utr).futureValue.get
+      verify(preferenceConnector.httpWrapper).getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital shouldBe (true)
       result.email shouldBe (Some("someEmail@email.com"))
@@ -90,9 +92,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
     "get preferences for a user who opted for paper notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Some(SaPreference(false)))
-      val result = preferenceConnector.getPreferences(utr).get
-      verify(preferenceConnector.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(false))))
+      val result = preferenceConnector.getPreferences(utr).futureValue.get
+      verify(preferenceConnector.httpWrapper).getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital shouldBe (false)
       result.email shouldBe (None)
@@ -101,10 +103,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
     "return none for a user who has not set preferences" in new WithApplication(FakeApplication()) {
       val mockPlayResponse = mock[Response]
       when(mockPlayResponse.status).thenReturn(404)
-      when(preferenceConnector.httpWrapper.get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenThrow(new MicroServiceException("Not Found", mockPlayResponse))
-      preferenceConnector.getPreferences(utr) shouldBe (None)
-      verify(mockPlayResponse).status
-      verify(preferenceConnector.httpWrapper).get[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.failed(new MicroServiceException("Not Found", mockPlayResponse)))
+      preferenceConnector.getPreferences(utr).futureValue shouldBe None
+      verify(preferenceConnector.httpWrapper).getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
     }
 
   }
