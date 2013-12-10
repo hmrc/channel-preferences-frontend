@@ -1,4 +1,9 @@
-@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName: Option[String], employerSequenceNumber: Int, currentTaxYear: Int, employmentViews: Seq[models.paye.EmploymentView])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit],
+        carBenefitprevious: Seq[uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel],
+        fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit],
+        employerName: Option[String], employerSequenceNumber: Int,
+        currentTaxYear: Int,
+        employmentViews: Seq[models.paye.EmploymentView])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Dates._
 @import views.formatting.Strings._
@@ -102,6 +107,89 @@
         } else {
              <p>You do not have an existing company car benefit.</p>
         }
+
+
+    @if( carBenefitprevious.length > 0 ) {
+        <h2>Previous cars in this tax year</h2>
+
+        @for(carAndFuelBenefit <- carBenefitprevious) {
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2" id="company-name">Company car provided by @employerNameString</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(carAndFuelBenefit.carBenefit.car.get.dateCarMadeAvailable.isDefined) {
+                        <tr>
+                            <td>Date Provided</td>
+                            <td id="car-benefit-date-available">@formatDate(carAndFuelBenefit.carBenefit.car.get.dateCarMadeAvailable.get)</td>
+                        </tr>
+                    }
+                    @if(carAndFuelBenefit.carBenefit.car.get.carValue.isDefined) {
+                        <tr>
+                            <td>List Price including accessories</td>
+                            <td>@pounds(carBenefit.get.car.get.carValue.get)</td>
+                        </tr>
+                    }
+                    @if(carAndFuelBenefit.carBenefit.car.get.fuelType.isDefined) {
+                        <tr>
+                            <td>Fuel type</td>
+                            <td id="car-benefit-fuel-type">@Messages(s"paye.add_car_benefit.fuel_type.${carAndFuelBenefit.carBenefit.car.get.fuelType.get}")</td>
+                        </tr>
+                    }
+                    @if(carAndFuelBenefit.carBenefit.car.get.co2Emissions.isDefined) {
+                        <tr>
+                            <td>Emission figure</td>
+                            <td>@{carAndFuelBenefit.carBenefit.car.get.co2Emissions.get} g/km</td>
+                        </tr>
+                    }
+                    @if(carAndFuelBenefit.carBenefit.car.get.engineSize.isDefined) {
+                        <tr>
+                            <td>Engine capacity</td>
+                            <td id="car-benefit-engine">@Messages(s"paye.add_car_benefit.engine_capacity.${carAndFuelBenefit.carBenefit.car.get.engineSize.get}")</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Private Fuel</td>
+                        <td id="private-fuel">
+                        @if(carAndFuelBenefit.fuelBenefit.isEmpty) {
+                            @Messages("paye.add_car_benefit.employer_pay_fuel.false")
+                        } else {
+                            @if(carAndFuelBenefit.fuelBenefit.get.dateWithdrawn.isEmpty) {
+                                @Messages("paye.add_car_benefit.employer_pay_fuel.true")
+                            } else {
+                                @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(carAndFuelBenefit.fuelBenefit.get.dateWithdrawn, "")}
+                            }
+                        }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Taxable benefit value</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">These amounts are added to your income and you pay tax on them.</td>
+                    </tr>
+                    <tr>
+                        <td>Car benefit taxable value</td>
+                        <td id="car-benefit-amount">@pounds(carAndFuelBenefit.carBenefit.grossAmount)</td>
+                    </tr>
+                    @if(carAndFuelBenefit.fuelBenefit.isDefined) {
+                        <tr>
+                            <td>Fuel benefit taxable value</td>
+                            <td id="fuel-benefit-amount">@pounds(carAndFuelBenefit.fuelBenefit.get.grossAmount)</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        }
+    } else {
+        <p>You do not have any previous company car benefit.</p>
+    }
+
+
+
         <h2>Make Changes</h2>
         <p>
             You can make the following changes to the information HMRC has about your company car

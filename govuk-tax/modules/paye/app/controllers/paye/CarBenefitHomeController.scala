@@ -45,7 +45,7 @@ with PayeRegimeRoots {
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {
       params =>
-        Ok(car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+        Ok(car_benefit_home(params.carBenefit, params.previousCarBenefits, params.fuelBenefit, params.employerName,
           params.sequenceNumber, params.currentTaxYear, params.employmentViews))
     }.getOrElse {
       val message = s"Unable to find current employment for user ${user.oid}"
@@ -58,7 +58,7 @@ with PayeRegimeRoots {
     payeRoot.fetchTaxYearData(taxYear).flatMap { taxYearData =>
       taxYearData.findPrimaryEmployment.map { primaryEmployment =>
         retrieveHomepageData(payeRoot, taxYear).map { data =>
-          CarBenefitDetails(data._1, data._2, data._3, data._4, data._5, taxYearData, primaryEmployment)
+          CarBenefitDetails(data._1, data._2, data._3, data._4, data._5, taxYearData, primaryEmployment, taxYearData.previousCarBenefits)
         }
       }
     }
@@ -91,13 +91,14 @@ with PayeRegimeRoots {
     val carBenefit = details.currentTaxYearData.findExistingBenefit(details.employment.sequenceNumber, BenefitTypes.CAR)
     val fuelBenefit = details.currentTaxYearData.findExistingBenefit(details.employment.sequenceNumber, BenefitTypes.FUEL)
 
-    HomePageParams(carBenefit, fuelBenefit, details.employment.employerName, details.employment.sequenceNumber, taxYear, employmentViews)
+    HomePageParams(carBenefit, fuelBenefit, details.employment.employerName, details.employment.sequenceNumber, taxYear, employmentViews, details.previousCarBenefits)
   }
 }
 
 private[paye] case class HomePageParams(carBenefit: Option[Benefit], fuelBenefit: Option[Benefit],
                                         employerName: Option[String], sequenceNumber: Int, currentTaxYear: Int,
-                                        employmentViews: Seq[EmploymentView])
+                                        employmentViews: Seq[EmploymentView],
+                                         previousCarBenefits: Seq[CarAndFuel])
 
 private[paye] case class CarBenefitDetails(employments: Seq[Employment],
                                            taxYear: Int,
@@ -105,4 +106,5 @@ private[paye] case class CarBenefitDetails(employments: Seq[Employment],
                                            acceptedTransactions: Seq[TxQueueTransaction],
                                            completedTransactions: Seq[TxQueueTransaction],
                                            currentTaxYearData: TaxYearData,
-                                           employment: Employment)
+                                           employment: Employment,
+                                           previousCarBenefits: Seq[CarAndFuel] )

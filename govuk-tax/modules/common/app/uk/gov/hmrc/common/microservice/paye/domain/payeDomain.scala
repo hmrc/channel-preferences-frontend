@@ -43,11 +43,13 @@ case class PayeRoot(nino: String,
   def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector, headerCarrier: HeaderCarrier): Future[TaxYearData] = {
     val f1 = fetchBenefits(taxYear)
     val f2 = fetchEmployments(taxYear)
+    val f3 = fetchExpiredCarBenefits(taxYear)
 
     for {
       benefits <- f1
       employments <- f2
-    } yield TaxYearData(benefits, employments)
+      previousCarBenefit <- f3
+    } yield TaxYearData(benefits, employments, previousCarBenefit)
   }
 
   def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier) :Future[Seq[TaxCode]] =
@@ -55,6 +57,13 @@ case class PayeRoot(nino: String,
 
   def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Benefit]] =
     valuesForTaxYear[Benefit](resource = "benefit-car", taxYear = taxYear)
+
+  def fetchExpiredCarBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarAndFuel]] = {
+    val car = Some(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some("A"), Some(BigDecimal("12343.21")), None, None))
+    val carBenefit = Benefit(31, 2013, 321.42, 2, None, None, None, None, None, None, None, car, Map(), Map("withdraw" -> "someUrl/{withdrawDate}"))
+    val carBenefitTwo = Benefit(31, 2013, 321.42, 2, None, None, None, None, None, None, None, car, Map(), Map("withdraw" -> "someUrl/{withdrawDate}"))
+    future( Seq(CarAndFuel(carBenefit, None), CarAndFuel(carBenefitTwo, None))) // FIXME: Stubbed
+  }
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
@@ -89,7 +98,7 @@ case class PayeRoot(nino: String,
     payeConnector.linkedResource[T](uri)
 }
 
-case class TaxYearData(benefits: Seq[Benefit], employments: Seq[Employment]) {
+case class TaxYearData(benefits: Seq[Benefit], employments: Seq[Employment], previousCarBenefits: Seq[CarAndFuel]) {
   def findExistingBenefit(employmentNumber: Int, benefitType: Int): Option[Benefit] = {
     benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber)
   }

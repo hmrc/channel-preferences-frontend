@@ -35,7 +35,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     implicit val user = johnDensmore
     "return a status 200 (OK) when HomePageParams are available" in new WithApplication(FakeApplication()) {
       val homePageParams = HomePageParams(carBenefit = None, fuelBenefit = None, employerName = None,
-        sequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty)
+        sequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty, Seq.empty)
 
       val actualResponse = controller.buildHomePageResponse(Some(homePageParams))
       status(actualResponse) should be(200)
@@ -53,7 +53,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq(CarAndFuel(carBenefit, None)))
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -90,13 +90,13 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq.empty)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
 
       val benefitDetails = CarBenefitDetails(employments, testTaxYear, taxCodes, acceptedTransactions,
-        completedTransactions, taxYearData, employments.head)
+        completedTransactions, taxYearData, employments.head, Seq.empty)
 
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 

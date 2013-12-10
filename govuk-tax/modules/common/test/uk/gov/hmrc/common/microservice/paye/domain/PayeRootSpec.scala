@@ -29,7 +29,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
           Future.successful(if (taxYear == 2013) Seq(employment) else Seq.empty)
 
       }
-      whenReady(stubPayeRoot.fetchTaxYearData(2013))(_ shouldBe TaxYearData(Seq(benefit), Seq(employment)))
+      whenReady(stubPayeRoot.fetchTaxYearData(2013))(_ shouldBe TaxYearData(Seq(benefit), Seq(employment), Seq(CarAndFuel(benefit, None))))
     }
   }
 
