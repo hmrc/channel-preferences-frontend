@@ -21,7 +21,6 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import models.paye.{RemoveBenefitFormData, DisplayBenefit, CarFuelBenefitDates}
 import views.html.paye.{remove_benefit_form, remove_car_benefit_form}
 import play.api.data.Form
-import play.api.Logger
 
 class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                                      (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
