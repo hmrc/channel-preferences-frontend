@@ -57,26 +57,40 @@ class LoginController(samlConnector: SamlConnector,
         erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
         credentials => {
             governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response => 
-            val sessionId = s"session-${UUID.randomUUID().toString}"
-            auditConnector.audit(
-              AuditEvent(
-                auditType = "TxSucceded",
-                tags = Map(
-                  "transactionName" -> "GG Login Completion",
-                  HeaderNames.xSessionId -> sessionId
-                ) ++ hc.headers.toMap,
-                detail = Map("authId" -> response.authId)
+              val sessionId = s"session-${UUID.randomUUID().toString}"
+              auditConnector.audit(
+                AuditEvent(
+                  auditType = "TxSucceded",
+                  tags = Map( "transactionName" -> "GG Login",HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
+                  detail = Map("authId" -> response.authId)
+                )
               )
-            )
-            FrontEndRedirect.toBusinessTax.withSession(Session(Map(
-              SessionKeys.sessionId -> sessionId,
-              SessionKeys.userId -> response.authId,
-              SessionKeys.name -> response.name,
-              SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
-            ).mapValues(encrypt)))
+              FrontEndRedirect.toBusinessTax.withSession(Session(Map(
+                SessionKeys.sessionId -> sessionId,
+                SessionKeys.userId -> response.authId,
+                SessionKeys.name -> response.name,
+                SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
+              ).mapValues(encrypt)))
             }.recover {
-            case _: UnauthorizedException => Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
-            case _: ForbiddenException => Forbidden(notOnBusinessTaxWhitelistPage)
+              case _: UnauthorizedException =>
+                auditConnector.audit(
+                  AuditEvent(
+                    auditType = "TxFailed",
+                    tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
+                    detail = Map("transactionFailureReason" -> "Invalid Credentials")
+                  )
+                )
+                Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
+              case _: ForbiddenException => {
+                auditConnector.audit(
+                  AuditEvent(
+                    auditType = "TxFailed",
+                    tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
+                    detail = Map("transactionFailureReason" -> "Not on the whitelist")
+                  )
+                )
+                Forbidden(notOnBusinessTaxWhitelistPage)
+              }
           }
         })
     })

@@ -63,14 +63,14 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     lazy val originalRequestId = "govuk-tax-325-235235-23523"
 
 
-    def expectALoginFailedAuditEventFor(reason: String) = {
+    def expectALoginFailedAuditEventFor(trasnsationName: String, reason: String) = {
       val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
       verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
 
       val event = captor.getValue
 
       event.auditType should be ("TxFailed")
-      event.tags should contain ("transactionName" -> "IDA Login")
+      event.tags should contain ("transactionName" -> trasnsationName)
       event.detail should contain ("transactionFailureReason" -> reason)
     }
   }
@@ -199,7 +199,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should include("Login error")
 
       whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("SAML authentication response received without SAMLResponse data")
+        expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
       }
     }
 
@@ -212,7 +212,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should include("Login error")
 
       whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("SAML authentication response received without SAMLResponse data")
+        expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
       }
     }
 
@@ -226,7 +226,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should include("Login error")
 
       whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("SAMLResponse failed validation")
+        expectALoginFailedAuditEventFor("IDA Login", "SAMLResponse failed validation")
       }
     }
 
@@ -242,7 +242,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should include("Login error")
 
       whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("No record found in Auth for the PID")
+        expectALoginFailedAuditEventFor("IDA Login", "No record found in Auth for the PID")
       }
     }
   }
@@ -309,6 +309,9 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       contentAsString(result) should include("Invalid username or password. Try again.")
 
       session(result).get("userId") shouldBe None
+
+      expectALoginFailedAuditEventFor("GG Login", "Invalid Credentials")
+
     }
 
     "not be able to log in and should return to the login form with an error message on submitting valid Government Gateway credentials but not on the whitelist" in new WithSetup {
@@ -322,6 +325,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       status(result) shouldBe 403
       session(result).get("userId") shouldBe None
       contentAsString(result) should include("NOT IN WHITELIST")
+
+      expectALoginFailedAuditEventFor("GG Login", "Not on the whitelist")
     }
 
     "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name and generate an audit event" in new WithSetup {
@@ -346,7 +351,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       event.auditSource should be ("frontend")
       event.auditType should be ("TxSucceded")
       event.tags should (
-        contain ("transactionName" -> "GG Login Completion") and
+        contain ("transactionName" -> "GG Login") and
         contain key ("X-Request-ID") and
         contain key ("X-Session-ID")
       )
