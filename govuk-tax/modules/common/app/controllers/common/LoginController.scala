@@ -1,6 +1,6 @@
 package controllers.common
 
-import play.api.mvc.{Session, AnyContent, Action}
+import play.api.mvc.{SimpleResult, Session, AnyContent, Action}
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
@@ -13,6 +13,8 @@ import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
+import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 
 class LoginController(samlConnector: SamlConnector,
@@ -89,52 +91,44 @@ class LoginController(samlConnector: SamlConnector,
     )(SAMLResponse.apply)(SAMLResponse.unapply)
   )
 
+  case class LoginSuccess(hashPid: String, authority: Authority, updatedHC: HeaderCarrier)
+  case class LoginFailure(reason: String)
+
   def idaLogin = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
       responseForm.bindFromRequest.fold(
         errors => {
-          Logger.warn("SAML authentication response received without SAMLResponse data")
-          Future.successful(Unauthorized(views.html.login_error()))
+          Future.successful(LoginFailure("SAML authentication response received without SAMLResponse data"))
         },
         samlResponse => {
           samlConnector.validate(samlResponse.response).flatMap {
-          validationResult =>
-          if (validationResult.valid) {
-            val updatedHC = hc.copy(requestId = validationResult.originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
-            val hashPid = validationResult.hashPid.get
-            authConnector.authorityByPidAndUpdateLoginTime(hashPid)(updatedHC).map {
-              case Some(authority) => {
-                auditConnector.audit(
-                  AuditEvent( 
-                    auditType = "TxSucceded",
-                    tags = Map("transactionName" -> "IDA Login Completion", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
-                    detail = Map("hashPid" -> hashPid, "authId" -> authority.uri)
-                      ++ authority.accounts.sa.map("saUtr" -> _.utr.utr).toMap
-                      ++ authority.accounts.vat.map("vrn" -> _.vrn.vrn).toMap
-                      ++ authority.accounts.ct.map("ctUtr" -> _.utr.utr).toMap
-                      ++ authority.accounts.epaye.map("empRef" -> _.empRef.toString).toMap
-                      ++ authority.accounts.paye.map("nino" -> _.nino.nino).toMap
-                      ++ authority.accounts.agent.map("uar" -> _.uar.uar).toMap
-                  )
-                )
-                val target = FrontEndRedirect.forSession(session)
-                target.withSession(
-                  SessionKeys.userId -> encrypt(authority.uri),
-                  SessionKeys.sessionId -> encrypt(updatedHC.sessionId.get)
-                )
+            case AuthResponseValidationResult(true, Some(hashPid), originalRequestId) =>
+              val updatedHC = hc.copy(requestId = originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
+
+              authConnector.authorityByPidAndUpdateLoginTime(hashPid)(updatedHC).map {
+                case Some(authority) => LoginSuccess(hashPid, authority, updatedHC)
+                case _ => LoginFailure(s"No record found in Auth for the PID $hashPid")
               }
-              case _ => {
-                Logger.warn(s"No record found in Auth for the PID $hashPid")
-                Unauthorized(views.html.login_error())
-              }
-            }
-          } else {
-            Logger.warn("SAMLResponse failed validation")
-            Future.successful(Unauthorized(views.html.login_error()))
-          }
+            case _ => Future.successful(LoginFailure("SAMLResponse failed validation"))
           }
         }
-      )
+      ).map {
+        case LoginSuccess(hashPid, authority, updatedHC) =>
+          auditConnector.audit(
+            AuditEvent(
+              auditType = "TxSucceded",
+              tags = Map("transactionName" -> "IDA Login Completion", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
+              detail = Map("hashPid" -> hashPid, "authId" -> authority.uri) ++ authority.accounts.toMap
+            )
+          )
+          FrontEndRedirect.forSession(session).withSession(
+            SessionKeys.userId -> encrypt(authority.uri),
+            SessionKeys.sessionId -> encrypt(updatedHC.sessionId.get)
+          )
+        case LoginFailure(reason) =>
+          Logger.warn(reason)
+          Unauthorized(views.html.login_error())
+      }
   })
 
   def logout = Action {

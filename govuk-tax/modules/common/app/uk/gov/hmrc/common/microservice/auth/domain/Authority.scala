@@ -26,7 +26,15 @@ case class Accounts(paye: Option[PayeAccount] = None,
                     ct: Option[CtAccount] = None,
                     vat: Option[VatAccount] = None,
                     epaye: Option[EpayeAccount] = None,
-                    agent: Option[AgentAccount] = None)
+                    agent: Option[AgentAccount] = None) {
+  def toMap = Map() ++
+    sa.map("saUtr" -> _.utr.utr).toMap ++
+    vat.map("vrn" -> _.vrn.vrn).toMap ++
+    ct.map("ctUtr" -> _.utr.utr).toMap ++
+    epaye.map("empRef" -> _.empRef.toString).toMap ++
+    paye.map("nino" -> _.nino.nino).toMap ++
+    agent.map("uar" -> _.uar.uar).toMap
+}
 
 case class PayeAccount(link: String, nino: Nino) extends Account
 

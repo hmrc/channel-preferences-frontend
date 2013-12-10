@@ -37,28 +37,33 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       val json = Json.parse(decryptedPayload)
       val token = (json \ "gw").as[String]
       val time = (json \ "time").as[Long]
-      val destOpt = (json \ "dest").asOpt[String]
+      val destination = (json \ "dest").asOpt[String]
 
-      destOpt.filter(destinationIsAllowed).map { dest =>
-        governmentGatewayConnector.ssoLogin(SsoLoginRequest(token, time))(HeaderCarrier(request)).recover {
-          case e: IllegalStateException => LoginFailure("Invalid Token")
-          case e: UnauthorizedException => LoginFailure("Unauthorized")
-          case e: Exception => LoginFailure(s"Unknown - ${e.getMessage}")
-        }.map {
-          case response: GovernmentGatewayResponse => handleSuccessfulLogin(response, dest)
-          case LoginFailure(reason) => handleFailedLogin(reason, token)
+      destination
+        .filter(destinationIsAllowed)
+        .map { d =>
+          governmentGatewayConnector.ssoLogin(SsoLoginRequest(token, time))(HeaderCarrier(request))
+            .recover {
+              case _: IllegalStateException => LoginFailure("Invalid Token")
+              case _: UnauthorizedException => LoginFailure("Unauthorized")
+              case e: Exception => LoginFailure(s"Unknown - ${e.getMessage}")
+            }
+            .map {
+              case response: GovernmentGatewayResponse => handleSuccessfulLogin(response, d)
+              case LoginFailure(reason) => handleFailedLogin(reason, token)
+            }
         }
-      }.getOrElse {
-        Logger.error(s"Destination was invalid: $destOpt.")
-        auditConnector.audit(
-          AuditEvent(
-            auditType = "TxFailed",
-            tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
-            detail = Map("token" -> token, "transactionFailureReason" -> "Invalid destination")
+        .getOrElse {
+          Logger.error(s"Destination was invalid: $destination.")
+          auditConnector.audit(
+            AuditEvent(
+              auditType = "TxFailed",
+              tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
+              detail = Map("token" -> token, "transactionFailureReason" -> "Invalid destination")
+            )
           )
-        )
-        Future.successful(BadRequest)
-      }
+          Future.successful(BadRequest)
+        }
   })
 
   private def handleSuccessfulLogin(response: GovernmentGatewayResponse, destination: String)(implicit request: Request[_]) = {
