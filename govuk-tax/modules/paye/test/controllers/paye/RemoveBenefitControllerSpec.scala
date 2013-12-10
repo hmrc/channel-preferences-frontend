@@ -80,7 +80,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
-    when(mockPayeConnector.linkedResource[Seq[CarAndFuel]]("/paye/AB123456C/benefit-car/2013")).thenReturn(Some(cars))
+    when(mockPayeConnector.linkedResource[Seq[CarAndFuel]]("/paye/AB123456C/benefit-cars/2013")).thenReturn(Some(cars))
   }
 
   "Removing FUEL benefit only" should {
@@ -96,7 +96,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
     }
 
-    "not show the car checkbox when the user has no car benefit" in new WithApplication(FakeApplication()) {
+    // TODO: Remove this test - it is not possible for the user to have a fuel benefit without a car benefit
+    "not show the car checkbox when the user has no car benefit" ignore new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq())
       when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 

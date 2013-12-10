@@ -8,16 +8,16 @@ case class Benefit(benefitType: Int,
                    taxYear: Int,
                    grossAmount: BigDecimal,
                    employmentSequenceNumber: Int,
-                   costAmount: Option[BigDecimal],
-                   amountMadeGood: Option[BigDecimal],
-                   cashEquivalent: Option[BigDecimal],
-                   expensesIncurred: Option[BigDecimal],
-                   amountOfRelief: Option[BigDecimal],
-                   paymentOrBenefitDescription: Option[String],
-                   dateWithdrawn: Option[LocalDate],
-                   car: Option[Car],
-                   actions: Map[String, String],
-                   calculations: Map[String, String]) {
+                   costAmount: Option[BigDecimal] = None,
+                   amountMadeGood: Option[BigDecimal] = None,
+                   cashEquivalent: Option[BigDecimal]= None,
+                   expensesIncurred: Option[BigDecimal]= None,
+                   amountOfRelief: Option[BigDecimal]= None,
+                   paymentOrBenefitDescription: Option[String]= None,
+                   dateWithdrawn: Option[LocalDate]= None,
+                   car: Option[Car]= None,
+                   actions: Map[String, String]= Map.empty,
+                   calculations: Map[String, String]= Map.empty) {
 
 }
 
@@ -47,7 +47,9 @@ object BenefitTypes {
 }
 
 case class CarAndFuel(carBenefit: Benefit, fuelBenefit: Option[Benefit] = None) {
-  require(carBenefit.car.isDefined && carBenefit.benefitType == BenefitTypes.CAR && !fuelBenefit.exists(_.benefitType != BenefitTypes.FUEL))
+  require(carBenefit.car.isDefined, "Car benefit does not have a Car part defined")
+  require(carBenefit.benefitType == BenefitTypes.CAR, s"Car benefit has incorrect type ${carBenefit.benefitType}, should be ${BenefitTypes.CAR}")
+  require(!fuelBenefit.exists(_.benefitType != BenefitTypes.FUEL))
 
   def toSeq: Seq[Benefit] = Seq(Some(carBenefit), fuelBenefit).flatten
 
