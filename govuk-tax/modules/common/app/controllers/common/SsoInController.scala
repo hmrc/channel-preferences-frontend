@@ -47,8 +47,8 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
               Logger.debug(s"successfully authenticated: $response.name")
               auditConnector.audit(
                 AuditEvent(
-                  auditType = "TxSucceded",
-                  tags = Map("transactionName" -> "SSO Login Completion") ++ hc.headers.toMap,
+                  auditType = "TxSucceeded",
+                  tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
                   detail = Map("authId" -> response.authId,  "name" -> response.name, "affinityGroup" -> response.affinityGroup)
                 )
               )
@@ -61,6 +61,13 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
           }.recover {
             case e: Exception => {
               Logger.info("Failed to validate a token.", e)
+              auditConnector.audit(
+                AuditEvent(
+                  auditType = "TxFailed",
+                  tags = Map("transactionName" -> "SSO Login") ++ hc.headers.toMap,
+                  detail = Map("token" -> token, "transactionFailureReason" -> "Invalid Token")
+                )
+              )
               Redirect(routes.HomeController.landing()).withNewSession
             }
           }

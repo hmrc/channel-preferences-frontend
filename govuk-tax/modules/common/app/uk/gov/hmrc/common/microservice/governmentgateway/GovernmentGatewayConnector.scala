@@ -24,14 +24,12 @@ class GovernmentGatewayConnector extends Connector {
 
   def ssoLogin(ssoLoginRequest: SsoLoginRequest)(implicit hc: HeaderCarrier) = doLogin("/sso-login", ssoLoginRequest)
 
-  def doLogin[T](path: String, body: T)(implicit hc: HeaderCarrier, write: Writes[T]) = {
+  def doLogin[T](path: String, body: T)(implicit hc: HeaderCarrier, write: Writes[T]) =
     httpPostF[GovernmentGatewayResponse](
       uri = path,
       body = Json.toJson(body),
-      headers = Map.empty).map(ssoResponse =>
-        ssoResponse.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned")))
-
-  }
+      headers = Map.empty
+    ).map(_.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned")))
 
   def profile(userId: String)(implicit hc: HeaderCarrier) =
     httpGetF[ProfileResponse](s"/profile$userId").map {
