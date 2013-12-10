@@ -88,7 +88,7 @@ class SaRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       when(saConnector.updateMainAddress(uri, saMainAddress)).thenReturn(transactionId)
 
-      saRoot.updateIndividualMainAddress(saMainAddress) shouldBe transactionId
+      whenReady(saRoot.updateIndividualMainAddress(saMainAddress))(_ shouldBe transactionId)
       verify(saConnector).updateMainAddress(Matchers.eq(uri), Matchers.any())(Matchers.any())
     }
 

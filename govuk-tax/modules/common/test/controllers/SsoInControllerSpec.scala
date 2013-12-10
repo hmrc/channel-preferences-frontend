@@ -70,7 +70,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       expectAnSsoLoginAuditEventFor(bob)
     }
 
-    "invalidate the session if a session already exists but the login is incorrect" in new WithSsoControllerInFakeApplication  {
+    "invalidate the session if a session already exists but the login is incorrect" in new WithSsoControllerInFakeApplication {
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.invalidEncodedToken, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new IllegalStateException("error")))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
       val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
@@ -148,52 +148,51 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       status(result) shouldBe 400
 
     }
+  }
 
-    "The Single Sign-on logout page" should {
-      " logout a logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
+  "The Single Sign-on logout page" should {
+    " logout a logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
 
-        val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken.encodeBase64))
+      val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken.encodeBase64))
 
-        whenReady(result) {
-          case SimpleResult(header, _, _) => {
-            header.status shouldBe 303
-            header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
-            header.headers("Set-Cookie") should not include "userId"
-            header.headers("Set-Cookie") should not include "name"
-            header.headers("Set-Cookie") should not include "affinityGroup"
-            header.headers("Set-Cookie") should not include "token"
-          }
-          case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
+      whenReady(result) {
+        case SimpleResult(header, _, _) => {
+          header.status shouldBe 303
+          header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
+          header.headers("Set-Cookie") should not include "userId"
+          header.headers("Set-Cookie") should not include "name"
+          header.headers("Set-Cookie") should not include "affinityGroup"
+          header.headers("Set-Cookie") should not include "token"
         }
-
+        case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
       }
 
-      " logout a not logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
+    }
 
-        val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("somePortalData" -> "somedata"))
+    " logout a not logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
 
-        whenReady(result) {
-          case SimpleResult(header, _, _) => {
-            header.status shouldBe 303
-            header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
-            header.headers("Set-Cookie") should not include "userId"
-            header.headers("Set-Cookie") should not include "name"
-            header.headers("Set-Cookie") should not include "affinityGroup"
-            header.headers("Set-Cookie") should not include "token"
-          }
-          case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
+      val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("somePortalData" -> "somedata"))
+
+      whenReady(result) {
+        case SimpleResult(header, _, _) => {
+          header.status shouldBe 303
+          header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
+          header.headers("Set-Cookie") should not include "userId"
+          header.headers("Set-Cookie") should not include "name"
+          header.headers("Set-Cookie") should not include "affinityGroup"
+          header.headers("Set-Cookie") should not include "token"
         }
-
+        case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
       }
+
     }
   }
 
 }
 
 
-
 abstract class WithSsoControllerInFakeApplication extends WithApplication(FakeApplication())
-  with MockitoSugar with CookieEncryption with org.scalatest.Matchers {
+with MockitoSugar with CookieEncryption with org.scalatest.Matchers {
 
   lazy val mockGovernmentGatewayService = mock[GovernmentGatewayConnector]
   val mockSsoWhiteListService = mock[SsoWhiteListService]
@@ -207,6 +206,7 @@ abstract class WithSsoControllerInFakeApplication extends WithApplication(FakeAp
     val userId: String
     val affinityGroup: String
   }
+
   object bob extends User {
     val name = "Bob Jones"
     val userId = "authId/ROBERT"
@@ -214,6 +214,7 @@ abstract class WithSsoControllerInFakeApplication extends WithApplication(FakeAp
     val affinityGroup = "Partnership"
     val loginTimestamp = 123456L
   }
+
   object john extends User {
     val name = "John Smith"
     val userId = "authId/JOHNNY"

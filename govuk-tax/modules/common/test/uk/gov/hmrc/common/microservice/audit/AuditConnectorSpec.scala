@@ -6,15 +6,18 @@ import play.api.test.{ FakeApplication, WithApplication }
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.BaseSpec
 import org.scalautils.Tolerance
+import scala.concurrent.Future
 
 class TestAuditConnector extends AuditConnector {
   var body: JsValue = null
   var headers: Map[String, String] = null
 
-//  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) {
-//    this.body = body
-//    this.headers = headers
-//  }
+  override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)
+                                     (implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+    this.body = body
+    this.headers = headers
+    Future.successful(None)
+  }
 }
 
 class AuditConnectorSpec extends BaseSpec {
