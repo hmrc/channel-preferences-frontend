@@ -40,7 +40,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
           header.headers("Set-Cookie") should include(sessionEntry("token", john.encodedToken.encodeBase64))
       }
 
-      expectAnSsoLoginAuditEventFor(john)
+      expectAnSsoLoginSuccessfulAuditEventFor(john)
     }
 
     "replace any current session with a new one when the token is valid, and the time not expired" in new WithSsoControllerInFakeApplication {
@@ -67,17 +67,18 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
           header.headers("Set-Cookie") should include(sessionEntry("token", bob.encodedToken.encodeBase64))
       }
 
-      expectAnSsoLoginAuditEventFor(bob)
+      expectAnSsoLoginSuccessfulAuditEventFor(bob)
     }
 
     "invalidate the session if a session already exists but the login is incorrect" in new WithSsoControllerInFakeApplication {
-      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.invalidEncodedToken, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new IllegalStateException("error")))
+      val johnInvalidCredentials = john.copy(encodedToken = john.encodedToken.copy(encodeBase64 = "invalidToken"))
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(johnInvalidCredentials.encodedToken.encodeBase64, johnInvalidCredentials.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new IllegalStateException("error")))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.invalidEncodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${johnInvalidCredentials.encodedToken.encodeBase64}", "time": ${johnInvalidCredentials.loginTimestamp}, "dest": "$redirectUrl"}""")
 
       val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken.encodeBase64))
+        .withSession("userId" -> encrypt(johnInvalidCredentials.userId), "name" -> johnInvalidCredentials.name, "token" -> johnInvalidCredentials.encodedToken.encodeBase64))
 
       whenReady(response) {
         result =>
@@ -88,15 +89,44 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
           header.headers("Set-Cookie") should not include "name"
           header.headers("Set-Cookie") should not include "token"
       }
+
+      expectAnSsoLoginFailedAuditEventFor(johnInvalidCredentials, transactionFailureReason = "Invalid Token")
     }
 
     "invalidate the session if a session already exists but the login throws an Unauthorised Exception" in new WithSsoControllerInFakeApplication {
+      val johnWithInvalidTimestamp = john.copy(loginTimestamp = 2222L)
       val mockResponse = mock[Response]
-      private val request: SsoLoginRequest = SsoLoginRequest(john.encodedToken.encodeBase64, john.invalidLoginTimestamp)
+      private val request: SsoLoginRequest = SsoLoginRequest(johnWithInvalidTimestamp.encodedToken.encodeBase64, johnWithInvalidTimestamp.loginTimestamp)
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(request))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new UnauthorizedException("error", mockResponse)))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${johnWithInvalidTimestamp.encodedToken.encodeBase64}", "time": ${johnWithInvalidTimestamp.loginTimestamp}, "dest": "$redirectUrl"}""")
+
+      val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
+        .withFormUrlEncodedBody("payload" -> encryptedPayload)
+        .withSession("userId" -> encrypt(johnWithInvalidTimestamp.userId), "name" -> johnWithInvalidTimestamp.name, "affinityGroup" -> johnWithInvalidTimestamp.affinityGroup, "token" -> john.encodedToken.encodeBase64))
+
+      whenReady(response) {
+        result =>
+          val SimpleResult(header, _, _) = result
+          header.status shouldBe 303
+          header.headers("Location") shouldBe "/"
+          header.headers("Set-Cookie") should not include "userId"
+          header.headers("Set-Cookie") should not include "name"
+          header.headers("Set-Cookie") should not include "affinityGroup"
+          header.headers("Set-Cookie") should not include "token"
+      }
+
+      expectAnSsoLoginFailedAuditEventFor(johnWithInvalidTimestamp, transactionFailureReason = "Unauthorized")
+    }
+    "invalidate the session if a session already exists but the login throws some other exception" in new WithSsoControllerInFakeApplication {
+      val mockResponse = mock[Response]
+      val request = SsoLoginRequest(john.encodedToken.encodeBase64, john.loginTimestamp)
+      val errorMessage = "something went wrong"
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(request))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(new RuntimeException(errorMessage)))
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken.encodeBase64}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
 
       val response = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -112,11 +142,13 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
           header.headers("Set-Cookie") should not include "affinityGroup"
           header.headers("Set-Cookie") should not include "token"
       }
+
+      expectAnSsoLoginFailedAuditEventFor(john, transactionFailureReason = s"Unknown - $errorMessage")
     }
 
     "return 400 if the provided dest field is not a valid URL" in new WithSsoControllerInFakeApplication {
       val invalidUrl = "invalid_url"
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$invalidUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$invalidUrl"}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -129,7 +161,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     "return 400 if the dest field is not allowed by the white list" in new WithSsoControllerInFakeApplication {
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(false)
 
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}, "dest": "$redirectUrl"}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -139,7 +171,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
     }
 
     "return 400 if the dest field is missing" in new WithSsoControllerInFakeApplication {
-      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.invalidLoginTimestamp}}""")
+      val encryptedPayload = SsoPayloadEncryptor.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}}""")
 
       val result = controller.in(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
@@ -148,43 +180,43 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       status(result) shouldBe 400
 
     }
-  }
 
-  "The Single Sign-on logout page" should {
-    " logout a logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
+    "The Single Sign-on logout page" should {
+      " logout a logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
 
-      val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken.encodeBase64))
+        val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> encrypt(john.userId), "name" -> john.name, "token" -> john.encodedToken.encodeBase64))
 
-      whenReady(result) {
-        case SimpleResult(header, _, _) => {
-          header.status shouldBe 303
-          header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
-          header.headers("Set-Cookie") should not include "userId"
-          header.headers("Set-Cookie") should not include "name"
-          header.headers("Set-Cookie") should not include "affinityGroup"
-          header.headers("Set-Cookie") should not include "token"
+        whenReady(result) {
+          case SimpleResult(header, _, _) => {
+            header.status shouldBe 303
+            header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
+            header.headers("Set-Cookie") should not include "userId"
+            header.headers("Set-Cookie") should not include "name"
+            header.headers("Set-Cookie") should not include "affinityGroup"
+            header.headers("Set-Cookie") should not include "token"
+          }
+          case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
         }
-        case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
+
       }
 
-    }
+      " logout a not logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
 
-    " logout a not logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
+        val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("somePortalData" -> "somedata"))
 
-      val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("somePortalData" -> "somedata"))
-
-      whenReady(result) {
-        case SimpleResult(header, _, _) => {
-          header.status shouldBe 303
-          header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
-          header.headers("Set-Cookie") should not include "userId"
-          header.headers("Set-Cookie") should not include "name"
-          header.headers("Set-Cookie") should not include "affinityGroup"
-          header.headers("Set-Cookie") should not include "token"
+        whenReady(result) {
+          case SimpleResult(header, _, _) => {
+            header.status shouldBe 303
+            header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
+            header.headers("Set-Cookie") should not include "userId"
+            header.headers("Set-Cookie") should not include "name"
+            header.headers("Set-Cookie") should not include "affinityGroup"
+            header.headers("Set-Cookie") should not include "token"
+          }
+          case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
         }
-        case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
-      }
 
+      }
     }
   }
 
@@ -201,45 +233,55 @@ with MockitoSugar with CookieEncryption with org.scalatest.Matchers {
 
   def controller = new SsoInController(mockSsoWhiteListService, mockGovernmentGatewayService, mockAuditConnector)(null)
 
-  trait User {
-    val name: String
-    val userId: String
-    val affinityGroup: String
-  }
+  case class User(name: String,
+                  userId: String,
+                  affinityGroup: String,
+                  encodedToken: GatewayToken,
+                  loginTimestamp: Long
+                   )
 
-  object bob extends User {
-    val name = "Bob Jones"
-    val userId = "authId/ROBERT"
-    val encodedToken = GatewayToken("bobsToken", DateTimeUtils.now, DateTimeUtils.now)
-    val affinityGroup = "Partnership"
-    val loginTimestamp = 123456L
-  }
+  val bob = User(
+    name = "Bob Jones",
+    userId = "authId/ROBERT",
+    encodedToken = GatewayToken("bobsToken", DateTimeUtils.now, DateTimeUtils.now),
+    affinityGroup = "Partnership",
+    loginTimestamp = 123456L
+  )
 
-  object john extends User {
-    val name = "John Smith"
-    val userId = "authId/JOHNNY"
-    val encodedToken = GatewayToken("johnsToken", DateTimeUtils.now, DateTimeUtils.now)
-    val affinityGroup = "Individual"
-    val invalidEncodedToken = "invalidToken"
-    val loginTimestamp = 12345L
-    val invalidLoginTimestamp = 2222L
-  }
+  val john = User(
+    name = "John Smith",
+    userId = "authId/JOHNNY",
+    encodedToken = GatewayToken("johnsToken", DateTimeUtils.now, DateTimeUtils.now),
+    affinityGroup = "Individual",
+    loginTimestamp = 12345L
+  )
 
   def sessionEntry(key: String, unencryptedValue: String): String = {
     val encryptedValue = URLEncoder.encode(encrypt(unencryptedValue), "UTF8")
     s"$key=$encryptedValue"
   }
 
-  def expectAnSsoLoginAuditEventFor(user: User) {
+  def expectAnSsoLoginSuccessfulAuditEventFor(user: User) {
     val auditEvent = ArgumentCaptor.forClass(classOf[AuditEvent])
     verify(mockAuditConnector).audit(auditEvent.capture())(Matchers.any())
 
-    auditEvent.getValue.auditType should be("TxSucceded")
-    auditEvent.getValue.tags should contain("transactionName" -> "SSO Login Completion")
+    auditEvent.getValue.auditType should be("TxSucceeded")
+    auditEvent.getValue.tags should contain("transactionName" -> "SSO Login")
     auditEvent.getValue.detail should (
       contain("authId" -> user.userId) and
         contain("name" -> user.name) and
         contain("affinityGroup" -> user.affinityGroup)
       )
+    auditEvent.getValue.detail should not contain key("transactionFailureReason")
+  }
+
+  def expectAnSsoLoginFailedAuditEventFor(user: User, transactionFailureReason: String) {
+    val auditEvent = ArgumentCaptor.forClass(classOf[AuditEvent])
+    verify(mockAuditConnector).audit(auditEvent.capture())(Matchers.any())
+
+    auditEvent.getValue.auditType should be("TxFailed")
+    auditEvent.getValue.tags should contain("transactionName" -> "SSO Login")
+    auditEvent.getValue.detail should contain("token" -> user.encodedToken.encodeBase64)
+    auditEvent.getValue.detail should contain("transactionFailureReason" -> transactionFailureReason)
   }
 }

@@ -6,14 +6,11 @@ import uk.gov.hmrc.domain.Uar
 import uk.gov.hmrc.common.microservice.agent.AgentConnectorRoot
 import models.agent.{Client, MatchingPerson, SearchRequest, AgentRegistrationRequest}
 import controllers.common.actions.HeaderCarrier
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-import play.api.http.Status
-import play.api.Logger
 
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.Logger
+
 
 class AgentConnector extends AgentConnectorRoot {
 
@@ -27,9 +24,10 @@ class AgentConnector extends AgentConnectorRoot {
     httpPostF[MatchingPerson](uri, Json.parse(toRequestBody(searchRequest)))
   }
 
+
   def saveOrUpdateClient(uri: String, client: Client)(implicit hc: HeaderCarrier): Unit = {
     httpPost(uri, Json.parse(toRequestBody(client))) { response =>
-      if(response.status != OK)
+      if (response.status != OK)
         Logger.error(s"Unexpected error saving the client, response status is: ${response.status} trying to hit: ${httpResource(uri)}")
     }
   }
