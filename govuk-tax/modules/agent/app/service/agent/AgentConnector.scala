@@ -8,15 +8,17 @@ import uk.gov.hmrc.microservice.MicroServiceException
 import uk.gov.hmrc.common.microservice.agent.AgentConnectorRoot
 import models.agent.{Client, MatchingPerson, SearchRequest, AgentRegistrationRequest}
 import controllers.common.actions.HeaderCarrier
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
 
 class AgentConnector extends AgentConnectorRoot {
 
-  def create(nino: String, newAgent: AgentRegistrationRequest)(implicit hc: HeaderCarrier): Uar = {
-    val uar = httpPost[Uar](s"/agent/register/nino/$nino", Json.parse(toRequestBody(newAgent)))
-    uar.getOrElse(throw new RuntimeException("Unexpected error creating a new agent"))
+  def create(nino: String, newAgent: AgentRegistrationRequest)(implicit hc: HeaderCarrier): Future[Uar] = {
+    val uar = httpPostF[Uar](s"/agent/register/nino/$nino", Json.parse(toRequestBody(newAgent)))
+    uar.map(_.getOrElse(throw new RuntimeException("Unexpected error creating a new agent")))
   }
 
-  def searchClient(uri: String, searchRequest: SearchRequest)(implicit hc: HeaderCarrier): Option[MatchingPerson] = httpPost[MatchingPerson](uri, Json.parse(toRequestBody(searchRequest)))
+  def searchClient(uri: String, searchRequest: SearchRequest)(implicit hc: HeaderCarrier): Future[Option[MatchingPerson]] = httpPostF[MatchingPerson](uri, Json.parse(toRequestBody(searchRequest)))
 
   def saveOrUpdateClient(uri: String, client: Client)(implicit hc: HeaderCarrier) {
     val response: Response = httpPostSynchronous(uri, Json.parse(toRequestBody(client)))

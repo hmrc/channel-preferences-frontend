@@ -14,28 +14,30 @@ import scala.Some
 import uk.gov.hmrc.microservice.MicroServiceException
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.BaseSpec
+import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
-class AgentConnectorSpec extends BaseSpec {
+class AgentConnectorSpec extends BaseSpec with ScalaFutures {
 
   "The agent micro search service" should {
     "return the result when found" in new WithApplication(FakeApplication()) {
       val request = SearchRequest("exNino", Some("exFirst"), Some("exLast"), None)
       val service = new AgentConnector {
-        override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
-          Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob"))).asInstanceOf[Some[A]]
+        override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+          Future.successful(Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob"))).asInstanceOf[Some[A]])
         }
       }
-      service.searchClient("", request) shouldBe Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob")))
+      service.searchClient("", request).futureValue shouldBe Some(MatchingPerson("exNino", Some("exFirst"), Some("exLast"), Some("exDob")))
     }
 
     "return none if not found" in new WithApplication(FakeApplication()) {
       val request = SearchRequest("unknown", Some("exFirst"), Some("exLast"), None)
       val service = new AgentConnector {
-        override protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
-          None
+        override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+          Future.successful(None)
         }
       }
-      service.searchClient("", request) shouldBe None
+      service.searchClient("", request).futureValue shouldBe None
     }
 
   }

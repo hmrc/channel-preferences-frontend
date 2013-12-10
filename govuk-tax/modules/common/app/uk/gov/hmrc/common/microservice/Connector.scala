@@ -41,16 +41,6 @@ trait Connector extends Status with HeaderNames {
     Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
   }
 
-  protected def httpPutNoResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier) = {
-    val wsResource = httpResource(uri)
-    Await.result(response(wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractNoResponse), defaultTimeoutDuration)
-  }
-
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Option[A] = {
-    val wsResource = httpResource(uri)
-    Await.result(response[A](wsResource.withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A]), defaultTimeoutDuration)
-  }
-
   protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
     response[A](httpResource(uri).withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A])
   }
