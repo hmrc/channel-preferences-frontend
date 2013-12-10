@@ -88,8 +88,8 @@ with PayeRegimeRoots {
       details.acceptedTransactions,
       details.completedTransactions)
 
-    val carBenefit = details.currentTaxYearData.findExistingBenefit(details.employment.sequenceNumber, BenefitTypes.CAR)
-    val fuelBenefit = details.currentTaxYearData.findExistingBenefit(details.employment.sequenceNumber, BenefitTypes.FUEL)
+    val carBenefit = details.currentTaxYearData.findActiveBenefit(details.employment.sequenceNumber, BenefitTypes.CAR)
+    val fuelBenefit = details.currentTaxYearData.findActiveBenefit(details.employment.sequenceNumber, BenefitTypes.FUEL)
 
     HomePageParams(carBenefit, fuelBenefit, details.employment.employerName, details.employment.sequenceNumber, taxYear, employmentViews)
   }

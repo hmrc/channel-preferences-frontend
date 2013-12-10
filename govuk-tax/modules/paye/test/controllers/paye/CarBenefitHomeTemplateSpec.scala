@@ -44,7 +44,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     "render with correct car details for user with a company car and no fuel" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -72,7 +72,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -126,7 +126,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     "show car details for user with a company car where the employer name is unknown" in new WithApplication(FakeApplication()) {
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -156,7 +156,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "show an Add Car link for a user without a company car and do not show the add fuel link" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -177,7 +177,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     "show an Add Fuel link for a user with a car benefit but no fuel benefit" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -200,7 +200,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -220,7 +220,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "not show an Add Fuel Link if the user has a company car with fuel of type electricity" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -244,7 +244,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -266,7 +266,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -288,7 +288,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -310,7 +310,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresEmployments
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -333,7 +333,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -356,7 +356,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -377,7 +377,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -403,7 +403,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction, removedFuelTransaction, addFuelTransaction)
       val completedTransactions = Seq(removedCarTransaction, removedFuelTransaction, addFuelTransaction)
@@ -435,7 +435,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(addCarTransaction)
       val completedTransactions = Seq(addCarTransaction)
@@ -477,7 +477,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removeCar2AndFuel2AcceptedTransaction, addCar3AndFuel4AcceptedTransaction)
       val completedTransactions = Seq(removeCar1AndFuel1CompletedTransaction, addCar2AndFuel2CompletedTransaction)
@@ -502,7 +502,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq()
       val completedTransactions = Seq()

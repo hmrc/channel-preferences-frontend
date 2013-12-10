@@ -20,7 +20,7 @@ class ShowRemoveBenefitFormControllerSpec extends PayeBaseSpec with MockedTaxYea
 
     "notify the user the fuel benefit will be removed for benefit with no company name" ignore new WithApplication(FakeApplication()) {
 
-      val benefit = DisplayBenefit(johnDensmoresEmployments(0), johnDensmoresBenefits, None, Map.empty)
+      val benefit = DisplayBenefit(johnDensmoresEmployments(0), johnDensmoresBenefits.filter(_.isActive).map(_.toSeq).flatten, None, Map.empty)
       val dates = Some(CarFuelBenefitDates(None, None))
       val form = updateBenefitForm(getStartDate(benefit.benefit), carBenefitWithUnremovedFuelBenefit = true, dates, dateToday, taxYearInterval)
 
