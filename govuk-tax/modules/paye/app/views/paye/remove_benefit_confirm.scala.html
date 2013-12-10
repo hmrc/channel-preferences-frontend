@@ -6,7 +6,7 @@
 @import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 @import controllers.paye.routes._
 
-@main(title = "Confirm", user = Some(user)) {
+@main(title = "Confirm your benefit details", user = Some(user)) {
 
 
     @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
