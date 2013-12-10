@@ -15,6 +15,7 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.SaPreference
 import scala.Some
 import play.api.test.FakeApplication
+import scala.concurrent.Future
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 
@@ -43,7 +44,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val controller = createController
       val preferencesAlreadyCreated = SaPreference(true, Some("test@test.com"))
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Some(preferencesAlreadyCreated))
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
 
       val page = controller.index(validToken, validReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
@@ -54,7 +55,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "render an email input field" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(None))
 
       val page = controller.index(validToken, validReturnUrl, None)(FakeRequest())
       contentAsString(page) should include("email.main")
@@ -84,7 +85,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "include a link to keep mail preference" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(None))
 
       val page = controller.index(validToken, validReturnUrl, None)(FakeRequest())
       contentAsString(page) should include("No thanks, I don’t want to switch to email")
@@ -105,6 +106,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val previouslyEnteredAddress = "some@mail.com"
 
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(None))
       val page = controller.index(validToken, validReturnUrl, Some(previouslyEnteredAddress))(FakeRequest())
 
       status(page) shouldBe 200
@@ -126,9 +128,11 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
 
       val page = controller.submitPrefsForm(expiredToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress)))
-      verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
       status(page) shouldBe 303
+
+      verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
+
       header("Location", page).get should include(validReturnUrl)
     }
 
@@ -136,14 +140,15 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
+      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(false))
 
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress)))
+
+      status(page) shouldBe 200
 
       verify(controller.emailConnector).validateEmailAddress(emailAddress)
       verifyZeroInteractions(controller.preferencesConnector)
 
-      status(page) shouldBe 200
     }
 
     "show an error if the email is invalid" in new WithApplication(FakeApplication()) {
@@ -183,28 +188,33 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(true))
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(None))
 
-      controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("email.confirm", emailAddress)))
-      verify(controller.preferencesConnector, times(1)).savePreferences(validUtr, true, Some(emailAddress))
+      val page = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("email.confirm", emailAddress)))
+
+      status(page) shouldBe 303
+
       verify(controller.emailConnector).validateEmailAddress(emailAddress)
+      verify(controller.preferencesConnector).getPreferences(validUtr)
+      verify(controller.preferencesConnector).savePreferences(validUtr, true, Some(emailAddress))
     }
 
     "redirect to no-action page if the preference is already set to digital when submitting the form" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Some(SaPreference(true, Some(emailAddress))))
+      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(true))
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(SaPreference(true, Some(emailAddress)))))
 
       val action = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress)))
+
+      status(action) shouldBe 303
 
       verify(controller.emailConnector).validateEmailAddress(emailAddress)
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
       verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
-      status(action) shouldBe 303
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=true")
     }
@@ -213,16 +223,17 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Some(SaPreference(false, None)))
+      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(true))
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(SaPreference(false, None))))
 
       val action = controller.submitPrefsForm(validToken, validReturnUrl)(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress)))
+
+      status(action) shouldBe 303
 
       verify(controller.emailConnector).validateEmailAddress(emailAddress)
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
       verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
-      status(action) shouldBe 303
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=false")
     }
@@ -239,7 +250,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "keep paper notification and redirect to the portal" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(None))
 
       val page = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
 
@@ -250,9 +261,12 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
       val controller = createController
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(None))
 
-      controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+      val result = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+
+      status(result) shouldBe 303
+
       verify(controller.preferencesConnector, times(1)).savePreferences(validUtr, false)
     }
 
@@ -262,9 +276,10 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
 
       val page = controller.submitKeepPaperForm(expiredToken, validReturnUrl)(FakeRequest())
-      verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
       status(page) shouldBe 303
+
+      verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
       header("Location", page).get should include(validReturnUrl)
     }
 
@@ -273,14 +288,15 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val controller = createController
 
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Some(SaPreference(true, Some(emailAddress))))
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(SaPreference(true, Some(emailAddress)))))
 
       val action = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+
+      status(action) shouldBe 303
 
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
       verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
-      status(action) shouldBe 303
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=true")
     }
@@ -290,14 +306,15 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val controller = createController
 
-      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Some(SaPreference(false, None)))
+      when(controller.preferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(SaPreference(false, None))))
 
       val action = controller.submitKeepPaperForm(validToken, validReturnUrl)(FakeRequest())
+
+      status(action) shouldBe 303
 
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
       verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
-      status(action) shouldBe 303
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=false")
     }

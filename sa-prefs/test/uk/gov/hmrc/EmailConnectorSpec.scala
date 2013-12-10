@@ -5,22 +5,24 @@ import org.scalatest._
 import org.mockito.Mockito._
 import java.net.URLEncoder
 import play.api.test.{FakeApplication, WithApplication}
+import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
 class TestEmailConnector extends EmailConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpGet[A](uri: String)(implicit m: Manifest[A]): Option[A] = {
-    httpWrapper.get(uri)
+  override protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] = {
+    httpWrapper.getF(uri)
   }
 
   class HttpWrapper {
-    def get[T](uri: String): Option[T] = None
+    def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
   }
 
 }
 
-class EmailConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach {
+class EmailConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach with ScalaFutures {
 
   lazy val emailConnector = new TestEmailConnector
 
@@ -32,19 +34,19 @@ class EmailConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers 
   "validateEmailAddress" should {
     
     "correctly invoke the email microservice and return true if the service returns true" in new WithApplication(FakeApplication()) {
-      when(emailConnector.httpWrapper.get[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Some(ValidateEmailResponse(true)))
+      when(emailConnector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(true))))
 
-      emailConnector.validateEmailAddress(emailAddress) shouldBe true
+      emailConnector.validateEmailAddress(emailAddress).futureValue shouldBe true
 
-      verify(emailConnector.httpWrapper).get[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")
+      verify(emailConnector.httpWrapper).getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")
     }
 
     "correctly invoke the email microservice and return false if the service returns false" in new WithApplication(FakeApplication()) {
-      when(emailConnector.httpWrapper.get[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Some(ValidateEmailResponse(false)))
+      when(emailConnector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(false))))
 
-      emailConnector.validateEmailAddress(emailAddress) shouldBe false
+      emailConnector.validateEmailAddress(emailAddress).futureValue shouldBe false
 
-      verify(emailConnector.httpWrapper).get[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")
+      verify(emailConnector.httpWrapper).getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")
     }
   }
 
