@@ -60,8 +60,10 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     def activeCar: Option[CarAndFuel] = Some(CarAndFuel(carBenefit, fuelBenefit))
 
+    def previousCars = Seq.empty[CarAndFuel]
+
     def params =
-      HomePageParams(activeCar, companyName, 0, testTaxYear, employmentViews, Seq.empty)
+      HomePageParams(activeCar, companyName, 0, testTaxYear, employmentViews, previousCars)
   }
 
   "car benefit home page template" should {
@@ -77,6 +79,23 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#fuel-benefit-amount").text shouldBe ""
       doc.select("#no-car-benefit-container").text shouldBe ""
       doc.select("#private-fuel").text shouldBe "No"
+    }
+
+    "render previous cars in the tax year" in new WithApplication(FakeApplication()) with BaseData {
+      val previousCar = Benefit(31, 2013, 1234, 1, car = Some(Car()))
+      val previousCar2 = Benefit(31, 2013, 5678, 1, car = Some(Car()))
+      val previousCarAndFuel1 = CarAndFuel(previousCar)
+      val previousCarAndFuel2 = CarAndFuel(previousCar2)
+
+      override val previousCars = Seq(previousCarAndFuel1, previousCarAndFuel2)
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#company-name-0").text shouldBe "Company car provided by Weyland-Yutani Corp"
+      doc.select("#car-benefit-amount-0").text shouldBe "£1,234"
+      doc.select("#company-name-1").text shouldBe "Company car provided by Weyland-Yutani Corp"
+      doc.select("#car-benefit-amount-1").text shouldBe "£5,678"
     }
 
     "show car details for user with a company car and fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
