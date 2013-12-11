@@ -1,0 +1,80 @@
+@(carAndFuel: uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel, employerNameString: String, idSuffix: Option[String] = None)
+
+@import views.formatting.Dates._
+@import views.formatting.Strings._
+@import views.formatting.Money._
+
+    @id(idString: String) = {@idSuffix.map(suffix =>s"$idString-$suffix").getOrElse(idString)}
+
+<table>
+    <thead>
+        <tr>
+            <th colspan="2" id="@id("company-name")">Company car provided by @employerNameString</th>
+        </tr>
+    </thead>
+    <tbody>
+        @carAndFuel.carBenefit.car.map { car =>
+            @car.dateCarMadeAvailable.map { dateCarMadeAvailable =>
+                <tr>
+                    <td>Date Provided</td>
+                    <td id="@id("car-benefit-date-available")">@formatDate(dateCarMadeAvailable)</td>
+                </tr>
+            }
+            @car.carValue.map { carValue =>
+                <tr>
+                    <td>List Price including accessories</td>
+                    <td>@pounds(carValue)</td>
+                </tr>
+            }
+            @car.fuelType.map { fuelType =>
+                <tr>
+                    <td>Fuel type</td>
+                    <td id="@id("car-benefit-fuel-type")">@Messages(s"paye.add_car_benefit.fuel_type.$fuelType")</td>
+                </tr>
+            }
+            @car.co2Emissions.map { co2Emissions =>
+                <tr>
+                    <td>Emission figure</td>
+                    <td>@co2Emissions g/km</td>
+                </tr>
+            }
+            @car.engineSize.map { engineSize =>
+                <tr>
+                    <td>Engine capacity</td>
+                    <td id="@id("car-benefit-engine")">@Messages(s"paye.add_car_benefit.engine_capacity.$engineSize")</td>
+                </tr>
+            }
+        }
+        <tr>
+            <td>Private Fuel</td>
+            <td id="@id("private-fuel")">
+            @carAndFuel.fuelBenefit.map { fuelBenefit =>
+                @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
+                    @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.dateWithdrawn, "")}
+                }.getOrElse {
+                    @Messages("paye.add_car_benefit.employer_pay_fuel.true")
+                }
+            }.getOrElse {
+                @Messages("paye.add_car_benefit.employer_pay_fuel.false")
+            }
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">Taxable benefit value</th>
+        </tr>
+        <tr>
+            <td colspan="2">These amounts are added to your income and you pay tax on them.</td>
+        </tr>
+        <tr>
+            <td>Car benefit taxable value</td>
+            <td id="@id("car-benefit-amount")">@pounds(carAndFuel.carBenefit.grossAmount)</td>
+        </tr>
+        @if(carAndFuel.fuelBenefit.isDefined) {
+            <tr>
+                <td>Fuel benefit taxable value</td>
+                <td id="@id("fuel-benefit-amount")">@pounds(carAndFuel.fuelBenefit.get.grossAmount)</td>
+            </tr>
+        }
+    </tbody>
+
+</table>
