@@ -1,12 +1,9 @@
-@(activeCar: Option[uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel],
-        carBenefitprevious: Seq[uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel],
-        employerName: Option[String], employerSequenceNumber: Int,
-        currentTaxYear: Int,
-        employmentViews: Seq[models.paye.EmploymentView])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(params: controllers.paye.HomePageParams)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
     @import views.formatting.Dates._
     @import views.formatting.Strings._
     @import views.formatting.Money._
+    @import params._
 
     @displayCarAndFuelBenefit(activeCar: uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel, employerNameString: String) = {
 
@@ -106,16 +103,16 @@
                 </ul>
             </div>
             <h2>Your company car</h2>
-        @activeCar.map { carBenefit =>
+        @activeCarBenefit.map { carBenefit =>
             @displayCarAndFuelBenefit(carBenefit, employerNameString)
         }.getOrElse {
             <p>You do not have an existing company car benefit.</p>
         }
 
-        @if(carBenefitprevious.length > 0) {
+        @if(previousCarBenefits.length > 0) {
             <h2>Previous cars in this tax year</h2>
 
-            @for(carAndFuelBenefit <- carBenefitprevious) {
+            @for(carAndFuelBenefit <- previousCarBenefits) {
                 @displayCarAndFuelBenefit(carAndFuelBenefit, employerNameString)
             }
         } else {
@@ -126,7 +123,7 @@
             <p>
                 You can make the following changes to the information HMRC has about your company car
             </p>
-        @activeCar.map { car =>
+        @activeCarBenefit.map { car =>
         <ul>
             <li>
                 @helpers.link("rm-car-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(car.carBenefit.benefitType.toString, car.carBenefit.taxYear, car.carBenefit.employmentSequenceNumber)}", "remove your company car")
@@ -135,7 +132,7 @@
                 @helpers.link("rm-fuel-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(fuelBenefit.benefitType.toString, fuelBenefit.taxYear, fuelBenefit.employmentSequenceNumber)}", "remove your car fuel benefit")
             }.getOrElse {
                 @if(car.carBenefit.car.get.fuelType != Some("electricity")) {
-                    @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employerSequenceNumber)}", "add a car fuel benefit")
+                    @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employmentSequenceNumber)}", "add a car fuel benefit")
                 }
             }</li>
         </ul>
@@ -143,7 +140,7 @@
             <div id="no-car-benefit-container">
                 <ul>
                     <li>
-                    @helpers.link("add-car-link", s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)}", "add a company car (including any fuel benefit you may have)")
+                    @helpers.link("add-car-link", s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employmentSequenceNumber)}", "add a company car (including any fuel benefit you may have)")
                     </li>
                 </ul>
             </div>

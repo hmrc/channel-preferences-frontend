@@ -35,7 +35,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     implicit val user = johnDensmore
     "return a status 200 (OK) when HomePageParams are available" in new WithApplication(FakeApplication()) {
       val homePageParams = HomePageParams(activeCarBenefit = None, employerName = None,
-        sequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty, previousCarBenefits = Seq.empty)
+        employmentSequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty, previousCarBenefits = Seq.empty)
 
       val actualResponse = controller.buildHomePageResponse(Some(homePageParams))
       status(actualResponse) should be(200)

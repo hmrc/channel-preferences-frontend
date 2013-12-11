@@ -46,8 +46,7 @@ with PayeRegimeRoots {
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {
       params =>
-        Ok(car_benefit_home(params.activeCarBenefit, params.previousCarBenefits, params.employerName,
-          params.sequenceNumber, params.currentTaxYear, params.employmentViews))
+        Ok(car_benefit_home(params))
     }.getOrElse {
       val message = s"Unable to find current employment for user ${user.oid}"
       Logger.error(message)
@@ -99,12 +98,12 @@ with PayeRegimeRoots {
   }
 }
 
-private[paye] case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
-                                        employerName: Option[String],
-                                        sequenceNumber: Int,
-                                        currentTaxYear: Int,
-                                        employmentViews: Seq[EmploymentView],
-                                        previousCarBenefits: Seq[CarAndFuel])
+case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
+                          employerName: Option[String],
+                          employmentSequenceNumber: Int,
+                          currentTaxYear: Int,
+                          employmentViews: Seq[EmploymentView],
+                          previousCarBenefits: Seq[CarAndFuel])
 
 private[paye] case class CarBenefitDetails(employments: Seq[Employment],
                                            taxYear: Int,
