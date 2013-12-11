@@ -103,7 +103,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
         'activeCarBenefit(Some(CarAndFuel(carBenefit))),
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
-        'sequenceNumber(1)
+        'employmentSequenceNumber(1)
       )
 
       val expectedEmploymentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
