@@ -95,20 +95,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.select(".benefit-type").text shouldBe "Your old company fuel benefit"
       doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
     }
-
-    // TODO: Remove this test - it is not possible for the user to have a fuel benefit without a car benefit
-    "not show the car checkbox when the user has no car benefit" ignore new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq())
-      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
-
-      val result = formController.showRemovalFormAction(johnDensmore, requestWithCorrectVersion, FUEL.toString, 2013, 2)
-
-      val doc = Jsoup.parse(contentAsString(result))
-
-      doc.select(".benefit-type").text shouldBe "Your old company fuel benefit"
-      doc.select("label[for=removeCar]") shouldBe empty
-    }
-
   }
 
   "Removing non-FUEL benefit " should {
@@ -881,7 +867,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
   "benefitRemoved" should {
     "render a view with correct elements" in new WithApplication(FakeApplication()) {
 
-      val car = Car(None, Some(new LocalDate(2012, 12, 12)), None, Some(BigDecimal(10)), Some("diesel"), Some(1), Some(1400), None, Some(BigDecimal("1432")), None, None)
+      val car = Car(None, None, None, Some(BigDecimal(10)), Some("diesel"), Some(1), Some(1400), None, Some(BigDecimal("1432")), None, None)
 
       val versionNumber = 1
       val payeRoot = new PayeRoot("CE927349E", versionNumber, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
