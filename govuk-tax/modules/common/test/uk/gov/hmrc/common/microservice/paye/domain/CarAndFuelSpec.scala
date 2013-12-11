@@ -12,7 +12,7 @@ class CarAndFuelSpec extends BaseSpec {
     }
 
     "be inactive if the Car benefit has a withdrawn date" in {
-      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, dateWithdrawn = Some(new LocalDate()), car = Some(Car()))
+      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(Car(dateCarWithdrawn = Some(new LocalDate()))))
       CarAndFuel(carBenefit).isActive shouldBe false
     }
 

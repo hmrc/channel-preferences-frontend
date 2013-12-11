@@ -53,5 +53,8 @@ case class CarAndFuel(carBenefit: Benefit, fuelBenefit: Option[Benefit] = None) 
 
   def toSeq: Seq[Benefit] = Seq(Some(carBenefit), fuelBenefit).flatten
 
-  def isActive: Boolean = carBenefit.dateWithdrawn.isEmpty
+  // our constraints say that carBenefit.car must be Some, so naked get
+  // should be okay. If it isn't it means something is wrong, so exception
+  // is the only way out
+  def isActive: Boolean = carBenefit.car.map(_.dateCarWithdrawn.isEmpty).get
 }
