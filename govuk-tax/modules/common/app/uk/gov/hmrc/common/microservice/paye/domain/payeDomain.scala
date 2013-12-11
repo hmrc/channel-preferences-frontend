@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import play.api.Logger
 
 object PayeRegime extends TaxRegime {
 
@@ -53,8 +54,6 @@ case class PayeRoot(nino: String,
   def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[TaxCode]] =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-
-
   def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarAndFuel]] =
     valuesForTaxYear[CarAndFuel](resource = "benefit-cars", taxYear = taxYear)
 
@@ -84,7 +83,10 @@ case class PayeRoot(nino: String,
   private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Seq[T]] =
     links.get(resource) match {
       case Some(uri) => resourceFor[Seq[T]](uri.replace("{taxYear}", taxYear.toString)).map(_.getOrElse(Seq.empty))
-      case _ => Future.successful(Seq.empty)
+      case _ => {
+        Logger.warn(s"no link found for resource $resource");
+        Future.successful(Seq.empty)
+      }
     }
 
   private def resourceFor[T](uri: String)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Option[T]] =

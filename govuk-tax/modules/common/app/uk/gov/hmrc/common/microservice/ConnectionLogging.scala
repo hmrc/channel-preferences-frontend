@@ -26,7 +26,7 @@ trait ConnectionLogging {
       connectionLogger.trace(formatMessage(requestId, method, uri, System.nanoTime() - startTime, "success"))
     }
     case Failure(ex) => {
-      connectionLogger.trace(formatMessage(requestId, method, uri, System.nanoTime() - startTime, "failed ${ex.getMessage}"))
+      connectionLogger.trace(formatMessage(requestId, method, uri, System.nanoTime() - startTime, s"failed ${ex.getMessage}"))
     }
   }
 
