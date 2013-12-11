@@ -18,11 +18,11 @@ import uk.gov.hmrc.common.microservice.domain.User
 object RemoveBenefitFlow {
   def apply(action: (User, Request[_], DisplayBenefit, TaxYearData) => Future[SimpleResult])
            (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector, currentTaxYear: Int): (User, Request[_], String, Int, Int) => Future[SimpleResult] =
-    (user, request, displayBenefit, taxYear, employmentSequenceNumber) =>
+    (user, request, benefitTypes, taxYear, employmentSequenceNumber) =>
       validateVersionNumber(user, request.session).fold(
         errorResult => Future.successful(errorResult),
         versionNumber =>
-          retrieveData(user, request, displayBenefit, taxYear, employmentSequenceNumber).flatMap {
+          retrieveData(user, request, benefitTypes, taxYear, employmentSequenceNumber).flatMap {
             _.fold(
               errorResult => Future.successful(errorResult),
               data => {
@@ -57,10 +57,10 @@ object RemoveBenefitFlow {
     }
   }
 
-  private def getBenefit(kind: Int, taxYear: Int, employmentSequenceNumber: Int, payeRootData: TaxYearData): Option[DisplayBenefit] = {
+  private def getBenefit(kind: Int, taxYear: Int, employmentSequenceNumber: Int, taxYearData: TaxYearData): Option[DisplayBenefit] = {
     kind match {
       case CAR | FUEL => {
-        getBenefitMatching(kind, employmentSequenceNumber, payeRootData)
+        getBenefitMatching(kind, employmentSequenceNumber, taxYearData)
       }
       case _ => None
     }
