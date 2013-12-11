@@ -100,8 +100,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 
       actualHomePageParams should have(
-        'carBenefit(Some(carBenefit)),
-        'fuelBenefit(None),
+        'activeCarBenefit(Some(CarAndFuel(carBenefit))),
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
         'sequenceNumber(1)
