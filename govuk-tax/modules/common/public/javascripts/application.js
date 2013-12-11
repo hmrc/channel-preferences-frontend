@@ -146,10 +146,13 @@
       // cancel link click event if everything is successful
       return !successful;
     }
+    /*
+    TODO: currently disabled until decision is made on analytics tool to use
     if ($target.data('regime')) {
       var regime = $(this).data('regime');
       _gaq.push(['_trackPageview', '/' + regime]);
     }
+    */
   });
   /**
    * DOM ready
