@@ -16,6 +16,8 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import controllers.agent.AgentsRegimeRoots
+import Function.const
+import scala.concurrent.Future
 
 class AgentContactDetailsController(override val auditConnector: AuditConnector,
                                     override val keyStoreConnector: KeyStoreConnector)
@@ -44,7 +46,7 @@ class AgentContactDetailsController(override val auditConnector: AuditConnector,
   }
 
   def postContactDetails = AuthorisedFor(PayeRegime).async {
-    MultiFormAction(multiFormConfig) {
+    MultiFormAction.async(multiFormConfig) {
       user => request => postContactDetailsAction(user, request)
     }
   }
@@ -55,18 +57,19 @@ class AgentContactDetailsController(override val auditConnector: AuditConnector,
     Ok(views.html.agents.registration.contact_details(form, paye))
   }
 
-  private[registration] val postContactDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
+  private[registration] val postContactDetailsAction: ((User, Request[_]) => Future[SimpleResult]) = (user, request) => {
     contactForm.bindFromRequest()(request).fold(
       errors => {
-        BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get))
+        Future.successful(BadRequest(views.html.agents.registration.contact_details(errors, user.regimes.paye.get)))
       },
       _ => {
         implicit val hc = HeaderCarrier(request)
         val paye: PayeRoot = user.regimes.paye.get
         var agentDetails = contactForm.bindFromRequest()(request).data
         agentDetails +=((title, paye.title), (firstName, paye.firstName), (lastName, paye.surname), (dateOfBirth, paye.dateOfBirth), (nino, paye.nino))
-        keyStoreConnector.addKeyStoreEntry(actionId(), agent, contactFormName, agentDetails, true)
-        Redirect(routes.AgentTypeAndLegalEntityController.agentType())
+        keyStoreConnector.addKeyStoreEntry(actionId(), agent, contactFormName, agentDetails, true).map {
+          const(Redirect(routes.AgentTypeAndLegalEntityController.agentType()))
+        }
       }
     )
   }

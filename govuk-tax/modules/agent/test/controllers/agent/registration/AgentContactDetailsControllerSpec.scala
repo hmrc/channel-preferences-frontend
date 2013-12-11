@@ -92,7 +92,9 @@ class AgentContactDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "go to the agent type page if valid email address and phone numbers are entered and store result in keystore, including the contact details" in new WithApplication(FakeApplication()) {
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
-      val result = Future.successful(controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a")))
+      when(keyStoreConnector.addKeyStoreEntry(Matchers.eq("AgentRegistration"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture(), Matchers.eq(true))(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
+      val result = controller.postContactDetailsAction(user, newRequestForContactDetails("07777777777", "0777777771", "a@a.a"))
       status(result) shouldBe 303
       headers(result).get("Location") should contain("/agent-type")
       verify(keyStoreConnector).addKeyStoreEntry(Matchers.eq("AgentRegistration"), Matchers.eq("agent"), Matchers.eq(contactFormName), keyStoreDataCaptor.capture(), Matchers.eq(true))(Matchers.any(), Matchers.any())
