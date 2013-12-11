@@ -31,6 +31,7 @@ import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
+import org.mockito.Matchers
 
 class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfter with ScalaFutures {
 
@@ -66,6 +67,8 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
 
 
     "have the default radio button selected" in new WithApplication(FakeApplication()) {
+      when(confirmKeyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
       when(confirmKeyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
@@ -82,8 +85,10 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "have the passed in instanceId in the page" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
+      when(confirmKeyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       when(confirmKeyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
-        .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
+        .thenReturn(Future.successful(Some(PotentialClient(Some(clientSearch), confirmation, None))))
 
       val result = executeConfirmActionPostWithValues("true", "true", "FOO", instanceId)
       status(result) shouldBe 200
@@ -94,6 +99,8 @@ class PreferredContactSpec extends BaseSpec with MockitoSugar with BeforeAndAfte
     "not show any errors" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("Foo"), Some("Bar"), None)
       val confirmation = Some(ConfirmClient(true, true, Some("reference")))
+      when(confirmKeyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       when(confirmKeyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), confirmation, None)))
 

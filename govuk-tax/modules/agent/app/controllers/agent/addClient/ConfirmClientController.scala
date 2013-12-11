@@ -40,10 +40,10 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
 
   private[agent] def confirmAction(user: User)(implicit request: Request[_]): Future[SimpleResult] = {
     val form = confirmClientForm().bindFromRequest()(request)
-    keyStoreConnector.getEntry[PotentialClient](actionId(form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) map {
+    keyStoreConnector.getEntry[PotentialClient](actionId(form(FieldIds.instanceId).value.getOrElse("instanceIdNotFound")), serviceSourceKey, addClientKey) flatMap {
       case Some(potentialClient@PotentialClient(Some(searchedClient), _, _)) => {
         form.fold(
-          errors => BadRequest(search_client_result(searchedClient, form)),
+          errors => Future.successful(BadRequest(search_client_result(searchedClient, form))),
           confirmationWithInstanceId => {
             val (confirmation, instanceId) = confirmationWithInstanceId
 
@@ -51,14 +51,14 @@ class ConfirmClientController(keyStoreConnector: KeyStoreConnector,
               actionId(instanceId),
               serviceSourceKey,
               addClientKey,
-              potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference)))))
-
-            Ok(preferred_contact(emptyUnValidatedPreferredContactForm().fill((PreferredContactData.empty, instanceId))))
+              potentialClient.copy(confirmation = Some(confirmation.copy(internalClientReference = trimmed(confirmation.internalClientReference))))).map {
+              _=> Ok(preferred_contact(emptyUnValidatedPreferredContactForm().fill((PreferredContactData.empty, instanceId))))
+            }
           }
         )
       }
       case _ =>
-        Redirect(routes.SearchClientController.restart())
+        Future.successful(Redirect(routes.SearchClientController.restart()))
     }
   }
 }

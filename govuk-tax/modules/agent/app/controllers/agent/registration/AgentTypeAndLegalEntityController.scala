@@ -14,6 +14,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import controllers.agent.AgentsRegimeRoots
+import scala.concurrent.Future
 
 class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnector,
                                         override val keyStoreConnector: KeyStoreConnector)
@@ -46,7 +47,7 @@ class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnec
 
 
   def postAgentType = AuthorisedFor(PayeRegime).async {
-    MultiFormAction(multiFormConfig) {
+    MultiFormAction.async(multiFormConfig) {
       user => request => postAgentTypeAction(user, request)
     }
   }
@@ -55,16 +56,17 @@ class AgentTypeAndLegalEntityController(override val auditConnector: AuditConnec
     Ok(views.html.agents.registration.agent_type_and_legal_entity(agentTypeAndLegalEntityForm, Configuration.config))
   }
 
-  private[registration] val postAgentTypeAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
+  private[registration] val postAgentTypeAction: ((User, Request[_]) => Future[SimpleResult]) = (user, request) => {
     agentTypeAndLegalEntityForm.bindFromRequest()(request).fold(
       errors => {
-        BadRequest(views.html.agents.registration.agent_type_and_legal_entity(errors, Configuration.config))
+        Future.successful(BadRequest(views.html.agents.registration.agent_type_and_legal_entity(errors, Configuration.config)))
       },
       _ => {
         implicit val hc = HeaderCarrier(request)
         val agentTypeAndLegalEntityDetails = agentTypeAndLegalEntityForm.bindFromRequest()(request).data
-        keyStoreConnector.addKeyStoreEntry(actionId(), agent, agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails, true)
-        Redirect(routes.AgentCompanyDetailsController.companyDetails())
+        keyStoreConnector.addKeyStoreEntry(actionId(), agent, agentTypeAndLegalEntityFormName, agentTypeAndLegalEntityDetails, true).map {
+        _=> Redirect(routes.AgentCompanyDetailsController.companyDetails())
+        }
       }
     )
   }

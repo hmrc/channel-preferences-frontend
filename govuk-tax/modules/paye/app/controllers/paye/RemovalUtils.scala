@@ -75,7 +75,7 @@ object RemovalUtils {
   val benefitDataActionId = "RemoveBenefitData"
 
   implicit class BenefitKeyStore(keyStoreService: KeyStoreConnector) {
-    def storeBenefitFormData(benefitFormData: RemoveBenefitFormData)(implicit hc: HeaderCarrier): Unit = {
+    def storeBenefitFormData(benefitFormData: RemoveBenefitFormData)(implicit hc: HeaderCarrier) = {
       keyStoreService.addKeyStoreEntry(benefitFormDataActionId, KeystoreUtils.source, keystoreKey, benefitFormData)
     }
 

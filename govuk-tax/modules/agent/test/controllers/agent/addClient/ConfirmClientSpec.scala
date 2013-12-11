@@ -98,6 +98,8 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "save the succesful acknoledgement to the keystore and show the prefered contact view" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
+      when(keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
       val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
@@ -113,6 +115,8 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "save the succesful acknoledgement and internal ref to the keystore and show the prefered contact view" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
+      when(keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
       val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(
@@ -128,6 +132,8 @@ class ConfirmClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "save the succesful acknoledgement and whitespace only internal ref to the keystore and show the prefered contact view" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("exnino", Some("exFirst"), Some("exLast"), Some(new LocalDate(1990, 1, 1)))
+      when(keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       when(keyStoreConnector.getEntry[PotentialClient](actionId(instanceId), serviceSourceKey, addClientKey))
         .thenReturn(Some(PotentialClient(Some(clientSearch), None, None)))
       val result = Future.successful(controller.confirmAction(user)(FakeRequest().withFormUrlEncodedBody(

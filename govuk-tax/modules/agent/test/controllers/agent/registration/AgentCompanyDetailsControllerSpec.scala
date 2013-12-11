@@ -182,6 +182,9 @@ class AgentCompanyDetailsControllerSpec extends BaseSpec with MockitoSugar {
 
     "go to next step if required details are provided" in new WithApplication(FakeApplication()) {
 
+      when(controller.keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
+
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val request = newRequestForCompanyDetails()
       val result = Future.successful(controller.postCompanyDetailsAction(user, request))

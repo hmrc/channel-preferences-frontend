@@ -62,6 +62,8 @@ class AgentTypeAndLegalEntityControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(keyStoreConnector)
     }
     "go to the company details page and save data in keystore if all items are chosen" in new WithApplication(FakeApplication()) {
+      when(keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = Future.successful(controller.postAgentTypeAction(user, newRequest("inBusiness", "ltdCompany")))
       status(result) shouldBe 303

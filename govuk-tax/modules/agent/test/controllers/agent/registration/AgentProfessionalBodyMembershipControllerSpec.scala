@@ -67,6 +67,8 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "go to the next step if no input data is entered" in new WithApplication(FakeApplication()) {
+      when(controller.keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("", "")))
       status(result) shouldBe 303
@@ -84,6 +86,8 @@ class AgentProfessionalBodyMembershipControllerSpec extends BaseSpec with Mockit
     }
 
     "go to the next step when input data is entered" in new WithApplication(FakeApplication()) {
+      when(controller.keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+        thenReturn(Future.successful(None))
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[Map[String, String]])
       val result = Future.successful(controller.postProfessionalBodyMembershipAction(user, newRequestForProfessionalBodyMembership("charteredInstituteOfManagementAccountants", "data")))
       status(result) shouldBe 303

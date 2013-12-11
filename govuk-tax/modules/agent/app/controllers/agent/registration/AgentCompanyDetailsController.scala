@@ -17,6 +17,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import controllers.agent.AgentsRegimeRoots
+import scala.concurrent.Future
 
 class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
                                     override val keyStoreConnector: KeyStoreConnector)
@@ -37,7 +38,7 @@ class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
   }
 
   def postCompanyDetails = AuthorisedFor(PayeRegime).async {
-    MultiFormAction(multiFormConfig) {
+    MultiFormAction.async(multiFormConfig) {
       user => request => postCompanyDetailsAction(user, request)
     }
   }
@@ -121,16 +122,17 @@ class AgentCompanyDetailsController(override val auditConnector: AuditConnector,
     Ok(views.html.agents.registration.company_details(companyDetailsForm.fill(AgentCompanyDetails())))
 
 
-  private[registration] val postCompanyDetailsAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
+  private[registration] val postCompanyDetailsAction: ((User, Request[_]) => Future[SimpleResult]) = (user, request) => {
     companyDetailsForm.bindFromRequest()(request).fold(
       errors => {
-        BadRequest(views.html.agents.registration.company_details(errors))
+        Future.successful(BadRequest(views.html.agents.registration.company_details(errors)))
       },
       _ => {
         val agentCompanyDetails = companyDetailsForm.bindFromRequest()(request).data
         implicit val hc = HeaderCarrier(request)
-        keyStoreConnector.addKeyStoreEntry(actionId(), agent, companyDetailsFormName, agentCompanyDetails, true)
-        Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership())
+        keyStoreConnector.addKeyStoreEntry(actionId(), agent, companyDetailsFormName, agentCompanyDetails, true).map {_=>
+         Redirect(routes.AgentProfessionalBodyMembershipController.professionalBodyMembership())
+        }
       }
     )
   }

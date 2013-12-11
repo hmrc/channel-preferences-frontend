@@ -73,18 +73,19 @@ class SearchClientController(val keyStoreConnector: KeyStoreConnector,
         val agentRoot = user.regimes.agent.get
         val searchDob = search.dob.map(data => DateConverter.formatToString(data))
         val searchUri: String = agentRoot.actions.get("search").getOrElse(throw new IllegalArgumentException(s"No search action uri found"))
-        agentMicroService.searchClient(searchUri, SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) map {
+        agentMicroService.searchClient(searchUri, SearchRequest(search.nino, search.firstName, search.lastName, searchDob)) flatMap {
           case Some(matchingPerson) => {
             user.regimes.agent.get.clients.find(_._1 == search.nino) match {
-              case Some(_) => Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client")))
+              case Some(_) => Future.successful(Ok(search_client_result(restricted(matchingPerson), confirmClientForm().fill((ConfirmClient.empty, instanceId)).withGlobalError("This person is already your client"))))
               case _ => {
                 val restrictedResult = restricted(matchingPerson)
-                keyStoreConnector.addKeyStoreEntry(actionId(instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None))
-                Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
+                keyStoreConnector.addKeyStoreEntry(actionId(instanceId), serviceSourceKey, addClientKey, PotentialClient(Some(restrictedResult), None, None)).map {
+                  _=> Ok(search_client_result(restrictedResult, confirmClientForm().fill((ConfirmClient.empty, instanceId))))
+                }
               }
             }
           }
-          case None => NotFound(search_client(form.withGlobalError("No match found")))
+          case None => Future.successful(NotFound(search_client(form.withGlobalError("No match found"))))
         }
       }
     )

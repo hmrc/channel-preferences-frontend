@@ -15,6 +15,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
 import controllers.agent.AgentsRegimeRoots
+import scala.concurrent.Future
 
 class AgentProfessionalBodyMembershipController(override val auditConnector: AuditConnector,
                                                 override val keyStoreConnector: KeyStoreConnector)
@@ -52,7 +53,7 @@ class AgentProfessionalBodyMembershipController(override val auditConnector: Aud
   }
 
   def postProfessionalBodyMembership = AuthorisedFor(PayeRegime).async {
-    MultiFormAction(multiFormConfig) {
+    MultiFormAction.async(multiFormConfig) {
       user => request => postProfessionalBodyMembershipAction(user, request)
     }
   }
@@ -62,16 +63,18 @@ class AgentProfessionalBodyMembershipController(override val auditConnector: Aud
     Ok(views.html.agents.registration.professional_body_membership(form, Configuration.config.professionalBodyOptions))
   }
 
-  private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => SimpleResult) = (user, request) => {
+  private[registration] val postProfessionalBodyMembershipAction: ((User, Request[_]) => Future[SimpleResult]) = (user, request) => {
     professionalBodyMembershipForm.bindFromRequest()(request).fold(
       errors => {
-        BadRequest(views.html.agents.registration.professional_body_membership(errors, Configuration.config.professionalBodyOptions))
+        Future.successful(BadRequest(views.html.agents.registration.professional_body_membership(errors, Configuration.config.professionalBodyOptions)))
       },
       _ => {
         implicit val hc = HeaderCarrier(request)
         val agentProfessionalBodyMembership = professionalBodyMembershipForm.bindFromRequest()(request).data
-        keyStoreConnector.addKeyStoreEntry(actionId(), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership, true)
-        Redirect(routes.AgentThankYouController.thankYou())
+        keyStoreConnector.addKeyStoreEntry(actionId(), agent, professionalBodyMembershipFormName, agentProfessionalBodyMembership, true).map {
+        _=>
+          Redirect(routes.AgentThankYouController.thankYou())
+        }
       }
     )
   }

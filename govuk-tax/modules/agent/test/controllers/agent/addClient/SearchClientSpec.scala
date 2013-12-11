@@ -79,6 +79,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "maintain the same generated identifier when the form is submitted successfully and the results shown" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "firstName", lastName = "lastName", dob = ("1", "1", "1990"), instanceId = "blahblah")
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(s"input#${FieldIds.instanceId}").attr("value") should equal("blahblah")
@@ -86,6 +87,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "not show any errors when the form is submitted successfully and the results shown" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "firstName", lastName = "lastName", dob = ("1", "1", "1990"), instanceId = "blahblah")
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error") should be('empty)
@@ -134,6 +136,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "allow a submission with valid nino, firstName, lastName, dob and display all fields" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
 
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "firstName", lastName = "lastName", dob = ("1", "1", "1991"))
 
@@ -149,6 +152,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "allow a submission with valid nino, firstName, lastName and not display the dob" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
 
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "firstName", lastName = "lastName", dob = ("", "", ""))
 
@@ -163,6 +167,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "allow a submission with valid nino, firstName, lastName, and non-matching dob and not display the dob" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
 
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "firstName", lastName = "lastName", dob = ("1", "1", "1980"))
 
@@ -177,6 +182,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "allow a submission with valid nino, firstName, dob and not display the lastname" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
 
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "firstName", lastName = "", dob = ("1", "1", "1991"))
 
@@ -191,6 +197,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "allow a submission with valid nino, foreign first name, foreign last name, dob" in new WithApplication(FakeApplication()) {
       when(agentMicroService.searchClient(any[String], any[SearchRequest])(Matchers.any())).thenReturn(Some(MatchingPerson("AB123456C", Some("étåtø"), Some("étåtœ"), Some("1991-01-01"))))
+      givenTheKeystoreSuccessfullySavesAnEntry
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "étåtø", lastName = "étåtœ", dob = ("1", "1", "1991"))
 
       status(result) shouldBe 200
@@ -204,6 +211,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
 
     "allow a submission with valid nino, lastName, dob and not display the firstname" in new WithApplication(FakeApplication()) {
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
 
       val result = executeSearchActionWith(nino = "AB123456C", firstName = "", lastName = "lastName", dob = ("1", "1", "1991"))
 
@@ -230,12 +238,14 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "not save anything to keystore when we make a submission with errors" in new WithApplication(FakeApplication()) {
+      givenTheKeystoreSuccessfullySavesAnEntry
       val result = executeSearchActionWith(nino = "", firstName = "", lastName = "", dob = ("", "", ""))
       status(result) shouldBe 400
       verifyZeroInteractions(keyStoreConnector)
     }
 
     "save the client search results to the keystore when we make a successful submission with all fields" in new WithApplication(FakeApplication()) {
+      givenTheKeystoreSuccessfullySavesAnEntry
       val clientSearch = ClientSearch("AB123456C", Some("firstName"), Some("lastName"), Some(new LocalDate(1991, 1, 1)))
       givenTheAgentServiceReturnsAMatch()
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
@@ -248,6 +258,7 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     "save partial client search results to the keystore when we make a successful submission with some fields" in new WithApplication(FakeApplication()) {
       val clientSearch = ClientSearch("AB123456C", Some("firstName"), Some("lastName"), Some(new LocalDate(1990, 1, 1)))
       givenTheAgentServiceReturnsAMatch()
+      givenTheKeystoreSuccessfullySavesAnEntry
       val result = executeSearchActionWith(clientSearch.nino, clientSearch.firstName.get, clientSearch.lastName.get,
         ("", "", ""), "12637868")
       status(result) shouldBe 200
@@ -282,6 +293,8 @@ class SearchClientSpec extends BaseSpec with MockitoSugar with BeforeAndAfter {
     def givenTheAgentServiceReturnsAMatch(alreadyClient: Boolean = false) =
       when(agentMicroService.searchClient(any[String], any[SearchRequest])(Matchers.any()))
         .thenReturn(Some(MatchingPerson("AB123456C", Some("resFirstName"), Some("resLastName"), Some("1991-01-01"))))
+    def givenTheKeystoreSuccessfullySavesAnEntry = when(keyStoreConnector.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
+      thenReturn(Future.successful(None))
 
   }
 
