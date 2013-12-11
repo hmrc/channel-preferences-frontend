@@ -44,7 +44,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     "render with correct car details for user with a company car and no fuel" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments,  Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -52,9 +52,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit,  Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -72,7 +72,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments,  Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -80,9 +80,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews,  Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit,  Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -107,9 +107,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -126,7 +126,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     "show car details for user with a company car where the employer name is unknown" in new WithApplication(FakeApplication()) {
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -138,10 +138,10 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), None, 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), None, 0, testTaxYear, employmentViews, Seq())
 
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -156,7 +156,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "show an Add Car link for a user without a company car and do not show the add fuel link" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -164,9 +164,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -177,7 +177,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     "show an Add Fuel link for a user with a car benefit but no fuel benefit" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -185,9 +185,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
 
@@ -200,7 +200,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -208,9 +208,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -220,7 +220,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "not show an Add Fuel Link if the user has a company car with fuel of type electricity" in new WithApplication(FakeApplication()) {
       val employments = johnDensmoresOneEmployment()
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -231,9 +231,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val electricCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("electricity"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
 
-      val params = HomePageParams(Some(electricCarBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(electricCarBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -244,7 +244,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -252,9 +252,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -266,7 +266,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -274,9 +274,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -288,7 +288,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -296,9 +296,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -310,7 +310,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresEmployments
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -318,9 +318,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -333,7 +333,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -341,9 +341,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -356,7 +356,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -364,9 +364,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(None, None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -377,7 +377,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -385,9 +385,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), None, Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -403,7 +403,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction, removedFuelTransaction, addFuelTransaction)
       val completedTransactions = Seq(removedCarTransaction, removedFuelTransaction, addFuelTransaction)
@@ -411,9 +411,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some(employerName1), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some(employerName1), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -435,7 +435,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(addCarTransaction)
       val completedTransactions = Seq(addCarTransaction)
@@ -443,9 +443,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -477,7 +477,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removeCar2AndFuel2AcceptedTransaction, addCar3AndFuel4AcceptedTransaction)
       val completedTransactions = Seq(removeCar1AndFuel1CompletedTransaction, addCar2AndFuel2CompletedTransaction)
@@ -485,9 +485,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -502,7 +502,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
       val fuelBenefit = fuelBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(carBenefit), employments, Seq())
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq()
       val completedTransactions = Seq()
@@ -510,9 +510,9 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews)
+      val params = HomePageParams(Some(carBenefit), Some(fuelBenefit), Some("Weyland-Yutani Corp"), 0, testTaxYear, employmentViews, Seq())
 
-      val result = car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
+      val result = car_benefit_home(params.carBenefit, Seq(), params.fuelBenefit, params.employerName,
         params.sequenceNumber, params.currentTaxYear, params.employmentViews)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))

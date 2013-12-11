@@ -85,7 +85,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
   "calling buildHomePageParams" should {
     "return a populated HomePageParams with the expected values" in {
-
       val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
       val employments = johnDensmoresOneEmployment()
@@ -95,8 +94,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
 
+      val previousBenefits = Seq(CarAndFuel(carBenefit, Some(fuelBenefit)))
       val benefitDetails = CarBenefitDetails(employments, testTaxYear, taxCodes, acceptedTransactions,
-        completedTransactions, taxYearData, employments.head, Seq.empty)
+        completedTransactions, taxYearData, employments.head, previousBenefits)
 
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 
@@ -105,7 +105,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
         'fuelBenefit(None),
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
-        'sequenceNumber(1)
+        'sequenceNumber(1),
+        'previousCarBenefits(previousBenefits)
       )
 
       val expectedEmploymentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
