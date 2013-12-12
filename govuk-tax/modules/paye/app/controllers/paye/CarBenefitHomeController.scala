@@ -33,20 +33,20 @@ with PayeRegimeRoots {
   def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
       implicit request =>
-        assembleCarBenefitData(user.getPaye, currentTaxYear).map { details =>
-          buildHomePageResponse(details.map(buildHomePageParams(_, carAndFuelBenefitTypes, currentTaxYear))).
-            withSession(sessionWithNpsVersion(request.session))
+        assembleCarBenefitData(user.getPaye, currentTaxYear).map {
+          details =>
+            buildHomePageResponse(details.map(buildHomePageParams(_, carAndFuelBenefitTypes, currentTaxYear))).
+              withSession(sessionWithNpsVersion(request.session))
         }
   }
 
   private[paye] def sessionWithNpsVersion(session: Session)(implicit user: User) =
-    session +(("nps-version", user.getPaye.version.toString))
+    session + (("nps-version", user.getPaye.version.toString))
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {
       params =>
-        Ok(car_benefit_home(params.carBenefit, params.fuelBenefit, params.employerName,
-          params.sequenceNumber, params.currentTaxYear, params.employmentViews))
+        Ok(car_benefit_home(params))
     }.getOrElse {
       val message = s"Unable to find current employment for user ${user.oid}"
       Logger.error(message)
@@ -55,12 +55,15 @@ with PayeRegimeRoots {
   }
 
   private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[Option[CarBenefitDetails]] = {
-    payeRoot.fetchTaxYearData(taxYear).flatMap { taxYearData =>
-      taxYearData.findPrimaryEmployment.map { primaryEmployment =>
-        retrieveHomepageData(payeRoot, taxYear).map { data =>
-          CarBenefitDetails(data._1, data._2, data._3, data._4, data._5, taxYearData, primaryEmployment)
+    payeRoot.fetchTaxYearData(taxYear).flatMap {
+      taxYearData =>
+        taxYearData.findPrimaryEmployment.map {
+          primaryEmployment =>
+            retrieveHomepageData(payeRoot, taxYear).map {
+              data =>
+                CarBenefitDetails(data._1, data._2, data._3, data._4, data._5, taxYearData, primaryEmployment)
+            }
         }
-      }
     }
   }
 
@@ -88,16 +91,19 @@ with PayeRegimeRoots {
       details.acceptedTransactions,
       details.completedTransactions)
 
-    val carBenefit = details.currentTaxYearData.findExistingBenefit(details.employment.sequenceNumber, BenefitTypes.CAR)
-    val fuelBenefit = details.currentTaxYearData.findExistingBenefit(details.employment.sequenceNumber, BenefitTypes.FUEL)
+    val carBenefit = details.currentTaxYearData.cars.filter(_.isActive).headOption
+    val previousCars = details.currentTaxYearData.cars.filterNot(_.isActive)
 
-    HomePageParams(carBenefit, fuelBenefit, details.employment.employerName, details.employment.sequenceNumber, taxYear, employmentViews)
+    HomePageParams(carBenefit, details.employment.employerName, details.employment.sequenceNumber, taxYear, employmentViews, previousCars)
   }
 }
 
-private[paye] case class HomePageParams(carBenefit: Option[Benefit], fuelBenefit: Option[Benefit],
-                                        employerName: Option[String], sequenceNumber: Int, currentTaxYear: Int,
-                                        employmentViews: Seq[EmploymentView])
+case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
+                          employerName: Option[String],
+                          employmentSequenceNumber: Int,
+                          currentTaxYear: Int,
+                          employmentViews: Seq[EmploymentView],
+                          previousCarBenefits: Seq[CarAndFuel])
 
 private[paye] case class CarBenefitDetails(employments: Seq[Employment],
                                            taxYear: Int,

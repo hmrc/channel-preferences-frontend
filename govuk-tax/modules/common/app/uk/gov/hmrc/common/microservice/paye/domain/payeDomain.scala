@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import play.api.Logger
 
 object PayeRegime extends TaxRegime {
 
@@ -41,20 +42,20 @@ case class PayeRoot(nino: String,
   def currentDate = new DateTime(DateTimeZone.UTC)
 
   def fetchTaxYearData(taxYear: Int)(implicit payeConnector: PayeConnector, txQueueMicroservice: TxQueueConnector, headerCarrier: HeaderCarrier): Future[TaxYearData] = {
-    val f1 = fetchBenefits(taxYear)
+    val f1 = fetchCars(taxYear)
     val f2 = fetchEmployments(taxYear)
 
     for {
-      benefits <- f1
+      cars <- f1
       employments <- f2
-    } yield TaxYearData(benefits, employments)
+    } yield TaxYearData(cars, employments)
   }
 
-  def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier) :Future[Seq[TaxCode]] =
+  def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[TaxCode]] =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-  def fetchBenefits(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Benefit]] =
-    valuesForTaxYear[Benefit](resource = "benefit-car", taxYear = taxYear)
+  def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarAndFuel]] =
+    valuesForTaxYear[CarAndFuel](resource = "benefit-cars", taxYear = taxYear)
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
@@ -82,16 +83,25 @@ case class PayeRoot(nino: String,
   private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Seq[T]] =
     links.get(resource) match {
       case Some(uri) => resourceFor[Seq[T]](uri.replace("{taxYear}", taxYear.toString)).map(_.getOrElse(Seq.empty))
-      case _ => Future.successful(Seq.empty)
+      case _ => {
+        Logger.warn(s"no link found for resource $resource");
+        Future.successful(Seq.empty)
+      }
     }
 
   private def resourceFor[T](uri: String)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Option[T]] =
     payeConnector.linkedResource[T](uri)
 }
 
-case class TaxYearData(benefits: Seq[Benefit], employments: Seq[Employment]) {
-  def findExistingBenefit(employmentNumber: Int, benefitType: Int): Option[Benefit] = {
-    benefits.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber)
+case class TaxYearData(cars: Seq[CarAndFuel], employments: Seq[Employment]) {
+
+  /**
+   * Find a benefit of the given type that is currently active
+   */
+  def findActiveBenefit(employmentNumber: Int, benefitType: Int): Option[Benefit] = {
+    cars.filter(_.isActive).headOption.flatMap { car =>
+      car.toSeq.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber)
+    }
   }
 
   def findPrimaryEmployment: Option[Employment] = {

@@ -181,7 +181,7 @@ with PayeRegimeRoots {
   }
 
   private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): Benefit = {
-    taxYearData.findExistingBenefit(employmentSequenceNumber, BenefitTypes.CAR) match {
+    taxYearData.findActiveBenefit(employmentSequenceNumber, BenefitTypes.CAR) match {
       case Some(carBenefit) => carBenefit
       case _ => throw new StaleHodDataException("No Car benefit found!") //TODO: Refine this error scenario
     }

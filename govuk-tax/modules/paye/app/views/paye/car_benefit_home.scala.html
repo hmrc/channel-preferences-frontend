@@ -1,133 +1,74 @@
-@(carBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], fuelBenefit: Option[uk.gov.hmrc.common.microservice.paye.domain.Benefit], employerName: Option[String], employerSequenceNumber: Int, currentTaxYear: Int, employmentViews: Seq[models.paye.EmploymentView])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(params: controllers.paye.HomePageParams)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@import views.formatting.Dates._
-@import views.formatting.Strings._
-@import views.formatting.Money._
-@import models.paye.EmploymentViews
+    @import views.formatting.Dates._
+    @import views.formatting.Strings._
+    @import params._
+    @import views.html.paye.display_car_and_fuel
 
-@main(title = "Car benefit overview", user = Some(user)) {
+    @main(title = "Your tax home", user = Some(user)) {
+        <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 
-    <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+        @defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
 
-@defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
-
-    <div class="overview__actions">
-            <h2 class="overview__sub-heading">Recent changes</h2>
-            <ul class="overview__actions__done" data-recent-changes>
-                @if(employmentViews.flatMap(e => e.recentChanges).size > 0) {
-                    @for(employmentView <- employmentViews) {
-                        @for(recentChange <- employmentView.recentChanges) {
-                            @defining(joinList(recentChange.types.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-                                <li>@Messages(s"recent.change.${recentChange.messageCode}", formatDate(recentChange.timeUserRequestedChange), benefitsTitle, employerNameString, employmentView.taxCode)</li>
+            <div class="overview__actions">
+                <h2 class="overview__sub-heading">Recent changes</h2>
+                <ul class="overview__actions__done" data-recent-changes>
+                    @if(employmentViews.flatMap(e => e.recentChanges).size > 0) {
+                        @for(employmentView <- employmentViews) {
+                            @for(recentChange <- employmentView.recentChanges) {
+                                @defining(joinList(recentChange.types.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+                                    <li>@Messages(s"recent.change.${recentChange.messageCode}", formatDate(recentChange.timeUserRequestedChange), benefitsTitle, employerNameString, employmentView.taxCode)</li>
+                                }
                             }
                         }
+                    } else {
+                        <li class="no_actions" >There are no changes to your tax in the last month.</li>
                     }
-                } else {
-                <li class="no_actions" >There are no changes to your tax in the last month.</li>
-                }
-            </ul>
-        </div>
-    <h2>Your company car</h2>
-    @if( carBenefit.isDefined ) {
-              <table>
-                  <thead>
-                  <tr>
-                      <th colspan="2" id="company-name">Company car provided by @employerNameString</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  @if(carBenefit.get.car.get.dateCarMadeAvailable.isDefined) {
-                  <tr>
-                      <td>Date Provided</td>
-                      <td id="car-benefit-date-available">@formatDate(carBenefit.get.car.get.dateCarMadeAvailable.get)</td>
-                  </tr>
-                  }
-                  @if(carBenefit.get.car.get.carValue.isDefined) {
-                  <tr>
-                      <td>List Price including accessories</td>
-                      <td>@pounds(carBenefit.get.car.get.carValue.get)</td>
-                  </tr>
-                  }
-                  @if(carBenefit.get.car.get.fuelType.isDefined) {
-                  <tr>
-                      <td>Fuel type</td>
-                      <td id="car-benefit-fuel-type">@Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.get.car.get.fuelType.get}")</td>
-                  </tr>
-                  }
-                  @if(carBenefit.get.car.get.co2Emissions.isDefined) {
-                  <tr>
-                      <td>Emission figure</td>
-                      <td>@{carBenefit.get.car.get.co2Emissions.get} g/km</td>
-                  </tr>
-                  }
-                  @if(carBenefit.get.car.get.engineSize.isDefined) {
-                  <tr>
-                      <td>Engine capacity</td>
-                          <td id="car-benefit-engine">@Messages(s"paye.add_car_benefit.engine_capacity.${carBenefit.get.car.get.engineSize.get}")</td>
-                  </tr>
-                  }
-                  <tr>
-                      <td>Private Fuel</td>
-                      <td id="private-fuel">
-                          @if(fuelBenefit.isEmpty) {
-                            @Messages("paye.add_car_benefit.employer_pay_fuel.false")
-                          } else {
-                            @if(fuelBenefit.get.dateWithdrawn.isEmpty) {
-                                @Messages("paye.add_car_benefit.employer_pay_fuel.true")
-                            } else {
-                                @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.get.dateWithdrawn, "")}
-                            }
-                          }
-                      </td>
-                  </tr>
-                  <tr>
-                      <th colspan="2">Taxable benefit value</th>
-                  </tr>
-                  <tr>
-                      <td colspan="2">These amounts are added to your income and you pay tax on them.</td>
-                  </tr>
-                  <tr>
-                      <td>Car benefit taxable value</td>
-                      <td id="car-benefit-amount">@pounds(carBenefit.get.grossAmount)</td>
-                  </tr>
-                  @if(fuelBenefit.isDefined) {
-                  <tr>
-                      <td>Fuel benefit taxable value</td>
-                      <td id="fuel-benefit-amount">@pounds(fuelBenefit.get.grossAmount)</td>
-                  </tr>
-                  }
-                  </tbody>
-
-              </table>
-        } else {
-             <p>You do not have an existing company car benefit.</p>
+                </ul>
+            </div>
+            <h2>Your company car</h2>
+        @activeCarBenefit.map { carBenefit =>
+            @display_car_and_fuel(carBenefit, employerNameString)
+        }.getOrElse {
+            <p>You do not have an existing company car benefit.</p>
         }
-        <h2>Make Changes</h2>
-        <p>
-            You can make the following changes to the information HMRC has about your company car
-        </p>
-        @if( carBenefit.isDefined ) {
+
+        @if(previousCarBenefits.length > 0) {
+            <h2>Previous cars in this tax year</h2>
+
+            @for(carAndFuelBenefit <- previousCarBenefits.zipWithIndex) {
+                @display_car_and_fuel(carAndFuelBenefit._1, employerNameString, Some(carAndFuelBenefit._2.toString))
+            }
+        } else {
+            <p>You do not have any previous company car benefit.</p>
+        }
+
+            <h2>Make Changes</h2>
+            <p>
+                You can make the following changes to the information HMRC has about your company car
+            </p>
+        @activeCarBenefit.map { car =>
         <ul>
             <li>
-                @helpers.link("rm-car-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(carBenefit.get.benefitType.toString, carBenefit.get.taxYear, carBenefit.get.employmentSequenceNumber)}", "remove your company car")
+                @helpers.link("rm-car-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(car.carBenefit.benefitType.toString, car.carBenefit.taxYear, car.carBenefit.employmentSequenceNumber)}", "remove your company car")
             </li>
-            <li>@if( fuelBenefit.isDefined ) {
-                    @helpers.link("rm-fuel-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(fuelBenefit.get.benefitType.toString, fuelBenefit.get.taxYear, fuelBenefit.get.employmentSequenceNumber)}", "remove your car fuel benefit")
-                } else {
-                @if(carBenefit.get.car.get.fuelType != Some("electricity") ) {
-                    @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employerSequenceNumber)}", "add a car fuel benefit")
+            <li>@car.fuelBenefit.map { fuelBenefit =>
+                @helpers.link("rm-fuel-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(fuelBenefit.benefitType.toString, fuelBenefit.taxYear, fuelBenefit.employmentSequenceNumber)}", "remove your car fuel benefit")
+            }.getOrElse {
+                @if(car.carBenefit.car.get.fuelType != Some("electricity")) {
+                    @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employmentSequenceNumber)}", "add a car fuel benefit")
                 }
             }</li>
         </ul>
-        } else {
+        }.getOrElse {
             <div id="no-car-benefit-container">
                 <ul>
                     <li>
-                        @helpers.link("add-car-link", s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employerSequenceNumber)}", "add a company car (including any fuel benefit you may have)")
+                    @helpers.link("add-car-link", s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(currentTaxYear, employmentSequenceNumber)}", "add a company car (including any fuel benefit you may have)")
                     </li>
                 </ul>
             </div>
         }
-        <p>If you do not need to make any changes you can @helpers.link("", s"${common.routes.LoginController.logout}", "log out from your account").</p>
+            <p>If you do not need to make any changes you can @helpers.link("", s"${common.routes.LoginController.logout}", "log out from your account").</p>
+        }
     }
-}

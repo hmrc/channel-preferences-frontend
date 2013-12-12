@@ -34,8 +34,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
   "calling buildHomePageResponse " should {
     implicit val user = johnDensmore
     "return a status 200 (OK) when HomePageParams are available" in new WithApplication(FakeApplication()) {
-      val homePageParams = HomePageParams(carBenefit = None, fuelBenefit = None, employerName = None,
-        sequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty)
+      val homePageParams = HomePageParams(activeCarBenefit = None, employerName = None,
+        employmentSequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty, previousCarBenefits = Seq.empty)
 
       val actualResponse = controller.buildHomePageResponse(Some(homePageParams))
       status(actualResponse) should be(200)
@@ -53,11 +53,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
-
 
       when(mockPayeRoot.fetchTaxYearData(testTaxYear)).thenReturn(taxYearData)
       when(mockPayeRoot.fetchRecentAcceptedTransactions).thenReturn(acceptedTransactions)
@@ -90,7 +89,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresOneEmployment()
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(carBenefit), employments)
+      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
@@ -101,11 +100,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 
       actualHomePageParams should have(
-        'carBenefit(Some(carBenefit)),
-        'fuelBenefit(None),
+        'activeCarBenefit(Some(CarAndFuel(carBenefit))),
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
-        'sequenceNumber(1)
+        'employmentSequenceNumber(1)
       )
 
       val expectedEmploymentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,

@@ -53,11 +53,11 @@ object RemovalUtils {
   }
 
   def hasUnremovedFuelBenefit(payeRootData: TaxYearData, employmentNumber: Int): Boolean = {
-    payeRootData.findExistingBenefit(employmentNumber, FUEL).isDefined
+    payeRootData.findActiveBenefit(employmentNumber, FUEL).isDefined
   }
 
   def hasUnremovedCarBenefit(payeRootData: TaxYearData, employmentNumber: Int): Boolean = {
-    payeRootData.findExistingBenefit(employmentNumber, CAR).isDefined
+    payeRootData.findActiveBenefit(employmentNumber, CAR).isDefined
   }
 
   def datesForm() = Form[CarFuelBenefitDates](
