@@ -407,7 +407,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(companyCarDetails) should not be null
-      doc.select("#car-benefit-date-car-withdrawn").text shouldBe "12 December 2012"
+      doc.select("#car-benefit-date-car-withdrawn").text shouldBe "8 December 2013"
     }
   }
 
