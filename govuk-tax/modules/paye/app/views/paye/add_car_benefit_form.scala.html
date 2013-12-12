@@ -28,34 +28,6 @@
                                     '_groupDivClass -> "form-field-group")
             </li>
             <li>
-                @helpers.fieldGroup(
-                    carBenefitForm,
-                    Seq(
-                        FormField(carBenefitForm(carUnavailable), Seq(
-                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
-                            RadioButton("true", "Yes: for ", Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
-			FormField(carBenefitForm(numberOfDaysUnavailable), Seq(InputType("text", "", "days", Some("form-field--inline js-input--contextual"), Some(""), Some("input--xsmall"))))
-                    ),
-                    '_label -> "Has the new company car been unavailable to you for at least 30 consecutive days since 6 April?",
-                    '_groupDivClass -> "form-field-group  js-includes-contextual",
-                    '_valueAfter -> true
-                )
-            </li>
-            <li>
-                @helpers.fieldGroup(
-                    carBenefitForm,
-                    Seq(
-                        FormField(carBenefitForm(giveBackThisTaxYear), Seq(
-                            RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio"),Some(""), Some("data-contextual-helper=disable")),
-                            RadioButton("true", "Yes: on ", Some("form-field--inline-spaced-right"), Some(""), Some(""), Some("data-contextual-helper=enable")))),
-			FormField(carBenefitForm(providedTo), Seq(DateControl((2013 to 2014), Some("js-input--contextual"))))
-                    ),
-                    '_label -> "Will you give back your new company car before 5 April?",
-                    '_groupDivClass -> "form-field-group js-includes-contextual",
-                    '_valueAfter -> true
-                )
-            </li>
-            <li>
                 @helpers.dateFieldsFreeYear(carBenefitForm,
                                             carRegistrationDate,
                                             "When was the car first registered with the DVLA?",

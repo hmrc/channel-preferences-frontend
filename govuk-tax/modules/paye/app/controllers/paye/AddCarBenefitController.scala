@@ -69,11 +69,7 @@ with PayeRegimeRoots {
   private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
     mapping(
       providedFrom -> validateProvidedFrom(timeSource, taxYearInterval),
-      carUnavailable -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-      numberOfDaysUnavailable -> validateNumberOfDaysUnavailable(carBenefitValues, taxYearInterval),
-      giveBackThisTaxYear -> validateGiveBackThisTaxYear(),
       carRegistrationDate -> validateCarRegistrationDate(timeSource),
-      providedTo -> validateProvidedTo(carBenefitValues, taxYearInterval),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employeeContribution -> validateEmployeeContribution(carBenefitValues),
@@ -121,10 +117,6 @@ with PayeRegimeRoots {
 
   private[paye] def rawValuesOf(defaults: CarBenefitData) =
     CarBenefitValues(providedFromVal = defaults.providedFrom,
-      carUnavailableVal = defaults.carUnavailable.map(_.toString),
-      numberOfDaysUnavailableVal = defaults.numberOfDaysUnavailable.map(_.toString),
-      giveBackThisTaxYearVal = defaults.giveBackThisTaxYear.map(_.toString),
-      providedToVal = defaults.providedTo,
       carRegistrationDate = defaults.carRegistrationDate,
       employeeContributes = defaults.employeeContributes.map(_.toString),
       employerContributes = defaults.employerContributes.map(_.toString),

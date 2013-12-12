@@ -1,16 +1,12 @@
 package models.paye
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.common.microservice.paye.domain.{BenefitValue, Benefit, Car, CarAndFuel}
+import uk.gov.hmrc.common.microservice.paye.domain.{Benefit, Car, CarAndFuel}
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 import controllers.paye.FuelBenefitData
 
 case class CarBenefitData(providedFrom: Option[LocalDate],
-                          carUnavailable: Option[Boolean],
-                          numberOfDaysUnavailable: Option[Int],
-                          giveBackThisTaxYear: Option[Boolean],
                           carRegistrationDate: Option[LocalDate],
-                          providedTo: Option[LocalDate],
                           listPrice: Option[Int],
                           employeeContributes: Option[Boolean],
                           employeeContribution: Option[Int],
@@ -30,11 +26,11 @@ object CarAndFuelBuilder {
     val carBenefitData = carBenefitDataAndCalculations.carBenefitData
     val car = createCar(carBenefitData)
 
-    val carBenefit = createBenefit(CAR, carBenefitData.providedTo, taxYear, employmentSequenceNumber, Some(car), carBenefitDataAndCalculations.carBenefitValue)
+    val carBenefit = createBenefit(CAR, None, taxYear, employmentSequenceNumber, Some(car), carBenefitDataAndCalculations.carBenefitValue)
 
     val fuelBenefit = carBenefitData.employerPayFuel match {
       //benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int
-      case Some(data) if data == "true" || data == "again" => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.providedTo, taxYear = taxYear,
+      case Some(data) if data == "true" || data == "again" => Some(createBenefit(benefitType = 29, withdrawnDate = None, taxYear = taxYear,
         employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
       case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
         employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get))
@@ -63,7 +59,7 @@ object CarAndFuelBuilder {
 
   private def createCar(carBenefitData: CarBenefitData) = {
     Car(dateCarMadeAvailable = carBenefitData.providedFrom,
-      dateCarWithdrawn = carBenefitData.providedTo,
+      dateCarWithdrawn = None,
       dateCarRegistered = carBenefitData.carRegistrationDate,
       employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
       fuelType = carBenefitData.fuelType,
@@ -72,7 +68,7 @@ object CarAndFuelBuilder {
       mileageBand = None,
       carValue = carBenefitData.listPrice.map(BigDecimal(_)),
       employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
-      daysUnavailable = carBenefitData.numberOfDaysUnavailable)
+      daysUnavailable = None)
   }
 
   private def engineSize(engineCapacity: Option[String]) : Option[Int] = {
