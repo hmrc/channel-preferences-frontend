@@ -43,7 +43,9 @@ with PayeRegimeRoots {
   }
 
   def carBenefitHomeAction(details: RawTaxData)(implicit user: User): SimpleResult = {
-    if (details.employments.size != 1 || details.cars.filter(_.isActive).size > 1) SeeOther(routes.CarBenefitHomeController.cannotPlayInBeta.url)
+    def betaFilter = details.employments.size != 1 || details.cars.filter(_.isActive).size > 1
+
+    if (betaFilter) SeeOther(routes.CarBenefitHomeController.cannotPlayInBeta.url)
     else buildHomePageResponse(buildHomePageParams(details, carAndFuelBenefitTypes, currentTaxYear))
   }
 
@@ -51,9 +53,8 @@ with PayeRegimeRoots {
     session + (("nps-version", user.getPaye.version.toString))
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
-    params.map {
-      params =>
-        Ok(car_benefit_home(params))
+    params.map { params =>
+      Ok(car_benefit_home(params))
     }.getOrElse {
       val message = s"Unable to find current employment for user ${user.oid}"
       Logger.error(message)
@@ -62,17 +63,19 @@ with PayeRegimeRoots {
   }
 
   private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[RawTaxData] = {
-    val f1 = payeRoot.fetchTaxYearData(taxYear)
-    val f2 = payeRoot.fetchRecentAcceptedTransactions
-    val f3 = payeRoot.fetchRecentCompletedTransactions
-    val f4 = payeRoot.fetchTaxCodes(taxYear)
+    val f1 = payeRoot.fetchCars(taxYear)
+    val f2 = payeRoot.fetchEmployments(taxYear)
+    val f3 = payeRoot.fetchRecentAcceptedTransactions
+    val f4 = payeRoot.fetchRecentCompletedTransactions
+    val f5 = payeRoot.fetchTaxCodes(taxYear)
 
     for {
-      taxYearData <- f1
-      acceptedTransactions <- f2
-      completedTransactions <- f3
-      taxCodes <- f4
-    } yield RawTaxData(taxYear, taxYearData.cars, taxYearData.employments, taxCodes, acceptedTransactions, completedTransactions)
+      cars <- f1
+      employments <- f2
+      acceptedTransactions <- f3
+      completedTransactions <- f4
+      taxCodes <- f5
+    } yield RawTaxData(taxYear, cars, employments, taxCodes, acceptedTransactions, completedTransactions)
   }
 
   private[paye] def buildHomePageParams(details: RawTaxData, benefitTypes: Set[Int], taxYear: Int): Option[HomePageParams] = {
@@ -83,7 +86,7 @@ with PayeRegimeRoots {
       details.acceptedTransactions,
       details.completedTransactions)
 
-    val carBenefit = details.cars.filter(_.isActive).headOption
+    val carBenefit = details.cars.find(_.isActive)
     val previousCars = details.cars.filterNot(_.isActive)
 
     details.employments.find(_.employmentType == Employment.primaryEmploymentType).map { primaryEmployment =>
