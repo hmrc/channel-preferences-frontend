@@ -57,11 +57,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val carBenefit = carBenefitEmployer1
       val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
       val taxCodes = johnDensmoresTaxCodes
-      val acceptedTransactions = Seq(removedCarTransaction)
-      val completedTransactions = Seq(removedFuelTransaction)
+      val transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
-      val benefitDetails = RawTaxData(testTaxYear, cars, employments, taxCodes, acceptedTransactions,
-        completedTransactions)
+      val benefitDetails = RawTaxData(testTaxYear, cars, employments, taxCodes, transactionHistory)
 
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 
@@ -75,7 +73,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       )
 
       val expectedEmploymentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
-        benefitTypes, acceptedTransactions, completedTransactions)
+        benefitTypes, transactionHistory)
 
       actualHomePageParams.get.employmentViews.head shouldBe expectedEmploymentViews.head
     }
@@ -91,11 +89,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val carBenefit = carBenefitEmployer1
       val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
       val taxCodes = johnDensmoresTaxCodes
-      val acceptedTransactions = Seq(removedCarTransaction)
-      val completedTransactions = Seq(removedFuelTransaction)
+      val transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
-      val benefitDetails = RawTaxData(testTaxYear, cars, employments, taxCodes, acceptedTransactions,
-        completedTransactions)
+      val benefitDetails = RawTaxData(testTaxYear, cars, employments, taxCodes, transactionHistory)
 
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 
@@ -123,7 +119,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     def carBenefit = carBenefitEmployer1
     def cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
     def employments = johnDensmoresOneEmployment(1)
-    def rawTaxData = RawTaxData(2013, cars, employments, Seq.empty, Seq.empty, Seq.empty)
+    def rawTaxData = RawTaxData(2013, cars, employments, Seq.empty, Seq.empty)
 
   }
 

@@ -2,8 +2,8 @@ package controllers.paye
 
 import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain._
-import models.paye.{EmploymentView, EmploymentViews}
-import play.api.Logger
+import models.paye.{Matchers, EmploymentView, EmploymentViews}
+import play.api.{data, Logger}
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
@@ -17,6 +17,8 @@ import play.api.mvc.{Request, Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
+import models.paye.Matchers.transactions
+import play.api
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
@@ -65,17 +67,15 @@ with PayeRegimeRoots {
   private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[RawTaxData] = {
     val f1 = payeRoot.fetchCars(taxYear)
     val f2 = payeRoot.fetchEmployments(taxYear)
-    val f3 = payeRoot.fetchRecentAcceptedTransactions
-    val f4 = payeRoot.fetchRecentCompletedTransactions
+    val f3 = payeRoot.fetchTransactionHistory(txQueueMicroservice)
     val f5 = payeRoot.fetchTaxCodes(taxYear)
 
     for {
       cars <- f1
       employments <- f2
-      acceptedTransactions <- f3
-      completedTransactions <- f4
+      transactionHistory <- f3
       taxCodes <- f5
-    } yield RawTaxData(taxYear, cars, employments, taxCodes, acceptedTransactions, completedTransactions)
+    } yield RawTaxData(taxYear, cars, employments, taxCodes, transactionHistory)
   }
 
   private[paye] def buildHomePageParams(details: RawTaxData, benefitTypes: Set[Int], taxYear: Int): Option[HomePageParams] = {
@@ -83,8 +83,7 @@ with PayeRegimeRoots {
       details.taxCodes,
       details.taxYear,
       benefitTypes,
-      details.acceptedTransactions,
-      details.completedTransactions)
+      details.transactionHistory)
 
     val carBenefit = details.cars.find(_.isActive)
     val previousCars = details.cars.filterNot(_.isActive)
@@ -99,8 +98,7 @@ case class RawTaxData(taxYear: Int,
                       cars: Seq[CarAndFuel],
                       employments: Seq[Employment],
                       taxCodes: Seq[TaxCode],
-                      acceptedTransactions: Seq[TxQueueTransaction],
-                      completedTransactions: Seq[TxQueueTransaction])
+                      transactionHistory: Seq[TxQueueTransaction])
 
 case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
                           employerName: Option[String],

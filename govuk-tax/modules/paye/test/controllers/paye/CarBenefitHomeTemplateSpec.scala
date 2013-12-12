@@ -55,12 +55,10 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     def taxCodes = johnDensmoresTaxCodes
 
-    def acceptedTransactions = Seq(removedCarTransaction)
-
-    def completedTransactions = Seq(removedFuelTransaction)
+    def transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
     def employmentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
-      benefitTypes, acceptedTransactions, completedTransactions)
+      benefitTypes, transactionHistory)
 
     def companyName: Option[String] = Some("Weyland-Yutani Corp")
 
@@ -256,8 +254,10 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
-      override val acceptedTransactions = Seq(removedCarTransaction, removedFuelTransaction, addFuelTransaction)
-      override val completedTransactions = Seq(removedCarTransaction, removedFuelTransaction, addFuelTransaction)
+      override val transactionHistory = Seq(
+        acceptedRemovedCarTransaction, completedRemovedCarTransaction,
+        acceptedRemovedFuelTransaction, completedRemovedFuelTransaction,
+        acceptedAddFuelTransaction, completedAddFuelTransaction)
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -279,8 +279,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "only display recent car or fuel transactions for John Densmore" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
-      override val acceptedTransactions = Seq(addCarTransaction)
-      override val completedTransactions = Seq(addCarTransaction)
+      override val transactionHistory = Seq(completedAddCarTransaction, acceptedAddCarTransaction)
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -306,15 +305,14 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
 
     "display recent transactions for John Densmore when both car and fuel benefit have been removed and added " in new WithApplication(FakeApplication()) with BaseData {
-      val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
-      val addCar2AndFuel2CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
-      val removeCar2AndFuel2AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
-      val addCar3AndFuel4AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
+      val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus = "completed")
+      val addCar2AndFuel2CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus = "completed")
+      val removeCar2AndFuel2AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus =  "accepted")
+      val addCar3AndFuel4AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus = "accepted")
       val employerName1: String = "Weyland-Yutani Corp"
 
       override val fuelBenefit = Some(fuelBenefitEmployer1)
-      override val acceptedTransactions = Seq(removeCar2AndFuel2AcceptedTransaction, addCar3AndFuel4AcceptedTransaction)
-      override val completedTransactions = Seq(removeCar1AndFuel1CompletedTransaction, addCar2AndFuel2CompletedTransaction)
+      override val transactionHistory = Seq(removeCar2AndFuel2AcceptedTransaction, addCar3AndFuel4AcceptedTransaction, removeCar1AndFuel1CompletedTransaction, addCar2AndFuel2CompletedTransaction)
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -329,16 +327,17 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       recentChanges should include(s"On $todaysDate you $removeActionName your $carAndFuelBenefitName from $employerName1. This has been completed.")
     }
 
-    "display a suitable message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) with BaseData {
+    "display no recent changes for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
-      override val acceptedTransactions = Seq()
-      override val completedTransactions = Seq()
+      override val transactionHistory = Seq()
+
 
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".no_actions") should not be empty
-      doc.select(".no_actions").text should include("no changes")
+      doc.select(".no_actions") shouldBe empty
+      doc.select(".no_actions").text should not include "no changes"
+      doc.select(".overview__actions").text shouldBe ""
     }
   }
 }

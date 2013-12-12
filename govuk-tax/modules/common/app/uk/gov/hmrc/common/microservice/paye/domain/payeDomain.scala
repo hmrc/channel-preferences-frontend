@@ -1,7 +1,6 @@
 package uk.gov.hmrc.common.microservice.paye.domain
 
 import org.joda.time.{DateTimeZone, DateTime, LocalDate}
-import org.joda.time.format.DateTimeFormat
 import controllers.common.{Ida, routes}
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
@@ -13,6 +12,8 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.Logger
+import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
+import DateTimeZone._
 
 object PayeRegime extends TaxRegime {
 
@@ -34,8 +35,6 @@ case class PayeRoot(nino: String,
                     links: Map[String, String],
                     transactionLinks: Map[String, String],
                     actions: Map[String, String]) extends RegimeRoot[Nino] {
-
-  private val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
 
   def identifier = Nino(nino)
 
@@ -60,25 +59,29 @@ case class PayeRoot(nino: String,
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
-  def fetchRecentAcceptedTransactions(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {
-    transactionsWithStatusFromDate("accepted", currentDate.minusMonths(1))
+  def fetchTransactionHistory(txQueueConnector: TxQueueConnector, now: () => DateTime = () => DateTimeUtils.now)(implicit hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {
+    lookupTransactionHistory(txQueueConnector, now().minusDays(30), 0).flatMap { monthOfTransactions =>
+      if (monthOfTransactions.size < 3)
+        lookupTransactionHistory(txQueueConnector, new DateTime(0, UTC), 3)
+      else
+        Future.successful(monthOfTransactions)
+    }
   }
 
-  def fetchRecentCompletedTransactions(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {
-    transactionsWithStatusFromDate("completed", currentDate.minusMonths(1))
+
+  private def lookupTransactionHistory(txQueueConnector: TxQueueConnector, forDate: DateTime, maxResults: Int)(implicit hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {
+    transactionLinks.get("history") map {
+      uri =>
+        val filledInUri = uri
+          .replace("{from}", DateConverter.formatToString(forDate))
+          .replace("{statuses}", "ACCEPTED,COMPLETED")
+          .replace("{maxResults}", s"$maxResults")
+        val tx = txQueueConnector.transaction(filledInUri)
+        tx.map(_.getOrElse(Seq.empty))
+    } getOrElse Future.successful(Seq.empty)
   }
 
   def addBenefitLink(taxYear: Int): Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
-
-  private def transactionsWithStatusFromDate(status: String, date: DateTime)(implicit txQueueConnector: TxQueueConnector, hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] =
-    transactionLinks.get(status) match {
-      case Some(uri) =>
-        val uri = transactionLinks(status).replace("{from}", date.toString(dateFormat))
-        val tx = txQueueConnector.transaction(uri)
-        tx.map(_.getOrElse(Seq.empty))
-      case _ =>
-        Future.successful(Seq.empty[TxQueueTransaction])
-    }
 
   private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Seq[T]] =
     links.get(resource) match {

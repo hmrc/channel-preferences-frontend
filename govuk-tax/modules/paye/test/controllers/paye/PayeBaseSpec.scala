@@ -24,9 +24,8 @@ trait PayeBaseSpec extends BaseSpec {
 
   val currentTestDate = new DateTime(testTaxYear - 1, 12, 2, 12, 1, ISOChronology.getInstanceUTC)
 
-  def defaultTxLinks(nino: String) = Map("accepted" -> s"/txqueue/current-status/paye/$nino/ACCEPTED/after/{from}",
-    "completed" -> s"/txqueue/current-status/paye/$nino/COMPLETED/after/{from}",
-    "failed" -> s"/txqueue/current-status/paye/$nino/FAILED/after/{from}",
+  def defaultTxLinks(nino: String) = Map(
+    "history" -> s"/txqueue/current-status/paye/$nino/history/after/{from}?statuses={statuses}&max-results={maxResults}",
     "findByOid" -> "/txqueue/oid/{oid}")
 
   def defaultActions(nino: String) = Map("calculateBenefitValue" -> "/calculation/paye/benefit/new/value-calculation")
@@ -117,33 +116,28 @@ trait PayeBaseSpec extends BaseSpec {
     Benefit(29, testTaxYear, 22.22, 3, None, None, None, None, None, None, None, None, actions("RC123456B", testTaxYear, 1), Map.empty),
     removedCarBenefit))
 
-  def transactionWithTags(tags: List[String], properties: Map[String, String] = Map.empty, employmentSequenceNumber: Int = 1) =
+  def transactionWithTags(tags: List[String], properties: Map[String, String] = Map.empty, employmentSequenceNumber: Int = 1, mostRecentStatus: String) =
     TxQueueTransaction(URI.create("http://tax.com"),
       "paye",
       URI.create("http://tax.com"),
       None,
-      List(Status("created", None, currentTestDate)),
+      List(Status(mostRecentStatus, None, currentTestDate),
+        Status("created", None, currentTestDate)),
       Some(tags),
       properties ++ Map("employmentSequenceNumber" -> employmentSequenceNumber.toString, "taxYear" -> s"$testTaxYear"),
       currentTestDate,
       currentTestDate.minusDays(1))
 
-  val removedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR"))
-  val otherTransaction = transactionWithTags(List("paye", "test"))
-  val removedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$FUEL"))
-  val removedFuelTransactionForEmployment2 = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$FUEL"), 2)
-  val multiBenefitTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
+  val acceptedRemovedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR"), mostRecentStatus = "accepted")
+  val completedRemovedCarTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR"), mostRecentStatus = "completed")
+  val acceptedOtherTransaction = transactionWithTags(List("paye", "test"), mostRecentStatus = "accepted")
+  val acceptedRemovedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus = "accepted")
+  val completedRemovedFuelTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus = "completed")
 
-  val addCarTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR"))
-  val addFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"))
-
-  val testTransactions = List(removedCarTransaction, otherTransaction, removedFuelTransaction)
-
-  val multiBenefitTransactions = List(multiBenefitTransaction)
-
-  val completedTransactions = List(otherTransaction, removedFuelTransaction)
-
-  val acceptedTransactions = List(removedCarTransaction)
+  val acceptedAddCarTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR"), mostRecentStatus = "accepted")
+  val completedAddCarTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR"), mostRecentStatus = "completed")
+  val acceptedAddFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus =  "accepted")
+  val completedAddFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus =  "completed")
 
   protected def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
     Map("remove" -> s"/paye/$nino/benefits/$year/$esn/update")
