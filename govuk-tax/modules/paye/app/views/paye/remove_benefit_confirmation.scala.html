@@ -1,29 +1,28 @@
 @(benefitTypes: Seq[Int], removalData: models.paye.BenefitUpdatedConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@import views.formatting.Strings._
-@import views.formatting.Money._
-@import config.RefData._
+    @import views.formatting.Strings._
+    @import views.formatting.Money._
+    @import config.RefData._
 
-@main(title = "Benefit removed", user = Some(user)) {
-    @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-      <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company <span id="benefit-type">@{benefitsTitle}</span></h1>
+    @main(title = "Benefit removed", user = Some(user)) {
+        @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+            <h1><span class="pre-heading">service</span>
+                Tell HMRC about a change to your company <span id="benefit-type">@{benefitsTitle}</span></h1>
+        }
+        <h2>Thanks.</h2>
+        <p>Your company car details have been changed.</p>
+        <p>
+            Your tax code has changed from <span id="old-tax-code">@{removalData.oldTaxCode}</span>.
+            @if(removalData.newTaxCode.isDefined) {
+                Your new tax code is <span id="new-tax-code">@{removalData.newTaxCode}</span>.
+        }
+        </p>
+
+        <p>HMRC will write to you to confirm your new tax code within 7 days.</p>
+
+
+        <p>@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}", "See your updated company car information.")</p>
+        <p>More about @helpers.link("", "https://www.gov.uk/tax-codes", "tax codes", true) and @helpers.link("", "https://www.gov.uk/tax-company-benefits", "tax on company benefits", true).</p>
+
     }
-      <h2>Thanks.</h2>
-
-      <p>
-          Your tax code has changed from <span id="old-tax-code">@{removalData.oldTaxCode}</span>.
-          @if(removalData.newTaxCode.isDefined){
-            Your new tax code is <span id="new-tax-code">@{removalData.newTaxCode}</span>.
-          }
-      </p>
-
-      @if(removalData.personalAllowance.isDefined){
-        <p>This means that you will pay tax on anything you earn above <span id="personal-allowance">@pounds(removalData.personalAllowance.get)</span> between @{removalData.taxYearStart} and @{removalData.taxYearEnd}.</p>
-      }
-
-      <p>HMRC will send you a confirmation by post within a week.</p>
-
-      <p>If you have finished, you can @helpers.link("", s"${common.routes.LoginController.logout}", "log out of your GOV.UK account.")</p>
-
-}
 

@@ -83,7 +83,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         },
         removeBenefitData => {
           implicit def hc = HeaderCarrier(request)
-          keyStoreService.storeBenefitFormData(removeBenefitData).flatMap {_=>
+          keyStoreService.storeBenefitFormData(removeBenefitData).flatMap { _ =>
             removeBenefit(user, benefit, payeRootData, removeBenefitData)
           }
         }
@@ -126,8 +126,8 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
           val updatedBenefit = benefit.copy(benefits = benefits, benefitsInfo = benefitsInfo)
 
           keyStoreService.storeBenefitData(RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues)).map {
-          _=>
-            Ok(remove_benefit_confirm(aggregateSumOfRevisedBenefitAmounts, updatedBenefit)(user))
+            _ =>
+              Ok(remove_benefit_confirm(updatedBenefit)(user))
           }
         }
       }
