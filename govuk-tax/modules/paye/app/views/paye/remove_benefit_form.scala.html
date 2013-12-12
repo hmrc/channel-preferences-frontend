@@ -1,4 +1,4 @@
-@(displayBenefit: models.paye.DisplayBenefit, hasUnremovedCar: Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(displayBenefit: models.paye.DisplayBenefit, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
     @import views.formatting.Strings._
     @import config.RefData._
@@ -25,15 +25,6 @@
                 Some(""),
                 '_groupDivClass -> "form-field-group")
 
-
-            @if(displayBenefit.benefit.benefitType == uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes.FUEL && hasUnremovedCar) {
-                @singleCheckbox(
-                    updateForm("removeCar"),
-                    '_id -> "removeCar",
-                    '_inputClass -> "flush--left",
-                    '_label -> "I would also like to remove my car benefit.",
-                    '_showConstraints -> false)
-            }
             <div class="form-field">
                 <input class="button button--next flush--left" type="submit" value="Next" />
             </div>

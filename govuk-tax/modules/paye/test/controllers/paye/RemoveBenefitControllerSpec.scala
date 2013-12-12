@@ -39,7 +39,6 @@ import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import models.paye.RemoveBenefitFormData
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper with ScalaFutures {
 
@@ -96,7 +95,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
 
       doc.select(".benefit-type").text shouldBe "Your old company fuel benefit"
-      doc.select("label[for=removeCar]").text should include("I would also like to remove my car benefit.")
     }
   }
 
@@ -171,36 +169,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text should include("Invalid date: Return date cannot be before benefit was made available")
-    }
-  }
-
-  "Given a user who has car and fuel benefits, removing fuel and selecting the option to remove car benefit too" should {
-
-    "in step 2 allow the user to remove fuel and car together" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val withdrawDate = new LocalDate(2013, 12, 8)
-
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, withdrawDate)).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(20.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, withdrawDate)).thenReturn(fuelCalculationResult)
-
-
-      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, None, Some(withdrawDate), Some(true)), FUEL.toString, 2013, 2)
-
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#benefit-type-fuel").text should include("fuel")
-      doc.select("#benefit-type-car").text should include("car")
-      doc.select("#start-date-29").text shouldBe "10 September 2013"
-      doc.select("#start-date-31").text shouldBe "30 May 2013"
-      doc.select("#withdraw-date-29").text shouldBe "8 December 2013"
-      doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
-      doc.select("#apportioned-value-29").text shouldBe "£20"
-      doc.select("#apportioned-value-31").text shouldBe "£123"
-      doc.select("#allowance-increase").text shouldBe "£200"
     }
   }
 
@@ -436,7 +404,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carWithdrawDate = new LocalDate()
 
       val withdrawDate = new LocalDate(2013, 3, 9)
-      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("differentDateFuel"), Some(withdrawDate), None), "31", 2013, 2)
+      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("differentDateFuel"), Some(withdrawDate)), "31", 2013, 2)
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
@@ -449,32 +417,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
-    "in step 2, display the calculated value for removing fuel and car benefit on different correct values" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val carWithdrawDate = new LocalDate(2013, 12, 8)
-      val fuelWithdrawDate = carWithdrawDate.minusDays(1)
-
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, carWithdrawDate)).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(20.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, fuelWithdrawDate)).thenReturn(fuelCalculationResult)
-
-
-      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate), true, Some("differentDateFuel"), Some(fuelWithdrawDate)), "31", 2013, 2)
-
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select("h1").text should include("car and fuel")
-      doc.select("#start-date-31").text shouldBe "30 May 2013"
-      doc.select("#start-date-29").text shouldBe "10 September 2013"
-      doc.select("#withdraw-date-31").text shouldBe "8 December 2013"
-      doc.select("#withdraw-date-29").text shouldBe "7 December 2013"
-      doc.select("#apportioned-value-31").text shouldBe "£123"
-      doc.select("#apportioned-value-29").text shouldBe "£20"
-      doc.select("#allowance-increase").text shouldBe "£200"
-    }
     "in step 2, display the company car details and the date the car was given back" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
@@ -791,24 +733,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       verify(mockPayeConnector, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", 22, revisedBenefits, withdrawDate)
     }
 
-    "When posting the benefit removal form, remove car benefit too if requested" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(CAR)), Matchers.any[LocalDate]())(Matchers.eq(hc))).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(FUEL)), Matchers.any[LocalDate]())(Matchers.eq(hc))).thenReturn(fuelCalculationResult)
-
-      val withdrawDate = new LocalDate()
-      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, removeCar = Some(true)), FUEL.toString, 2013, 2)
-
-      status(result) shouldBe 200
-      val response = Jsoup.parse(contentAsString(result))
-      response.select("h1").text should include("fuel and car")
-      response.select(".amount").text shouldBe "£210"
-    }
-
     "When posting the benefit removal form, don t remove car benefit if not requested" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
@@ -931,11 +855,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   }
 
-  def requestBenefitRemovalFormSubmission(withdrawDate: Option[LocalDate], agreement: Boolean, fuelRadio: Option[String] = Some("sameDateFuel"), fuelWithdrawDate: Option[LocalDate] = None, removeCar: Option[Boolean] = Some(false)) =
+  def requestBenefitRemovalFormSubmission(withdrawDate: Option[LocalDate], agreement: Boolean, fuelRadio: Option[String] = Some("sameDateFuel"), fuelWithdrawDate: Option[LocalDate] = None) =
     requestWithCorrectVersion.withFormUrlEncodedBody(Seq(
       "agreement" -> agreement.toString.toLowerCase,
-      "fuelRadio" -> fuelRadio.getOrElse(""),
-      "removeCar" -> removeCar.getOrElse("").toString.toLowerCase)
+      "fuelRadio" -> fuelRadio.getOrElse(""))
       ++ buildDateFormField("fuelWithdrawDate", Some(localDateToTuple(fuelWithdrawDate)))
       ++ buildDateFormField("withdrawDate", Some(localDateToTuple(withdrawDate))): _*)
 }
