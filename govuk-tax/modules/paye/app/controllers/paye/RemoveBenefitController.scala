@@ -56,10 +56,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     }
 
 
-  private def getSecondBenefit(payeRootData: TaxYearData, mainBenefit: Benefit, removeCar: Boolean): Option[Benefit] = {
+  private def getSecondBenefit(payeRootData: TaxYearData, mainBenefit: Benefit): Option[Benefit] = {
     mainBenefit.benefitType match {
       case CAR => payeRootData.findActiveBenefit(mainBenefit.employmentSequenceNumber, FUEL)
-      case FUEL if removeCar => payeRootData.findActiveBenefit(mainBenefit.employmentSequenceNumber, CAR)
       case _ => None
     }
   }
@@ -74,7 +73,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
           now
           val result = benefit.benefit.benefitType match {
             case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
-            case FUEL => BadRequest(remove_benefit_form(benefit, hasUnremovedCarBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
+            case FUEL => BadRequest(remove_benefit_form(benefit, errors, currentTaxYearYearsRange)(user))
             case _ => {
               Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to the car benefit homepage")
               Redirect(routes.CarBenefitHomeController.carBenefitHome())
@@ -97,7 +96,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     val mainBenefitType = benefit.benefit.benefitType
     mainBenefitType match {
       case CAR | FUEL => {
-        val secondBenefit = getSecondBenefit(payeRootData, benefit.benefit, removeBenefitData.removeCar)
+        val secondBenefit = getSecondBenefit(payeRootData, benefit.benefit)
         val benefits = benefit.benefits ++ Seq(secondBenefit).filter(_.isDefined).map(_.get)
 
         val revisedAmountsF = benefits.map { benefit =>
@@ -240,10 +239,6 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
   private def hasUnremovedFuelBenefit(payeRootData: TaxYearData, employmentNumber: Int): Boolean = {
     payeRootData.findActiveBenefit(employmentNumber, FUEL).isDefined
-  }
-
-  private def hasUnremovedCarBenefit(payeRootData: TaxYearData, employmentNumber: Int): Boolean = {
-    payeRootData.findActiveBenefit(employmentNumber, CAR).isDefined
   }
 }
 
