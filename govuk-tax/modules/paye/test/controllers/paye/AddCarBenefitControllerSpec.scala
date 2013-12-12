@@ -31,7 +31,7 @@ import controllers.DateFieldsHelper
 import controllers.paye.CarBenefitFormFields._
 import CarBenefitDataBuilder._
 import controllers.common.actions.HeaderCarrier
-import controllers.paye.validation.{BenefitFlowHelper, AddBenefitFlow}
+import controllers.paye.validation.BenefitFlowHelper
 
 import models.paye.{CarAndFuelBuilder, CarBenefitData, CarBenefitDataAndCalculations}
 
@@ -79,18 +79,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       verify(mockKeyStoreService).getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("[id~=providedFrom]").select("[id~=day]") should not be empty
-      doc.select("#carUnavailable-true") should not be empty
-      doc.select("#carUnavailable-true").attr("checked") shouldBe empty
-
-      doc.select("#numberOfDaysUnavailable") should not be empty
-      doc.select("#numberOfDaysUnavailable").attr("value") shouldBe empty
-
-      doc.select("#carUnavailable-false") should not be empty
-      doc.select("#giveBackThisTaxYear-true") should not be empty
-      doc.select("#giveBackThisTaxYear-true").attr("checked") shouldBe empty
-
-      doc.select("#giveBackThisTaxYear-false") should not be empty
-      doc.select("[id~=providedTo]").select("[id~=day]") should not be empty
       doc.select("#listPrice") should not be empty
       doc.select("#listPrice").attr("value") shouldBe empty
 
@@ -188,13 +176,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     }
 
     "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {
-      assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), false, None, false, None)
-      assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), true, Some("15"), false, None)
-      assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime), false, None, true, Some(endOfTaxYearMinusOne))
-      assertSuccessfulDatesSubmitJohnDensmore(None, false, None, false, None)
-      assertSuccessfulDatesSubmitJohnDensmore(None, false, None, true, Some(endOfTaxYearMinusOne))
-      assertSuccessfulDatesSubmitJohnDensmore(None, true, Some("30"), true, Some(endOfTaxYearMinusOne))
-
+      assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime))
+      assertSuccessfulDatesSubmitJohnDensmore(None)
     }
 
     "return 200 for a successful combination of fields" in new WithApplication(FakeApplication()) {
@@ -274,30 +257,14 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      assertSuccessfulDatesSubmitWithTuple(None, false, Some("llama"), false, Some(("donkey", "", "")))
+      assertSuccessfulDatesSubmitWithTuple(None)
     }
 
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      assertFailedDatesSubmit(Some((s"$taxYear", "9", "18")), Some("true"), Some("150"), Some("true"), Some((s"$taxYear", "12", "31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
       assertFailedDatesSubmit(Some(("2012", "1", "1")), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), Some((s"$taxYear", "4", "5")), "error_q_3", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), Some((s"${taxYear + 1}", "4", "6")), "error_q_3", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(None, Some("false"), None, Some("true"), None, "error_q_3", "You must specify when you will be returning your company car.")
       assertFailedDatesSubmit(Some(localDateToTuple(Some(now.plusDays(8)))), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date, which is not more than 7 days in future from today.")
-      assertFailedDatesSubmit(Some((s"$taxYear", "9", "18")), Some("true"), Some("250"), Some("false"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
-      assertFailedDatesSubmit(Some((s"$taxYear", "9", "18")), Some("true"), None, Some("true"), Some((s"$taxYear", "9", "17")), "error_q_3", "You cannot return your car before you get it.")
-      assertFailedDatesSubmit(None, Some("true"), Some("300"), Some("true"), Some((s"$taxYear", "12", "31")), "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
-      assertFailedDatesSubmit(None, Some("true"), Some("367"), Some("true"), None, "error_q_2", "Car cannot be unavailable for longer than the total time you have a company car for.")
-      assertFailedDatesSubmit(None, Some("true"), None, Some("false"), None, "error_q_2", "You must specify the number of consecutive days the car has been unavailable.")
-
-      assertFailedDatesSubmit(None, Some("true"), Some("1367"), Some("false"), None, "error_q_2", "Please enter a number of 3 characters or less.")
-      assertFailedDatesSubmit(None, Some("true"), Some("9.5"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
-      assertFailedDatesSubmit(None, Some("true"), Some("&@^adsf"), Some("false"), None, "error_q_2", "Please use whole numbers only, not decimals or other characters.")
-
-      assertFailedDatesSubmit(Some(("2012", "1", "1")), None, None, Some("false"), None, "error_q_2", "Please answer this question.")
-      assertFailedDatesSubmit(Some(("2012", "1", "1")), Some("false"), None, None, None, "error_q_3", "Please answer this question.")
 
       assertFailedDatesSubmit(Some((s"$taxYear", "5", "")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "17")), "error_q_1", "You must specify a valid date")
       assertFailedDatesSubmit(Some((s"$taxYear", "", "1")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "17")), "error_q_1", "You must specify a valid date")
@@ -306,12 +273,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       assertFailedDatesSubmit(Some((s"$taxYear", "13", "1")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "17")), "error_q_1", "You must specify a valid date")
       assertFailedDatesSubmit(Some(("2asd", "", "")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "17")), "error_q_1", "You must specify a valid date")
 
-      assertFailedDatesSubmit(Some((s"$taxYear", "10", "18")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some((s"$taxYear", "10", "18")), Some("true"), None, Some("true"), Some((s"$taxYear", "", "22")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some((s"$taxYear", "10", "18")), Some("true"), None, Some("true"), Some(("", "22", "10")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some((s"$taxYear", "10", "18")), Some("true"), None, Some("true"), Some((s"$taxYear", "13", "2")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some((s"$taxYear", "10", "18")), Some("true"), None, Some("true"), Some((s"$taxYear", "12", "32")), "error_q_3", "You must specify a valid date")
-      assertFailedDatesSubmit(Some((s"$taxYear", "10", "18")), Some("true"), None, Some("true"), Some(("adssda", "", "")), "error_q_3", "You must specify a valid date")
     }
 
     "return 200 when listPrice form data validates successfully" in new WithApplication(FakeApplication()) {
@@ -419,7 +380,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the selected option in the car registered date question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some((taxYear.toString, "5", "29")), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(providedFromVal = Some(("3000", "1", "1")), carRegistrationDateVal = Some((taxYear.toString, "5", "29")))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -455,7 +416,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the selected option in the FUEL TYPE question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -478,7 +439,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the selected option in the CO2 FIGURE question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -501,7 +462,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the checkbox elected for the CO2 NO VALUE option if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("true"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(providedFromVal = Some(("3000", "1", "1")), co2NoFigureVal = Some("true"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -525,7 +486,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("none"), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("none"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -557,7 +518,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the selected option in the EMPLOYER PAY FUEL question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some((taxYear.toString, "05", "30")), carUnavailableVal = None)
+      val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(taxYear.toString, "05", "30"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -591,38 +552,22 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
                                 errorId: String,
                                 errorMessage: String) {
 
-      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
-        providedFromVal, carUnavailableVal, numberOfDaysUnavailableVal,
-        giveBackThisTaxYearVal, providedToVal), taxYear, employmentSeqNumberOne))
+      val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(providedFromVal), taxYear, employmentSeqNumberOne))
 
       assertFailure(result, errorId, errorMessage)
     }
 
-    def assertSuccessfulDatesSubmitJohnDensmore(providedFromVal: Option[LocalDate],
-                                                carUnavailableVal: Boolean,
-                                                numberOfDaysUnavailableVal: Option[String],
-                                                giveBackThisTaxYearVal: Boolean,
-                                                providedToVal: Option[LocalDate]) {
+    def assertSuccessfulDatesSubmitJohnDensmore(providedFromVal: Option[LocalDate]) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq.empty, List.empty, List.empty)
-      assertSuccessfulDatesSubmitWithTuple(providedFromVal, carUnavailableVal, numberOfDaysUnavailableVal, giveBackThisTaxYearVal, Some(localDateToTuple(providedToVal)))
+      assertSuccessfulDatesSubmitWithTuple(providedFromVal)
     }
 
-    def assertSuccessfulDatesSubmitWithTuple(providedFromVal: Option[LocalDate],
-                                             carUnavailableVal: Boolean,
-                                             numberOfDaysUnavailableVal: Option[String],
-                                             giveBackThisTaxYearVal: Boolean,
-                                             providedToVal: Option[(String, String, String)]) {
+    def assertSuccessfulDatesSubmitWithTuple(providedFromVal: Option[LocalDate]) {
 
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(
-        Some(localDateToTuple(providedFromVal)),
-        Some(carUnavailableVal).map(_.toString), numberOfDaysUnavailableVal,
-        Some(giveBackThisTaxYearVal).map(_.toString), providedToVal), taxYear, employmentSeqNumberOne))
+        Some(localDateToTuple(providedFromVal))), taxYear, employmentSeqNumberOne))
 
-      val daysUnavailable = try {numberOfDaysUnavailableVal.map(_.toInt)} catch {case _: Throwable => None}
-
-      val expectedStoredData = CarBenefitDataBuilder(providedFrom = providedFromVal, carUnavailable = Some(carUnavailableVal),
-        numberOfDaysUnavailable = daysUnavailable,
-        giveBackThisTaxYear = Some(giveBackThisTaxYearVal), providedTo = tupleToLocalDate(providedToVal))
+      val expectedStoredData = CarBenefitDataBuilder(providedFrom = providedFromVal)
       assertSuccess(result, expectedStoredData)
     }
 
@@ -713,7 +658,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val result = controller.reviewAddCarBenefitAction(johnDensmore,
         newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
           providedFromVal = None,
-          providedToVal = None,
           fuelTypeVal = Some(fuelType),
           engineCapacityVal = None,
           co2NoFigureVal = None,
@@ -750,7 +694,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore,
         newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
           providedFromVal = None,
-          providedToVal = None,
           fuelTypeVal = Some(fuelType),
           engineCapacityVal = Some(engineCapacity.toString),
           co2NoFigureVal = None,
@@ -776,8 +719,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = controller.currentTaxYear
       val carBenefitData = new CarBenefitData(providedFrom = None,
-        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None, listPrice = Some(1000),
+        carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
+        listPrice = Some(1000),
         employeeContributes = Some(true),
         employeeContribution = Some(50),
         employerContributes = Some(true),
@@ -805,8 +748,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = controller.currentTaxYear
       val carBenefitData = new CarBenefitData(providedFrom = Some(new LocalDate(taxYear, 7, 29)),
-        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = Some(new LocalDate(taxYear, 8, 30)), listPrice = Some(1000),
+        carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
+        listPrice = Some(1000),
         employeeContributes = Some(false),
         employeeContribution = None,
         employerContributes = Some(true),
@@ -829,12 +772,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedFrom]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
-      doc.select("#carUnavailable-true").attr("checked") shouldBe "checked"
-      doc.select("#numberOfDaysUnavailable").attr("value") shouldBe "1"
-      doc.select("#giveBackThisTaxYear-true").attr("checked") shouldBe "checked"
-      doc.select("[id~=providedTo]").select("[id~=day-30]").attr("selected") shouldBe "selected"
-      doc.select("[id~=providedTo]").select("[id~=month-8]").attr("selected") shouldBe "selected"
-      doc.select("[id~=providedTo]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
       doc.select("#listPrice").attr("value") shouldBe "1000"
       doc.select("#employeeContributes-true").attr("checked") shouldBe empty
       doc.select("#employeeContribution").attr("value") shouldBe empty
@@ -847,9 +784,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#fuelType-other").attr("checked") shouldBe "checked"
       doc.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
       doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-29]").attr("selected") shouldBe "selected"
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=month-8]").attr("selected") shouldBe "selected"
-      doc.select("[id~=dateFuelWithdrawn]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
 
@@ -860,8 +794,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = controller.currentTaxYear
       val carBenefitData = new CarBenefitData(providedFrom = Some(new LocalDate(taxYear, 7, 29)),
-        carUnavailable = Some(false), numberOfDaysUnavailable = None,
-        giveBackThisTaxYear = Some(false), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None, listPrice = Some(1000),
+        carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
+        listPrice = Some(1000),
         employeeContributes = Some(true),
         employeeContribution = Some(100),
         employerContributes = Some(true),
@@ -884,9 +818,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedFrom]").select(s"[id~=year-$taxYear]").attr("selected") shouldBe "selected"
-      doc.select("#carUnavailable-false").attr("checked") shouldBe "checked"
-      doc.select("#numberOfDaysUnavailable").attr("value") shouldBe ""
-      doc.select("#giveBackThisTaxYear-false").attr("checked") shouldBe "checked"
       doc.select("#listPrice").attr("value") shouldBe "1000"
       doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
       doc.select("#employeeContribution").attr("value") shouldBe "100"
@@ -920,9 +851,10 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
   "confirm submission of add car benefit" should {
 
-    val carBenefitDataAndCalculations = CarBenefitDataAndCalculations(CarBenefitData(providedFrom = None,
-      carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-      giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None, listPrice = Some(1000),
+    val carBenefitDataAndCalculations = CarBenefitDataAndCalculations(CarBenefitData(
+      providedFrom = None,
+      carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
+      listPrice = Some(1000),
       employeeContributes = Some(true),
       employeeContribution = Some(50),
       employerContributes = Some(true),
@@ -962,8 +894,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       setupMocksForJohnDensmore()
 
       val carBenefitData: CarBenefitData = CarBenefitData(providedFrom = None,
-        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None, listPrice = Some(1000),
+        carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
+        listPrice = Some(1000),
         employeeContributes = Some(true),
         employeeContribution = Some(50),
         employerContributes = Some(true),
@@ -985,7 +917,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       status(result) shouldBe 200
 
       val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
-        dateCarWithdrawn = carBenefitData.providedTo,
+        dateCarWithdrawn = None,
         dateCarRegistered = carBenefitData.carRegistrationDate,
         employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
         fuelType = carBenefitData.fuelType,
@@ -994,7 +926,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         mileageBand = None,
         carValue = carBenefitData.listPrice.map(BigDecimal(_)),
         employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
-        daysUnavailable = carBenefitData.numberOfDaysUnavailable
+        daysUnavailable = None
       )
       val benefit = Benefit(benefitType = CAR,
         taxYear = taxYear,
@@ -1006,7 +938,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         expensesIncurred = None,
         amountOfRelief = None,
         paymentOrBenefitDescription = None,
-        dateWithdrawn = carBenefitData.providedTo,
+        dateWithdrawn = None,
         car = Some(car),
         actions = Map.empty[String, String],
         calculations = Map.empty[String, String])
@@ -1019,8 +951,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       setupMocksForJohnDensmore()
 
       val carBenefitData = CarBenefitData(providedFrom = None,
-        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None, listPrice = Some(1000),
+        carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
+        listPrice = Some(1000),
         employeeContributes = Some(true),
         employeeContribution = Some(50),
         employerContributes = Some(true),
@@ -1042,7 +974,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       status(result) shouldBe 200
 
       val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
-        dateCarWithdrawn = carBenefitData.providedTo,
+        dateCarWithdrawn = None,
         dateCarRegistered = carBenefitData.carRegistrationDate,
         employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
         fuelType = carBenefitData.fuelType,
@@ -1051,7 +983,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         mileageBand = None,
         carValue = carBenefitData.listPrice.map(BigDecimal(_)),
         employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
-        daysUnavailable = carBenefitData.numberOfDaysUnavailable
+        daysUnavailable = None
       )
       val carBenefit = Benefit(benefitType = CAR,
         taxYear = taxYear,
@@ -1063,7 +995,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         expensesIncurred = None,
         amountOfRelief = None,
         paymentOrBenefitDescription = None,
-        dateWithdrawn = carBenefitData.providedTo,
+        dateWithdrawn = None,
         car = Some(car),
         actions = Map.empty[String, String],
         calculations = Map.empty[String, String])
@@ -1089,8 +1021,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "show the confirmation page with the correct tax codes and allowance" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
       val carBenefitDataAndCalculations = CarBenefitDataAndCalculations(CarBenefitData(providedFrom = None,
-        carUnavailable = Some(true), numberOfDaysUnavailable = Some(1),
-        giveBackThisTaxYear = Some(true), carRegistrationDate = Some(new LocalDate(1950, 9, 13)), providedTo = None, listPrice = Some(1000),
+        carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
+        listPrice = Some(1000),
         employeeContributes = Some(true),
         employeeContribution = Some(50),
         employerContributes = Some(true),
@@ -1138,10 +1070,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
   }
 
   private def newRequestForSaveAddCarBenefit(providedFromVal: Option[(String, String, String)] = Some(localDateToTuple(Some(defaultProvidedFrom))),
-                                             carUnavailableVal: Option[String] = Some(defaultCarUnavailable.toString),
-                                             numberOfDaysUnavailableVal: Option[String] = defaultNumberOfDaysUnavailable,
-                                             giveBackThisTaxYearVal: Option[String] = Some(defaultGiveBackThisTaxYear.toString),
-                                             providedToVal: Option[(String, String, String)] = defaultProvidedTo,
                                              listPriceVal: Option[String] = Some(defaultListPrice.toString),
                                              employeeContributesVal: Option[String] = Some(defaultEmployeeContributes.toString),
                                              employeeContributionVal: Option[String] = defaultEmployeeContribution,
@@ -1157,9 +1085,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
                                              path: String = "") = {
 
     FakeRequest("GET", path).withFormUrlEncodedBody(Seq(
-      carUnavailable -> carUnavailableVal.getOrElse(""),
-      numberOfDaysUnavailable -> numberOfDaysUnavailableVal.getOrElse(""),
-      giveBackThisTaxYear -> giveBackThisTaxYearVal.getOrElse(""),
       listPrice -> listPriceVal.getOrElse(""),
       employeeContributes -> employeeContributesVal.getOrElse(""),
       employeeContribution -> employeeContributionVal.getOrElse(""),
@@ -1172,7 +1097,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       employerPayFuel -> employerPayFuelVal.getOrElse(""))
       ++ buildDateFormField(providedFrom, providedFromVal)
       ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal)
-      ++ buildDateFormField(providedTo, providedToVal)
       ++ buildDateFormField(carRegistrationDate, carRegistrationDateVal): _*).
       withSession((BenefitFlowHelper.npsVersionKey, johnDensmoreVersionNumber.toString))
   }
@@ -1210,11 +1134,7 @@ object CarBenefitDataBuilder {
   val defaultDateFuelWithdrawn = None
 
   def apply(providedFrom: Option[LocalDate] = Some(defaultProvidedFrom),
-            carUnavailable: Option[Boolean] = Some(defaultCarUnavailable),
-            numberOfDaysUnavailable: Option[Int] = defaultNumberOfDaysUnavailable,
-            giveBackThisTaxYear: Option[Boolean] = Some(defaultGiveBackThisTaxYear),
             carRegistrationDate: Option[LocalDate] = Some(defaultCarRegistrationDate),
-            providedTo: Option[LocalDate] = defaultProvidedTo,
             listPrice: Option[Int] = Some(defaultListPrice),
             employeeContributes: Option[Boolean] = Some(defaultEmployeeContributes),
             employeeContribution: Option[Int] = defaultEmployeeContribution,
@@ -1228,11 +1148,7 @@ object CarBenefitDataBuilder {
             dateFuelWithdrawn: Option[LocalDate] = defaultDateFuelWithdrawn) = {
 
     CarBenefitData(providedFrom = providedFrom,
-      carUnavailable = carUnavailable,
-      numberOfDaysUnavailable = numberOfDaysUnavailable,
-      giveBackThisTaxYear = giveBackThisTaxYear,
       carRegistrationDate = carRegistrationDate,
-      providedTo = providedTo,
       listPrice = listPrice,
       employeeContributes = employeeContributes,
       employeeContribution = employeeContribution,
