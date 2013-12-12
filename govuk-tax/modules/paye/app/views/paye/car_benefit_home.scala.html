@@ -39,9 +39,7 @@
             @for(carAndFuelBenefit <- previousCarBenefits.zipWithIndex) {
                 @display_car_and_fuel(carAndFuelBenefit._1, employerNameString, Some(carAndFuelBenefit._2.toString))
             }
-        } else {
-            <p>You do not have any previous company car benefit.</p>
-        }
+        } 
 
             <h2>Make Changes</h2>
             <p>
