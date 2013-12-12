@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{Session, Request, AnyContent, SimpleResult}
+import play.api.mvc.{Request, Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
@@ -33,11 +33,18 @@ with PayeRegimeRoots {
   def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
       implicit request =>
-        assembleCarBenefitData(user.getPaye, currentTaxYear).map {
-          details =>
-            buildHomePageResponse(details.map(buildHomePageParams(_, carAndFuelBenefitTypes, currentTaxYear))).
-              withSession(sessionWithNpsVersion(request.session))
+        assembleCarBenefitData(user.getPaye, currentTaxYear).map { details: RawTaxData =>
+          carBenefitHomeAction(details).withSession(sessionWithNpsVersion(request.session))
         }
+  }
+
+  def cannotPlayInBeta = UnauthorisedAction { request =>
+    Ok(cannot_play_in_beta())
+  }
+
+  def carBenefitHomeAction(details: RawTaxData)(implicit user: User): SimpleResult = {
+    if (details.employments.size != 1 || details.cars.filter(_.isActive).size > 1) SeeOther(routes.CarBenefitHomeController.cannotPlayInBeta.url)
+    else buildHomePageResponse(buildHomePageParams(details, carAndFuelBenefitTypes, currentTaxYear))
   }
 
   private[paye] def sessionWithNpsVersion(session: Session)(implicit user: User) =
@@ -54,36 +61,21 @@ with PayeRegimeRoots {
     }
   }
 
-  private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[Option[CarBenefitDetails]] = {
-    payeRoot.fetchTaxYearData(taxYear).flatMap {
-      taxYearData =>
-        taxYearData.findPrimaryEmployment.map {
-          primaryEmployment =>
-            retrieveHomepageData(payeRoot, taxYear).map {
-              data =>
-                CarBenefitDetails(data._1, data._2, data._3, data._4, data._5, taxYearData, primaryEmployment)
-            }
-        }
-    }
-  }
-
-  private[paye] def retrieveHomepageData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier) = {
-    val f1 = payeRoot.fetchRecentAcceptedTransactions
-    val f2 = payeRoot.fetchRecentCompletedTransactions
-    val f3 = payeRoot.fetchTaxCodes(taxYear)
-    val f4 = payeRoot.fetchEmployments(taxYear) //TODO: Do we really need to get employments again?
+  private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[RawTaxData] = {
+    val f1 = payeRoot.fetchTaxYearData(taxYear)
+    val f2 = payeRoot.fetchRecentAcceptedTransactions
+    val f3 = payeRoot.fetchRecentCompletedTransactions
+    val f4 = payeRoot.fetchTaxCodes(taxYear)
 
     for {
-      acceptedTransactions <- f1
-      completedTransactions <- f2
-      taxCodes <- f3
-      employments <- f4
-    } yield {
-      (employments, taxYear, taxCodes, acceptedTransactions, completedTransactions)
-    }
+      taxYearData <- f1
+      acceptedTransactions <- f2
+      completedTransactions <- f3
+      taxCodes <- f4
+    } yield RawTaxData(taxYear, taxYearData.cars, taxYearData.employments, taxCodes, acceptedTransactions, completedTransactions)
   }
 
-  private[paye] def buildHomePageParams(details: CarBenefitDetails, benefitTypes: Set[Int], taxYear: Int): HomePageParams = {
+  private[paye] def buildHomePageParams(details: RawTaxData, benefitTypes: Set[Int], taxYear: Int): Option[HomePageParams] = {
     val employmentViews = EmploymentViews.createEmploymentViews(details.employments,
       details.taxCodes,
       details.taxYear,
@@ -91,12 +83,21 @@ with PayeRegimeRoots {
       details.acceptedTransactions,
       details.completedTransactions)
 
-    val carBenefit = details.currentTaxYearData.cars.filter(_.isActive).headOption
-    val previousCars = details.currentTaxYearData.cars.filterNot(_.isActive)
+    val carBenefit = details.cars.filter(_.isActive).headOption
+    val previousCars = details.cars.filterNot(_.isActive)
 
-    HomePageParams(carBenefit, details.employment.employerName, details.employment.sequenceNumber, taxYear, employmentViews, previousCars)
+    details.employments.find(_.employmentType == Employment.primaryEmploymentType).map { primaryEmployment =>
+      HomePageParams(carBenefit, primaryEmployment.employerName, primaryEmployment.sequenceNumber, taxYear, employmentViews, previousCars)
+    }
   }
 }
+
+case class RawTaxData(taxYear: Int,
+                      cars: Seq[CarAndFuel],
+                      employments: Seq[Employment],
+                      taxCodes: Seq[TaxCode],
+                      acceptedTransactions: Seq[TxQueueTransaction],
+                      completedTransactions: Seq[TxQueueTransaction])
 
 case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
                           employerName: Option[String],
@@ -104,11 +105,3 @@ case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
                           currentTaxYear: Int,
                           employmentViews: Seq[EmploymentView],
                           previousCarBenefits: Seq[CarAndFuel])
-
-private[paye] case class CarBenefitDetails(employments: Seq[Employment],
-                                           taxYear: Int,
-                                           taxCodes: Seq[TaxCode],
-                                           acceptedTransactions: Seq[TxQueueTransaction],
-                                           completedTransactions: Seq[TxQueueTransaction],
-                                           currentTaxYearData: TaxYearData,
-                                           employment: Employment)

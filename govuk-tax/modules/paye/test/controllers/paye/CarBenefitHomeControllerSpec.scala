@@ -2,19 +2,20 @@ package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.paye.domain._
-import org.mockito.Mockito._
 import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
 import play.api.test.Helpers._
-import org.scalautils.Fail
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import play.api.test.{WithApplication, FakeApplication}
+import play.api.test.WithApplication
 import org.scalatest.concurrent.ScalaFutures
 import models.paye.EmploymentViews
 import play.api.mvc.Session
+import org.joda.time.LocalDate
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 
 //TODO: Create a separate test case for the public method (carBenefitHome)
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with ScalaFutures {
@@ -47,59 +48,26 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     }
   }
 
-  "calling assembleCarBenefitData" should {
-    "return a populated CarBenefitDetails with values returned from Paye Connector calls" in {
-      val mockPayeRoot = mock[PayeRoot]
-
-      val employments = johnDensmoresOneEmployment()
-      val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
-      val taxCodes = johnDensmoresTaxCodes
-      val acceptedTransactions = Seq(removedCarTransaction)
-      val completedTransactions = Seq(removedFuelTransaction)
-
-      when(mockPayeRoot.fetchTaxYearData(testTaxYear)).thenReturn(taxYearData)
-      when(mockPayeRoot.fetchRecentAcceptedTransactions).thenReturn(acceptedTransactions)
-      when(mockPayeRoot.fetchRecentCompletedTransactions).thenReturn(completedTransactions)
-      when(mockPayeRoot.fetchTaxCodes(testTaxYear)).thenReturn(taxCodes)
-      when(mockPayeRoot.fetchEmployments(testTaxYear)).thenReturn(employments)
-
-      val actualCarBenefitDetails = controller.assembleCarBenefitData(mockPayeRoot, testTaxYear)
-
-      whenReady(actualCarBenefitDetails) { carBenefitData =>
-        carBenefitData match {
-          case Some(actualBenefitData) => {
-            actualBenefitData.acceptedTransactions shouldBe acceptedTransactions
-            actualBenefitData.completedTransactions shouldBe completedTransactions
-            actualBenefitData.employments shouldBe employments
-            actualBenefitData.taxCodes shouldBe taxCodes
-            actualBenefitData.employment shouldBe employments.head
-            actualBenefitData.taxYear shouldBe testTaxYear
-          }
-          case _ => Fail("Car Benefit Data was not as expected!")
-        }
-      }
-    }
-  }
-
   "calling buildHomePageParams" should {
     "return a populated HomePageParams with the expected values" in {
 
       val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
-      val employments = johnDensmoresOneEmployment()
+      val employments = johnDensmoresEmployments
       val carBenefit = carBenefitEmployer1
-      val taxYearData = TaxYearData(Seq(CarAndFuel(carBenefit)), employments)
+      val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
       val taxCodes = johnDensmoresTaxCodes
       val acceptedTransactions = Seq(removedCarTransaction)
       val completedTransactions = Seq(removedFuelTransaction)
 
-      val benefitDetails = CarBenefitDetails(employments, testTaxYear, taxCodes, acceptedTransactions,
-        completedTransactions, taxYearData, employments.head)
+      val benefitDetails = RawTaxData(testTaxYear, cars, employments, taxCodes, acceptedTransactions,
+        completedTransactions)
 
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 
-      actualHomePageParams should have(
+      actualHomePageParams shouldNot be(None)
+
+      actualHomePageParams.get should have(
         'activeCarBenefit(Some(CarAndFuel(carBenefit))),
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
@@ -109,7 +77,29 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val expectedEmploymentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
         benefitTypes, acceptedTransactions, completedTransactions)
 
-      actualHomePageParams.employmentViews.head shouldBe expectedEmploymentViews.head
+      actualHomePageParams.get.employmentViews.head shouldBe expectedEmploymentViews.head
+    }
+
+    "return none when there is no active employment" in {
+      val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
+
+      val employments = Seq(
+        Employment(sequenceNumber = 2, startDate = new LocalDate(testTaxYear, 7, 2),
+          endDate = Some(new LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898",
+          payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = 2))
+
+      val carBenefit = carBenefitEmployer1
+      val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
+      val taxCodes = johnDensmoresTaxCodes
+      val acceptedTransactions = Seq(removedCarTransaction)
+      val completedTransactions = Seq(removedFuelTransaction)
+
+      val benefitDetails = RawTaxData(testTaxYear, cars, employments, taxCodes, acceptedTransactions,
+        completedTransactions)
+
+      val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
+
+      actualHomePageParams shouldBe None
     }
   }
 
@@ -126,6 +116,48 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val session = controller.sessionWithNpsVersion(stubSession)(johnDensmore)
 
       session.get("foo") shouldBe Some("bar")
+    }
+  }
+
+  trait BaseData {
+    def carBenefit = carBenefitEmployer1
+    def cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
+    def employments = johnDensmoresOneEmployment(1)
+    def rawTaxData = RawTaxData(2013, cars, employments, Seq.empty, Seq.empty, Seq.empty)
+
+  }
+
+  "carBenefitHomeAction" should {
+    implicit val user = johnDensmore
+    "return car_benefit_home view when user is accepted for beta (HMTB-2250)" in new WithApplication(FakeApplication()) with BaseData {
+      val response = controller.carBenefitHomeAction(rawTaxData)
+
+      status(response) shouldBe 200
+    }
+
+    "return failure view when user has multiple employments" in new WithApplication(FakeApplication()) with BaseData {
+      override val employments = johnDensmoresEmployments
+
+      val response = controller.carBenefitHomeAction(rawTaxData)
+
+      status(response) shouldBe 303
+      redirectLocation(response).get shouldBe routes.CarBenefitHomeController.cannotPlayInBeta.url
+    }
+    "return failure view when user has no employments" in new WithApplication(FakeApplication()) with BaseData {
+      override val employments = Seq.empty
+
+      val response = controller.carBenefitHomeAction(rawTaxData)
+
+      status(response) shouldBe 303
+      redirectLocation(response).get shouldBe routes.CarBenefitHomeController.cannotPlayInBeta.url
+    }
+    "return failure view when user has multiple active cars" in new WithApplication(FakeApplication()) with BaseData {
+      override val cars = Seq(CarAndFuel(carBenefit), CarAndFuel(carBenefit))
+
+      val response = controller.carBenefitHomeAction(rawTaxData)
+
+      status(response) shouldBe 303
+      redirectLocation(response).get shouldBe routes.CarBenefitHomeController.cannotPlayInBeta.url
     }
   }
 }
