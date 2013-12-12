@@ -27,6 +27,12 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
   val addFuelLinkId = "add-fuel-link"
   val taxYear = 2013
   val employmentSeqNumber = 1
+  val removeActionName = "removed"
+  val addActionName = "added"
+  val carBenefitName = "car"
+  val fuelBenefitName = "fuel"
+  val carAndFuelBenefitName = "car and fuel"
+  val todaysDate = "2 December 2012"
 
   val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
@@ -258,14 +264,16 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val doc = Jsoup.parse(contentAsString(result))
       val recentChanges = doc.select(".overview__actions__done").text
       val employerName = companyName.get
-      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from $employerName. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On 2 December 2012, you removed your company car benefit from $employerName. This has been processed and your new Tax Code is 430L. $employerName have been notified.")
 
-      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from $employerName. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On 2 December 2012, you removed your company fuel benefit from $employerName. This has been processed and your new Tax Code is 430L. $employerName have been notified.")
+      recentChanges should include(s"On $todaysDate you $removeActionName your $carBenefitName from $employerName. This is being processed. HMRC will write to you to confirm your new tax code within 7 days.")
+      recentChanges should include(s"On $todaysDate you $removeActionName your $carBenefitName from $employerName. This has been completed.")
 
-      recentChanges should include(s"On 2 December 2012, you added your company fuel benefit from $employerName. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On 2 December 2012, you added your company fuel benefit from $employerName. This has been processed and your new Tax Code is 430L. $employerName have been notified.")
+      recentChanges should include(s"On $todaysDate you $removeActionName your $fuelBenefitName from $employerName. This is being processed. HMRC will write to you to confirm your new tax code within 7 days.")
+      recentChanges should include(s"On $todaysDate you $removeActionName your $fuelBenefitName from $employerName. This has been completed.")
+
+      recentChanges should include(s"On $todaysDate you $addActionName your $fuelBenefitName from $employerName. This is being processed. HMRC will write to you to confirm your new tax code within 7 days.")
+      recentChanges should include(s"On $todaysDate you $addActionName your $fuelBenefitName from $employerName. This has been completed.")
+
       doc.select(".no_actions") shouldBe empty
     }
 
@@ -274,14 +282,14 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       override val acceptedTransactions = Seq(addCarTransaction)
       override val completedTransactions = Seq(addCarTransaction)
 
-
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
       val recentChanges = doc.select(".overview__actions__done").text
       val employerName = companyName.get
-      recentChanges should include(s"On 2 December 2012, you added your company car benefit from $employerName. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"On 2 December 2012, you added your company car benefit from $employerName. This has been processed and your new Tax Code is 430L. $employerName have been notified.")
+
+      recentChanges should include(s"On $todaysDate you $addActionName your $carBenefitName from $employerName. This is being processed. HMRC will write to you to confirm your new tax code within 7 days.")
+      recentChanges should include(s"On $todaysDate you $addActionName your $carBenefitName from $employerName. This has been completed.")
 
       recentChanges should containSentences(5)
     }
@@ -302,6 +310,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val addCar2AndFuel2CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
       val removeCar2AndFuel2AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
       val addCar3AndFuel4AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"))
+      val employerName1: String = "Weyland-Yutani Corp"
 
       override val fuelBenefit = Some(fuelBenefitEmployer1)
       override val acceptedTransactions = Seq(removeCar2AndFuel2AcceptedTransaction, addCar3AndFuel4AcceptedTransaction)
@@ -311,10 +320,13 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       val recentChanges = doc.select(".overview__actions__done").text
-      recentChanges should include(s"On 2 December 2012, you added your company car and fuel benefit from Weyland-Yutani Corp. This is being processed and you will receive a new Tax Code within 2 days.")
-      recentChanges should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp.")
-      recentChanges should include(s"On 2 December 2012, you added your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
-      recentChanges should include(s"2 December 2012, you removed your company car and fuel benefit from Weyland-Yutani Corp. This has been processed and your new Tax Code is 430L. Weyland-Yutani Corp have been notified.")
+
+
+      recentChanges should include(s"On $todaysDate you $addActionName your $carAndFuelBenefitName from $employerName1. This is being processed. HMRC will write to you to confirm your new tax code within 7 days.")
+      recentChanges should include(s"On $todaysDate you $removeActionName your $carAndFuelBenefitName from $employerName1. This is being processed. HMRC will write to you to confirm your new tax code within 7 days.")
+
+      recentChanges should include(s"On $todaysDate you $addActionName your $carAndFuelBenefitName from $employerName1. This has been completed.")
+      recentChanges should include(s"On $todaysDate you $removeActionName your $carAndFuelBenefitName from $employerName1. This has been completed.")
     }
 
     "display a suitable message for John Densmore if there are no transactions" in new WithApplication(FakeApplication()) with BaseData {
