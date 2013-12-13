@@ -3,7 +3,29 @@
 @import views.formatting.Dates._
 @import views.formatting.Strings._
 @import params._
+@import views.formatting.Money._
 @import views.html.paye.display_car_and_fuel
+@import uk.gov.hmrc.utils.TaxYearResolver.endOfCurrentTaxYear
+@import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
+
+@id(idString: String)(implicit idSuffix: Option[String]) = {@idSuffix.map(suffix =>s"$idString-$suffix").getOrElse(idString)}
+
+@carAmountsRow(carName : String, carAndFuel: CarAndFuel)(implicit idSuffix: Option[String] = None) = {
+    <tr>
+        <td id="@id("car-name")">@carName</td>
+        @carAndFuel.carBenefit.car.map { car =>
+            @car.dateCarMadeAvailable.map { dateCarMadeAvailable =>
+                <td id="@id("car-available")">@formatDate(dateCarMadeAvailable) to @formatDate(car.dateCarWithdrawn.getOrElse(endOfCurrentTaxYear))</td>
+            }
+        }
+        <td id="@id("car-gross-amount")">@pounds(carAndFuel.carBenefit.grossAmount)</td>
+        @carAndFuel.fuelBenefit.map { fuelBenefit =>
+            <td id="@id("fuel-gross-amount")">@pounds(fuelBenefit.grossAmount)</td>
+        }.getOrElse {
+            <td id="@id("fuel-gross-amount")">£0</td>
+        }
+    </tr>
+}
 
 @main(title = "Your tax home", user = Some(user)) {
     <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
@@ -71,4 +93,30 @@
             }
         }
     }
+    <h2>You car and fuel benefits for the @{currentTaxYear}-@{currentTaxYear + 1} tax year</h2>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="1">Car</th>
+                <th colspan="1">Dates</th>
+                <th colspan="1">Car benefit</th>
+                <th colspan="1">Fuel benefit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @activeCarBenefit.map { carAndFuel =>
+                @carAmountsRow("Current car", carAndFuel)
+            }
+            @for(carAndFuel <- previousCarBenefits.zipWithIndex) {
+                @carAmountsRow("Previous car", carAndFuel._1)(Some(carAndFuel._2.toString))
+            }
+            @if(previousCarBenefits.length > 0) {
+                <tr>
+                    <td colspan="2" id="total-amounts">Total for the @{currentTaxYear}-@{currentTaxYear + 1} tax year</td>
+                    <td id="total-car-amount">@pounds(totalCarBenefitAmount)</td>
+                    <td id="total-fuel-amount">@pounds(totalFuelBenefitAmount)</td>
+                </tr>
+             }
+        </tbody>
+    </table>
 }

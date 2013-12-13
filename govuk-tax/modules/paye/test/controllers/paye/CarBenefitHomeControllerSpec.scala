@@ -36,7 +36,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     implicit val user = johnDensmore
     "return a status 200 (OK) when HomePageParams are available" in new WithApplication(FakeApplication()) {
       val homePageParams = HomePageParams(activeCarBenefit = None, employerName = None,
-        employmentSequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty, previousCarBenefits = Seq.empty)
+        employmentSequenceNumber = employmentSeqNumber, currentTaxYear = testTaxYear, employmentViews = Seq.empty, previousCarBenefits = Seq.empty, totalCarBenefitAmount, totalFuelBenefitAmount)
 
       val actualResponse = controller.buildHomePageResponse(Some(homePageParams))
       status(actualResponse) should be(200)
@@ -69,7 +69,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
         'activeCarBenefit(Some(CarAndFuel(carBenefit))),
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
-        'employmentSequenceNumber(1)
+        'employmentSequenceNumber(1),
+        'totalCarBenefitAmount(BigDecimal(321.42)),
+        'totalFuelBenefitAmount(BigDecimal(0))
       )
 
       val expectedEmploymentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
@@ -96,6 +98,37 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
 
       actualHomePageParams shouldBe None
+    }
+
+    "add all car and fuel gross amounts correctly" in {
+
+      val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
+
+      val carBenefit = carBenefitEmployer1.copy(grossAmount = BigDecimal(105.7))
+      val carBenefit2 = carBenefitEmployer1.copy(grossAmount = BigDecimal(205.7), car = Some(carBenefitEmployer1.car.get.copy(dateCarWithdrawn = Some(new LocalDate(2012, 10, 10)))))
+      val carBenefit3 = carBenefitEmployer1.copy(grossAmount = BigDecimal(305), car = Some(carBenefitEmployer1.car.get.copy(dateCarWithdrawn = Some(new LocalDate(2012, 10, 10)))))
+      val carBenefit4 = carBenefitEmployer1.copy(grossAmount = BigDecimal(600), car = Some(carBenefitEmployer1.car.get.copy(dateCarWithdrawn = Some(new LocalDate(2012, 10, 10)))))
+
+      val fuelBenefit = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
+      val fuelBenefit2 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(65.32))
+      val fuelBenefit3 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(75.4))
+
+      val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit, Some(fuelBenefit)),
+                                      CarAndFuel(carBenefit2, Some(fuelBenefit2)),
+                                      CarAndFuel(carBenefit3, Some(fuelBenefit3)),
+                                      CarAndFuel(carBenefit4, None))
+
+      val benefitDetails = RawTaxData(testTaxYear, cars, johnDensmoresEmployments, Seq(), Seq())
+
+      val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
+
+      actualHomePageParams shouldNot be(None)
+
+      actualHomePageParams.get should have(
+        'totalCarBenefitAmount(BigDecimal(1216.4)),
+        'totalFuelBenefitAmount(BigDecimal(195.93))
+      )
+
     }
   }
 

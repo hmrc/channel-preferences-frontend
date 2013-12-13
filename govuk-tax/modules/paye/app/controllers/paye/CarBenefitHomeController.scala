@@ -86,8 +86,18 @@ with PayeRegimeRoots {
     val carBenefit = details.cars.find(_.isActive)
     val previousCars = details.cars.filterNot(_.isActive)
 
+    val activeCarGrossAmount = carBenefit.map(_.carBenefit.grossAmount).getOrElse(BigDecimal(0))
+    val carBenefitTaxYearTotal = previousCars.foldLeft[BigDecimal](activeCarGrossAmount) {
+       (totalSoFar : BigDecimal, carAndFuel : CarAndFuel) => carAndFuel.carBenefit.grossAmount + totalSoFar
+    }
+
+    val activeFuelGrossAmount = carBenefit.flatMap(_.fuelBenefit.map(_.grossAmount)).getOrElse(BigDecimal(0))
+    val fuelBenefitTaxYearTotal = previousCars.foldLeft[BigDecimal](activeFuelGrossAmount) {
+       (totalSoFar : BigDecimal, carAndFuel : CarAndFuel) => carAndFuel.fuelBenefit.map(_.grossAmount).getOrElse(BigDecimal(0)) + totalSoFar
+    }
+
     details.employments.find(_.employmentType == Employment.primaryEmploymentType).map { primaryEmployment =>
-      HomePageParams(carBenefit, primaryEmployment.employerName, primaryEmployment.sequenceNumber, taxYear, employmentViews, previousCars)
+      HomePageParams(carBenefit, primaryEmployment.employerName, primaryEmployment.sequenceNumber, taxYear, employmentViews, previousCars, carBenefitTaxYearTotal, fuelBenefitTaxYearTotal)
     }
   }
 }
@@ -103,4 +113,6 @@ case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
                           employmentSequenceNumber: Int,
                           currentTaxYear: Int,
                           employmentViews: Seq[EmploymentView],
-                          previousCarBenefits: Seq[CarAndFuel])
+                          previousCarBenefits: Seq[CarAndFuel],
+                          totalCarBenefitAmount: BigDecimal,
+                          totalFuelBenefitAmount: BigDecimal)

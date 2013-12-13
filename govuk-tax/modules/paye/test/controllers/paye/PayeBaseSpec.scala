@@ -73,6 +73,9 @@ trait PayeBaseSpec extends BaseSpec {
     carBenefitEmployer1,
     Some(fuelBenefitEmployer1)))
 
+  val totalCarBenefitAmount = BigDecimal(378)
+  val totalFuelBenefitAmount = BigDecimal(110)
+
   val johnDensmoreOid = "jdensmore"
 
   val johnDensmore = setupUser(s"/auth/oid/$johnDensmoreOid", "AB123456C", "John Densmore")
