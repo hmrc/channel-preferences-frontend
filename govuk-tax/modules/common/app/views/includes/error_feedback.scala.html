@@ -2,16 +2,17 @@
     <a class="report-error__toggle" href> Is there anything wrong with this page?</a>
     <div class="report-error__content visuallyhidden">
         <p>Please don't include any personal or financial information, for example your National Insurance or credit card numbers.</p>
-        <form action="/error-reports" method="GET">
+        <form action="@common.routes.ErrorReportsController.report" method="POST">
             <fieldset>
                 <div class="form-field">
-                    <label for="what_doing"><strong>What were you doing?</strong></label>
-                    <input class="input--fullwidth" name="what_doing" type="text">
+                    <label for="action"><strong>What were you doing?</strong></label>
+                    <input class="input--fullwidth" name="action" type="text">
                 </div>
                 <div class="form-field">
-                    <label for="what_wrong"><strong>What went wrong?</strong></label>
-                    <input class="input--fullwidth" name="what_wrong"  type="text">
+                    <label for="error"><strong>What went wrong?</strong></label>
+                    <input class="input--fullwidth" name="error"  type="text">
                 </div>
+                <input type="hidden" name="isJavascript" value="false"/>
                 <div class="form-field">
                     <button class="button" type="submit">Send</button>
                 </div>

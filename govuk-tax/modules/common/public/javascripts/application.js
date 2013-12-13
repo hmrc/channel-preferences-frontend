@@ -135,15 +135,14 @@ GOVUK.ReportAProblem = function () {
         $submitButton.attr("disabled", false);
       },
       showConfirmation = function (data) {
-		var response = "<h2>Thank you for your Help</h2>"+
-					   "<p>If you have more extensive feedback, please visit the <a href=''>contact page</a></p>";
-			$reportErrorContainer.html(response);
+			$reportErrorContainer.html(data.message);
       },
       submit = function ($form, url) {
         $.ajax({
           type: "POST",
           url: url,
           datatype: 'json',
+          data: $form.serialize(),
           beforeSend: function () {
             var isValid = true;
             $("input", $form).each(function () {
@@ -252,6 +251,9 @@ GOVUK.ReportAProblem = function () {
           e.preventDefault();
       });
       var $errorReportForm = $('.report-error__content form');
+      //we have javascript enabled so change hidden input to reflect this
+      $errorReportForm.find('input[name="isJavascript"]').attr("value", true);
+
       $errorReportForm.submit(function(e){
       	GOVUK.ReportAProblem.submitForm($(this), $errorReportForm.attr("action"));
       	e.preventDefault();
