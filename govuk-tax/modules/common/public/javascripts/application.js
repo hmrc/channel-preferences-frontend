@@ -99,6 +99,89 @@
       }
     });
   };
+  // allow the user to report page errors
+GOVUK.ReportAProblem = function () {
+    var $reportErrorContainer = $('.report-error__content'),
+      $submitButton = $reportErrorContainer.find('.button'),
+      validationErrors = {
+      	what_doing : '<p class="error-notification">Please enter details of what you were doing.</p>',
+      	what_wrong : '<p class="error-notification">Please enter details of what went wrong.</p>'
+
+      },
+      showErrorMessage = function () {
+        var response = "<h2>Sorry, we're unable to receive your message right now.</h2> " +
+          			   "<p>We have other ways for you to provide feedback on the " +
+          			   "<a href='/feedback'>support page</a>.</p>";
+
+        $reportErrorContainer.html(response);
+      },
+      promptUserToEnterValidData = function ($input) {
+			if (!$input.parent().find('.error-notification').length) {
+          		$(validationErrors[$input.attr("name")]).insertBefore($input);
+  	        	$input.parent().addClass('error');
+        	}
+
+      },
+      clearError = function ($input) {
+          $input.removeData("error")
+          	.parent().removeClass('error')
+          		.find('.error-notification').remove();
+
+      },
+      disableSubmitButton = function () {
+        $submitButton.attr("disabled", true);
+      },
+      enableSubmitButton = function () {
+        $submitButton.attr("disabled", false);
+      },
+      showConfirmation = function (data) {
+		var response = "<h2>Thank you for your Help</h2>"+
+					   "<p>If you have more extensive feedback, please visit the <a href=''>contact page</a></p>";
+			$reportErrorContainer.html(response);
+      },
+      submit = function ($form, url) {
+        $.ajax({
+          type: "POST",
+          url: url,
+          datatype: 'json',
+          beforeSend: function () {
+            var isValid = true;
+            $("input", $form).each(function () {
+              if ($(this).val() === "") {
+
+                if (!$(this).data("error")) {
+                  $(this).data("error", true);
+                  promptUserToEnterValidData($(this));
+                }
+                isValid = false;
+              } else {
+              	// clear errors if any
+                if ($(this).data("error")) {
+                  clearError($(this));
+                }
+              }
+            });
+            return isValid;
+          },
+          success: function (data) {
+			showConfirmation(data);
+          },
+          error: function (jqXHR, status) {
+            if (status === 'error' || !jqXHR.responseText) {
+              if (jqXHR.status === 422) {
+                promptUserToEnterValidData();
+              } else {
+                showErrorMessage();
+              }
+            }
+          }
+        });
+      };
+    return {
+      submitForm: submit
+    };
+  }();
+
   var fingerprint = new Mdtpdf({
         screen_resolution: true
       }),
@@ -162,6 +245,19 @@
     //initialise stageprompt for Analytics
     //TODO: Enable once we set up Goggle Analytics
     //GOVUK.performance.stageprompt.setupForGoogleAnalytics();
+
+    // toggle for reporting a problem (on all content pages)
+      $('.report-error__toggle').on('click', function(e) {
+        $('.report-error__content').toggleClass("visuallyhidden");
+          e.preventDefault();
+      });
+      var $errorReportForm = $('.report-error__content form');
+      $errorReportForm.submit(function(e){
+      	GOVUK.ReportAProblem.submitForm($(this), $errorReportForm.attr("action"));
+      	e.preventDefault();
+      });
+
+
     $('.print-link a').attr('target', '_blank');
     // header search toggle
     $('.js-header-toggle').on('click', function (e) {
