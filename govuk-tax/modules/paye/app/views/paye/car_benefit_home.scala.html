@@ -32,14 +32,6 @@
          <p>You do not have an existing company car benefit.</p>
         }
 
-        @if(previousCarBenefits.length > 0) {
-            <h2>Previous cars in this tax year</h2>
-
-            @for(carAndFuelBenefit <- previousCarBenefits.zipWithIndex) {
-                @display_car_and_fuel(carAndFuelBenefit._1, employerNameString, Some(carAndFuelBenefit._2.toString))
-            }
-        } 
-
         <h2>Make Changes</h2>
         <p>
             You can make the following changes to the information HMRC has about your company car
@@ -70,5 +62,13 @@
             </div>
         }
         <p>If you do not need to make any changes you can @helpers.link("", s"${common.routes.LoginController.logout}", "log out from your account").</p>
+
+         @if(previousCarBenefits.length > 0) {
+            <h2>Previous cars in this tax year</h2>
+
+            @for(carAndFuelBenefit <- previousCarBenefits.zipWithIndex) {
+                @display_car_and_fuel(carAndFuelBenefit._1, employerNameString, Some(carAndFuelBenefit._2.toString))
+            }
+        }
     }
 }
