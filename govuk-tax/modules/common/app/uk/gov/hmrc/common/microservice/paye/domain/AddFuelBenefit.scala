@@ -5,5 +5,4 @@ import org.joda.time.LocalDate
 case class AddFuelBenefitConfirmationData(employerName: Option[String],
                                           providedFrom: Option[LocalDate],
                                           employerPayFuel: String,
-                                          dateFuelWithdrawn: Option[LocalDate],
-                                          carFuelBenefitValue: BenefitValue)
+                                          dateFuelWithdrawn: Option[LocalDate])
