@@ -24,62 +24,10 @@
                 <td>Private fuel</td><td> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}
             </td></tr>
             }
-            @if(data.carBenefitValue.isDefined){
-            <tr>
-                <td>Car benefit taxable value</td><td><span id="car-benefit-taxable-value">@pounds(data.carBenefitValue.get.taxableValue)</span></td>
-            </tr>
-            }
-            @if(data.carFuelBenefitValue.isDefined){
-            <tr>
-                <td>Fuel benefit taxable value</td><td><span id="fuel-benefit-taxable-value">@pounds(data.carFuelBenefitValue.get.taxableValue)</span></td>
-            </tr>
-            }
-
             </tbody>
         </table>
 
         @helpers.link("edit-data", currentUri, "This information is wrong")
-        @if(data.carFuelBenefitValue.isDefined){
-            <p>Based on the information your company car benefit value is @pounds(data.carBenefitValue.get.taxableValue) and your private fuel benefit value is @pounds(data.carFuelBenefitValue.get.taxableValue).</p>
-            <p>In order to calculate the actual tax you will pay on these benefits, we need to add them to your other income and tax information, and recalculate your tax code.</p>
-         } else {
-            <p>Based on the information your company car benefit value is @pounds(data.carBenefitValue.get.taxableValue).</p>
-            <p>In order to calculate the actual tax you will pay on this benefit, we need to add it to your other income and tax information, and recalculate your tax code.</p>
-        }
-        <p>However the following provides an indication of the tax you will pay if you are a basic rate (20%), higher rate (40%) or additional rate (45%) taxpayer:</p>
-
-         <table>
-            <thead>
-            <tr>
-                <th>@{s"${currentTaxYearYearsRange(0)}/${currentTaxYearYearsRange(1)}"}</th>
-                <th>20%</th>
-                <th>40%</th>
-                <th>45%</th>
-             </tr>
-            </thead>
-
-             <tbody>
-
-             @if(data.carBenefitValue.isDefined){
-             <tr>
-                 <td>Company car benefit tax</td>
-                 <td>@pounds(data.carBenefitValue.get.basicRateValue, 2)</td>
-                 <td>@pounds(data.carBenefitValue.get.higherRateValue, 2)</td>
-                 <td>@pounds(data.carBenefitValue.get.additionalRateValue, 2)</td>
-             </tr>
-             }
-             @if(data.carFuelBenefitValue.isDefined){
-             <tr>
-                 <td>Private fuel tax</td>
-                 <td>@pounds(data.carFuelBenefitValue.get.basicRateValue, 2)</td>
-                 <td>@pounds(data.carFuelBenefitValue.get.higherRateValue, 2)</td>
-                 <td>@pounds(data.carFuelBenefitValue.get.additionalRateValue, 2)</td>
-             </tr>
-             }
-             </tbody>
-         </table>
-
-
     }
 
   @helper.form(action = controllers.paye.routes.AddCarBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
