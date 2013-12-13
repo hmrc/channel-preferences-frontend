@@ -3,59 +3,132 @@ package controllers.paye.validation
 import play.api.data.Forms._
 import org.joda.time.{Interval, LocalDate}
 import controllers.common.validators.Validators
-import models.paye.CarFuelBenefitDates
-import play.api.data.Mapping
+import play.api.data.{Mapping, Form}
+import uk.gov.hmrc.utils.DateTimeUtils._
+import models.paye.{RemoveCarBenefitFormData, CarFuelBenefitDates}
+import scala.Some
 
 object RemoveBenefitValidator extends Validators {
 
+  private[paye] case class RemoveCarBenefitFormDataValues(withdrawDateVal: Option[LocalDate],
+                                                       carUnavailableVal: Option[String],
+                                                       numberOfDaysUnavailableVal: Option[String] = None,
+                                                       employeeContributesVal: Option[String],
+                                                       employeeContributionVal: Option[String] = None,
+                                                       fuelDateChoiceVal: Option[String],
+                                                       fuelWithdrawDateVal: Option[LocalDate] = None)
+  private[paye] object RemoveCarBenefitFormDataValues {
+    def apply(data: RemoveCarBenefitFormData): RemoveCarBenefitFormDataValues = {
+      RemoveCarBenefitFormDataValues(
+        Some(data.withdrawDate),
+        data.carUnavailable.map{_.toString},
+        data.numberOfDaysUnavailable.map{_.toString},
+        data.employeeContributes.map{_.toString},
+        data.employeeContribution.map{_.toString},
+        data.fuelDateChoice,
+        data.fuelWithdrawDate
+      )
+    }
+  }
+
+  private[paye] def validationlessForm = Form[RemoveCarBenefitFormDataValues](
+    mapping(
+      "withdrawDate" -> dateTuple(validate = false),
+      "carUnavailable" -> optional(text),
+      "numberOfDaysUnavailable" -> optional(text),
+      "employeeContributes" -> optional(text),
+      "employeeContribution" -> optional(text),
+      "fuelRadio" -> optional(text),
+      "fuelWithdrawDate" -> dateTuple(validate = false)
+    )(RemoveCarBenefitFormDataValues.apply)(RemoveCarBenefitFormDataValues.unapply)
+  )
+
   private[paye] val FUEL_DIFFERENT_DATE = "differentDateFuel"
 
-  private[paye] def validateFuelDateChoice(carBenefitWithUnremoved:Boolean) = optional(text)
+  private[paye] def validateMandatoryBoolean: Mapping[Option[Boolean]] = optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
+
+  private[paye] def validateNumberOfDaysUnavailable(values: Option[RemoveCarBenefitFormDataValues], benefitStartDate: LocalDate, taxYearInterval: Interval): Mapping[Option[Int]] = {
+    values.flatMap(s => s.carUnavailableVal.map(_.toBoolean)) match {
+    case Some(true) => {
+      optional(number
+        .verifying("error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0", n => n > 0)
+        .verifying("error.paye.remove_car_benefit.question2.number_max_3_chars", n => n <= 999)
+        .verifying("error.paye.remove_car_benefit.question2.car_unavailable_too_long", unavailableDays => acceptableNumberOfDays(unavailableDays, values, benefitStartDate, taxYearInterval))
+      ).verifying("error.paye.remove_car_benefit.question2.missing_days_unavailable", data => data.isDefined)
+    }
+    case _ => ignored(None)
+  }
+  }
+
+  private def acceptableNumberOfDays(numberOfDays: Int, values: Option[RemoveCarBenefitFormDataValues], benefitStartDate: LocalDate, taxYearInterval: Interval): Boolean = {
+    numberOfDays < daysBetween(benefitStartDate, getEndDate(values, taxYearInterval))
+  }
+
+  private def getEndDate(values: Option[RemoveCarBenefitFormDataValues], taxYearInterval: Interval) = values.flatMap(v => v.withdrawDateVal).getOrElse(taxYearInterval.getEnd.toLocalDate)
+
+  private[paye] def validateEmployeeContribution(values: Option[RemoveCarBenefitFormDataValues]): Mapping[Option[Int]] =
+    values.flatMap(s => s.employeeContributesVal.map(_.toBoolean)) match {
+      case Some(true) => optional(number
+        .verifying("error.paye.remove_car_benefit.question3.number_max_5_chars", e => e <= 99999)
+        .verifying("error.paye.remove_car_benefit.question3.number_less_than_0", data => data > 0))
+        .verifying("error.paye.remove_car_benefit.question3.missing_employee_contribution", data => data.isDefined)
+      case _ => ignored(None)
+    }
+
+  private[paye] def validateFuelDateChoice(carBenefitWithUnremoved: Boolean) = optional(text)
     .verifying("error.paye.benefit.choice.mandatory", fuelDateChoice => verifyFuelDate(fuelDateChoice, carBenefitWithUnremoved))
 
-  private[paye] def localDateMapping(benefitStartDate:Option[LocalDate], today: LocalDate, taxYearInterval:Interval) = mandatoryDateTuple("error.paye.benefit.date.mandatory")
+  private[paye] def localDateMapping(benefitStartDate: Option[LocalDate], today: LocalDate, taxYearInterval: Interval) = mandatoryDateTuple("error.paye.benefit.date.mandatory")
     .verifying("error.paye.benefit.date.next.taxyear", date => date.isBefore(taxYearInterval.getEnd.toLocalDate))
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(today))
     .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(taxYearInterval.getStart.toLocalDate.minusDays(1)))
     .verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
 
-  private[paye] def validateFuelDate(dates:Option[CarFuelBenefitDates], benefitStartDate:Option[LocalDate], taxYearInterval:Interval) : Mapping[Option[LocalDate]] = dates.get.fuelDateType.getOrElse("") match {
+  private[paye] def validateFuelDate(dates: Option[CarFuelBenefitDates], benefitStartDate: Option[LocalDate], taxYearInterval: Interval): Mapping[Option[LocalDate]] = dates.get.fuelDateType.getOrElse("") match {
     case FUEL_DIFFERENT_DATE => dateTuple
-    .verifying("error.paye.benefit.date.mandatory",  data => if(dates.isDefined) {checkFuelDate(dates.get.fuelDateType, data)} else true)
-    .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => if(dates.isDefined) { !isAfterIfDefined(data, dates.get.carDate)} else true)
-    .verifying("error.paye.benefit.date.previous.taxyear", data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) { isAfterIfDefined(data , Some(taxYearInterval.getStart.toLocalDate.minusDays(1)))} else true)
-    .verifying("error.paye.benefit.date.previous.startdate", data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) { isAfterIfDefined(data, benefitStartDate)} else true)
+      .verifying("error.paye.benefit.date.mandatory", data => if (dates.isDefined) {
+      checkFuelDate(dates.get.fuelDateType, data)
+    } else true)
+      .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => if (dates.isDefined) {
+      !isAfterIfDefined(data, dates.get.carDate)
+    } else true)
+      .verifying("error.paye.benefit.date.previous.taxyear", data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) {
+      isAfterIfDefined(data, Some(taxYearInterval.getStart.toLocalDate.minusDays(1)))
+    } else true)
+      .verifying("error.paye.benefit.date.previous.startdate", data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) {
+      isAfterIfDefined(data, benefitStartDate)
+    } else true)
     case _ => ignored(None)
   }
 
-  private[paye] def differentDateForFuel(dateOption:Option[String]):Boolean = {
+  private[paye] def differentDateForFuel(dateOption: Option[String]): Boolean = {
     dateOption match {
       case Some(a) if a == FUEL_DIFFERENT_DATE => true
       case _ => false
     }
   }
 
-  private def isAfterIfDefined(left:Option[LocalDate], right:Option[LocalDate]):Boolean = {
+  private def isAfterIfDefined(left: Option[LocalDate], right: Option[LocalDate]): Boolean = {
     left match {
       case Some(aDate) => isAfter(aDate, right)
       case _ => true
     }
   }
 
-  private def verifyFuelDate(fuelDateChoice:Option[Any], carBenefitWithUnremoved:Boolean):Boolean = {
-    if(carBenefitWithUnremoved){
+  private def verifyFuelDate(fuelDateChoice: Option[Any], carBenefitWithUnremoved: Boolean): Boolean = {
+    if (carBenefitWithUnremoved) {
       fuelDateChoice.isDefined
     } else true
   }
 
-  private def isAfter(withdrawDate:LocalDate, startDate:Option[LocalDate]) : Boolean = {
+  private def isAfter(withdrawDate: LocalDate, startDate: Option[LocalDate]): Boolean = {
     startDate match {
       case Some(dateOfStart) => withdrawDate.isAfter(dateOfStart)
       case _ => true
     }
   }
 
-  private def checkFuelDate (optionFuelDate:Option[String], date:Option[LocalDate]):Boolean = {
+  private def checkFuelDate(optionFuelDate: Option[String], date: Option[LocalDate]): Boolean = {
     optionFuelDate match {
       case Some(a) if a == FUEL_DIFFERENT_DATE && date.isEmpty => false
       case _ => true

@@ -7,15 +7,15 @@ import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 import play.api.data.Form
 import play.api.data.Forms._
 import controllers.paye.validation.RemoveBenefitValidator._
-import models.paye.{RemoveBenefitFormData, CarFuelBenefitDates}
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
-import scala.Some
 import play.api.mvc.Request
 import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import scala.concurrent.Future
+import models.paye.{RemoveFuelBenefitFormData, CarFuelBenefitDates, RemoveCarBenefitFormData}
+import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
+import scala.Some
 
 
 object RemovalUtils {
@@ -27,15 +27,26 @@ object RemovalUtils {
   private final val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
   private final val dateRegex = """(\d\d\d\d-\d\d-\d\d)""".r
 
-  def updateBenefitForm(benefitStartDate: LocalDate,
+  def updateRemoveCarBenefitForm(values: Option[RemoveCarBenefitFormDataValues],
+                        benefitStartDate: LocalDate,
                         carBenefitWithUnremovedFuelBenefit: Boolean,
                         dates: Option[CarFuelBenefitDates],
-                        now: DateTime, taxYearInterval:Interval) = Form[RemoveBenefitFormData](
+                        now: DateTime, taxYearInterval:Interval) = Form[RemoveCarBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval),
+      "carUnavailable" -> validateMandatoryBoolean,
+      "numberOfDaysUnavailable" -> validateNumberOfDaysUnavailable(values, benefitStartDate, taxYearInterval),
+      "employeeContributes" -> validateMandatoryBoolean,
+      "employeeContribution" -> validateEmployeeContribution(values),
       "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
       "fuelWithdrawDate" -> validateFuelDate(dates, Some(benefitStartDate), taxYearInterval)
-    )(RemoveBenefitFormData.apply)(RemoveBenefitFormData.unapply)
+    )(RemoveCarBenefitFormData.apply)(RemoveCarBenefitFormData.unapply)
+  )
+
+  def updateRemoveFuelBenefitForm(benefitStartDate: LocalDate, now: DateTime, taxYearInterval:Interval) = Form[RemoveFuelBenefitFormData](
+    mapping(
+      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval)
+    )(RemoveFuelBenefitFormData.apply)(RemoveFuelBenefitFormData.unapply)
   )
 
   def getStartDate(benefit: Benefit): LocalDate = {
@@ -48,6 +59,15 @@ object RemovalUtils {
     benefitStartDate match {
       case Some(dateOfBenefitStart) if dateOfBenefitStart.isAfter(TaxYearResolver.startOfCurrentTaxYear) => dateOfBenefitStart
       case _ => TaxYearResolver.startOfCurrentTaxYear
+    }
+  }
+
+  def getDatesFromDefaults(defaults: Option[RemoveCarBenefitFormData]): Option[CarFuelBenefitDates] = {
+    defaults.map {
+      formData =>
+        CarFuelBenefitDates(Some(formData.withdrawDate), formData.fuelDateChoice)
+    }.orElse {
+      Some(CarFuelBenefitDates(None, None))
     }
   }
 
@@ -70,12 +90,16 @@ object RemovalUtils {
   val benefitDataActionId = "RemoveBenefitData"
 
   implicit class BenefitKeyStore(keyStoreService: KeyStoreConnector) {
-    def storeBenefitFormData(benefitFormData: RemoveBenefitFormData)(implicit hc: HeaderCarrier) = {
+    def storeBenefitFormData(benefitFormData: RemoveCarBenefitFormData)(implicit hc: HeaderCarrier) = {
+      keyStoreService.addKeyStoreEntry(benefitFormDataActionId, KeystoreUtils.source, keystoreKey, benefitFormData)
+    }
+
+    def storeBenefitFormData(benefitFormData: RemoveFuelBenefitFormData)(implicit hc: HeaderCarrier) = {
       keyStoreService.addKeyStoreEntry(benefitFormDataActionId, KeystoreUtils.source, keystoreKey, benefitFormData)
     }
 
     def loadBenefitFormData(implicit hc: HeaderCarrier) = {
-      keyStoreService.getEntry[RemoveBenefitFormData](benefitFormDataActionId, KeystoreUtils.source, keystoreKey)
+      keyStoreService.getEntry[RemoveCarBenefitFormData](benefitFormDataActionId, KeystoreUtils.source, keystoreKey)
     }
 
     def clearBenefitFormData(implicit hc: HeaderCarrier): Unit = {

@@ -77,4 +77,23 @@ paye.add_car_benefit.employer_pay_fuel.true=Yes, private fuel is available when 
 paye.add_car_benefit.employer_pay_fuel.again={0} stopped providing fuel for private use after 5 April but has now started again
 paye.add_car_benefit.employer_pay_fuel.date={0} did pay for fuel for private travel, but stopped paying on
 
+paye.remove_car_benefit.h1=Tell HMRC about a change to your company car
+paye.remove_car_benefit.h2.company_info=' no longer supply a company car.
+paye.remove_car_benefit.benefit_type=Your old company car
+paye.remove_car_benefit.question1=When did you give back your old company car?
+paye.remove_car_benefit.question2=Did you at any time not have access to the car since 6 April? Only answer if it was for 30 days or
+paye.remove_car_benefit.question2.no=No
+paye.remove_car_benefit.question2.yes=Yes: for
+paye.remove_car_benefit.question4.fuel_benefit_info=Note, removing your company car benefit will also remove your fuel benefit.
+paye.remove_car_benefit.question4=Did you give up your fuel before you gave back the car?
+paye.remove_car_benefit.question4.same_time=I gave them up at the same time.
+paye.remove_car_benefit.question4.different_time=I gave up my fuel on:
+paye.remove_car_benefit.question2.days=days
 
+error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0=Days unavailable must be greater than zero if you have selected yes.
+error.paye.remove_car_benefit.question2.number_max_3_chars=Please enter a number of 3 characters or less.
+error.paye.remove_car_benefit.question2.car_unavailable_too_long=Car cannot be unavailable for longer than the total time you have a company car for.
+error.paye.remove_car_benefit.question2.missing_days_unavailable=You must specify the number of consecutive days the car has been unavailable.
+error.paye.remove_car_benefit.question3.number_max_5_chars=Please enter a number of 5 characters or less.
+error.paye.remove_car_benefit.question3.number_less_than_0=Employee payment must be greater than zero if you have selected yes.
+error.paye.remove_car_benefit.question3.missing_employee_contribution=You must specify how much you paid your employer for private use of the company car.

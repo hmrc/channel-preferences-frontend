@@ -1,4 +1,4 @@
-@(displayBenefit: models.paye.DisplayBenefit, hasFuelBenefit:Boolean, updateForm: Form[models.paye.RemoveBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(displayBenefit: models.paye.DisplayBenefit, hasFuelBenefit:Boolean, updateForm: Form[models.paye.RemoveCarBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Dates._
 @import org.joda.time.LocalDate
@@ -11,40 +11,67 @@
 @import views.helpers._
 
 @main(title = "Remove your company benefit", user = Some(user)) {
-<h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
-<h2><span class="employer-name">@displayBenefit.employment.employerName</span> no longer supply a company car</h2>
-@defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-<h2 class="benefit-type">Your old company car</h2>
-}
-
-
-    <p>If <span class="employer-name">@displayBenefit.employment.employerName</span> have stopped providing you with a company car, you can remove the car from your taxable benefits.</p>
+    <h1><span class="pre-heading">service</span>@Messages("paye.remove_car_benefit.h1")</h1>
+    <h2><span class="employer-name">@displayBenefit.employment.employerName</span>@Messages("paye.remove_car_benefit.h2.company_info")</h2>
+    <h2 class="benefit-type">@Messages("paye.remove_car_benefit.benefit_type")</h2>
 
     @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
 
-        @helpers.dateFields(updateForm,
-                                "withdrawDate",
-                                "Date you gave back the car:",
-                                currentTaxYearYearsRange,
-				Some(""),
-                                '_groupDivClass -> "form-field-group")
-        @if(hasFuelBenefit){
+        <ol class="list--numbered">
+            <li>
+                @helpers.dateFields(updateForm,
+                                    "withdrawDate",
+                                    Messages("paye.remove_car_benefit.question1"),
+                                    currentTaxYearYearsRange,
+                                    Some(""),
+                                    '_groupDivClass -> "form-field-group")
+            </li>
 
-                <p class="fuel-benefit-info" >We will also remove your fuel benefit.</p>
+            <li>
+                @helpers.fieldGroup(updateForm,
+                                    Seq(
+                                        FormField(updateForm("carUnavailable"), Seq(
+                                            RadioButton("false", Messages("paye.remove_car_benefit.question2.no"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+                                            RadioButton("true", Messages("paye.remove_car_benefit.question2.yes"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+                                        FormField(updateForm("numberOfDaysUnavailable"), Seq(
+                                            InputType("text", "", Messages("paye.remove_car_benefit.question2.days"), Some("form-field--inline js-input--contextual"), Some(""), Some("input--xsmall"))))
+                                    ),
+                                    '_label -> Messages("paye.remove_car_benefit.question2"),
+                                    '_groupDivClass -> "form-field-group  js-includes-contextual",
+                                    '_valueAfter -> true)
+            </li>
 
-                 @helpers.fieldGroup(
-                    updateForm,
-                    Seq(
-                        FormField(updateForm("fuelRadio"), Seq(
-                            InputType("radio", "sameDateFuel", "I gave them up at the same time", Some("form-field"), Some("label--inlineRadio-right"), Some("flush--left")),
-                            InputType("radio", "differentDateFuel", "I gave my fuel on:", Some("form-field--inline"), Some("label--inlineRadio-right"), Some("flush--left")))),
-                        FormField(updateForm("fuelWithdrawDate"), Seq(DateControl(currentTaxYearYearsRange)))
-                    ),
-                    '_label -> "Did you give back your fuel before you gave back the car?",
-                    '_groupDivClass -> "form-field-group",
-                    '_valueAfter -> true
+            <li>
+                @helpers.fieldGroup(updateForm,
+                                    Seq(
+                                        FormField(updateForm("employeeContributes"), Seq(
+                                            RadioButton("false", "Nothing", Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+                                            RadioButton("true", "£", Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+                                        FormField(updateForm("employeeContribution"), Seq(InputType("text", "", "between 6 April 2013 and giving the car back", Some("form-field--inline js-input--contextual"), Some(""), Some("input--xsmall"))))
+                ),
+                '_label -> "How much have you paid your employer for private use of the company car?",
+                '_groupDivClass -> "form-field js-includes-contextual",
+                '_valueAfter -> true
                 )
-        }
+            </li>
+
+             @if(hasFuelBenefit){
+            <li>
+                <p class="fuel-benefit-info" >@Messages("paye.remove_car_benefit.question4.fuel_benefit_info")</p>
+
+                @helpers.fieldGroup(updateForm,
+                                    Seq(
+                                        FormField(updateForm("fuelRadio"), Seq(
+                                            InputType("radio", "sameDateFuel", Messages("paye.remove_car_benefit.question4.same_time"), Some("form-field"), Some("label--inlineRadio-right"), Some("flush--left")),
+                                            InputType("radio", "differentDateFuel", Messages("paye.remove_car_benefit.question4.different_time"), Some("form-field--inline"), Some("label--inlineRadio-right"), Some("flush--left")))),
+                                        FormField(updateForm("fuelWithdrawDate"), Seq(DateControl(currentTaxYearYearsRange)))
+                                    ),
+                                    '_label -> Messages("paye.remove_car_benefit.question4"),
+                                    '_groupDivClass -> "form-field-group",
+                                    '_valueAfter -> true)
+            </li>
+            }
+        </ol>
         <div class="form-field">
             <input class="button button--next flush--left" type="submit" value="Next" />
         </div>

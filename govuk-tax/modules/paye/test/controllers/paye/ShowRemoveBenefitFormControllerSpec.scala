@@ -22,7 +22,8 @@ class ShowRemoveBenefitFormControllerSpec extends PayeBaseSpec with MockedTaxYea
 
       val benefit = DisplayBenefit(johnDensmoresEmployments(0), johnDensmoresBenefits.filter(_.isActive).map(_.toSeq).flatten, None, Map.empty)
       val dates = Some(CarFuelBenefitDates(None, None))
-      val form = updateBenefitForm(getStartDate(benefit.benefit), carBenefitWithUnremovedFuelBenefit = true, dates, dateToday, taxYearInterval)
+
+      val form = updateRemoveFuelBenefitForm(getStartDate(benefit.benefit), dateToday, taxYearInterval)
 
       val result = remove_benefit_form(benefit, form, TaxYearResolver.currentTaxYearYearsRange)(johnDensmore)
 

@@ -66,33 +66,48 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   private[paye] val requestBenefitRemovalAction: (User, Request[_], String, Int, Int) => Future[SimpleResult] = RemoveBenefitFlow {
     (user, request, benefit, payeRootData) => {
       val benefitStartDate = getStartDate(benefit.benefit)
-      val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
 
-      updateBenefitForm(benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()(request).fold(
-        errors => {
-          now
-          val result = benefit.benefit.benefitType match {
-            case CAR => BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
-            case FUEL => BadRequest(remove_benefit_form(benefit, errors, currentTaxYearYearsRange)(user))
-            case _ => {
-              Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to the car benefit homepage")
-              Redirect(routes.CarBenefitHomeController.carBenefitHome())
+      benefit.benefit.benefitType match {
+
+        case CAR =>
+          val carWithUnremovedFuel = (CAR == benefit.benefit.benefitType) && hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber)
+          val rawData = Some(validationlessForm.bindFromRequest()(request).value.get)
+          updateRemoveCarBenefitForm(rawData, benefitStartDate, carWithUnremovedFuel, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()(request).fold(
+            errors => {
+              val result = BadRequest(remove_car_benefit_form(benefit, hasUnremovedFuelBenefit(payeRootData, benefit.benefit.employmentSequenceNumber), errors, currentTaxYearYearsRange)(user))
+              Future.successful(result)
+            },
+            removeBenefitData => {
+              implicit def hc = HeaderCarrier(request)
+              keyStoreService.storeBenefitFormData(removeBenefitData).flatMap {_=>
+                removeBenefit(user, benefit, payeRootData, removeBenefitData)
+              }
             }
-          }
-          Future.successful(result)
-        },
-        removeBenefitData => {
-          implicit def hc = HeaderCarrier(request)
-          keyStoreService.storeBenefitFormData(removeBenefitData).flatMap { _ =>
-            removeBenefit(user, benefit, payeRootData, removeBenefitData)
-          }
-        }
-      )
+          )
+        case FUEL =>
+          updateRemoveFuelBenefitForm(benefitStartDate, now(), taxYearInterval).bindFromRequest()(request).fold(
+            errors => {
+              val result = BadRequest(remove_benefit_form(benefit, errors, currentTaxYearYearsRange)(user))
+              Future.successful(result)
+            },
+            removeBenefitData => {
+              implicit def hc = HeaderCarrier(request)
+              keyStoreService.storeBenefitFormData(removeBenefitData).flatMap {_=>
+                removeBenefit(user, benefit, payeRootData, RemoveCarBenefitFormData(removeBenefitData))
+              }
+            }
+
+          )
+        case _ =>
+          Logger.error(s"Unsupported benefit type for validation: ${benefit.benefit.benefitType}, redirecting to the car benefit homepage")
+          Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
+
+      }
     }
   }
 
   // TODO: Break this up into smaller chunks and test them
-  def removeBenefit(user: User, benefit: DisplayBenefit, payeRootData: TaxYearData, removeBenefitData: RemoveBenefitFormData)(implicit hc: HeaderCarrier): Future[SimpleResult] = {
+  def removeBenefit(user: User, benefit: DisplayBenefit, payeRootData: TaxYearData, removeBenefitData: RemoveCarBenefitFormData)(implicit hc: HeaderCarrier): Future[SimpleResult] = {
     val mainBenefitType = benefit.benefit.benefitType
     mainBenefitType match {
       case CAR | FUEL => {

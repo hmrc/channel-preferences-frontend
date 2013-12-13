@@ -46,7 +46,28 @@ object DisplayBenefits {
   }
 }
 
-case class RemoveBenefitFormData(withdrawDate: LocalDate, fuelDateChoice: Option[String], fuelWithdrawDate: Option[LocalDate])
+case class RemoveCarBenefitFormData(withdrawDate: LocalDate,
+                                 carUnavailable: Option[Boolean] = None,
+                                 numberOfDaysUnavailable: Option[Int] = None,
+                                 employeeContributes: Option[Boolean],
+                                 employeeContribution: Option[Int],
+                                 fuelDateChoice: Option[String],
+                                 fuelWithdrawDate: Option[LocalDate])
+object RemoveCarBenefitFormData {
+  def apply(data: RemoveFuelBenefitFormData): RemoveCarBenefitFormData =
+    RemoveCarBenefitFormData(
+      withdrawDate = data.withdrawDate,
+      employeeContributes = None,
+      employeeContribution = None,
+      fuelDateChoice = None,
+      fuelWithdrawDate = None
+    )
+}
+
+case class RemoveFuelBenefitFormData(withdrawDate: LocalDate)
+object RemoveFuelBenefitFormData {
+  def apply(removeCarBenefitFormData: RemoveCarBenefitFormData): RemoveFuelBenefitFormData = RemoveFuelBenefitFormData(removeCarBenefitFormData.withdrawDate)
+}
 
 case class PayeOverview(name: String, lastLogin: Option[DateTime], nino: String, employmentViews: Seq[EmploymentView], hasBenefits: Boolean)
 
