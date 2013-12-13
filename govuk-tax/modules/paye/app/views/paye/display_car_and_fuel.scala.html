@@ -65,22 +65,6 @@
             }
             </td>
         </tr>
-        <tr>
-            <th colspan="2">Taxable benefit value</th>
-        </tr>
-        <tr>
-            <td colspan="2">These amounts are added to your income and you pay tax on them.</td>
-        </tr>
-        <tr>
-            <td>Car benefit taxable value</td>
-            <td id="@id("car-benefit-amount")">@pounds(carAndFuel.carBenefit.grossAmount)</td>
-        </tr>
-        @if(carAndFuel.fuelBenefit.isDefined) {
-            <tr>
-                <td>Fuel benefit taxable value</td>
-                <td id="@id("fuel-benefit-amount")">@pounds(carAndFuel.fuelBenefit.get.grossAmount)</td>
-            </tr>
-        }
     </tbody>
 
 </table>

@@ -79,8 +79,6 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
-      doc.select("#car-benefit-amount").text shouldBe "£321"
-      doc.select("#fuel-benefit-amount").text shouldBe ""
       doc.select("#no-car-benefit-container").text shouldBe ""
       doc.select("#private-fuel").text shouldBe "No"
     }
@@ -97,9 +95,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name-0").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-amount-0").text shouldBe "£1,234"
       doc.select("#company-name-1").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-amount-1").text shouldBe "£5,678"
       doc.select("#car-benefit-date-withdrawn-1").text shouldBe "5 March 2011"
     }
 
@@ -113,8 +109,6 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
-      doc.select("#car-benefit-amount").text shouldBe "£321"
-      doc.select("#fuel-benefit-amount").text shouldBe "£22"
       doc.select("#no-car-benefit-container").text shouldBe ""
       doc.select("#private-fuel").text shouldBe "Yes, private fuel is available when you use the car"
     }
@@ -129,8 +123,6 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
-      doc.select("#car-benefit-amount").text shouldBe "£321"
-      doc.select("#fuel-benefit-amount").text shouldBe "£22"
       doc.select("#no-car-benefit-container").text shouldBe ""
       doc.select("#private-fuel").text shouldBe "Weyland-Yutani Corp did pay for fuel for private travel, but stopped paying on 6 June 2013"
     }
@@ -152,8 +144,6 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
-      doc.select("#car-benefit-amount").text shouldBe "£321"
-      doc.select("#fuel-benefit-amount").text shouldBe "£22"
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
