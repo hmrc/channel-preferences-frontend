@@ -217,7 +217,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       grossAmount shouldBe fuelBenefitValue
     }
 
-    "return 200 for employerpayefuel of type date with a correct date withdrawn and display the details in a table" in new TestCaseIn2012 {
+    "return 200 for employerpayefuel of type date with a correct date withdrawn and display some details (not including the new tax code) in a table" in new TestCaseIn2012 {
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
 
@@ -236,7 +236,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       doc.select("#second-heading").text should include("Check your private fuel details")
       doc.select("#private-fuel").text should include(s"3 June $testTaxYear")
       doc.select("#provided-from").text should include(s"12 May $testTaxYear")
-      doc.select("#fuel-benefit-taxable-value").text should include("£1,234")
+      doc.select("#fuel-benefit-taxable-value") shouldBe empty
 
     }
 
@@ -261,7 +261,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       doc.select("#private-fuel").text should include(s"Yes, private fuel is available when you use the car")
     }
 
-    "show the users recalculated tax code" in new TestCaseIn2012 {
+    "not show the users recalculated tax code" in new TestCaseIn2012 {
 
       setupMocksForJohnDensmore(benefits = Seq(CarAndFuel(carBenefitEmployer1)))
       setupCalculationMock(calculationResult = 1234)
@@ -273,7 +273,21 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#fuel-benefit-taxable-value").text shouldBe "£1,234"
+      doc.select("#fuel-benefit-taxable-value") shouldBe empty
+    }
+
+    "not include the users recalculated tax code by income tax band" in new TestCaseIn2012 {
+      setupMocksForJohnDensmore(benefits = Seq(CarAndFuel(carBenefitEmployer1)))
+      setupCalculationMock(calculationResult = 1234)
+
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("true"))
+
+      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.text() should (not include "£1,234" and not include "20%" and not include "40%" and not include "45%")
     }
 
     "return to the car benefit home page if the user already has a fuel benefit" in new TestCaseIn2012 {
