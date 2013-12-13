@@ -87,7 +87,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "render previous cars in the tax year" in new WithApplication(FakeApplication()) with BaseData {
       val previousCar = Benefit(31, 2013, 1234, 1, car = Some(Car()))
-      val previousCar2 = Benefit(31, 2013, 5678, 1, car = Some(Car()))
+      val previousCar2 = Benefit(31, 2013, 5678, 1, car = Some(Car(dateCarWithdrawn = Some(new LocalDate(2011, 3, 5)))))
       val previousCarAndFuel1 = CarAndFuel(previousCar)
       val previousCarAndFuel2 = CarAndFuel(previousCar2)
 
@@ -100,6 +100,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-amount-0").text shouldBe "£1,234"
       doc.select("#company-name-1").text shouldBe "Company car provided by Weyland-Yutani Corp"
       doc.select("#car-benefit-amount-1").text shouldBe "£5,678"
+      doc.select("#car-benefit-date-withdrawn-1").text shouldBe "5 March 2011"
     }
 
     "show car details for user with a company car and fuel benefit" in new WithApplication(FakeApplication()) with BaseData {

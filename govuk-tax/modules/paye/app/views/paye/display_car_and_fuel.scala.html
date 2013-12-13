@@ -20,6 +20,12 @@
                     <td id="@id("car-benefit-date-available")">@formatDate(dateCarMadeAvailable)</td>
                 </tr>
             }
+            @car.dateCarWithdrawn.map { dateWithdrawn =>
+                <tr>
+                    <td>Date you gave back the car</td>
+                    <td id="@id("car-benefit-date-withdrawn")">@formatDate(dateWithdrawn)</td>
+                </tr>
+            }
             @car.carValue.map { carValue =>
                 <tr>
                     <td>List Price including accessories</td>
