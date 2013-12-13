@@ -64,7 +64,7 @@ trait PayeBaseSpec extends BaseSpec {
   }
 
   val carBenefitEmployer1 = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
-    Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
+    Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), Some(BigDecimal("120.21")), None)), actions("AB123456C", testTaxYear, 1), Map.empty)
 
   val fuelBenefitEmployer1 = Benefit(29, testTaxYear, 22.22, 1, None, None, None, None, None, None, None,
     None, actions("AB123456C", testTaxYear, 1), Map.empty)

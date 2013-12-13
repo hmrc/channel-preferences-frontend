@@ -76,9 +76,10 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
+      doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
+      doc.select("#car-benefit-date-registered").text shouldBe "12 December 2012"
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
-      doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
       doc.select("#no-car-benefit-container").text shouldBe ""
       doc.select("#private-fuel").text shouldBe "No"
     }
@@ -106,11 +107,15 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
-      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
-      doc.select("#no-car-benefit-container").text shouldBe ""
+      doc.select("#car-benefit-date-registered").text shouldBe "12 December 2012"
+      doc.select("#car-benefit-car-value").text shouldBe "£12,343"
+      doc.select("#car-benefit-employee-capital-contribution").text shouldBe "£0"
+      doc.select("#car-benefit-employee-payments").text shouldBe "£120"
       doc.select("#private-fuel").text shouldBe "Yes, private fuel is available when you use the car"
+      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
+      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
+      doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
     "show car details for a user with a company car and a fuel benefit that has been withdrawn" in new WithApplication(FakeApplication()) with BaseData {

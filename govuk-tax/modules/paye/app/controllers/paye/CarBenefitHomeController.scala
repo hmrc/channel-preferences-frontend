@@ -2,8 +2,8 @@ package controllers.paye
 
 import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain._
-import models.paye.{Matchers, EmploymentView, EmploymentViews}
-import play.api.{data, Logger}
+import models.paye.{EmploymentView, EmploymentViews}
+import play.api.Logger
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
@@ -13,12 +13,10 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{Request, Session, SimpleResult}
+import play.api.mvc.{Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
-import models.paye.Matchers.transactions
-import play.api
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController

@@ -16,7 +16,7 @@
         @carAndFuel.carBenefit.car.map { car =>
             @car.dateCarMadeAvailable.map { dateCarMadeAvailable =>
                 <tr>
-                    <td>Date Provided</td>
+                    <td>Date you got the car</td>
                     <td id="@id("car-benefit-date-available")">@formatDate(dateCarMadeAvailable)</td>
                 </tr>
             }
@@ -26,12 +26,44 @@
                     <td id="@id("car-benefit-date-withdrawn")">@formatDate(dateWithdrawn)</td>
                 </tr>
             }
+            @car.dateCarRegistered.map { dateCarRegistered =>
+            <tr>
+                <td>Date Registered with DVLA</td>
+                <td id="@id("car-benefit-date-registered")">@formatDate(dateCarRegistered)</td>
+            </tr>
+            }
             @car.carValue.map { carValue =>
                 <tr>
-                    <td>List Price including accessories</td>
-                    <td>@pounds(carValue)</td>
+                    <td>List Price including VAT & accessories</td>
+                    <td id="@id("car-benefit-car-value")">@pounds(carValue)</td>
                 </tr>
             }
+            @car.employeeCapitalContribution.map { employeeCapitalContribution =>
+            <tr>
+                <td>Your contribution to the price of the car</td>
+                <td id="@id("car-benefit-employee-capital-contribution")">@pounds(employeeCapitalContribution)</td>
+            </tr>
+            }
+            @car.employeePayments.map { employeePayments =>
+            <tr>
+                <td>Your contribution to private use of the car</td>
+                <td id="@id("car-benefit-employee-payments")">@pounds(employeePayments)</td>
+            </tr>
+            }
+            <tr>
+                <td>Fuel for private use</td>
+                <td id="@id("private-fuel")">
+                @carAndFuel.fuelBenefit.map { fuelBenefit =>
+                    @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
+                        @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.dateWithdrawn, "")}
+                    }.getOrElse {
+                        @Messages("paye.add_car_benefit.employer_pay_fuel.true")
+                    }
+                }.getOrElse {
+                    @Messages("paye.add_car_benefit.employer_pay_fuel.false")
+                }
+                </td>
+            </tr>
             @car.fuelType.map { fuelType =>
                 <tr>
                     <td>Fuel type</td>
@@ -40,7 +72,7 @@
             }
             @car.co2Emissions.map { co2Emissions =>
                 <tr>
-                    <td>Emission figure</td>
+                    <td>CO2 Emissions</td>
                     <td>@co2Emissions g/km</td>
                 </tr>
             }
@@ -51,20 +83,7 @@
                 </tr>
             }
         }
-        <tr>
-            <td>Private Fuel</td>
-            <td id="@id("private-fuel")">
-            @carAndFuel.fuelBenefit.map { fuelBenefit =>
-                @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
-                    @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.dateWithdrawn, "")}
-                }.getOrElse {
-                    @Messages("paye.add_car_benefit.employer_pay_fuel.true")
-                }
-            }.getOrElse {
-                @Messages("paye.add_car_benefit.employer_pay_fuel.false")
-            }
-            </td>
-        </tr>
+
     </tbody>
 
 </table>
