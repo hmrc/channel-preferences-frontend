@@ -531,7 +531,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"))
       val carBenefitValue = 100
       val fuelBenefitValue = 500
-      when(mockPayeConnector.calculateBenefitValue(Matchers.anyString(), Matchers.any[CarAndFuel])(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(carBenefitValue), Some(fuelBenefitValue))))
+      when(mockPayeConnector.calculateBenefitValue(Matchers.anyString(), Matchers.any[CarAndFuel])(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(carBenefitValue), Some(fuelBenefitValue), Some(200), Some(600))))
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[CarBenefitDataAndCalculations])
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
@@ -539,7 +539,9 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         Matchers.eq("paye"), Matchers.eq("AddCarBenefitForm"), keyStoreDataCaptor.capture(), Matchers.eq(false))(Matchers.eq(manifest[CarBenefitDataAndCalculations]), Matchers.eq(hc))
       val returnedData: CarBenefitDataAndCalculations = keyStoreDataCaptor.getValue
       returnedData.carBenefitValue shouldBe carBenefitValue
+      returnedData.forecastCarBenefitValue shouldBe Some(200)
       returnedData.fuelBenefitValue shouldBe Some(fuelBenefitValue)
+      returnedData.forecastFuelBenefitValue shouldBe Some(600)
       returnedData.carBenefitData shouldBe CarBenefitDataBuilder(engineCapacity = Some("2000"))
     }
 
@@ -626,7 +628,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     }
 
     def assertSuccess(result: Future[SimpleResult], collectedData: CarBenefitData) {
-      val carAndFuel = CarAndFuelBuilder(carBenefitDataAndCalculations = CarBenefitDataAndCalculations(collectedData, 0, Some(0)), taxYear = 2013, employmentSequenceNumber = 1)
+      val carAndFuel = CarAndFuelBuilder(carBenefitDataAndCalculations = CarBenefitDataAndCalculations(collectedData, 0, Some(0), Some(0), Some(0)), taxYear = 2013, employmentSequenceNumber = 1)
       status(result) shouldBe 200
       val carAndFuelCaptor = ArgumentCaptor.forClass(classOf[CarAndFuel])
       verify(mockPayeConnector).calculateBenefitValue(Matchers.eq("/calculation/paye/benefit/new/value-calculation"), carAndFuelCaptor.capture())(Matchers.any())
@@ -654,7 +656,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val fuelType = "electricity"
       val userContribution = 100
       val listPrice = 9999
-      when(mockPayeConnector.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", carAndFuel)) thenReturn Some(NewBenefitCalculationResponse(Some(999), None))
+      when(mockPayeConnector.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", carAndFuel)) thenReturn Some(NewBenefitCalculationResponse(Some(999), None, Some(1000), None))
       val result = controller.reviewAddCarBenefitAction(johnDensmore,
         newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
           providedFromVal = None,
@@ -690,7 +692,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val uri = s"paye/car-benefit/$taxYear/$employmentSeqNumberOne/add"
       val updatedCar = car.copy(dateCarRegistered = Some(carRegistrationDate), fuelType = Some("diesel"), co2Emissions = Some(50), engineSize = Some(1400))
       val updatedCarAndFuel = carAndFuel.copy(carBenefit = carBenefit.copy(car = Some(updatedCar)))
-      when(mockPayeConnector.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", updatedCarAndFuel)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444)))
+      when(mockPayeConnector.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", updatedCarAndFuel)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444), Some(1000), Some(800)))
 
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore,
         newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
@@ -763,7 +765,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         employerPayFuel = Some("date"),
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
 
-      when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(CarBenefitDataAndCalculations(carBenefitData, 0, None)))
+      when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(CarBenefitDataAndCalculations(carBenefitData, 0, None, Some(0), None)))
 
       val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
 
@@ -809,7 +811,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         employerPayFuel = Some("false"),
         dateFuelWithdrawn = None)
 
-      when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(CarBenefitDataAndCalculations(carBenefitData, 0, None)))
+      when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(CarBenefitDataAndCalculations(carBenefitData, 0, None, Some(0), None)))
 
       val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
 
@@ -838,7 +840,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "allow the user to confirm the addition of the car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      when(mockPayeConnector.calculateBenefitValue(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(999), Some(444))))
+      when(mockPayeConnector.calculateBenefitValue(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(999), Some(444), Some(1000), Some(800))))
 
       val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumberOne)
 
@@ -866,7 +868,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       co2NoFigure = Some(true),
       engineCapacity = Some("1400"),
       employerPayFuel = Some("date"),
-      dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))), 87, Some(12))
+      dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))), 87, Some(12), Some(100), Some(200))
 
     "remove the saved data for the car benefit form values" in new WithApplication(FakeApplication()) {
 
@@ -910,7 +912,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
       val fuelBenefitGrossAmount = None
       val carGrossAmount = 204
-      val carBenefitDataAndCalculation = CarBenefitDataAndCalculations(carBenefitData, carGrossAmount, None)
+      val carBenefitDataAndCalculation = CarBenefitDataAndCalculations(carBenefitData, carGrossAmount, None, Some(300), None)
 
       when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(carBenefitDataAndCalculation))
@@ -943,7 +945,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         dateWithdrawn = None,
         car = Some(car),
         actions = Map.empty[String, String],
-        calculations = Map.empty[String, String])
+        calculations = Map.empty[String, String],
+        forecastAmount = Some(300))
 
       verify(mockPayeConnector).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmore.getPaye.version, employmentSeqNumberOne, Seq(benefit))
     }
@@ -967,7 +970,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
       val carBenefitGrossAmount: Int = 764
       val fuelBenefitGrossAmount: Int = 85
-      val carBenefitDataAndCalculations = CarBenefitDataAndCalculations(carBenefitData, carBenefitGrossAmount, Some(fuelBenefitGrossAmount))
+      val carBenefitDataAndCalculations = CarBenefitDataAndCalculations(carBenefitData, carBenefitGrossAmount, Some(fuelBenefitGrossAmount), Some(1100), Some(600))
 
       when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(carBenefitDataAndCalculations))
@@ -1000,7 +1003,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         dateWithdrawn = None,
         car = Some(car),
         actions = Map.empty[String, String],
-        calculations = Map.empty[String, String])
+        calculations = Map.empty[String, String],
+        forecastAmount = Some(1100))
 
       val fuelBenefit = Benefit(benefitType = FUEL,
         taxYear = taxYear,
@@ -1015,7 +1019,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         dateWithdrawn = carBenefitData.dateFuelWithdrawn,
         car = Some(car),
         actions = Map.empty[String, String],
-        calculations = Map.empty[String, String])
+        calculations = Map.empty[String, String],
+        forecastAmount = Some(600))
 
       verify(mockPayeConnector).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmore.getPaye.version, employmentSeqNumberOne, Seq(carBenefit, fuelBenefit))
     }
@@ -1034,7 +1039,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         co2NoFigure = Some(true),
         engineCapacity = Some("1400"),
         employerPayFuel = Some("date"),
-        dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))), 43, Some(9))
+        dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))), 43, Some(9), Some(50), Some(10))
 
 
       when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("aNewTaxCoe"), netCodedAllowance = Some(123))))
@@ -1048,13 +1053,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     }
   }
 
-  private def haveStatus(expectedStatus: Int) = new Matcher[Future[SimpleResult]] {
-    def apply(response: Future[SimpleResult]) = {
-      val actualStatus = status(response)
-      MatchResult(actualStatus == expectedStatus, s"Expected result with status $expectedStatus but was $actualStatus.", s"Expected result with status other than $expectedStatus, but was actually $actualStatus.")
-    }
-  }
-
   private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes, employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[CarAndFuel] = Seq.empty,
                                         acceptedTransactions: List[TxQueueTransaction] = List.empty, completedTransactions: List[TxQueueTransaction] = List.empty) {
 
@@ -1065,7 +1063,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))(Matchers.eq(hc))).thenReturn(Some(acceptedTransactions))
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))(Matchers.eq(hc))).thenReturn(Some(completedTransactions))
     when(mockKeyStoreService.getEntry[CarBenefitData](Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(None)
-    when(mockPayeConnector.calculateBenefitValue(Matchers.anyString(), Matchers.any[CarAndFuel])(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(1000), None)))
+    when(mockPayeConnector.calculateBenefitValue(Matchers.anyString(), Matchers.any[CarAndFuel])(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(1000), None, Some(2000), None)))
 
     when(mockKeyStoreService.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
       thenReturn(Future.successful(None))
@@ -1176,7 +1174,7 @@ private trait WithCarAndFuelBenefit {
     amountMadeGood = None, cashEquivalent = None, expensesIncurred = None,
     amountOfRelief = None, paymentOrBenefitDescription = None,
     dateWithdrawn = None, car = Some(car),
-    actions = Map.empty, calculations = Map.empty)
+    actions = Map.empty, calculations = Map.empty, forecastAmount = Some(0))
   val fuelBenefit = None
   val carAndFuel = domain.CarAndFuel(carBenefit, fuelBenefit)
 

@@ -19,6 +19,6 @@ case class NewBenefitCalculationData(carRegisteredBefore98: Boolean,
                                   fuelBenefitStopDate: Option[LocalDate]
                                    )
 
-case class NewBenefitCalculationResponse(carBenefitValue:Option[Int], fuelBenefitValue:Option[Int])
+case class NewBenefitCalculationResponse(carBenefitValue:Option[Int], fuelBenefitValue:Option[Int], carBenefitForecastValue: Option[Int], fuelBenefitForecastValue: Option[Int])
 
 

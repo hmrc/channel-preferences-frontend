@@ -17,7 +17,8 @@ case class Benefit(benefitType: Int,
                    dateWithdrawn: Option[LocalDate]= None,
                    car: Option[Car]= None,
                    actions: Map[String, String]= Map.empty,
-                   calculations: Map[String, String]= Map.empty) {
+                   calculations: Map[String, String]= Map.empty,
+                   forecastAmount: Option[Int] = None) {
 
 }
 

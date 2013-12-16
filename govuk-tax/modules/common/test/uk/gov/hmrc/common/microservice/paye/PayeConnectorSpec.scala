@@ -21,6 +21,7 @@ import org.joda.time.chrono.ISOChronology
 import controllers.common.actions.HeaderCarrier
 import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.Future
+import scala.Some
 
 class PayeConnectorSpec extends BaseSpec with ScalaFutures {
 
@@ -105,7 +106,7 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
       val carAndFuel = CarAndFuel(carBenefit, Some(fuelBenefit))
 
       when(service.httpWrapper.postF[NewBenefitCalculationResponse](Matchers.eq(uri), Matchers.any[JsValue], Matchers.any[Map[String, String]])).
-        thenReturn(Future.successful(Some(NewBenefitCalculationResponse(Some(123), Some(456)))))
+        thenReturn(Future.successful(Some(NewBenefitCalculationResponse(Some(123), Some(456), Some(1234), Some(3456)))))
 
       val response = service.calculateBenefitValue(uri, carAndFuel)
 
@@ -117,6 +118,8 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
 
       response.get.carBenefitValue shouldBe Some(123)
       response.get.fuelBenefitValue shouldBe Some(456)
+      response.get.carBenefitForecastValue shouldBe Some(1234)
+      response.get.fuelBenefitForecastValue shouldBe Some(3456)
     }
   }
 
