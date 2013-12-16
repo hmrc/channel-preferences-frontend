@@ -176,8 +176,6 @@ with PayeRegimeRoots {
                 benefitCalculations =>
                   val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
                   val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
-                  println(benefitCalculations.carBenefitForecastValue.get)
-                  println(benefitCalculations.fuelBenefitForecastValue.get)
                   keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue), benefitCalculations.carBenefitForecastValue, benefitCalculations.fuelBenefitForecastValue)).map {
                   _=>
                     val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
