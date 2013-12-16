@@ -16,17 +16,12 @@
 
 
                     <table id="company-car-details">
-                        <thead>
-                            <tr>
-                                <th colspan="2" id="company-name">
-                                    Company car provided by @{displayBenefit.employment.employerNameOrReference}</th>
-                            </tr>
-                        </thead>
+                        <caption id="company-name" class="table-row">Company car provided by @{displayBenefit.employment.employerNameOrReference}</caption>
                         <tbody>
                             @carBenefit.map { benefit =>
                                 @defining(displayBenefit.benefitsInfo(s"$CAR")) { carBenefitInfo =>
                                     <tr>
-                                        <td>Date given back</td>
+                                        <th scope = "row">Date given back</th>
                                         <td id="car-benefit-date-car-withdrawn">@carBenefitInfo.withdrawDate</td>
                                     </tr>
                                 }
@@ -34,7 +29,7 @@
                             @fuelBenefit.map { benefit =>
                                 @defining(displayBenefit.benefitsInfo(s"$FUEL")) { fuelBenefitInfo =>
                                     <tr>
-                                        <td>Date fuel withdrawn</td>
+                                        <th scope = "row">Date fuel withdrawn</th>
                                         <td id="car-benefit-date-fuel-withdrawn">@fuelBenefitInfo.withdrawDate</td>
                                     </tr>
                                 }

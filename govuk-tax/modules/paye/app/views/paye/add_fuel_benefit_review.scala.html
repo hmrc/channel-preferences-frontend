@@ -12,9 +12,9 @@
     <table>
         <tbody>
         @if(data.providedFrom.isDefined){
-        <tr><td>Date provided</td><td id="provided-from">@{formatDate(data.providedFrom.get)}</td></tr>
+        <tr><th scope="row">Date provided</th><td id="provided-from">@{formatDate(data.providedFrom.get)}</td></tr>
         }
-        <tr><td>Private fuel</td><td id="private-fuel"> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
+        <tr><th scope="row">Private fuel</th><td id="private-fuel"> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
         </tbody>
     </table>
     }

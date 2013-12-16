@@ -10,18 +10,18 @@
     @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>
         <table>
             <tbody>
-            <tr><td>Date provided</td><td>@{formatDate(data.providedFrom)}</td></tr>
-            <tr><td>List price including accessories</td><td>@pounds(data.listPrice)</td></tr>
-            <tr><td>Fuel type</td><td>@{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</td></tr>
+            <tr><th scope = "row">Date provided</th><td>@{formatDate(data.providedFrom)}</td></tr>
+            <tr><th scope = "row">List price including accessories</th><td>@pounds(data.listPrice)</td></tr>
+            <tr><th scope = "row">Fuel type</th><td>@{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</td></tr>
             @if(data.co2Figure.isDefined) {
-             <tr><td>Emission figure</td><td>@data.co2Figure.get g/km</td></tr>
+             <tr><th scope = "row">Emission figure</th><td>@data.co2Figure.get g/km</td></tr>
             }
             @if(data.engineCapacity.isDefined){
-            <tr><td>Engine capacity</td> <td> @Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td></tr>
+            <tr><th scope = "row">Engine capacity</th> <td> @Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td></tr>
             }
             @if(data.employerPayFuel.isDefined){
             <tr>
-                <td>Private fuel</td><td> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}
+                <th scope = "row">Private fuel</th><td> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}
             </td></tr>
             }
             </tbody>
