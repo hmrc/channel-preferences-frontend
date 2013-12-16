@@ -31,6 +31,7 @@ import controllers.paye.validation.BenefitFlowHelper
 class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper with ScalaFutures {
 
   private val employmentSeqNumberOne = 1
+  val benefitsCaptor = ArgumentCaptor.forClass(classOf[Seq[Benefit]])
 
   "calling start add fuel benefit" should {
     "return 200 and show the fuel page with the employer s name" in new TestCaseIn2012 {
@@ -378,6 +379,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
   "clicking submit on the fuel benefit review page" should {
     "submit the corresponding keystore data to the paye service and then show the success page when successful" in new TestCaseIn2012 {
+      // given
       val grossFuelBenefit = 1000
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
@@ -386,24 +388,37 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData, grossFuelBenefit, Some(2000))))
       val benefitsCapture = ArgumentCaptor.forClass(classOf[Seq[Benefit]])
       val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
-      when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), benefitsCapture.capture())(Matchers.any())).thenReturn(Some(addBenefitResponse))
+      when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), benefitsCaptor.capture())(Matchers.any())).thenReturn(Some(addBenefitResponse))
 
+      // when
+      val fuelBenefitData = FuelBenefitData(Some("true"), None)
+      when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData, grossFuelBenefit)))
       val resultF = controller.confirmAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
 
       whenReady(resultF) { result =>
 
-        val benefitsSentToPaye = benefitsCapture.getValue
+        // then
+        val benefitsSentToPaye = benefitsCaptor.getValue
         benefitsSentToPaye should have length 1
         val expectedFuelBenefit = Some(Benefit(29, 2012, grossFuelBenefit, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map(), Some(2000)))
         Some(benefitsSentToPaye.head) shouldBe expectedFuelBenefit
 
         status(result) shouldBe 200
         val doc = Jsoup.parse(contentAsString(result))
+        doc.select("#headline").text should be ("Your company car details have been changed.")
         doc.select("#old-tax-code").text shouldBe "oldTaxCode"
         doc.select("#new-tax-code").text shouldBe "newTaxCode"
-        doc.select("#personal-allowance").text shouldBe "£5"
-        doc.select("#start-date").text shouldBe "6 Apr 2012"
-        doc.select("#end-date").text shouldBe "5 Apr 2013"
+        doc.select("#personal-allowance") should be (empty)
+        doc.select("#start-date") should be (empty)
+        doc.select("#end-date") should be (empty)
+        doc.select("#epilogue").text should include ("HMRC will write to you to confirm your new tax code within 7 days.")
+        doc.select("#epilogue").text should include ("See your updated company car information")
+        doc.select("a#tax-codes").text should be ("tax codes")
+        doc.select("a#tax-codes").first.attr("href") should be ("https://www.gov.uk/tax-codes")
+        doc.select("a#tax-codes").first.attr("target") should be ("_blank")
+        doc.select("a#tax-on-company-benefits").text should be ("tax on company benefits")
+        doc.select("a#tax-on-company-benefits").first.attr("href") should be ("https://www.gov.uk/tax-company-benefits")
+        doc.select("a#tax-on-company-benefits").first.attr("target") should be ("_blank")
       }
     }
 

@@ -1026,6 +1026,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     }
 
     "show the confirmation page with the correct tax codes and allowance" in new WithApplication(FakeApplication()) {
+      // given
       setupMocksForJohnDensmore()
       val carBenefitDataAndCalculations = CarBenefitDataAndCalculations(CarBenefitData(providedFrom = None,
         carRegistrationDate = Some(new LocalDate(1950, 9, 13)),
@@ -1041,15 +1042,30 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         employerPayFuel = Some("date"),
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))), 43, Some(9), Some(50), Some(10))
 
-
       when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("aNewTaxCoe"), netCodedAllowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitDataAndCalculations](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(carBenefitDataAndCalculations))
+
+      // when
       val result = controller.confirmAddingBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
+
+      // then
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
+      private val text: String = doc.select("#headline").text
+      text should be ("Your company car details have been changed.")
       doc.select("#old-tax-code").text shouldBe "430L"
       doc.select("#new-tax-code").text shouldBe "aNewTaxCoe"
-      doc.select("#personal-allowance").text shouldBe "£123"
+      doc.select("#personal-allowance") should be (empty)
+      doc.select("#start-date") should be (empty)
+      doc.select("#end-date") should be (empty)
+      doc.select("#epilogue").text should include ("HMRC will write to you to confirm your new tax code within 7 days.")
+      doc.select("#epilogue").text should include ("See your updated company car information")
+      doc.select("a#tax-codes").text should be ("tax codes")
+      doc.select("a#tax-codes").first.attr("href") should be ("https://www.gov.uk/tax-codes")
+      doc.select("a#tax-codes").first.attr("target") should be ("_blank")
+      doc.select("a#tax-on-company-benefits").text should be ("tax on company benefits")
+      doc.select("a#tax-on-company-benefits").first.attr("href") should be ("https://www.gov.uk/tax-company-benefits")
+      doc.select("a#tax-on-company-benefits").first.attr("target") should be ("_blank")
     }
   }
 
