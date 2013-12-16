@@ -528,7 +528,31 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
-    "in step 2, display the date the car was given back" in new WithApplication(FakeApplication()) {
+    "in step 2, display the infos provided in the form" in new WithApplication(FakeApplication()) {
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
+
+      val carWithdrawDate = new LocalDate(2013, 12, 8)
+      val fuelWithdrawDate = carWithdrawDate.minusDays(1)
+      val companyCarDetails = "company-car-details"
+
+      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
+      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, carWithdrawDate)).thenReturn(carCalculationResult)
+
+      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(20.01), "2014" -> BigDecimal(0)))
+      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, fuelWithdrawDate)).thenReturn(fuelCalculationResult)
+
+
+      val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate), true, Some("differentDateFuel"), Some(fuelWithdrawDate), "true", "20", "true", "250"), "31", 2013, 2)
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById(companyCarDetails) should not be null
+      doc.select("#car-benefit-date-car-withdrawn").text shouldBe "8 December 2013"
+      doc.select("#car-benefit-num-days-unavailable").text shouldBe "20 days"
+      doc.select("#car-benefit-employee-payments").text shouldBe "£250"
+    }
+
+    "in step 2, display none for info not provided in the form" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val carWithdrawDate = new LocalDate(2013, 12, 8)
@@ -547,7 +571,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(companyCarDetails) should not be null
-      doc.select("#car-benefit-date-car-withdrawn").text shouldBe "8 December 2013"
+      doc.select("#car-benefit-num-days-unavailable").text shouldBe "none"
+      doc.select("#car-benefit-employee-payments").text shouldBe "none"
     }
   }
 

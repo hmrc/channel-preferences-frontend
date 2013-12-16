@@ -1,8 +1,10 @@
-@(displayBenefit: models.paye.DisplayBenefit)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(displayBenefit: models.paye.DisplayBenefit, formData: models.paye.RemoveCarBenefitFormData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
     @import views.formatting.Strings._
     @import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
     @import controllers.paye.routes._
+    @import views.formatting.Money._
+    @import views.formatting.Dates._
 
     @main(title = "Confirm your benefit details", user = Some(user)) {
         @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
@@ -14,7 +16,6 @@
 
                     <h2 class="title">Check your change before submitting</h2>
 
-
                     <table id="company-car-details">
                         <caption id="company-name" class="table-row">Company car provided by @{displayBenefit.employment.employerNameOrReference}</caption>
                         <tbody>
@@ -25,7 +26,17 @@
                                         <td id="car-benefit-date-car-withdrawn">@carBenefitInfo.withdrawDate</td>
                                     </tr>
                                 }
+                                <tr>
+                                    <th scope = "row">Days unavailable since 6 April @benefit.taxYear</th>
+                                    <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("none")</td>
+                                </tr>
+
+                                <tr>
+                                    <th scope = "row">Private use of the car: your contributions</th>
+                                    <td id="car-benefit-employee-payments">@formData.employeeContribution.map(x => pounds(x)).getOrElse("none")</td>
+                                </tr>
                             }
+
                             @fuelBenefit.map { benefit =>
                                 @defining(displayBenefit.benefitsInfo(s"$FUEL")) { fuelBenefitInfo =>
                                     <tr>
@@ -51,4 +62,3 @@
 
         }
     }
-

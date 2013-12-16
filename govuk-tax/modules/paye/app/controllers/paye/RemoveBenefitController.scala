@@ -142,7 +142,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
           keyStoreService.storeBenefitData(RemoveBenefitData(removeBenefitData.withdrawDate, apportionedValues)).map {
             _ =>
-              Ok(remove_benefit_confirm(updatedBenefit)(user))
+              Ok(remove_benefit_confirm(updatedBenefit, removeBenefitData)(user))
           }
         }
       }
@@ -153,14 +153,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     }
   }
 
-
   private def mapBenefitsInfo(benefit: Benefit, withdrawDate: LocalDate, values: Map[String, BigDecimal]): Map[String, BenefitInfo] = {
     val benefitType = benefit.benefitType.toString
-    Map(benefitType -> getBenefitInfo(benefit, withdrawDate, values(benefitType)))
-  }
-
-  private def getBenefitInfo(benefit: Benefit, withdrawDate: LocalDate, apportionedValue: BigDecimal) = {
-    BenefitInfo(formatDate(getStartDate(benefit)), formatDate(withdrawDate), apportionedValue)
+    Map(benefitType -> BenefitInfo(formatDate(getStartDate(benefit)), formatDate(withdrawDate), values(benefitType)))
   }
 
   private final val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")

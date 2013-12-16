@@ -28,4 +28,6 @@ object Dates {
 
   def shortDate(date: LocalDate) = shortDateFormat.print(date)
 
+  def formatDays(days: Int) = s"$days day${if(days > 1) "s" else ""}"
+
 }
