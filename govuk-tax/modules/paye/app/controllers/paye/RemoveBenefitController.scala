@@ -126,7 +126,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
             (runningAmounts, benefitsAndRevisedAmounts) =>
               val (runningTotal, apportionedAmounts) = runningAmounts
               val (benefit, revisedAmount) = benefitsAndRevisedAmounts
-              (runningTotal + (benefit.grossAmount - revisedAmount), apportionedAmounts + (benefit.benefitType.toString -> revisedAmount))
+              (runningTotal + (benefit.benefitAmount.getOrElse(BigDecimal(0)) - revisedAmount), apportionedAmounts + (benefit.benefitType.toString -> revisedAmount))
           }
         }
 

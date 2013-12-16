@@ -400,7 +400,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         // then
         val benefitsSentToPaye = benefitsCaptor.getValue
         benefitsSentToPaye should have length 1
-        val expectedFuelBenefit = Some(Benefit(29, 2012, grossFuelBenefit, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map(), Some(2000)))
+        val expectedFuelBenefit = Some(Benefit(29, 2012, grossFuelBenefit, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map(), None, Some(2000)))
         Some(benefitsSentToPaye.head) shouldBe expectedFuelBenefit
 
         status(result) shouldBe 200
