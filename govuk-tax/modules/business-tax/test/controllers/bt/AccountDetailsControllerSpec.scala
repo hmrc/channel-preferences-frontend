@@ -54,6 +54,55 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       optOutOfEmailLink.text shouldBe "Opt-out of email reminders"
       optOutOfEmailLink.attr("href") shouldBe routes.AccountDetailsController.optOutOfEmailReminders.url
 
+      page.getElementById("revalidate-email-link") shouldBe null
+
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+    }
+
+    "include Re-validate email address section for SA customer with email preference set as 'bounced'" in new Setup {
+
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.bounced, Some("User does not exist"))))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.accountDetailsPage(user, request))
+
+      status(result) shouldBe 200
+      val page = Jsoup.parse(contentAsString(result))
+      val revalidateEmailAddressLink = page.getElementById("revalidate-email-link")
+      revalidateEmailAddressLink should not be null
+      revalidateEmailAddressLink.text shouldBe "Change / re-validate your email address"
+      revalidateEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
+
+      page.getElementById("opt-out-of-email-link") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
+
+
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+    }
+
+    "include validation reminder section for SA customer with email preference set as 'pending'" in new Setup {
+
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.pending)))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.accountDetailsPage(user, request))
+
+      status(result) shouldBe 200
+      val page = Jsoup.parse(contentAsString(result))
+      val revalidateEmailAddressLink = page.getElementById("revalidate-email-link")
+      revalidateEmailAddressLink should not be null
+      revalidateEmailAddressLink.text shouldBe "Change your email address"
+      revalidateEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
+
+      val resendEmailButton = page.getElementById("resend-email-button")
+      resendEmailButton should not be null
+      resendEmailButton.text shouldBe "Resend validation email to your current address"
+      val resendForm = page.getElementsByTag("form")
+      resendForm.attr("action") shouldBe routes.AccountDetailsController.resendValidationEmail.toString()
+
+      page.getElementById("opt-out-of-email-link") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
+
       verify(mockPreferencesConnector).getPreferences(validUtr)
     }
 
@@ -143,6 +192,26 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 400
     }
+  }
+
+  "Clicking Resend validation email link on account details page" should {
+
+    "call preferences as if opting-in and send the email as a part of the process" in new Setup {
+
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.pending)))
+
+      when(mockPreferencesConnector.getPreferences(validUtr)).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.savePreferences(validUtr, true, Some("test@test.com"))).thenReturn(Future.successful(None))
+
+      val page = Future.successful(controller.resendValidationEmailAction(user, FakeRequest()))
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(routes.BusinessTaxController.home.toString())
+
+      verify(mockPreferencesConnector).savePreferences(validUtr, true, Some("test@test.com"))
+
+    }
+
   }
 
   "A post to update email address with no emailVerifiedFlag" should {

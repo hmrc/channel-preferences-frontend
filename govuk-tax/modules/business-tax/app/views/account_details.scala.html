@@ -1,4 +1,5 @@
 @(saPreferences : Option[uk.gov.hmrc.common.microservice.preferences.SaPreference])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@import uk.gov.hmrc.common.microservice.preferences.SaEmailPreference
 
 @main(title = "Your Self Asssesment reminders", nav = true, user= Some(user)) {
 
@@ -7,23 +8,60 @@
 <h2> Self Assessment emails reminders </h2>
 
    @if(saPreferences.isDefined && saPreferences.get.email.isDefined) {
-       <p>You have signed up for email reminders.</p>
-       <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
-        <hr>
-       <p>
+
+       @if(saPreferences.get.email.get.status == SaEmailPreference.Status.pending) {
+           <p>You are currently opted-in to Digital SA, but you have yet to validate the email address you have
+               entered during opting in. Use the links below to resend the validation email to an new address.</p>
+
+           @helper.form(action = controllers.bt.routes.AccountDetailsController.resendValidationEmail) {
+
+           <div class="form-field">
+               <p>
+               <button id="resend-email-button" class="button" type="submit">Resend validation email to your current address</button>
+               </p>
+           </div>
+
+           }
+
+           <p>
            @helpers.link(
-                "change-email-address-link",
-                 controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
-                 "Change your email address"
-            )
-       </p>
-       <p>
-           @helpers.link(
-               "opt-out-of-email-link",
-                controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
-               "Opt-out of email reminders"
+               "revalidate-email-link",
+               controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+               "Change your email address"
            )
-      </p>
+           </p>
+       }
+
+       @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified ) {
+           <p>You have signed up for email reminders.</p>
+           <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
+           <hr>
+           <p>
+           @helpers.link(
+                    "change-email-address-link",
+                     controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+                     "Change your email address"
+                )
+           </p>
+           <p>
+               @helpers.link(
+                   "opt-out-of-email-link",
+                    controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
+                   "Opt-out of email reminders"
+               )
+          </p>
+       }
+           @if(saPreferences.get.email.get.status == SaEmailPreference.Status.bounced) {
+               <p>You are currently opted-in to Digital SA, but the last email we sent you was not deliverable, we received the following error:</p>
+               <p>@{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
+               <p>
+               @helpers.link(
+                   "revalidate-email-link",
+                   controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+                   "Change / re-validate your email address"
+               )
+               </p>
+           }
 
 
    }

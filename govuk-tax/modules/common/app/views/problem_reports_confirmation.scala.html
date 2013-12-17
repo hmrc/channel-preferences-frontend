@@ -1,0 +1,40 @@
+@(formError: Boolean, url: String)
+<!DOCTYPE html>
+<!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    @includes.head("error")
+</head>
+
+<body>
+@helpers.link("", "#content", "Skip to main content", false, false, "visuallyhidden")
+
+
+<div class="beta-warning">
+    <p><b>BETA:</b> This is a prototype, designed to be simpler, clearer and faster. <a href="https://www.gov.uk/service-manual">Find out more</a></p>
+</div>
+
+<section id="content" class="l-constrained--topBordered">
+    <div class="l-bodyLeftColumn">
+        @if(formError) {
+            <article id="report-confirmation-no-data">
+                <h2>Sorry, we're unable to send your message as you haven't given us any information.</h2>
+
+                <p>Please tell us what you were doing or what went wrong.</p>
+                <a href="@url">Return to where you were</a>
+            </article>
+        } else {
+            <article id="report-confirmation">
+                <h2>Thank you for your Help</h2>
+
+                <p>If you have more extensive feedback, please visit the <a href="">contact page</a></p>
+            </article>
+        }
+    </div>
+
+
+</section>
+
+@includes.footer()
+</body>
+</html>
