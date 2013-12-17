@@ -8,7 +8,7 @@
 @import uk.gov.hmrc.utils.TaxYearResolver.endOfCurrentTaxYear
 @import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 
-@id(idString: String)(implicit idSuffix: Option[String]) = {@idSuffix.map(suffix =>s"$idString-$suffix").getOrElse(idString)}
+@id(idString: String)(implicit idSuffix: Option[String]) = @{idSuffix.map(suffix =>s"$idString-$suffix").getOrElse(idString)}
 
 
 @carAmountsRow(carName : String, carAndFuel: CarAndFuel)(implicit idSuffix: Option[String] = None) = {
@@ -55,21 +55,23 @@
         <h2>Make Changes</h2>
         <p>You can make the following changes to the information HMRC has about your company car</p>
         @activeCarBenefit.map { car =>
-            <ul>
-                <li>
-                    @helpers.link("rm-car-link",s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(car.carBenefit.benefitType.toString, car.carBenefit.taxYear, car.carBenefit.employmentSequenceNumber)}","remove your company car")
-                </li>
-                <li>@car.fuelBenefit.map { fuelBenefit =>
-                        @helpers.link("rm-fuel-link",
+        <ul>
+            <li>
+                @helpers.link("rm-car-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(car.carBenefit.benefitType.toString, car.carBenefit.taxYear, car.carBenefit.employmentSequenceNumber)}", "remove your company car")
+            </li>
+            <li>@if(car.hasActiveFuel) {
+                @car.fuelBenefit.map { fuelBenefit =>
+                    @helpers.link("rm-fuel-link",
                         s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(fuelBenefit.benefitType.toString, fuelBenefit.taxYear, fuelBenefit.employmentSequenceNumber)}",
                         "remove your car fuel benefit")
-                    }.getOrElse {
-                        @if(car.carBenefit.car.get.fuelType != Some("electricity")) {
-                            @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employmentSequenceNumber)}", "add a car fuel benefit")
-                        }
-                    }
-                </li>
-            </ul>
+                }
+            } else {
+                @if(car.carBenefit.car.get.fuelType != Some("electricity")) {
+                    @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(currentTaxYear, employmentSequenceNumber)}", "add a car fuel benefit")
+                }
+            }
+            </li>
+        </ul>
         }.getOrElse {
             <div id="no-car-benefit-container">
                 <ul>

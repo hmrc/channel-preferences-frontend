@@ -138,6 +138,34 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#private-fuel").text shouldBe "Weyland-Yutani Corp did pay for fuel for private travel, but stopped paying on 6 June 2013"
     }
 
+    "not display the remove fuel benefit link when the car has an inactive fuel benefit" in new WithApplication(FakeApplication()) {
+      val car = Car()
+      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 0.0, 1, car = Some(car))
+      val fuelBenefit = Benefit(BenefitTypes.FUEL, 2013, 0.0, 1, dateWithdrawn = Some(new LocalDate))
+      val activeCarBenefit = CarAndFuel(carBenefit, Some(fuelBenefit))
+
+      val homePageParams = HomePageParams(Some(activeCarBenefit), Some("Employer"), 1, 2013, totalCarBenefitAmount = 0.0, totalFuelBenefitAmount = 0.0)
+      val result = car_benefit_home(homePageParams)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#rm-fuel-link") shouldBe empty
+      doc.select("#add-fuel-link") shouldNot be(empty)
+    }
+
+    "display the remove fuel benefit link when the car has an active fuel benefit" in new WithApplication(FakeApplication()) {
+      val car = Car()
+      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 0.0, 1, car = Some(car))
+      val fuelBenefit = Benefit(BenefitTypes.FUEL, 2013, 0.0, 1)
+      val activeCarBenefit = CarAndFuel(carBenefit, Some(fuelBenefit))
+      val homePageParams = HomePageParams(Some(activeCarBenefit), Some("Employer"), 1, 2013, totalCarBenefitAmount = 0.0, totalFuelBenefitAmount = 0.0)
+
+      val result = car_benefit_home(homePageParams)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#rm-fuel-link") shouldNot be (empty)
+      doc.select("#add-fuel-link") shouldBe empty
+    }
+
     "show car details for user with a company car where the employer name is unknown" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
 

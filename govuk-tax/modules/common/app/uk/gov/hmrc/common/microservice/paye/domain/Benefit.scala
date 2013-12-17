@@ -10,14 +10,14 @@ case class Benefit(benefitType: Int,
                    employmentSequenceNumber: Int,
                    costAmount: Option[BigDecimal] = None,
                    amountMadeGood: Option[BigDecimal] = None,
-                   cashEquivalent: Option[BigDecimal]= None,
-                   expensesIncurred: Option[BigDecimal]= None,
-                   amountOfRelief: Option[BigDecimal]= None,
-                   paymentOrBenefitDescription: Option[String]= None,
-                   dateWithdrawn: Option[LocalDate]= None,
-                   car: Option[Car]= None,
-                   actions: Map[String, String]= Map.empty,
-                   calculations: Map[String, String]= Map.empty,
+                   cashEquivalent: Option[BigDecimal] = None,
+                   expensesIncurred: Option[BigDecimal] = None,
+                   amountOfRelief: Option[BigDecimal] = None,
+                   paymentOrBenefitDescription: Option[String] = None,
+                   dateWithdrawn: Option[LocalDate] = None,
+                   car: Option[Car] = None,
+                   actions: Map[String, String] = Map.empty,
+                   calculations: Map[String, String] = Map.empty,
                    benefitAmount: Option[BigDecimal] = None,
                    forecastAmount: Option[Int] = None) {
 
@@ -55,8 +55,7 @@ case class CarAndFuel(carBenefit: Benefit, fuelBenefit: Option[Benefit] = None) 
 
   def toSeq: Seq[Benefit] = Seq(Some(carBenefit), fuelBenefit).flatten
 
-  // our constraints say that carBenefit.car must be Some, so naked get
-  // should be okay. If it isn't it means something is wrong, so exception
-  // is the only way out
-  def isActive: Boolean = carBenefit.car.map(_.dateCarWithdrawn.isEmpty).get
+  def isActive: Boolean = carBenefit.car.flatMap(c => c.dateCarWithdrawn.map(_ => false)).getOrElse(true)
+
+  def hasActiveFuel: Boolean = fuelBenefit.flatMap(f => f.dateWithdrawn.map(_ => false)).getOrElse(true)
 }
