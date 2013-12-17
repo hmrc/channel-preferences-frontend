@@ -104,9 +104,8 @@ GOVUK.ReportAProblem = function () {
     var $reportErrorContainer = $('.report-error__content'),
       $submitButton = $reportErrorContainer.find('.button'),
       validationErrors = {
-      	what_doing : '<p class="error-notification">Please enter details of what you were doing.</p>',
-      	what_wrong : '<p class="error-notification">Please enter details of what went wrong.</p>'
-
+      	"report-action" : '<p class="error-notification">Please enter details of what you were doing.</p>',
+      	"report-error" : '<p class="error-notification">Please enter details of what went wrong.</p>'
       },
       showErrorMessage = function () {
         var response = "<h2>Sorry, we're unable to receive your message right now.</h2> " +
@@ -247,7 +246,7 @@ GOVUK.ReportAProblem = function () {
 
     // toggle for reporting a problem (on all content pages)
       $('.report-error__toggle').on('click', function(e) {
-        $('.report-error__content').toggleClass("visuallyhidden");
+        $('.report-error__content').toggle();
           e.preventDefault();
       });
       var $errorReportForm = $('.report-error__content form');

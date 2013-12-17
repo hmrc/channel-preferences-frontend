@@ -21,3 +21,5 @@ date.fields.year=Year
 
 common.firstlogin={0}, this is the first time you have logged in
 common.previousLoginTime={0}, you last signed in to your account on {1}
+
+error.common.problem_report.action_mandatory=Please enter details of what you were doing.

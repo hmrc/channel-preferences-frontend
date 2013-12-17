@@ -2566,6 +2566,19 @@ article table td {
   list-style: none;
 }
 
+.js .js-enabled {
+  display: none;
+}
+
+.report-error__content {
+  color: #454a4c;
+  font-family: "nta",Arial,sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 300;
+  text-transform: none;
+}
+
 /**
 * @desc         header classes.
 * @name         header
@@ -3315,27 +3328,6 @@ article table td {
   .reminder {
     font-size: 16px;
     line-height: 1.25;
-  }
-}
-
-.report-error {
-  display: inline-block;
-  clear: both;
-  width: 100%;
-  margin: 2em 0 1.5em 0;
-}
-.report-error a {
-  font-family: "nta", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
-  color: #454a4c;
-}
-@media (max-width: 640px) {
-  .report-error a {
-    font-size: 14px;
-    line-height: 1.14286;
   }
 }
 
