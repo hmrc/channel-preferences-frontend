@@ -68,7 +68,8 @@ with EmailControllerHelper {
   private[bt] def resendValidationEmailAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.getSa.utr, true, Some(email)).map(const(FrontEndRedirect.toBusinessTax))
+        preferencesConnector.savePreferences(user.getSa.utr, true, Some(email))
+        Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email)(user)))
     }
   }
 

@@ -205,8 +205,9 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       val page = Future.successful(controller.resendValidationEmailAction(user, FakeRequest()))
 
-      status(page) shouldBe 303
-      header("Location", page).get should include(routes.BusinessTaxController.home.toString())
+      status(page) shouldBe 200
+      val document = Jsoup.parse(contentAsString(page))
+      document.getElementById("verification-mail-message") should not be null
 
       verify(mockPreferencesConnector).savePreferences(validUtr, true, Some("test@test.com"))
 
