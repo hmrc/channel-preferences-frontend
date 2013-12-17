@@ -21,8 +21,8 @@
             }
         }
         <td id="@id("car-benefit-amount")">@pounds(carAndFuel.carBenefit.benefitAmount.getOrElse(0))</td>
-        @defining(carAndFuel.fuelBenefit.flatMap{fuelBenefit => fuelBenefit.benefitAmount}.getOrElse{0} : BigDecimal) { fuelBenefitAmount =>
-            <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefitAmount)</td>
+        @carAndFuel.fuelBenefit.map { fuelBenefit =>
+            <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount.getOrElse(0))</td>
         }
     </tr>
 }
@@ -93,67 +93,80 @@
             }
         }
     }
-    <h2>You car and fuel benefits for the @{currentTaxYear}-@{currentTaxYear + 1} tax year</h2>
-    <table>
-        <thead>
-            <tr>
-                <th scope="col" colspan="1">Car</th>
-                <th scope="col" colspan="1">Dates</th>
-                <th scope="col" colspan="1">Car benefit</th>
-                <th scope="col" colspan="1">Fuel benefit</th>
-            </tr>
-        </thead>
-        <tbody>
-            @activeCarBenefit.map { carAndFuel =>
-                @carAmountsRow("Current car", carAndFuel)
-            }
-            @for(carAndFuel <- previousCarBenefits.zipWithIndex) {
-                @carAmountsRow("Previous car", carAndFuel._1)(Some(carAndFuel._2.toString))
-            }
-            @if(previousCarBenefits.length > 0) {
-                <tr>
-                    <td colspan="2" id="total-amounts">Total for the @{currentTaxYear}-@{currentTaxYear + 1} tax year</td>
-                    <td id="total-car-amount">@pounds(totalCarBenefitAmount)</td>
-                    <td id="total-fuel-amount">@pounds(totalFuelBenefitAmount)</td>
-                </tr>
-             }
-        </tbody>
-    </table>
+    @if(activeCarBenefit.isDefined || previousCarBenefits.size > 0) {
 
-    <h2>How much tax you'll pay</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Benefit</th>
-                <th>Total benefit value</th>
-                <th>Tax if your income is below £32K</th>
-                <th>Tax if your income is £32-150K</th>
-                <th>Tax if your income is above £150K</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Company car</td>
-                <td>@pounds(totalCarBenefitAmount)</td>
-                <td>@pounds(totalCarBenefitAmount * 0.2)</td>
-                <td>@pounds(totalCarBenefitAmount * 0.4)</td>
-                <td>@pounds(totalCarBenefitAmount * 0.5)</td>
-            </tr>
-            <tr>
-                <td>Private fuel</td>
-                <td>@pounds(totalFuelBenefitAmount)</td>
-                <td>@pounds(totalFuelBenefitAmount * 0.2)</td>
-                <td>@pounds(totalFuelBenefitAmount * 0.4)</td>
-                <td>@pounds(totalFuelBenefitAmount * 0.5)</td>
-            </tr>
-            <tr>
-                <td>Total</td>
-                <td>@pounds(totalFuelBenefitAmount + totalCarBenefitAmount)</td>
-                <td>@pounds((totalFuelBenefitAmount + totalCarBenefitAmount) * 0.2)</td>
-                <td>@pounds((totalFuelBenefitAmount + totalCarBenefitAmount) * 0.4)</td>
-                <td>@pounds((totalFuelBenefitAmount + totalCarBenefitAmount) * 0.5)</td>
-            </tr>
-        </tbody>
-    </table>
+        <h2>Your car and fuel benefits for the @{currentTaxYear}-@{currentTaxYear + 1} tax year</h2>
+        <table id="car-and-fuel-benefits-summary-table">
+            <thead>
+                <tr>
+                    <th scope="col" colspan="1">Car</th>
+                    <th scope="col" colspan="1">Dates</th>
+                    <th scope="col" colspan="1">Car benefit</th>
+                    @fuelGrossAmount.map { fuelGrossAmount =>
+                        <th id="benefits-summary-table-fuel-header" scope="col" colspan="1">Fuel benefit</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @activeCarBenefit.map { carAndFuel =>
+                    @carAmountsRow("Current car", carAndFuel)
+                }
+                @for(carAndFuel <- previousCarBenefits.zipWithIndex) {
+                    @carAmountsRow("Previous car", carAndFuel._1)(Some(carAndFuel._2.toString))
+                }
+                @if(previousCarBenefits.length > 0 && activeCarBenefit.isDefined || previousCarBenefits.length > 1) {
+                    <tr>
+                        <td colspan="2" id="total-amounts">Total for the @{currentTaxYear}-@{currentTaxYear + 1} tax year</td>
+                        <td id="total-car-amount">@pounds(carGrossAmount.get.taxableValue)</td>
+                        @fuelGrossAmount.map { fuelGrossAmount =>
+                            <td id="total-fuel-amount">@pounds(fuelGrossAmount.taxableValue)</td>
+                        }
+                    </tr>
+                 }
+            </tbody>
+        </table>
+
+        <h2>How much tax you'll pay</h2>
+        <table id="tax-liability-summary-table">
+            <thead>
+                <tr>
+                    <th>Benefit</th>
+                    <th>Total benefit value</th>
+                    <th>Tax if your income is below £32K</th>
+                    <th>Tax if your income is £32-150K</th>
+                    <th>Tax if your income is above £150K</th>
+                </tr>
+            </thead>
+            <tbody>
+                @carGrossAmount.map { carGrossAmount =>
+                    <tr id="tax-liability-summary-table-car-row">
+                        <td>Company car</td>
+                        <td>@pounds(carGrossAmount.taxableValue)</td>
+                        <td>@pounds(carGrossAmount.basicRateValue)</td>
+                        <td>@pounds(carGrossAmount.higherRateValue)</td>
+                        <td>@pounds(carGrossAmount.additionalRateValue)</td>
+                    </tr>
+                }
+                @fuelGrossAmount.map { fuelGrossAmount =>
+                    <tr id="tax-liability-summary-table-fuel-row">
+                        <td>Private fuel</td>
+                        <td>@pounds(fuelGrossAmount.taxableValue)</td>
+                        <td>@pounds(fuelGrossAmount.basicRateValue)</td>
+                        <td>@pounds(fuelGrossAmount.higherRateValue)</td>
+                        <td>@pounds(fuelGrossAmount.additionalRateValue)</td>
+                    </tr>
+                }
+                @totalBenefitGrossAmount.map { totalBenefitGrossAmount =>
+                    <tr id="tax-liability-summary-table-total-row">
+                        <td>Total</td>
+                        <td>@pounds(totalBenefitGrossAmount.taxableValue)</td>
+                        <td>@pounds(totalBenefitGrossAmount.basicRateValue)</td>
+                        <td>@pounds(totalBenefitGrossAmount.higherRateValue)</td>
+                        <td>@pounds(totalBenefitGrossAmount.additionalRateValue)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 
 }

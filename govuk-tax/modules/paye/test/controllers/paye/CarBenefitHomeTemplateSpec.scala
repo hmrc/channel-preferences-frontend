@@ -9,13 +9,10 @@ import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.LocalDate
 import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
 import controllers.DateFieldsHelper
-import uk.gov.hmrc.common.microservice.paye.domain.Employment._
 import org.scalatest.matchers.{MatchResult, Matcher}
 import views.html.paye.{car_benefit_home, error_no_data_car_benefit_home}
-import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import models.paye.EmploymentViews
 import java.text.SimpleDateFormat
 import views.formatting.Dates
@@ -35,6 +32,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
   val fuelBenefitName = "fuel"
   val carAndFuelBenefitName = "car and fuel"
   val todaysDate = "2 December 2012"
+  val currentTaxYear = TaxYearResolver.currentTaxYear
 
   val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
@@ -68,8 +66,11 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     def previousCars = Seq.empty[CarAndFuel]
 
+    def carTotalBenefitValue: Option[BenefitValue]  = Some(BenefitValue(carGrossAmount))
+    def fuelTotalBenefitValue: Option[BenefitValue] = Some(BenefitValue(fuelGrossAmount))
+
     def params =
-      HomePageParams(activeCar, companyName, 0, testTaxYear, employmentViews, previousCars, carGrossAmount, fuelGrossAmount)
+      HomePageParams(activeCar, companyName, 0, testTaxYear, employmentViews, previousCars, carTotalBenefitValue, fuelTotalBenefitValue)
 
     val dateFormatter = new SimpleDateFormat("d  yyyy")
   }
@@ -157,7 +158,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
-    "show benefits details for the tax year including gross amount" in new WithApplication(FakeApplication()) with BaseData {
+    "show benefits details for the tax year including gross amount for a user with an active car and multiple previous cars" in new WithApplication(FakeApplication()) with BaseData {
       val currentTaxYear = TaxYearResolver.currentTaxYear
       override val fuelBenefit = Some(fuelBenefitEmployer1)
 
@@ -195,7 +196,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#total-fuel-amount").text shouldBe s"£22"
     }
 
-    "show benefits details for the tax year not including total" in new WithApplication(FakeApplication()) with BaseData{
+    "show benefit summary details for the tax year excluding the total row for a user with only an active car" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -209,15 +210,114 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#total-amounts").text shouldBe ""
     }
 
+    "show benefit summary details for the tax year excluding the total row for a user with no active car and only one previous car" in new WithApplication(FakeApplication()) with BaseData {
+      override val activeCar = None
+      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11)))))
+      val previousCarAndFuel1 = CarAndFuel(carBenefit2, None)
+      override val previousCars = Seq(previousCarAndFuel1)
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#car-name-0").text shouldBe "Previous car"
+      doc.select("#total-amounts").text shouldBe ""
+    }
+
+    "show benefit summary details for the tax year for the inactive cars when the user has several deactivated cars and no active car" in new WithApplication(FakeApplication()) with BaseData {
+      override val activeCar = None
+
+      val fuelBenefit2 = Some(fuelBenefitEmployer1.copy(benefitAmount = Some(7)))
+      val fuelBenefit3 = Some(fuelBenefitEmployer1.copy(benefitAmount = Some(10)))
+
+      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11)))))
+      val carBenefit3 = carBenefit.copy(benefitAmount = Some(44), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 11, 11)), dateCarWithdrawn = Some(new LocalDate(2012, 11, 12)))))
+
+      val previousCarAndFuel1 = CarAndFuel(carBenefit2, fuelBenefit2)
+      val previousCarAndFuel2 = CarAndFuel(carBenefit3, fuelBenefit3)
+
+      override val previousCars = Seq(previousCarAndFuel1, previousCarAndFuel2)
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#car-name").text shouldBe ""
+
+      doc.select("#car-name-0").text shouldBe "Previous car"
+      doc.select("#car-available-0").text shouldBe s"10 October 2012 to 11 October 2012"
+      doc.select("#car-benefit-amount-0").text shouldBe "£13"
+      doc.select("#fuel-benefit-amount-0").text shouldBe "£7"
+
+      doc.select("#car-name-1").text shouldBe "Previous car"
+      doc.select("#car-available-1").text shouldBe s"11 November 2012 to 12 November 2012"
+      doc.select("#car-benefit-amount-1").text shouldBe "£44"
+      doc.select("#fuel-benefit-amount-1").text shouldBe "£10"
+
+      doc.select("#total-amounts").text shouldBe s"Total for the ${currentTaxYear}-${currentTaxYear + 1} tax year"
+      doc.select("#total-car-amount").text shouldBe s"£321"
+      doc.select("#total-fuel-amount").text shouldBe s"£22"
+    }
+
+    "should not display the fuel column on the benefit summary details table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+      override val fuelTotalBenefitValue = None
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      withClue("Benefits summary table should not contain the fuel column: ") {
+        doc.getElementById("benefits-summary-table-fuel-header") shouldBe null
+        doc.getElementById("fuel-benefit-amount") shouldBe null
+        doc.getElementById("fuel-benefit-amount-0") shouldBe null
+        doc.getElementById("fuel-benefit-amount-1") shouldBe null
+        doc.getElementById("total-fuel-amount") shouldBe null
+      }
+    }
+
+    "should not display the private fuel row in the tax liability table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+      override val fuelTotalBenefitValue = None
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      withClue("Tax you'll pay table should not contain the fuel row: ") {
+        doc.getElementById("tax-liability-summary-table-fuel-row") shouldBe null
+      }
+    }
+
+    "should display the tax liability table with all car and fuel values with user has both a car and fuel gross amount" in new WithApplication(FakeApplication()) with BaseData {
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      withClue("Tax you'll pay table should be displayed with all values") {
+        doc.getElementById("tax-liability-summary-table-fuel-row") should not be null
+        doc.getElementById("tax-liability-summary-table-fuel-row") should not be null
+        doc.getElementById("tax-liability-summary-table-total-row") should not be null
+      }
+    }
+
+    "hide car and fuel benefit details for the tax year when the user does not have any car benefits"  in new WithApplication(FakeApplication()) with BaseData {
+      override val activeCar = None
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+
+      withClue("Benefits summary table should not be shown: ") {
+        doc.getElementById("car-and-fuel-benefits-summary-table") shouldBe null
+      }
+      withClue("How much tax you'll pay table should not be shown: ") {
+        doc.getElementById("tax-liability-summary-table") shouldBe null
+      }
+    }
+
     "show an Add Car link for a user without a company car and do not show the add fuel link" in new WithApplication(FakeApplication()) with BaseData {
       override val activeCar = None
 
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById(addCarLinkId) should not be (null)
+      doc.getElementById(addCarLinkId) should not be null
       doc.getElementById(addCarLinkId).text should include("add a company car")
-      doc.getElementById(addFuelLinkId) shouldBe (null)
+      doc.getElementById(addFuelLinkId) shouldBe null
     }
 
     "show an Add Fuel link for a user with a car benefit but no fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
@@ -239,8 +339,6 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "not show an Add Fuel Link if the user has a company car with fuel of type electricity" in new WithApplication(FakeApplication()) with BaseData {
-
-
       override val carBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("electricity"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
 
@@ -355,7 +453,6 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
         }
       }
     }
-
 
     "display recent transactions for John Densmore when both car and fuel benefit have been removed and added " in new WithApplication(FakeApplication()) with BaseData {
       val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus = "completed")

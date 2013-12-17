@@ -22,7 +22,6 @@ import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.paye.validation.AddBenefitFlow
 import models.paye.CarBenefitData
 import models.paye.CarBenefitDataAndCalculations
-import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.BenefitUpdatedConfirmationData
@@ -174,13 +173,14 @@ with PayeRegimeRoots {
 
               payeConnector.calculateBenefitValue(uri, carAndFuelBenefit).map(_.get).flatMap {
                 benefitCalculations =>
-                  val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
-                  val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
-                  keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue), benefitCalculations.carBenefitForecastValue, benefitCalculations.fuelBenefitForecastValue)).map {
+                  keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber),
+                      KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData,
+                      benefitCalculations.carBenefitValue.get, benefitCalculations.fuelBenefitValue,
+                      benefitCalculations.carBenefitForecastValue, benefitCalculations.fuelBenefitForecastValue)).map {
                   _=>
                     val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                     addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)
+                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn)
                     Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
                   }
               }
