@@ -10,23 +10,20 @@
     @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>
         <table>
             <tbody>
-            <tr><th scope = "row">Date provided</th><td>@{formatDate(data.providedFrom)}</td></tr>
-            <tr><th scope = "row">List price including accessories</th><td>@pounds(data.listPrice)</td></tr>
-            <tr><th scope = "row">Fuel type</th><td>@{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</td></tr>
+            <tr><th scope="row">Date provided</th><td>@{formatDate(data.providedFrom)}</td></tr>
+            <tr><th scope="row">List price including accessories</th><td>@pounds(data.listPrice)</td></tr>
+            <tr><th scope="row">Fuel type</th><td>@{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</td></tr>
             @if(data.co2Figure.isDefined) {
-             <tr><th scope = "row">Emission figure</th><td>@data.co2Figure.get g/km</td></tr>
+             <tr><th scope="row">Emission figure</th><td>@data.co2Figure.get g/km</td></tr>
             }
             @if(data.engineCapacity.isDefined){
-            <tr><th scope = "row">Engine capacity</th> <td> @Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td></tr>
+            <tr><th scope="row">Engine capacity</th><td>@Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td></tr>
             }
             @if(data.employerPayFuel.isDefined){
-            <tr>
-                <th scope = "row">Private fuel</th><td> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}
-            </td></tr>
+            <tr><th scope="row">Private fuel</th><td>@{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
             }
             </tbody>
         </table>
-
         @helpers.link("edit-data", currentUri, "This information is wrong")
     }
 

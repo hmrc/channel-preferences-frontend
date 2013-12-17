@@ -47,7 +47,7 @@
             </tr>
             }
             <tr>
-                <td>Fuel for private use</td>
+                <th scope="row">Fuel for private use</th>
                 <td id="@id("private-fuel")">
                 @carAndFuel.fuelBenefit.map { fuelBenefit =>
                     @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
@@ -79,7 +79,5 @@
                 </tr>
             }
         }
-
     </tbody>
-
 </table>

@@ -10,9 +10,7 @@
         @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
             @defining(displayBenefit.benefits.find(b => b.benefitType == FUEL)) { fuelBenefit =>
                 @defining(displayBenefit.benefits.find(b => b.benefitType == CAR)) { carBenefit =>
-
-                    <h1 id="main-heading"><span class="pre-heading">service</span>
-                        Tell HMRC about a change to your company @benefitsTitle</h1>
+                    <h1 id="main-heading"><span class="pre-heading">service</span>Tell HMRC about a change to your company @benefitsTitle</h1>
 
                     <h2 class="title">Check your change before submitting</h2>
 
@@ -22,25 +20,24 @@
                             @carBenefit.map { benefit =>
                                 @defining(displayBenefit.benefitsInfo(s"$CAR")) { carBenefitInfo =>
                                     <tr>
-                                        <th scope = "row">Date given back</th>
+                                        <th scope="row">Date given back</th>
                                         <td id="car-benefit-date-car-withdrawn">@carBenefitInfo.withdrawDate</td>
                                     </tr>
                                 }
                                 <tr>
-                                    <th scope = "row">Days unavailable since 6 April @benefit.taxYear</th>
+                                    <th scope="row">Days unavailable since 6 April @benefit.taxYear</th>
                                     <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("none")</td>
                                 </tr>
 
                                 <tr>
-                                    <th scope = "row">Private use of the car: your contributions</th>
+                                    <th scope="row">Private use of the car: your contributions</th>
                                     <td id="car-benefit-employee-payments">@formData.employeeContribution.map(x => pounds(x)).getOrElse("none")</td>
                                 </tr>
                             }
-
                             @fuelBenefit.map { benefit =>
                                 @defining(displayBenefit.benefitsInfo(s"$FUEL")) { fuelBenefitInfo =>
                                     <tr>
-                                        <th scope = "row">Date fuel withdrawn</th>
+                                        <th scope="row">Date fuel withdrawn</th>
                                         <td id="car-benefit-date-fuel-withdrawn">@fuelBenefitInfo.withdrawDate</td>
                                     </tr>
                                 }
@@ -48,7 +45,6 @@
                         </tbody>
                     </table>
                 }
-
                 @helpers.link("go-back",
                     s"${ShowRemoveBenefitFormController.showBenefitRemovalForm(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)}",
                     "This information is wrong")

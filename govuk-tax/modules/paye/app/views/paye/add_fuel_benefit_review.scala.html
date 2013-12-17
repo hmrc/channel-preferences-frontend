@@ -14,13 +14,12 @@
         @if(data.providedFrom.isDefined){
         <tr><th scope="row">Date provided</th><td id="provided-from">@{formatDate(data.providedFrom.get)}</td></tr>
         }
-        <tr><th scope="row">Private fuel</th><td id="private-fuel"> @{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
+        <tr><th scope="row">Private fuel</th><td id="private-fuel">@{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
         </tbody>
     </table>
     }
 
     @helpers.link("edit-data", currentUri, "This information is wrong")
-
     @helper.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
         <div class="form-field">
             <input type="submit" class="button" value="Submit">

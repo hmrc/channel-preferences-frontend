@@ -12,26 +12,24 @@
 
 
 @carAmountsRow(carName : String, carAndFuel: CarAndFuel)(implicit idSuffix: Option[String] = None) = {
-
-    <tr>
-        <td id="@id("car-name")">@carName</td>
-        @carAndFuel.carBenefit.car.map { car =>
-            @car.dateCarMadeAvailable.map { dateCarMadeAvailable =>
-                <td id="@id("car-available")">@formatDate(dateCarMadeAvailable) to @formatDate(car.dateCarWithdrawn.getOrElse(endOfCurrentTaxYear))</td>
-            }
+<tr>
+    <td id="@id("car-name")">@carName</td>
+    @carAndFuel.carBenefit.car.map { car =>
+        @car.dateCarMadeAvailable.map { dateCarMadeAvailable =>
+        <td id="@id("car-available")">@formatDate(dateCarMadeAvailable) to @formatDate(car.dateCarWithdrawn.getOrElse(endOfCurrentTaxYear))</td>
         }
-        <td id="@id("car-benefit-amount")">@pounds(carAndFuel.carBenefit.benefitAmount.getOrElse(0))</td>
-        @defining(carAndFuel.fuelBenefit.flatMap{fuelBenefit => fuelBenefit.benefitAmount}.getOrElse{0} : BigDecimal) { fuelBenefitAmount =>
-            <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefitAmount)</td>
-        }
-    </tr>
+    }
+    <td id="@id("car-benefit-amount")">@pounds(carAndFuel.carBenefit.benefitAmount.getOrElse(0))</td>
+    @defining(carAndFuel.fuelBenefit.flatMap{fuelBenefit => fuelBenefit.benefitAmount}.getOrElse{0} : BigDecimal) { fuelBenefitAmount =>
+    <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefitAmount)</td>
+    }
+</tr>
 }
 
 @main(title = "Your tax home", user = Some(user)) {
     <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
 
     @defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
-
         @if(employmentViews.flatMap(e => e.recentChanges).size > 0) {
             <div class="overview__actions">
                 <h2 class="overview__sub-heading">Recent changes</h2>
@@ -55,9 +53,7 @@
         }
 
         <h2>Make Changes</h2>
-        <p>
-            You can make the following changes to the information HMRC has about your company car
-        </p>
+        <p>You can make the following changes to the information HMRC has about your company car</p>
         @activeCarBenefit.map { car =>
             <ul>
                 <li>
@@ -124,30 +120,30 @@
     <table>
         <thead>
             <tr>
-                <th>Benefit</th>
-                <th>Total benefit value</th>
-                <th>Tax if your income is below £32K</th>
-                <th>Tax if your income is £32-150K</th>
-                <th>Tax if your income is above £150K</th>
+                <th scope="col">Benefit</th>
+                <th scope="col">Total benefit value</th>
+                <th scope="col">Tax if your income is below £32K</th>
+                <th scope="col">Tax if your income is £32-150K</th>
+                <th scope="col">Tax if your income is above £150K</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Company car</td>
+                <th scope="row">Company car</th>
                 <td>@pounds(totalCarBenefitAmount)</td>
                 <td>@pounds(totalCarBenefitAmount * 0.2)</td>
                 <td>@pounds(totalCarBenefitAmount * 0.4)</td>
                 <td>@pounds(totalCarBenefitAmount * 0.5)</td>
             </tr>
             <tr>
-                <td>Private fuel</td>
+                <th scope="row">Private fuel</th>
                 <td>@pounds(totalFuelBenefitAmount)</td>
                 <td>@pounds(totalFuelBenefitAmount * 0.2)</td>
                 <td>@pounds(totalFuelBenefitAmount * 0.4)</td>
                 <td>@pounds(totalFuelBenefitAmount * 0.5)</td>
             </tr>
             <tr>
-                <td>Total</td>
+                <th scope="row">Total</th>
                 <td>@pounds(totalFuelBenefitAmount + totalCarBenefitAmount)</td>
                 <td>@pounds((totalFuelBenefitAmount + totalCarBenefitAmount) * 0.2)</td>
                 <td>@pounds((totalFuelBenefitAmount + totalCarBenefitAmount) * 0.4)</td>
