@@ -140,29 +140,29 @@
             <tbody>
                 @carGrossAmount.map { carGrossAmount =>
                     <tr id="tax-liability-summary-table-car-row">
-                        <td>Company car</td>
-                        <td>@pounds(carGrossAmount.taxableValue)</td>
-                        <td>@pounds(carGrossAmount.basicRateValue)</td>
-                        <td>@pounds(carGrossAmount.higherRateValue)</td>
-                        <td>@pounds(carGrossAmount.additionalRateValue)</td>
+                        <td id="tax-liability-summary-table-car-header">Company car</td>
+                        <td id="tax-liability-summary-table-car-taxable-value">@pounds(carGrossAmount.taxableValue)</td>
+                        <td id="tax-liability-summary-table-car-basic-rate-value">@pounds(carGrossAmount.basicRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-car-higher-rate-value">@pounds(carGrossAmount.higherRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-car-additional-rate-value">@pounds(carGrossAmount.additionalRateValue, 2)</td>
                     </tr>
                 }
                 @fuelGrossAmount.map { fuelGrossAmount =>
                     <tr id="tax-liability-summary-table-fuel-row">
-                        <td>Private fuel</td>
-                        <td>@pounds(fuelGrossAmount.taxableValue)</td>
-                        <td>@pounds(fuelGrossAmount.basicRateValue)</td>
-                        <td>@pounds(fuelGrossAmount.higherRateValue)</td>
-                        <td>@pounds(fuelGrossAmount.additionalRateValue)</td>
+                        <td id="tax-liability-summary-table-fuel-header">Private fuel</td>
+                        <td id="tax-liability-summary-table-fuel-taxable-value">@pounds(fuelGrossAmount.taxableValue)</td>
+                        <td id="tax-liability-summary-table-fuel-basic-rate-value">@pounds(fuelGrossAmount.basicRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-fuel-higher-rate-value">@pounds(fuelGrossAmount.higherRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-fuel-additional-rate-value">@pounds(fuelGrossAmount.additionalRateValue, 2)</td>
                     </tr>
                 }
                 @totalBenefitGrossAmount.map { totalBenefitGrossAmount =>
                     <tr id="tax-liability-summary-table-total-row">
-                        <td>Total</td>
-                        <td>@pounds(totalBenefitGrossAmount.taxableValue)</td>
-                        <td>@pounds(totalBenefitGrossAmount.basicRateValue)</td>
-                        <td>@pounds(totalBenefitGrossAmount.higherRateValue)</td>
-                        <td>@pounds(totalBenefitGrossAmount.additionalRateValue)</td>
+                        <td id="tax-liability-summary-table-total-header">Total</td>
+                        <td id="tax-liability-summary-table-total-taxable-value">@pounds(totalBenefitGrossAmount.taxableValue)</td>
+                        <td id="tax-liability-summary-table-total-basic-rate-value">@pounds(totalBenefitGrossAmount.basicRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-total-higher-rate-value">@pounds(totalBenefitGrossAmount.higherRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-total-additional-rate-value">@pounds(totalBenefitGrossAmount.additionalRateValue, 2)</td>
                     </tr>
                 }
             </tbody>

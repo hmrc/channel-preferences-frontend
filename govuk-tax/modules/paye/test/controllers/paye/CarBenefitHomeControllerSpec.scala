@@ -72,8 +72,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
         'employmentSequenceNumber(1),
-        'totalCarBenefitAmount(Some(BenefitValue(BigDecimal(321.42)))),
-        'totalFuelBenefitAmount(None)
+        'carGrossAmount(Some(BenefitValue(BigDecimal(321.42)))),
+        'fuelGrossAmount(None)
       )
 
       val expectedEmploymentViews = EmploymentViews.createEmploymentViews(employments, taxCodes, testTaxYear,
@@ -127,8 +127,8 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       actualHomePageParams shouldNot be(None)
 
       actualHomePageParams.get should have(
-        'totalCarBenefitAmount(Some(BenefitValue(BigDecimal(600)))),
-        'totalFuelBenefitAmount(Some(BenefitValue(BigDecimal(55.21))))
+        'carGrossAmount(Some(BenefitValue(BigDecimal(600)))),
+        'fuelGrossAmount(Some(BenefitValue(BigDecimal(55.21))))
       )
 
     }

@@ -66,11 +66,11 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     def previousCars = Seq.empty[CarAndFuel]
 
-    def carTotalBenefitValue: Option[BenefitValue]  = Some(BenefitValue(carGrossAmount))
-    def fuelTotalBenefitValue: Option[BenefitValue] = Some(BenefitValue(fuelGrossAmount))
+    def carGrossAmountBenefitValue: Option[BenefitValue]  = Some(BenefitValue(carGrossAmount))
+    def fuelGrossAmountBenefitValue: Option[BenefitValue] = Some(BenefitValue(fuelGrossAmount))
 
     def params =
-      HomePageParams(activeCar, companyName, 0, testTaxYear, employmentViews, previousCars, carTotalBenefitValue, fuelTotalBenefitValue)
+      HomePageParams(activeCar, companyName, 0, testTaxYear, employmentViews, previousCars, carGrossAmountBenefitValue, fuelGrossAmountBenefitValue)
 
     val dateFormatter = new SimpleDateFormat("d  yyyy")
   }
@@ -258,7 +258,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "should not display the fuel column on the benefit summary details table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
-      override val fuelTotalBenefitValue = None
+      override val fuelGrossAmountBenefitValue = None
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -273,7 +273,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "should not display the private fuel row in the tax liability table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
-      override val fuelTotalBenefitValue = None
+      override val fuelGrossAmountBenefitValue = None
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -283,14 +283,64 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       }
     }
 
+    "should not display the total row in the tax liability table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+      override val fuelGrossAmountBenefitValue = None
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      withClue("Tax you'll pay table should not contain the total row: ") {
+        doc.getElementById("tax-liability-summary-table-total-row") shouldBe null
+      }
+    }
+
+    "should not display the car row in the tax liability table when user has no gross car benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+      override val carGrossAmountBenefitValue = None
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      withClue("Tax you'll pay table should not contain the car row: ") {
+        doc.getElementById("tax-liability-summary-table-car-row") shouldBe null
+      }
+    }
+
+    "should not display the total row in the tax liability table when user has no gross car benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+      override val carGrossAmountBenefitValue = None
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      withClue("Tax you'll pay table should not contain the total row: ") {
+        doc.getElementById("tax-liability-summary-table-total-row") shouldBe null
+      }
+    }
+
     "should display the tax liability table with all car and fuel values with user has both a car and fuel gross amount" in new WithApplication(FakeApplication()) with BaseData {
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
       withClue("Tax you'll pay table should be displayed with all values") {
         doc.getElementById("tax-liability-summary-table-fuel-row") should not be null
-        doc.getElementById("tax-liability-summary-table-fuel-row") should not be null
+        doc.getElementById("tax-liability-summary-table-fuel-header").text shouldBe "Private fuel"
+        doc.getElementById("tax-liability-summary-table-fuel-taxable-value").text shouldBe "£22"
+        doc.getElementById("tax-liability-summary-table-fuel-basic-rate-value").text shouldBe "£4.44"
+        doc.getElementById("tax-liability-summary-table-fuel-higher-rate-value").text shouldBe "£8.88"
+        doc.getElementById("tax-liability-summary-table-fuel-additional-rate-value").text shouldBe "£11.11"
+
+        doc.getElementById("tax-liability-summary-table-car-row") should not be null
+        doc.getElementById("tax-liability-summary-table-car-header").text shouldBe "Company car"
+        doc.getElementById("tax-liability-summary-table-car-taxable-value").text shouldBe "£321"
+        doc.getElementById("tax-liability-summary-table-car-basic-rate-value").text shouldBe "£64.28"
+        doc.getElementById("tax-liability-summary-table-car-higher-rate-value").text shouldBe "£128.56"
+        doc.getElementById("tax-liability-summary-table-car-additional-rate-value").text shouldBe "£160.71"
+
         doc.getElementById("tax-liability-summary-table-total-row") should not be null
+        doc.getElementById("tax-liability-summary-table-total-header").text shouldBe "Total"
+        doc.getElementById("tax-liability-summary-table-total-taxable-value").text shouldBe "£343"
+        doc.getElementById("tax-liability-summary-table-total-basic-rate-value").text shouldBe "£68.72"
+        doc.getElementById("tax-liability-summary-table-total-higher-rate-value").text shouldBe "£137.45"
+        doc.getElementById("tax-liability-summary-table-total-additional-rate-value").text shouldBe "£171.82"
       }
     }
 
