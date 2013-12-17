@@ -74,12 +74,13 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceMicroService.httpWrapper.getF[SaPreference](preferencesUri)).thenReturn(Future.successful(Some(SaPreference(digital = true, Some("someEmail@email.com")))))
+      when(preferenceMicroService.httpWrapper.getF[SaPreference](preferencesUri)).thenReturn(Future.successful(Some(SaPreference(digital = true,
+        Some(SaEmailPreference("someEmail@email.com", SaEmailPreference.Status.verified))))))
       val result = preferenceMicroService.getPreferences(utr)(HeaderCarrier())
       verify(preferenceMicroService.httpWrapper).getF[SaPreference](preferencesUri)
 
       whenReady(result) {
-        _ shouldBe Some(SaPreference(digital = true, Some("someEmail@email.com")))
+        _ shouldBe Some(SaPreference(digital = true, Some(SaEmailPreference("someEmail@email.com", SaEmailPreference.Status.verified))))
       }
     }
 

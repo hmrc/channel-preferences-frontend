@@ -4,7 +4,7 @@ import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, PreferencesConnector, SaPreference}
+import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, FormattedUri, PreferencesConnector, SaPreference}
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -43,7 +43,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
   "Preferences pages" should {
 
     "redirect to the homepage when preferences already exist for a specific utr" in new Setup {
-      val preferencesAlreadyCreated = SaPreference(true, Some("test@test.com"))
+      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
       when(preferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = Future.successful(controller.displayPrefsFormAction(None)(user, request))

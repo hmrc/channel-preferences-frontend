@@ -8,7 +8,7 @@
 
    @if(saPreferences.isDefined && saPreferences.get.email.isDefined) {
        <p>You have signed up for email reminders.</p>
-       <p>Email address: <span id="email-address">@{saPreferences.get.email.get}</span></p>
+       <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
         <hr>
        <p>
            @helpers.link(
@@ -24,6 +24,8 @@
                "Opt-out of email reminders"
            )
       </p>
+
+
    }
 
 }

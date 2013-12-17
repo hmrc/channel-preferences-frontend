@@ -79,7 +79,7 @@ with EmailControllerHelper {
 
   private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).flatMap {
-        case Some(SaPreference(true, Some(email))) => func(email)
+        case Some(SaPreference(true, Some(email))) => func(email.email)
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
   }
