@@ -40,7 +40,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryView.messages shouldBe Seq[Msg](Msg(vatRegistrationNumberMessage ,Seq("12345")), Msg(vatAccountBalanceMessage,Seq(MoneyPounds(BigDecimal(6.1)))) )
       accountSummaryView.addenda shouldBe Seq[AccountSummaryLink](
         AccountSummaryLink("vat-account-details-href", vatAccountDetailsPortalUrl, viewAccountDetailsLinkMessage, sso = true),
-        AccountSummaryLink("vat-make-payment-href", "/vat/makeAPayment", makeAPaymentLinkMessage, sso = false),
+        AccountSummaryLink("vat-make-payment-href", "/vat/make-a-payment", makeAPaymentLinkMessage, sso = false),
         AccountSummaryLink("vat-file-return-href", vatFileAReturnPortalUrl, fileAReturnLinkMessage, sso = true)
       )
       accountSummaryView.status shouldBe SummaryStatus.success
