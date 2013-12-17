@@ -27,7 +27,7 @@ import play.api.test.FakeApplication
 import controllers.bt.accountsummary.Msg
 import controllers.bt.{routes => businessTaxRoutes}
 import controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
 import controllers.common.actions.HeaderCarrier
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
@@ -223,7 +223,8 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val preference = SaPreference(digital = true, Some("bob@somewhere.stuff"))
+      val preference = SaPreference(true, Some(SaEmailPreference("bob@somewhere.stuff", SaEmailPreference.Status.verified)))
+
       when(mockPreferencesConnector.getPreferences(utr)).thenReturn(Some(preference))
 
       val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
