@@ -1,6 +1,7 @@
 package config
 
 import play.api.GlobalSettings
+import play.api.mvc.RequestHeader
 
 //import play.api.{ Application, Logger }
 //import play.api.mvc._
@@ -45,5 +46,10 @@ object Global extends GlobalSettings {
 //    reporter.start(app.configuration.getLong(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(10L), TimeUnit.SECONDS)
 //  }
 
+
+  // Play 2.0 doesn't support trailing slash: http://play.lighthouseapp.com/projects/82401/tickets/98
+  override def onRouteRequest(request: RequestHeader) = super.onRouteRequest(request).orElse {
+    Some(request.path).filter(_.endsWith("/")).flatMap(p => super.onRouteRequest(request.copy(path = p.dropRight(1))))
+  }
 
 }
