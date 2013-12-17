@@ -54,6 +54,29 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       optOutOfEmailLink.text shouldBe "Opt-out of email reminders"
       optOutOfEmailLink.attr("href") shouldBe routes.AccountDetailsController.optOutOfEmailReminders.url
 
+      page.getElementById("revalidate-email-link") shouldBe null
+
+      verify(mockPreferencesConnector).getPreferences(validUtr)
+    }
+
+    "include Re-validate email address section for SA customer with email preference set as 'bounced'" in new Setup {
+
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.bounced, Some("User does not exist"))))
+      when(mockPreferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.accountDetailsPage(user, request))
+
+      status(result) shouldBe 200
+      val page = Jsoup.parse(contentAsString(result))
+      val revalidateEmailAddressLink = page.getElementById("revalidate-email-link")
+      revalidateEmailAddressLink should not be null
+      revalidateEmailAddressLink.text shouldBe "Change / re-validate your email address"
+      revalidateEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
+
+      page.getElementById("opt-out-of-email-link") shouldBe null
+      page.getElementById("change-email-address-link") shouldBe null
+
+
       verify(mockPreferencesConnector).getPreferences(validUtr)
     }
 
