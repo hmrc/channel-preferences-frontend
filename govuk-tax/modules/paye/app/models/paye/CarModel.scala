@@ -31,9 +31,9 @@ object CarAndFuelBuilder {
     val fuelBenefit = carBenefitData.employerPayFuel match {
       //benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int
       case Some(data) if data == "true" || data == "again" => Some(createBenefit(benefitType = 29, withdrawnDate = None, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get, carBenefitDataAndCalculations.forecastFuelBenefitValue))
+        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), benefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get, carBenefitDataAndCalculations.forecastFuelBenefitValue))
       case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), grossBenefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get, carBenefitDataAndCalculations.forecastFuelBenefitValue))
+        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), benefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get, carBenefitDataAndCalculations.forecastFuelBenefitValue))
       case _ => None
     }
     new CarAndFuel(carBenefit, fuelBenefit)
@@ -75,10 +75,10 @@ object CarAndFuelBuilder {
     }
   }
 
-  private def createBenefit(benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int, forecastBenefitAmount: Option[Int]) = {
+  private def createBenefit(benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], benefitAmount : Int, forecastBenefitAmount: Option[Int]) = {
     Benefit(benefitType = benefitType,
       taxYear = taxYear,
-      grossAmount = grossBenefitAmount,
+      grossAmount = 0,
       employmentSequenceNumber = employmentSeqNumber,
       costAmount = None,
       amountMadeGood = None,
@@ -90,6 +90,7 @@ object CarAndFuelBuilder {
       car = car,
       actions = Map.empty[String, String],
       calculations = Map.empty[String, String],
+      benefitAmount = Some(benefitAmount),
       forecastAmount = forecastBenefitAmount)
   }
 }

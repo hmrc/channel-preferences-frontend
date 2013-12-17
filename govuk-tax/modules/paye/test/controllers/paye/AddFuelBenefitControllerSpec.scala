@@ -380,12 +380,12 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
   "clicking submit on the fuel benefit review page" should {
     "submit the corresponding keystore data to the paye service and then show the success page when successful" in new TestCaseIn2012 {
       // given
-      val grossFuelBenefit = 1000
+      val fuelBenefitAmount = 1000
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
       setupMocksForJohnDensmore(benefits = Seq(CarAndFuel(carBenefitStartedThisYear)), taxCodes = Seq(TaxCode(employmentSeqNumberOne, Some(1), testTaxYear, "oldTaxCode", List.empty)))
       val fuelBenefitData = FuelBenefitData(Some("true"), None)
-      when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData, grossFuelBenefit, Some(2000))))
+      when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData, fuelBenefitAmount, Some(2000))))
       val benefitsCapture = ArgumentCaptor.forClass(classOf[Seq[Benefit]])
       val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
       when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmore.getPaye.version), Matchers.eq(employmentSeqNumberOne), benefitsCaptor.capture())(Matchers.any())).thenReturn(Some(addBenefitResponse))
@@ -397,7 +397,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         // then
         val benefitsSentToPaye = benefitsCaptor.getValue
         benefitsSentToPaye should have length 1
-        val expectedFuelBenefit = Some(Benefit(29, 2012, grossFuelBenefit, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map(), None, Some(2000)))
+        val expectedFuelBenefit = Some(Benefit(29, 2012, 0, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map(), Some(fuelBenefitAmount), Some(2000)))
         Some(benefitsSentToPaye.head) shouldBe expectedFuelBenefit
 
         status(result) shouldBe 200
