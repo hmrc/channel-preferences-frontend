@@ -1,22 +1,24 @@
 
-GET     /home                                              @controllers.bt.BusinessTaxController.home
-GET     /vat/makeAPayment                                  @controllers.bt.PaymentController.makeVatPayment
-GET     /ct/makeAPayment                                   @controllers.bt.PaymentController.makeCtPayment
-GET     /sa/makeAPayment                                   @controllers.bt.PaymentController.makeSaPayment
-GET     /epaye/makeAPayment                                @controllers.bt.PaymentController.makeEpayePayment
-GET     /otherServices                                     @controllers.bt.OtherServicesController.otherServices
-GET     /importantDates                                    @controllers.bt.ImportantDatesController.importantDates
-GET     /mergeGGAccounts                                   @controllers.bt.MergeGGAccountsController.mergeGGAccounts
+GET     /home                                                   @controllers.bt.BusinessTaxController.home
+GET     /vat/make-a-payment                                     @controllers.bt.PaymentController.makeVatPayment
+GET     /ct/make-a-payment                                      @controllers.bt.PaymentController.makeCtPayment
+GET     /sa/make-a-payment                                      @controllers.bt.PaymentController.makeSaPayment
+GET     /epaye/make-a-payment                                   @controllers.bt.PaymentController.makeEpayePayment
+GET     /other-services                                         @controllers.bt.OtherServicesController.otherServices
+GET     /important-dates                                        @controllers.bt.ImportantDatesController.importantDates
+GET     /merge-accounts                                         @controllers.bt.MergeGGAccountsController.mergeGGAccounts
 
-GET     /account-details                                   @controllers.bt.AccountDetailsController.accountDetails
-GET     /account-details/update-email-address              @controllers.bt.AccountDetailsController.changeEmailAddress(email: Option[String])
-POST    /account-details/update-email-address              @controllers.bt.AccountDetailsController.submitEmailAddress
-GET     /account-details/update-email-address-thank-you    @controllers.bt.AccountDetailsController.emailAddressChangeThankYou
-GET     /account-details/opt-out-email-reminders           @controllers.bt.AccountDetailsController.optOutOfEmailReminders
-POST    /account-details/opt-out-email-reminders           @controllers.bt.AccountDetailsController.confirmOptOutOfEmailReminders
-GET     /account-details/opt-out-email-reminders-thank-you @controllers.bt.AccountDetailsController.optedBackIntoPaperThankYou
+GET     /account-details                                        @controllers.bt.AccountDetailsController.accountDetails
+GET     /account-details/sa/update-email-address                @controllers.bt.AccountDetailsController.changeEmailAddress(email: Option[String])
+POST    /account-details/sa/update-email-address                @controllers.bt.AccountDetailsController.submitEmailAddress
+GET     /account-details/sa/update-email-address-thank-you      @controllers.bt.AccountDetailsController.emailAddressChangeThankYou
+GET     /account-details/sa/opt-out-email-reminders             @controllers.bt.AccountDetailsController.optOutOfEmailReminders
+POST    /account-details/sa/opt-out-email-reminders             @controllers.bt.AccountDetailsController.confirmOptOutOfEmailReminders
+GET     /account-details/sa/opt-out-email-reminders-thank-you   @controllers.bt.AccountDetailsController.optedBackIntoPaperThankYou
 
-GET     /prefs/sa/print                                    @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[String])
-POST    /prefs/sa/print                                    @controllers.bt.prefs.SaPrefsController.submitPrefsForm
-POST    /prefs/sa/print/keep-paper                         @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
-GET     /prefs/sa/print/thank-you                          @controllers.bt.prefs.SaPrefsController.thankYou
+GET     /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[String])
+POST    /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.submitPrefsForm
+POST    /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
+GET     /account-details/sa/opt-in-email-reminders-thank-you    @controllers.bt.prefs.SaPrefsController.thankYou
+
+GET     /                                                       @controllers.bt.BusinessTaxController.home

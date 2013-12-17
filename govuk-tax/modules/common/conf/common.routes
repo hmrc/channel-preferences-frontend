@@ -12,7 +12,7 @@ GET     /loggedout                      @controllers.common.LoginController.logg
 GET     /samllogin                      @controllers.common.LoginController.samlLogin
 POST    /ida/login                      @controllers.common.LoginController.idaLogin
 GET     /business-tax/login             @controllers.common.LoginController.businessTaxLogin
-POST    /government-gateway/login       @controllers.common.LoginController.governmentGatewayLogin
+POST    /business-tax/login             @controllers.common.LoginController.governmentGatewayLogin
 
 
 POST    /ssoin                          @controllers.common.SsoInController.in
