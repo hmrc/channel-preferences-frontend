@@ -9,7 +9,30 @@
 
    @if(saPreferences.isDefined && saPreferences.get.email.isDefined) {
 
-       @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified || saPreferences.get.email.get.status == SaEmailPreference.Status.pending) {
+       @if(saPreferences.get.email.get.status == SaEmailPreference.Status.pending) {
+           <p>You are currently opted-in to Digital SA, but you have yet to validate the email address you have
+               entered during opting in. Use the links below to resend the validation email to an new address.</p>
+
+           @helper.form(action = controllers.bt.routes.AccountDetailsController.resendValidationEmail) {
+
+           <div class="form-field">
+               <p>
+               <button id="resend-email-button" class="button" type="submit">Resend validation email to your current address</button>
+               </p>
+           </div>
+
+           }
+
+           <p>
+           @helpers.link(
+               "revalidate-email-link",
+               controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+               "Change your email address"
+           )
+           </p>
+       }
+
+       @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified ) {
            <p>You have signed up for email reminders.</p>
            <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
            <hr>

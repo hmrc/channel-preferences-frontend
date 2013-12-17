@@ -1,16 +1,19 @@
 package controllers.bt
 
-import controllers.common.{GovernmentGateway, BaseController}
+import controllers.common.{FrontEndRedirect, GovernmentGateway, BaseController}
 import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
-import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
-import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{SimpleResult, Request}
+import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
+import play.api.mvc.Request
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
+import scala.Function._
+import uk.gov.hmrc.common.microservice.preferences.SaPreference
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.domain.User
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
@@ -50,11 +53,22 @@ with EmailControllerHelper {
     user => request => Future(Ok(views.html.opted_back_into_paper_thank_you(user)))
   }
 
+  def resendValidationEmail() = AuthorisedFor(account = SaRegime).async {
+    user => request => resendValidationEmailAction(user, request)
+  }
+
   private[bt] def confirmOptOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
         preferencesConnector.savePreferences(user.getSa.utr, false, None)
         Future.successful(Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou()))
+    }
+  }
+
+  private[bt] def resendValidationEmailAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+    lookupCurrentEmail {
+      email =>
+        preferencesConnector.savePreferences(user.getSa.utr, true, Some(email)).map(const(FrontEndRedirect.toBusinessTax))
     }
   }
 
