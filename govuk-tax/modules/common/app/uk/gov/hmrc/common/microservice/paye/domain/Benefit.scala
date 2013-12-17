@@ -55,7 +55,7 @@ case class CarAndFuel(carBenefit: Benefit, fuelBenefit: Option[Benefit] = None) 
 
   def toSeq: Seq[Benefit] = Seq(Some(carBenefit), fuelBenefit).flatten
 
-  def isActive: Boolean = carBenefit.car.flatMap(c => c.dateCarWithdrawn.map(_ => false)).getOrElse(true)
+  def isActive: Boolean = carBenefit.car.isDefined && !carBenefit.car.get.dateCarWithdrawn.isDefined
 
-  def hasActiveFuel: Boolean = fuelBenefit.flatMap(f => f.dateWithdrawn.map(_ => false)).getOrElse(true)
+  def hasActiveFuel: Boolean = fuelBenefit.isDefined && !fuelBenefit.get.dateWithdrawn.isDefined
 }

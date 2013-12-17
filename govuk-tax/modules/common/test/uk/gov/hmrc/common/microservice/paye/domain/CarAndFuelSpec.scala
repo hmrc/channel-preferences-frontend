@@ -16,6 +16,26 @@ class CarAndFuelSpec extends BaseSpec {
       CarAndFuel(carBenefit).isActive shouldBe false
     }
 
+    "have active fuel fuelBenefit is defined and has not withdrawn date" in {
+      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(Car()))
+      val fuelBenefit = Benefit(BenefitTypes.FUEL, 2013, 200, 1)
+
+      CarAndFuel(carBenefit, Some(fuelBenefit)).hasActiveFuel shouldBe true
+    }
+
+    "not have active fuel if fuelBenefit is defined but has a withdrawn date" in {
+      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(Car()))
+      val fuelBenefit = Benefit(BenefitTypes.FUEL, 2013, 200, 1, dateWithdrawn = Some(new LocalDate))
+
+      CarAndFuel(carBenefit, Some(fuelBenefit)).hasActiveFuel shouldBe false
+    }
+
+    "not have active fuel if fuelBenefit is not defined" in {
+      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(Car()))
+
+      CarAndFuel(carBenefit, None).hasActiveFuel shouldBe false
+    }
+
     "turn a car benefit with no fuel benefit into a sequence of 1 Benefit" in {
       val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(Car()))
       val benefits = CarAndFuel(carBenefit).toSeq
@@ -24,7 +44,7 @@ class CarAndFuelSpec extends BaseSpec {
       benefits(0).benefitType shouldBe BenefitTypes.CAR
     }
 
-    "turn a car benefit with a fuel benefit into a sequence of s Benefits" in {
+    "turn a car benefit with a fuel benefit into a sequence of 2 Benefits" in {
       val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(Car()))
       val fuelBenefit = Benefit(BenefitTypes.FUEL, 2013, 100, 1)
       val benefits = CarAndFuel(carBenefit, Some(fuelBenefit)).toSeq
