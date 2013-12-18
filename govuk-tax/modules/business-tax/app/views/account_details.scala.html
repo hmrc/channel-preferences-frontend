@@ -7,7 +7,7 @@
 
 <h2> Self Assessment emails reminders </h2>
 
-   @if(saPreferences.isDefined && saPreferences.get.email.isDefined) {
+   @if(saPreferences.isDefined && saPreferences.get.digital) {
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.pending) {
            <p>You are currently opted-in to Digital SA, but you have yet to validate the email address you have
@@ -43,27 +43,41 @@
                      "Change your email address"
                 )
            </p>
-           <p>
-               @helpers.link(
-                   "opt-out-of-email-link",
-                    controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
-                   "Opt-out of email reminders"
-               )
-          </p>
        }
-           @if(saPreferences.get.email.get.status == SaEmailPreference.Status.bounced) {
-               <p>You are currently opted-in to Digital SA, but the last email we sent you was not deliverable, we received the following error:</p>
-               <p>@{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
-               <p>
-               @helpers.link(
-                   "revalidate-email-link",
-                   controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
-                   "Change / re-validate your email address"
-               )
-               </p>
-           }
+       @if(saPreferences.get.email.get.status == SaEmailPreference.Status.bounced) {
+           <p>You are currently opted-in to Digital SA, but the last email we sent you was not deliverable, we received the following error:</p>
+           <p>@{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
+           <p>
+           @helpers.link(
+               "revalidate-email-link",
+               controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+               "Change / re-validate your email address"
+           )
+           </p>
+       }
+
+       <p>
+       @helpers.link(
+           "opt-out-of-email-link",
+           controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
+           "Opt-out of email reminders"
+       )
+       </p>
 
 
    }
+    @if(saPreferences.isDefined && !saPreferences.get.digital) {
+        <p>You are currently opted-out of Digital SA, use the link below to manage your preferences.</p>
+
+        <p>
+        @helpers.link(
+            "opt-in-to-digital-email-link",
+            controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(None).url,
+            "Opt-in to email reminders"
+        )
+        </p>
+
+
+    }
 
 }

@@ -33,13 +33,15 @@ with PayeRegimeRoots {
   def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
       implicit request =>
-        assembleCarBenefitData(user.getPaye, currentTaxYear).map { details: RawTaxData =>
-          carBenefitHomeAction(details).withSession(sessionWithNpsVersion(request.session))
+        assembleCarBenefitData(user.getPaye, currentTaxYear).map {
+          details: RawTaxData =>
+            carBenefitHomeAction(details).withSession(sessionWithNpsVersion(request.session))
         }
   }
 
-  def cannotPlayInBeta = UnauthorisedAction { request =>
-    Ok(cannot_play_in_beta())
+  def cannotPlayInBeta = UnauthorisedAction {
+    request =>
+      Ok(cannot_play_in_beta())
   }
 
   def carBenefitHomeAction(details: RawTaxData)(implicit user: User): SimpleResult = {
@@ -53,8 +55,9 @@ with PayeRegimeRoots {
     session + (("nps-version", user.getPaye.version.toString))
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
-    params.map { params =>
-      Ok(car_benefit_home(params))
+    params.map {
+      params =>
+        Ok(car_benefit_home(params))
     }.getOrElse {
       val message = s"Unable to find current employment for user ${user.oid}"
       Logger.error(message)
@@ -86,16 +89,20 @@ with PayeRegimeRoots {
     val carBenefit = details.cars.find(_.isActive)
     val previousCars = details.cars.filterNot(_.isActive)
 
-    val totals : (BigDecimal, BigDecimal) = getGrossAmounts(details.cars)
+    val grossAmounts: (Option[BenefitValue], Option[BenefitValue]) = extractGrossBenefitValues(details.cars)
 
-    details.employments.find(_.employmentType == Employment.primaryEmploymentType).map { primaryEmployment =>
-      HomePageParams(carBenefit, primaryEmployment.employerName, primaryEmployment.sequenceNumber, taxYear, employmentViews, previousCars, totals._1, totals._2)
+    details.employments.find(_.employmentType == Employment.primaryEmploymentType).map {
+      primaryEmployment =>
+        HomePageParams(carBenefit, primaryEmployment.employerName, primaryEmployment.sequenceNumber, taxYear,
+          employmentViews, previousCars, grossAmounts._1, grossAmounts._2)
     }
   }
 
-  def getGrossAmounts(cars: Seq[CarAndFuel]): (BigDecimal, BigDecimal) = {
-    cars.foldLeft((BigDecimal(0), BigDecimal(0))) {
-      (grossAmounts, carAndFuel) => (carAndFuel.carBenefit.grossAmount, carAndFuel.fuelBenefit.map(_.grossAmount).getOrElse(grossAmounts._2))
+  def extractGrossBenefitValues(cars: Seq[CarAndFuel]): (Option[BenefitValue], Option[BenefitValue]) = {
+    cars.foldLeft[(Option[BenefitValue], Option[BenefitValue])]((None, None)) {
+      (grossCarBenefitValue, carAndFuel) => (Some(BenefitValue(carAndFuel.carBenefit.grossAmount)), carAndFuel.fuelBenefit.map(b => BenefitValue(b.grossAmount)) orElse {
+        grossCarBenefitValue._2
+      })
     }
   }
 }
@@ -112,5 +119,26 @@ case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
                           currentTaxYear: Int,
                           employmentViews: Seq[EmploymentView],
                           previousCarBenefits: Seq[CarAndFuel],
-                          totalCarBenefitAmount: BigDecimal,
-                          totalFuelBenefitAmount: BigDecimal)
+                          carGrossAmount: Option[BenefitValue],
+                          fuelGrossAmount: Option[BenefitValue]) {
+  val totalBenefitGrossAmount = HomePageParamsBuilder.buildTotalBenefitValue(carGrossAmount, fuelGrossAmount)
+}
+
+
+case class BenefitValue(taxableValue: BigDecimal) {
+  val basicRateValue: BigDecimal = taxableValue * 0.2
+  val higherRateValue: BigDecimal = taxableValue * 0.4
+  val additionalRateValue: BigDecimal = taxableValue * 0.45
+}
+
+object HomePageParamsBuilder {
+
+  def buildTotalBenefitValue(value1: Option[BenefitValue], value2: Option[BenefitValue]): Option[BenefitValue] = {
+    (value1, value2) match {
+      case (None, None) => None
+      case (None, _) => None
+      case (_, None) => None
+      case _ => Some(BenefitValue(value1.map(_.taxableValue).getOrElse(BigDecimal(0)) + value2.map(_.taxableValue).getOrElse(BigDecimal(0))))
+    }
+  }
+}

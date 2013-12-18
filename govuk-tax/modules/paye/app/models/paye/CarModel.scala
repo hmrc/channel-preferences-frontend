@@ -19,33 +19,33 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
                           employerPayFuel: Option[String],
                           dateFuelWithdrawn: Option[LocalDate])
 
-case class CarBenefitDataAndCalculations(carBenefitData : CarBenefitData, carBenefitValue: Int, fuelBenefitValue: Option[Int], forecastCarBenefitValue: Option[Int], forecastFuelBenefitValue: Option[Int])
+case class CarBenefitDataAndCalculations(carBenefitData : CarBenefitData)
 
 object CarAndFuelBuilder {
   def apply(carBenefitDataAndCalculations: CarBenefitDataAndCalculations, taxYear: Int, employmentSequenceNumber: Int): CarAndFuel = {
     val carBenefitData = carBenefitDataAndCalculations.carBenefitData
     val car = createCar(carBenefitData)
 
-    val carBenefit = createBenefit(CAR, None, taxYear, employmentSequenceNumber, Some(car), carBenefitDataAndCalculations.carBenefitValue, carBenefitDataAndCalculations.forecastCarBenefitValue)
+    val carBenefit = createBenefit(CAR, None, taxYear, employmentSequenceNumber, Some(car), 0, None)
 
     val fuelBenefit = carBenefitData.employerPayFuel match {
       //benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int
       case Some(data) if data == "true" || data == "again" => Some(createBenefit(benefitType = 29, withdrawnDate = None, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), benefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get, carBenefitDataAndCalculations.forecastFuelBenefitValue))
+        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), 0, None))
       case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
-        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), benefitAmount = carBenefitDataAndCalculations.fuelBenefitValue.get, carBenefitDataAndCalculations.forecastFuelBenefitValue))
+        employmentSeqNumber =  employmentSequenceNumber, car = Some(car), 0, None))
       case _ => None
     }
     new CarAndFuel(carBenefit, fuelBenefit)
   }
 
-  def apply(addFuelBenefit: FuelBenefitData, taxableBenefit: Int, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int, forecastFuelBenefitValue: Option[Int]) : CarAndFuel  = {
+  def apply(addFuelBenefit: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) : CarAndFuel  = {
     val car = carBenefit.car
     val fuelBenefit = addFuelBenefit.employerPayFuel match {
 
-      case Some("true" | "again") => Some(createBenefit(FUEL, carBenefit.dateWithdrawn, taxYear, employmentSequenceNumber, car, taxableBenefit, forecastFuelBenefitValue))
+      case Some("true" | "again") => Some(createBenefit(FUEL, carBenefit.dateWithdrawn, taxYear, employmentSequenceNumber, car, 0, None))
 
-      case Some("date") => Some(createBenefit(FUEL, addFuelBenefit.dateFuelWithdrawn, taxYear, employmentSequenceNumber, car, taxableBenefit, forecastFuelBenefitValue))
+      case Some("date") => Some(createBenefit(FUEL, addFuelBenefit.dateFuelWithdrawn, taxYear, employmentSequenceNumber, car, 0, None))
 
       case _ => None
     }

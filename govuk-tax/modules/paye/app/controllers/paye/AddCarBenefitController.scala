@@ -22,7 +22,6 @@ import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.paye.validation.AddBenefitFlow
 import models.paye.CarBenefitData
 import models.paye.CarBenefitDataAndCalculations
-import uk.gov.hmrc.common.microservice.paye.domain.BenefitValue
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.BenefitUpdatedConfirmationData
@@ -162,28 +161,21 @@ with PayeRegimeRoots {
       findEmployment(employmentSequenceNumber, payeRootData) match {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)
-          val payeRoot = user.regimes.paye.get
 
           carBenefitForm(dates).bindFromRequest()(request).fold(
             errors => Future.successful(BadRequest(add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))),
             (addCarBenefitData: CarBenefitData) => {
               implicit val hc = HeaderCarrier(request)
-              val emission = if (addCarBenefitData.co2NoFigure.getOrElse(false)) None else addCarBenefitData.co2Figure
-              val carAndFuelBenefit = CarAndFuelBuilder(CarBenefitDataAndCalculations(addCarBenefitData.copy(co2Figure = emission), 0, Some(0), Some(0), Some(0)), taxYear, employmentSequenceNumber)
-              val uri = payeRoot.actions.getOrElse("calculateBenefitValue", throw new IllegalArgumentException(s"No calculateBenefitValue action uri found"))
 
-              payeConnector.calculateBenefitValue(uri, carAndFuelBenefit).map(_.get).flatMap {
-                benefitCalculations =>
-                  val carBenefitValue: Option[BenefitValue] = benefitCalculations.carBenefitValue.map(BenefitValue)
-                  val fuelBenefitValue: Option[BenefitValue] = benefitCalculations.fuelBenefitValue.map(BenefitValue)
-                  keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, CarBenefitDataAndCalculations(addCarBenefitData, carBenefitValue.get.taxableValue, fuelBenefitValue.map(_.taxableValue), benefitCalculations.carBenefitForecastValue, benefitCalculations.fuelBenefitForecastValue)).map {
-                  _=>
-                    val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
+              keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey,
+                CarBenefitDataAndCalculations(addCarBenefitData)).map {
+                _ =>
+                  val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                     addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, carBenefitValue, fuelBenefitValue)
-                    Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
-                  }
+                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn)
+                  Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
               }
+              //              }
             }
           )
         }

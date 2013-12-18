@@ -251,7 +251,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val response = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
 
       status(response) shouldBe 303
-      header("Location", response).get should include("/account-details/sa/opt-in-email-reminders")
+      header("Location", response).get should include("/account-details/sa/login-opt-in-email-reminders")
 
       verify(mockPreferencesConnector).getPreferences(utr)
     }

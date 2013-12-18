@@ -73,7 +73,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       revalidateEmailAddressLink.text shouldBe "Change / re-validate your email address"
       revalidateEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
 
-      page.getElementById("opt-out-of-email-link") shouldBe null
+      page.getElementById("opt-out-of-email-link") should not be null
       page.getElementById("change-email-address-link") shouldBe null
 
 
@@ -100,7 +100,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val resendForm = page.getElementsByTag("form")
       resendForm.attr("action") shouldBe routes.AccountDetailsController.resendValidationEmail.toString()
 
-      page.getElementById("opt-out-of-email-link") shouldBe null
+      page.getElementById("opt-out-of-email-link") should not be null
       page.getElementById("change-email-address-link") shouldBe null
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
@@ -205,13 +205,13 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       val page = Future.successful(controller.resendValidationEmailAction(user, FakeRequest()))
 
-      status(page) shouldBe 303
-      header("Location", page).get should include(routes.BusinessTaxController.home.toString())
+      status(page) shouldBe 200
+      val document = Jsoup.parse(contentAsString(page))
+      document.getElementById("verification-mail-message") should not be null
 
       verify(mockPreferencesConnector).savePreferences(validUtr, true, Some("test@test.com"))
 
     }
-
   }
 
   "A post to update email address with no emailVerifiedFlag" should {
