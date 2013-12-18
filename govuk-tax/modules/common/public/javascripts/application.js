@@ -246,7 +246,7 @@ GOVUK.ReportAProblem = function () {
 
     // toggle for reporting a problem (on all content pages)
       $('.report-error__toggle').on('click', function(e) {
-        $('.report-error__content').toggle();
+        $('.report-error__content').toggleClass('js-hidden');
           e.preventDefault();
       });
       var $errorReportForm = $('.report-error__content form');
