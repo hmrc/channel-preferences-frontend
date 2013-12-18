@@ -128,7 +128,7 @@ case class HomePageParams(activeCarBenefit: Option[CarAndFuel],
 case class BenefitValue(taxableValue: BigDecimal) {
   val basicRateValue: BigDecimal = taxableValue * 0.2
   val higherRateValue: BigDecimal = taxableValue * 0.4
-  val additionalRateValue: BigDecimal = taxableValue * 0.5
+  val additionalRateValue: BigDecimal = taxableValue * 0.45
 }
 
 object HomePageParamsBuilder {
