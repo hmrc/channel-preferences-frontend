@@ -11,7 +11,7 @@
 @import views.helpers._
 
 @main(title = "Remove your company benefit", user = Some(user)) {
-    <h1><span class="pre-heading">service</span>@Messages("paye.remove_car_benefit.h1")</h1>
+    <h1>@Messages("paye.remove_car_benefit.h1")</h1>
     <h2><span class="employer-name">@displayBenefit.employment.employerName</span>@Messages("paye.remove_car_benefit.h2.company_info")</h2>
     <h2 class="benefit-type">@Messages("paye.remove_car_benefit.benefit_type")</h2>
 

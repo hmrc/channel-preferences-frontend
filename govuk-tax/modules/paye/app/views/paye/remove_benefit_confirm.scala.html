@@ -10,7 +10,7 @@
         @defining(joinList(displayBenefit.benefits.map(b => Messages(s"benefitType.${b.benefitType}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
             @defining(displayBenefit.benefits.find(b => b.benefitType == FUEL)) { fuelBenefit =>
                 @defining(displayBenefit.benefits.find(b => b.benefitType == CAR)) { carBenefit =>
-                    <h1 id="main-heading"><span class="pre-heading">service</span>Tell HMRC about a change to your company @benefitsTitle</h1>
+                    <h1 id="main-heading">Tell HMRC about a change to your company @benefitsTitle</h1>
 
                     <h2 class="title">Check your change before submitting</h2>
 
