@@ -31,7 +31,8 @@ class EmploymentViewsSpec extends BaseSpec with LoneElement {
   
   "EmploymentViews apply" should {
 
-    "add a tax code recent change object with the correct created date if a benefit transaction is in a completed state" in {
+    // List of transactions is temporarily disabled on the home page as per-requriements
+    "add a tax code recent change object with the correct created date if a benefit transaction is in a completed state" ignore {
       val created = new DateTime(2013, 11, 5, 20, 0, ISOChronology.getInstanceUTC)
       val views = EmploymentViews.createEmploymentViews(
         employments,

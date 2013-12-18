@@ -68,15 +68,13 @@ with PayeRegimeRoots {
   private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[RawTaxData] = {
     val f1 = payeRoot.fetchCars(taxYear)
     val f2 = payeRoot.fetchEmployments(taxYear)
-    val f3 = payeRoot.fetchTransactionHistory(txQueueMicroservice)
     val f5 = payeRoot.fetchTaxCodes(taxYear)
 
     for {
       cars <- f1
       employments <- f2
-      transactionHistory <- f3
       taxCodes <- f5
-    } yield RawTaxData(taxYear, cars, employments, taxCodes, transactionHistory)
+    } yield RawTaxData(taxYear, cars, employments, taxCodes, Seq.empty)
   }
 
   private[paye] def buildHomePageParams(details: RawTaxData, benefitTypes: Set[Int], taxYear: Int): Option[HomePageParams] = {

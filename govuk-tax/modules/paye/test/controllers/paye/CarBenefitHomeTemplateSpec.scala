@@ -481,7 +481,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.getElementById(addCarLinkId) shouldBe null
     }
 
-    "display recent transactions for John Densmore" in new WithApplication(FakeApplication()) with BaseData {
+    // List of transactions is temporarily disabled on the home page as per-requriements
+    "display recent transactions for John Densmore" ignore new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
       override val transactionHistory = Seq(
         acceptedRemovedCarTransaction, completedRemovedCarTransaction,
@@ -506,7 +507,21 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select(".no_actions") shouldBe empty
     }
 
-    "only display recent car or fuel transactions for John Densmore" in new WithApplication(FakeApplication()) with BaseData {
+    // List of transactions is temporarily disabled on the home page as per-requriements
+    "not display transactions for John Densmore even when passed to the template" in new WithApplication(FakeApplication()) with BaseData {
+      override val fuelBenefit = Some(fuelBenefitEmployer1)
+      override val transactionHistory = Seq(
+        acceptedRemovedCarTransaction)
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      val recentChanges = doc.select(".overview__actions__done")
+      recentChanges shouldBe empty
+    }
+
+    // List of transactions is temporarily disabled on the home page as per-requriements
+    "only display recent car or fuel transactions for John Densmore" ignore new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
       override val transactionHistory = Seq(completedAddCarTransaction, acceptedAddCarTransaction)
 
@@ -532,7 +547,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       }
     }
 
-    "display recent transactions for John Densmore when both car and fuel benefit have been removed and added " in new WithApplication(FakeApplication()) with BaseData {
+    // List of transactions is temporarily disabled on the home page as per-requriements
+    "display recent transactions for John Densmore when both car and fuel benefit have been removed and added " ignore new WithApplication(FakeApplication()) with BaseData {
       val removeCar1AndFuel1CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus = "completed")
       val addCar2AndFuel2CompletedTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus = "completed")
       val removeCar2AndFuel2AcceptedTransaction = transactionWithTags(List("paye", "test", "message.code.removeBenefits"), Map("benefitTypes" -> s"$CAR,$FUEL"), mostRecentStatus =  "accepted")

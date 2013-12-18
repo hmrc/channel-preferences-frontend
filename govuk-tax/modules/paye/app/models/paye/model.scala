@@ -87,7 +87,7 @@ object EmploymentViews {
                             ): Seq[EmploymentView] =
     employments.map { e =>
       EmploymentView(e.employerNameOrReference, e.startDate, e.endDate, TaxCodeResolver.currentTaxCode(taxCodes, e.sequenceNumber),
-        recentChanges(e.sequenceNumber, taxYear, transactionHistory, benefitTypes))
+        recentChanges(e.sequenceNumber, taxYear, Seq.empty, benefitTypes))
     }
 
   def hasPendingTransactionsOfType(employmentViews: Seq[EmploymentView], transactionType: String): Boolean = employmentViews.flatMap(_.recentChanges).exists(_.messageCode.endsWith(s"$transactionType.$TRANSACTION_STATUS_ACCEPTED"))
