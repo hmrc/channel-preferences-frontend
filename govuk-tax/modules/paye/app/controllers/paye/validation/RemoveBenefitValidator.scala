@@ -84,6 +84,7 @@ object RemoveBenefitValidator extends Validators {
     .verifying("error.paye.benefit.date.previous.taxyear", date => date.isAfter(taxYearInterval.getStart.toLocalDate.minusDays(1)))
     .verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
 
+  // TODO: Fix this. Naked get on dates means it is not Optional!
   private[paye] def validateFuelDate(dates: Option[CarFuelBenefitDates], benefitStartDate: Option[LocalDate], taxYearInterval: Interval): Mapping[Option[LocalDate]] = dates.get.fuelDateType.getOrElse("") match {
     case FUEL_DIFFERENT_DATE => dateTuple
       .verifying("error.paye.benefit.date.mandatory", data => if (dates.isDefined) {

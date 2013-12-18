@@ -1,27 +1,22 @@
 @(addedData: models.paye.BenefitUpdatedConfirmationData)
 
-@import views.formatting.Money._
-@import views.helpers._
+    @main(title = "Tell HMRC about a change to your company car - confirmation") {
+        <h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
+        <h2 id="headline">Your company car details have been changed.</h2>
 
-
-@main(title = "Tell HMRC about a change to your company car - confirmation") {
-<h1><span class="pre-heading">service</span> Tell HMRC about a change to your company car</h1>
-<h2 id="headline">Your company car details have been changed.</h2>
-
-<p>
-    Your tax code has changed from <span id="old-tax-code">@{addedData.oldTaxCode}</span>.
-    @addedData.newTaxCode.map{taxCode =>
+        <p>
+            Your tax code has changed from <span id="old-tax-code">@{addedData.oldTaxCode}</span>.
+            @addedData.newTaxCode.map { taxCode =>
             Your new tax code is <span id="new-tax-code">@taxCode</span>.
+        }
+        </p>
+
+        <p id="epilogue">HMRC will write to you to confirm your new tax code within 7 days.</p>
+
+        <p>@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}", "See your updated company car information.")</p>
+
+        <p>More about @helpers.link("", "https://www.gov.uk/tax-codes", "tax codes", true) and @helpers.link("", "https://www.gov.uk/tax-company-benefits", "tax on company benefits", true).</p>
+
     }
-</p>
-
-<p id="epilogue">HMRC will write to you to confirm your new tax code within 7 days.<br/>
-    See your updated company car information.</p>
-
-<p>More about <a id="tax-codes" href="https://www.gov.uk/tax-codes" target="_blank">tax codes</a> and
-    <a id="tax-on-company-benefits" href="https://www.gov.uk/tax-company-benefits" target="_blank">tax on company benefits</a>.</p>
-
-<p>If you have finished, you can @helpers.link("", s"${common.routes.LoginController.logout}", "log out of your GOV.UK account.")</p>
-}
 
 
