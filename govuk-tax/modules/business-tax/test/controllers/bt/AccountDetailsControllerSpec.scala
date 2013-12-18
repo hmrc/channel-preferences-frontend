@@ -89,7 +89,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
-      val revalidateEmailAddressLink = page.getElementById("revalidate-email-link")
+      val revalidateEmailAddressLink = page.getElementById("change-email-address-link")
       revalidateEmailAddressLink should not be null
       revalidateEmailAddressLink.text shouldBe "Change your email address"
       revalidateEmailAddressLink.attr("href") shouldBe routes.AccountDetailsController.changeEmailAddress(None).url
@@ -101,7 +101,6 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       resendForm.attr("action") shouldBe routes.AccountDetailsController.resendValidationEmail.toString()
 
       page.getElementById("opt-out-of-email-link") should not be null
-      page.getElementById("change-email-address-link") shouldBe null
 
       verify(mockPreferencesConnector).getPreferences(validUtr)
     }
