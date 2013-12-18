@@ -69,7 +69,7 @@ trait PayeBaseSpec extends BaseSpec {
   val carBenefitEmployer1 = Benefit(31, testTaxYear, carGrossAmount, 1, None, None, None, None, None, None, None,
     Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0),
       Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), Some(BigDecimal("120.21")), None)),
-     actions("AB123456C", testTaxYear, 1), Map.empty, benefitAmount = Some(264.42))
+    actions("AB123456C", testTaxYear, 1), Map.empty, benefitAmount = Some(264.42))
 
   val fuelBenefitEmployer1 = Benefit(29, testTaxYear, fuelGrossAmount, 1, None, None, None, None, None, None, None,
     None, actions("AB123456C", testTaxYear, 1), Map.empty, benefitAmount = Some(5.22))
@@ -105,10 +105,14 @@ trait PayeBaseSpec extends BaseSpec {
   val fuelBenefit = Benefit(29, testTaxYear, 22.22, 2, None, None, None, None, None, None, None,
     None, actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-09-10/withdrawDate"))
 
+  val withdrawnFuelBenefit = Benefit(29, testTaxYear, 22.22, 2, None, None, None, None, None, None, Some(new LocalDate()),
+    None, actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-09-10/withdrawDate"))
+
   val carAndFuelBenefitWithDifferentEmploymentNumbers = Seq(CarAndFuel(carBenefit,
     Some(Benefit(29, testTaxYear, 135.33, 1, None, None, None, None, None, None, None, None, Map.empty, Map.empty))))
 
   val johnDensmoresBenefits = Seq(CarAndFuel(carBenefit, Some(fuelBenefit)))
+
 
   val removedCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
     Some(Car(None, Some(new LocalDate(testTaxYear, 7, 12)), Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("RC123456B", testTaxYear, 1), Map.empty)
@@ -141,8 +145,8 @@ trait PayeBaseSpec extends BaseSpec {
 
   val acceptedAddCarTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR"), mostRecentStatus = "accepted")
   val completedAddCarTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$CAR"), mostRecentStatus = "completed")
-  val acceptedAddFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus =  "accepted")
-  val completedAddFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus =  "completed")
+  val acceptedAddFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus = "accepted")
+  val completedAddFuelTransaction = transactionWithTags(List("paye", "test", "message.code.addBenefits"), Map("benefitTypes" -> s"$FUEL"), mostRecentStatus = "completed")
 
   protected def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
     Map("remove" -> s"/paye/$nino/benefits/$year/$esn/update")

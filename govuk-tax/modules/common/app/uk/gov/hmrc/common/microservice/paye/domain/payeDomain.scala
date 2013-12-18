@@ -103,7 +103,7 @@ case class TaxYearData(cars: Seq[CarAndFuel], employments: Seq[Employment]) {
    */
   def findActiveBenefit(employmentNumber: Int, benefitType: Int): Option[Benefit] = {
     cars.filter(_.isActive).headOption.flatMap { car =>
-      car.toSeq.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber)
+      car.toSeq.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber && !b.dateWithdrawn.isDefined)
     }
   }
 
