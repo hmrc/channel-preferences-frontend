@@ -69,7 +69,7 @@ with EmailControllerHelper {
     lookupCurrentEmail {
       email =>
         preferencesConnector.savePreferences(user.getSa.utr, true, Some(email))
-        Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email)(user)))
+        Future.successful(Ok(views.html.account_details_verification_email_resent_confirmation(user)))
     }
   }
 
