@@ -406,7 +406,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         doc.select("#start-date") should be (empty)
         doc.select("#end-date") should be (empty)
         doc.select("#epilogue").text should include ("HMRC will write to you to confirm your new tax code within 7 days.")
-        doc.select("#epilogue").text should include ("See your updated company car information")
+        doc.select("#home-page-link").text should include ("See your updated company car information")
         doc.select("a#tax-codes").text should be ("tax codes")
         doc.select("a#tax-codes").first.attr("href") should be ("https://www.gov.uk/tax-codes")
         doc.select("a#tax-codes").first.attr("target") should be ("_blank")

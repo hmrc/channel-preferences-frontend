@@ -13,9 +13,9 @@
 
         <p id="epilogue">HMRC will write to you to confirm your new tax code within 7 days.</p>
 
-        <p>@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}", "See your updated company car information.")</p>
+        <p id="home-page-link">@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}", "See your updated company car information.")</p>
 
-        <p>More about @helpers.link("", "https://www.gov.uk/tax-codes", "tax codes", true) and @helpers.link("", "https://www.gov.uk/tax-company-benefits", "tax on company benefits", true).</p>
+        <p>More about @helpers.link("tax-codes", "https://www.gov.uk/tax-codes", "tax codes", true) and @helpers.link("tax-on-company-benefits", "https://www.gov.uk/tax-company-benefits", "tax on company benefits", true).</p>
 
     }
 
