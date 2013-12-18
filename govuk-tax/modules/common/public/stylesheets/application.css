@@ -1712,15 +1712,6 @@ h4, .h4-heading {
   color: #6f777b;
 }
 
-.report-error a {
-  color: #454a4c;
-  font-family: "nta",Arial,sans-serif;
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
-}
-
 /**
 * @desc         layout classes.
 * @name         layouts
@@ -2159,13 +2150,6 @@ label.indent {
 }
 
 /**
- * feedback
- */
-.report-error {
-  margin-top: 2em;
-}
-
-/**
 * @desc         lists.
 * @name         layouts
 * @author       Anthony Munene
@@ -2578,12 +2562,12 @@ article table td {
   width: 1px !important;
 }
 
-.no-bullets {
-  list-style: none;
-}
-
 .js .js-hidden {
   display: none;
+}
+
+.no-bullets {
+  list-style: none;
 }
 
 /**
@@ -3335,6 +3319,27 @@ article table td {
   .reminder {
     font-size: 16px;
     line-height: 1.25;
+  }
+}
+
+.report-error {
+  display: inline-block;
+  clear: both;
+  width: 100%;
+  margin: 2em 0 1.5em 0;
+}
+.report-error a {
+  font-family: "nta", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 300;
+  text-transform: none;
+  color: #454a4c;
+}
+@media (max-width: 640px) {
+  .report-error a {
+    font-size: 14px;
+    line-height: 1.14286;
   }
 }
 
