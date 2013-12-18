@@ -361,23 +361,14 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
         doc.getElementById("tax-liability-summary-table-fuel-row") should not be null
         doc.getElementById("tax-liability-summary-table-fuel-header").text shouldBe "Private fuel"
         doc.getElementById("tax-liability-summary-table-fuel-taxable-value").text shouldBe "£22"
-        doc.getElementById("tax-liability-summary-table-fuel-basic-rate-value").text shouldBe "£4.44"
-        doc.getElementById("tax-liability-summary-table-fuel-higher-rate-value").text shouldBe "£8.88"
-        doc.getElementById("tax-liability-summary-table-fuel-additional-rate-value").text shouldBe "£11.11"
 
         doc.getElementById("tax-liability-summary-table-car-row") should not be null
         doc.getElementById("tax-liability-summary-table-car-header").text shouldBe "Company car"
         doc.getElementById("tax-liability-summary-table-car-taxable-value").text shouldBe "£321"
-        doc.getElementById("tax-liability-summary-table-car-basic-rate-value").text shouldBe "£64.28"
-        doc.getElementById("tax-liability-summary-table-car-higher-rate-value").text shouldBe "£128.56"
-        doc.getElementById("tax-liability-summary-table-car-additional-rate-value").text shouldBe "£160.71"
 
         doc.getElementById("tax-liability-summary-table-total-row") should not be null
         doc.getElementById("tax-liability-summary-table-total-header").text shouldBe "Total"
         doc.getElementById("tax-liability-summary-table-total-taxable-value").text shouldBe "£343"
-        doc.getElementById("tax-liability-summary-table-total-basic-rate-value").text shouldBe "£68.72"
-        doc.getElementById("tax-liability-summary-table-total-higher-rate-value").text shouldBe "£137.45"
-        doc.getElementById("tax-liability-summary-table-total-additional-rate-value").text shouldBe "£171.82"
       }
     }
 
