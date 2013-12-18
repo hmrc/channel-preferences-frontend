@@ -68,12 +68,6 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
         )(DummyModel.apply)(DummyModel.unapply))
     }
 
-    "reject a value that is more than 999" in new WithApplication(FakeApplication()) {
-      val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "1000")
-      form.hasErrors shouldBe true
-      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Please enter a number of 3 characters or less.")
-    }
-
     "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "-1")
       form.hasErrors shouldBe true
