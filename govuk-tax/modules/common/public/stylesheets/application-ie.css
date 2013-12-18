@@ -2475,6 +2475,10 @@ article table td {
   width: 1px !important;
 }
 
+.js .js-hidden {
+  display: none;
+}
+
 .no-bullets {
   list-style: none;
 }
