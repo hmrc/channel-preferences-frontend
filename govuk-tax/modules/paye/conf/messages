@@ -97,3 +97,14 @@ error.paye.remove_car_benefit.question2.missing_days_unavailable=You must specif
 error.paye.remove_car_benefit.question3.number_max_5_chars=Please enter a number of 5 characters or less.
 error.paye.remove_car_benefit.question3.number_less_than_0=Employee payment must be greater than zero if you have selected yes.
 error.paye.remove_car_benefit.question3.missing_employee_contribution=You must specify how much you paid your employer for private use of the company car.
+
+paye.company_car_home.title=Tell HMRC about a change to your company car
+paye.company_car_home.heading=Tell HMRC about a change to your company car
+paye.company_car_home.intro=You can use this service if you’re a Pay As You Earn (PAYE) employee. Changes to your company car can make a difference to your tax code and the tax you pay. If you're not sure how they’ll affect your tax, use the {0}.
+paye.company_car_home.intro.calculator_link.text=company car calculator
+paye.company_car_home.intro.calculator_link.url=http://www.hmrc.gov.uk/calcs/cars.htm
+paye.company_car_home.instructions.heading=Before you start
+paye.company_car_home.instructions.need=You need:
+paye.company_car_home.instructions.list_item.1=the manufacturer’s price when the car was new (list price), including VAT and accessories
+paye.company_car_home.instructions.list_item.2=CO2 emissions for the car
+paye.company_car_home.instructions.info=Ask your employer for this information or check CO2 emissions with the {0}.
