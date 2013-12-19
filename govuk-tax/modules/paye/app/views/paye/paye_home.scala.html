@@ -1,0 +1,30 @@
+@main(title = Messages(s"paye.company_car_home.title"), sidebarLinks = Some(sidebarLinks)) {
+    <h1>@Messages(s"paye.company_car_home.title")</h1>
+    <p>@Messages(s"paye.company_car_home.intro", helpers.link("", Messages(s"paye.company_car_home.intro.calculator_link.href"), Messages(s"paye.company_car_home.intro.calculator_link.text")))</p>
+    <h2>@Messages(s"paye.company_car_home.instructions.heading")</h2>
+    <p>@Messages(s"paye.company_car_home.instructions.need")</p>
+    <ul>
+        <li>@Messages(s"paye.company_car_home.instructions.list_item.1")</li>
+        <li>@Messages(s"paye.company_car_home.instructions.list_item.2")</li>
+    </ul>
+    <p>@Messages(s"paye.company_car_home.instructions.info", helpers.link("", Messages(s"link.link.vehicle_certification_agency.url"), Messages(s"link.link.vehicle_certification_agency.text")))</p>
+    <p>@Messages(s"info.need_to_register")</p>
+    @helpers.link("", common.FrontEndRedirect.carBenefit, Messages(s"button.sign_in"), false, false, "button")
+}
+
+@sidebarLinks = {
+<div class="service-info__related-subsection">
+    <h2>Pay As You Earn</h2>
+    <p>@Messages(s"info.link_open_new_window")</p>
+    <nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
+        <ul>
+            <li>
+                @helpers.link("", Messages(s"link.tax_codes.url"), Messages(s"link.tax_codes.text"), true)
+            </li>
+            <li>
+                @helpers.link("", Messages(s"link.company_benefits_tax.url"), Messages(s"link.company_benefits_tax.text"), true)
+            </li>
+        </ul>
+    </nav>
+</div>
+}
