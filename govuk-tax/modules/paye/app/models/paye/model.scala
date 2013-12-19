@@ -14,8 +14,7 @@ case class BenefitInfo(startDate: String, withdrawDate: String, apportionedValue
 
 case class DisplayBenefit(employment: Employment,
                           benefits: Seq[Benefit],
-                          car: Option[Car],
-                          benefitsInfo: Map[String, BenefitInfo] = Map.empty) {
+                          car: Option[Car]) {
 
   lazy val benefit = benefits(0)
 

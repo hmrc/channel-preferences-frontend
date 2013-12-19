@@ -18,12 +18,10 @@
                         <caption id="company-name" class="table-row">Company car provided by @{displayBenefit.employment.employerNameOrReference}</caption>
                         <tbody>
                             @carBenefit.map { benefit =>
-                                @defining(displayBenefit.benefitsInfo(s"$CAR")) { carBenefitInfo =>
-                                    <tr>
-                                        <th scope="row">Date given back</th>
-                                        <td id="car-benefit-date-car-withdrawn">@carBenefitInfo.withdrawDate</td>
-                                    </tr>
-                                }
+                                <tr>
+                                    <th scope="row">Date given back</th>
+                                    <td id="car-benefit-date-car-withdrawn">@formatDate(formData.withdrawDate)</td>
+                                </tr>
                                 <tr>
                                     <th scope="row">Days unavailable since 6 April @benefit.taxYear</th>
                                     <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("none")</td>
@@ -35,12 +33,10 @@
                                 </tr>
                             }
                             @fuelBenefit.map { benefit =>
-                                @defining(displayBenefit.benefitsInfo(s"$FUEL")) { fuelBenefitInfo =>
-                                    <tr>
-                                        <th scope="row">Date fuel withdrawn</th>
-                                        <td id="car-benefit-date-fuel-withdrawn">@fuelBenefitInfo.withdrawDate</td>
-                                    </tr>
-                                }
+                                <tr>
+                                    <th scope="row">Date fuel withdrawn</th>
+                                    <td id="car-benefit-date-fuel-withdrawn">@formatDate(formData.fuelWithdrawDate.getOrElse(formData.withdrawDate))</td>
+                                </tr>
                             }
                         </tbody>
                     </table>

@@ -121,12 +121,12 @@ case class TaxCode(employmentSequenceNumber: Int,
 
 case class Allowance(sourceAmount: Int, adjustedAmount: Int, `type`: Int)
 
+case class WithdrawnBenefitRequest(version: Int, car: Option[WithdrawnCarBenefit], fuel: Option[WithdrawnFuelBenefit])
 
-case class RevisedBenefit(benefit: Benefit, revisedAmount: BigDecimal)
+case class WithdrawnCarBenefit(withdrawDate: LocalDate, numberOfDaysUnavailable: Option[Int] = None,
+                                      employeeContribution: Option[Int] = None)
 
-case class RemoveBenefit(version: Int,
-                         benefits: Seq[RevisedBenefit],
-                         withdrawDate: LocalDate)
+case class WithdrawnFuelBenefit(withdrawDate: LocalDate)
 
 case class AddBenefit(version: Int,
                       employmentSequence: Int,
