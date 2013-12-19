@@ -91,7 +91,7 @@ with PayeRegimeRoots {
 
 
     val carBenefitGrossAmount = details.cars.headOption.map(c => BenefitValue(c.grossAmount))
-    val fuelBenefitGrossAmount = details.cars.find(_.fuelBenefit.isDefined).map(f => BenefitValue(f.grossAmount))
+    val fuelBenefitGrossAmount = details.cars.find(_.fuelBenefit.isDefined).flatMap(_.fuelBenefit.map(f=> BenefitValue(f.grossAmount)))
 
     details.employments.find(_.employmentType == Employment.primaryEmploymentType).map {
       primaryEmployment =>
