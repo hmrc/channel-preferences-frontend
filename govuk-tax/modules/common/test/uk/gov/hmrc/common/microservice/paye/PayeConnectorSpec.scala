@@ -11,10 +11,7 @@ import controllers.common.domain.Transform
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.NewBenefitCalculationResponse
-import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
-import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
 import uk.gov.hmrc.common.microservice.paye.domain.Car
-import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
 import org.joda.time.chrono.ISOChronology
@@ -29,32 +26,9 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
     Some(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some("A"), Some(BigDecimal("12343.21")), None, None)),
     actions("AB123456C", 2013, 1), Map("withdraw" -> "someUrl/{withdrawDate}"))
 
-  "Remove a benefit" should {
-
-    "forward the version as a Version header" in new WithApplication(FakeApplication()) {
-
-      val service = new HttpMockedPayeConnector
-
-      val headers: Map[String, String] = Map("Version" -> "22")
-      val dateCarWithdrawn = new LocalDate(2013, 7, 18)
-      val version = 22
-      val grossAmount = BigDecimal(123.45)
-      service.removeBenefits("/paye/AB123456C/benefits/2013/1/remove/31", version, Seq(RevisedBenefit(carBenefit, grossAmount)), dateCarWithdrawn)
-
-      val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
-      verify(service.httpWrapper, times(1)).postF(Matchers.any[String], capturedBody.capture, Matchers.any[Map[String, String]])
-
-      val capturedRemovedCarBenefit = Transform.fromResponse[RemoveBenefit](capturedBody.getValue.toString())
-      capturedRemovedCarBenefit.benefits(0).revisedAmount shouldBe grossAmount
-      capturedRemovedCarBenefit.withdrawDate shouldBe dateCarWithdrawn
-      capturedRemovedCarBenefit.version shouldBe version
-    }
-
-  }
-
   "Addition of new benefits" should {
 
-    "delegate correctly to the paye service" in {
+    "delegate correctly to the paye service" in new WithApplication(FakeApplication()) {
       val service = new HttpMockedPayeConnector
       val uri = ""
       val version = 0
@@ -83,7 +57,7 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
 
   "Calculation of benefit addition" should {
 
-    "delegate correctly to the paye service" in {
+    "delegate correctly to the paye service" in new WithApplication(FakeApplication()) {
       val service = new HttpMockedPayeConnector
       val uri: String = "/paye/AB123456C/benefits/2013/1/add"
 
@@ -120,21 +94,6 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
       response.get.fuelBenefitValue shouldBe Some(456)
       response.get.carBenefitForecastValue shouldBe Some(1234)
       response.get.fuelBenefitForecastValue shouldBe Some(3456)
-    }
-  }
-
-  "Calculation of benefit withdrawal" should {
-
-    "delegate correctly to the paye service" in new WithApplication(FakeApplication()) {
-      val service = new HttpMockedPayeConnector
-
-      val stubbedCalculationResult = Option(new RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(1234.56), "2014" -> BigDecimal(0))))
-      when(service.httpWrapper.getF[RemoveBenefitCalculationResponse]("someUrl/2013-07-18")).thenReturn(Future.successful(stubbedCalculationResult))
-
-      whenReady(service.calculateWithdrawBenefit(carBenefit, new LocalDate(2013, 7, 18))) { calculationResult =>
-        calculationResult.result.get("2013") shouldBe Some(BigDecimal(1234.56))
-        calculationResult.result.get("2014") shouldBe Some(BigDecimal(0))
-      }
     }
   }
 

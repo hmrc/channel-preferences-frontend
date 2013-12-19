@@ -19,7 +19,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 
 import models.paye.{RemoveFuelBenefitFormData, RemoveCarBenefitFormData, DisplayBenefit, CarFuelBenefitDates}
-import views.html.paye.{remove_benefit_form, remove_car_benefit_form}
+import views.html.paye.{remove_fuel_benefit_form, remove_car_benefit_form}
 import play.api.data.Form
 import controllers.paye.validation.RemoveBenefitValidator.RemoveCarBenefitFormDataValues
 
@@ -50,8 +50,8 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
 
           displayBenefit.benefit.benefitType match {
             case BenefitTypes.CAR => Ok(removeCarBenefit(displayBenefit, taxYearData, benefitStartDate, dates, defaults, user))
-            case _ => Ok(removeBenefit(displayBenefit, benefitStartDate, dates, defaults.map{RemoveFuelBenefitFormData(_)}, user))
-
+            case BenefitTypes.FUEL => Ok(removeFuelBenefit(displayBenefit, benefitStartDate, dates, defaults.map{RemoveFuelBenefitFormData(_)}, user))
+            case t => throw new RuntimeException(s"Unsupported action: Remove benefit of type $t")
           }
       }
   }
@@ -64,9 +64,9 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
     remove_car_benefit_form(benefit, hasUnremovedFuel, filledForm, currentTaxYearYearsRange)(user)
   }
 
-  def removeBenefit(benefit: DisplayBenefit, benefitStartDate: LocalDate, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveFuelBenefitFormData], user: User) = {
+  def removeFuelBenefit(benefit: DisplayBenefit, benefitStartDate: LocalDate, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveFuelBenefitFormData], user: User) = {
     val benefitForm: Form[RemoveFuelBenefitFormData] = updateRemoveFuelBenefitForm(benefitStartDate, now(), taxYearInterval)
     val filledForm = defaults.map{preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
-    remove_benefit_form(benefit, filledForm, currentTaxYearYearsRange)(user)
+    remove_fuel_benefit_form(benefit, filledForm, currentTaxYearYearsRange)(user)
   }
 }
