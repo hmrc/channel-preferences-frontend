@@ -2,6 +2,8 @@ package uk.gov.hmrc.common.microservice.paye.domain
 
 import org.joda.time.LocalDate
 import scala._
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import org.joda.time.format.DateTimeFormat
 
 
 case class Benefit(benefitType: Int,
@@ -21,6 +23,21 @@ case class Benefit(benefitType: Int,
                    benefitAmount: Option[BigDecimal] = None,
                    forecastAmount: Option[Int] = None) {
 
+  def getStartDate(startOfCurrentTaxYear: LocalDate): LocalDate = {
+    val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
+    val dateRegex = """(\d\d\d\d-\d\d-\d\d)""".r
+
+    val pathIncludingStartDate = calculations.get(PayeConnector.calculationWithdrawKey).getOrElse("")
+
+    val benefitStartDate = dateRegex.findFirstIn(pathIncludingStartDate) map {
+      dateFormat.parseLocalDate
+    }
+
+    benefitStartDate match {
+      case Some(dateOfBenefitStart) if dateOfBenefitStart.isAfter(startOfCurrentTaxYear) => dateOfBenefitStart
+      case _ => startOfCurrentTaxYear
+    }
+  }
 }
 
 object Benefit {

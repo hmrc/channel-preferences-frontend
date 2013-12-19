@@ -1,5 +1,4 @@
 import sbt._
-import sbt.Keys._
 import scala.Some
 import uk.gov.hmrc.GitStampPlugin._
 
@@ -90,4 +89,4 @@ object Repositories {
   ) ++ addArtifact(artifact in publishDist, publishDist) ++ gitStampSettings
 
 }
- 
+

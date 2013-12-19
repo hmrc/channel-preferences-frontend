@@ -17,6 +17,8 @@ case class DisplayBenefit(employment: Employment,
                           car: Option[Car],
                           benefitsInfo: Map[String, BenefitInfo] = Map.empty) {
 
+  require(!benefits.isEmpty, "Tried to create a DisplayBenefit with an emply list of Benefits")
+
   lazy val benefit = benefits(0)
 
   lazy val allBenefitsToString = DisplayBenefit.allBenefitsAsString(benefits.map(_.benefitType))

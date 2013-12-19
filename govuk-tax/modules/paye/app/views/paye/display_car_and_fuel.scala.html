@@ -1,82 +1,68 @@
-@(carAndFuel: uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel, employerNameString: String, idSuffix: Option[String] = None)
+@(carBenefit: models.paye.CarBenefit, employerNameString: String, idSuffix: Option[String] = None)
 
 @import views.formatting.Dates._
 @import views.formatting.Money._
 
-    @id(idString: String) = {@idSuffix.map(suffix =>s"$idString-$suffix").getOrElse(idString)}
+    @id(idString: String) = @{ idSuffix.map(suffix => s"$idString-$suffix").getOrElse(idString) }
 
 <table>
     <caption id="@id("company-name")">Company car provided by @employerNameString</caption>
     <tbody>
-        @carAndFuel.carBenefit.car.map { car =>
-            @car.dateCarMadeAvailable.map { dateCarMadeAvailable =>
-                <tr>
-                    <th scope="row">Date you got the car</th>
-                    <td id="@id("car-benefit-date-available")">@formatDate(dateCarMadeAvailable)</td>
-                </tr>
-            }
-            @car.dateCarWithdrawn.map { dateWithdrawn =>
-                <tr>
-                    <th scope="row">Date you gave back the car</th>
-                    <td id="@id("car-benefit-date-withdrawn")">@formatDate(dateWithdrawn)</td>
-                </tr>
-            }
-            @car.dateCarRegistered.map { dateCarRegistered =>
+        <tr>
+            <th scope="row">Date you got the car</th>
+            <td id="@id("car-benefit-date-available")">@formatDate(carBenefit.dateMadeAvailable)</td>
+        </tr>
+        @carBenefit.dateWithdrawn.map { dateWithdrawn =>
             <tr>
-                <th scope="row">Date Registered with DVLA</th>
-                <td id="@id("car-benefit-date-registered")">@formatDate(dateCarRegistered)</td>
+                <th scope="row">Date you gave back the car</th>
+                <td id="@id("car-benefit-date-withdrawn")">@formatDate(dateWithdrawn)</td>
             </tr>
-            }
-            @car.carValue.map { carValue =>
-                <tr>
-                    <th scope="row">List Price including VAT & accessories</th>
-                    <td id="@id("car-benefit-car-value")">@pounds(carValue)</td>
-                </tr>
-            }
-            @car.employeeCapitalContribution.map { employeeCapitalContribution =>
-            <tr>
-                <th scope="row">Your contribution to the price of the car</th>
-                <td id="@id("car-benefit-employee-capital-contribution")">@pounds(employeeCapitalContribution)</td>
-            </tr>
-            }
-            @car.employeePayments.map { employeePayments =>
-            <tr>
-                <th scope="row">Your contribution to private use of the car</th>
-                <td id="@id("car-benefit-employee-payments")">@pounds(employeePayments)</td>
-            </tr>
-            }
-            <tr>
-                <th scope="row">Fuel for private use</th>
-                <td id="@id("private-fuel")">
-                @carAndFuel.fuelBenefit.map { fuelBenefit =>
-                    @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
-                        @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.dateWithdrawn, "")}
-                    }.getOrElse {
-                        @Messages("paye.add_car_benefit.employer_pay_fuel.true")
-                    }
+        }
+        <tr>
+            <th scope="row">Date Registered with DVLA</th>
+            <td id="@id("car-benefit-date-registered")">@formatDate(carBenefit.dateCarRegistered)</td>
+        </tr>
+        <tr>
+            <th scope="row">List Price including VAT & accessories</th>
+            <td id="@id("car-benefit-car-value")">@pounds(carBenefit.carValue)</td>
+        </tr>
+        <tr>
+            <th scope="row">Your contribution to the price of the car</th>
+            <td id="@id("car-benefit-employee-capital-contribution")">@{if (carBenefit.employeeCapitalContribution > 0) pounds(carBenefit.employeeCapitalContribution) else "none"}</td>
+        </tr>
+        <tr>
+            <th scope="row">Your contribution to private use of the car</th>
+            <td id="@id("car-benefit-employee-payments")">@{if(carBenefit.employeePayments > 0) pounds(carBenefit.employeePayments) else "none"}</td>
+        </tr>
+        <tr>
+            <th scope="row">Fuel for private use</th>
+            <td id="@id("private-fuel")">
+            @carBenefit.fuelBenefit.map { fuelBenefit =>
+                @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
+                    @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.dateWithdrawn, "")}
                 }.getOrElse {
-                    @Messages("paye.add_car_benefit.employer_pay_fuel.false")
+                    @Messages("paye.add_car_benefit.employer_pay_fuel.true")
                 }
-                </td>
+            }.getOrElse {
+                @Messages("paye.add_car_benefit.employer_pay_fuel.false")
+            }
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">Fuel type</th>
+            <td id="@id("car-benefit-fuel-type")">@Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.fuelType}")</td>
+        </tr>
+        @carBenefit.co2Emissions.map { co2Emissions =>
+            <tr>
+                <th scope="row">CO2 Emissions</th>
+                <td>@co2Emissions g/km</td>
             </tr>
-            @car.fuelType.map { fuelType =>
-                <tr>
-                    <th scope="row">Fuel type</th>
-                    <td id="@id("car-benefit-fuel-type")">@Messages(s"paye.add_car_benefit.fuel_type.$fuelType")</td>
-                </tr>
-            }
-            @car.co2Emissions.map { co2Emissions =>
-                <tr>
-                    <th scope="row">CO2 Emissions</th>
-                    <td id="@id("car-co2-emissions")">@co2Emissions g/km</td>
-                </tr>
-            }
-            @car.engineSize.map { engineSize =>
-                <tr>
-                    <th scope="row">Engine capacity</th>
-                    <td id="@id("car-benefit-engine")">@Messages(s"paye.add_car_benefit.engine_capacity.$engineSize")</td>
-                </tr>
-            }
+        }
+        @carBenefit.engineSize.map { engineSize =>
+            <tr>
+                <th scope="row">Engine capacity</th>
+                <td id="@id("car-benefit-engine")">@Messages(s"paye.add_car_benefit.engine_capacity.$engineSize")</td>
+            </tr>
         }
     </tbody>
 </table>
