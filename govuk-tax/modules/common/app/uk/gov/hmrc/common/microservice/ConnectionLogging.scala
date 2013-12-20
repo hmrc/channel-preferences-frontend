@@ -46,7 +46,7 @@ object ConnectionLogging {
     if (sPart > 0) f"${(sPart * 1000 + msPart) / 1000.0}%03.3fs"
     else if (msPart > 0) f"${(msPart * 1000 + usPart) / 1000.0}%03.3fms"
     else if (usPart > 0) f"${(usPart * 1000 + nsPart) / 1000.0}%03.3fus"
-    else s"$ns ns"
+    else s"${ns}ns"
   }
 }
 

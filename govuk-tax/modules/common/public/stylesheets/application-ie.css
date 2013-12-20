@@ -3329,3 +3329,10 @@ div.email {
   text-transform: none;
   padding-bottom: 0.5em;
 }
+
+
+/*TODO: cleanup ie styles: currently just pulling in all styles so what's the point? */
+ .report-error {
+    display: block;
+	zoom: 1;
+}
