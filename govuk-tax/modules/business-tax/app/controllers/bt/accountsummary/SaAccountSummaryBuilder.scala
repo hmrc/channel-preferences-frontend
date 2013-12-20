@@ -45,9 +45,9 @@ trait SaASBuild {
     regimeName = saRegimeName,
     messages = utrMessage(utr) +: buildMessages(saSummary),
     addenda = Seq(
-      AccountSummaryLink("sa-account-details-href", buildPortalUrl(saHomePortalUrl), viewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("sa-account-details-href", buildPortalUrl(saAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, sso = true),
       AccountSummaryLink("sa-make-payment-href", saPaymentUrl, makeAPaymentLinkMessage, sso = false),
-      AccountSummaryLink("sa-file-return-href", buildPortalUrl(saHomePortalUrl), fileAReturnLinkMessage, sso = true)
+      AccountSummaryLink("sa-file-return-href", buildPortalUrl(saFileAReturnPortalUrl), fileAReturnLinkMessage, sso = true)
     ),
     status = SummaryStatus.success
   )
@@ -136,6 +136,8 @@ trait SaASBuild {
 
 object SaPortalUrlKeys {
   val saHomePortalUrl = "home"
+  val saAccountDetailsPortalUrl = "saAccountDetails"
+  val saFileAReturnPortalUrl = "saFileAReturn"
 }
 
 object SaMessageKeys {

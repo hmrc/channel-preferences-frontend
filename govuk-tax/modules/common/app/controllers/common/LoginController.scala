@@ -69,8 +69,11 @@ class LoginController(samlConnector: SamlConnector,
                 SessionKeys.sessionId -> sessionId,
                 SessionKeys.userId -> response.authId,
                 SessionKeys.name -> response.name,
-                SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
+                SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
+                SessionKeys.affinityGroup -> response.affinityGroup
               ).mapValues(encrypt)))
+
+
             }.recover {
               case _: UnauthorizedException =>
                 auditConnector.audit(

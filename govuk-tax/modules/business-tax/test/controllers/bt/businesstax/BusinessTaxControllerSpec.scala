@@ -39,6 +39,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
   val vatRegime = Some(VatRoot(Vrn("vrn"), Map.empty[String, String]))
   val epayeRegime = Some(EpayeRoot(EmpRef("emp/ref"), EpayeLinks(Some("link"))))
   val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
+  val affinityGroup =
 
   def createUser(saRegime: Option[SaRoot] = None, ctRegime: Option[CtRoot] = None, vatRegime: Option[VatRoot] = None, epayeRegime: Option[EpayeRoot] = None) = {
     User(userId = "userId", userAuthority = allBizTaxAuthority("userId", "sa-utr", "ct-utr", "vrn", "emp/ref"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRegime, ct = ctRegime, vat = vatRegime, epaye = epayeRegime), decryptedToken = None)
@@ -58,13 +59,13 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
       when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
-      val result = Future.successful(controllerUnderTest.renderHomePage(user, request))
+      val result = Future.successful(controllerUnderTest.renderHomePage(affinityGroup, user, request))
 
       status(result) shouldBe 200
 
       val document = Jsoup.parse(contentAsString(result))
 
-      document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home().url
+      document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home(affinityGroup).url
       document.getElementById("otherServicesNavHref").attr("href") shouldBe "/business-tax" + businessTaxRoutes.OtherServicesController.otherServices().url
       document.getElementById("logOutNavHref").attr("href") shouldBe commonRoutes.LoginController.logout().url
 

@@ -7,18 +7,22 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.TaxYearResolver
 import scala.annotation.tailrec
 
-trait PortalUrlBuilder {
+trait PortalUrlBuilder extends AffinityGroupParser {
 
   def buildPortalUrl(destinationPathKey: String)(implicit request: Request[AnyRef], user: User): String = {
     val currentTaxYear = TaxYearResolver.currentTaxYear
     val saUtr = user.userAuthority.accounts.sa.map(_.utr)
     val vrn = user.userAuthority.accounts.vat.map(_.vrn)
     val ctUtr = user.userAuthority.accounts.ct.map(_.utr)
+    val empRef = user.userAuthority.accounts.epaye.map(_.empRef.value)
     val destinationUrl = PortalConfig.getDestinationUrl(destinationPathKey)
     val tagsToBeReplacedWithData = Seq(
-      ("<year>", Some(currentTaxYear)),
+      ("<year>", Some(toSaTaxYearRepresentation(currentTaxYear))),
       ("<utr>", saUtr),
-      ("<vrn>", vrn), ("<ctutr>", ctUtr)
+      ("<vrn>", vrn),
+      ("<ctutr>", ctUtr),
+      ("<affinitygroup>", Some(parseAffinityGroup)),
+      ("<empref>", empRef)
     )
 
     resolvePlaceHolder(destinationUrl, tagsToBeReplacedWithData)
@@ -41,6 +45,21 @@ trait PortalUrlBuilder {
         }
         url
       }
+    }
+  }
+
+  private[common] def toSaTaxYearRepresentation(taxYear: Int) = {
+    val taxYearMinusOne = taxYear - 1
+    val lastTwoDigitsThisTaxYear = toLastTwoDigitsString(taxYear)
+    val lastTwoDigitsLastTaxYear = toLastTwoDigitsString(taxYearMinusOne)
+
+    s"${lastTwoDigitsLastTaxYear}$lastTwoDigitsThisTaxYear"
+  }
+
+  def toLastTwoDigitsString(taxYear: Int): String = {
+    taxYear % 100 match {
+      case it if it < 10 => s"0$it"
+      case it => s"$it"
     }
   }
 }
