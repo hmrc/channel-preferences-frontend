@@ -7,7 +7,7 @@ import service.{FrontEndConfig, SsoWhiteListService, Connectors}
 import play.api.Logger
 import play.api.libs.json.Json
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import java.net.{MalformedURLException, URISyntaxException, URI}
+import java.net.{URLDecoder, MalformedURLException, URISyntaxException, URI}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
@@ -28,10 +28,21 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
 
   case class LoginFailure(reason: String)
 
-  def in = WithNewSessionTimeout(UnauthorisedAction.async {
-    implicit request =>
+  def postIn = WithNewSessionTimeout(UnauthorisedAction.async {
+    implicit request => {
       val form = Form(single("payload" -> text))
       val payload = form.bindFromRequest.get
+      in(payload)
+    }
+  })
+
+  def getIn(payload:String) = WithNewSessionTimeout(UnauthorisedAction.async {
+    implicit request => {
+      in(URLDecoder.decode(payload, "UTF-8"))
+    }
+  })
+
+  def in (payload: String)(implicit request: Request[_]) = {
       val decryptedPayload = SsoPayloadEncryptor.decrypt(payload)
       Logger.debug(s"token: $payload")
       val json = Json.parse(decryptedPayload)
@@ -64,7 +75,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
           )
           Future.successful(BadRequest)
         }
-  })
+  }
 
   private def handleSuccessfulLogin(response: GovernmentGatewayResponse, destination: String)(implicit request: Request[_]) = {
     Logger.debug(s"successfully authenticated: ${response.name}")
