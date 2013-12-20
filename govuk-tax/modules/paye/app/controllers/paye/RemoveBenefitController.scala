@@ -28,6 +28,16 @@ import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
 import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnCarBenefit
 import models.paye.CarFuelBenefitDates
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
+import controllers.paye.validation.BenefitFlowHelper._
+import scala.Some
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.domain.User
+import models.paye.BenefitUpdatedConfirmationData
+import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnFuelBenefit
+import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
+import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnCarBenefit
+import models.paye.CarFuelBenefitDates
+import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
@@ -43,19 +53,35 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
 
   def requestRemoveCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user => implicit request => requestRemoveCarBenefitAction(taxYear, employmentSequenceNumber)
+    implicit user =>
+      implicit request =>
+        validateVersionNumber(user, request.session).fold(
+          errorResult => Future.successful(errorResult),
+          versionNumber => requestRemoveCarBenefitAction(taxYear, employmentSequenceNumber))
   }
 
   def requestRemoveFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user => implicit request => requestRemoveFuelBenefitAction(taxYear, employmentSequenceNumber)
+    implicit user =>
+      implicit request =>
+        validateVersionNumber(user, request.session).fold(
+          errorResult => Future.successful(errorResult),
+          versionNumber => requestRemoveFuelBenefitAction(taxYear, employmentSequenceNumber))
   }
 
   def confirmCarBenefitRemoval(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user => implicit request => confirmCarBenefitRemovalAction(taxYear, employmentSequenceNumber)
+    implicit user =>
+      implicit request =>
+        validateVersionNumber(user, request.session).fold(
+          errorResult => Future.successful(errorResult),
+          versionNumber => confirmCarBenefitRemovalAction(taxYear, employmentSequenceNumber))
   }
 
   def confirmFuelBenefitRemoval(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user => implicit request => confirmFuelBenefitRemovalAction(taxYear, employmentSequenceNumber)
+    implicit user =>
+      implicit request =>
+        validateVersionNumber(user, request.session).fold(
+          errorResult => Future.successful(errorResult),
+          versionNumber => confirmFuelBenefitRemovalAction(taxYear, employmentSequenceNumber))
   }
 
   def benefitRemoved(benefitTypes: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]) =
@@ -245,6 +271,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   }
 
 
+  // TODO: Convert this away from using the "kinds" parameter
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
     Future[SimpleResult] = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) => {
     implicit def hc = HeaderCarrier(request)
@@ -253,16 +280,10 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       case None => Future.successful(NotFound)
       case Some(tx) => {
         keyStoreService.clearBenefitFormData
-        val removedKinds = DisplayBenefit.fromStringAllBenefit(kinds)
-        if (removedKinds.exists(kind => kind == FUEL || kind == CAR)) {
           TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>
             val removalData = BenefitUpdatedConfirmationData(taxCode, newTaxCode, personalAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-            Ok(remove_benefit_confirmation(removedKinds, removalData)(user))
+            Ok(remove_benefit_confirmation(kinds.split(",").map(_.toInt), removalData)(user))
           }
-        } else {
-          Logger.error(s"Unsupported type of removed benefits: $kinds, redirecting to benefit list")
-          Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
-        }
       }
     }
   }
