@@ -2,51 +2,11 @@ package models.paye
 
 import org.joda.time.{DateTime, LocalDate}
 import uk.gov.hmrc.common.microservice.paye.domain._
-import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import Matchers.transactions._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-import models.paye.EmploymentView
-import models.paye.RecentChange
-import models.paye.BenefitInfo
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 case class BenefitInfo(startDate: String, withdrawDate: String, apportionedValue: BigDecimal)
-
-
-case class DisplayBenefit(employment: Employment,
-                          benefits: Seq[Benefit],
-                          car: Option[Car]) {
-
-  require(!benefits.isEmpty, "Tried to create a DisplayBenefit with an emply list of Benefits")
-
-  lazy val benefit = benefits(0)
-
-  lazy val allBenefitsToString = DisplayBenefit.allBenefitsAsString(benefits.map(_.benefitType))
-}
-
-object DisplayBenefit {
-  private val sep: Char = ','
-
-  private def allBenefitsAsString(values: Seq[Int]) = values.mkString(sep.toString)
-
-  def fromStringAllBenefit(input: String): Seq[Int] = input.split(sep).map(_.toInt)
-}
-
-object DisplayBenefits {
-
-  def apply(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] = {
-    val matchedBenefits = benefits.filter {
-      benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber)
-    }
-
-    matchedBenefits.map {
-      benefit =>
-        DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get,
-          Seq(benefit),
-          benefit.car)
-    }
-  }
-}
 
 case class RemoveCarBenefitFormData(withdrawDate: LocalDate,
                                     carUnavailable: Option[Boolean] = None,

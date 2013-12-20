@@ -50,7 +50,7 @@ object CarBenefit {
     CarBenefit.fromBenefits(carAndFuel.carBenefit, carAndFuel.fuelBenefit)
   }
 
-  def fromBenefits(carBenefit: Benefit, fuelBenefit: Option[Benefit]) = {
+  def fromBenefits(carBenefit: Benefit, fuelBenefit: Option[Benefit] = None) = {
     CarBenefit.fromBenefit(carBenefit, fuelBenefit.map(FuelBenefit.fromBenefit(_)))
   }
 

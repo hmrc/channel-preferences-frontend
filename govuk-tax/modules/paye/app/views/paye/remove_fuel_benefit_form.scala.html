@@ -1,11 +1,11 @@
-@(fuelBenefit:uk.gov.hmrc.common.microservice.paye.domain.FuelBenefit,
-    employment:uk.gov.hmrc.common.microservice.paye.domain.Employment,
+@(fuelBenefit: uk.gov.hmrc.common.microservice.paye.domain.FuelBenefit,
+        employment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
+        taxYear: Int,
         updateForm: Form[models.paye.RemoveFuelBenefitFormData],
         currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
     @import views.formatting.Strings._
     @import config.RefData._
-    @import views.html.helpers.singleCheckbox
     @import controllers.paye.routes._
 
     @main(title = "Remove your company benefit", user = Some(user)) {
@@ -13,12 +13,12 @@
 
         <h2><span class="employer-name">@employment.employerName</span> no longer supply private fuel</h2>
 
-            <h2 class="benefit-type">Your old company fuel benefit</h2>
+        <h2 class="benefit-type">Your old company fuel benefit</h2>
 
         <p>If <span class="employer-name">@employment.employerName</span>
             have stopped providing you with @sentence(iabdTypeFor(fuelBenefit.benefitCode)), you can remove it from your taxable benefits.</p>
 
-        @helper.form(action = RemoveBenefitController.requestFuelBenefitRemoval(displayBenefit.benefit.benefitType.toString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+        @helper.form(action = RemoveBenefitController.requestRemoveFuelBenefit(taxYear, employment.sequenceNumber)) {
             @helpers.dateFields(updateForm,
                 "withdrawDate",
                 "Date you stopped receiving the benefit:",

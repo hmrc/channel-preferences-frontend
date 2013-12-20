@@ -111,7 +111,7 @@ trait PayeBaseSpec extends BaseSpec {
   val carAndFuelBenefitWithDifferentEmploymentNumbers = Seq(CarAndFuel(carBenefit,
     Some(Benefit(29, testTaxYear, 135.33, 1, None, None, None, None, None, None, None, None, Map.empty, Map.empty))))
 
-  val johnDensmoresBenefits = Seq(CarAndFuel(carBenefit, Some(fuelBenefit)))
+  val johnDensmoresBenefits = Seq(CarBenefit.fromBenefits(carBenefit, Some(fuelBenefit)))
 
 
   val removedCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,

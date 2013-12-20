@@ -109,6 +109,14 @@ case class TaxYearData(cars: Seq[CarBenefit], employments: Seq[Employment]) {
   def findPrimaryEmployment: Option[Employment] = {
     employments.find(_.employmentType == Employment.primaryEmploymentType)
   }
+
+  def hasActiveBenefit(employmentSequenceNumber: Int, benefitType: Int): Boolean = {
+    findActiveCarBenefit(employmentSequenceNumber).map { carBenefit =>
+      if (benefitType == BenefitTypes.FUEL) carBenefit.hasActiveFuel
+      if (benefitType == BenefitTypes.CAR) true
+      else false
+    }
+  }.getOrElse(false)
 }
 
 
@@ -123,7 +131,7 @@ case class Allowance(sourceAmount: Int, adjustedAmount: Int, `type`: Int)
 case class WithdrawnBenefitRequest(version: Int, car: Option[WithdrawnCarBenefit], fuel: Option[WithdrawnFuelBenefit])
 
 case class WithdrawnCarBenefit(withdrawDate: LocalDate, numberOfDaysUnavailable: Option[Int] = None,
-                                      employeeContribution: Option[Int] = None)
+                               employeeContribution: Option[Int] = None)
 
 case class WithdrawnFuelBenefit(withdrawDate: LocalDate)
 

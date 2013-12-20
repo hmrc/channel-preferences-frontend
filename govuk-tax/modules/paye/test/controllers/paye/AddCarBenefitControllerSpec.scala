@@ -608,9 +608,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     }
 
     def assertSuccess(result: Future[SimpleResult], collectedData: CarBenefitData) {
-      val carAndFuel = CarBenefitBuilder(carBenefitDataAndCalculations = CarBenefitDataAndCalculations(collectedData), taxYear = 2013, employmentSequenceNumber = 1)
       status(result) shouldBe 200
-      val carAndFuelCaptor = ArgumentCaptor.forClass(classOf[CarAndFuel])
+
       reset(mockKeyStoreService)
       reset(mockPayeConnector)
     }
@@ -1027,20 +1026,20 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       private val text: String = doc.select("#headline").text
-      text should be ("Your company car details have been changed.")
+      text should be("Your company car details have been changed.")
       doc.select("#old-tax-code").text shouldBe "430L"
       doc.select("#new-tax-code").text shouldBe "aNewTaxCoe"
-      doc.select("#personal-allowance") should be (empty)
-      doc.select("#start-date") should be (empty)
-      doc.select("#end-date") should be (empty)
-      doc.select("#epilogue").text should include ("HMRC will write to you to confirm your new tax code within 7 days.")
-      doc.select("#home-page-link").text should include ("See your updated company car information")
-      doc.select("a#tax-codes").text should be ("tax codes")
-      doc.select("a#tax-codes").first.attr("href") should be ("https://www.gov.uk/tax-codes")
-      doc.select("a#tax-codes").first.attr("target") should be ("_blank")
-      doc.select("a#tax-on-company-benefits").text should be ("tax on company benefits")
-      doc.select("a#tax-on-company-benefits").first.attr("href") should be ("https://www.gov.uk/tax-company-benefits")
-      doc.select("a#tax-on-company-benefits").first.attr("target") should be ("_blank")
+      doc.select("#personal-allowance") should be(empty)
+      doc.select("#start-date") should be(empty)
+      doc.select("#end-date") should be(empty)
+      doc.select("#epilogue").text should include("HMRC will write to you to confirm your new tax code within 7 days.")
+      doc.select("#home-page-link").text should include("See your updated company car information")
+      doc.select("a#tax-codes").text should be("tax codes")
+      doc.select("a#tax-codes").first.attr("href") should be("https://www.gov.uk/tax-codes")
+      doc.select("a#tax-codes").first.attr("target") should be("_blank")
+      doc.select("a#tax-on-company-benefits").text should be("tax on company benefits")
+      doc.select("a#tax-on-company-benefits").first.attr("href") should be("https://www.gov.uk/tax-company-benefits")
+      doc.select("a#tax-on-company-benefits").first.attr("target") should be("_blank")
     }
   }
 

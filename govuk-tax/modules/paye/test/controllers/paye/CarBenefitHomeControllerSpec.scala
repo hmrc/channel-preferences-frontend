@@ -57,7 +57,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresEmployments
       val carBenefit = carBenefitEmployer1
-      val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
+      val cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefit(carBenefit))
       val taxCodes = johnDensmoresTaxCodes
       val transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
@@ -91,7 +91,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
           payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = 2))
 
       val carBenefit = carBenefitEmployer1
-      val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
+      val cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefit(carBenefit))
       val taxCodes = johnDensmoresTaxCodes
       val transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
@@ -115,10 +115,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val fuelBenefit2 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
       val fuelBenefit3 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
 
-      val cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit, Some(fuelBenefit)),
-                                      CarAndFuel(carBenefit2, Some(fuelBenefit2)),
-                                      CarAndFuel(carBenefit3, Some(fuelBenefit3)),
-                                      CarAndFuel(carBenefit4, None))
+      val cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefits(carBenefit, Some(fuelBenefit)),
+        CarBenefit.fromBenefits(carBenefit2, Some(fuelBenefit2)),
+        CarBenefit.fromBenefits(carBenefit3, Some(fuelBenefit3)),
+        CarBenefit.fromBenefits(carBenefit4, None))
 
       val benefitDetails = RawTaxData(testTaxYear, cars, johnDensmoresEmployments, Seq(), Seq())
 
@@ -152,8 +152,11 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
   trait BaseData {
     def carBenefit = carBenefitEmployer1
-    def cars: Seq[CarAndFuel] = Seq(CarAndFuel(carBenefit))
+
+    def cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefit(carBenefit))
+
     def employments = johnDensmoresOneEmployment(1)
+
     def rawTaxData = RawTaxData(2013, cars, employments, Seq.empty, Seq.empty)
 
   }
@@ -183,42 +186,12 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       redirectLocation(response).get shouldBe routes.CarBenefitHomeController.cannotPlayInBeta.url
     }
     "return failure view when user has multiple active cars" in new WithApplication(FakeApplication()) with BaseData {
-      override val cars = Seq(CarAndFuel(carBenefit), CarAndFuel(carBenefit))
+      override val cars = Seq(CarBenefit.fromBenefits(carBenefit), CarBenefit.fromBenefits(carBenefit))
 
       val response = controller.carBenefitHomeAction(rawTaxData)
 
       status(response) shouldBe 303
       redirectLocation(response).get shouldBe routes.CarBenefitHomeController.cannotPlayInBeta.url
-    }
-  }
-
-  "getGrossBenefitValues" should {
-    "return the car gross amount and None as the fuel gross amount when there are no fuel benefits" in  new WithApplication(FakeApplication()) with BaseData  {
-      override val cars = Seq(CarAndFuel(carBenefit), CarAndFuel(carBenefit))
-      val actualGrossAmounts = controller.extractGrossBenefitValues(cars)
-      actualGrossAmounts._1 shouldBe Some(BenefitValue(carGrossAmount))
-      actualGrossAmounts._2 shouldBe None
-    }
-
-    "return the car amd fuel gross amounts when there is a car and a fuel benefit" in  new WithApplication(FakeApplication()) with BaseData  {
-      override val cars = Seq(CarAndFuel(carBenefit), CarAndFuel(carBenefit, Some(fuelBenefitEmployer1)))
-      val actualGrossAmounts = controller.extractGrossBenefitValues(cars)
-      actualGrossAmounts._1 shouldBe Some(BenefitValue(carGrossAmount))
-      actualGrossAmounts._2 shouldBe Some(BenefitValue(fuelGrossAmount))
-    }
-
-    "return 0 for car and fuel gross amounts when there are no car and fuel benefits" in  new WithApplication(FakeApplication()) with BaseData {
-      override val cars = Seq()
-      val actualGrossAmounts = controller.extractGrossBenefitValues(cars)
-      actualGrossAmounts._1 shouldBe None
-      actualGrossAmounts._2 shouldBe None
-    }
-
-    "return the car and fuel gross amounts when there are multiple cars with and without fuel" in  new WithApplication(FakeApplication()) with BaseData {
-      override val cars = Seq(CarAndFuel(carBenefit), CarAndFuel(carBenefit, Some(fuelBenefitEmployer1)), CarAndFuel(carBenefit))
-      val actualGrossAmounts = controller.extractGrossBenefitValues(cars)
-      actualGrossAmounts._1 shouldBe Some(BenefitValue(carGrossAmount))
-      actualGrossAmounts._2 shouldBe Some(BenefitValue(fuelGrossAmount))
     }
   }
 }

@@ -50,7 +50,7 @@ object AddBenefitFlow {
             Logger.error("Adding fuel benefit is only allowed for the primary employment")
             Left(BadRequest)
           } else {
-            if (payeRootData.findActiveBenefit(employmentSequenceNumber, benefitType).isDefined) {
+            if (payeRootData.hasActiveBenefit(employmentSequenceNumber, benefitType)) {
               Left(redirectToCarBenefitHome)
             } else {
               Right(payeRootData)

@@ -147,7 +147,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     } yield {
       updateRemoveFuelBenefitForm(fuelBenefit.startDate, now(), taxYearInterval).bindFromRequest()(request).fold(
         errors => {
-          val result = BadRequest(remove_fuel_benefit_form(fuelBenefit, primaryEmployment, errors, currentTaxYearYearsRange)(user))
+          val result = BadRequest(remove_fuel_benefit_form(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, errors, currentTaxYearYearsRange)(user))
           Future.successful(result)
         },
         removeBenefitData => {
@@ -280,10 +280,10 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       case None => Future.successful(NotFound)
       case Some(tx) => {
         keyStoreService.clearBenefitFormData
-          TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>
-            val removalData = BenefitUpdatedConfirmationData(taxCode, newTaxCode, personalAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-            Ok(remove_benefit_confirmation(kinds.split(",").map(_.toInt), removalData)(user))
-          }
+        TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>
+          val removalData = BenefitUpdatedConfirmationData(taxCode, newTaxCode, personalAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+          Ok(remove_benefit_confirmation(kinds.split(",").map(_.toInt), removalData)(user))
+        }
       }
     }
   }

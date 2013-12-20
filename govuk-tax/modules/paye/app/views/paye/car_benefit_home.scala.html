@@ -55,12 +55,12 @@
         @params.activeCarBenefit.map { carBenefit =>
         <ul>
             <li>
-                @helpers.link("rm-car-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(carBenefit.benefitCode.toString, carBenefit.taxYear, carBenefit.employmentSequenceNumber)}", "remove your company car")
+                @helpers.link("rm-car-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveCarBenefitForm( carBenefit.taxYear, carBenefit.employmentSequenceNumber)}", "remove your company car")
             </li>
             <li>@if(carBenefit.hasActiveFuel) {
                 @carBenefit.fuelBenefit.map { fuelBenefit =>
                     @helpers.link("rm-fuel-link",
-                        s"${controllers.paye.routes.ShowRemoveBenefitFormController.showBenefitRemovalForm(fuelBenefit.benefitCode.toString, carBenefit.taxYear, carBenefit.employmentSequenceNumber)}",
+                        s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm( carBenefit.taxYear, carBenefit.employmentSequenceNumber)}",
                         "remove your car fuel benefit")
                 }
             } else {

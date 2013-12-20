@@ -95,17 +95,17 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
         activeFuelBenefit <- taxYearData.findActiveFuelBenefit(employmentSequenceNumber)
         primaryEmployment <- taxYearData.findPrimaryEmployment
       } yield {
-        Ok(removeFuelBenefit(activeFuelBenefit, primaryEmployment, defaults, user))
+        Ok(removeFuelBenefit(activeFuelBenefit, primaryEmployment, taxYear, defaults, user))
       }
     }.getOrElse(BadRequest)
 
   }
 
-  def removeFuelBenefit(activeFuelBenefit: FuelBenefit, primaryEmployment: Employment, defaults: Option[RemoveFuelBenefitFormData], user: User) = {
+  def removeFuelBenefit(activeFuelBenefit: FuelBenefit, primaryEmployment: Employment, taxYear: Int, defaults: Option[RemoveFuelBenefitFormData], user: User) = {
     val benefitForm: Form[RemoveFuelBenefitFormData] = updateRemoveFuelBenefitForm(activeFuelBenefit.startDate, now(), taxYearInterval)
     val filledForm = defaults.map {
       preFill => benefitForm.fill(preFill)
     }.getOrElse(benefitForm)
-    remove_fuel_benefit_form(activeFuelBenefit, primaryEmployment, filledForm, currentTaxYearYearsRange)(user)
+    remove_fuel_benefit_form(activeFuelBenefit, primaryEmployment, taxYear, filledForm, currentTaxYearYearsRange)(user)
   }
 }
