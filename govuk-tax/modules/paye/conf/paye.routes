@@ -4,7 +4,9 @@ POST        /benefits/car/:year/:employmentSequenceNumber/remove        @control
 GET         /benefits/fuel/:year/:employmentSequenceNumber/remove        @controllers.paye.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(year: Int, employmentSequenceNumber: Int)
 POST        /benefits/fuel/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.requestRemoveFuelBenefit(year: Int, employmentSequenceNumber: Int)
 
-POST        /benefits/:kinds/:year/:employmentSequenceNumber/confirm        @controllers.paye.RemoveBenefitController.confirmBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
+POST        /benefits/car/:year/:employmentSequenceNumber/confirm        @controllers.paye.RemoveBenefitController.confirmCarBenefitRemoval(year: Int, employmentSequenceNumber: Int)
+POST        /benefits/fuel/:year/:employmentSequenceNumber/confirm        @controllers.paye.RemoveBenefitController.confirmFuelBenefitRemoval(year: Int, employmentSequenceNumber: Int)
+
 GET         /benefits/:kinds/:year/:employmentSequenceNumber/confirmation/:oid        @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 
 GET         /car-benefit/home        @controllers.paye.CarBenefitHomeController.carBenefitHome

@@ -43,7 +43,9 @@ object RemoveBenefitFlow {
       val emptyBenefit = DisplayBenefit(null, Seq.empty, None)
 
       val validBenefits = DisplayBenefit.fromStringAllBenefit(benefitTypes).map {
-        kind => getBenefit(kind, taxYear, employmentSequenceNumber, taxData)
+        kind => {
+          getBenefit(kind, taxYear, employmentSequenceNumber, taxData)
+        }
       }
 
       if (!validBenefits.contains(None)) {

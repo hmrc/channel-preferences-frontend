@@ -17,10 +17,13 @@ case class CarBenefit(taxYear: Int,
                       employeeCapitalContribution: BigDecimal, // Can be zero
                       dateCarRegistered: LocalDate,
                       dateWithdrawn: Option[LocalDate] = None,
+                      actions: Map[String, String] = Map.empty,
                       fuelBenefit: Option[FuelBenefit] = None) {
   def isActive = dateWithdrawn.isEmpty
 
-  def hasActiveFuel = fuelBenefit.map(_.isActive).getOrElse(false)
+  lazy val hasActiveFuel = fuelBenefit.map(_.isActive).getOrElse(false)
+
+  lazy val activeFuelBenefit = fuelBenefit.filter(_.isActive)
 
   val benefitCode = BenefitTypes.CAR
 
@@ -74,11 +77,16 @@ object CarBenefit {
       car.employeeCapitalContribution.getOrElse(0),
       car.dateCarRegistered.get,
       car.dateCarWithdrawn,
+      benefit.actions,
       fuelBenefit)
   }
 }
 
-case class FuelBenefit(startDate: LocalDate, benefitAmount: BigDecimal, grossAmount: BigDecimal, dateWithdrawn: Option[LocalDate] = None) {
+case class FuelBenefit(startDate: LocalDate,
+                       benefitAmount: BigDecimal,
+                       grossAmount: BigDecimal,
+                       dateWithdrawn: Option[LocalDate] = None,
+                       actions: Map[String, String] = Map.empty) {
   def isActive = dateWithdrawn.isEmpty
 
   val benefitCode = BenefitTypes.FUEL
@@ -88,6 +96,10 @@ object FuelBenefit {
   def fromBenefit(benefit: Benefit): FuelBenefit = {
     require(benefit.benefitType == BenefitTypes.FUEL)
 
-    FuelBenefit(benefit.getStartDate(TaxYearResolver.startOfCurrentTaxYear), benefit.benefitAmount.getOrElse(0), benefit.grossAmount, benefit.dateWithdrawn)
+    FuelBenefit(benefit.getStartDate(TaxYearResolver.startOfCurrentTaxYear),
+      benefit.benefitAmount.getOrElse(0),
+      benefit.grossAmount,
+      benefit.dateWithdrawn,
+      benefit.actions)
   }
 }

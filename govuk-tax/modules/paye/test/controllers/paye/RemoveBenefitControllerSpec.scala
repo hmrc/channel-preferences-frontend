@@ -30,15 +30,14 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.paye.RemovalUtils.RemoveBenefitData
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitResponse
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
-import uk.gov.hmrc.common.microservice.paye.domain.RevisedBenefit
-import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitCalculationResponse
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
+import models.paye.{RemoveFuelBenefitFormData, RemoveCarBenefitFormData}
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieEncryption with DateFieldsHelper with ScalaFutures {
 
@@ -163,8 +162,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, true), "31", 2013, 2)
 
-      verify(mockPayeConnector, never).calculateWithdrawBenefit(_, _)
-
       status(result) shouldBe BAD_REQUEST
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -185,8 +182,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val fuelWithdrawDate = new LocalDate(2013, 12, 8)
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(3.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, fuelWithdrawDate)).thenReturn(fuelCalculationResult)
 
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(fuelWithdrawDate)), s"$FUEL", 2013, 2)
 
@@ -201,9 +196,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits.map(_.copy(fuelBenefit = None)))
 
       val carWithdrawDate = new LocalDate(2013, 12, 8)
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, carWithdrawDate)).thenReturn(carCalculationResult)
-
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate)), "31", 2013, 2)
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -239,8 +231,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text should include("select an option")
-
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user chooses different date but dont select a fuel date" in new WithApplication(FakeApplication()) {
@@ -252,22 +242,13 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text should include("Please enter a date")
-
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user chooses a fuel date that is greater than the car return date" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val withdrawDate = new LocalDate()
-      val fuelDate = new LocalDate().plusDays(1);
-
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, withdrawDate)).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, withdrawDate)).thenReturn(fuelCalculationResult)
-
+      val fuelDate = new LocalDate().plusDays(1)
 
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("differentDateFuel"), Some(fuelDate)), "31", 2013, 2)
 
@@ -285,12 +266,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       val withdrawDate = new LocalDate()
       val fuelDate = withdrawDate.minusYears(1)
-
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, withdrawDate)).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, withdrawDate)).thenReturn(fuelCalculationResult)
 
       val dateintaxyear = TaxYearResolver.startOfCurrentTaxYear
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("differentDateFuel"), Some(fuelDate)), "31", 2013, 2)
@@ -323,12 +298,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "not validate the fuelWithdrawDate if user chooses a fuel date which is malformed but specifies same fuel withdrawal date as the car withdrawal date" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(31)), Matchers.any[LocalDate]())(Matchers.eq(hc))).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(Matchers.argThat(isBenefitOfType(29)), Matchers.any[LocalDate]())(Matchers.eq(hc))).thenReturn(fuelCalculationResult)
-
       val withdrawDate = new LocalDate(2013, 12, 8)
       val requestBenefitRemovalForm = requestWithCorrectVersion.withFormUrlEncodedBody(Seq("agreement" -> "true", "fuelRadio" -> "sameDateFuel", "carUnavailable" -> "false", "employeeContributes" -> "false")
         ++ buildDateFormField("fuelWithdrawDate", Some(("aa", "bb", "cc")))
@@ -355,13 +324,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val withdrawDate = benefitStartDate
       val fuelDate = benefitStartDate.minusDays(1)
 
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, withdrawDate)).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(10.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, withdrawDate)).thenReturn(fuelCalculationResult)
-
-
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("differentDateFuel"), Some(fuelDate)), "31", 2013, 2)
 
       status(result) shouldBe BAD_REQUEST
@@ -385,7 +347,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       doc.getElementById("fuelWithdrawDate.month-3").hasAttr("selected") shouldBe true
       doc.getElementById("fuelWithdrawDate.year-2013").hasAttr("selected") shouldBe true
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user does not give an answer for car unavailable question" in new WithApplication(FakeApplication()) {
@@ -399,7 +360,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Please answer this question."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user specifies car was unavailable but he does not enter the days" in new WithApplication(FakeApplication()){
@@ -413,7 +373,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "You must specify the number of consecutive days the car has been unavailable."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user specifies car was unavailable but he does not introduce a valid input" in new WithApplication(FakeApplication()){
@@ -427,7 +386,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Please use whole numbers only, not decimals or other characters."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user specifies car was unavailable but he introduces a negative value" in new WithApplication(FakeApplication()){
@@ -441,7 +399,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Days unavailable must be greater than zero if you have selected yes."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user specifies car was unavailable but he introduces a value that is bigger than the interval period (benefitStartDate - withdrawnDate)" in new WithApplication(FakeApplication()){
@@ -455,7 +412,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Car cannot be unavailable for longer than the total time you have a company car for."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user does not give an answer for employee contributes" in new WithApplication(FakeApplication()) {
@@ -469,7 +425,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Please answer this question."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user has contributed to the car but he has not entered the contribution" in new WithApplication(FakeApplication()) {
@@ -483,7 +438,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "You must specify how much you paid your employer for private use of the company car."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user has contributed to the car but he does not enter a valid value" in new WithApplication(FakeApplication()) {
@@ -497,7 +451,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Please use whole numbers only, not decimals or other characters."
 
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user has contributed to the car but he has entered a negative value" in new WithApplication(FakeApplication()) {
@@ -510,8 +463,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Employee payment must be greater than zero if you have selected yes."
-
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 1, display error message if user has contributed to the car but he has exceded the allowed maximum value" in new WithApplication(FakeApplication()) {
@@ -524,8 +475,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
       doc.select(".error-notification").text shouldBe "Please enter a number of 5 characters or less."
-
-      verify(mockPayeConnector, times(0)).calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate]())(Matchers.eq(hc))
     }
 
     "in step 2, display the infos provided in the form" in new WithApplication(FakeApplication()) {
@@ -534,13 +483,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carWithdrawDate = new LocalDate(2013, 12, 8)
       val fuelWithdrawDate = carWithdrawDate.minusDays(1)
       val companyCarDetails = "company-car-details"
-
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, carWithdrawDate)).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(20.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, fuelWithdrawDate)).thenReturn(fuelCalculationResult)
-
 
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate), true, Some("differentDateFuel"), Some(fuelWithdrawDate), "true", "20", "true", "250"), "31", 2013, 2)
 
@@ -558,13 +500,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carWithdrawDate = new LocalDate(2013, 12, 8)
       val fuelWithdrawDate = carWithdrawDate.minusDays(1)
       val companyCarDetails = "company-car-details"
-
-      val carCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(123.46), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(carBenefit, carWithdrawDate)).thenReturn(carCalculationResult)
-
-      val fuelCalculationResult = RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal(20.01), "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(fuelBenefit, fuelWithdrawDate)).thenReturn(fuelCalculationResult)
-
 
       val result = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate), true, Some("differentDateFuel"), Some(fuelWithdrawDate)), "31", 2013, 2)
 
@@ -621,19 +556,20 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      when(mockPayeConnector.removeBenefits(Matchers.any[String], Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())(Matchers.any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), Some("123L"), Some(9999))))
+      when(mockPayeConnector.removeBenefits(Matchers.any[String], Matchers.any[WithdrawnBenefitRequest])(Matchers.any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), Some("123L"), Some(9999))))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
       val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](RemovalUtils.benefitDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      private val formData: RemoveCarBenefitFormData = RemoveCarBenefitFormData(withdrawDate, Some(true), Some(11), Some(true), Some(250), Some("differentDateFuel"), Some(withdrawDate))
+      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(formData))
 
       val resultF = controller.confirmBenefitRemovalAction(johnDensmore, requestWithCorrectVersion, s"$CAR,$FUEL", 2013, 2)
 
-      val revisedBenefits = Seq(RevisedBenefit(carBenefit, BigDecimal(210.17)), RevisedBenefit(fuelBenefit, BigDecimal(14.1)))
+      val requestBody = WithdrawnBenefitRequest(22, Some(WithdrawnCarBenefit(withdrawDate, Some(11), Some(250))), Some(WithdrawnFuelBenefit(withdrawDate)))
 
       whenReady(resultF) { result =>
         status(result) shouldBe 303
-        verify(mockPayeConnector, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", 22, revisedBenefits, withdrawDate)
+        verify(mockPayeConnector, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", requestBody)
         val expectedUri = routes.RemoveBenefitController.benefitRemoved(s"$CAR,$FUEL", 2013, 2, "someIdForCarAndFuelRemoval", Some("123L"), Some(9999)).url
         redirectLocation(result) shouldBe Some(expectedUri)
       }
@@ -647,9 +583,9 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       when(mockTxQueueConnector.transaction(Matchers.eq("210"), Matchers.any[PayeRoot])(Matchers.eq(hc))).thenReturn(Some(transaction))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
 
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](RemovalUtils.benefitDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      val formData: RemoveCarBenefitFormData = RemoveCarBenefitFormData(withdrawDate, Some(true), Some(11), Some(true), Some(250), Some("differentDateFuel"), Some(withdrawDate))
+      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(formData))
 
       val result = controller.benefitRemovedAction(johnDensmore, requestWithCorrectVersion, s"$CAR,$FUEL", 2013, 1, "210", Some("newTaxCode"), Some(9988))
 
@@ -666,9 +602,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       when(mockTxQueueConnector.transaction(Matchers.eq("210"), Matchers.any[PayeRoot])(Matchers.eq(hc))).thenReturn(Some(transaction))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
-
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](RemovalUtils.benefitDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      val formData: RemoveCarBenefitFormData = RemoveCarBenefitFormData(withdrawDate, Some(true), Some(11), Some(true), Some(250), Some("differentDateFuel"), Some(withdrawDate))
+      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(formData))
 
       val result = controller.benefitRemovedAction(johnDensmore, requestWithCorrectVersion, s"$CAR,$FUEL", 2013, 1, "210", None, None)
 
@@ -691,7 +626,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe BAD_REQUEST
 
       verifyZeroInteractions(mockKeyStoreService)
-      verify(mockPayeConnector, never).removeBenefits(Matchers.any[String], Matchers.any[Int], Matchers.any[Seq[RevisedBenefit]], Matchers.any[LocalDate])(Matchers.any())
+      verify(mockPayeConnector, never).removeBenefits(Matchers.any[String], Matchers.any[WithdrawnBenefitRequest])(Matchers.any())
     }
 
   }
@@ -767,28 +702,22 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "in step 2 save the withdrawDate to the keystore" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarAndFuel(carBenefit)))
 
-      val revisedAmount = BigDecimal(123.46)
       val withdrawDate = new LocalDate(2013, 12, 8)
-
-      val calculationResult = RemoveBenefitCalculationResponse(Map("2013" -> revisedAmount, "2014" -> BigDecimal(0)))
-      when(mockPayeConnector.calculateWithdrawBenefit(Matchers.any[Benefit](), Matchers.any[LocalDate]())(Matchers.eq(hc))).thenReturn(calculationResult)
 
       val resultF = controller.requestBenefitRemovalAction(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true), s"$CAR", 2013, 2)
 
       whenReady(resultF) { result =>
-        val revisedAmounts = Map("31" -> BigDecimal(123.46))
-        verify(mockKeyStoreService, times(1)).addKeyStoreEntry(RemovalUtils.benefitDataActionId, "paye", "remove_benefit", RemoveBenefitData(withdrawDate, revisedAmounts), false)
+        verify(mockKeyStoreService, times(1)).addKeyStoreEntry(RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", RemoveCarBenefitFormData(withdrawDate, Some(false), None, Some(false), None, Some("sameDateFuel"), None) , false)
       }
     }
 
     "in step 2 call the paye service to remove the benefit and render the success page" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      when(mockPayeConnector.removeBenefits(Matchers.any[String], Matchers.any[Int](), Matchers.any[Seq[RevisedBenefit]](), Matchers.any[LocalDate]())(Matchers.any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someId"), Some("123L"), Some(9999))))
+      when(mockPayeConnector.removeBenefits(Matchers.any[String], Matchers.any[WithdrawnBenefitRequest])(Matchers.any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someId"), Some("123L"), Some(9999))))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val revisedAmounts = Map("29" -> BigDecimal(123.45))
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](RemovalUtils.benefitDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(RemoveCarBenefitFormData(RemoveFuelBenefitFormData(withdrawDate))))
 
       val result = controller.confirmBenefitRemovalAction(johnDensmore, requestWithCorrectVersion, s"$FUEL", 2013, 2)
 
@@ -796,16 +725,15 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val expectedUri = routes.RemoveBenefitController.benefitRemoved(s"$FUEL", 2013, 2, "someId", Some("123L"), Some(9999)).url
       redirectLocation(result) shouldBe Some(expectedUri)
 
-      val revisedBenefits = Seq(RevisedBenefit(fuelBenefit, BigDecimal(123.45)))
-      verify(mockPayeConnector, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", 22, revisedBenefits, withdrawDate)
+      val requestBody = WithdrawnBenefitRequest(22, None, Some(WithdrawnFuelBenefit(withdrawDate)))
+      verify(mockPayeConnector, times(1)).removeBenefits("/paye/AB123456C/benefits/2013/1/update", requestBody)
     }
 
     "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       when(mockTxQueueConnector.transaction(Matchers.eq("123"), Matchers.any[PayeRoot])(Matchers.eq(hc))).thenReturn(None)
-      val revisedAmounts = Map("31" -> BigDecimal(555))
-      when(mockKeyStoreService.getEntry[RemoveBenefitData](RemovalUtils.benefitDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(RemoveBenefitData(withdrawDate, revisedAmounts)))
+      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(RemoveCarBenefitFormData(withdrawDate, Some(false), None, Some(false), None, Some("sameDateFuel"), None)))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
       val result = controller.benefitRemovedAction(johnDensmore, requestWithCorrectVersion, s"$CAR", 2013, 1, "123", Some("newCode"), Some(9998))
@@ -868,8 +796,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true").
         withSession((BenefitFlowHelper.npsVersionKey, versionNumber.toString))
 
-      when(mockPayeConnector.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])(Matchers.eq(hc))).thenReturn(RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal("123"))))
-
       val result = controller.requestBenefitRemovalAction(user, request, "31", 2013, 1)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
@@ -896,7 +822,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true").
         withSession((BenefitFlowHelper.npsVersionKey, versionNumber.toString))
 
-      when(mockPayeConnector.calculateWithdrawBenefit(Matchers.any[Benefit], Matchers.any[LocalDate])(Matchers.eq(hc))).thenReturn(RemoveBenefitCalculationResponse(Map("2013" -> BigDecimal("123"))))
       when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 
       val result = formController.showRemovalFormAction(user, request, "31", 2013, 1)

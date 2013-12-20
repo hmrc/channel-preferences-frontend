@@ -1,22 +1,16 @@
 package uk.gov.hmrc.common.microservice.paye
 
-import org.joda.time.LocalDate
-import views.formatting.Dates
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.microservice.{TaxRegimeConnector, MicroServiceConfig}
 import controllers.common.domain.Transform._
 import play.api.libs.json.Json
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefit
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class PayeConnector extends TaxRegimeConnector[PayeRoot] {
-
-  import PayeConnector._
-
   override val serviceUrl = MicroServiceConfig.payeServiceUrl
 
   def root(uri: String)(implicit hc: HeaderCarrier): Future[PayeRoot] =
@@ -40,21 +34,8 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-  def removeBenefits(uri: String,
-                     version: Int,
-                     benefits: Seq[RevisedBenefit],
-                     dateCarWithdrawn: LocalDate)(implicit hc: HeaderCarrier) = {
-    httpPostF[RemoveBenefitResponse](
-      uri,
-      body = Json.parse(
-        toRequestBody(
-          RemoveBenefit(
-            version = version,
-            benefits = benefits,
-            withdrawDate = dateCarWithdrawn)
-        )
-      )
-    )
+  def removeBenefits(uri: String, withdrawBenefitRequest: WithdrawnBenefitRequest)(implicit hc: HeaderCarrier) = {
+    httpPostF[RemoveBenefitResponse](uri, Json.parse(toRequestBody(withdrawBenefitRequest)))
   }
 
   def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel)(implicit hc: HeaderCarrier): Future[Option[NewBenefitCalculationResponse]] = {
@@ -68,10 +49,6 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     )
   }
 
-
-  def calculateWithdrawBenefit(benefit: Benefit, withdrawDate: LocalDate)(implicit hc: HeaderCarrier): Future[RemoveBenefitCalculationResponse] = {
-    httpGetF[RemoveBenefitCalculationResponse](benefit.calculations(calculationWithdrawKey).replace("{withdrawDate}", Dates.shortDate(withdrawDate))).map(_.get)
-  }
 }
 
 object PayeConnector {

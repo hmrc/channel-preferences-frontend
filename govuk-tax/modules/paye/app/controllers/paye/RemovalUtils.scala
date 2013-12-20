@@ -12,16 +12,12 @@ import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
-import scala.concurrent.Future
 import models.paye.{RemoveFuelBenefitFormData, CarFuelBenefitDates, RemoveCarBenefitFormData}
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import scala.Some
 
 
 object RemovalUtils {
-
-  case class RemoveBenefitData(withdrawDate: LocalDate, revisedAmounts: Map[String, BigDecimal])
-
 
   val keystoreKey = "remove_benefit"
   private final val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd")
@@ -87,7 +83,6 @@ object RemovalUtils {
   }
 
   val benefitFormDataActionId = "RemoveBenefitFormData"
-  val benefitDataActionId = "RemoveBenefitData"
 
   implicit class BenefitKeyStore(keyStoreService: KeyStoreConnector) {
     def storeBenefitFormData(benefitFormData: RemoveCarBenefitFormData)(implicit hc: HeaderCarrier) = {
@@ -110,19 +105,6 @@ object RemovalUtils {
       keyStoreService.deleteKeyStore(benefitFormDataActionId, KeystoreUtils.source)
     }
 
-
-    def storeBenefitData(benefitData: RemoveBenefitData)(implicit hc: HeaderCarrier) = {
-      keyStoreService.addKeyStoreEntry(benefitDataActionId, KeystoreUtils.source, keystoreKey, benefitData)
-    }
-
-    def loadBenefitData(implicit hc: HeaderCarrier): Future[Option[RemoveBenefitData]] = {
-      keyStoreService.getEntry[RemoveBenefitData](benefitDataActionId, KeystoreUtils.source, keystoreKey)
-    }
-
-
-    def clearBenefitData(implicit hc: HeaderCarrier): Unit = {
-      keyStoreService.deleteKeyStore(benefitDataActionId, KeystoreUtils.source)
-    }
   }
 
 }
