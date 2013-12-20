@@ -3328,7 +3328,7 @@ article table td {
   width: 100%;
   margin: 2em 0 1.5em 0;
 }
-.report-error a {
+.report-error .report-error__toggle {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.25;
@@ -3337,7 +3337,7 @@ article table td {
   color: #454a4c;
 }
 @media (max-width: 640px) {
-  .report-error a {
+  .report-error .report-error__toggle {
     font-size: 14px;
     line-height: 1.14286;
   }

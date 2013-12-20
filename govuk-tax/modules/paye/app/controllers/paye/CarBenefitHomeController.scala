@@ -17,6 +17,7 @@ import play.api.mvc.{Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
+import controllers.paye.validation.BenefitFlowHelper
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
@@ -52,7 +53,7 @@ with PayeRegimeRoots {
   }
 
   private[paye] def sessionWithNpsVersion(session: Session)(implicit user: User) =
-    session + (("nps-version", user.getPaye.version.toString))
+    session + ((BenefitFlowHelper.npsVersionKey, user.getPaye.version.toString))
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {

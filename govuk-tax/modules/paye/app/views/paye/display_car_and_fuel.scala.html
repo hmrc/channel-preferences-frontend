@@ -1,7 +1,6 @@
 @(carAndFuel: uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel, employerNameString: String, idSuffix: Option[String] = None)
 
 @import views.formatting.Dates._
-@import views.formatting.Strings._
 @import views.formatting.Money._
 
     @id(idString: String) = {@idSuffix.map(suffix =>s"$idString-$suffix").getOrElse(idString)}
@@ -69,7 +68,7 @@
             @car.co2Emissions.map { co2Emissions =>
                 <tr>
                     <th scope="row">CO2 Emissions</th>
-                    <td>@co2Emissions g/km</td>
+                    <td id="@id("car-co2-emissions")">@co2Emissions g/km</td>
                 </tr>
             }
             @car.engineSize.map { engineSize =>

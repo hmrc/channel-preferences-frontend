@@ -18,6 +18,10 @@ case class HeaderCarrier(userId: Option[String] = None,
                          requestId: Option[String] = None) {
 
   val nsStamp = System.nanoTime()
+
+  /**
+   * @return the time, in nanoseconds, since this header carrier was created
+   */
   def elapsedNs = System.nanoTime() - nsStamp
 
   val names = HeaderNames
@@ -40,6 +44,7 @@ object SessionKeys extends SessionKeys
 
 object HeaderCarrier extends CookieEncryption {
   val names = HeaderNames
+
   import SessionKeys._
 
   def apply(request: Request[_]) = {

@@ -10,12 +10,15 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
 import controllers.DateFieldsHelper
 import org.scalatest.matchers.{MatchResult, Matcher}
-import views.html.paye.{car_benefit_home, error_no_data_car_benefit_home}
+import views.html.paye.{display_car_and_fuel, car_benefit_home, error_no_data_car_benefit_home}
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
-import models.paye.EmploymentViews
+import models.paye.{BenefitFixture, EmploymentViews}
 import java.text.SimpleDateFormat
-import views.formatting.Dates
+import views.formatting.{Money, Dates}
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import play.api.i18n.Messages
+import play.mvc.Content
 
 class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with DateFieldsHelper {
 
@@ -75,17 +78,54 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     val dateFormatter = new SimpleDateFormat("d  yyyy")
   }
 
+  "car and fuel template" should {
+    def documentOf(content: Content) = Jsoup.parse(contentAsString(content))
+
+    "render with all car details for a company car with no fuel" in new WithApplication(FakeApplication()) with BaseData {
+      // given
+      val aCompanyCarWihNoFuel = BenefitFixture.carWithoutFuel
+      val anEmployerName = "MyCompany"
+
+      // when
+      val doc = documentOf(display_car_and_fuel(aCompanyCarWihNoFuel, anEmployerName))
+
+      // then
+      doc.select("#company-name").text should include (anEmployerName)
+      doc.select("#car-benefit-date-available").text should be (BenefitFixture.carBenefitAvailableDateString)
+      doc.select("#car-benefit-date-registered").text should be (BenefitFixture.carBenefitRegisteredDateString)
+      doc.select("#car-benefit-car-value").text should be (BenefitFixture.carValuePounds)
+      doc.select("#car-benefit-employee-capital-contribution").text should be (BenefitFixture.carEmployeeCapitalContributionVauePounds)
+      doc.select("#car-benefit-employee-payments").text should be (BenefitFixture.carEmployeePrivateUseContributionVauePounds)
+      doc.select("#car-co2-emissions").text should be (BenefitFixture.carCo2Emissions + " g/km")
+      doc.select("#car-benefit-engine").text should be (Messages(s"paye.add_car_benefit.engine_capacity.${BenefitFixture.carEngineSize}"))
+      doc.select("#car-benefit-fuel-type").text should be (Messages(s"paye.add_car_benefit.fuel_type.${BenefitFixture.carFuelType}"))
+      doc.select("#no-car-benefit-container") should be (empty)
+      doc.select("#private-fuel").text should be (Messages("paye.add_car_benefit.employer_pay_fuel.false"))
+    }
+
+    "render a car with fuel included for a company car with fuel" in new WithApplication(FakeApplication()) with BaseData {
+      // given
+      val aCompanyCarWithFuel = BenefitFixture.carWithFuel
+      val anEmployerName = "MyCompany"
+
+      // when
+      val doc = documentOf(display_car_and_fuel(aCompanyCarWithFuel, anEmployerName))
+
+      // then
+      doc.select("#company-name").text should include (anEmployerName)
+      doc.select("#private-fuel").text should be (Messages("paye.add_car_benefit.employer_pay_fuel.true"))
+    }
+
+  }
+
   "car benefit home page template" should {
-    "render with correct car details for user with a company car and no fuel" in new WithApplication(FakeApplication()) with BaseData {
+
+    "render car for user with a company car and no fuel" in new WithApplication(FakeApplication()) with BaseData {
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
-      doc.select("#car-benefit-date-registered").text shouldBe "12 December 2012"
-      doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
-      doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
-      doc.select("#no-car-benefit-container").text shouldBe ""
       doc.select("#private-fuel").text shouldBe "No"
     }
 
