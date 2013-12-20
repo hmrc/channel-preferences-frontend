@@ -182,7 +182,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       case Failure(exception) => when(mockEpayeRoot.accountSummary(mockEpayeConnector, hc)).thenThrow(exception)
     }
 
-    when(mockPortalUrlBuilder.build(epayeHomePortalUrl)).thenReturn(homeUrl)
+    when(mockPortalUrlBuilder.build(epayeAccountDetailsPortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG
 
     val actualAccountSummary = await(EpayeAccountSummaryBuilder(mockEpayeConnector).build(mockPortalUrlBuilder.build _, mockUser).get)
