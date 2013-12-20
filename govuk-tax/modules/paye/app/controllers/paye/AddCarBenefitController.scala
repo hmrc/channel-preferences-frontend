@@ -173,7 +173,7 @@ with PayeRegimeRoots {
                   val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                     addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                     addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn)
-                  Ok(add_car_benefit_review(confirmationData, currentTaxYearYearsRange, user, request.uri, taxYear, employmentSequenceNumber))
+                  Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber))
               }
               //              }
             }
