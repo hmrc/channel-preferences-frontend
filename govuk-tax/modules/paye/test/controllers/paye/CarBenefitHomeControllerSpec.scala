@@ -57,7 +57,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       val employments = johnDensmoresEmployments
       val carBenefit = carBenefitEmployer1
-      val cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefit(carBenefit))
+      val cars: Seq[CarBenefit] = Seq(CarBenefit(carBenefit))
       val taxCodes = johnDensmoresTaxCodes
       val transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
@@ -91,7 +91,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
           payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = 2))
 
       val carBenefit = carBenefitEmployer1
-      val cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefit(carBenefit))
+      val cars: Seq[CarBenefit] = Seq(CarBenefit(carBenefit))
       val taxCodes = johnDensmoresTaxCodes
       val transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
@@ -115,10 +115,10 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val fuelBenefit2 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
       val fuelBenefit3 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
 
-      val cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefits(carBenefit, Some(fuelBenefit)),
-        CarBenefit.fromBenefits(carBenefit2, Some(fuelBenefit2)),
-        CarBenefit.fromBenefits(carBenefit3, Some(fuelBenefit3)),
-        CarBenefit.fromBenefits(carBenefit4, None))
+      val cars: Seq[CarBenefit] = Seq(CarBenefit(carBenefit, Some(fuelBenefit)),
+        CarBenefit(carBenefit2, Some(fuelBenefit2)),
+        CarBenefit(carBenefit3, Some(fuelBenefit3)),
+        CarBenefit(carBenefit4, None))
 
       val benefitDetails = RawTaxData(testTaxYear, cars, johnDensmoresEmployments, Seq(), Seq())
 
@@ -153,7 +153,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
   trait BaseData {
     def carBenefit = carBenefitEmployer1
 
-    def cars: Seq[CarBenefit] = Seq(CarBenefit.fromBenefit(carBenefit))
+    def cars: Seq[CarBenefit] = Seq(CarBenefit(carBenefit))
 
     def employments = johnDensmoresOneEmployment(1)
 
@@ -186,7 +186,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       redirectLocation(response).get shouldBe routes.CarBenefitHomeController.cannotPlayInBeta.url
     }
     "return failure view when user has multiple active cars" in new WithApplication(FakeApplication()) with BaseData {
-      override val cars = Seq(CarBenefit.fromBenefits(carBenefit), CarBenefit.fromBenefits(carBenefit))
+      override val cars = Seq(CarBenefit(carBenefit), CarBenefit(carBenefit))
 
       val response = controller.carBenefitHomeAction(rawTaxData)
 

@@ -39,7 +39,7 @@ object CarBenefitBuilder {
         employmentSeqNumber =  employmentSequenceNumber, car = Some(car), 0, None))
       case _ => None
     }
-    CarBenefit.fromBenefits(carBenefit, fuelBenefit)
+    CarBenefit(carBenefit, fuelBenefit)
   }
 
   def apply(addFuelBenefit: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) : CarBenefit  = {
@@ -52,7 +52,7 @@ object CarBenefitBuilder {
 
       case _ => None
     }
-    CarBenefit.fromBenefits(carBenefit, fuelBenefit)
+    CarBenefit(carBenefit, fuelBenefit)
   }
 
 

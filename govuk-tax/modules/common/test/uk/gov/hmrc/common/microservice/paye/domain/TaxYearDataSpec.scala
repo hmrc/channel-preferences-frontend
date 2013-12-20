@@ -12,7 +12,7 @@ class TaxYearDataSpec extends BaseSpec {
       val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
       val fuel = Benefit(BenefitTypes.FUEL, 2013, 100, 1, dateWithdrawn = Some(new LocalDate()))
 
-      val carBenefit = CarBenefit.fromBenefits(car, Some(fuel))
+      val carBenefit = CarBenefit(car, Some(fuel))
 
       val tyd = TaxYearData(Seq(carBenefit), Seq())
 
@@ -23,7 +23,7 @@ class TaxYearDataSpec extends BaseSpec {
       val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
       val fuel = None
 
-      val carBenefit = CarBenefit.fromBenefits(car, fuel)
+      val carBenefit = CarBenefit(car, fuel)
 
       val tyd = TaxYearData(Seq(carBenefit), Seq())
 
@@ -32,18 +32,18 @@ class TaxYearDataSpec extends BaseSpec {
 
     "return some fuel benefit when asked for active benefit of type FUEL if fuel benefit is present and not withdrawn" in {
       val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
-      val fuel = FuelBenefit.fromBenefit(Benefit(BenefitTypes.FUEL, 2013, 100, 1))
+      val fuel = Benefit(BenefitTypes.FUEL, 2013, 100, 1)
 
-      val carBenefit = CarBenefit.fromBenefit(car, Some(fuel))
+      val carBenefit = CarBenefit(car, Some(fuel))
 
       val tyd = TaxYearData(Seq(carBenefit), Seq())
 
-      tyd.findActiveFuelBenefit(1) shouldBe Some(fuel)
+      tyd.findActiveFuelBenefit(1) shouldBe Some(FuelBenefit.fromBenefit(fuel))
     }
 
     "return some car benefit when asked for active benefit of type CAR if car is not withdrawn" in {
       val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
-      val carBenefit = CarBenefit.fromBenefits(car, None)
+      val carBenefit = CarBenefit(car, None)
 
       val tyd = TaxYearData(Seq(carBenefit), Seq())
 
@@ -52,7 +52,7 @@ class TaxYearDataSpec extends BaseSpec {
 
     "return None when asked for active benefit of type CAR if car is withdrawn" in {
       val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar.copy(dateCarWithdrawn = Some(new LocalDate()))))
-      val carBenefit = CarBenefit.fromBenefits(car, None)
+      val carBenefit = CarBenefit(car, None)
 
       val tyd = TaxYearData(Seq(carBenefit), Seq())
 

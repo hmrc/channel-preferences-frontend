@@ -46,17 +46,19 @@ case class CarBenefit(taxYear: Int,
 
 
 object CarBenefit {
-  def fromCarAndFuel(carAndFuel: CarAndFuel): CarBenefit = {
-    CarBenefit.fromBenefits(carAndFuel.carBenefit, carAndFuel.fuelBenefit)
+  def apply(carAndFuel: CarAndFuel): CarBenefit = {
+    CarBenefit(carAndFuel.carBenefit, carAndFuel.fuelBenefit)
   }
 
-  def fromBenefits(carBenefit: Benefit, fuelBenefit: Option[Benefit] = None) = {
-    CarBenefit.fromBenefit(carBenefit, fuelBenefit.map(FuelBenefit.fromBenefit(_)))
+  def apply(benefit:Benefit) : CarBenefit = {
+    apply(benefit, None)
   }
 
-  def fromBenefit(benefit: Benefit, fuelBenefit: Option[FuelBenefit] = None): CarBenefit = {
+  def apply(benefit: Benefit, fuelBenefit: Option[Benefit]): CarBenefit = {
     require(benefit.benefitType == BenefitTypes.CAR, s"Attempted to create a CarBenefit from a Benefit with type ${benefit.benefitType}")
     require(benefit.car.isDefined, "Attempted to create a CarBenefit from a benefit without a Car")
+
+    val fb = fuelBenefit.map(FuelBenefit.fromBenefit(_))
 
     val car = benefit.car.get // CarAndFuel enforces presence of car element
 
@@ -78,7 +80,7 @@ object CarBenefit {
       car.dateCarRegistered.get,
       car.dateCarWithdrawn,
       benefit.actions,
-      fuelBenefit)
+      fb)
   }
 }
 

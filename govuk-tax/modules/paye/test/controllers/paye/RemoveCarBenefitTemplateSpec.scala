@@ -20,7 +20,7 @@ class RemoveCarBenefitTemplateSpec extends PayeBaseSpec with MockedTaxYearSuppor
   "the remove car benefit form" should {
     "not display the remove fuel benefit fields if the fuel benefit is present but already withdrawn" in new WithApplication(FakeApplication()) {
 
-      val activeCarBenefit = CarBenefit.fromBenefits(carBenefit, Some(withdrawnFuelBenefit))
+      val activeCarBenefit = CarBenefit(carBenefit, Some(withdrawnFuelBenefit))
 
       val form = updateRemoveCarBenefitForm(None, new LocalDate(), false, Some(CarFuelBenefitDates(None, None)), dateToday, taxYearInterval)
 

@@ -633,7 +633,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val fuelType = "electricity"
       val userContribution = 100
       val listPrice = 9999
-      when(mockPayeConnector.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", carAndFuel)) thenReturn Some(NewBenefitCalculationResponse(Some(999), None, Some(1000), None))
       val result = controller.reviewAddCarBenefitAction(johnDensmore,
         newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
           providedFromVal = None,
@@ -668,7 +667,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val uri = s"paye/car-benefit/$taxYear/$employmentSeqNumberOne/add"
       val updatedCar = car.copy(dateCarRegistered = Some(carRegistrationDate), fuelType = Some("diesel"), co2Emissions = Some(50), engineSize = Some(1400))
       val updatedCarAndFuel = carAndFuel.copy(carBenefit = carBenefit.copy(car = Some(updatedCar)))
-      when(mockPayeConnector.calculateBenefitValue("/calculation/paye/benefit/new/value-calculation", updatedCarAndFuel)) thenReturn Some(NewBenefitCalculationResponse(Some(999), Some(444), Some(1000), Some(800)))
 
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore,
         newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(carRegistrationDate))),
@@ -815,7 +813,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "allow the user to confirm the addition of the car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      when(mockPayeConnector.calculateBenefitValue(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(999), Some(444), Some(1000), Some(800))))
 
       val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumberOne)
 
@@ -1043,17 +1040,16 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     }
   }
 
-  private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes, employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[CarAndFuel] = Seq.empty,
+  private def setupMocksForJohnDensmore(taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes, employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[CarBenefit] = Seq.empty,
                                         acceptedTransactions: List[TxQueueTransaction] = List.empty, completedTransactions: List[TxQueueTransaction] = List.empty) {
 
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$taxYear")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$taxYear")).thenReturn(Some(employments))
-    when(mockPayeConnector.linkedResource[Seq[CarAndFuel]](s"/paye/AB123456C/benefit-cars/$taxYear")).thenReturn(Some(benefits))
+    when(mockPayeConnector.linkedResource[Seq[CarBenefit]](s"/paye/AB123456C/benefit-cars/$taxYear")).thenReturn(Some(benefits))
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))(Matchers.eq(hc))).thenReturn(Some(acceptedTransactions))
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))(Matchers.eq(hc))).thenReturn(Some(completedTransactions))
     when(mockKeyStoreService.getEntry[CarBenefitData](Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(None)
-    when(mockPayeConnector.calculateBenefitValue(Matchers.anyString(), Matchers.any[CarAndFuel])(Matchers.any())).thenReturn(Some(NewBenefitCalculationResponse(Some(1000), None, Some(2000), None)))
 
     when(mockKeyStoreService.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
       thenReturn(Future.successful(None))

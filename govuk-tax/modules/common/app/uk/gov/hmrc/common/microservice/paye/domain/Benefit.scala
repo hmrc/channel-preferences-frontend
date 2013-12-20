@@ -5,7 +5,7 @@ import scala._
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import org.joda.time.format.DateTimeFormat
 
-
+@deprecated("Use CarBenefit and FuelBenefit instead", "20/12/2013")
 case class Benefit(benefitType: Int,
                    taxYear: Int,
                    grossAmount: BigDecimal,
@@ -47,6 +47,7 @@ object Benefit {
 
 }
 
+@deprecated("Use CarBenefit instead", "20/12/2013")
 case class Car(dateCarMadeAvailable: Option[LocalDate] = None,
                dateCarWithdrawn: Option[LocalDate] = None,
                dateCarRegistered: Option[LocalDate] = None,
@@ -65,6 +66,7 @@ object BenefitTypes {
   val TELEPHONE = 32
 }
 
+@deprecated("Use CarBenefit and FuelBenefit instead", "20/12/2013")
 case class CarAndFuel(carBenefit: Benefit, fuelBenefit: Option[Benefit] = None) {
   require(carBenefit.car.isDefined, "Car benefit does not have a Car part defined")
   require(carBenefit.benefitType == BenefitTypes.CAR, s"Car benefit has incorrect type ${carBenefit.benefitType}, should be ${BenefitTypes.CAR}")

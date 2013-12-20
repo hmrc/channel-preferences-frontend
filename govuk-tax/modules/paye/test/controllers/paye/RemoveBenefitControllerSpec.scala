@@ -151,7 +151,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carBenefitStartedThisYear = Benefit(31, 2013, 321.42, 2, None, None, None, None, None, None, None,
         Some(Car(None, None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), Map.empty, Map("withdraw" -> calculation))
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit.fromBenefit(carBenefitStartedThisYear)))
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit(carBenefitStartedThisYear)))
 
       val withdrawDate = benefitStartDate.minusDays(2)
 
@@ -262,7 +262,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carBenefitStatedLongTimeAgo = Benefit(31, 2013, 321.42, 2, None, None, None, None, None, None, None,
         Some(Car(Some(benefitStartDate), None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), Map.empty, Map.empty)
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit.fromBenefits(carBenefitStatedLongTimeAgo, Some(fuelBenefit))))
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit(carBenefitStatedLongTimeAgo, Some(fuelBenefit))))
 
       val withdrawDate = new LocalDate()
       val fuelDate = withdrawDate.minusYears(1)
@@ -280,7 +280,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val carBenefitStatedLongTimeAgo = Benefit(31, 2013, 321.42, 2, None, None, None, None, None, None, None,
         Some(Car(Some(benefitStartDate), None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), Map.empty, Map.empty)
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit.fromBenefits(carBenefitStatedLongTimeAgo, Some(fuelBenefit))))
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit(carBenefitStatedLongTimeAgo, Some(fuelBenefit))))
 
       val withdrawDate = new LocalDate()
 
@@ -319,7 +319,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         Some(Car(Some(benefitStartDate), None, Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), Map.empty, Map("withdraw" -> calculation))
 
 
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit.fromBenefits(carBenefitStartedThisYear, Some(fuelBenefit))))
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit(carBenefitStartedThisYear, Some(fuelBenefit))))
 
       val withdrawDate = benefitStartDate
       val fuelDate = benefitStartDate.minusDays(1)
@@ -520,7 +520,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes,
         Seq(Employment(sequenceNumber = 3, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = primaryEmploymentType)),
-        Seq(CarBenefit.fromBenefits(specialCarBenefit)))
+        Seq(CarBenefit(specialCarBenefit)))
       when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 
       val result = formController.showRemoveCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, 2013, 3)
@@ -542,7 +542,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     }
 
     "in step 1, not notify the user about fuel benefit if the user does not have one" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit.fromBenefits(carBenefit)))
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit(carBenefit)))
       when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any, any)).thenReturn(None)
 
       val result = formController.showRemoveCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, 2013, 2)
@@ -700,7 +700,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
 
     "in step 2 save the withdrawDate to the keystore" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit.fromBenefits(carBenefit)))
+      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit(carBenefit)))
 
       val withdrawDate = new LocalDate(2013, 12, 8)
 
@@ -775,7 +775,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
         override def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarBenefit]] = {
           Future.successful(
-            Seq(CarBenefit.fromBenefits(Benefit(31, 2013, BigDecimal("3"), 1, Some(BigDecimal("4")), Some(BigDecimal("5")), Some(BigDecimal("6")),
+            Seq(CarBenefit(Benefit(31, 2013, BigDecimal("3"), 1, Some(BigDecimal("4")), Some(BigDecimal("5")), Some(BigDecimal("6")),
               Some(BigDecimal("7")), Some(BigDecimal("8")), Some("payment"), None, Some(car), Map[String, String](),
               Map[String, String]()))))
         }
@@ -802,7 +802,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
         }
 
         override def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarBenefit]] = {
-          Future.successful(Seq(CarBenefit.fromBenefits(Benefit(31, 2013, BigDecimal("3"), 1, Some(BigDecimal("4")), Some(BigDecimal("5")),
+          Future.successful(Seq(CarBenefit(Benefit(31, 2013, BigDecimal("3"), 1, Some(BigDecimal("4")), Some(BigDecimal("5")),
             Some(BigDecimal("6")), Some(BigDecimal("7")), Some(BigDecimal("8")), Some("payment"), None, Some(car),
             Map[String, String](), Map[String, String]()))))
         }

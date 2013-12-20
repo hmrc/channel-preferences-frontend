@@ -38,16 +38,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     httpPostF[RemoveBenefitResponse](uri, Json.parse(toRequestBody(withdrawBenefitRequest)))
   }
 
-  def calculateBenefitValue(uri: String, carAndFuel: CarAndFuel)(implicit hc: HeaderCarrier): Future[Option[NewBenefitCalculationResponse]] = {
-    httpPostF[NewBenefitCalculationResponse](
-      uri,
-      body = Json.parse(
-        toRequestBody(
-          carAndFuel
-        )
-      )
-    )
-  }
+
 
 }
 

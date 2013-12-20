@@ -83,8 +83,8 @@ object BenefitFixture {
     Some(fuelForecastAmount)
   )
 
-  val carWithoutFuel = CarBenefit.fromBenefits(carBenefit)
+  val carWithoutFuel = CarBenefit(carBenefit)
 
-  val carWithFuel = CarBenefit.fromBenefits(carBenefit, Some(fuelBenefit))
+  val carWithFuel = CarBenefit(carBenefit, Some(fuelBenefit))
 
 }
