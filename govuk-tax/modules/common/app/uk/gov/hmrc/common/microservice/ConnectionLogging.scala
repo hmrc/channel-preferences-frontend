@@ -14,24 +14,26 @@ trait ConnectionLogging {
   import ConnectionLogging.formatNs
 
   def withLogging[T](method: String, uri: String)(body: => Future[T])(implicit hc: HeaderCarrier): Future[T] = {
-    connectionLogger.debug(s"${hc.requestId.getOrElse("")}:${formatNs(hc.elapsedNs)}")
-    val startTime = System.nanoTime()
+    val startTime = hc.elapsedNs
     val f = body
-    f.onComplete {logResult(hc.requestId.getOrElse(""), method, uri, startTime)}
+    f.onComplete {logResult(hc, method, uri, startTime)}
     f
   }
 
-  def logResult[A](requestId: String, method: String, uri: String, startTime: Long)(result: Try[A]) = result match {
+  def logResult[A](hc: HeaderCarrier, method: String, uri: String, startTime: Long)(result: Try[A]) = result match {
     case Success(ground) => {
-      connectionLogger.trace(formatMessage(requestId, method, uri, System.nanoTime() - startTime, "success"))
+      connectionLogger.trace(formatMessage(hc, method, uri, startTime, "ok"))
     }
     case Failure(ex) => {
-      connectionLogger.trace(formatMessage(requestId, method, uri, System.nanoTime() - startTime, s"failed ${ex.getMessage}"))
+      connectionLogger.trace(formatMessage(hc, method, uri, startTime, s"failed ${ex.getMessage}"))
     }
   }
 
-  def formatMessage(requestId:String, method: String, uri: String, elapsedNs: Long, message: String) =
-    s"$requestId:$method:$uri:$elapsedNs:${formatNs(elapsedNs)}:$message"
+  def formatMessage(hc: HeaderCarrier, method: String, uri: String, startTime: Long, message: String) = {
+    val requestId = hc.requestId.getOrElse("")
+    val durationNs = hc.elapsedNs - startTime
+    s"$requestId:$method:${startTime/1000}:${formatNs(startTime)}:${durationNs/1000}:${formatNs(durationNs)}:$uri:$message"
+  }
 }
 
 object ConnectionLogging {
@@ -41,9 +43,9 @@ object ConnectionLogging {
     val msPart = ns / 1000000 % 1000
     val sPart = ns / 1000000000
 
-    if (sPart > 0) f"${(sPart * 1000 + msPart) / 1000.0}%3.3f s"
-    else if (msPart > 0) f"${(msPart * 1000 + usPart) / 1000.0}%3.3f ms"
-    else if (usPart > 0) f"${(usPart * 1000 + nsPart) / 1000.0}%3.3f us"
+    if (sPart > 0) f"${(sPart * 1000 + msPart) / 1000.0}%03.3fs"
+    else if (msPart > 0) f"${(msPart * 1000 + usPart) / 1000.0}%03.3fms"
+    else if (usPart > 0) f"${(usPart * 1000 + nsPart) / 1000.0}%03.3fus"
     else s"$ns ns"
   }
 }
