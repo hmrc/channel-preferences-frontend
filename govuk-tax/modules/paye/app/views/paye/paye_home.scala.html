@@ -1,6 +1,11 @@
 @main(title = Messages(s"paye.company_car_home.title"), sidebarLinks = Some(sidebarLinks)) {
     <h1>@Messages(s"paye.company_car_home.title")</h1>
     <p>@Messages(s"paye.company_car_home.intro", helpers.link("", Messages(s"paye.company_car_home.intro.calculator_link.href"), Messages(s"paye.company_car_home.intro.calculator_link.text")))</p>
+    <strong>@Messages(s"paye.company_car_home.intro.warning")</strong>
+    <ul>
+        <li>@Messages(s"paye.company_car_home.intro.warning.single_car_only")</li>
+        <li>@Messages(s"paye.company_car_home.intro.warning.single_active_employment_only")</li>
+    </ul>
     <h2>@Messages(s"paye.company_car_home.instructions.heading")</h2>
     <p>@Messages(s"paye.company_car_home.instructions.need")</p>
     <ul>
