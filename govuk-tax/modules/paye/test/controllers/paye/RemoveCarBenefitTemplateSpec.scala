@@ -3,7 +3,7 @@ package controllers.paye
 import models.paye._
 import controllers.paye.RemovalUtils._
 import scala.Some
-import views.html.paye.{remove_car_benefit_form, remove_benefit_form}
+import views.html.paye.{remove_car_benefit_form, remove_fuel_benefit_form}
 import uk.gov.hmrc.utils.TaxYearResolver
 import org.jsoup.Jsoup
 import play.api.test.Helpers._

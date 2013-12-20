@@ -14,6 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class PayeConnector extends TaxRegimeConnector[PayeRoot] {
+
   import PayeConnector._
 
   override val serviceUrl = MicroServiceConfig.payeServiceUrl

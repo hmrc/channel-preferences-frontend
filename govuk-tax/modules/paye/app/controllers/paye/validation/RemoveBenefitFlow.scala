@@ -1,7 +1,6 @@
 package controllers.paye.validation
 
 import play.api.mvc.Request
-import models.paye.{DisplayBenefits, DisplayBenefit}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
@@ -14,6 +13,7 @@ import controllers.paye.validation.BenefitFlowHelper._
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
+import models.paye.{DisplayBenefits, DisplayBenefit}
 
 object RemoveBenefitFlow {
   def apply(action: (User, Request[_], DisplayBenefit, TaxYearData) => Future[SimpleResult])

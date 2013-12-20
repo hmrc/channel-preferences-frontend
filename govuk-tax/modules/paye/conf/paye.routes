@@ -1,5 +1,9 @@
-GET         /benefits/:kinds/:year/:employmentSequenceNumber/remove        @controllers.paye.ShowRemoveBenefitFormController.showBenefitRemovalForm(kinds: String, year: Int, employmentSequenceNumber: Int)
-POST        /benefits/:kinds/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.requestBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
+GET         /benefits/car/:year/:employmentSequenceNumber/remove        @controllers.paye.ShowRemoveBenefitFormController.showRemoveCarBenefitForm(year: Int, employmentSequenceNumber: Int)
+POST        /benefits/car/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.requestRemoveCarBenefit(year: Int, employmentSequenceNumber: Int)
+
+GET         /benefits/fuel/:year/:employmentSequenceNumber/remove        @controllers.paye.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(year: Int, employmentSequenceNumber: Int)
+POST        /benefits/fuel/:year/:employmentSequenceNumber/remove        @controllers.paye.RemoveBenefitController.requestRemoveFuelBenefit(year: Int, employmentSequenceNumber: Int)
+
 POST        /benefits/:kinds/:year/:employmentSequenceNumber/confirm        @controllers.paye.RemoveBenefitController.confirmBenefitRemoval(kinds: String, year: Int, employmentSequenceNumber: Int)
 GET         /benefits/:kinds/:year/:employmentSequenceNumber/confirmation/:oid        @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 

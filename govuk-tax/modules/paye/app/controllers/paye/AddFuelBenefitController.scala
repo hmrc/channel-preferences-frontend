@@ -23,7 +23,7 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData, CarAndFuelBuilder}
+import models.paye.{CarBenefitBuilder, TaxCodeResolver, BenefitUpdatedConfirmationData}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
@@ -114,7 +114,7 @@ with PayeRegimeRoots {
             addFuelBenefitData => {
               implicit val hc = HeaderCarrier(request)
               val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
-              val carBenefitStartDate = getDateInTaxYear(carBenefit.car.flatMap(_.dateCarMadeAvailable))
+              val carBenefitStartDate = getDateInTaxYear(Some(carBenefit.dateMadeAvailable))
 
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData)).map {
                 _ =>
@@ -147,13 +147,12 @@ with PayeRegimeRoots {
 
           val carBenefit = retrieveCarBenefit(taxYearData, employmentSequenceNumber)
 
-          val carAndFuel = CarAndFuelBuilder(addFuelBenefit = fuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)
 
           val payeRoot = user.regimes.paye.get
           val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${
             user.oid
           }"))
-          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, carAndFuel.fuelBenefit.toSeq)
+          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, carBenefit.toBenefits)
 
           keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 
@@ -174,8 +173,8 @@ with PayeRegimeRoots {
     }
   }
 
-  private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): Benefit = {
-    taxYearData.findActiveBenefit(employmentSequenceNumber, BenefitTypes.CAR) match {
+  private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): CarBenefit = {
+    taxYearData.findActiveCarBenefit(employmentSequenceNumber) match {
       case Some(carBenefit) => carBenefit
       case _ => throw new StaleHodDataException("No Car benefit found!") //TODO: Refine this error scenario
     }

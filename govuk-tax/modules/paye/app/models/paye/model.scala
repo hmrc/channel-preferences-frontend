@@ -1,13 +1,14 @@
 package models.paye
 
 import org.joda.time.{DateTime, LocalDate}
-import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import uk.gov.hmrc.common.microservice.paye.domain.Car
-import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import Matchers.transactions._
-import javax.transaction.Transaction
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
+import models.paye.EmploymentView
+import models.paye.RecentChange
+import models.paye.BenefitInfo
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 case class BenefitInfo(startDate: String, withdrawDate: String, apportionedValue: BigDecimal)
 
@@ -49,12 +50,13 @@ object DisplayBenefits {
 }
 
 case class RemoveCarBenefitFormData(withdrawDate: LocalDate,
-                                 carUnavailable: Option[Boolean] = None,
-                                 numberOfDaysUnavailable: Option[Int] = None,
-                                 employeeContributes: Option[Boolean],
-                                 employeeContribution: Option[Int],
-                                 fuelDateChoice: Option[String],
-                                 fuelWithdrawDate: Option[LocalDate])
+                                    carUnavailable: Option[Boolean] = None,
+                                    numberOfDaysUnavailable: Option[Int] = None,
+                                    employeeContributes: Option[Boolean],
+                                    employeeContribution: Option[Int],
+                                    fuelDateChoice: Option[String],
+                                    fuelWithdrawDate: Option[LocalDate])
+
 object RemoveCarBenefitFormData {
   def apply(data: RemoveFuelBenefitFormData): RemoveCarBenefitFormData =
     RemoveCarBenefitFormData(
@@ -67,6 +69,7 @@ object RemoveCarBenefitFormData {
 }
 
 case class RemoveFuelBenefitFormData(withdrawDate: LocalDate)
+
 object RemoveFuelBenefitFormData {
   def apply(removeCarBenefitFormData: RemoveCarBenefitFormData): RemoveFuelBenefitFormData = RemoveFuelBenefitFormData(removeCarBenefitFormData.withdrawDate)
 }
@@ -86,7 +89,7 @@ object EmploymentViews {
                             taxYear: Int,
                             benefitTypes: Set[Int],
                             transactionHistory: Seq[TxQueueTransaction]
-                            ): Seq[EmploymentView] =
+                             ): Seq[EmploymentView] =
     employments.map { e =>
       EmploymentView(e.employerNameOrReference, e.startDate, e.endDate, TaxCodeResolver.currentTaxCode(taxCodes, e.sequenceNumber),
         recentChanges(e.sequenceNumber, taxYear, Seq.empty, benefitTypes))

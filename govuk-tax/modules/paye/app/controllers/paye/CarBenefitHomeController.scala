@@ -2,7 +2,7 @@ package controllers.paye
 
 import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.paye.domain._
-import models.paye.{CarBenefit, EmploymentView, EmploymentViews}
+import models.paye.{ EmploymentView, EmploymentViews}
 import play.api.Logger
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
@@ -76,7 +76,7 @@ with PayeRegimeRoots {
       cars <- f1
       employments <- f2
       taxCodes <- f5
-    } yield RawTaxData(taxYear, cars.map(CarBenefit.fromCarAndFuel(_)), employments, taxCodes, Seq.empty)
+    } yield RawTaxData(taxYear, cars, employments, taxCodes, Seq.empty)
   }
 
   private[paye] def buildHomePageParams(details: RawTaxData, benefitTypes: Set[Int], taxYear: Int): Option[HomePageParams] = {

@@ -1,21 +1,17 @@
-@(displayBenefit: models.paye.DisplayBenefit, hasFuelBenefit:Boolean, updateForm: Form[models.paye.RemoveCarBenefitFormData], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(activeCarBenefit: uk.gov.hmrc.common.microservice.paye.domain.CarBenefit,
+        primaryEmployment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
+        updateForm: Form[models.paye.RemoveCarBenefitFormData],
+        currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@import views.formatting.Dates._
-@import org.joda.time.LocalDate
-@import views.html.helpers.singleCheckbox
 
-@import views.helpers.CustomHelpers._
-@import helper._
-@import views.formatting.Strings._
-@import views.formatting.Money._
-@import views.helpers._
+    @import views.helpers._
 
 @main(title = "Remove your company benefit", user = Some(user)) {
     <h1>@Messages("paye.remove_car_benefit.h1")</h1>
-    <h2><span class="employer-name">@displayBenefit.employment.employerName</span>@Messages("paye.remove_car_benefit.h2.company_info")</h2>
+    <h2><span class="employer-name">@primaryEmployment.employerName</span>@Messages("paye.remove_car_benefit.h2.company_info")</h2>
     <h2 class="benefit-type">@Messages("paye.remove_car_benefit.benefit_type")</h2>
 
-    @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestBenefitRemoval(displayBenefit.allBenefitsToString, displayBenefit.benefit.taxYear, displayBenefit.benefit.employmentSequenceNumber)) {
+    @helper.form(action = controllers.paye.routes.RemoveBenefitController.requestRemoveCarBenefit(activeCarBenefit.taxYear, primaryEmployment.sequenceNumber)) {
 
         <ol class="list--numbered">
             <li>
@@ -55,7 +51,7 @@
                 )
             </li>
 
-             @if(hasFuelBenefit){
+             @if(activeCarBenefit.hasActiveFuel){
             <li>
                 <p class="fuel-benefit-info" >@Messages("paye.remove_car_benefit.question4.fuel_benefit_info")</p>
 

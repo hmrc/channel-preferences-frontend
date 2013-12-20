@@ -56,9 +56,9 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     }
 
 
-  private def getSecondBenefit(payeRootData: TaxYearData, mainBenefit: Benefit): Option[Benefit] = {
+  private def getSecondBenefit(payeRootData: TaxYearData, mainBenefit: Benefit): Option[FuelBenefit] = {
     mainBenefit.benefitType match {
-      case CAR => payeRootData.findActiveBenefit(mainBenefit.employmentSequenceNumber, FUEL)
+      case CAR => payeRootData.findActiveFuelBenefit(mainBenefit.employmentSequenceNumber)
       case _ => None
     }
   }
@@ -87,7 +87,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         case FUEL =>
           updateRemoveFuelBenefitForm(benefitStartDate, now(), taxYearInterval).bindFromRequest()(request).fold(
             errors => {
-              val result = BadRequest(remove_benefit_form(displayBenefit, errors, currentTaxYearYearsRange)(user))
+              val result = BadRequest(remove_fuel_benefit_form(displayBenefit, errors, currentTaxYearYearsRange)(user))
               Future.successful(result)
             },
             removeBenefitData => {
@@ -233,7 +233,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   }
 
   private def hasUnremovedFuelBenefit(payeRootData: TaxYearData, employmentNumber: Int): Boolean = {
-    payeRootData.findActiveBenefit(employmentNumber, FUEL).isDefined
+    payeRootData.findActiveFuelBenefit(employmentNumber).isDefined
   }
 }
 

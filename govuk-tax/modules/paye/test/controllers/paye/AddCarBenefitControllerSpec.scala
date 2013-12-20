@@ -33,7 +33,7 @@ import CarBenefitDataBuilder._
 import controllers.common.actions.HeaderCarrier
 import controllers.paye.validation.BenefitFlowHelper
 
-import models.paye.{CarAndFuelBuilder, CarBenefitData, CarBenefitDataAndCalculations}
+import models.paye.{CarBenefitBuilder, CarBenefitData, CarBenefitDataAndCalculations}
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
@@ -608,7 +608,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     }
 
     def assertSuccess(result: Future[SimpleResult], collectedData: CarBenefitData) {
-      val carAndFuel = CarAndFuelBuilder(carBenefitDataAndCalculations = CarBenefitDataAndCalculations(collectedData), taxYear = 2013, employmentSequenceNumber = 1)
+      val carAndFuel = CarBenefitBuilder(carBenefitDataAndCalculations = CarBenefitDataAndCalculations(collectedData), taxYear = 2013, employmentSequenceNumber = 1)
       status(result) shouldBe 200
       val carAndFuelCaptor = ArgumentCaptor.forClass(classOf[CarAndFuel])
       reset(mockKeyStoreService)

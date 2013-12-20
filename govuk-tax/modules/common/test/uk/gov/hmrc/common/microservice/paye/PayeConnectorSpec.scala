@@ -59,14 +59,13 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
       val uri = ""
       val version = 0
       val employmentSeqNumber = 1
-      val benefit = Benefit(benefitType = 31, taxYear = 2013, grossAmount = 0, employmentSequenceNumber = 1, costAmount = None, amountMadeGood = None, cashEquivalent = None,
-        expensesIncurred = None, amountOfRelief = None, paymentOrBenefitDescription = None, dateWithdrawn = None, car = None, actions = Map.empty[String, String], calculations = Map.empty[String, String])
+      val carBenefit = CarBenefit(2013, 1, new LocalDate, new LocalDate, 0.0, 0, "Diesel", Some(1400), Some(125), 3000, 0, 0, new LocalDate, None, None)
 
       val capturedBody = ArgumentCaptor.forClass(classOf[JsValue])
 
       when(service.httpWrapper.postF[AddBenefitResponse](Matchers.eq(uri), capturedBody.capture, Matchers.any())).
         thenReturn(Some(AddBenefitResponse(TransactionId("24242t"), Some("456TR"), Some(12345))))
-      val response = service.addBenefits(uri, version, employmentSeqNumber, Seq(benefit))
+      val response = service.addBenefits(uri, version, employmentSeqNumber, carBenefit.toBenefits)
       response.get.newTaxCode shouldBe Some("456TR")
       response.get.netCodedAllowance shouldBe Some(12345)
 
@@ -74,7 +73,7 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
       capturedAddedBenefit should have(
         'version(version),
         'employmentSequence(employmentSeqNumber),
-        'benefits(Seq(benefit))
+        'carBenefit(carBenefit)
       )
     }
   }

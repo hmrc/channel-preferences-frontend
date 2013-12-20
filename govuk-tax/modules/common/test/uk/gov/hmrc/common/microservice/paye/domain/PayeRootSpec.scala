@@ -8,7 +8,7 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import org.mockito.Mockito._
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.{LocalDate, DateTimeZone, DateTime}
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import java.net.URI
 import uk.gov.hmrc.utils.DateTimeUtils
@@ -19,21 +19,21 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       implicit val hc = HeaderCarrier()
 
-      val benefit = Benefit(BenefitTypes.CAR, 2013, 0.0, 1, None, None, None, None, None, None, None, Some(Car()), Map.empty, Map.empty)
+      val carBenefit = CarBenefit(2013, 1, new LocalDate, new LocalDate, 0.0,0.0,"Diesel", Some(1400),Some(125),3000,0,0,new LocalDate,None, None)
       val employment = mock[Employment]
       implicit val payeConnector = mock[PayeConnector]
       implicit val txQueueConnector = mock[TxQueueConnector]
 
       val stubPayeRoot = new PayeRoot("NM439085B", 1, "Mr", "John", None, "Densmore", "johnnyBoy", "1960-12-01", Map.empty, Map.empty, Map.empty) {
-        override def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarAndFuel]] =
-          Future.successful(if (taxYear == 2013) Seq(CarAndFuel(benefit)) else Seq.empty)
+        override def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarBenefit]] =
+          Future.successful(if (taxYear == 2013) Seq(carBenefit) else Seq.empty)
 
         override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
           Future.successful(if (taxYear == 2013) Seq(employment) else Seq.empty)
 
       }
 
-      val expectedTaxYearData: TaxYearData = TaxYearData(Seq(CarAndFuel(benefit)), Seq(employment))
+      val expectedTaxYearData: TaxYearData = TaxYearData(Seq(carBenefit), Seq(employment))
 
       whenReady(stubPayeRoot.fetchTaxYearData(2013)) { taxYearData =>
         taxYearData shouldBe expectedTaxYearData
@@ -92,7 +92,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
       val secondTxHistory = Some(firstTxHistory.get ++ List(
         TxQueueTransaction(id =  new URI("uri3"), user =  new URI("uri"), callback = None, regime = "paye", statusHistory = List.empty, properties = Map.empty, createdAt = DateTimeUtils.now, lastUpdatedAt = DateTimeUtils.now)
       ))
-      
+
       implicit val hc = HeaderCarrier()
       val txQueueConnector = mock[TxQueueConnector]
       when(txQueueConnector.transaction(s"/txqueue/current-status/paye/$nino/history/after/2013-11-10?statuses=ACCEPTED,COMPLETED&max-results=0"))

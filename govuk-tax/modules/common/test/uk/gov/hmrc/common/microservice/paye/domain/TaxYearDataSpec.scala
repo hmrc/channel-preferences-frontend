@@ -4,58 +4,59 @@ import uk.gov.hmrc.common.BaseSpec
 import org.joda.time.LocalDate
 
 class TaxYearDataSpec extends BaseSpec {
+  // This is the minumum set of data that must be supplied to be able to create a CarBenefit
+  val testCar = Car(carValue = Some(3000), dateCarRegistered = Some(new LocalDate), fuelType = Some("Diesel"), dateCarMadeAvailable = Some(new LocalDate))
 
   "TaxYearData" should {
     "return None when asked for active benefit of type FUEL if fuel benefit is present but withdrawn" in {
-      val car = Car()
-      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(car))
-      val fuelBenefit = Benefit(BenefitTypes.FUEL, 2013, 100, 1, dateWithdrawn = Some(new LocalDate()))
-      val carAndFuel = CarAndFuel(carBenefit, Some(fuelBenefit))
+      val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
+      val fuel = Benefit(BenefitTypes.FUEL, 2013, 100, 1, dateWithdrawn = Some(new LocalDate()))
 
-      val tyd = TaxYearData(Seq(carAndFuel), Seq())
+      val carBenefit = CarBenefit.fromBenefits(car, Some(fuel))
 
-      tyd.findActiveBenefit(1, BenefitTypes.FUEL) shouldBe None
+      val tyd = TaxYearData(Seq(carBenefit), Seq())
+
+      tyd.findActiveFuelBenefit(1) shouldBe None
     }
 
     "return None when asked for active benefit of type FUEL if fuel benefit is not present" in {
-      val car = Car()
-      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(car))
-      val carAndFuel = CarAndFuel(carBenefit, None)
+      val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
+      val fuel = None
 
-      val tyd = TaxYearData(Seq(carAndFuel), Seq())
+      val carBenefit = CarBenefit.fromBenefits(car, fuel)
 
-      tyd.findActiveBenefit(1, BenefitTypes.FUEL) shouldBe None
+      val tyd = TaxYearData(Seq(carBenefit), Seq())
+
+      tyd.findActiveFuelBenefit(1) shouldBe None
     }
 
     "return some fuel benefit when asked for active benefit of type FUEL if fuel benefit is present and not withdrawn" in {
-      val car = Car()
-      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(car))
-      val fuelBenefit = Benefit(BenefitTypes.FUEL, 2013, 100, 1)
-      val carAndFuel = CarAndFuel(carBenefit, Some(fuelBenefit))
+      val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
+      val fuel = FuelBenefit.fromBenefit(Benefit(BenefitTypes.FUEL, 2013, 100, 1))
 
-      val tyd = TaxYearData(Seq(carAndFuel), Seq())
+      val carBenefit = CarBenefit.fromBenefit(car, Some(fuel))
 
-      tyd.findActiveBenefit(1, BenefitTypes.FUEL) shouldBe Some(fuelBenefit)
+      val tyd = TaxYearData(Seq(carBenefit), Seq())
+
+      tyd.findActiveFuelBenefit(1) shouldBe Some(fuel)
     }
 
     "return some car benefit when asked for active benefit of type CAR if car is not withdrawn" in {
-      val car = Car()
-      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(car))
-      val carAndFuel = CarAndFuel(carBenefit)
+      val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar))
+      val carBenefit = CarBenefit.fromBenefits(car, None)
 
-      val tyd = TaxYearData(Seq(carAndFuel), Seq())
+      val tyd = TaxYearData(Seq(carBenefit), Seq())
 
-      tyd.findActiveBenefit(1, BenefitTypes.CAR) shouldBe Some(carBenefit)
+      tyd.findActiveCarBenefit(1) shouldBe Some(carBenefit)
     }
 
     "return None when asked for active benefit of type CAR if car is withdrawn" in {
-      val car = Car(dateCarWithdrawn = Some(new LocalDate()))
-      val carBenefit = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(car))
-      val carAndFuel = CarAndFuel(carBenefit)
+      val car = Benefit(BenefitTypes.CAR, 2013, 100, 1, car = Some(testCar.copy(dateCarWithdrawn = Some(new LocalDate()))))
+      val carBenefit = CarBenefit.fromBenefits(car, None)
 
-      val tyd = TaxYearData(Seq(carAndFuel), Seq())
+      val tyd = TaxYearData(Seq(carBenefit), Seq())
 
-      tyd.findActiveBenefit(1, BenefitTypes.CAR) shouldBe None
+      tyd.findActiveCarBenefit(1) shouldBe None
     }
   }
 

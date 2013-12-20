@@ -21,7 +21,6 @@ import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.paye.validation.AddBenefitFlow
 import models.paye.CarBenefitData
-import models.paye.CarBenefitDataAndCalculations
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import models.paye.BenefitUpdatedConfirmationData
@@ -102,17 +101,16 @@ with PayeRegimeRoots {
 
   private def lookupValuesFromKeystoreAndBuildForm(keyStoreId: String)(implicit hc: HeaderCarrier): Future[Form[CarBenefitData]] = {
     savedValuesFromKeyStore(keyStoreId).map {
-      case Some(savedValuesAndCalculation) => {
-        val savedValues = savedValuesAndCalculation.carBenefitData
+      case Some(carBenefitData) => {
         val rawForm = validationlessForm
-        val valuesForValidation = rawForm.fill(rawValuesOf(savedValues)).value.get
-        carBenefitForm(valuesForValidation).fill(savedValues)
+        val valuesForValidation = rawForm.fill(rawValuesOf(carBenefitData)).value.get
+        carBenefitForm(valuesForValidation).fill(carBenefitData)
       }
       case None => carBenefitForm(CarBenefitValues())
     }
   }
 
-  private def savedValuesFromKeyStore(keyStoreId: String)(implicit hc: HeaderCarrier) = keyStoreService.getEntry[CarBenefitDataAndCalculations](keyStoreId, KeystoreUtils.source, keyStoreKey)
+  private def savedValuesFromKeyStore(keyStoreId: String)(implicit hc: HeaderCarrier) = keyStoreService.getEntry[CarBenefitData](keyStoreId, KeystoreUtils.source, keyStoreKey)
 
   private[paye] def rawValuesOf(defaults: CarBenefitData) =
     CarBenefitValues(providedFromVal = defaults.providedFrom,
@@ -135,8 +133,8 @@ with PayeRegimeRoots {
           val carBenefitDataAndCalculation = savedData.getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
           val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
-          val carAndFuel = CarAndFuelBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
-          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, Seq(carAndFuel.carBenefit) ++ carAndFuel.fuelBenefit)
+          val carBenefit = CarBenefitBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
+          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, carBenefit.toBenefits)
           keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
 
           TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap {
@@ -167,8 +165,7 @@ with PayeRegimeRoots {
             (addCarBenefitData: CarBenefitData) => {
               implicit val hc = HeaderCarrier(request)
 
-              keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey,
-                CarBenefitDataAndCalculations(addCarBenefitData)).map {
+              keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, addCarBenefitData).map {
                 _ =>
                   val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                     addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
