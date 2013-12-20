@@ -78,7 +78,14 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
-    when(mockPayeConnector.linkedResource[Seq[CarBenefit]]("/paye/AB123456C/benefit-cars/2013")).thenReturn(Some(cars))
+
+    val benefits = cars.map(c => CarAndFuel(c.toBenefits(0), c.toBenefits.drop(1).headOption))
+    when(mockPayeConnector.linkedResource[Seq[CarAndFuel]]("/paye/AB123456C/benefit-cars/2013")).thenReturn(Some(benefits))
+
+    val withdrawDate = new LocalDate(2013, 12, 8)
+    val formData: RemoveCarBenefitFormData = RemoveCarBenefitFormData(withdrawDate, Some(true), Some(11), Some(true), Some(250), Some("differentDateFuel"), Some(withdrawDate))
+    when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(formData))
+
 
     when(mockKeyStoreService.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
       thenReturn(Future.successful(None))
@@ -223,6 +230,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
     "in step 1, display error message if user has not selected the type of date for fuel removal" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
+
 
       val withdrawDate = new LocalDate(2013, 12, 8)
       val result = controller.requestRemoveCarBenefitAction(2013, 2)(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, None))
