@@ -82,9 +82,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     val benefits = cars.map(c => CarAndFuel(c.toBenefits(0), c.toBenefits.drop(1).headOption))
     when(mockPayeConnector.linkedResource[Seq[CarAndFuel]]("/paye/AB123456C/benefit-cars/2013")).thenReturn(Some(benefits))
 
+
     val withdrawDate = new LocalDate(2013, 12, 8)
     val formData: RemoveCarBenefitFormData = RemoveCarBenefitFormData(withdrawDate, Some(true), Some(11), Some(true), Some(250), Some("differentDateFuel"), Some(withdrawDate))
     when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](RemovalUtils.benefitFormDataActionId, "paye", "remove_benefit", false)).thenReturn(Some(formData))
+    when(mockKeyStoreService.getEntry[RemoveFuelBenefitFormData](Matchers.any(),Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(None)
 
 
     when(mockKeyStoreService.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).
