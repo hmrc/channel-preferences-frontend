@@ -222,20 +222,19 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
           removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
       }
     }
-    result.getOrElse(Future.successful(InternalServerError("")))
+
+    val errorResult = if (submissionDataO.isEmpty) {
+      Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to car benefit homepage")
+      Redirect(routes.CarBenefitHomeController.carBenefitHome())
+    } else InternalServerError("Missing data needed to remove car benefit.")
+
+    result.getOrElse(Future.successful(errorResult))
   }
 
   private[paye] def confirmFuelBenefitRemovalAction(taxYear: Int, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
     val f1 = user.getPaye.fetchTaxYearData(taxYear)
     val f2 = keyStoreService.loadFuelBenefitFormData
-
-    // TODO: Find a way to get this error redirect to happen
-    //    case _ => {
-    //      Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to car benefit homepage")
-    //      Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
-    //    }
-
 
     for {
       taxYearData <- f1
@@ -246,6 +245,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
   private def doConfirmFuelBenefitRemovalAction(taxYearData: TaxYearData, employmentSequenceNumber: Int, submissionDataO: Option[RemoveFuelBenefitFormData])
                                                (implicit user: User, request: Request[_], hc: HeaderCarrier): Future[SimpleResult] = {
+
     val result = for {
       activeCarBenefit <- taxYearData.findActiveCarBenefit(employmentSequenceNumber)
       fuelBenefit <- activeCarBenefit.activeFuelBenefit
@@ -267,7 +267,13 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
           removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
       }
     }
-    result.getOrElse(Future.successful(InternalServerError("")))
+
+    val errorResult = if (submissionDataO.isEmpty) {
+      Logger.error(s"Cannot find keystore entry for user ${user.oid}, redirecting to fuel benefit homepage")
+      Redirect(routes.CarBenefitHomeController.carBenefitHome())
+    } else InternalServerError("Missing data needed to remove fuel benefit.")
+
+    result.getOrElse(Future.successful(errorResult))
   }
 
 

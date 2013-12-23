@@ -33,10 +33,10 @@ case class CarBenefit(taxYear: Int,
     val car = new Benefit(benefitCode, taxYear, grossAmount, employmentSequenceNumber, None, None, None, None, None, None, dateWithdrawn,
       Some(Car(Some(dateMadeAvailable), dateWithdrawn, Some(dateCarRegistered), Some(employeeCapitalContribution),
         Some(fuelType), co2Emissions, engineSize, None, Some(carValue), Some(employeePayments), None)),
-      Map.empty, Map.empty, Some(benefitAmount), None)
+      actions, Map.empty, Some(benefitAmount), None)
 
     val fuel = fuelBenefit.map { fb =>
-      new Benefit(fb.benefitCode, taxYear, fb.grossAmount, employmentSequenceNumber, None, None, None, None, None, None, fb.dateWithdrawn, None, Map.empty, Map.empty, Some(fb.benefitAmount), None)
+      new Benefit(fb.benefitCode, taxYear, fb.grossAmount, employmentSequenceNumber, None, None, None, None, None, None, fb.dateWithdrawn, None, fb.actions, Map.empty, Some(fb.benefitAmount), None)
     }
 
     Seq(car) ++ fuel
@@ -58,7 +58,7 @@ object CarBenefit {
     require(benefit.benefitType == BenefitTypes.CAR, s"Attempted to create a CarBenefit from a Benefit with type ${benefit.benefitType}")
     require(benefit.car.isDefined, "Attempted to create a CarBenefit from a benefit without a Car")
 
-    val fb = fuelBenefit.map(FuelBenefit.fromBenefit(_))
+    val fb = fuelBenefit.map(FuelBenefit.fromBenefit)
 
     val car = benefit.car.get // CarAndFuel enforces presence of car element
 
@@ -67,7 +67,7 @@ object CarBenefit {
     // making sure the business model is expressed correctly
     CarBenefit(benefit.taxYear,
       benefit.employmentSequenceNumber,
-      benefit.getStartDate(new LocalDate()),
+      benefit.getStartDate(TaxYearResolver.startOfCurrentTaxYear),          // TODO: Some tests may need a different TYR.
       car.dateCarMadeAvailable.get,
       benefit.benefitAmount.getOrElse(0),
       benefit.grossAmount,

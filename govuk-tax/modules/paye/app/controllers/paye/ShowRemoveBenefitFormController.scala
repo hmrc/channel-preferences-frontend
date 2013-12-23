@@ -70,7 +70,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
       } yield {
         Ok(removeCarBenefit(activeCarBenefit, primaryEmployment, getDatesFromDefaults(defaults), defaults, user))
       }
-    }.getOrElse(BadRequest)
+    }.getOrElse(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
   }
 
   def removeCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveCarBenefitFormData], user: User) = {
@@ -97,7 +97,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
       } yield {
         Ok(removeFuelBenefit(activeFuelBenefit, primaryEmployment, taxYear, defaults, user))
       }
-    }.getOrElse(BadRequest)
+    }.getOrElse(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
 
   }
 
