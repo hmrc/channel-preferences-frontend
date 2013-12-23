@@ -43,7 +43,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector)(impl
           } else {
             Ok(Json.toJson(
               Map("status" -> "OK",
-                  "message" -> "<h2>Thank you for your help.</h2> <p>If you have more extensive feedback, please visit the <a href='/contact'>contact page</a>.</p>"
+                  "message" -> "<h2 id=\"feedback-thank-you-header\">Thank you for your help.</h2> <p>If you have more extensive feedback, please visit the <a href='/contact'>contact page</a>.</p>"
               )
             ))
           }
