@@ -20,8 +20,12 @@
         }
     }
     <td id="@id("car-benefit-amount")">@pounds(carAndFuel.carBenefit.benefitAmount.getOrElse(0))</td>
-    @carAndFuel.fuelBenefit.map { fuelBenefit =>
-        <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount.getOrElse(0))</td>
+
+    @if(params.fuelGrossAmount.isDefined) {
+        @carAndFuel.fuelBenefit match {
+            case Some(fuelBenefit) => { <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount.getOrElse(0))</td> }
+            case None => { <td id="@id("fuel-benefit-amount")">-</td> }
+        }
     }
     </tr>
 }
