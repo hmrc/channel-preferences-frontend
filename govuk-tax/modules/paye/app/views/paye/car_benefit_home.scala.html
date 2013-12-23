@@ -6,34 +6,22 @@
 @import views.html.paye.display_car_and_fuel
 @import uk.gov.hmrc.utils.TaxYearResolver.endOfCurrentTaxYear
 @import uk.gov.hmrc.common.microservice.paye.domain.CarBenefit
-
 @import params._
 
-    @id(idString: String)(implicit idSuffix: Option[String]) = @{ idSuffix.map(suffix => s"$idString-$suffix").getOrElse(idString) }
+@id(idString: String)(implicit idSuffix: Option[String]) = {@idSuffix.map(suffix =>s"$idString-$suffix").getOrElse(idString)}
 
 
-    @carAmountsRow(carName: String, carBenefit: CarBenefit)(implicit idSuffix: Option[String] = None) = {
-        <tr>
-            <td id="@id("car-name")">@carName</td>
-            <td id="@id("car-available")">@formatDate(carBenefit.dateMadeAvailable)
-                to @formatDate(carBenefit.dateWithdrawn.getOrElse(endOfCurrentTaxYear))</td>
-            <td id="@id("car-benefit-amount")">@pounds(carBenefit.benefitAmount)</td>
-            @carBenefit.fuelBenefit.map { fuelBenefit =>
-                <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount)</td>
-            }
-        </tr>
-    }
-    <td id="@id("car-benefit-amount")">@pounds(carAndFuel.carBenefit.benefitAmount.getOrElse(0))</td>
-
-    @if(params.fuelGrossAmount.isDefined) {
-        @carAndFuel.fuelBenefit match {
-            case Some(fuelBenefit) => { <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount.getOrElse(0))</td> }
-            case None => { <td id="@id("fuel-benefit-amount")">-</td> }
-        }
+@carAmountsRow(carName : String, carBenefit: CarBenefit)(implicit idSuffix: Option[String] = None) = {
+<tr>
+    <td id="@id("car-name")">@carName</td>
+        <td id="@id("car-available")">@formatDate(carBenefit.dateMadeAvailable) to @formatDate(carBenefit.dateWithdrawn.getOrElse(endOfCurrentTaxYear))</td>
+    <td id="@id("car-benefit-amount")">@pounds(carBenefit.benefitAmount)</td>
+    @carBenefit.fuelBenefit.map { fuelBenefit =>
+        <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount)</td>
     }
     </tr>
 }
-
+`
 @main(title = "Your tax home", user = Some(user)) {
     <h1>Tell HMRC about a change to your company car</h1>
 
@@ -163,13 +151,15 @@
                         <td id="tax-liability-summary-table-fuel-additional-rate-value">@pounds(fuelGrossAmount.additionalRateValue, 2)</td>
                     </tr>
                 }
-                <tr id="tax-liability-summary-table-total-row">
-                    <th scope="row" id="tax-liability-summary-table-total-header">Total</th>
-                    <td id="tax-liability-summary-table-total-taxable-value">@pounds(totalBenefitGrossAmount.taxableValue)</td>
-                    <td id="tax-liability-summary-table-total-basic-rate-value">@pounds(totalBenefitGrossAmount.basicRateValue, 2)</td>
-                    <td id="tax-liability-summary-table-total-higher-rate-value">@pounds(totalBenefitGrossAmount.higherRateValue, 2)</td>
-                    <td id="tax-liability-summary-table-total-additional-rate-value">@pounds(totalBenefitGrossAmount.additionalRateValue, 2)</td>
-                </tr>
+                @totalBenefitGrossAmount.map { totalBenefitGrossAmount =>
+                    <tr id="tax-liability-summary-table-total-row">
+                        <th scope="row" id="tax-liability-summary-table-total-header">Total</th>
+                        <td id="tax-liability-summary-table-total-taxable-value">@pounds(totalBenefitGrossAmount.taxableValue)</td>
+                        <td id="tax-liability-summary-table-total-basic-rate-value">@pounds(totalBenefitGrossAmount.basicRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-total-higher-rate-value">@pounds(totalBenefitGrossAmount.higherRateValue, 2)</td>
+                        <td id="tax-liability-summary-table-total-additional-rate-value">@pounds(totalBenefitGrossAmount.additionalRateValue, 2)</td>
+                    </tr>
+                }
             </tbody>
         </table>
     }

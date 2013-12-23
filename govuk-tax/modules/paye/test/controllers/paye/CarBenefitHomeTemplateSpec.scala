@@ -129,8 +129,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "render previous cars in the tax year" in new WithApplication(FakeApplication()) with BaseData {
-      val previousCar = Benefit(31, 2013, 1234, 1, car = Some(Car()))
-      val previousCar2 = Benefit(31, 2013, 5678, 1, car = Some(Car(dateCarWithdrawn = Some(new LocalDate(2011, 3, 5)))))
+      val previousCar = Benefit(31, 2013, 1234, 1, car = Some(Car(dateCarMadeAvailable = Some(new LocalDate(testTaxYear, 6,4)), fuelType = Some("diesel"), carValue = Some(5432), dateCarRegistered = Some(new LocalDate(2000, 4, 3)))))
+      val previousCar2 = Benefit(31, 2013, 5678, 1, car = Some(Car(dateCarMadeAvailable = Some(new LocalDate(testTaxYear, 6,4)), fuelType = Some("diesel"), carValue = Some(5432), dateCarRegistered = Some(new LocalDate(2000, 4, 3)), dateCarWithdrawn = Some(new LocalDate(2011, 3, 5)))))
       val previousCarAndFuel1 = CarBenefit(previousCar)
       val previousCarAndFuel2 = CarBenefit(previousCar2)
 
@@ -275,8 +275,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     "show benefits details with a value on the active car fuel and hyphen on the inactive car fuel cell for the tax year for a user with multiple cars, one without fuel" in new WithApplication(FakeApplication()) with BaseData {
       val currentTaxYear = TaxYearResolver.currentTaxYear
 
-      val currentCarWithFuel = CarAndFuel(BenefitFixture.carBenefit, Some(BenefitFixture.fuelBenefit))
-      val previousCarWithoutFuel = CarAndFuel(BenefitFixture.carBenefit.copy(dateWithdrawn = Some(new LocalDate(2013, 5, 5))))
+      val currentCarWithFuel = CarBenefit(BenefitFixture.carBenefit, Some(BenefitFixture.fuelBenefit))
+      val previousCarWithoutFuel = CarBenefit(BenefitFixture.carBenefit.copy(dateWithdrawn = Some(new LocalDate(2013, 5, 5))))
 
       val result = car_benefit_home(
         HomePageParams(Some(currentCarWithFuel), companyName, 0, testTaxYear, employmentViews, Seq(previousCarWithoutFuel),
@@ -288,7 +288,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#fuel-benefit-amount").text should be(BenefitFixture.fuelBenefitAmountPounds)
 
       doc.select("#car-name-0").text shouldBe "Previous car"
-      doc.select("#fuel-benefit-amount-0").text shouldBe "-"
+      doc.select("#fuel-benefit-amount-0").text shouldBe ""
     }
 
     "show benefit summary details for the tax year excluding the total row for a user with only an active car" in new WithApplication(FakeApplication()) with BaseData {

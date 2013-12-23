@@ -28,11 +28,11 @@
         </tr>
         <tr>
             <th scope="row">Your contribution to the price of the car</th>
-            <td id="@id("car-benefit-employee-capital-contribution")">@{if (carBenefit.employeeCapitalContribution > 0) pounds(carBenefit.employeeCapitalContribution) else "none"}</td>
+            <td id="@id("car-benefit-employee-capital-contribution")">@pounds(carBenefit.employeeCapitalContribution)</td>
         </tr>
         <tr>
             <th scope="row">Your contribution to private use of the car</th>
-            <td id="@id("car-benefit-employee-payments")">@{if(carBenefit.employeePayments > 0) pounds(carBenefit.employeePayments) else "none"}</td>
+            <td id="@id("car-benefit-employee-payments")">@pounds(carBenefit.employeePayments)</td>
         </tr>
         <tr>
             <th scope="row">Fuel for private use</th>
@@ -55,7 +55,7 @@
         @carBenefit.co2Emissions.map { co2Emissions =>
             <tr>
                 <th scope="row">CO2 Emissions</th>
-                <td>@co2Emissions g/km</td>
+                <td id="@id("car-co2-emissions")">@co2Emissions g/km</td>
             </tr>
         }
         @carBenefit.engineSize.map { engineSize =>

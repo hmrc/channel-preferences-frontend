@@ -100,7 +100,6 @@ with PayeRegimeRoots {
           employmentViews, previousCars, carBenefitGrossAmount, fuelBenefitGrossAmount)
     }
   }
-
 }
 
 case class RawTaxData(taxYear: Int,
@@ -117,7 +116,7 @@ case class HomePageParams(activeCarBenefit: Option[CarBenefit],
                           previousCarBenefits: Seq[CarBenefit],
                           carGrossAmount: Option[BenefitValue],
                           fuelGrossAmount: Option[BenefitValue]) {
-  val totalBenefitGrossAmount = BenefitValue(carGrossAmount.map(_.taxableValue).getOrElse(BigDecimal(0)) + (fuelGrossAmount.map(_.taxableValue).getOrElse(BigDecimal(0))))
+  val totalBenefitGrossAmount = HomePageParamsBuilder.buildTotalBenefitValue(carGrossAmount, fuelGrossAmount)
 }
 
 
@@ -125,4 +124,16 @@ case class BenefitValue(taxableValue: BigDecimal) {
   val basicRateValue: BigDecimal = taxableValue * 0.2
   val higherRateValue: BigDecimal = taxableValue * 0.4
   val additionalRateValue: BigDecimal = taxableValue * 0.45
+}
+
+object HomePageParamsBuilder {
+
+  def buildTotalBenefitValue(value1: Option[BenefitValue], value2: Option[BenefitValue]): Option[BenefitValue] = {
+    (value1, value2) match {
+      case (None, None) => None
+      case (None, _) => None
+      case (_, None) => None
+      case _ => Some(BenefitValue(value1.map(_.taxableValue).getOrElse(BigDecimal(0)) + value2.map(_.taxableValue).getOrElse(BigDecimal(0))))
+    }
+  }
 }

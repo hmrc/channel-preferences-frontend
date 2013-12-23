@@ -10,7 +10,7 @@ POST        /benefits/fuel/:year/:employmentSequenceNumber/confirm        @contr
 GET         /benefits/:kinds/:year/:employmentSequenceNumber/confirmation/:oid        @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 
 GET         /car-benefit/home        @controllers.paye.CarBenefitHomeController.carBenefitHome
-GET         /car-benefit/version-changed        controllers.paye.VersionChangedController.versionChanged
+GET         /car-benefit/version-changed        @controllers.paye.VersionChangedController.versionChanged
 GET         /car-benefit/cannot-play        @controllers.paye.CarBenefitHomeController.cannotPlayInBeta
 
 GET         /car-benefit/:year/:employmentSequenceNumber/add        @controllers.paye.AddCarBenefitController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
