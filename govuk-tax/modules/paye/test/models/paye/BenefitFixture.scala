@@ -62,6 +62,7 @@ object BenefitFixture {
     carForecastAmount)
 
   val fuelBenefitAmount = 250
+  val fuelBenefitAmountPounds = "£250"
   val fuelForecastAmount = 270
 
   val fuelBenefit = Benefit(

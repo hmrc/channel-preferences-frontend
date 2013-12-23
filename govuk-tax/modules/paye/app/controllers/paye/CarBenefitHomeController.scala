@@ -31,7 +31,7 @@ with PayeRegimeRoots {
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
-  def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
+  def carBenefitHome = AuthorisedFor(account = PayeRegime).async {
     implicit user =>
       implicit request =>
         assembleCarBenefitData(user.getPaye, currentTaxYear).map {
