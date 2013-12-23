@@ -146,13 +146,14 @@ with PayeRegimeRoots {
           }:$taxYear:$employmentSequenceNumber"))
 
           val carBenefit = retrieveCarBenefit(taxYearData, employmentSequenceNumber)
-
+          val updatedCarBenefit = carBenefit.copy(fuelBenefit = Some(FuelBenefit(carBenefit.startDate, 0, 0, fuelBenefitData.dateFuelWithdrawn)))
 
           val payeRoot = user.regimes.paye.get
           val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${
             user.oid
           }"))
-          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, carBenefit.toBenefits)
+
+          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, updatedCarBenefit.toBenefits.find(_.benefitType == BenefitTypes.FUEL).toSeq)
 
           keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 

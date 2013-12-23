@@ -21,7 +21,7 @@ case class CarBenefit(taxYear: Int,
                       fuelBenefit: Option[FuelBenefit] = None) {
   def isActive = dateWithdrawn.isEmpty
 
-  lazy val hasActiveFuel = fuelBenefit.map(_.isActive).getOrElse(false)
+  lazy val hasActiveFuel = fuelBenefit.exists(_.isActive)
 
   lazy val activeFuelBenefit = fuelBenefit.filter(_.isActive)
 
@@ -29,17 +29,17 @@ case class CarBenefit(taxYear: Int,
 
   // Convert back to legacy structure
   def toBenefits: Seq[Benefit] = {
+    val legacyCar = Car(Some(dateMadeAvailable), dateWithdrawn, Some(dateCarRegistered), Some(employeeCapitalContribution),
+      Some(fuelType), co2Emissions, engineSize, None, Some(carValue), Some(employeePayments), None)
 
-    val car = new Benefit(benefitCode, taxYear, grossAmount, employmentSequenceNumber, None, None, None, None, None, None, dateWithdrawn,
-      Some(Car(Some(dateMadeAvailable), dateWithdrawn, Some(dateCarRegistered), Some(employeeCapitalContribution),
-        Some(fuelType), co2Emissions, engineSize, None, Some(carValue), Some(employeePayments), None)),
-      actions, Map.empty, Some(benefitAmount), None)
+    val carLegacyBenefit = new Benefit(benefitCode, taxYear, grossAmount, employmentSequenceNumber, None, None, None, None, None, None, dateWithdrawn,
+      Some(legacyCar), actions, Map.empty, Some(benefitAmount), None)
 
-    val fuel = fuelBenefit.map { fb =>
-      new Benefit(fb.benefitCode, taxYear, fb.grossAmount, employmentSequenceNumber, None, None, None, None, None, None, fb.dateWithdrawn, None, fb.actions, Map.empty, Some(fb.benefitAmount), None)
+    val fuelLegacyBenefit = fuelBenefit.map { fb =>
+      new Benefit(fb.benefitCode, taxYear, fb.grossAmount, employmentSequenceNumber, None, None, None, None, None, None, fb.dateWithdrawn, Some(legacyCar), fb.actions, Map.empty, Some(fb.benefitAmount), None)
     }
 
-    Seq(car) ++ fuel
+    Seq(carLegacyBenefit) ++ fuelLegacyBenefit
   }
 
 }

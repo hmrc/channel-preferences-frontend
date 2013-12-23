@@ -113,8 +113,7 @@ case class TaxYearData(cars: Seq[CarBenefit], employments: Seq[Employment]) {
   def hasActiveBenefit(employmentSequenceNumber: Int, benefitType: Int): Boolean = {
     findActiveCarBenefit(employmentSequenceNumber).map { carBenefit =>
       if (benefitType == BenefitTypes.FUEL) carBenefit.hasActiveFuel
-      if (benefitType == BenefitTypes.CAR) true
-      else false
+      else benefitType == BenefitTypes.CAR
     }
   }.getOrElse(false)
 }
