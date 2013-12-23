@@ -100,7 +100,7 @@ error.paye.remove_car_benefit.question3.missing_employee_contribution=You must s
 
 paye.company_car_home.title=Tell HMRC about a change to your company car
 paye.company_car_home.heading=Tell HMRC about a change to your company car
-paye.company_car_home.intro=You can use this service if you’re a Pay As You Earn (PAYE) employee. Changes to your company car can make a difference to your tax code and the tax you pay. If you're not sure how they’ll affect your tax, use the {0}.
+paye.company_car_home.intro=You can use this service if you’re a Pay As You Earn (PAYE) employee. Changes to your company car can make a difference to your tax code and the tax you pay. If you’re not sure how they’ll affect your tax, use the {0}.
 paye.company_car_home.intro.calculator_link.text=company car calculator
 paye.company_car_home.intro.calculator_link.url=http://www.hmrc.gov.uk/calcs/cars.htm
 paye.company_car_home.intro.warning=Warning: you can not use this service
