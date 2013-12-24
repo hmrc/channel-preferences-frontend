@@ -68,7 +68,7 @@ object CarBenefit {
     CarBenefit(benefit.taxYear,
       benefit.employmentSequenceNumber,
       benefit.getStartDate(TaxYearResolver.startOfCurrentTaxYear),          // TODO: Some tests may need a different TYR.
-      car.dateCarMadeAvailable.get,
+      car.dateCarMadeAvailable.getOrElse(TaxYearResolver.startOfCurrentTaxYear),
       benefit.benefitAmount.getOrElse(0),
       benefit.grossAmount,
       car.fuelType.get,
