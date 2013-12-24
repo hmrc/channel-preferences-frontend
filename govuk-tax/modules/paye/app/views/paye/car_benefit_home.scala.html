@@ -16,10 +16,14 @@
     <td id="@id("car-name")">@carName</td>
         <td id="@id("car-available")">@formatDate(carBenefit.dateMadeAvailable) to @formatDate(carBenefit.dateWithdrawn.getOrElse(endOfCurrentTaxYear))</td>
     <td id="@id("car-benefit-amount")">@pounds(carBenefit.benefitAmount)</td>
-    @carBenefit.fuelBenefit.map { fuelBenefit =>
-        <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount)</td>
+
+    @if(params.fuelGrossAmount.isDefined) {
+        @carBenefit.fuelBenefit match {
+            case Some(fuelBenefit) => {  <td id="@id("fuel-benefit-amount")">@pounds(fuelBenefit.benefitAmount)</td> }
+            case None => { <td id="@id("fuel-benefit-amount")">-</td> }
+        }
     }
-    </tr>
+</tr>
 }
 `
 @main(title = "Your tax home", user = Some(user)) {

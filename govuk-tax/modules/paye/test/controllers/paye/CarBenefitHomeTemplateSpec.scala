@@ -288,7 +288,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#fuel-benefit-amount").text should be(BenefitFixture.fuelBenefitAmountPounds)
 
       doc.select("#car-name-0").text shouldBe "Previous car"
-      doc.select("#fuel-benefit-amount-0").text shouldBe ""
+      doc.select("#fuel-benefit-amount-0").text shouldBe "-"
     }
 
     "show benefit summary details for the tax year excluding the total row for a user with only an active car" in new WithApplication(FakeApplication()) with BaseData {
