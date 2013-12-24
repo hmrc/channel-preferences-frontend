@@ -14,4 +14,6 @@ case class AddCarBenefitConfirmationData(employerName: Option[String],
                                          co2Figure: Option[Int],
                                          engineCapacity: Option[String],
                                          employerPayFuel: Option[String],
-                                         dateFuelWithdrawn: Option[LocalDate])
+                                         dateFuelWithdrawn: Option[LocalDate],
+                                         employeeContributions: Option[Int],
+                                         dateRegistered: Option[LocalDate])

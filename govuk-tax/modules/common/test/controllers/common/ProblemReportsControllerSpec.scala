@@ -17,7 +17,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
       status(result) should be(200)
 
       contentAsJson(result).\("status").as[String] shouldBe "OK"
-      contentAsJson(result).\("message").as[String] shouldBe "<h2>Thank you for your help.</h2> <p>If you have more extensive feedback, please visit the <a href='/contact'>contact page</a>.</p>"
+      contentAsJson(result).\("message").as[String] shouldBe "<h2 id=\"feedback-thank-you-header\">Thank you for your help.</h2> <p>If you have more extensive feedback, please visit the <a href='/contact'>contact page</a>.</p>"
     }
 
     "return 200 and a valid html page for a valid request and js is not enabled" in new WithApplication(FakeApplication()){
