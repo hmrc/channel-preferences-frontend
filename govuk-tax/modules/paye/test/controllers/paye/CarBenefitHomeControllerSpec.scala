@@ -2,7 +2,7 @@ package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.paye.domain._
-import uk.gov.hmrc.utils.DateConverter
+import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
 import controllers.DateFieldsHelper
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
@@ -56,8 +56,23 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
       val employments = johnDensmoresEmployments
-      val carBenefit = carBenefitEmployer1
-      val cars: Seq[CarBenefit] = Seq(CarBenefit(carBenefit))
+      val carBenefit =
+        CarBenefit(carBenefitEmployer1.taxYear,
+          carBenefitEmployer1.employmentSequenceNumber,
+          carBenefitEmployer1.getStartDate(TaxYearResolver.startOfCurrentTaxYear),
+          carBenefitEmployer1.car.get.dateCarMadeAvailable.getOrElse(TaxYearResolver.startOfCurrentTaxYear),
+          carBenefitEmployer1.benefitAmount.getOrElse(0),
+          carBenefitEmployer1.grossAmount,
+          carBenefitEmployer1.car.get.fuelType.get,
+          carBenefitEmployer1.car.get.engineSize,
+          carBenefitEmployer1.car.get.co2Emissions,
+          carBenefitEmployer1.car.get.carValue.get,
+          carBenefitEmployer1.car.get.employeePayments.getOrElse(0),
+          carBenefitEmployer1.car.get.employeeCapitalContribution.getOrElse(0),
+          carBenefitEmployer1.car.get.dateCarRegistered.get,
+          carBenefitEmployer1.car.get.dateCarWithdrawn,
+          carBenefitEmployer1.actions)
+      val cars = Seq(carBenefit)
       val taxCodes = johnDensmoresTaxCodes
       val transactionHistory = Seq(acceptedRemovedCarTransaction, completedRemovedFuelTransaction)
 
@@ -68,7 +83,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       actualHomePageParams shouldNot be(None)
 
       actualHomePageParams.get should have(
-        'activeCarBenefit(Some(CarAndFuel(carBenefit))),
+        'activeCarBenefit(Some(carBenefit)),
         'currentTaxYear(testTaxYear),
         'employerName(Some("Weyland-Yutani Corp")),
         'employmentSequenceNumber(1),
