@@ -16,3 +16,23 @@ error.agent.addClient.search.firstname=Invalid firstname
 error.agent.addClient.search.lastname=Invalid last name
 error.agent.addClient.search.dob=Invalid date of birth
 
+agent.client-successfully-added.add-another-client=Add another client
+agent.client-successfully-added.logout=Logout
+
+agent.addClient.preferredContact.title=Add a new client
+agent.addClient.preferredContact.heading=Add a new client to your agent tax account
+agent.addClient.preferredContact.intro=We would like to understand if you are the preferred point of contact in relation to PAYE payment matters for this client?
+agent.addClient.preferredContact.pointOfContact.me.label=I am the preferred point of contact
+agent.addClient.preferredContact.pointOfContact.other.label=A named person in my office is the preferred point of contact
+agent.addClient.preferredContact.pointOfContact.notUs.label=I am not the preferred point of contact
+agent.addClient.preferredContact.contactName=Contact name
+agent.addClient.preferredContact.contactPhone=Contact phone number
+agent.addClient.preferredContact.contactEmail=Contact email address
+
+agent.addClient.search.title=Add a new client
+agent.addClient.search.heading=Add a new client
+agent.addClient.search.subHeading=Search for your client
+agent.addClient.search.nino=National Insurance Number
+agent.addClient.search.firstName=Client First Name
+agent.addClient.search.lastName=Client Last Name
+agent.addClient.search.dob=Date Of Birth
