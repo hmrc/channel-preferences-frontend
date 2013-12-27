@@ -59,15 +59,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
   }
 
   "calling start add car benefit" should {
-    "return 200 and show the add car benefit form with the employers name  " in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore()
-
-      val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
-
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
-    }
 
     "return 200 and show the add car benefit form with the required fields and no values filled in" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
@@ -110,30 +101,15 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#engineCapacity-2000") should not be empty
       doc.select("#engineCapacity-9999") should not be empty
       doc.select("#employerPayFuel-true") should not be empty
+      doc.select("#employerPayFuel-true").attr("checked") shouldBe empty
       doc.select("#employerPayFuel-false") should not be empty
-      doc.select("#employerPayFuel-again") should not be empty
-      doc.select("#employerPayFuel-date") should not be empty
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe empty
 
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=day]") should not be empty
       doc.select("#co2Figure") should not be empty
       doc.select("#co2NoFigure") should not be empty
       doc.select("#co2NoFigure").attr("checked") shouldBe empty
 
     }
 
-    "return 200 and show the add car benefit form and show your company if the employer name does not exist " in new WithApplication(FakeApplication()) {
-      val johnDensmoresNamelessEmployments = Seq(
-        Employment(sequenceNumber = employmentSeqNumberOne, startDate = new LocalDate(taxYear, 7, 2), endDate = Some(new LocalDate(taxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType))
-
-      setupMocksForJohnDensmore(employments = johnDensmoresNamelessEmployments)
-
-      val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
-
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "your employer"
-    }
     "return 400 when employer for sequence number does not exist" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
@@ -141,6 +117,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
       status(result) shouldBe 400
     }
+
     "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
 
@@ -148,6 +125,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
     }
+
     "return 400 if the requested tax year is not the current tax year" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
@@ -155,6 +133,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
       status(result) shouldBe 400
     }
+
     "return 400 if the employer is not the primary employer" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
@@ -295,7 +274,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
       assertSuccessfulEmployeeContributionSubmit(Some(false), None, None)
       assertSuccessfulEmployeeContributionSubmit(Some(true), Some("1000"), Some(1000))
-      assertSuccessfulEmployeeContributionSubmit(Some(true), Some("9999"), Some(9999))
+      assertSuccessfulEmployeeContributionSubmit(Some(true), Some("5000"), Some(5000))
       assertSuccessfulEmployeeContributionSubmit(Some(false), Some("0"), None)
       assertSuccessfulEmployeeContributionSubmit(Some(false), Some("5.5"), None)
     }
@@ -307,7 +286,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       assertFailedEmployeeContributionSubmit(Some("true"), Some("100.25"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
-      assertFailedEmployeeContributionSubmit(Some("true"), Some("10000"), "error_q_6", "Capital contribution must not be higher than £9,999.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("5002"), "error_q_6", "Capital contribution must not be higher than £5,000.")
       assertFailedEmployeeContributionSubmit(None, None, "error_q_6", "Please answer this question.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("0"), "error_q_6", "Capital contribution must be greater than zero if you have selected yes.")
     }
@@ -517,12 +496,11 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the selected option in the EMPLOYER PAY FUEL question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(taxYear.toString, "05", "30"))
+      val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("true"), listPriceVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
+      doc.select("#employerPayFuel-true").attr("checked") shouldBe "checked"
     }
 
     def assertFailedDatesSubmit(providedFromVal: Option[(String, String, String)],
@@ -734,7 +712,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         co2Figure = None,
         co2NoFigure = Some(true),
         engineCapacity = Some("1400"),
-        employerPayFuel = Some("date"),
+        employerPayFuel = Some("true"),
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29)))
 
       when(mockKeyStoreService.getEntry[CarBenefitData](generateKeystoreActionId(taxYear, employmentSeqNumberOne), "paye", "AddCarBenefitForm", false)).thenReturn(Some(carBenefitData))
@@ -759,7 +737,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
       doc.select("#fuelType-other").attr("checked") shouldBe "checked"
       doc.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
+      doc.select("#employerPayFuel-true").attr("checked") shouldBe "checked"
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
 

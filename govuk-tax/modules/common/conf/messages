@@ -34,6 +34,7 @@ link.company_benefits_tax.text=Tax on company benefits
 link.company_benefits_tax.url=https://www.gov.uk/tax-company-benefits
 link.vehicle_certification_agency.text=Vehicle Certification Agency (VCA)
 link.vehicle_certification_agency.url=http://carfueldata.direct.gov.uk/
+link.dvla.url=https://www.taxdisc.direct.gov.uk/EvlPortalApp/app/home/intro
 
 button.sign_in=Sign in
 

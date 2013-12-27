@@ -18,7 +18,7 @@
         <p>@helpers.input(form("lastName"), '_label -> Messages("agent.addClient.search.lastName"))      </p>
         <p>@helpers.dateFieldsFreeYear(form,
             "dob",
-            Messages("agent.addClient.search.dob"),
+            Html(Messages("agent.addClient.search.dob")),
             '_groupDivClass -> "form-field")
         </p>
             <input type="hidden" value="@{form("instanceId").value}" id="instanceId" name="instanceId" />

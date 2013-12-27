@@ -1,4 +1,4 @@
-@(fuelBenefitForm: Form[controllers.paye.FuelBenefitData],  taxYear: Int, employmentSequenceNumber: Int, employerName: Option[String])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(fuelBenefitForm: Form[controllers.paye.FuelBenefitData],  taxYear: Int, employmentSequenceNumber: Int, employerName: Option[String], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.formatting.Strings._
 @import views.helpers._
@@ -23,22 +23,22 @@
                     FormField(
                         fuelBenefitForm(employerPayFuel),
                         Seq(
-                            RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable")),
-                            RadioButton("date", Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=enable"))
+                            RadioButton("true", Messages("paye.add_fuel_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable")),
+                            RadioButton("date", Messages("paye.add_fuel_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=enable"))
                         )
                     ),
                     FormField(
                         fuelBenefitForm(dateFuelWithdrawn),
-                        Seq(DateControl((2013 to 2014), Some("js-input--contextual")))
+                        Seq(DateControl(currentTaxYearYearsRange, Some("js-input--contextual")))
                     ),
                     FormField(
                         fuelBenefitForm(employerPayFuel),
                         Seq(
-                            RadioButton("again", Messages("paye.add_car_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable"))
+                            RadioButton("again", Messages("paye.add_fuel_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable"))
                         )
                     )
                 ),
-                '_label -> Messages("paye.add_car_benefit.employer_pay_fuel.label", employerNameString),
+                '_label -> Messages("paye.add_fuel_benefit.employer_pay_fuel.label", employerNameString),
                 '_groupDivClass -> "form-field js-includes-contextual",
                 '_valueAfter -> true
             )

@@ -21,47 +21,50 @@
 
              @input match {
                 case dateControl: DateControl => {
-		    @dateFieldsInline(formItem, field.field.id, "", dateControl.yearRange, dateControl.extraClass)
+                    @dateFieldsInline(formItem, field.field.id, Html(""), dateControl.yearRange, dateControl.extraClass)
                 }
                 case inputType: InputType => {
-                        @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
-                        @defining(field.field.name + (if(inputType.key != ""){"-"+ inputType.key} else ""))  { inputId =>
-                        <div class='@inputType.divClass.getOrElse("")'>
-                            <label for="@inputId" class='@inputType.labelClass.getOrElse("")'>
+                    @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
+                    @defining(field.field.name + (if(inputType.key != ""){"-"+ inputType.key} else ""))  { inputId =>
+                    <div class='@inputType.divClass.getOrElse("")'>
+                        <label for="@inputId" class='@inputType.labelClass.getOrElse("")'>
 
-                                    @if(inputType.label.isDefined) {@inputType.label}
-                                    @if(!valueAfter) {
-                                        <span class= "label__text">
-                                            @inputType.value
-                                        </span>
-                                    }
-                                    <input type="@inputType.inputType"
-                                            id="@inputId"
-                                            class="@inputType.inputClass"
-                                            name="@field.field.name"
-                                            @inputType.dataAtrribute
-                                            value="@{inputType.inputType match {
-                                               case "radio" => inputType.key
-                                               case "checkbox" => "true"
-                                               case _ => currentValue
-                                                }}"
+                                @if(inputType.label.isDefined) {@inputType.label}
+                                @if(!valueAfter) {
+                                    <span class= "label__text">
+                                        @inputType.value
+                                    </span>
+                                }
+                                <input type="@inputType.inputType"
+                                        id="@inputId"
+                                        class="@inputType.inputClass"
+                                        name="@field.field.name"
+                                        @inputType.dataAtrribute
+                                        value="@{inputType.inputType match {
+                                           case "radio" => inputType.key
+                                           case "checkbox" => "true"
+                                           case _ => currentValue
+                                            }}"
 
-                                            @if(inputType.inputType == "radio") {
-                                                @if(currentValue==inputType.key){checked="checked"}
-                                            }
-                                            @if(inputType.inputType == "checkbox"){
-                                                @if(currentValue=="true"){checked="checked"}
-                                            }
-                                    />
-                                    @if(valueAfter) {
-                                        <span class= "label__text">
-                                            @inputType.value
-                                        </span>
-                                    }
-                            </label>
-                        </div>
-                        }}
-                    }
+                                        @if(inputType.inputType == "radio") {
+                                            @if(currentValue==inputType.key){checked="checked"}
+                                        }
+                                        @if(inputType.inputType == "checkbox"){
+                                            @if(currentValue=="true"){checked="checked"}
+                                        }
+                                />
+                                @if(valueAfter) {
+                                    <span class= "label__text">
+                                        @inputType.value
+                                    </span>
+                                }
+                        </label>
+                        @if(field.explanationText.isDefined) {
+                            <p>@field.explanationText</p>
+                        }
+                    </div>
+                    }}
+                }
              }
         }
     }

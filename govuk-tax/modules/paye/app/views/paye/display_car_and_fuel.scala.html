@@ -39,12 +39,12 @@
             <td id="@id("private-fuel")">
             @carBenefit.fuelBenefit.map { fuelBenefit =>
                 @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
-                    @{Messages("paye.add_car_benefit.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.dateWithdrawn, "")}
+                    @{Messages("paye.company_car_home.employer_pay_fuel.date", employerNameString) + " " + formatDate(fuelBenefit.dateWithdrawn, "")}
                 }.getOrElse {
-                    @Messages("paye.add_car_benefit.employer_pay_fuel.true")
+                    @Messages("paye.company_car_home.employer_pay_fuel.true")
                 }
             }.getOrElse {
-                @Messages("paye.add_car_benefit.employer_pay_fuel.false")
+                @Messages("paye.company_car_home.employer_pay_fuel.false")
             }
             </td>
         </tr>

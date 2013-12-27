@@ -41,10 +41,10 @@
         @helpers.link("go-back",
             s"${ShowRemoveBenefitFormController.showRemoveCarBenefitForm(activeCarBenefit.taxYear, employment.sequenceNumber)}",
             "This information is wrong")
-    }
 
-    @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmCarBenefitRemoval(activeCarBenefit.taxYear, employment.sequenceNumber)) {
-        <div class="form-field">
-            <input class="button button--confirm" type="submit" value="Confirm"/>
-        </div>
+        @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmCarBenefitRemoval(activeCarBenefit.taxYear, employment.sequenceNumber)) {
+            <div class="form-field">
+                <input class="button button--confirm" type="submit" value="Confirm"/>
+            </div>
+        }
     }

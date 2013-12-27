@@ -21,7 +21,7 @@
         @helper.form(action = RemoveBenefitController.requestRemoveFuelBenefit(taxYear, employment.sequenceNumber)) {
             @helpers.dateFields(updateForm,
                 "withdrawDate",
-                "Date you stopped receiving the benefit:",
+                Html("Date you stopped receiving the benefit:"),
                 currentTaxYearYearsRange,
                 Some(""),
                 '_groupDivClass -> "form-field-group")
