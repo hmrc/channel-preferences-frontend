@@ -104,7 +104,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
       doc.select("#fuelType-electricity") should not be empty
       doc.select("#fuelType-other") should not be empty
-      doc.select("#engineCapacity-none") should not be empty
       doc.select("#engineCapacity-1400") should not be empty
       doc.select("#engineCapacity-1400").attr("checked") shouldBe empty
 
@@ -486,11 +485,11 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("none"))
+      val request = newRequestForSaveAddCarBenefit(listPriceVal = None, engineCapacityVal = Some("2000"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#engineCapacity-none").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
     }
 
     "return 200 if the user selects an option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()) {
@@ -780,7 +779,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         fuelType = Some("electricity"),
         co2Figure = None,
         co2NoFigure = None,
-        engineCapacity = Some("none"),
+        engineCapacity = Some("2000"),
         employerPayFuel = Some("false"),
         dateFuelWithdrawn = None)
 
@@ -805,7 +804,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
       doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
-      doc.select("#engineCapacity-none").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
       doc.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
     }
 
