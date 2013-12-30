@@ -94,6 +94,19 @@ paye.add_car_benefit.employer_pay_fuel.label=Does your employer pay for the fuel
 paye.add_car_benefit.employer_pay_fuel.false=No
 paye.add_car_benefit.employer_pay_fuel.true=Yes
 
+
+paye.add_car_benefit_confirmation.title=Tell HMRC about a change to your company car - confirmation
+paye.add_car_benefit_confirmation.h2=Your company car details have been changed.
+paye.add_car_benefit_confirmation.tax_code_changed=Your tax code has changed from {0}
+paye.add_car_benefit_confirmation.new_tax_code=Your new tax code is {0}
+paye.add_car_benefit_confirmation.confirmation=HMRC will write to you to confirm your new tax code within 7 days.
+paye.add_car_benefit_confirmation.updated_info=See your updated company car information.
+paye.add_car_benefit_confirmation.tax_codes_info=More about {0} and {1}.
+paye.add_car_benefit_confirmation.tax_codes_link_url=https://www.gov.uk/tax-codes
+paye.add_car_benefit_confirmation.tax_codes_link_text=tax codes
+paye.add_car_benefit_confirmation.tax_on_company_benefits_link_url=https://www.gov.uk/tax-company-benefits
+paye.add_car_benefit_confirmation.tax_on_company_benefits_link_text=tax on company benefits
+
 paye.add_fuel_benefit.employer_pay_fuel.label=Does your employer pay for the fuel for private use of the car?
 paye.add_fuel_benefit.employer_pay_fuel.true=Yes, private fuel is available when you use the car
 paye.add_fuel_benefit.employer_pay_fuel.again={0} stopped providing fuel for private use after 5 April but has now started again
