@@ -4,24 +4,29 @@
     @import views.formatting.Money._
     @import config.RefData._
 
-    @main(title = "Benefit removed", user = Some(user)) {
+    @main(title = Messages("paye.remove_benefit_confirmation.title"), user = Some(user)) {
         @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-            <h1>Tell HMRC about a change to your company <span id="benefit-type">@{benefitsTitle}</span></h1>
+            <h1>@Html(Messages("paye.remove_benefit_confirmation.header", s"""<span id="benefit-type">${benefitsTitle}</span>"""))</h1>
         }
-        <h2>Thanks.</h2>
-        <p>Your company car details have been changed.</p>
+        <h2>@Messages("paye.remove_benefit_confirmation.thanks")</h2>
+        <p>@Messages("paye.remove_benefit_confirmation.details_changed")</p>
         <p>
-            Your tax code has changed from <span id="old-tax-code">@{removalData.oldTaxCode}</span>.
+            @Html(Messages("paye.remove_benefit_confirmation.tax_code_changed", s"""<span id=\"old-tax-code\">${removalData.oldTaxCode}</span>"""))
             @if(removalData.newTaxCode.isDefined) {
-                Your new tax code is <span id="new-tax-code">@{removalData.newTaxCode}</span>.
-        }
+                @Html(Messages("paye.remove_benefit_confirmation.new_tax_code", s"""<span id="new-tax-code">${removalData.newTaxCode.get}</span>"""))
+            }
         </p>
 
-        <p>HMRC will write to you to confirm your new tax code within 7 days.</p>
+        <p>@Messages("paye.remove_benefit_confirmation.confirmation")</p>
 
 
-        <p>@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}", "See your updated company car information.")</p>
-        <p>More about @helpers.link("", "https://www.gov.uk/tax-codes", "tax codes", true) and @helpers.link("", "https://www.gov.uk/tax-company-benefits", "tax on company benefits", true).</p>
-
+        <p>@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}",
+            Messages("paye.remove_benefit_confirmation.updated_info"))</p>
+        <p>@Html(Messages("paye.remove_benefit_confirmation.tax_codes_info",
+            helpers.link("tax-codes",
+                Messages("paye.remove_benefit_confirmation.tax_codes_link_url"),
+                Messages("paye.remove_benefit_confirmation.tax_codes_link_text"), true),
+            helpers.link("tax-on-company-benefits",
+                Messages("paye.remove_benefit_confirmation.tax_on_company_benefits_link_url"),
+                Messages("paye.remove_benefit_confirmation.tax_on_company_benefits_link_text"), true)))</p>
     }
-

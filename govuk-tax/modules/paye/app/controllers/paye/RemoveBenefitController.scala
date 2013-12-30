@@ -115,7 +115,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         },
         removeBenefitData => {
           keyStoreService.storeBenefitFormData(removeBenefitData).map { _ =>
-            Ok(remove_car_benefit_confirm(activeCarBenefit, primaryEmployment, removeBenefitData))
+            Ok(remove_car_benefit_review(activeCarBenefit, primaryEmployment, removeBenefitData))
           }
         }
       )
@@ -153,7 +153,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         removeBenefitData => {
           implicit def hc = HeaderCarrier(request)
           keyStoreService.storeBenefitFormData(removeBenefitData).map { _ =>
-            Ok(remove_fuel_benefit_confirm(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, removeBenefitData)(user))
+            Ok(remove_fuel_benefit_review(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, removeBenefitData)(user))
           }
         }
       )

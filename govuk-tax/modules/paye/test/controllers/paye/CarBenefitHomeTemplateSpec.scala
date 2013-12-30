@@ -112,7 +112,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       // then
       doc.select("#company-name").text should include (anEmployerName)
-      doc.select("#private-fuel").text should be (Messages("paye.company_car_home.employer_pay_fuel.true"))
+      doc.select("#private-fuel").text should be (Messages("paye.home.employer_pay_fuel.true"))
     }
 
   }

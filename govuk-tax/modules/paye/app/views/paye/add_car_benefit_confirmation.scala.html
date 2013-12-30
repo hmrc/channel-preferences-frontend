@@ -7,7 +7,7 @@
         <p>
             @Html(Messages("paye.add_car_benefit_confirmation.tax_code_changed", s"""<span id=\"old-tax-code\">${addedData.oldTaxCode}</span>"""))
             @addedData.newTaxCode.map { taxCode =>
-                @Html(Messages("paye.add_car_benefit_confirmation.new_tax_code", s"""<span id="new-tax-code">@taxCode</span>""")).
+                @Html(Messages("paye.add_car_benefit_confirmation.new_tax_code", s"""<span id="new-tax-code">${taxCode}</span>"""))
             }
         </p>
 

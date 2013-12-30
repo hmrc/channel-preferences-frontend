@@ -8,31 +8,31 @@
     @import views.formatting.Money._
     @import views.formatting.Dates._
 
-    @main(title = "Confirm your benefit details", user = Some(user)) {
-        <h1 id="main-heading">Tell HMRC about a change to your company car benefit</h1>
+    @main(title = Messages("paye.remove_car_benefit_review.title"), user = Some(user)) {
+        <h1 id="main-heading">@Messages("paye.remove_car_benefit_review.header")</h1>
 
-        <h2 class="title">Check your change before submitting</h2>
+        <h2 class="title">@Messages("paye.remove_car_benefit_review.check_changes")</h2>
 
         <table id="company-car-details">
             <caption id="company-name" class="table-row">
-                Company car provided by @{employment.employerNameOrReference}</caption>
+                @Messages("paye.remove_car_benefit_review.car_provided_by", employment.employerNameOrReference)</caption>
             <tbody>
                 <tr>
-                    <th scope="row">Date given back</th>
+                    <th scope="row">@Messages("paye.remove_car_benefit_review.date_given_back")</th>
                     <td id="car-benefit-date-car-withdrawn">@formatDate(formData.withdrawDate)</td>
                 </tr>
                 <tr>
-                    <th scope="row">Days unavailable since 6 April @activeCarBenefit.taxYear</th>
+                    <th scope="row">@Messages("paye.remove_car_benefit_review.days_unavailable", activeCarBenefit.taxYear)</th>
                     <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("none")</td>
                 </tr>
 
                 <tr>
-                    <th scope="row">Private use of the car: your contributions</th>
+                    <th scope="row">@Messages("paye.remove_car_benefit_review.employee_contributions")</th>
                     <td id="car-benefit-employee-payments">@formData.employeeContribution.map(x => pounds(x)).getOrElse("none")</td>
                 </tr>
                 @activeCarBenefit.fuelBenefit.map { _ =>
                     <tr>
-                        <th scope="row">Date fuel withdrawn</th>
+                        <th scope="row">@Messages("paye.remove_car_benefit_review.fuel_withdrawn")</th>
                         <td id="car-benefit-date-fuel-withdrawn">@formatDate(formData.fuelWithdrawDate.getOrElse(formData.withdrawDate))</td>
                     </tr>
                 }
@@ -40,11 +40,11 @@
         </table>
         @helpers.link("go-back",
             s"${ShowRemoveBenefitFormController.showRemoveCarBenefitForm(activeCarBenefit.taxYear, employment.sequenceNumber)}",
-            "This information is wrong")
+            Messages("paye.benefit_review.wrong_information"))
 
         @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmCarBenefitRemoval(activeCarBenefit.taxYear, employment.sequenceNumber)) {
             <div class="form-field">
-                <input class="button button--confirm" type="submit" value="Confirm"/>
+                <input class="button button--confirm" type="submit" value="@Messages("paye.remove_car_benefit_review.submit_button")"/>
             </div>
         }
     }

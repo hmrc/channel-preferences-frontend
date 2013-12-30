@@ -4,25 +4,31 @@
 @import views.formatting.Money._
 @import views.formatting.Dates._
 
-@main(title = "Review your private fuel details", user = Some(user)) {
-    <h1>Tell HMRC about a change to your company car</h1>
-    <h2 id="second-heading">Check your private fuel details before submitting them</h2>
+@main(title = Messages("paye.add_fuel_benefit_review.title"), user = Some(user)) {
+    <h1>@Messages("paye.add_fuel_benefit_review.h1")</h1>
+    <h2 id="second-heading">@Messages("paye.add_fuel_benefit_review.h2")</h2>
 
     @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>
     <table>
         <tbody>
         @if(data.providedFrom.isDefined){
-        <tr><th scope="row">Date provided</th><td id="provided-from">@{formatDate(data.providedFrom.get)}</td></tr>
+        <tr>
+            <th scope="row">@Messages("paye.add_fuel_benefit_review.date_provided")</th>
+            <td id="provided-from">@{formatDate(data.providedFrom.get)}</td>
+        </tr>
         }
-        <tr><th scope="row">Private fuel</th><td id="private-fuel">@{Messages(s"paye.add_fuel_benefit.employer_pay_fuel.${data.employerPayFuel}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
+        <tr>
+            <th scope="row">@Messages("paye.add_fuel_benefit_review.private_fuel")</th>
+            <td id="private-fuel">@{Messages(s"paye.add_fuel_benefit_review.employer_pay_fuel.${data.employerPayFuel}", employerNameString, formatDate(data.dateFuelWithdrawn, ""))}</td>
+        </tr>
         </tbody>
     </table>
     }
 
-    @helpers.link("edit-data", currentUri, "This information is wrong")
+    @helpers.link("edit-data", currentUri, Messages("paye.benefit_review.wrong_information"))
     @helper.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
         <div class="form-field">
-            <input type="submit" class="button" value="Submit">
+            <input type="submit" class="button" value="@Messages("paye.add_fuel_benefit_review.submit_button")">
         </div>
     }
 }
