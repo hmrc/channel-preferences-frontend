@@ -1,8 +1,8 @@
 @(errorMessage:String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@main(title = "Car benefit overview", user = Some(user)) {
+@main(title = Messages("paye.error_page.title"), user = Some(user)) {
 
-    <h1>Tell HMRC about a change to your company car</h1>
+    <h1>@Messages("paye.error_page.header")</h1>
 
     <p id="error-message">@errorMessage</p>
 }

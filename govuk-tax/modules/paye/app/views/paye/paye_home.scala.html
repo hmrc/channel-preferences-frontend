@@ -1,25 +1,25 @@
-@main(title = Messages("paye.company_car_home.title"), sidebarLinks = Some(sidebarLinks)) {
-    <h1>@Messages("paye.company_car_home.title")</h1>
-    <p>@Html(Messages("paye.company_car_home.intro", helpers.link("", Messages("paye.company_car_home.intro.calculator_link.href"), Messages("paye.company_car_home.intro.calculator_link.text"))))</p>
-    <strong>@Messages("paye.company_car_home.intro.warning")</strong>
+@main(title = Messages("paye.home.title"), sidebarLinks = Some(sidebarLinks)) {
+    <h1>@Messages("paye.home.title")</h1>
+    <p>@Html(Messages("paye.home.intro", helpers.link("", Messages("paye.home.intro.calculator_link.href"), Messages("paye.home.intro.calculator_link.text"))))</p>
+    <strong>@Messages("paye.home.intro.warning")</strong>
     <ul>
-        <li>@Messages("paye.company_car_home.intro.warning.single_car_only")</li>
-        <li>@Messages("paye.company_car_home.intro.warning.single_active_employment_only")</li>
+        <li>@Messages("paye.home.intro.warning.single_car_only")</li>
+        <li>@Messages("paye.home.intro.warning.single_active_employment_only")</li>
     </ul>
-    <h2>@Messages("paye.company_car_home.instructions.heading")</h2>
-    <p>@Messages("paye.company_car_home.instructions.need")</p>
+    <h2>@Messages("paye.home.instructions.heading")</h2>
+    <p>@Messages("paye.home.instructions.need")</p>
     <ul>
-        <li>@Messages("paye.company_car_home.instructions.list_item.1")</li>
-        <li>@Messages("paye.company_car_home.instructions.list_item.2")</li>
+        <li>@Messages("paye.home.instructions.list_item.1")</li>
+        <li>@Messages("paye.home.instructions.list_item.2")</li>
     </ul>
-    <p>@Html(Messages("paye.company_car_home.instructions.info", helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("link.vehicle_certification_agency.text")).toString))</p>
+    <p>@Html(Messages("paye.home.instructions.info", helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("link.vehicle_certification_agency.text")).toString))</p>
     <p>@Messages("info.need_to_register")</p>
     @helpers.link("", common.FrontEndRedirect.carBenefit, Messages("button.sign_in"), false, false, "button")
 }
 
 @sidebarLinks = {
 <div class="service-info__related-subsection">
-    <h2>Pay As You Earn</h2>
+    <h2>@Messages("paye.home.sidebar.paye")</h2>
     <p>@Messages("info.link_open_new_window")</p>
     <nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
         <ul>
