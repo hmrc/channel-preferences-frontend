@@ -7,7 +7,7 @@
 
 @main(title = "Tax overview", nav = true, sidebarLinks = Some(sidebarLinks), user= Some(user)) {
 
-    <h1><span class="pre-heading">service</span>@Messages("bt.home.title")</h1>
+    <h1>@Messages("bt.home.title")</h1>
 
     @for(ac <- accountSummaries.regimes) {
         <div id="@ac.regimeName" class="account-summary">
