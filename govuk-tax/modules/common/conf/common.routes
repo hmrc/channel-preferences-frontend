@@ -15,7 +15,8 @@ GET     /business-tax/login             @controllers.common.LoginController.busi
 POST    /business-tax/login             @controllers.common.LoginController.governmentGatewayLogin
 
 
-POST    /ssoin                          @controllers.common.SsoInController.in
+POST    /ssoin                          @controllers.common.SsoInController.postIn
+GET     /ssoin                          @controllers.common.SsoInController.getIn(payload: String)
 GET     /ssoin/logout                   @controllers.common.SsoInController.out
 GET     /ssoout                         @controllers.common.SsoOutController.encryptPayload
 

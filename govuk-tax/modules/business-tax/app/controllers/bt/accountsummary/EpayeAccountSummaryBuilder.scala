@@ -37,7 +37,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[AccountSummaryLink] = {
 
     def links = Seq[AccountSummaryLink](
-      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeHomePortalUrl), viewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, sso = true),
       AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, sso = false)
     )
 
@@ -86,6 +86,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
 
 object EpayePortalUrlKeys {
   val epayeHomePortalUrl = "home"
+  val epayeAccountDetailsPortalUrl = "epayeAccountDetails"
 }
 
 object EpayeMessageKeys {

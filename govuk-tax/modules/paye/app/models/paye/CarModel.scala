@@ -1,9 +1,14 @@
 package models.paye
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.common.microservice.paye.domain.{Benefit, Car, CarAndFuel}
+import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 import controllers.paye.FuelBenefitData
+import models.paye.CarBenefitData
+import scala.Some
+import uk.gov.hmrc.common.microservice.paye.domain.Car
+import controllers.paye.FuelBenefitData
+import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 
 case class CarBenefitData(providedFrom: Option[LocalDate],
                           carRegistrationDate: Option[LocalDate],
@@ -21,25 +26,23 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
 
 case class CarBenefitDataAndCalculations(carBenefitData : CarBenefitData)
 
-object CarAndFuelBuilder {
-  def apply(carBenefitDataAndCalculations: CarBenefitDataAndCalculations, taxYear: Int, employmentSequenceNumber: Int): CarAndFuel = {
-    val carBenefitData = carBenefitDataAndCalculations.carBenefitData
+object CarBenefitBuilder {
+  def apply(carBenefitData: CarBenefitData, taxYear: Int, employmentSequenceNumber: Int): CarBenefit = {
     val car = createCar(carBenefitData)
 
     val carBenefit = createBenefit(CAR, None, taxYear, employmentSequenceNumber, Some(car), 0, None)
 
     val fuelBenefit = carBenefitData.employerPayFuel match {
-      //benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], grossBenefitAmount : Int
       case Some(data) if data == "true" || data == "again" => Some(createBenefit(benefitType = 29, withdrawnDate = None, taxYear = taxYear,
         employmentSeqNumber =  employmentSequenceNumber, car = Some(car), 0, None))
       case Some("date") => Some(createBenefit(benefitType = 29, withdrawnDate = carBenefitData.dateFuelWithdrawn, taxYear = taxYear,
         employmentSeqNumber =  employmentSequenceNumber, car = Some(car), 0, None))
       case _ => None
     }
-    new CarAndFuel(carBenefit, fuelBenefit)
+    CarBenefit(carBenefit, fuelBenefit)
   }
 
-  def apply(addFuelBenefit: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) : CarAndFuel  = {
+  def apply(addFuelBenefit: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) : CarBenefit  = {
     val car = carBenefit.car
     val fuelBenefit = addFuelBenefit.employerPayFuel match {
 
@@ -49,7 +52,7 @@ object CarAndFuelBuilder {
 
       case _ => None
     }
-    new CarAndFuel(carBenefit, fuelBenefit)
+    CarBenefit(carBenefit, fuelBenefit)
   }
 
 

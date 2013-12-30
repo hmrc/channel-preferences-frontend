@@ -9,7 +9,7 @@ object FrontEndRedirect extends Controller {
   val agentHome = "/agent/home"
   val agentAddClient = "/agent/add-client"
   val carBenefit = "/paye/car-benefit/home"
-  val payeHome = carBenefit
+  val payeHome = "/paye/home"
   val agentRegistration = "/agent/reason-for-application"
 
   val redirectSessionKey = "login_redirect"

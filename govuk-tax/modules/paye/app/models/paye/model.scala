@@ -1,58 +1,21 @@
 package models.paye
 
 import org.joda.time.{DateTime, LocalDate}
-import uk.gov.hmrc.common.microservice.paye.domain.Employment
-import uk.gov.hmrc.common.microservice.paye.domain.Car
-import uk.gov.hmrc.common.microservice.paye.domain.Benefit
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
+import uk.gov.hmrc.common.microservice.paye.domain._
 import Matchers.transactions._
-import javax.transaction.Transaction
+import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 
 case class BenefitInfo(startDate: String, withdrawDate: String, apportionedValue: BigDecimal)
 
-
-case class DisplayBenefit(employment: Employment,
-                          benefits: Seq[Benefit],
-                          car: Option[Car],
-                          benefitsInfo: Map[String, BenefitInfo] = Map.empty) {
-
-  lazy val benefit = benefits(0)
-
-  lazy val allBenefitsToString = DisplayBenefit.allBenefitsAsString(benefits.map(_.benefitType))
-}
-
-object DisplayBenefit {
-  private val sep: Char = ','
-
-  private def allBenefitsAsString(values: Seq[Int]) = values.mkString(sep.toString)
-
-  def fromStringAllBenefit(input: String): Seq[Int] = input.split(sep).map(_.toInt)
-}
-
-object DisplayBenefits {
-
-  def apply(benefits: Seq[Benefit], employments: Seq[Employment]): Seq[DisplayBenefit] = {
-    val matchedBenefits = benefits.filter {
-      benefit => employments.exists(_.sequenceNumber == benefit.employmentSequenceNumber)
-    }
-
-    matchedBenefits.map {
-      benefit =>
-        DisplayBenefit(employments.find(_.sequenceNumber == benefit.employmentSequenceNumber).get,
-          Seq(benefit),
-          benefit.car)
-    }
-  }
-}
-
 case class RemoveCarBenefitFormData(withdrawDate: LocalDate,
-                                 carUnavailable: Option[Boolean] = None,
-                                 numberOfDaysUnavailable: Option[Int] = None,
-                                 employeeContributes: Option[Boolean],
-                                 employeeContribution: Option[Int],
-                                 fuelDateChoice: Option[String],
-                                 fuelWithdrawDate: Option[LocalDate])
+                                    carUnavailable: Option[Boolean] = None,
+                                    numberOfDaysUnavailable: Option[Int] = None,
+                                    employeeContributes: Option[Boolean],
+                                    employeeContribution: Option[Int],
+                                    fuelDateChoice: Option[String],
+                                    fuelWithdrawDate: Option[LocalDate])
+
 object RemoveCarBenefitFormData {
   def apply(data: RemoveFuelBenefitFormData): RemoveCarBenefitFormData =
     RemoveCarBenefitFormData(
@@ -65,6 +28,7 @@ object RemoveCarBenefitFormData {
 }
 
 case class RemoveFuelBenefitFormData(withdrawDate: LocalDate)
+
 object RemoveFuelBenefitFormData {
   def apply(removeCarBenefitFormData: RemoveCarBenefitFormData): RemoveFuelBenefitFormData = RemoveFuelBenefitFormData(removeCarBenefitFormData.withdrawDate)
 }
@@ -84,7 +48,7 @@ object EmploymentViews {
                             taxYear: Int,
                             benefitTypes: Set[Int],
                             transactionHistory: Seq[TxQueueTransaction]
-                            ): Seq[EmploymentView] =
+                             ): Seq[EmploymentView] =
     employments.map { e =>
       EmploymentView(e.employerNameOrReference, e.startDate, e.endDate, TaxCodeResolver.currentTaxCode(taxCodes, e.sequenceNumber),
         recentChanges(e.sequenceNumber, taxYear, Seq.empty, benefitTypes))

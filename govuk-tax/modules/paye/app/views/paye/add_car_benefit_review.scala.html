@@ -19,6 +19,12 @@
             @if(data.engineCapacity.isDefined){
             <tr><th scope="row">Engine capacity</th><td>@Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td></tr>
             }
+            @if(data.employeeContributions.isDefined) {
+            <tr><th scope="row">Employee contributions</th><td>@pounds(data.employeeContributions.get)</td></tr>
+            }
+            @if(data.dateRegistered.isDefined) {
+            <tr><th scope="row">Date registered with DVLA</th><td>@formatDate(data.dateRegistered.get)</td></tr>
+            }
             @if(data.employerPayFuel.isDefined){
             <tr><th scope="row">Private fuel</th><td>@{Messages(s"paye.add_car_benefit.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString) + " " + formatDate(data.dateFuelWithdrawn, "")}</td></tr>
             }

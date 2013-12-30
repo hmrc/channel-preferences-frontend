@@ -1,10 +1,10 @@
 @(form: Form[(models.agent.addClient.ClientSearch, String)])
 
-@main(title = "Add a new client") {
+@main(title = Messages("agent.addClient.search.title")) {
 
-<h2>Add a new client</h2>
+<h2>@Messages("agent.addClient.search.heading")</h2>
 
-    <h3>Search for your client</h3>
+    <h3>@Messages("agent.addClient.search.subHeading")</h3>
 
     @helper.form(action = controllers.agent.addClient.routes.SearchClientController.search()) {
 
@@ -12,13 +12,13 @@
             <span id="global-errors" class="error-notification">@form.globalError.map(_.message).getOrElse("")</span>
         </div>
         <p>
-            @helpers.input(form("nino"), '_label -> "National Insurance Number")
+            @helpers.input(form("nino"), '_label -> Messages("agent.addClient.search.nino"))
         </p>
-        <p>@helpers.input(form("firstName"), '_label -> "Client First Name")    </p>
-        <p>@helpers.input(form("lastName"), '_label -> "Client Last Name")      </p>
+        <p>@helpers.input(form("firstName"), '_label -> Messages("agent.addClient.search.firstName"))    </p>
+        <p>@helpers.input(form("lastName"), '_label -> Messages("agent.addClient.search.lastName"))      </p>
         <p>@helpers.dateFieldsFreeYear(form,
             "dob",
-            "Date Of Birth",
+            Html(Messages("agent.addClient.search.dob")),
             '_groupDivClass -> "form-field")
         </p>
             <input type="hidden" value="@{form("instanceId").value}" id="instanceId" name="instanceId" />

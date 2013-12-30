@@ -12,7 +12,7 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.Logger
-import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
+import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter, DateTimeUtils}
 import DateTimeZone._
 
 object PayeRegime extends TaxRegime {
@@ -53,8 +53,8 @@ case class PayeRoot(nino: String,
   def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[TaxCode]] =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-  def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarAndFuel]] =
-    valuesForTaxYear[CarAndFuel](resource = "benefit-cars", taxYear = taxYear)
+  def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarBenefit]] =
+    valuesForTaxYear[CarAndFuel](resource = "benefit-cars", taxYear = taxYear).map(_.map(CarBenefit(_)))
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
@@ -96,20 +96,26 @@ case class PayeRoot(nino: String,
     payeConnector.linkedResource[T](uri)
 }
 
-case class TaxYearData(cars: Seq[CarAndFuel], employments: Seq[Employment]) {
+case class TaxYearData(cars: Seq[CarBenefit], employments: Seq[Employment]) {
 
-  /**
-   * Find a benefit of the given type that is currently active
-   */
-  def findActiveBenefit(employmentNumber: Int, benefitType: Int): Option[Benefit] = {
-    cars.filter(_.isActive).headOption.flatMap { car =>
-      car.toSeq.find(b => b.benefitType == benefitType && b.employmentSequenceNumber == employmentNumber && !b.dateWithdrawn.isDefined)
-    }
+  def findActiveCarBenefit(employmentNumber: Int): Option[CarBenefit] = {
+    cars.find(c => c.employmentSequenceNumber == employmentNumber && c.isActive)
+  }
+
+  def findActiveFuelBenefit(employmentNumber: Int): Option[FuelBenefit] = {
+    cars.find(c => c.employmentSequenceNumber == employmentNumber && c.hasActiveFuel).flatMap(_.fuelBenefit)
   }
 
   def findPrimaryEmployment: Option[Employment] = {
     employments.find(_.employmentType == Employment.primaryEmploymentType)
   }
+
+  def hasActiveBenefit(employmentSequenceNumber: Int, benefitType: Int): Boolean = {
+    findActiveCarBenefit(employmentSequenceNumber).map { carBenefit =>
+      if (benefitType == BenefitTypes.FUEL) carBenefit.hasActiveFuel
+      else benefitType == BenefitTypes.CAR
+    }
+  }.getOrElse(false)
 }
 
 
@@ -121,12 +127,12 @@ case class TaxCode(employmentSequenceNumber: Int,
 
 case class Allowance(sourceAmount: Int, adjustedAmount: Int, `type`: Int)
 
+case class WithdrawnBenefitRequest(version: Int, car: Option[WithdrawnCarBenefit], fuel: Option[WithdrawnFuelBenefit])
 
-case class RevisedBenefit(benefit: Benefit, revisedAmount: BigDecimal)
+case class WithdrawnCarBenefit(withdrawDate: LocalDate, numberOfDaysUnavailable: Option[Int] = None,
+                               employeeContribution: Option[Int] = None)
 
-case class RemoveBenefit(version: Int,
-                         benefits: Seq[RevisedBenefit],
-                         withdrawDate: LocalDate)
+case class WithdrawnFuelBenefit(withdrawDate: LocalDate)
 
 case class AddBenefit(version: Int,
                       employmentSequence: Int,

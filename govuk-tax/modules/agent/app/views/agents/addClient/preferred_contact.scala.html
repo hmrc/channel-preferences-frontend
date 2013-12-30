@@ -1,11 +1,11 @@
 @(preferredContactForm: Form[(models.agent.addClient.PreferredContactData, String)])
 @import models.agent.addClient.PreferredContactData
 
-@main(title = "Add a new client") {
+@main(title = Messages("agent.addClient.preferredContact.title")) {
 
-<h2>Add a new client to your agent tax account</h2>
+<h2>@Messages("agent.addClient.preferredContact.heading")</h2>
 
-    <p>We would like to understand if you are the preferred point of contact in relation to PAYE payment matters for this client?</p>
+    <p>@Messages("agent.addClient.preferredContact.intro")</p>
 
     @helper.form(action = controllers.agent.addClient.routes.PreferredContactController.preferredContact()) {
 
@@ -14,7 +14,7 @@
                 <input type="radio" name="pointOfContact"
                 @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "me"){checked="checked"}
                 value="me">
-                I am the preferred point of contact
+                @Messages("agent.addClient.preferredContact.pointOfContact.me.label")
             </label>
         </p>
 
@@ -23,17 +23,17 @@
                 <input type="radio" name="pointOfContact"
                 @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "other"){checked="checked"}
                 value="other">
-                A named person in my office is the preferred point of contact
+                @Messages("agent.addClient.preferredContact.pointOfContact.other.label")
             </label>
 
             <p>
-            @helpers.input(preferredContactForm("contactName"), '_label -> "Contact name")
+            @helpers.input(preferredContactForm("contactName"), '_label -> Messages("agent.addClient.preferredContact.contactName"))
             </p>
             <p>
-            @helpers.input(preferredContactForm("contactPhone"), '_label -> "Contact phone number")
+            @helpers.input(preferredContactForm("contactPhone"), '_label -> Messages("agent.addClient.preferredContact.contactPhone"))
             </p>
             <p>
-            @helpers.input(preferredContactForm("contactEmail"), '_label -> "Contact email address")
+            @helpers.input(preferredContactForm("contactEmail"), '_label -> Messages("agent.addClient.preferredContact.contactEmail"))
             </p>
 
         </p>
@@ -42,7 +42,7 @@
             <input type="radio" name="pointOfContact"
             @if(preferredContactForm.data.get("pointOfContact").getOrElse("me") == "notUs"){checked="checked"}
             value="notUs">
-            I am not the preferred point of contact
+            @Messages("agent.addClient.preferredContact.pointOfContact.notUs.label")
         </label>
         </p>
         <input type="hidden" value="@{preferredContactForm("instanceId").value}" id="instanceId" name="instanceId" />

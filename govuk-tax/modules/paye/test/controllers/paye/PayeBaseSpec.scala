@@ -74,9 +74,7 @@ trait PayeBaseSpec extends BaseSpec {
   val fuelBenefitEmployer1 = Benefit(29, testTaxYear, fuelGrossAmount, 1, None, None, None, None, None, None, None,
     None, actions("AB123456C", testTaxYear, 1), Map.empty, benefitAmount = Some(5.22))
 
-  val johnDensmoresBenefitsForEmployer1 = Seq(CarAndFuel(
-    carBenefitEmployer1,
-    Some(fuelBenefitEmployer1)))
+  val johnDensmoresBenefitsForEmployer1 = Seq(CarBenefit(carBenefitEmployer1, Some(fuelBenefitEmployer1)))
 
   val johnDensmoreOid = "jdensmore"
 
@@ -111,7 +109,7 @@ trait PayeBaseSpec extends BaseSpec {
   val carAndFuelBenefitWithDifferentEmploymentNumbers = Seq(CarAndFuel(carBenefit,
     Some(Benefit(29, testTaxYear, 135.33, 1, None, None, None, None, None, None, None, None, Map.empty, Map.empty))))
 
-  val johnDensmoresBenefits = Seq(CarAndFuel(carBenefit, Some(fuelBenefit)))
+  val johnDensmoresBenefits = Seq(CarBenefit(carBenefit, Some(fuelBenefit)))
 
 
   val removedCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,

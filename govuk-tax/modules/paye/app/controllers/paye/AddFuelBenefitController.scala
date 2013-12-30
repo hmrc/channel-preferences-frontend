@@ -23,7 +23,7 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData, CarAndFuelBuilder}
+import models.paye.{CarBenefitBuilder, TaxCodeResolver, BenefitUpdatedConfirmationData}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
@@ -85,7 +85,7 @@ with PayeRegimeRoots {
               val (initialFuelValues) = values
               val form = fuelBenefitForm(CarBenefitValues(employerPayFuel = initialFuelValues.employerPayFuel)).fill(initialFuelValues)
 
-              Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName)(user))
+              Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user))
           }
         }
         case None => {
@@ -110,11 +110,11 @@ with PayeRegimeRoots {
           val values = CarBenefitValues(providedFromVal = Some(startOfCurrentTaxYear), employerPayFuel = validationLesForm.get.employerPayFuel)
           fuelBenefitForm(values).bindFromRequest()(request).fold(
             errors =>
-              Future.successful(BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName)(user))),
+              Future.successful(BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user))),
             addFuelBenefitData => {
               implicit val hc = HeaderCarrier(request)
               val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
-              val carBenefitStartDate = getDateInTaxYear(carBenefit.car.flatMap(_.dateCarMadeAvailable))
+              val carBenefitStartDate = getDateInTaxYear(Some(carBenefit.dateMadeAvailable))
 
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData)).map {
                 _ =>
@@ -146,14 +146,14 @@ with PayeRegimeRoots {
           }:$taxYear:$employmentSequenceNumber"))
 
           val carBenefit = retrieveCarBenefit(taxYearData, employmentSequenceNumber)
-
-          val carAndFuel = CarAndFuelBuilder(addFuelBenefit = fuelBenefitData, carBenefit, taxYear, employmentSequenceNumber)
+          val updatedCarBenefit = carBenefit.copy(fuelBenefit = Some(FuelBenefit(carBenefit.startDate, 0, 0, fuelBenefitData.dateFuelWithdrawn)))
 
           val payeRoot = user.regimes.paye.get
           val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${
             user.oid
           }"))
-          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, carAndFuel.fuelBenefit.toSeq)
+
+          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, updatedCarBenefit.toBenefits.find(_.benefitType == BenefitTypes.FUEL).toSeq)
 
           keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 
@@ -174,8 +174,8 @@ with PayeRegimeRoots {
     }
   }
 
-  private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): Benefit = {
-    taxYearData.findActiveBenefit(employmentSequenceNumber, BenefitTypes.CAR) match {
+  private def retrieveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): CarBenefit = {
+    taxYearData.findActiveCarBenefit(employmentSequenceNumber) match {
       case Some(carBenefit) => carBenefit
       case _ => throw new StaleHodDataException("No Car benefit found!") //TODO: Refine this error scenario
     }

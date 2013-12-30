@@ -24,7 +24,7 @@ common.previousLoginTime={0}, you last signed in to your account on {1}
 
 error.common.problem_report.action_mandatory=Please enter details of what you were doing.
 
-info.need_to_register=You need to register to use this service. If you?re already registered just sign in.
+info.need_to_register=You need to register to use this service. If you’re already registered just sign in.
 
 link.vehicle_certification_agency.text=Vehicle Certification Agency (VCA)
 link.vehicle_certification_agency.url=http://carfueldata.direct.gov.uk/search-new-or-used-cars.aspx
@@ -32,6 +32,7 @@ link.tax_codes.text=Tax codes
 link.tax_codes.url=https://www.gov.uk/tax-codes
 link.company_benefits_tax.text=Tax on company benefits
 link.company_benefits_tax.url=https://www.gov.uk/tax-company-benefits
+link.dvla.url=https://www.taxdisc.direct.gov.uk/EvlPortalApp/app/home/intro
 
 button.sign_in=Sign in
 
