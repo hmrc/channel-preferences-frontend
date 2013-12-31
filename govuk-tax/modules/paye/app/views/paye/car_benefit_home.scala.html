@@ -14,7 +14,7 @@
 @carAmountsRow(carName : String, carBenefit: CarBenefit)(implicit idSuffix: Option[String] = None) = {
 <tr>
     <td id="@id("car-name")">@carName</td>
-        <td id="@id("car-available")">@formatDate(carBenefit.dateMadeAvailable) to @formatDate(carBenefit.dateWithdrawn.getOrElse(endOfCurrentTaxYear))</td>
+        <td id="@id("car-available")">@Messages("paye.car_benefit_home.to", formatDate(carBenefit.dateMadeAvailable), formatDate(carBenefit.dateWithdrawn.getOrElse(endOfCurrentTaxYear)))</td>
     <td id="@id("car-benefit-amount")">@pounds(carBenefit.benefitAmount)</td>
 
     @if(params.fuelGrossAmount.isDefined) {
@@ -84,10 +84,13 @@
                 </ul>
             </div>
         }
-    <p>@Html(Messages("paye.car_benefit_home.no_changes", helpers.link("", s"${common.routes.LoginController.logout}", Messages("paye.car_benefit_home.log_out_link_text"))))</p>
 
         @if(previousCarBenefits.length > 0) {
-            <h2>Previous cars in this tax year</h2>
+            @if(previousCarBenefits.length == 1) {
+                <h2 id="previous-cars-header">@Messages("paye.car_benefit_home.previous.cars.singular")</h2>
+            } else {
+                <h2 id="previous-cars-header">@Messages("paye.car_benefit_home.previous.cars.plural")</h2>
+            }
 
             @for(carAndFuelBenefit <- previousCarBenefits.zipWithIndex) {
                 @display_car_and_fuel(carAndFuelBenefit._1, employerNameString, Some(carAndFuelBenefit._2.toString))
@@ -95,8 +98,11 @@
         }
     }
     @if(activeCarBenefit.isDefined || previousCarBenefits.size > 0) {
-
-        <h2>@Messages("paye.car_benefit_home.car_and_fuel_benefits", s"$currentTaxYear", s"${currentTaxYear + 1}")</h2>
+        @if(fuelGrossAmount.isDefined) {
+            <h2 id="car-and-fuel-benefits-summary-header">@Messages("paye.car_benefit_home.car_and_fuel_benefits", s"$currentTaxYear", s"${currentTaxYear + 1}")</h2>
+        } else {
+            <h2 id="car-and-fuel-benefits-summary-header">@Messages("paye.car_benefit_home.car_benefit", s"$currentTaxYear", s"${currentTaxYear + 1}")</h2>
+        }
         <table id="car-and-fuel-benefits-summary-table">
             <thead>
                 <tr>
@@ -129,6 +135,7 @@
         </table>
 
         <h2>@Messages("paye.car_benefit_home.tax_payable")</h2>
+        <p>@Messages("paye.car_benefit_home.tax_payable_info")</p>
         <table id="tax-liability-summary-table">
             <thead>
                 <tr>
@@ -170,5 +177,4 @@
             </tbody>
         </table>
     }
-
 }

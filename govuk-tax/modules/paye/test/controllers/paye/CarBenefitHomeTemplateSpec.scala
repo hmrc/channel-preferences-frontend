@@ -95,7 +95,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-car-value").text should be (BenefitFixture.carValuePounds)
       doc.select("#car-benefit-employee-capital-contribution").text should be (BenefitFixture.carEmployeeCapitalContributionVauePounds)
       doc.select("#car-benefit-employee-payments").text should be (BenefitFixture.carEmployeePrivateUseContributionVauePounds)
-      doc.select("#car-co2-emissions").text should be (BenefitFixture.carCo2Emissions + " g/km")
+      doc.select("#car-co2-emissions").text should be (BenefitFixture.carCo2Emissions + "g CO2/km")
       doc.select("#car-benefit-engine").text should be (Messages(s"paye.add_car_benefit.engine_capacity.${BenefitFixture.carEngineSize}"))
       doc.select("#car-benefit-fuel-type").text should be (Messages(s"paye.add_car_benefit.fuel_type.${BenefitFixture.carFuelType}"))
       doc.select("#no-car-benefit-container") should be (empty)
@@ -352,7 +352,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#total-fuel-amount").text shouldBe s"£22"
     }
 
-    "should not display the fuel column on the benefit summary details table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+    "not display the fuel column on the benefit summary details table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelGrossAmountBenefitValue = None
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -367,7 +367,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       }
     }
 
-    "should not display the private fuel row in the tax liability table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+    "not display the private fuel row in the tax liability table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelGrossAmountBenefitValue = None
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -378,7 +378,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       }
     }
 
-    "should not display the total row in the tax liability table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+    "not display the total row in the tax liability table when user has no gross fuel benefit amount" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelGrossAmountBenefitValue = None
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -389,7 +389,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       }
     }
 
-    "should not display the car row in the tax liability table when user has no gross car benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+    "not display the car row in the tax liability table when user has no gross car benefit amount" in new WithApplication(FakeApplication()) with BaseData {
       override val carGrossAmountBenefitValue = None
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -400,7 +400,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       }
     }
 
-    "should not display the total row in the tax liability table when user has no gross car benefit amount" in new WithApplication(FakeApplication()) with BaseData {
+    "not display the total row in the tax liability table when user has no gross car benefit amount" in new WithApplication(FakeApplication()) with BaseData {
       override val carGrossAmountBenefitValue = None
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -411,7 +411,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       }
     }
 
-    "should display the tax liability table with all car and fuel values with user has both a car and fuel gross amount" in new WithApplication(FakeApplication()) with BaseData {
+    "display the tax liability table with all car and fuel values with user has both a car and fuel gross amount" in new WithApplication(FakeApplication()) with BaseData {
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -640,6 +640,44 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select(".no_actions") shouldBe empty
       doc.select(".no_actions").text should not include "no changes"
       doc.select(".overview__actions").text shouldBe ""
+    }
+
+    "display the correct heading for the totals table when user has no fuel on any car" in new WithApplication(FakeApplication()) with BaseData {
+      override val fuelGrossAmountBenefitValue = None
+      override val previousCars = Seq(CarBenefit(carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11))))), None))
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe "Your car benefit for the 2013-2014 tax year"
+    }
+
+    "display the correct heading for the totals table when user has fuel on any car" in new WithApplication(FakeApplication()) with BaseData {
+      override val previousCars = Seq(CarBenefit(carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11))))), None))
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe "Your car and fuel benefits for the 2013-2014 tax year"
+    }
+
+    "display the correct heading for the previous cars table when user has a single previous car" in new WithApplication(FakeApplication()) with BaseData {
+      override val previousCars = Seq(CarBenefit(carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11))))), None))
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#previous-cars-header").text shouldBe "Your previous company car"
+    }
+
+    "display the correct heading for the previous cars table when user has multiple previous cars" in new WithApplication(FakeApplication()) with BaseData {
+      override val previousCars = Seq(CarBenefit(carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11))))), None),
+                                        CarBenefit(carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11))))), None))
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#previous-cars-header").text shouldBe "Your previous company cars"
     }
   }
 }
