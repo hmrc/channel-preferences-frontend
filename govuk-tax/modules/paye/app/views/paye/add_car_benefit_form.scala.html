@@ -6,7 +6,7 @@
 @import helper._
 @import views.helpers._
 
-@main(title = "Tell HMRC about a change to your company car", user = Some(user)) {
+@main(title = Messages("paye.add_car_benefit.title"), user = Some(user)) {
 
     <h1>@Messages("paye.add_car_benefit.h1")</h1>
 
@@ -64,8 +64,14 @@
                             carBenefitForm,
                             Seq(
                                 FormField(carBenefitForm(employeeContributes), Seq(
-                                    RadioButton("false", "No", Some("form-field clear"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
-                                    RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+                                    RadioButton("false", Messages("paye.add_car_benefit.employee_contributes.false"),
+                                            Some("form-field clear"),
+                                            Some("label--inlineRadio"),
+                                            Some(""), Some("data-contextual-helper=disable")),
+                                    RadioButton("true", Messages("paye.add_car_benefit.employee_contributes.true"),
+                                            Some("form-field--inline"),
+                                            Some("label--inlineRadio"),
+                                            Some(""), Some("data-contextual-helper=enable")))),
                                 FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline js-input--contextual"), Some(""), Some("input--small"))))
                             ),
                             '_label -> Messages("paye.add_car_benefit.employee_contribution"),
@@ -154,8 +160,8 @@
                             carBenefitForm,
                             Seq(
                                 FormField(carBenefitForm(employerContributes), Seq(
-                                    RadioButton("false", "No", Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
-                                    RadioButton("true", "Yes: £ ", Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+                                    RadioButton("false", Messages("paye.add_car_benefit.employer_contributes.false"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+                                    RadioButton("true", Messages("paye.add_car_benefit.employer_contributes.true"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
                                 FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", "a year", Some("form-field--inline js-input--contextual"), Some(""), Some("input--xsmall"))))
                             ),
                             '_label -> Messages("paye.add_car_benefit.employer_pay"),
@@ -185,7 +191,7 @@
                 </ol>
              </fieldset>
             <div class="form-field">
-                <input type="submit" class="button" value="Next">
+                <input type="submit" class="button" value="@Messages("paye.add_car_benefit.submit_button")">
             </div>
         }
     }
