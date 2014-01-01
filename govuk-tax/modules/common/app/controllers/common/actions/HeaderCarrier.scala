@@ -2,6 +2,7 @@ package controllers.common.actions
 
 import controllers.common.{HeaderNames, CookieEncryption}
 import play.api.mvc.Request
+import scala.util.Try
 
 /**
  * We need a way to carry header information from the request coming in
@@ -15,14 +16,13 @@ case class HeaderCarrier(userId: Option[String] = None,
                          token: Option[String] = None,
                          forwarded: Option[String] = None,
                          sessionId: Option[String] = None,
-                         requestId: Option[String] = None) {
-
-  val nsStamp = System.nanoTime()
+                         requestId: Option[String] = None,
+                         nsStamp: Long = System.nanoTime()) {
 
   /**
    * @return the time, in nanoseconds, since this header carrier was created
    */
-  def elapsedNs = System.nanoTime() - nsStamp
+  def age = System.nanoTime() - nsStamp
 
   val names = HeaderNames
   lazy val headers: Seq[(String, String)] = {
@@ -53,8 +53,11 @@ object HeaderCarrier extends CookieEncryption {
     val forwardedFor = request.headers.get(names.forwardedFor)
     val sessionId = request.session.get(sessionIdName).map(decrypt)
 
+    val requestTimestamp = Try[Long] {
+      request.session.get(names.xRequestTimestamp).map(_.toLong).getOrElse(System.nanoTime())
+    }
     val requestIdString = request.headers.get(names.xRequestId)
 
-    new HeaderCarrier(userId, token, forwardedFor, sessionId, requestIdString)
+    new HeaderCarrier(userId, token, forwardedFor, sessionId, requestIdString, requestTimestamp.toOption.getOrElse(System.nanoTime()))
   }
 }

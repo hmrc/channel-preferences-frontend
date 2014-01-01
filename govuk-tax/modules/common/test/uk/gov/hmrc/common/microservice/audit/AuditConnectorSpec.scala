@@ -12,8 +12,8 @@ class TestAuditConnector extends AuditConnector {
   var body: AuditEvent = null
   var headers: Map[String, String] = null
 
-  override protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
-    this.body = body.asInstanceOf[AuditEvent]
+  override protected def httpPostF[B, A](uri: String, body: Option[A], headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
+    this.body = body.get.asInstanceOf[AuditEvent]
     this.headers = headers
     Future.successful(None)
   }

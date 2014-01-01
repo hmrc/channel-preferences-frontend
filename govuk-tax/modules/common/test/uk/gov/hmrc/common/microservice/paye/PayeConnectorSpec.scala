@@ -35,7 +35,7 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
 
       val capturedBody = ArgumentCaptor.forClass(classOf[AddBenefit])
 
-      when(service.httpWrapper.postF[AddBenefit, AddBenefitResponse](Matchers.eq(uri), capturedBody.capture, Matchers.any())).
+      when(service.httpWrapper.postF[AddBenefitResponse, AddBenefit](Matchers.eq(uri), capturedBody.capture, Matchers.any())).
         thenReturn(Some(AddBenefitResponse(TransactionId("24242t"), Some("456TR"), Some(12345))))
 
       val response = service.addBenefits(uri, version, employmentSeqNumber, carBenefit.toBenefits)
@@ -43,15 +43,9 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
       response.get.newTaxCode shouldBe Some("456TR")
       response.get.netCodedAllowance shouldBe Some(12345)
 
-      val capturedAddBenefit : AddBenefit = capturedBody.getValue
+      val capturedAddBenefit: AddBenefit = capturedBody.getValue
       capturedAddBenefit shouldBe AddBenefit(version, employmentSeqNumber, carBenefit.toBenefits)
 
-//      val capturedAddedBenefit = Transform.fromResponse[AddBenefit](capturedBody.getValue.toString())
-//      capturedAddedBenefit should have(
-//        'version(version),
-//        'employmentSequence(employmentSeqNumber),
-//        'benefits(carBenefit.toBenefits)
-//      )
     }
   }
 
@@ -73,7 +67,7 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
         thenReturn(Future.successful(None))
       val response = service.version(uri)
       val ise = response.failed.futureValue
-      ise shouldBe an [IllegalStateException]
+      ise shouldBe an[IllegalStateException]
       ise should have message s"Expected paye version number not found at URI '$uri'"
     }
   }
@@ -92,12 +86,14 @@ class HttpMockedPayeConnector extends PayeConnector with MockitoSugar {
 
   override def httpGetF[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Option[A]] = httpWrapper.getF[A](uri)
 
-  override def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] =
-    httpWrapper.postF[A, B](uri, body, headers)
+  override def httpPostF[TResult, TBody](uri: String, body: Option[TBody], headers: Map[String, String] = Map.empty)
+                                        (implicit bodyManifest: Manifest[TBody], resultManifest: Manifest[TResult], headerCarrier: HeaderCarrier): Future[Option[TResult]] =
+    body.map(body => httpWrapper.postF[TResult, TBody](uri, body, headers)).get
 
   class HttpWrapper {
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
-    def postF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty): Future[Option[B]] = Future.successful(None)
+
+    def postF[TResult, TBody](uri: String, body: TBody, headers: Map[String, String] = Map.empty): Future[Option[TResult]] = Future.successful(None)
   }
 
 }

@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.auth
 
-import uk.gov.hmrc.common.microservice.{ Connector, MicroServiceConfig }
+import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
@@ -9,5 +9,5 @@ class AuthConnector(override val serviceUrl: String = MicroServiceConfig.authSer
 
   def authority(path: String)(implicit hc: HeaderCarrier) = httpGetF[Authority](path)
 
-  def authorityByPidAndUpdateLoginTime(pid: String)(implicit hc: HeaderCarrier) : Future[Option[Authority]] = httpPostF[String,Authority](s"/auth/pid/$pid", "")
+  def authorityByPidAndUpdateLoginTime(pid: String)(implicit hc: HeaderCarrier): Future[Option[Authority]] = httpPostF[Authority, Nothing](s"/auth/pid/$pid", None)
 }

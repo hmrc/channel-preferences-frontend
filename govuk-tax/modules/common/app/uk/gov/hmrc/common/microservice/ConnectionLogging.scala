@@ -14,25 +14,25 @@ trait ConnectionLogging {
   import ConnectionLogging.formatNs
 
   def withLogging[T](method: String, uri: String)(body: => Future[T])(implicit hc: HeaderCarrier): Future[T] = {
-    val startTime = hc.elapsedNs
+    val startAge = hc.age
     val f = body
-    f.onComplete {logResult(hc, method, uri, startTime)}
+    f.onComplete {logResult(hc, method, uri, startAge)}
     f
   }
 
-  def logResult[A](hc: HeaderCarrier, method: String, uri: String, startTime: Long)(result: Try[A]) = result match {
+  def logResult[A](hc: HeaderCarrier, method: String, uri: String, startAge: Long)(result: Try[A]) = result match {
     case Success(ground) => {
-      connectionLogger.trace(formatMessage(hc, method, uri, startTime, "ok"))
+      connectionLogger.trace(formatMessage(hc, method, uri, startAge, "ok"))
     }
     case Failure(ex) => {
-      connectionLogger.trace(formatMessage(hc, method, uri, startTime, s"failed ${ex.getMessage}"))
+      connectionLogger.trace(formatMessage(hc, method, uri, startAge, s"failed ${ex.getMessage}"))
     }
   }
 
-  def formatMessage(hc: HeaderCarrier, method: String, uri: String, startTime: Long, message: String) = {
+  def formatMessage(hc: HeaderCarrier, method: String, uri: String, startAge: Long, message: String) = {
     val requestId = hc.requestId.getOrElse("")
-    val durationNs = hc.elapsedNs - startTime
-    s"$requestId:$method:${startTime/1000}:${formatNs(startTime)}:${durationNs/1000}:${formatNs(durationNs)}:$uri:$message"
+    val durationNs = hc.age - startAge
+    s"$requestId:$method:${startAge}:${formatNs(startAge)}:${durationNs}:${formatNs(durationNs)}:$uri:$message"
   }
 }
 

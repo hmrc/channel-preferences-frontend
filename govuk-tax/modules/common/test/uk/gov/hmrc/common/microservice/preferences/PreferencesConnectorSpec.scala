@@ -22,8 +22,9 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
     httpWrapper.getF(uri)
   }
 
-  override protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
-    httpWrapper.postF(uri, body, headers)
+  override protected def httpPostF[TResult, TBody](uri: String, body: Option[TBody], headers: Map[String, String] = Map.empty)
+                                                  (implicit bodyManifest: Manifest[TBody], resultManifest: Manifest[TResult], headerCarrier: HeaderCarrier): Future[Option[TResult]] = {
+    httpWrapper.postF(uri, body.get, headers)
   }
 
   class HttpWrapper {
@@ -65,10 +66,6 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
       val bodyCaptor: ArgumentCaptor[UpdateEmail] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[UpdateEmail]])
       verify(preferenceMicroService.httpWrapper).postF(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
-//      val body = bodyCaptor.getValue
-//      (body \ "digital").as[JsBoolean].value shouldBe false
-//      (body \ "email").asOpt[String] shouldBe None
-
       val body : UpdateEmail = bodyCaptor.getValue
       body shouldBe UpdateEmail(false, None)
     }
@@ -104,8 +101,6 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
       whenReady(result) {
         _ shouldBe None
       }
-
     }
-
   }
 }

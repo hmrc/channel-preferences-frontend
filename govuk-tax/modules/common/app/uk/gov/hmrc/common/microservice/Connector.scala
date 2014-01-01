@@ -38,21 +38,22 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
 
   protected def httpPutF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
     val wsResource = httpResource(uri)
-    response[B](wsResource.withHeaders(headers.toSeq: _*).put(transform[A](body)), uri)(extractJSONResponse[B])
+    response[B](wsResource.withHeaders(headers.toSeq: _*).put(transform[A](Some(body))), uri)(extractJSONResponse[B])
   }
 
-  protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
-    response[B](httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[A](body)), uri)(extractJSONResponse[B])
+  protected def httpPostF[TResult, TBody](uri: String, body: Option[TBody], headers: Map[String, String] = Map.empty)
+                                         (implicit bodyManifest: Manifest[TBody], resultManifest: Manifest[TResult], headerCarrier: HeaderCarrier): Future[Option[TResult]] = {
+    response[TResult](httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[TBody](body)), uri)(extractJSONResponse[TResult])
   }
 
   protected def httpPost[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(responseProcessor: (Response => B))
-                            (implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[B] = {
-    httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[A](body)).map(responseProcessor)
+                              (implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[B] = {
+    httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[A](Some(body))).map(responseProcessor)
   }
 
   protected def httpPostResponse[A](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Response] = {
     val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).post(transform(body))
+    wsResource.withHeaders(headers.toSeq: _*).post(transform(Some(body)))
   }
 
   protected def httpDeleteAndForget(uri: String)(implicit hc: HeaderCarrier) {
@@ -94,7 +95,7 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
     }
   }
 
-  private def transform[A](body : A) : JsValue = if(body == null) JsNull else Json.parse(toRequestBody(body))
+  private def transform[TBody](body: Option[TBody]): JsValue = body.map(body => Json.parse(toRequestBody(body))).getOrElse(JsNull)
 }
 
 trait HasResponse {
