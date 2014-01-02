@@ -1,6 +1,6 @@
 @main(title = Messages("paye.home.title"), sidebarLinks = Some(sidebarLinks)) {
     <h1>@Messages("paye.home.title")</h1>
-    <p>@Html(Messages("paye.home.intro", helpers.link("", Messages("paye.home.intro.calculator_link.href"), Messages("paye.home.intro.calculator_link.text"))))</p>
+    <p>@Html(Messages("paye.home.intro", helpers.link("", Messages("paye.home.intro.calculator_link.url"), Messages("paye.home.intro.calculator_link.text"), true)))</p>
     <strong>@Messages("paye.home.intro.warning")</strong>
     <ul class="bullets">
         <li>@Messages("paye.home.intro.warning.single_car_only")</li>
