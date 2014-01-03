@@ -6,26 +6,29 @@ import org.slf4j.MDC
 import scala.collection.JavaConverters._
 
 class MdcTransportingExecutionContext(wrapped: ExecutionContext) extends ExecutionContext {
-  def execute(runnable: Runnable): Unit = {
+
+  def execute(runnable: Runnable) {
     MDC.getMDCAdapter.getCopyOfContextMap match {
-      case null => wrapped.execute(runnable)
+      case null =>
+        wrapped.execute(runnable)
       case context =>
-        val contextScala = context.asScala.toMap.asInstanceOf[Map[String, String]]
-        wrapped.execute(new Runnable {
-          def run(): Unit = {
-            contextScala.foreach {
-              case (k, v) => MDC.put(k, v)
-            }
-            try {
-              runnable.run()
-            }
-            finally {
-              contextScala.foreach {
-                case (k, _) => MDC.remove(k)
-              }
-            }
-          }
-        })
+        wrapped.execute(new Transporter(runnable, context.asScala.toMap.asInstanceOf[Map[String, String]]))
+    }
+  }
+
+  private class Transporter(runnable: Runnable, contextScala: Map[String, String]) extends Runnable {
+    def run(): Unit = {
+      contextScala.foreach {
+        case (k, v) => MDC.put(k, v)
+      }
+      try {
+        runnable.run()
+      }
+      finally {
+        contextScala.foreach {
+          case (k, _) => MDC.remove(k)
+        }
+      }
     }
   }
 
