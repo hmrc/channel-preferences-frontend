@@ -5,7 +5,11 @@ import scala.concurrent.ExecutionContext
 import org.slf4j.MDC
 import scala.collection.JavaConverters._
 
-class MdcTransportingExecutionContext(wrapped: ExecutionContext) extends ExecutionContext {
+object StickyMdcExecutionContext{
+  implicit val global = new StickyMdcExecutionContext(ExecutionContext.global)
+}
+
+class StickyMdcExecutionContext(wrapped: ExecutionContext) extends ExecutionContext {
 
   def execute(runnable: Runnable) {
     MDC.getMDCAdapter.getCopyOfContextMap match {

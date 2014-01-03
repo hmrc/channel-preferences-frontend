@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
 import scala.collection.mutable
 import ch.qos.logback.core.AppenderBase
 
-class MdcTransportingExecutionContextSpec extends BaseSpec with LoneElement with Inspectors with BeforeAndAfter {
+class StickyMdcExecutionContextSpec extends BaseSpec with LoneElement with Inspectors with BeforeAndAfter {
 
   before {
     MDC.clear()
@@ -21,7 +21,7 @@ class MdcTransportingExecutionContextSpec extends BaseSpec with LoneElement with
 
   "The MDC Transporting Execution Context" should {
 
-    "capture the an MDC map with values in it and put it in place when a task is run" in withCaptureOfLoggingFrom[MdcTransportingExecutionContextSpec] {
+    "capture the an MDC map with values in it and put it in place when a task is run" in withCaptureOfLoggingFrom[StickyMdcExecutionContextSpec] {
       logList =>
         implicit val ec = createAndInitialiseMdcTransportingExecutionContext()
 
@@ -31,7 +31,7 @@ class MdcTransportingExecutionContextSpec extends BaseSpec with LoneElement with
         logList.loneElement._2 should contain("someKey" -> "something")
     }
 
-    "ignore an null MDC map" in withCaptureOfLoggingFrom[MdcTransportingExecutionContextSpec] {
+    "ignore an null MDC map" in withCaptureOfLoggingFrom[StickyMdcExecutionContextSpec] {
       logList =>
         implicit val ec = createAndInitialiseMdcTransportingExecutionContext()
 
@@ -40,7 +40,7 @@ class MdcTransportingExecutionContextSpec extends BaseSpec with LoneElement with
         logList.loneElement._2 should be(empty)
     }
 
-    "clear the MDC map after a task is run" in withCaptureOfLoggingFrom[MdcTransportingExecutionContextSpec] {
+    "clear the MDC map after a task is run" in withCaptureOfLoggingFrom[StickyMdcExecutionContextSpec] {
       logList =>
         implicit val ec = createAndInitialiseMdcTransportingExecutionContext()
 
@@ -53,7 +53,7 @@ class MdcTransportingExecutionContextSpec extends BaseSpec with LoneElement with
         logList.loneElement._2 should be (empty)
     }
 
-    "clear the MDC map after a task throws an exception" in withCaptureOfLoggingFrom[MdcTransportingExecutionContextSpec] {
+    "clear the MDC map after a task throws an exception" in withCaptureOfLoggingFrom[StickyMdcExecutionContextSpec] {
       logList =>
         implicit val ec = createAndInitialiseMdcTransportingExecutionContext()
 
@@ -68,15 +68,15 @@ class MdcTransportingExecutionContextSpec extends BaseSpec with LoneElement with
   }
 
 
-  def createAndInitialiseMdcTransportingExecutionContext(): MdcTransportingExecutionContext = {
-    val ec = new MdcTransportingExecutionContext(ExecutionContext.fromExecutor(Executors.newFixedThreadPool(1)))
+  def createAndInitialiseMdcTransportingExecutionContext(): StickyMdcExecutionContext = {
+    val ec = new StickyMdcExecutionContext(ExecutionContext.fromExecutor(Executors.newFixedThreadPool(1)))
     initialise(ec)
     ec
   }
 
   def logEventInsideAFutureUsing(ec: ExecutionContext) {
     Await.ready(future {
-      LoggerFactory.getLogger(classOf[MdcTransportingExecutionContextSpec]).info("")
+      LoggerFactory.getLogger(classOf[StickyMdcExecutionContextSpec]).info("")
     }(ec), 2 second)
   }
 

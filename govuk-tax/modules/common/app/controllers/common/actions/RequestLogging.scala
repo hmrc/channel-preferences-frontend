@@ -9,10 +9,11 @@ import java.text.SimpleDateFormat
 import java.util.{UUID, Date}
 import play.api.Logger
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.common.StickyMdcExecutionContext
 
 private[actions] trait RequestLogging extends HeaderNames with DateConverter {
 
-  import ExecutionContext.Implicits.global
+  import StickyMdcExecutionContext.global
 
   private val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZZ")
 

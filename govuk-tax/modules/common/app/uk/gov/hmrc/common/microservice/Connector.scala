@@ -3,15 +3,13 @@ package uk.gov.hmrc.common.microservice
 import scala.concurrent.duration.Duration
 import play.api.libs.ws.{Response, WS}
 import play.api.http.Status
-import scala.concurrent.ExecutionContext
-import ExecutionContext.Implicits.global
 import play.api.{Logger, Play}
 import scala.concurrent._
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
 import play.api.libs.json.{JsNull, JsValue}
-
+import uk.gov.hmrc.common.StickyMdcExecutionContext
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
@@ -24,11 +22,11 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
 
   import play.api.libs.json.Json
   import controllers.common.domain.Transform._
-
+  import StickyMdcExecutionContext.global
   protected val serviceUrl: String
 
   protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = {
-    Logger.info(s"Accessing backend service: $serviceUrl$uri")
+    Logger.info(s"Synchronously accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
 
