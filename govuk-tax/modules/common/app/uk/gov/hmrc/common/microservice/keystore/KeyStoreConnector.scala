@@ -4,7 +4,6 @@ import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import org.joda.time.DateTime
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 case class KeyStore[T](id: String, dateCreated: DateTime, dateUpdated: DateTime, data: Map[String, T]) {
   def get(key: String): Option[T] = {

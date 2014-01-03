@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.{PayeRoot, TaxCode}
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
 object TaxCodeResolver {
 

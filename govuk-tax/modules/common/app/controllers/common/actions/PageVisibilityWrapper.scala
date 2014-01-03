@@ -5,7 +5,7 @@ import play.api.mvc.Results._
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.SimpleResult
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
 trait PageVisibilityPredicate {
   def isVisible(user: User, request: Request[AnyContent]): Future[Boolean]

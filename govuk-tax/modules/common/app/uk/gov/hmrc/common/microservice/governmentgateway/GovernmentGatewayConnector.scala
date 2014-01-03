@@ -3,7 +3,6 @@ package uk.gov.hmrc.common.microservice.governmentgateway
 import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig}
 import org.joda.time.DateTime
 import controllers.common.actions.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class GovernmentGatewayConnector extends Connector {

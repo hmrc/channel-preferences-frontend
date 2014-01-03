@@ -5,7 +5,6 @@ import uk.gov.hmrc.common.microservice.{TaxRegimeConnector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import controllers.common.actions.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class PayeConnector extends TaxRegimeConnector[PayeRoot] {

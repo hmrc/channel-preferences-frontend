@@ -8,7 +8,6 @@ import play.api.mvc._
 import java.text.SimpleDateFormat
 import java.util.{UUID, Date}
 import play.api.Logger
-import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.common.StickyMdcExecutionContext
 
 private[actions] trait RequestLogging extends HeaderNames with DateConverter {

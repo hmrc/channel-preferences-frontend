@@ -5,7 +5,6 @@ import play.api.Logger
 import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeAccountSummary, EpayeLinks, EpayeJsonRoot}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 class EpayeConnector extends Connector {
 

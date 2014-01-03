@@ -22,7 +22,8 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
 
   import play.api.libs.json.Json
   import controllers.common.domain.Transform._
-  import StickyMdcExecutionContext.global
+  implicit val ec = StickyMdcExecutionContext.global
+
   protected val serviceUrl: String
 
   protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = {

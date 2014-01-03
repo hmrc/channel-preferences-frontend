@@ -3,7 +3,7 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
 trait MultiFormWrapper {
   val keyStoreConnector: KeyStoreConnector

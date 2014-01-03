@@ -8,7 +8,7 @@ import uk.gov.hmrc.common.microservice.sa.SaConnector
 import uk.gov.hmrc.common.microservice.sa.domain.write.{SaAddressForUpdate, TransactionId}
 import org.joda.time.LocalDate
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 import controllers.common.actions.HeaderCarrier
 
 object SaRegime extends TaxRegime {

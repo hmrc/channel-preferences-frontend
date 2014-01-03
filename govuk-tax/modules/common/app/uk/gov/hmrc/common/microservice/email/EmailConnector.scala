@@ -5,7 +5,6 @@ import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import java.net.URLEncoder
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class EmailConnector extends Connector {
 

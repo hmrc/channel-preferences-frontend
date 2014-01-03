@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountBalance, CtAccountSum
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary}
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
 
 class EpayePaymentPredicate(epayeConnector: EpayeConnector) extends PageVisibilityPredicate {

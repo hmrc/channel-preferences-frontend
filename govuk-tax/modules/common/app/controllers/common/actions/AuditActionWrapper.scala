@@ -5,7 +5,6 @@ import play.api.{Logger, Play}
 import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import scala.concurrent.ExecutionContext
 import controllers.common.{HeaderNames, CookieNames}
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import scala.util.{Try, Failure}

@@ -10,7 +10,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.{Liability, SaAccountSummary, SaRoot}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 import controllers.bt.routes
 
 

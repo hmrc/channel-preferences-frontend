@@ -7,7 +7,6 @@ import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 object EpayeRegime extends TaxRegime {
 
@@ -23,6 +22,7 @@ case class EpayeLinks(accountSummary: Option[String])
 case class EpayeRoot(empRef: EmpRef, links: EpayeLinks) extends RegimeRoot[EmpRef] {
 
   override val identifier = empRef
+  import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
   def accountSummary(implicit epayeConnector: EpayeConnector, headerCarrier: HeaderCarrier): Future[Option[EpayeAccountSummary]] = {
     links.accountSummary map { uri =>

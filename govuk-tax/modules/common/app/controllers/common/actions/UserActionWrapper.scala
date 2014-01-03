@@ -10,7 +10,7 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import views.html.login
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 

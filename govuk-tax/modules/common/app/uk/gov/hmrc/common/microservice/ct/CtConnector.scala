@@ -4,7 +4,6 @@ import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountSummary, CtJsonRoot}
 import uk.gov.hmrc.domain.CalendarEvent
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
 
 class CtConnector extends Connector {

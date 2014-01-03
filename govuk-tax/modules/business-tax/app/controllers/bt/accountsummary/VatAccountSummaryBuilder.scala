@@ -8,7 +8,7 @@ import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatRoot}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 

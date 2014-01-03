@@ -11,7 +11,7 @@ import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSummary, EpayeRoot}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
 

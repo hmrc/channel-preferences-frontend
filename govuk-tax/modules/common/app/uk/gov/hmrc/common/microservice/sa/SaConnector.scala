@@ -6,7 +6,6 @@ import controllers.common.domain.Transform._
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
 import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, SaPerson, SaJsonRoot}
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
 
 class SaConnector extends Connector {

@@ -10,7 +10,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 import play.api.Logger
 import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
 import DateTimeZone._

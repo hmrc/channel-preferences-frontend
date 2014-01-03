@@ -77,10 +77,9 @@ trait SessionTimeout {
 
   import play.api.mvc._
   import org.joda.time.DateTime
-  import scala.concurrent.ExecutionContext
-  import ExecutionContext.Implicits.global
   import SessionTimeoutWrapper._
   import play.api.http.HeaderNames.SET_COOKIE
+  import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 
   val now : () => DateTime
 
