@@ -12,13 +12,14 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent.{Await, Future}
 import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.duration._
+import uk.gov.hmrc.microservice.Connector
 
 class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] = {
-    httpWrapper.postF[A](uri, body, headers)
+  override protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
+    httpWrapper.postF[A, B](uri, body, headers)
   }
 
   override protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
@@ -27,7 +28,7 @@ class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with Moc
 
   class HttpWrapper {
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
-    def postF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Future[Option[A]] = Future.successful(None)
+    def postF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = Future.successful(None)
   }
 
 }
