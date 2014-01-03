@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.StickyMdcExecutionContext.global
 import Function.const
 
 trait EmailControllerHelper {
