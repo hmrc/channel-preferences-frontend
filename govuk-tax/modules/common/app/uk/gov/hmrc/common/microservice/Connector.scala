@@ -12,7 +12,6 @@ import play.api.libs.json.{JsNull, JsValue}
 import uk.gov.hmrc.common.StickyMdcExecutionContext
 import play.api.libs.json.{JsNull, JsValue}
 
-
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
     Logger.debug(s"Loading linked resource uri: $uri")
