@@ -9,12 +9,11 @@ import org.scalautils.Tolerance
 import scala.concurrent.Future
 
 class TestAuditConnector extends AuditConnector {
-  var body: JsValue = null
+  var body: AuditEvent = null
   var headers: Map[String, String] = null
 
-  override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)
-                                     (implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
-    this.body = body
+  override protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
+    this.body = body.asInstanceOf[AuditEvent]
     this.headers = headers
     Future.successful(None)
   }

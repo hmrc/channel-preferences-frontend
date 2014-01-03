@@ -2,8 +2,6 @@ package uk.gov.hmrc.common.microservice.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.microservice.{TaxRegimeConnector, MicroServiceConfig}
-import controllers.common.domain.Transform._
-import play.api.libs.json.Json
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import controllers.common.actions.HeaderCarrier
@@ -20,26 +18,12 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
                   version: Int,
                   employmentSequenceNumber: Int,
                   benefits: Seq[Benefit])(implicit hc: HeaderCarrier): Future[Option[AddBenefitResponse]] = {
-
-    httpPostF[AddBenefitResponse](
-      uri,
-      body = Json.parse(
-        toRequestBody(
-          AddBenefit(
-            version = version,
-            employmentSequence = employmentSequenceNumber,
-            benefits = benefits)
-        )
-      )
-    )
+    httpPostF[AddBenefit, AddBenefitResponse](uri, AddBenefit(version,employmentSequenceNumber,benefits))
   }
 
   def removeBenefits(uri: String, withdrawBenefitRequest: WithdrawnBenefitRequest)(implicit hc: HeaderCarrier) = {
-    httpPostF[RemoveBenefitResponse](uri, Json.parse(toRequestBody(withdrawBenefitRequest)))
+    httpPostF[WithdrawnBenefitRequest, RemoveBenefitResponse](uri, withdrawBenefitRequest)
   }
-
-
-
 }
 
 object PayeConnector {

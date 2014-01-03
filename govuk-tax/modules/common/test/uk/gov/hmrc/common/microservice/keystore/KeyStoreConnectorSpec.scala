@@ -22,8 +22,8 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
     httpWrapper.httpDeleteAndForget(uri)
   }
 
-  override protected def httpPutF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
-    httpWrapper.httpPutF[A](uri, body)
+  override protected def httpPutF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
+    httpWrapper.httpPutF[A, B](uri, body)
   }
 
   class HttpWrapper {
@@ -33,7 +33,7 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
 
     def httpDeleteAndForget(uri: String) {}
 
-    def httpPutF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Future[Option[A]] = Future.successful(None)
+    def httpPutF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty): Future[Option[B]] = Future.successful(None)
   }
 
 }

@@ -66,13 +66,12 @@ class HttpMockedPayeConnector extends PayeConnector with MockitoSugar {
 
   override def httpGetF[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Option[A]] = httpWrapper.getF[A](uri)
 
-  override def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] =
-    httpWrapper.postF[A](uri, body, headers)
+  override def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] =
+    httpWrapper.postF[A, B](uri, body, headers)
 
   class HttpWrapper {
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
-
-    def postF[T](uri: String, body: JsValue, headers: Map[String, String]): Future[Option[T]] = Future.successful(None)
+    def postF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty): Future[Option[B]] = Future.successful(None)
   }
 
 }
