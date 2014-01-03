@@ -22,7 +22,6 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 trait Connector extends Status with HeaderNames with ConnectionLogging {
 
   implicit val ec = StickyMdcExecutionContext.global
-
   import play.api.libs.json.Json
   import controllers.common.domain.Transform._
 
