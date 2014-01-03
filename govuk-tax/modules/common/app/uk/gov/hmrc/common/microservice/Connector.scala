@@ -10,6 +10,8 @@ import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
 import play.api.libs.json.{JsNull, JsValue}
 import uk.gov.hmrc.common.StickyMdcExecutionContext
+import play.api.libs.json.JsValue
+
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
@@ -23,6 +25,9 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
   import play.api.libs.json.Json
   import controllers.common.domain.Transform._
   implicit val ec = StickyMdcExecutionContext.global
+
+  import play.api.libs.json.Json
+  import controllers.common.domain.Transform._
 
   protected val serviceUrl: String
 
@@ -92,8 +97,6 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
         }
     }
   }
-
-  private def transform[TBody](body: Option[TBody]): JsValue = body.map(body => Json.parse(toRequestBody(body))).getOrElse(JsNull)
 }
 
 trait HasResponse {
