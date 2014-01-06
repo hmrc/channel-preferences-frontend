@@ -15,7 +15,7 @@ class PreferencesConnector extends Connector {
   override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
 
   def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier) : Future[Option[FormattedUri]] = {
-    httpPostF[FormattedUri](s"/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(UpdateEmail(digital, email))))
+    httpPostF[UpdateEmail, FormattedUri](s"/preferences/sa/individual/$utr/print-suppression", UpdateEmail(digital, email))
   }
 
   def getPreferences(utr: SaUtr)(implicit headerCarrier:HeaderCarrier): Future[Option[SaPreference]] = {
