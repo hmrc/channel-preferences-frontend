@@ -45,7 +45,6 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
         firstName = "John",
         secondName = Some("Drummer"),
         surname = "Densmore",
-        version = 22,
         title = "Mr",
         nino = "AB123456C",
         dateOfBirth = "1976-01-02",

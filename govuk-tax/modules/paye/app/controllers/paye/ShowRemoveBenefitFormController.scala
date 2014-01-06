@@ -41,17 +41,23 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
   def showRemoveCarBenefitForm(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
     user =>
       request =>
-        validateVersionNumber(user, request.session).fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => showRemoveCarBenefitFormAction(user, request, taxYear, employmentSequenceNumber))
+        implicit val hc = HeaderCarrier(request)
+        validateVersionNumber(user, request.session).flatMap {
+          _.fold(
+            errorResult => Future.successful(errorResult),
+            versionNumber => showRemoveCarBenefitFormAction(user, request, taxYear, employmentSequenceNumber))
+        }
   }
 
   def showRemoveFuelBenefitForm(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
     user =>
       request =>
-        validateVersionNumber(user, request.session).fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => showRemoveFuelBenefitFormAction(user, request, taxYear, employmentSequenceNumber))
+        implicit val hc = HeaderCarrier(request)
+        validateVersionNumber(user, request.session).flatMap {
+          _.fold(
+            errorResult => Future.successful(errorResult),
+            versionNumber => showRemoveFuelBenefitFormAction(user, request, taxYear, employmentSequenceNumber))
+        }
   }
 
   private[paye] def showRemoveCarBenefitFormAction(user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int): Future[SimpleResult] = {
@@ -77,7 +83,9 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
     val hasUnremovedFuel = activeCarBenefit.hasActiveFuel
     val benefitValues: Option[RemoveCarBenefitFormDataValues] = defaults.map(RemoveCarBenefitFormDataValues(_))
     val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, hasUnremovedFuel, dates, now(), taxYearInterval)
-    val filledForm = defaults.map { preFill => benefitForm.fill(preFill)}.getOrElse(benefitForm)
+    val filledForm = defaults.map {
+      preFill => benefitForm.fill(preFill)
+    }.getOrElse(benefitForm)
 
     remove_car_benefit_form(activeCarBenefit, primaryEmployment, filledForm, currentTaxYearYearsRange)(user)
   }

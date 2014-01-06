@@ -12,7 +12,7 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.Logger
-import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter, DateTimeUtils}
+import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
 import DateTimeZone._
 
 object PayeRegime extends TaxRegime {
@@ -25,7 +25,6 @@ object PayeRegime extends TaxRegime {
 }
 
 case class PayeRoot(nino: String,
-                    version: Int,
                     title: String,
                     firstName: String,
                     secondName: Option[String],
@@ -67,6 +66,9 @@ case class PayeRoot(nino: String,
         Future.successful(monthOfTransactions)
     }
   }
+
+  def version(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Int] =
+    links.get("version").map(payeConnector.version).getOrElse(throw new IllegalStateException(s"Could not find 'version' link for $nino"))
 
 
   private def lookupTransactionHistory(txQueueConnector: TxQueueConnector, forDate: DateTime, maxResults: Int)(implicit hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {

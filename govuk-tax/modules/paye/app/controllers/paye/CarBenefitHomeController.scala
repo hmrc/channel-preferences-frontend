@@ -34,9 +34,12 @@ with PayeRegimeRoots {
   def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
       implicit request =>
-        assembleCarBenefitData(user.getPaye, currentTaxYear).map {
+        assembleCarBenefitData(user.getPaye, currentTaxYear).flatMap {
           details: RawTaxData =>
-            carBenefitHomeAction(details).withSession(sessionWithNpsVersion(request.session))
+            user.getPaye.version.map {
+              version =>
+                carBenefitHomeAction(details).withSession(sessionWithNpsVersion(request.session, version))
+            }
         }
   }
 
@@ -52,8 +55,8 @@ with PayeRegimeRoots {
     else buildHomePageResponse(buildHomePageParams(details, carAndFuelBenefitTypes, currentTaxYear))
   }
 
-  private[paye] def sessionWithNpsVersion(session: Session)(implicit user: User) =
-    session + ((BenefitFlowHelper.npsVersionKey, user.getPaye.version.toString))
+  private[paye] def sessionWithNpsVersion(session: Session, version: Int) =
+    session + ((BenefitFlowHelper.npsVersionKey, version.toString))
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {

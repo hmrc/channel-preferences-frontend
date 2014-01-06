@@ -78,6 +78,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     implicit val hc = HeaderCarrier()
     when(mockPayeConnector.linkedResource[Seq[TaxCode]]("/paye/AB123456C/tax-codes/2013")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]]("/paye/AB123456C/employments/2013")).thenReturn(Some(employments))
+    when(mockPayeConnector.version("/paye/AB123456C/version")).thenReturn(Future.successful(johnDensmoreVersionNumber))
 
     val benefits = cars.map(c => CarAndFuel(c.toBenefits(0), c.toBenefits.drop(1).headOption))
     when(mockPayeConnector.linkedResource[Seq[CarAndFuel]]("/paye/AB123456C/benefit-cars/2013")).thenReturn(Some(benefits))
@@ -719,7 +720,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
                     Some(BigDecimal(10)), Some("diesel"), Some(1), Some(1400), None, Some(BigDecimal("1432")), None, None)
 
       val versionNumber = 1
-      val payeRoot = new PayeRoot("CE927349E", versionNumber, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
+      val payeRoot = new PayeRoot("CE927349E", "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
         override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] = {
           Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", None, primaryEmploymentType))
         }
@@ -749,7 +750,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
     "Contain correct employee names" in new WithApplication(FakeApplication()) {
       val car = Car(Some(new LocalDate(testTaxYear, 3, 6, ISOChronology.getInstanceUTC)), None, Some(new LocalDate(2000, 1, 23, ISOChronology.getInstanceUTC)), Some(BigDecimal(10)), Some("diesel"), Some(10), Some(1400), None, Some(BigDecimal("1432")), None, None)
       val versionNumber = 1
-      val payeRoot = new PayeRoot("CE927349E", versionNumber, "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
+      val payeRoot = new PayeRoot("CE927349E", "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {
         override def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] = {
           Seq(Employment(1, new LocalDate(), Some(new LocalDate()), "123", "123123", Some("Sainsburys"), primaryEmploymentType))
         }

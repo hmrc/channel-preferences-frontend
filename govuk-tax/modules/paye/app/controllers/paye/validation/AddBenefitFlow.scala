@@ -24,15 +24,19 @@ object AddBenefitFlow {
            (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector, currentTaxYear: Int):
   (User, Request[_], Int, Int) => Future[SimpleResult] = {
     (user, request, taxYear, employmentSequenceNumber) =>
-      validateVersionNumber(user, request.session).fold(
-        failureResult => Future.successful(failureResult),
-        versionNumber =>
-          retrieveTaxYearData(user, request, benefitType, taxYear, employmentSequenceNumber).flatMap { result =>
-            result.fold(
-              failureResult => Future.successful(failureResult),
-              payeRootData => action(user, request, taxYear, employmentSequenceNumber, payeRootData)
-            )
-          })
+      implicit val hc = HeaderCarrier(request)
+      validateVersionNumber(user, request.session).flatMap {
+        _.fold(
+          failureResult => Future.successful(failureResult),
+          versionNumber =>
+            retrieveTaxYearData(user, request, benefitType, taxYear, employmentSequenceNumber).flatMap {
+              result =>
+                result.fold(
+                  failureResult => Future.successful(failureResult),
+                  payeRootData => action(user, request, taxYear, employmentSequenceNumber, payeRootData)
+                )
+            })
+      }
   }
 
 

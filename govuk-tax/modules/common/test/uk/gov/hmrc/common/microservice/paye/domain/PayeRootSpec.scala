@@ -24,7 +24,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
       implicit val payeConnector = mock[PayeConnector]
       implicit val txQueueConnector = mock[TxQueueConnector]
 
-      val stubPayeRoot = new PayeRoot("NM439085B", 1, "Mr", "John", None, "Densmore", "johnnyBoy", "1960-12-01", Map.empty, Map.empty, Map.empty) {
+      val stubPayeRoot = new PayeRoot("NM439085B", "Mr", "John", None, "Densmore", "johnnyBoy", "1960-12-01", Map.empty, Map.empty, Map.empty) {
         override def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarBenefit]] =
           Future.successful(if (taxYear == 2013) Seq(carBenefit) else Seq.empty)
 
@@ -44,7 +44,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
   "addBenefitLink " should {
     "look for a link called benefits " in {
       val linkMap = Map("nonsenseLink" -> "/a/nonsense/link", "benefits" -> "/addBenefit/link")
-      val payeRoot = PayeRoot(nino = "NM439085B", version = 1, title = "Mr", firstName = "John", secondName = None,
+      val payeRoot = PayeRoot(nino = "NM439085B", title = "Mr", firstName = "John", secondName = None,
         surname = "Densmore", name = "johnnyBoy", dateOfBirth = "1960-12-01", links = linkMap, Map.empty, Map.empty)
       payeRoot.addBenefitLink(2013) shouldBe Some("/addBenefit/link")
     }
@@ -55,7 +55,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
     "make only one call to txQueue if there are at least three transactions in the last 30 days" in {
       val nino = "NM439085B"
       val linkMap = Map("history" -> s"/txqueue/current-status/paye/$nino/history/after/{from}?statuses={statuses}&max-results={maxResults}")
-      val payeRoot = PayeRoot(nino = nino, version = 1, title = "Mr", firstName = "John", secondName = None,
+      val payeRoot = PayeRoot(nino = nino, title = "Mr", firstName = "John", secondName = None,
         surname = "Densmore", name = "johnnyBoy", dateOfBirth = "1960-12-01", transactionLinks = linkMap, links = Map.empty, actions =  Map.empty)
 
       val txHistory = Some(List(
@@ -81,7 +81,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
     "make two calls to the txQueue if there are less than three transactions in the last 30 days" in {
       val nino = "NM439085B"
       val linkMap = Map("history" -> s"/txqueue/current-status/paye/$nino/history/after/{from}?statuses={statuses}&max-results={maxResults}")
-      val payeRoot = PayeRoot(nino = nino, version = 1, title = "Mr", firstName = "John", secondName = None,
+      val payeRoot = PayeRoot(nino = nino, title = "Mr", firstName = "John", secondName = None,
         surname = "Densmore", name = "johnnyBoy", dateOfBirth = "1960-12-01", transactionLinks = linkMap, links = Map.empty, actions =  Map.empty)
 
       val firstTxHistory = Some(List(

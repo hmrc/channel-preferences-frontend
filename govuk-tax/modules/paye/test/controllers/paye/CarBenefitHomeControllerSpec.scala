@@ -153,13 +153,13 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     val stubSession: Session = Session(Map("foo" -> "bar"))
 
     "stash the nps version from the user on the session" in {
-      val session = controller.sessionWithNpsVersion(stubSession)(johnDensmore)
+      val session = controller.sessionWithNpsVersion(stubSession, 22)
 
       session.get("nps-version") shouldBe Some("22")
     }
 
     "not trash other session properties" in {
-      val session = controller.sessionWithNpsVersion(stubSession)(johnDensmore)
+      val session = controller.sessionWithNpsVersion(stubSession, 22)
 
       session.get("foo") shouldBe Some("bar")
     }

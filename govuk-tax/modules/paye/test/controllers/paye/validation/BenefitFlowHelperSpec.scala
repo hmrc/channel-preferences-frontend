@@ -9,38 +9,51 @@ import uk.gov.hmrc.common.microservice.auth.domain._
 
 import controllers.paye.routes
 
-import BenefitFlowHelper._
+import org.mockito.Mockito._
 
-class BenefitFlowHelperSpec extends BaseSpec {
+import BenefitFlowHelper._
+import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import scala.concurrent.Future
+
+class BenefitFlowHelperSpec extends BaseSpec with MockitoSugar {
   val validVersion: Int = 22
   val invalidVersion: Int = 21
-  val payeRoot = PayeRoot("", validVersion, "", "", None, "", "", "", Map(), Map(), Map())
+  val versionUri = "/paye/AA000001/version"
+  val payeRoot = PayeRoot("", "", "", None, "", "", "", Map("version" -> versionUri), Map(), Map())
   val ua = Authority("dummyAuth", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail())
   val user = User("dummy", ua, RegimeRoots(paye = Some(payeRoot)))
+  implicit val payeConnectorMock = mock[PayeConnector]
 
   "validateVersionNumber" should {
-    "return None to indicate the version check passed" in new WithApplication(FakeApplication()) {
+    "return the version to indicate the version check passed" in new WithApplication(FakeApplication()) {
+      when(payeConnectorMock.version(versionUri)).thenReturn(Future.successful(validVersion))
+
       val session = FakeRequest().withSession((npsVersionKey, validVersion.toString)).session
       val result = validateVersionNumber(user, session)
-      result.right.toOption.isDefined shouldBe true
+
+      result.isRight shouldBe true
+      result.right.get shouldBe validVersion
     }
 
-    "redirect to the home page when the version is not present in the session" in new WithApplication(FakeApplication()) {
+    "return a redirect to the home page when the version is not present in the session" in new WithApplication(FakeApplication()) {
+      when(payeConnectorMock.version(versionUri)).thenReturn(Future.successful(validVersion))
       val session = FakeRequest().withSession(("foo", "bar")).session
       val result = validateVersionNumber(user, session)
 
-      result.left.toOption.isDefined shouldBe true
+      result.isLeft shouldBe true
       result.left.map{result =>
         result.header.status shouldBe 303
         result.header.headers.get("Location") shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
       }
     }
 
-    "redirect to an error page when the version in the session does not match the version of the user" in new WithApplication(FakeApplication()) {
+    "return a redirect to an error page when the version in the session does not match the current version of the user" in new WithApplication(FakeApplication()) {
+      when(payeConnectorMock.version(versionUri)).thenReturn(Future.successful(validVersion))
       val session = FakeRequest().withSession((npsVersionKey, invalidVersion.toString)).session
       val result = validateVersionNumber(user, session)
 
-      result.left.toOption.isDefined shouldBe true
+      result.isLeft shouldBe true
       result.left.map{result =>
         result.header.status shouldBe 303
         result.header.headers.get("Location") shouldBe Some(routes.VersionChangedController.versionChanged().url)

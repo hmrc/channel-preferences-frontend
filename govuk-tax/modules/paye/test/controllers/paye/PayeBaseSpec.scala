@@ -42,14 +42,14 @@ trait PayeBaseSpec extends BaseSpec {
       secondName = None,
       surname = "Rubble",
       nino = nino,
-      version = 22,
       title = "Mr",
       dateOfBirth = "1976-04-12",
       links = Map(
         "taxCode" -> s"/paye/$nino/tax-codes/$year",
         "employments" -> s"/paye/$nino/employments/$year",
         "benefit-cars" -> s"/paye/$nino/benefit-cars/$year",
-        "benefits" -> s"/paye/$nino/benefits/$year"),
+        "benefits" -> s"/paye/$nino/benefits/$year",
+        "version" -> s"/paye/$nino/version"),
       transactionLinks = transactionLinks,
       actions = actions
     )

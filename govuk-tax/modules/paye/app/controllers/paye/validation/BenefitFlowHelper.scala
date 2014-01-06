@@ -6,6 +6,10 @@ import controllers.paye.routes
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Session}
 import scala.util.Try
+import scala.concurrent.Future
+import uk.gov.hmrc.common.microservice.paye.PayeConnector
+import controllers.common.actions.HeaderCarrier
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object BenefitFlowHelper {
   type HodVersionNumber = Int
@@ -24,23 +28,26 @@ object BenefitFlowHelper {
    * @return Either a SimpleResult, which means that something went wrong and the controller
    *         should use this result, or the HOD Version Number
    */
-  def validateVersionNumber(user: User, session: Session): Either[SimpleResult, HodVersionNumber] = {
+  def validateVersionNumber(user: User, session: Session)(implicit payeConnector: PayeConnector, hc: HeaderCarrier): Future[Either[SimpleResult, HodVersionNumber]] = {
 
     object Int {def unapply(s: String): Option[Int] = Try {s.toInt}.toOption}
 
     val noVersion = redirectToCarBenefitHome
+    val errorLookingUpLatestVersion = redirectToCarBenefitHome
     val versionMismatch = Redirect(routes.VersionChangedController.versionChanged().url)
 
     val sessionVersion = session.get(npsVersionKey)
 
     sessionVersion match {
-      case None => Left(noVersion)
+      case None => Future.successful(Left(noVersion))
       case Some(Int(version)) => {
-        if (version != user.getPaye.version) {
-          Left(versionMismatch)
-        } else {
-          Right(version)
-        }
+        user.getPaye.version.map { latestNpsVersion =>
+          if (version != latestNpsVersion) {
+            Left(versionMismatch)
+          } else {
+            Right(version)
+          }
+        }.recover { case _ => Left(errorLookingUpLatestVersion) }
       }
     }
   }

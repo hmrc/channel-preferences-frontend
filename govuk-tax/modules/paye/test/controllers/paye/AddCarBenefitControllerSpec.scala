@@ -895,7 +895,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         calculations = Map.empty[String, String],
         benefitAmount = Some(0))
 
-      verify(mockPayeConnector).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmore.getPaye.version, employmentSeqNumberOne, Seq(benefit))
+      verify(mockPayeConnector).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmoreVersionNumber, employmentSeqNumberOne, Seq(benefit))
     }
 
     "call the paye microservice to add new benefits for both car and fuel" in new WithApplication(FakeApplication()) {
@@ -968,7 +968,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         benefitAmount = Some(0)
       )
 
-      verify(mockPayeConnector).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmore.getPaye.version, employmentSeqNumberOne, Seq(carBenefit, fuelBenefit))
+      verify(mockPayeConnector).addBenefits(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013", johnDensmoreVersionNumber, employmentSeqNumberOne, Seq(carBenefit, fuelBenefit))
     }
 
     "show the confirmation page with the correct tax codes and allowance" in new WithApplication(FakeApplication()) {
@@ -1023,6 +1023,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$taxYear")).thenReturn(Some(taxCodes))
     when(mockPayeConnector.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$taxYear")).thenReturn(Some(employments))
     when(mockPayeConnector.linkedResource[Seq[CarAndFuel]](s"/paye/AB123456C/benefit-cars/$taxYear")).thenReturn(Some(carAndFuels))
+    when(mockPayeConnector.version("/paye/AB123456C/version")).thenReturn(johnDensmoreVersionNumber)
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/ACCEPTED/.*"))(Matchers.eq(hc))).thenReturn(Some(acceptedTransactions))
     when(mockTxQueueConnector.transaction(Matchers.matches("^/txqueue/current-status/paye/AB123456C/COMPLETED/.*"))(Matchers.eq(hc))).thenReturn(Some(completedTransactions))
     when(mockKeyStoreService.getEntry[CarBenefitData](Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(None)

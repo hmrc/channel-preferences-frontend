@@ -130,26 +130,29 @@ with PayeRegimeRoots {
       val payeRoot = user.getPaye
       savedValuesFromKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber)).flatMap {
         savedData =>
-          val carBenefitDataAndCalculation = savedData.getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
+          payeRoot.version.flatMap {
+            version =>
+              val carBenefitDataAndCalculation = savedData.getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddCarBenefit:${user.oid}:$taxYear:$employmentSequenceNumber"))
 
-          val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
-          val carBenefit = CarBenefitBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
-          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, carBenefit.toBenefits)
-          keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
+              val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
+              val carBenefit = CarBenefitBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
+              val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, version, employmentSequenceNumber, carBenefit.toBenefits)
+              keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
 
-          TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap {
-            currentTaxYearCode =>
-              val f1 = addBenefitsResponse.map(_.get.newTaxCode)
-              val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
+              TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap {
+                currentTaxYearCode =>
+                  val f1 = addBenefitsResponse.map(_.get.newTaxCode)
+                  val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
 
-              for {
-                newTaxCode <- f1
-                netCodedAllowance <- f2
-              } yield {
-                val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-                Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
+                  for {
+                    newTaxCode <- f1
+                    netCodedAllowance <- f2
+                  } yield {
+                    val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+                    Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
+                  }
               }
-          }
+        }
       }
     }
   }
