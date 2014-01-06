@@ -12,19 +12,19 @@ class GovernmentGatewayConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.governmentGatewayServiceUrl
 
-  implicit object CredentialsWrites extends Writes[Credentials] {
-    def writes(c: Credentials) = JsObject(Seq("userId" -> JsString(c.userId), "password" -> JsString(c.password)))
-  }
+//  implicit object CredentialsWrites extends Writes[Credentials] {
+//    def writes(c: Credentials) = JsObject(Seq("userId" -> JsString(c.userId), "password" -> JsString(c.password)))
+//  }
 
-  implicit object SsoLoginWrites extends Writes[SsoLoginRequest] {
-    def writes(g: SsoLoginRequest) = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsNumber(g.timestamp)))
-  }
+//  implicit object SsoLoginWrites extends Writes[SsoLoginRequest] {
+//    def writes(g: SsoLoginRequest) = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsNumber(g.timestamp)))
+//  }
 
   def login(credentials: Credentials)(implicit hc: HeaderCarrier) = doLogin("/login", credentials)
 
   def ssoLogin(ssoLoginRequest: SsoLoginRequest)(implicit hc: HeaderCarrier) = doLogin("/sso-login", ssoLoginRequest)
 
-  private def doLogin[T](path: String, body: T)(implicit hc: HeaderCarrier, write: Writes[T]) =
+  private def doLogin[T](path: String, body: T)(implicit m : Manifest[T], hc: HeaderCarrier) =
     httpPostF[T, GovernmentGatewayResponse](path, body).map(_.getOrElse(throw new IllegalStateException("Expected UserAuthority response but none returned")))
 
   def profile(userId: String)(implicit hc: HeaderCarrier) =

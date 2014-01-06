@@ -38,7 +38,7 @@ class TestKeyStoreConnector extends KeyStoreConnector with MockitoSugar {
 
 }
 
-class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach with ScalaFutures {
+class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   val actionId = "anActionId"
   val source: String = "aSource"
@@ -49,37 +49,26 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
   val sessionId = "378ej373y3g3t3t63g3ehd7337329049j"
   val keyStoreId = s"$userId:$actionId:$sessionId"
 
-  override implicit val hc: HeaderCarrier = mock[HeaderCarrier]
-
-  def before = {
-    reset(hc)
-  }
-
-  private def setHeaderCarrierMockToReturnUserAndSession() {
-    when(hc.userId).thenReturn(Some(userId))
-    when(hc.sessionId).thenReturn(Some(sessionId))
-  }
+  override implicit val hc: HeaderCarrier = HeaderCarrier(Some(userId), sessionId = Some(sessionId))
 
   "KeyStoreConnector" should {
 
     "call the key store service when adding a key store entry " in new WithApplication(FakeApplication()) {
 
-      setHeaderCarrierMockToReturnUserAndSession()
+      val headerCarrier = HeaderCarrier(Some(userId), sessionId = Some(sessionId))
 
       val keyStoreConnector = new TestKeyStoreConnector()
       keyStoreConnector.addKeyStoreEntry(actionId, source, formId, data)
 
-      private val captor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(keyStoreConnector.httpWrapper, times(1)).httpPutF[String](Matchers.eq(s"/keystore/$source/$keyStoreId/data/$formId"), captor.capture(), Matchers.any[Map[String, String]])
+      private val captor: ArgumentCaptor[Map[String, String]] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[Map[String, String]]])
+      verify(keyStoreConnector.httpWrapper, times(1)).httpPutF[Map[String, String], KeyStore[Map[String, String]]](Matchers.eq(s"/keystore/$source/$keyStoreId/data/$formId"), captor.capture(), Matchers.any[Map[String, String]])
 
       val body = captor.getValue
-      (body \ "key1").as[String] should be("value1")
-      (body \ "key2").as[String] should be("value2")
+      body("key1") shouldBe "value1"
+      body("key2") shouldBe "value2"
     }
 
     "call the key store service when getting a key store " in new WithApplication(FakeApplication()) {
-
-      setHeaderCarrierMockToReturnUserAndSession()
 
       val keyStoreConnector = new TestKeyStoreConnector()
 
@@ -96,7 +85,6 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
 
     "retrieve a specific entry" in {
 
-      setHeaderCarrierMockToReturnUserAndSession()
       val keyStoreConnector = new TestKeyStoreConnector()
 
       Mockito.when(keyStoreConnector.httpWrapper.getF[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(Some(KeyStore[SomeData](keyStoreId, null, null, Map("entryKey" -> SomeData("John", "Densmore")))))
@@ -112,8 +100,6 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
 
     "handle existing keystore without an entry" in {
 
-      setHeaderCarrierMockToReturnUserAndSession()
-
       val keyStoreConnector = new TestKeyStoreConnector()
 
       Mockito.when(keyStoreConnector.httpWrapper.getF[KeyStore[SomeData]](s"/keystore/$source/$keyStoreId")).thenReturn(Some(KeyStore[SomeData](keyStoreId, null, null, Map("anotherEntry" -> SomeData("John", "Densmore")))))
@@ -126,8 +112,6 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with BeforeEach w
     }
 
     "call the key store service when deleting a key store " in new WithApplication(FakeApplication()) {
-
-      setHeaderCarrierMockToReturnUserAndSession()
 
       val keyStoreConnector = new TestKeyStoreConnector()
 

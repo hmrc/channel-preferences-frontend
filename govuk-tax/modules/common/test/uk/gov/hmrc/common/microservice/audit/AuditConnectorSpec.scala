@@ -21,15 +21,6 @@ class TestAuditConnector extends AuditConnector {
 
 class AuditConnectorSpec extends BaseSpec {
 
-  implicit val jsToStringEquality = new org.scalautils.Equality[JsValue] {
-    def areEqual(a: JsValue, b: Any): Boolean = {
-      b match {
-        case s: String => a.as[String].equals(b)
-        case _ => a.equals(b)
-      }
-    }
-  }
-
   "AuditConnector enabled" should {
     "call the audit service with an audit event" in new WithApplication(FakeApplication(additionalConfiguration = Map("govuk-tax.Test.services.datastream.enabled" -> true))) {
       val auditConnector = new TestAuditConnector()
@@ -39,11 +30,7 @@ class AuditConnectorSpec extends BaseSpec {
 
       auditConnector.headers should be(Map.empty)
 
-      val body = auditConnector.body
-      body \ "auditSource" should equal ("frontend")
-      body \ "auditType" should equal ("request")
-      body \ "tags" \ "userId" should equal ("/auth/oid/099990")
-      body \ "detail" \ "name" should equal ("Fred")
+      auditConnector.body shouldBe auditEvent
     }
   }
 
