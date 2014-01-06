@@ -10,7 +10,7 @@ import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
 import play.api.libs.json.{JsNull, JsValue}
 import uk.gov.hmrc.common.StickyMdcExecutionContext
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsNull, JsValue}
 
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
@@ -22,8 +22,6 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 
 trait Connector extends Status with HeaderNames with ConnectionLogging {
 
-  import play.api.libs.json.Json
-  import controllers.common.domain.Transform._
   implicit val ec = StickyMdcExecutionContext.global
 
   import play.api.libs.json.Json
