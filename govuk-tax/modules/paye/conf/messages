@@ -62,6 +62,8 @@ benefitType.31.title=car
 
 your.employer=Your employer
 
+paye.remove_car_benefit.old_company_car_heading=Your old company car
+
 paye.add_car_benefit.title=Tell HMRC about a change to your company car
 paye.add_car_benefit.h1=Tell HMRC about a change to your company car
 paye.add_car_benefit.new_company_car_heading=Your new company car
@@ -214,6 +216,7 @@ paye.remove_benefit_confirmation.tax_codes_link_url=https://www.gov.uk/tax-codes
 paye.remove_benefit_confirmation.tax_codes_link_text=tax codes
 paye.remove_benefit_confirmation.tax_on_company_benefits_link_url=https://www.gov.uk/tax-company-benefits
 paye.remove_benefit_confirmation.tax_on_company_benefits_link_text=tax on company benefits
+
 
 paye.home.title=Tell HMRC about a change to your company car
 paye.home.heading=Tell HMRC about a change to your company car
