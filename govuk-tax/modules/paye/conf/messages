@@ -242,6 +242,7 @@ paye.car_benefit_home.no_company_car=You do not have an existing company car ben
 paye.car_benefit_home.make_changes.heading=Make Changes
 paye.car_benefit_home.make_changes=You can make the following changes to the information HMRC has about your company car
 paye.car_benefit_home.remove_car_link_text=remove your company car
+paye.car_benefit_home.replace_car_link_text=replace your company car
 paye.car_benefit_home.remove_fuel_link_text=remove your car fuel benefit
 paye.car_benefit_home.add_car_link_text=add a car fuel benefit
 paye.car_benefit_home.add_car_and_fuel_link_text=add a company car (including any fuel benefit you may have)
