@@ -3,15 +3,15 @@ package uk.gov.hmrc.microservice
 import scala.concurrent.duration.Duration
 import play.api.libs.ws.{Response, WS}
 import play.api.http.Status
-import controllers.common.domain.Transform._
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import play.api.{Logger, Play}
 import scala.concurrent._
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
-import play.api.libs.json.JsValue
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
+import play.api.libs.json.JsValue
+
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
@@ -21,6 +21,9 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
 }
 
 trait Connector extends Status with HeaderNames with ConnectionLogging {
+
+  import play.api.libs.json.Json
+  import controllers.common.domain.Transform._
 
   protected val serviceUrl: String
 
@@ -33,25 +36,23 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
     response[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
   }
 
-  //FIXME: Why is the body a JsValue? Why do we care what type it is
-  protected def httpPutF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+  protected def httpPutF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
     val wsResource = httpResource(uri)
-    response[A](wsResource.withHeaders(headers.toSeq: _*).put(body), uri)(extractJSONResponse[A])
+    response[B](wsResource.withHeaders(headers.toSeq: _*).put(transform[A](body)), uri)(extractJSONResponse[B])
   }
 
-  protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
-    response[A](httpResource(uri).withHeaders(headers.toSeq: _*).post(body), uri)(extractJSONResponse[A])
+  protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
+    response[B](httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[A](body)), uri)(extractJSONResponse[B])
   }
 
-  protected def httpPost[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)
-                            (responseProcessor: (Response => A))
-                            (implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[A] = {
-    httpResource(uri).withHeaders(headers.toSeq: _*).post(body).map(responseProcessor)
+  protected def httpPost[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(responseProcessor: (Response => B))
+                            (implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[B] = {
+    httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[A](body)).map(responseProcessor)
   }
 
-  protected def httpPostResponse(uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit hc: HeaderCarrier): Future[Response] = {
+  protected def httpPostResponse[A](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Response] = {
     val wsResource = httpResource(uri)
-    wsResource.withHeaders(headers.toSeq: _*).post(body)
+    wsResource.withHeaders(headers.toSeq: _*).post(transform(body))
   }
 
   protected def httpDeleteAndForget(uri: String)(implicit hc: HeaderCarrier) {
@@ -92,6 +93,8 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
         }
     }
   }
+
+  private def transform[A](body : A) : JsValue = Json.parse(toRequestBody(body))
 }
 
 trait HasResponse {

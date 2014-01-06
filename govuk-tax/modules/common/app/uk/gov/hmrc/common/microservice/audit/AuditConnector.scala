@@ -1,8 +1,6 @@
 package uk.gov.hmrc.common.microservice.audit
 
 import uk.gov.hmrc.microservice.{ MicroServiceConfig, Connector }
-import play.api.libs.json.Json
-import controllers.common.domain.Transform._
 import play.api.Play
 import play.api.Play.current
 import org.joda.time.{DateTimeZone, DateTime}
@@ -16,9 +14,7 @@ case class AuditEvent(auditSource: String = "frontend",
 
 class AuditConnector(override val serviceUrl: String = MicroServiceConfig.auditServiceUrl) extends Connector {
 
-  lazy val enabled = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.enabled").getOrElse(false)
+  lazy val enabled : Boolean = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.enabled").getOrElse(false)
 
-  def audit(auditEvent: AuditEvent)(implicit hc: HeaderCarrier) {
-    if (enabled) httpPostF("/write/audit", Json.parse(toRequestBody(auditEvent)))
-  }
+  def audit(auditEvent: AuditEvent)(implicit hc: HeaderCarrier) : Unit = if (enabled) httpPostF("/write/audit", auditEvent)
 }

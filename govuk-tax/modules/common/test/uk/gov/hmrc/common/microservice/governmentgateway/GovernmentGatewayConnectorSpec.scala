@@ -12,13 +12,14 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent.{Await, Future}
 import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.duration._
+import uk.gov.hmrc.microservice.Connector
 
 class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier:HeaderCarrier): Future[Option[A]] = {
-    httpWrapper.postF[A](uri, body, headers)
+  override protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
+    httpWrapper.postF[A, B](uri, body, headers)
   }
 
   override protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
@@ -27,11 +28,12 @@ class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with Moc
 
   class HttpWrapper {
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
-    def postF[A](uri: String, body: JsValue, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A]): Future[Option[A]] = Future.successful(None)
+    def postF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = Future.successful(None)
   }
 
 }
 
+//FIXME: what is this actually testing ? This whole spec is just testing framework code
 class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   lazy val service = new TestGovernmentGatewayConnector
@@ -41,9 +43,8 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
     "return a government gateway response when credentials are correct" in new WithApplication(FakeApplication()){
 
       val credentials = Credentials("user", "pw")
-      val credentialsJson = JsObject(Seq("userId" -> JsString(credentials.userId), "password" -> JsString(credentials.password)))
       val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", GatewayToken("12343534545454", DateTimeUtils.now, DateTimeUtils.now))
-      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/login", credentialsJson, Map.empty)).thenReturn(Future.successful(Some(expectedResponse)))
+      when(service.httpWrapper.postF[Credentials, GovernmentGatewayResponse]("/login", credentials, Map.empty)).thenReturn(Future.successful(Some(expectedResponse)))
 
       service.login(credentials).futureValue shouldBe expectedResponse
     }
@@ -51,8 +52,7 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
     "throw an exception when no government gateway details are retrieved from Government Gateway"  in new WithApplication(FakeApplication()){
 
       val credentials = Credentials("user", "incorrectPw")
-      val credentialsJson = JsObject(Seq("userId" -> JsString(credentials.userId), "password" -> JsString(credentials.password)))
-      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/login", credentialsJson, Map.empty)).thenReturn(Future.successful(None))
+      when(service.httpWrapper.postF[Credentials, GovernmentGatewayResponse]("/login", credentials, Map.empty)).thenReturn(Future.successful(None))
 
       service.login(credentials).failed.futureValue shouldBe an [IllegalStateException]
     }
@@ -64,9 +64,8 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
     "return a government gateway response when the sso login request is correct" in new WithApplication(FakeApplication()){
       
       val ssoLoginRequest = SsoLoginRequest("3jeih3g3gg3ljkdlh3", 3837636)
-      val ssoLoginRequestJson = JsObject(Seq("token" -> JsString(ssoLoginRequest.token), "timestamp" -> JsNumber(ssoLoginRequest.timestamp)))
       val expectedResponse = GovernmentGatewayResponse("/auth/oid/123456", "Tim Cook", "Individual", GatewayToken("12343534545454", DateTimeUtils.now, DateTimeUtils.now))
-      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/sso-login", ssoLoginRequestJson, Map.empty)).thenReturn(Future.successful(Some(expectedResponse)))
+      when(service.httpWrapper.postF[SsoLoginRequest, GovernmentGatewayResponse]("/sso-login", ssoLoginRequest, Map.empty)).thenReturn(Future.successful(Some(expectedResponse)))
 
       service.ssoLogin(ssoLoginRequest).futureValue shouldBe expectedResponse
     }
@@ -74,8 +73,7 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
     "throw an exception when no government gateway details are retrieved from Government Gateway" in new WithApplication(FakeApplication()){
 
       val ssoLoginRequest = SsoLoginRequest("3jeih3g3gg3ljkdlh3", 3837636)
-      val ssoLoginRequestJson = JsObject(Seq("token" -> JsString(ssoLoginRequest.token), "timestamp" -> JsNumber(ssoLoginRequest.timestamp)))
-      when(service.httpWrapper.postF[GovernmentGatewayResponse]("/sso-login", ssoLoginRequestJson, Map.empty)).thenReturn(Future.successful(None))
+      when(service.httpWrapper.postF[SsoLoginRequest, GovernmentGatewayResponse]("/sso-login", ssoLoginRequest, Map.empty)).thenReturn(Future.successful(None))
 
       service.ssoLogin(ssoLoginRequest).failed.futureValue shouldBe an [IllegalStateException]
     }

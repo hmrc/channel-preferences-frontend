@@ -22,7 +22,7 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
     httpWrapper.getF(uri)
   }
 
-  override protected def httpPostF[A](uri: String, body: JsValue, headers: Map[String, String])(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+  override protected def httpPostF[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[Option[B]] = {
     httpWrapper.postF(uri, body, headers)
   }
 
@@ -30,7 +30,7 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
     def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
 
-    def postF[T](uri: String, body: JsValue, headers: Map[String, String]): Future[Option[T]] = Future.successful(None)
+    def postF[A, B](uri: String, body: A, headers: Map[String, String]): Future[Option[B]] = Future.successful(None)
 
   }
 
@@ -51,25 +51,26 @@ class PreferencesConnectorSpec extends BaseSpec with ScalaFutures {
 
       preferenceMicroService.savePreferences(utr, digital = true, Some(email))
 
-      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceMicroService.httpWrapper).postF(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      val bodyCaptor: ArgumentCaptor[UpdateEmail] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[UpdateEmail]])
+      verify(preferenceMicroService.httpWrapper).postF[UpdateEmail, FormattedUri](Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
-      val body = bodyCaptor.getValue
-      (body \ "digital").as[JsBoolean].value shouldBe true
-      (body \ "email").as[String] shouldBe email
+      val body : UpdateEmail = bodyCaptor.getValue
+      body shouldBe UpdateEmail(true, Some(email))
     }
 
     "save preferences for a user that wants paper notifications" in new WithApplication(FakeApplication()) {
 
       preferenceMicroService.savePreferences(utr, digital = false)
 
-      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
+      val bodyCaptor: ArgumentCaptor[UpdateEmail] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[UpdateEmail]])
       verify(preferenceMicroService.httpWrapper).postF(Matchers.eq(preferencesUri), bodyCaptor.capture(), Matchers.any[Map[String, String]])
 
-      val body = bodyCaptor.getValue
-      (body \ "digital").as[JsBoolean].value shouldBe false
-      (body \ "email").asOpt[String] shouldBe None
+//      val body = bodyCaptor.getValue
+//      (body \ "digital").as[JsBoolean].value shouldBe false
+//      (body \ "email").asOpt[String] shouldBe None
 
+      val body : UpdateEmail = bodyCaptor.getValue
+      body shouldBe UpdateEmail(false, None)
     }
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {

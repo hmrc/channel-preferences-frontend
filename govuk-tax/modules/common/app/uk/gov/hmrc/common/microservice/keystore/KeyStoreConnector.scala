@@ -19,7 +19,7 @@ class KeyStoreConnector(override val serviceUrl: String = MicroServiceConfig.key
   def addKeyStoreEntry[T](actionId: String, source: String, formId: String, data: T, ignoreSession: Boolean = false)(implicit manifest: Manifest[T], headerCarrier: HeaderCarrier) = {
     val keyStoreId = generateKeyStoreId(actionId, ignoreSession)
     val uri = buildUri(keyStoreId, source) + s"/data/$formId"
-    httpPutF[KeyStore[T]](uri, Json.parse(toRequestBody(data)))
+    httpPutF[T, KeyStore[T]](uri, data)
   }
 
   def getEntry[T](actionId: String, source: String, formId: String, ignoreSession: Boolean = false)

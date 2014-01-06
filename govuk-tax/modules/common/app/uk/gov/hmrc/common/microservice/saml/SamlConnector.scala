@@ -15,9 +15,9 @@ class SamlConnector extends Connector with HeaderNames {
     .map(_.getOrElse(throw new IllegalStateException("Expected SAML auth response but none returned")))
 
   def validate(authResponse: String)(implicit hc: HeaderCarrier) = {
-    httpPostF[AuthResponseValidationResult](
+    httpPostF[Map[String, String], AuthResponseValidationResult](
       "/saml/validate",
-      Json.toJson(Map("samlResponse" -> authResponse)),
+      Map("samlResponse" -> authResponse),
       Map.empty)
       .map(_.getOrElse(throw new IllegalStateException("Expected SAML validation response but none returned")))
   }
