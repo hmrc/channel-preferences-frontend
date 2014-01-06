@@ -10,7 +10,7 @@ import scala.concurrent._
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsNull, JsValue}
 
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
@@ -94,7 +94,7 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
     }
   }
 
-  private def transform[A](body : A) : JsValue = Json.parse(toRequestBody(body))
+  private def transform[A](body : A) : JsValue = if(body == null) JsNull else Json.parse(toRequestBody(body))
 }
 
 trait HasResponse {
