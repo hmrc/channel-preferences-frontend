@@ -16,7 +16,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
@@ -55,18 +54,6 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryptio
       assertRedirected(result, "/some/page")
     }
 
-    "redirect to the PAYE homepage if the user is in PAYE and Agent and has no redirect in the session" in new WithSetup {
-      val user = makeUser(payeAndAgentAuthority("userId","AB123456C", "1234"))
-      val result = controller.redirectToHomepage(user, sessionFor(user, Some("/some/page")))
-      assertRedirected(result, "/some/page")
-    }
-
-    "redirect to the page in the session if the user is in PAYE and Agent and has a redirect in the session" in new WithSetup {
-      val user = makeUser(payeAndAgentAuthority("userId","AB123456C", "1234"))
-      val result = controller.redirectToHomepage(user, sessionFor(user, Some("/some/page")))
-      assertRedirected(result, "/some/page")
-    }
-
     "redirect to the business tax homepage if the user is in SA (only)" in new WithSetup {
 
       val user = makeUser(saAuthority("userId", "1234543210"))
@@ -90,12 +77,6 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryptio
       val user = makeUser(epayeAuthority("userId", "some/epaye"))
       val result = controller.redirectToHomepage(user, sessionFor(user))
       assertRedirected(result, FrontEndRedirect.businessTaxHome)
-    }
-
-    "redirect to the agent homepage if the user is an Agent (only)" in new WithSetup {
-      val user = makeUser(agentAuthority("userId", "12365"))
-      val result = controller.redirectToHomepage(user, sessionFor(user))
-      assertRedirected(result, FrontEndRedirect.agentHome)
     }
 
     "redirect to the business tax homepage if the user has a combination of business tax enrolments" in new WithSetup {
@@ -124,8 +105,7 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryptio
         sa = authority.accounts.sa.map(_ => mock[SaRoot]),
         ct = authority.accounts.ct.map(_ => mock[CtRoot]),
         vat = authority.accounts.vat.map(_ => mock[VatRoot]),
-        epaye = authority.accounts.epaye.map(_ => mock[EpayeRoot]),
-        agent = authority.accounts.agent.map(_ => mock[AgentRoot])
+        epaye = authority.accounts.epaye.map(_ => mock[EpayeRoot])
       ),
       nameFromGovernmentGateway = nameFromGovernmentGateway,
       decryptedToken = governmentGatewayToken

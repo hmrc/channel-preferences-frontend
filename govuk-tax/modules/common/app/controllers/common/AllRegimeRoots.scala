@@ -9,14 +9,13 @@ import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 trait AllRegimeRoots extends RegimeRootBase {
   def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
-    val roots = (payeRoot(authority),saRoot(authority),vatRoot(authority),epayeRoot(authority),ctRoot(authority),agentRoot(authority))
+    val roots = (payeRoot(authority),saRoot(authority),vatRoot(authority),epayeRoot(authority),ctRoot(authority))
     for {
       paye <- roots._1
       sa <- roots._2
       vat <- roots._3
       epaye <- roots._4
       ct <- roots._5
-      agent <- roots._6
-    } yield RegimeRoots(paye = paye, sa = sa, vat = vat, epaye = epaye, ct = ct, agent = agent)
+    } yield RegimeRoots(paye = paye, sa = sa, vat = vat, epaye = epaye, ct = ct)
   }
 }

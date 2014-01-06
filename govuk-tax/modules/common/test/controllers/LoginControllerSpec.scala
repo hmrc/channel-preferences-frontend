@@ -124,7 +124,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       }
     }
 
-    "redirect to the home page if the response is valid and not registering an agent" in new TestCase {
+    "redirect to the home page if the response is valid" in new TestCase {
       val result = loginController.idaLogin()(setupValidRequest())
 
       status(result) shouldBe 303
@@ -134,15 +134,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       decrypt(sess("userId")) shouldBe id
 
       verify(mockAuditConnector).audit(Matchers.any())(Matchers.any())
-    }
-
-    "redirect to the agent contact details if it s registering an agent" in new TestCase {
-      val result = loginController.idaLogin()(setupValidRequest.withSession("login_redirect" -> "/agent/home"))
-
-      status(result) shouldBe 303
-
-      session(result).get("login_redirect") shouldBe None
-      redirectLocation(result).get shouldBe "/agent/home"
     }
 
     "generate an audit event for successful login if the response is valid" in new TestCase with ScalaFutures{
