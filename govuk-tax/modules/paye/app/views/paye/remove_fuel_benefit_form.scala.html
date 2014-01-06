@@ -2,7 +2,7 @@
         employment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
         taxYear: Int,
         updateForm: Form[models.paye.RemoveFuelBenefitFormData],
-        currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+        currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
     @import views.formatting.Strings._
     @import config.RefData._
@@ -17,7 +17,7 @@
 
         <p>@Html(Messages("paye.remove_fuel_benefit.remove_benefit", s"""<span class="employer-name">${employment.employerName.getOrElse(Messages("your.employer"))}</span>""", sentence(iabdTypeFor(fuelBenefit.benefitCode))))</p>
 
-        @helper.form(action = RemoveBenefitController.requestRemoveFuelBenefit(taxYear, employment.sequenceNumber)) {
+        @helpers.form(action = RemoveBenefitController.requestRemoveFuelBenefit(taxYear, employment.sequenceNumber)) {
             @helpers.dateFields(updateForm,
                 "withdrawDate",
                 Html(Messages("paye.remove_fuel_benefit.date_withdrawn")),

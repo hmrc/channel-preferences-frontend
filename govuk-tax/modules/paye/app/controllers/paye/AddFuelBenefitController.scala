@@ -85,7 +85,7 @@ with PayeRegimeRoots {
               val (initialFuelValues) = values
               val form = fuelBenefitForm(CarBenefitValues(employerPayFuel = initialFuelValues.employerPayFuel)).fill(initialFuelValues)
 
-              Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user))
+              Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user,request))
           }
         }
         case None => {
@@ -110,7 +110,7 @@ with PayeRegimeRoots {
           val values = CarBenefitValues(providedFromVal = Some(startOfCurrentTaxYear), employerPayFuel = validationLesForm.get.employerPayFuel)
           fuelBenefitForm(values).bindFromRequest()(request).fold(
             errors =>
-              Future.successful(BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user))),
+              Future.successful(BadRequest(views.html.paye.add_fuel_benefit_form(errors, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user,request))),
             addFuelBenefitData => {
               implicit val hc = HeaderCarrier(request)
               val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
@@ -121,7 +121,7 @@ with PayeRegimeRoots {
                   val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get,
                     addFuelBenefitData.dateFuelWithdrawn)
 
-                  Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, taxYear, employmentSequenceNumber, user))
+                  Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, taxYear, employmentSequenceNumber, user)(request))
               }
             })
         }

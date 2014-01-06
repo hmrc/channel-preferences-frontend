@@ -3,11 +3,9 @@ package controllers.paye
 import uk.gov.hmrc.common.microservice.paye.domain._
 import play.api.mvc._
 import views.html.paye._
-import org.joda.time.LocalDate
 import models.paye._
 import controllers.common.{BaseController, SessionTimeoutWrapper}
 import controllers.paye.validation.RemoveBenefitValidator._
-import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.service.Connectors
@@ -16,18 +14,8 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
-import BenefitTypes._
 import scala.concurrent._
 import controllers.paye.validation.BenefitFlowHelper
-import scala.Some
-import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.domain.User
-import models.paye.BenefitUpdatedConfirmationData
-import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnFuelBenefit
-import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
-import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnCarBenefit
-import models.paye.CarFuelBenefitDates
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import controllers.paye.validation.BenefitFlowHelper._
 import scala.Some
 import play.api.mvc.SimpleResult
@@ -153,13 +141,13 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     } yield {
       updateRemoveFuelBenefitForm(fuelBenefit.startDate, now(), taxYearInterval).bindFromRequest()(request).fold(
         errors => {
-          val result = BadRequest(remove_fuel_benefit_form(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, errors, currentTaxYearYearsRange)(user))
+          val result = BadRequest(remove_fuel_benefit_form(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, errors, currentTaxYearYearsRange)(user, request))
           Future.successful(result)
         },
         removeBenefitData => {
           implicit def hc = HeaderCarrier(request)
-          keyStoreService.storeBenefitFormData(removeBenefitData).map { _ =>
-            Ok(remove_fuel_benefit_review(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, removeBenefitData)(user))
+          keyStoreService.storeBenefitFormData(removeBenefitData).map {_ =>
+            Ok(remove_fuel_benefit_review(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, removeBenefitData)(user,request))
           }
         }
       )

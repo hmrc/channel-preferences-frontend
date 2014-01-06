@@ -1,15 +1,16 @@
 package config
 
-
-import play.api.Application
-import play.api.mvc._
 import com.kenshoo.play.metrics.MetricsFilter
-import com.codahale.metrics.graphite.{ GraphiteReporter, Graphite }
+import com.codahale.metrics.graphite.{GraphiteReporter, Graphite}
 import java.net.InetSocketAddress
-import com.codahale.metrics.{ MetricFilter, SharedMetricRegistries }
+import com.codahale.metrics.{MetricFilter, SharedMetricRegistries}
 import java.util.concurrent.TimeUnit
+import play.api._
+import play.api.mvc._
+import play.filters.csrf._
+import uk.gov.hmrc.common.filters.CSRFExceptionsFilter
 
-object Global extends WithFilters(MetricsFilter) {
+object Global extends WithFilters(MetricsFilter, CSRFExceptionsFilter, CSRFFilter()) {
 
   override def onStart(app: Application) {
     val env = app.mode
@@ -39,10 +40,8 @@ object Global extends WithFilters(MetricsFilter) {
     reporter.start(app.configuration.getLong(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(10L), TimeUnit.SECONDS)
   }
 
-
   // Play 2.0 doesn't support trailing slash: http://play.lighthouseapp.com/projects/82401/tickets/98
   override def onRouteRequest(request: RequestHeader) = super.onRouteRequest(request).orElse {
     Some(request.path).filter(_.endsWith("/")).flatMap(p => super.onRouteRequest(request.copy(path = p.dropRight(1))))
   }
-
 }

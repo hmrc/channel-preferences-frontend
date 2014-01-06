@@ -1,4 +1,4 @@
-@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @main(title = "My Preferences - opt to receive paper notifications", user = Some(user)) {
 
@@ -14,7 +14,7 @@
     Please confirm below that you would like to opt out this email notification and instead, receive paper notifications.
 </p>
 
-@helper.form(action = controllers.bt.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
+@helpers.form(action = controllers.bt.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
 <div class="form-field">
     <button id="confirm-opt-out" class="button" type="submit">Opt me out of digital</button>
 </div>

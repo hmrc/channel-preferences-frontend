@@ -1,4 +1,4 @@
-@(fuelBenefitForm: Form[controllers.paye.FuelBenefitData],  taxYear: Int, employmentSequenceNumber: Int, employerName: Option[String], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(fuelBenefitForm: Form[controllers.paye.FuelBenefitData],  taxYear: Int, employmentSequenceNumber: Int, employerName: Option[String], currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import views.formatting.Strings._
 @import views.helpers._
@@ -14,7 +14,7 @@
 
     <p>@Messages("paye.add_fuel_benefit.info", employerNameString)</p>
 
-    @helper.form(action = controllers.paye.routes.AddFuelBenefitController.reviewAddFuelBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit") {
+    @helpers.form(action = controllers.paye.routes.AddFuelBenefitController.reviewAddFuelBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit") {
     <ol class="list--numbered">
         <li>
             @helpers.fieldGroup(

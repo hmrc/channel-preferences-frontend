@@ -1,4 +1,4 @@
-@(currentEmail : String, emailForm: Form[controllers.bt.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(currentEmail : String, emailForm: Form[controllers.bt.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
 @import views.helpers.CustomHelpers._
 @import helper._
@@ -12,7 +12,7 @@
 
    <p>Your current email address is <span id="current-email-address">@{currentEmail}</span></p>
 
-    @helper.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
+    @helpers.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
 
         <p>Email address</p>
         @helpers.input(

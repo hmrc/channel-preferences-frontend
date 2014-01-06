@@ -1,4 +1,4 @@
-@(emailForm: Form[controllers.bt.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(emailForm: Form[controllers.bt.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import views.helpers.CustomHelpers._
 @import helper._
@@ -22,7 +22,7 @@
 
     <p>Enter your email address to sign up for email reminders.</p>
 
-    @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
+    @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
 
 	@helpers.input(
 	    emailForm("email.main"),
@@ -46,7 +46,7 @@
 
     }
 
-    @helper.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm) {
+    @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm) {
 	<div class="form-field">
         <input id="keep-paper-link" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" />
     </div>

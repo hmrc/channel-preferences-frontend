@@ -1,4 +1,5 @@
-@(url:String,data:String)
+@(url:String, data:String)(implicit request: Request[_])
+@import helper._
 <html>
     <head>
         <title>Saml Processing...</title>
@@ -17,9 +18,9 @@
         </script>
     </head>
     <body onload="init()" style="background-color: #F2F2F2;">
-        <form action="@url" method="POST">
-            <input type="hidden" name="SAMLRequest" value="@data"/>
+    @helpers.form(action = Call("POST", url)) {
+        <input type="hidden" name="SAMLRequest" value="@data"/>
         <input type="submit" value="Click here to continue"/>
-        </form>
+    }
     </body>
 </html>

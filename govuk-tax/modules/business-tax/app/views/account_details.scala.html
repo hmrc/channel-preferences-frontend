@@ -1,4 +1,4 @@
-@(saPreferences : Option[uk.gov.hmrc.common.microservice.preferences.SaPreference])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(saPreferences : Option[uk.gov.hmrc.common.microservice.preferences.SaPreference])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 @import uk.gov.hmrc.common.microservice.preferences.SaEmailPreference
 
 @main(title = "Your Self Asssesment reminders", nav = true, user= Some(user)) {
@@ -12,7 +12,7 @@
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.pending) {
            <p id="pending-status-message">You are currently opted-in to Digital SA, but you have yet to validate the email address you have entered during opting in. Use the links below to resend the validation email to an new address.</p>
 
-           @helper.form(action = controllers.bt.routes.AccountDetailsController.resendValidationEmail) {
+           @helpers.form(action = controllers.bt.routes.AccountDetailsController.resendValidationEmail) {
 
            <div class="form-field">
                <p>

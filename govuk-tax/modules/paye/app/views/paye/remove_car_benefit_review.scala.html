@@ -1,6 +1,6 @@
 @(activeCarBenefit: uk.gov.hmrc.common.microservice.paye.domain.CarBenefit,
         employment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
-        formData: models.paye.RemoveCarBenefitFormData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+        formData: models.paye.RemoveCarBenefitFormData)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
     @import views.formatting.Strings._
     @import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
@@ -42,7 +42,7 @@
             s"${ShowRemoveBenefitFormController.showRemoveCarBenefitForm(activeCarBenefit.taxYear, employment.sequenceNumber)}",
             Messages("paye.benefit_review.wrong_information"))
 
-        @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmCarBenefitRemoval(activeCarBenefit.taxYear, employment.sequenceNumber)) {
+        @helpers.form(action = controllers.paye.routes.RemoveBenefitController.confirmCarBenefitRemoval(activeCarBenefit.taxYear, employment.sequenceNumber)) {
             <div class="form-field">
                 <input class="button button--confirm" type="submit" value="@Messages("paye.remove_car_benefit_review.submit_button")"/>
             </div>

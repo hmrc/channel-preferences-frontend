@@ -1,4 +1,4 @@
-@(changeAddressForm: Form[controllers.sa.ChangeAddressForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(changeAddressForm: Form[controllers.sa.ChangeAddressForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
 @import helper._
 @import views.html.helpers._
@@ -7,7 +7,7 @@
 
     <h1>Change your address with HMRC</h1>
 
-    @helper.form(action = controllers.sa.routes.SaController.submitChangeAddress) {
+    @helpers.form(action = controllers.sa.routes.SaController.submitChangeAddress) {
 
 	@helpers.input(
         changeAddressForm("addressLine1"),

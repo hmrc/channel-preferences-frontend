@@ -1,4 +1,4 @@
-@(carBenefitForm: Form[models.paye.CarBenefitData], employerName: Option[String], taxYear: Int, employmentSequenceNumber: Int, currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(carBenefitForm: Form[models.paye.CarBenefitData], employerName: Option[String], taxYear: Int, employmentSequenceNumber: Int, currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import views.formatting.Strings._
 @import controllers.paye.CarBenefitFormFields._
@@ -14,7 +14,7 @@
 
         <h2>@Messages("paye.add_car_benefit.new_company_car_heading")</h2>
 
-        @helper.form(action = controllers.paye.routes.AddCarBenefitController.reviewAddCarBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-car-benefit") {
+        @helpers.form(action = controllers.paye.routes.AddCarBenefitController.reviewAddCarBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-car-benefit") {
 
             <fieldset>
                 <h2>@Messages("paye.add_car_benefit.dates_heading")</h2>

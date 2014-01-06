@@ -4,7 +4,7 @@
             "password" -> Forms.of[String](play.api.data.format.Formats.stringFormat)
         )(uk.gov.hmrc.common.microservice.governmentgateway.Credentials.apply)(uk.gov.hmrc.common.microservice.governmentgateway.Credentials.unapply)
     )
-)
+)(implicit request: Request[_])
 
 @import play.api.data.format.Formats._
 
@@ -15,37 +15,36 @@
     <p>Sign in with your Government Gateway account.</p>
     <p>If you do not have a Government Gateway account, you can <a href="https://online.hmrc.gov.uk/registration/options">register for one</a>.</p>
 
-    <form action="@common.routes.LoginController.governmentGatewayLogin" method="POST">
-	<fieldset>
-        <div class="form-field-group @if(formWithErrors.hasErrors) {error}">
-            @formWithErrors.errors("userId").map{ error =>
-                <span class="error-notification username">Invalid Username: @Messages(error.message)</span>
-            }
-            @formWithErrors.errors("password").map{ error =>
-                <span class="error-notification password">Invalid Password: @Messages(error.message)</span>
-            }
-            @formWithErrors.globalErrors.map{ error =>
-                <span class="error-notification password">@Messages(error.message)</span>
-            }
-            <div class="form-field">
-            <label class="label--inline" for="userId">Username</label>
-            <input type="text" id="userId" name="userId" required />
+    @helpers.form(action = controllers.common.routes.LoginController.governmentGatewayLogin) {
+        <fieldset>
+            <div class="form-field-group @if(formWithErrors.hasErrors) {error}">
+                @formWithErrors.errors("userId").map{ error =>
+                    <span class="error-notification username">Invalid Username: @Messages(error.message)</span>
+                }
+                @formWithErrors.errors("password").map{ error =>
+                    <span class="error-notification password">Invalid Password: @Messages(error.message)</span>
+                }
+                @formWithErrors.globalErrors.map{ error =>
+                    <span class="error-notification password">@Messages(error.message)</span>
+                }
+                <div class="form-field">
+                <label class="label--inline" for="userId">Username</label>
+                <input type="text" id="userId" name="userId" required />
+                </div>
+
+
+
+                <div class="form-field">
+                <label class="label--inline" for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+                </div>
+
+
+
+                <div class="form-field">
+                <button class="button" type="submit">Sign in</button>
+                </div>
             </div>
-
-
-
-            <div class="form-field">
-            <label class="label--inline" for="password">Password</label>
-            <input type="password" id="password" name="password" required />
-            </div>
-
-
-
-            <div class="form-field">
-            <button class="button" type="submit">Sign in</button>
-            </div>
-        </div>
-	</fieldset>
-    </form>
-
+        </fieldset>
+    }
 }

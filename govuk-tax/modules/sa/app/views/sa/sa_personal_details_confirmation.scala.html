@@ -1,4 +1,4 @@
-@(changeAddressForm: Form[controllers.sa.ChangeAddressForm], changeAddressFormData: controllers.sa.ChangeAddressForm)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(changeAddressForm: Form[controllers.sa.ChangeAddressForm], changeAddressFormData: controllers.sa.ChangeAddressForm)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
 @main(title = "Update My Details - Confirmation", nav = true, user = Some(user)) {
 
@@ -19,7 +19,7 @@
 
     <p>This is your main address and communication address for Self Assessment (SA).</p>
 
-    @helper.form(action = controllers.sa.routes.SaController.redisplayChangeAddress) {
+    @helpers.form(action = controllers.sa.routes.SaController.redisplayChangeAddress) {
 
 	@defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
 	    <input type="hidden" name="@additionalDeliveryInformation.name" value="@changeAddressFormData.additionalDeliveryInformation" />
@@ -50,7 +50,7 @@
 	</div>
     }
 
-    @helper.form(action = controllers.sa.routes.SaController.confirmChangeAddress) {
+    @helpers.form(action = controllers.sa.routes.SaController.confirmChangeAddress) {
 
 	@defining(changeAddressForm("additionalDeliveryInformation")) { additionalDeliveryInformation =>
 	    <input type="hidden" name="@additionalDeliveryInformation.name" id="@additionalDeliveryInformation.id" value="@changeAddressFormData.additionalDeliveryInformation" />

@@ -10,6 +10,7 @@ object GovUkTaxBuild extends Build {
   val appName = "govuk-tax"
 
   val appDependencies = Seq(
+    filters,
     Dependencies.Compile.nscalaTime,
     Dependencies.Compile.json4sExt,
     Dependencies.Compile.json4sJackson,

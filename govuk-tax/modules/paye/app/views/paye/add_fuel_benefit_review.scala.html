@@ -1,4 +1,4 @@
-@(data: uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData, currentUri:String, taxYear: Int, employmentSequenceNumber: Int, user: uk.gov.hmrc.common.microservice.domain.User)
+@(data: uk.gov.hmrc.common.microservice.paye.domain.AddFuelBenefitConfirmationData, currentUri:String, taxYear: Int, employmentSequenceNumber: Int, user: uk.gov.hmrc.common.microservice.domain.User)(implicit request: Request[_])
 
 @import views.formatting.Strings._
 @import views.formatting.Money._
@@ -26,7 +26,7 @@
     }
 
     @helpers.link("edit-data", currentUri, Messages("paye.benefit_review.wrong_information"))
-    @helper.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
+    @helpers.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
         <div class="form-field">
             <input type="submit" class="button" value="@Messages("paye.add_fuel_benefit_review.submit_button")">
         </div>

@@ -1,7 +1,7 @@
 @(fuelBenefit: uk.gov.hmrc.common.microservice.paye.domain.FuelBenefit,
         employment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
         taxYear: Int,
-        formData: models.paye.RemoveFuelBenefitFormData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+        formData: models.paye.RemoveFuelBenefitFormData)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
     @import controllers.paye.routes._
     @import views.formatting.Dates._
@@ -25,7 +25,7 @@
             s"${ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(taxYear, employment.sequenceNumber)}",
             Messages("paye.benefit_review.wrong_information"))
 
-        @helper.form(action = controllers.paye.routes.RemoveBenefitController.confirmFuelBenefitRemoval(taxYear, employment.sequenceNumber)) {
+        @helpers.form(action = controllers.paye.routes.RemoveBenefitController.confirmFuelBenefitRemoval(taxYear, employment.sequenceNumber)) {
             <div class="form-field">
                 <input class="button button--confirm" type="submit" value="@Messages("paye.remove_fuel_benefit_review.submit_button")"/>
             </div>

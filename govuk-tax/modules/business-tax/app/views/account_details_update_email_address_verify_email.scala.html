@@ -1,4 +1,4 @@
-@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @main(title = "My Preferences - Please verify email address", user = Some(user)) {
 
@@ -10,7 +10,7 @@
 
     <p>Please confirm below that you are happy to continue.</p>
 
-    @helper.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
+    @helpers.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
         <div class="form-field">
             <button id="emailIsCorrectLink" class="button" type="submit">My email is correct</button>
         </div>
