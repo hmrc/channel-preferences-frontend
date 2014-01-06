@@ -153,7 +153,7 @@ with PayeRegimeRoots {
             user.oid
           }"))
 
-          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, updatedCarBenefit.toBenefits.find(_.benefitType == BenefitTypes.FUEL).toSeq)
+          val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, payeRoot.version, employmentSequenceNumber, updatedCarBenefit.toBenefits)
 
           keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 

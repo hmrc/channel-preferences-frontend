@@ -370,8 +370,13 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
     "submit the corresponding keystore data to the paye service and then show the success page when successful" in new TestCaseIn2012 {
       // given
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
-        Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), Some(0), None)), actions("AB123456C", testTaxYear, 1), Map.empty)
+        Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), Some(0), None)),
+        actions("AB123456C", testTaxYear, 1), Map.empty, Some(0), None)
+
+
       setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitStartedThisYear)), taxCodes = Seq(TaxCode(employmentSeqNumberOne, Some(1), testTaxYear, "oldTaxCode", List.empty)))
+
+
       val fuelBenefitData = FuelBenefitData(Some("true"), None)
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(Some((fuelBenefitData)))
       val benefitsCapture = ArgumentCaptor.forClass(classOf[Seq[Benefit]])
@@ -384,9 +389,11 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
         // then
         val benefitsSentToPaye = benefitsCaptor.getValue
-        benefitsSentToPaye should have length 1
+        benefitsSentToPaye should have length 2
         val expectedFuelBenefit = Some(Benefit(29, 2012, 0, 1, None, None, None, None, None, None, None, carBenefitStartedThisYear.car, Map(), Map(), Some(0), None))
-        Some(benefitsSentToPaye.head) shouldBe expectedFuelBenefit
+
+        benefitsSentToPaye.find(_.benefitType == BenefitTypes.FUEL) shouldBe expectedFuelBenefit
+        benefitsSentToPaye.find(_.benefitType == BenefitTypes.CAR) shouldBe Some(carBenefitStartedThisYear)
 
         status(result) shouldBe 200
         val doc = Jsoup.parse(contentAsString(result))
