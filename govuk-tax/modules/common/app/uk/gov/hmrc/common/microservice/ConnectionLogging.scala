@@ -1,4 +1,4 @@
-package uk.gov.hmrc.microservice
+package uk.gov.hmrc.common.microservice
 
 import scala.util.{Failure, Success, Try}
 import play.api.Logger

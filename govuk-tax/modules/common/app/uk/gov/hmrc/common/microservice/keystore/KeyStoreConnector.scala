@@ -1,8 +1,6 @@
 package uk.gov.hmrc.common.microservice.keystore
 
-import uk.gov.hmrc.microservice.{MicroServiceConfig, Connector}
-import play.api.libs.json.Json
-import controllers.common.domain.Transform._
+import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import org.joda.time.DateTime
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._

@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.{MockGet, BaseSpec}
 import play.api.test.WithApplication
 import org.mockito.Mockito._
 import play.api.test.FakeApplication
-import uk.gov.hmrc.microservice.MicroServiceException
+import uk.gov.hmrc.common.microservice.MicroServiceException
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.epaye.domain.{NonRTI, EpayeAccountSummary, EpayeJsonRoot, EpayeLinks}
 import scala.concurrent.Future

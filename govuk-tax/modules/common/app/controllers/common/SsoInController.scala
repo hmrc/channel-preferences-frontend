@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
 import play.api.mvc.{Request, Session}
-import uk.gov.hmrc.microservice.UnauthorizedException
+import uk.gov.hmrc.common.microservice.UnauthorizedException
 
 class SsoInController(ssoWhiteListService: SsoWhiteListService,
                       governmentGatewayConnector: GovernmentGatewayConnector,

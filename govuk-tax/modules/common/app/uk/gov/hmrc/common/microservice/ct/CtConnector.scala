@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.ct
 
-import uk.gov.hmrc.microservice.{Connector, MicroServiceConfig}
+import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountSummary, CtJsonRoot}
 import uk.gov.hmrc.domain.CalendarEvent
 import scala.concurrent._

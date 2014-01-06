@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.email
 
 import domain.ValidateEmailResponse
-import uk.gov.hmrc.microservice.{MicroServiceConfig, Connector}
+import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import java.net.URLEncoder
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future

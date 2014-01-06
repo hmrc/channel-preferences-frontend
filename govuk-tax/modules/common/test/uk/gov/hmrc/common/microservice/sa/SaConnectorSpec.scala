@@ -14,7 +14,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaJsonRoot
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
 import scala.Some
-import uk.gov.hmrc.microservice.MicroServiceException
+import uk.gov.hmrc.common.microservice.MicroServiceException
 import controllers.common.actions.HeaderCarrier
 import org.scalatest.concurrent.ScalaFutures
 

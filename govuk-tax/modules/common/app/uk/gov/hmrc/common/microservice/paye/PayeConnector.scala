@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.paye
 
 import uk.gov.hmrc.common.microservice.paye.domain._
-import uk.gov.hmrc.microservice.{TaxRegimeConnector, MicroServiceConfig}
+import uk.gov.hmrc.common.microservice.{TaxRegimeConnector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import controllers.common.actions.HeaderCarrier

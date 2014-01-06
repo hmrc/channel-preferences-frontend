@@ -9,7 +9,7 @@ import java.net.{URI, URLEncoder}
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 import play.api.test.Helpers._
-import uk.gov.hmrc.microservice.UnauthorizedException
+import uk.gov.hmrc.common.microservice.UnauthorizedException
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import play.api.mvc.SimpleResult

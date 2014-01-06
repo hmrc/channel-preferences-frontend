@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.audit
 
-import uk.gov.hmrc.microservice.{ MicroServiceConfig, Connector }
+import uk.gov.hmrc.common.microservice.{ MicroServiceConfig, Connector }
 import play.api.Play
 import play.api.Play.current
 import org.joda.time.{DateTimeZone, DateTime}

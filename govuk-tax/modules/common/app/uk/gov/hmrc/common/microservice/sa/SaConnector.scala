@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.sa
 
-import uk.gov.hmrc.microservice.{TaxRegimeConnector, Connector, MicroServiceConfig, MicroServiceException}
+import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig, MicroServiceException}
 import play.api.libs.json.Json
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.common.microservice.sa.domain.write.{TransactionId, SaAddressForUpdate}
@@ -8,7 +8,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.{SaAccountSummary, SaPerson, Sa
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import controllers.common.actions.HeaderCarrier
-import play.api.libs.ws.Response
 
 class SaConnector extends Connector {
 

@@ -1,4 +1,4 @@
-package uk.gov.hmrc.microservice
+package uk.gov.hmrc.common.microservice
 
 import play.api.libs.ws.{Response, WS}
 import play.api.http.Status

@@ -1,4 +1,4 @@
-package uk.gov.hmrc.microservice
+package uk.gov.hmrc.common.microservice
 
 import scala.concurrent.duration.Duration
 import play.api.libs.ws.{Response, WS}

@@ -1,9 +1,10 @@
-package uk.gov.hmrc.microservice
+package uk.gov.hmrc.common.microservice
 
 import uk.gov.hmrc.common.BaseSpec
 
 class ConnectionLoggingSpec extends BaseSpec {
   "formatting nanoseconds" should {
+
     import ConnectionLogging.formatNs
 
     "show 1 nanosecond as '1ns'" in {

@@ -1,7 +1,6 @@
 package uk.gov.hmrc.common.microservice.saml
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.microservice.{MicroServiceConfig, Connector}
+import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import uk.gov.hmrc.microservice.saml.domain.{AuthResponseValidationResult, AuthRequestFormData}
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier

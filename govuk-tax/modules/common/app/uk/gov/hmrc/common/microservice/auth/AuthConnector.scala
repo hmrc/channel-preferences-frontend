@@ -1,8 +1,7 @@
 package uk.gov.hmrc.common.microservice.auth
 
-import uk.gov.hmrc.microservice.{ Connector, MicroServiceConfig }
+import uk.gov.hmrc.common.microservice.{ Connector, MicroServiceConfig }
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
-import play.api.libs.json.JsNull
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 

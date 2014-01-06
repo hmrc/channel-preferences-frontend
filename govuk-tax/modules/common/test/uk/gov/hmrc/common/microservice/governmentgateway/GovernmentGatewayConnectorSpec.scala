@@ -12,7 +12,7 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent.{Await, Future}
 import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.duration._
-import uk.gov.hmrc.microservice.Connector
+import uk.gov.hmrc.common.microservice.Connector
 
 class TestGovernmentGatewayConnector extends GovernmentGatewayConnector with MockitoSugar {
 

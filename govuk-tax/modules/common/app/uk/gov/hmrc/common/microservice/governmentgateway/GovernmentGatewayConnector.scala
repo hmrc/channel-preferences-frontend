@@ -1,8 +1,6 @@
 package uk.gov.hmrc.common.microservice.governmentgateway
 
-import play.api.libs.json._
-import scala.collection.Seq
-import uk.gov.hmrc.microservice.{Connector, MicroServiceConfig}
+import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig}
 import org.joda.time.DateTime
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global

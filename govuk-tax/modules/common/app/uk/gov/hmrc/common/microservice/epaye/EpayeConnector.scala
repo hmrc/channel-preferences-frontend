@@ -1,6 +1,6 @@
 package uk.gov.hmrc.common.microservice.epaye
 
-import uk.gov.hmrc.microservice.{ Connector, MicroServiceConfig }
+import uk.gov.hmrc.common.microservice.{ Connector, MicroServiceConfig }
 import play.api.Logger
 import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeAccountSummary, EpayeLinks, EpayeJsonRoot}
 import controllers.common.actions.HeaderCarrier

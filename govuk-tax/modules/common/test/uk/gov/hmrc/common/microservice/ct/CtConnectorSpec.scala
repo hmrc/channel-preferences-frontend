@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.{MockGet, BaseSpec}
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeApplication, WithApplication}
 import org.mockito.Mockito._
-import uk.gov.hmrc.microservice.MicroServiceException
+import uk.gov.hmrc.common.microservice.MicroServiceException
 import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import org.joda.time.LocalDate

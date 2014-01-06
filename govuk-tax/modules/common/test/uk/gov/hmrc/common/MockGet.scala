@@ -2,7 +2,7 @@ package uk.gov.hmrc.common
 
 import scala.concurrent.Future
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.microservice.Connector
+import uk.gov.hmrc.common.microservice.Connector
 import controllers.common.actions.HeaderCarrier
 
 class HttpWrapper {

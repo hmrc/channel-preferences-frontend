@@ -1,11 +1,11 @@
 package controllers.common
 
-import play.api.mvc.{SimpleResult, Session, AnyContent, Action}
+import play.api.mvc.{Session, AnyContent, Action}
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, GovernmentGatewayResponse, Credentials}
-import uk.gov.hmrc.microservice.{ForbiddenException, UnauthorizedException}
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, Credentials}
+import uk.gov.hmrc.common.microservice.{ForbiddenException, UnauthorizedException}
 import controllers.common.service.{Connectors, FrontEndConfig}
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.saml.SamlConnector
