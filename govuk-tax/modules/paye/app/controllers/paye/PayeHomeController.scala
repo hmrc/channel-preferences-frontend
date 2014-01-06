@@ -12,6 +12,8 @@ class PayeHomeController(override val auditConnector: AuditConnector, override v
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)
 
+  def redirectToHome = UnauthorisedAction (request => Redirect(routes.PayeHomeController.home()))
+
   def home = UnauthorisedAction {
     request =>
       Ok(paye_home())

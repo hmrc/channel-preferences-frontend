@@ -1,5 +1,5 @@
-
-GET         /home                                                   @controllers.bt.BusinessTaxController.home
+GET         /                                                       @controllers.bt.BusinessTaxController.home
+GET         /home                                                   @controllers.bt.BusinessTaxController.redirectToHome
 GET         /vat/make-a-payment                                     @controllers.bt.PaymentController.makeVatPayment
 GET         /ct/make-a-payment                                      @controllers.bt.PaymentController.makeCtPayment
 GET         /sa/make-a-payment                                      @controllers.bt.PaymentController.makeSaPayment
@@ -24,4 +24,3 @@ POST        /account-details/sa/opt-in-email-reminders              @controllers
 POST        /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
 GET         /account-details/sa/opt-in-email-reminders-thank-you    @controllers.bt.prefs.SaPrefsController.thankYou
 
-GET         /        @controllers.bt.BusinessTaxController.home
