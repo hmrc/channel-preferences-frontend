@@ -12,14 +12,6 @@ class GovernmentGatewayConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.governmentGatewayServiceUrl
 
-//  implicit object CredentialsWrites extends Writes[Credentials] {
-//    def writes(c: Credentials) = JsObject(Seq("userId" -> JsString(c.userId), "password" -> JsString(c.password)))
-//  }
-
-//  implicit object SsoLoginWrites extends Writes[SsoLoginRequest] {
-//    def writes(g: SsoLoginRequest) = JsObject(Seq("token" -> JsString(g.token), "timestamp" -> JsNumber(g.timestamp)))
-//  }
-
   def login(credentials: Credentials)(implicit hc: HeaderCarrier) = doLogin("/login", credentials)
 
   def ssoLogin(ssoLoginRequest: SsoLoginRequest)(implicit hc: HeaderCarrier) = doLogin("/sso-login", ssoLoginRequest)
@@ -52,5 +44,4 @@ case class ProfileResponse(affinityGroup: String, activeEnrolments: List[String]
 object AffinityGroupValue {
   val INDIVIDUAL = "Individual"
   val ORGANISATION = "Organisation"
-  val AGENT = "Agent"
 }

@@ -10,7 +10,6 @@ import com.codahale.metrics.{ MetricFilter, SharedMetricRegistries }
 import java.util.concurrent.TimeUnit
 
 object Global extends WithFilters(MetricsFilter) {
-//object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     val env = app.mode

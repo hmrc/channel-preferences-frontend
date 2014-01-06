@@ -10,7 +10,6 @@ import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.agent.AgentRoot
 
 trait RegimeRootBase {
   implicit val executionContext = ExecutionContext.Implicits.global
@@ -31,8 +30,6 @@ trait RegimeRootBase {
   def epayeRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[EpayeRoot]] = authority.accounts.epaye.map(epaye => epayeConnector.root(epaye.link).map(EpayeRoot(epaye.empRef, _)))
 
   def ctRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[CtRoot]] = authority.accounts.ct.map(ct => ctConnector.root(ct.link).map(CtRoot(ct.utr, _)))
-
-  def agentRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[AgentRoot]] = authority.accounts.agent.map(agent => agentConnectorRoot.root(agent.link))
 
   def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
 }

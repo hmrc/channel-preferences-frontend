@@ -7,7 +7,6 @@ object Connectors {
   import uk.gov.hmrc.common.microservice.paye.PayeConnector
   import uk.gov.hmrc.common.microservice.audit.AuditConnector
   import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
-  import uk.gov.hmrc.common.microservice.agent.AgentConnectorRoot
   import uk.gov.hmrc.common.microservice.vat.VatConnector
   import uk.gov.hmrc.common.microservice.saml.SamlConnector
   import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
@@ -25,7 +24,6 @@ object Connectors {
   implicit lazy val txQueueConnector = new TxQueueConnector()
   implicit lazy val auditConnector = new AuditConnector()
   implicit lazy val keyStoreConnector = new KeyStoreConnector()
-  implicit lazy val agentConnectorRoot = new AgentConnectorRoot()
   implicit lazy val vatConnector = new VatConnector()
   implicit lazy val ctConnector = new CtConnector()
   implicit lazy val epayeConnector = new EpayeConnector()

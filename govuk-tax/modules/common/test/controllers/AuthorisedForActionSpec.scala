@@ -13,7 +13,6 @@ import controllers.common._
 import org.scalatest.TestData
 import org.mockito.Matchers
 import java.util.UUID
-import uk.gov.hmrc.common.microservice.agent.{AgentConnectorRoot, AgentRegime}
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.utils.DateTimeUtils.now
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -23,7 +22,6 @@ import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
-import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 
@@ -33,12 +31,11 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
   val mockAuthConnector = mock[AuthConnector]
   val mockPayeConnector = mock[PayeConnector]
-  val mockAgentMicroService = mock[AgentConnectorRoot]
 
-  val testController = new TestController(mockPayeConnector, mockAgentMicroService, null)(mockAuthConnector)
+  val testController = new TestController(mockPayeConnector, null)(mockAuthConnector)
 
   override protected def beforeEach(testData: TestData) {
-    reset(mockAuthConnector, mockPayeConnector, mockAgentMicroService)
+    reset(mockAuthConnector, mockPayeConnector)
 
     //FIXME: mocking expectation should not be done in the before callback EVER!
     // It makes refactoring so much harder later on. Move this out and defined for each that requires it
@@ -110,38 +107,10 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
       contentAsString(result) should include("java.lang.RuntimeException")
     }
 
-    "return 200 in case the agent is successfully authorised" ignore new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/goeff")).thenReturn(Some(agentAuthority("goeff", "uar-for-goeff")))
-
-      val agent = AgentRoot("uar-for-goeff", Map.empty, Map.empty)
-      val request = FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
-        lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/goeff"))
-      when(mockAgentMicroService.root("/agent/uar-for-goeff")(HeaderCarrier(request))).thenReturn(agent)
-      val result = testController.testAgentAuthorisation(request)
-
-      status(result) should equal(200)
-      contentAsString(result) shouldBe "uar-for-goeff"
-    }
-
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
       when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(Some(saAuthority("john", "12345678")))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
-        lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/john"))
-      )
-
-      status(result) should equal(303)
-      redirectLocation(result).get shouldBe "/login"
-    }
-
-    "redirect to the Tax Regime landing page if the agent is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(Some(saAuthority("john", "12345678")))
-
-      val result = testController.testAgentAuthorisation(FakeRequest().withSession(
         "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/john"))
@@ -190,7 +159,6 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncr
 
 
 sealed class TestController(payeConnector: PayeConnector,
-                            agentConnectorRoot: AgentConnectorRoot,
                             override val auditConnector: AuditConnector)
                            (implicit override val authConnector: AuthConnector)
   extends Controller
@@ -202,8 +170,7 @@ sealed class TestController(payeConnector: PayeConnector,
   override def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
     for {
       paye <- payeRoot(authority)
-      agent <- agentRoot(authority)
-    } yield RegimeRoots(paye = paye, agent = agent)
+    } yield RegimeRoots(paye = paye)
   }
 
   def testPayeAuthorisation = AuthorisedFor(PayeRegime) {
@@ -212,13 +179,6 @@ sealed class TestController(payeConnector: PayeConnector,
         val userPayeRegimeRoot = user.regimes.paye.get
         val userName = userPayeRegimeRoot.name
         Ok(userName)
-  }
-
-  def testAgentAuthorisation = AuthorisedFor(AgentRegime) {
-    implicit user =>
-      implicit request =>
-        val userAgentRegimeRoot = user.regimes.agent.get
-        Ok(userAgentRegimeRoot.uar)
   }
 
   def testAuthorisationWithRedirectCommand = AuthenticatedBy(authenticationProvider = Ida, redirectToOrigin = true) {

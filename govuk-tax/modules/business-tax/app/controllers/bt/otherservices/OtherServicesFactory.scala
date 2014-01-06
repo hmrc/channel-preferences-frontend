@@ -17,7 +17,7 @@ object OtherServicesFactory {
     }
 
     user.regimes match {
-      case RegimeRoots(_, sa, Some(vat), Some(epaye), ct, _) if sa.isDefined || ct.isDefined => None
+      case RegimeRoots(_, sa, Some(vat), Some(epaye), ct) if sa.isDefined || ct.isDefined => None
       case regimes: RegimeRoots => {
         val allRegimes = List((regimes.sa, "SA"), (regimes.ct, "CT"), (regimes.epaye, "employers PAYE"), (regimes.vat, "VAT"))
         val inactiveRegimes = allRegimes.filter(!_._1.isDefined).map(_._2)

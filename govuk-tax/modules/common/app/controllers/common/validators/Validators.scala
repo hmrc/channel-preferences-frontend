@@ -89,8 +89,6 @@ trait Validators {
 
   def positiveInteger = number.verifying("error.positive.number", e => e >= 0)
 
-  val phoneNumberErrorKey = "error.agent.phone"
-
   def validateMandatoryPhoneNumber = {
     s: String => s.matches("\\+?\\d+")
   }

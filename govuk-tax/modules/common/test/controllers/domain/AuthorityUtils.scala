@@ -4,14 +4,11 @@ import uk.gov.hmrc.common.microservice.auth.domain._
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.common.microservice.auth.domain.VatAccount
 import uk.gov.hmrc.common.microservice.auth.domain.PayeAccount
-import uk.gov.hmrc.domain.Uar
 import uk.gov.hmrc.common.microservice.auth.domain.Credentials
-import uk.gov.hmrc.common.microservice.auth.domain.AgentAccount
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.auth.domain.CtAccount
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
-import scala.Some
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
 
@@ -19,12 +16,6 @@ object AuthorityUtils {
 
   def payeAuthority(id: String, nino: String): Authority =
     Authority(s"/auth/oid/$id", Credentials(), Accounts(paye = Some(PayeAccount(s"/paye/$nino", Nino(nino)))), None, None, CreationAndLastModifiedDetail())
-
-  def agentAuthority(id: String, uar: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(agent = Some(AgentAccount(s"/agent/$uar", Uar(uar)))), None, None, CreationAndLastModifiedDetail())
-
-  def payeAndAgentAuthority(id: String, nino: String, uar: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(paye = Some(PayeAccount(s"/paye/$nino", Nino(nino))), agent = Some(AgentAccount(s"/agent/$uar", Uar(uar)))), None, None, CreationAndLastModifiedDetail())
 
   def saAuthority(id: String, utr: String): Authority =
     Authority(s"/auth/oid/$id", Credentials(), Accounts(sa = Some(SaAccount(s"/sa/individual/$utr", SaUtr(utr)))), None, None, CreationAndLastModifiedDetail())

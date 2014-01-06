@@ -2,7 +2,6 @@ package uk.gov.hmrc.common.microservice.domain
 
 import uk.gov.hmrc.common.microservice.auth.domain.{Authority, Accounts}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.agent.AgentRoot
 import controllers.common.AuthenticationProvider
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
@@ -50,8 +49,7 @@ case class RegimeRoots(paye: Option[PayeRoot] = None,
                        sa: Option[SaRoot] = None,
                        vat: Option[VatRoot] = None,
                        epaye: Option[EpayeRoot] = None,
-                       ct: Option[CtRoot] = None,
-                       agent: Option[AgentRoot] = None) {
+                       ct: Option[CtRoot] = None) {
 
   lazy val hasBusinessTaxRegime = sa.isDefined || vat.isDefined || epaye.isDefined || ct.isDefined
 }

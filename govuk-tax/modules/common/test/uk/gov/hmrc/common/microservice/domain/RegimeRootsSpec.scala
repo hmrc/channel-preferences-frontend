@@ -23,7 +23,7 @@ class RegimeRootsSpec extends BaseSpec {
     "successfully match based on the unapply method" in {
       val regimeRoots = RegimeRoots(vat = Some(VatRoot(Vrn("someVrn"), Map("link1" -> "http://vatLink"))))
       regimeRoots match {
-        case RegimeRoots(paye, sa, vat, epaye, ct, agent) => {
+        case RegimeRoots(paye, sa, vat, epaye, ct) => {
           paye shouldBe None
           epaye shouldBe None
           sa shouldBe None
