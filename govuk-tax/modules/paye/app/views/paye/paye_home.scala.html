@@ -12,7 +12,7 @@
         <li>@Messages("paye.home.instructions.list_item.1")</li>
         <li>@Messages("paye.home.instructions.list_item.2")</li>
     </ul>
-    <p>@Html(Messages("paye.home.instructions.info", helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("link.vehicle_certification_agency.text")).toString))</p>
+    <p>@Html(Messages("paye.home.instructions.info", helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("link.vehicle_certification_agency.text"), true).toString))</p>
     <p>@Messages("info.need_to_register")</p>
     @helpers.link("", common.FrontEndRedirect.carBenefit, Messages("button.sign_in"), false, false, "button")
 }
