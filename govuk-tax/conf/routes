@@ -5,6 +5,5 @@
 ->     /                            common.Routes
 ->     /paye                        paye.Routes
 ->     /business-tax                business_tax.Routes
-->     /agent                       agent.Routes
 ->     /sa                          sa.Routes
 
