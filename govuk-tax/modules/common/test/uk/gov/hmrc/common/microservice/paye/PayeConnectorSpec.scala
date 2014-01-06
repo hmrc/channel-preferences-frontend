@@ -72,6 +72,29 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
     }
   }
 
+  "Looking up the current version" should {
+    "delegate correctly to the paye service" in new WithApplication(FakeApplication()) {
+      val service = new HttpMockedPayeConnector
+      val uri = ""
+
+      when(service.httpWrapper.getF[Int](uri)).
+        thenReturn(Future.successful(Some(10)))
+      val response = service.version(uri)
+      response.futureValue shouldBe 10
+    }
+    "throw an exception if the paye service does not return a valid version" in new WithApplication(FakeApplication()) {
+      val service = new HttpMockedPayeConnector
+      val uri = ""
+
+      when(service.httpWrapper.getF[Int](uri)).
+        thenReturn(Future.successful(None))
+      val response = service.version(uri)
+      val ise = response.failed.futureValue
+      ise shouldBe an [IllegalStateException]
+      ise should have message s"Expected paye version number not found at URI '$uri'"
+    }
+  }
+
   def localDate(year: Int, month: Int, day: Int) = new LocalDate(year, month, day, ISOChronology.getInstanceUTC)
 
   private def actions(nino: String, year: Int, esn: Int): Map[String, String] = {
