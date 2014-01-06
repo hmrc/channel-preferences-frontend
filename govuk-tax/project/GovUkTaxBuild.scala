@@ -56,16 +56,6 @@ object GovUkTaxBuild extends Build {
     .settings(javaOptions in Test += configPath)
     .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "paye" })
 
-  val agent = play.Project(
-    appName + "-agent", Version.thisApp, appDependencies, path = file("modules/agent"), settings = Common.commonSettings
-  ).settings(Keys.fork in Test := false)
-    .dependsOn(common % allPhases)
-    .configs(TemplateTest)
-    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
-    .settings(javaOptions in Test += configPath)
-
-
   val bt = play.Project(
     appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.commonSettings
   ).settings(Keys.fork in Test := false)
@@ -90,8 +80,8 @@ object GovUkTaxBuild extends Build {
     settings = Common.commonSettings ++ SassPlugin.sassSettings
   ).settings(publishArtifact := true,
     Keys.fork in Test := false)
-    .dependsOn(paye, agent, sa, bt)
-    .aggregate(common, paye, agent, sa, bt)
+    .dependsOn(paye, sa, bt)
+    .aggregate(common, paye, sa, bt)
 
 }
 
