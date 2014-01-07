@@ -1,14 +1,11 @@
 package uk.gov.hmrc.common.filters
 
 import uk.gov.hmrc.common.BaseSpec
-import play.api.mvc.{AnyContentAsEmpty, SimpleResult, RequestHeader}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeHeaders, FakeRequest}
-import scala.concurrent.Future
 import org.scalatest.mock.MockitoSugar
 
 class CSRFExceptionsFilterSpec extends BaseSpec with MockitoSugar {
-
-  def action = mock[(RequestHeader) => Future[SimpleResult]]
 
   "CSRF exceptions filter" should {
 
