@@ -2064,10 +2064,18 @@ label.indent {
   padding-left: 1.5em;
 }
 
-.label--inline, .label--inline-tight, .label--inline-right, .label--inlineRadio, .label--inlineRadio--expanded, .label--inlineDropDown {
+.label--inline, .label--inline-no-input, .label--inline-tight, .label--inline-right, .label--inlineRadio, .label--inlineRadio--expanded, .label--inlineDropDown, .label--full-length {
   display: inline-block;
   margin-top: 0.2em;
   min-width: 130px;
+}
+
+.label--inline-no-input {
+  margin-left: 16px;
+  margin-top: 0.75em;
+  min-width: 60px;
+  clear: none;
+  float: left;
 }
 
 .label--inline-tight {
@@ -2093,6 +2101,10 @@ label.indent {
 .label--inlineRadio--expanded .label__text {
   float: left;
   width: 90%;
+}
+
+.label--full-length {
+  clear: both;
 }
 
 .form-field-group, .form-field-single {
@@ -2178,34 +2190,38 @@ ul li {
   padding-left: 0;
   margin-bottom: 50px;
 }
-.list--numbered li {
-  display: inline-block;
-  margin-bottom: 20px;
-  padding-left: 40px;
-  position: relative;
-}
-.list--numbered li p {
-  margin-top: 0;
-}
-.list--numbered li:before {
+.list--numbered .numbered {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
   line-height: 1.31579;
   font-weight: 400;
   text-transform: none;
+  display: inline-block;
+  margin-bottom: 20px;
+  padding-left: 40px;
+  position: relative;
+}
+@media (max-width: 640px) {
+  .list--numbered .numbered {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+}
+.list--numbered .numbered legend {
+  margin-top: 0;
+}
+.list--numbered .numbered:before {
   counter-increment: section;
   /* Increment the section counter */
   content: counter(section) ". ";
   /* Display the counter */
   position: absolute;
   left: 0;
+  top: 0;
   padding-right: 10px;
 }
-@media (max-width: 640px) {
-  .list--numbered li:before {
-    font-size: 16px;
-    line-height: 1.25;
-  }
+.list--numbered .numbered:last-child {
+  margin-bottom: 0;
 }
 
 .bullets {

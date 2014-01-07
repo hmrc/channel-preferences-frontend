@@ -16,34 +16,27 @@
 
         @helpers.form(action = controllers.paye.routes.AddCarBenefitController.reviewAddCarBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-car-benefit") {
 
-            <fieldset>
-                <h2>@Messages("paye.add_car_benefit.dates_heading")</h2>
-                <ol class="list--numbered">
-                    <li>
-                        @helpers.dateFields(carBenefitForm,
+            <fieldset class="list--numbered">
+                <legend class="h2-heading">@Messages("paye.add_car_benefit.dates_heading")</legend>
+                    @helpers.dateFields(carBenefitForm,
                                             providedFrom,
                                             Html(Messages("paye.add_car_benefit.provided_from")),
                                             currentTaxYearYearsRange,
                                             Some(""),
-                                            '_groupDivClass -> "form-field-group")
-                    </li>
-                    <li>
-                        @helpers.dateFieldsFreeYear(carBenefitForm,
+                                            '_groupClass -> "form-field-group numbered")
+                    @helpers.dateFieldsFreeYear(carBenefitForm,
                                                     carRegistrationDate,
                                                     Html(Messages("paye.add_car_benefit.car_registration_date",
                                                             helpers.link("",
                                                                 Messages("link.dvla.url"),
                                                                 Messages("paye.add_car_benefit.car_registration_date.dvla_website.text"),
                                                                 true).toString)),
-                                                    '_groupDivClass -> "form-field-group")
-                    </li>
-                </ol>
+                                                    '_groupClass -> "form-field-group numbered")
             </fieldset>
             <fieldset>
-                <h2>@Messages("paye.add_car_benefit.cost_heading")</h2>
-                <ol class="list--numbered">
-                    <li>
-                        @helpers.fieldGroup(
+                <legend class="h2-heading">@Messages("paye.add_car_benefit.cost_heading")</legend>
+                <fieldset class="numbered">
+                    @helpers.fieldGroup(
                             carBenefitForm,
                             Seq(
                                 FormField(carBenefitForm(listPrice),
@@ -53,8 +46,7 @@
                             '_groupDivClass -> "form-field--inline",
                             '_valueAfter -> false
                         )
-                    </li>
-                </ol>
+                </fieldset>
             </fieldset>
             <fieldset>
                 <ol class="list--numbered">
