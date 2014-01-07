@@ -3476,11 +3476,14 @@ div.email {
 
 .error-notification {
   color: #df3034;
-  display: block;
+  display: none;
   font-family: "nta",Arial,sans-serif;
   font-size: 16px;
   line-height: 1.25;
   font-weight: 300;
   text-transform: none;
   padding-bottom: 0.5em;
+}
+.error .error-notification {
+  display: block;
 }

@@ -19,11 +19,14 @@ class ProblemReportsController(override val auditConnector: AuditConnector)(impl
 
   val form = Form[ProblemReport](
     mapping(
-      "report-action" -> text.verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty),
+      "report-name" -> text.verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty),
+      "report-email" -> text.verifying("error.prefs.email.missing", error => !error.isEmpty),
+      "report-action" -> text.verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty),
       "report-error" -> text.verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty),
       "isJavascript" -> boolean
     )(ProblemReport.apply)(ProblemReport.unapply)
   )
+
 
   def report = WithNewSessionTimeout(UnauthorisedAction {
     implicit request => {
@@ -55,4 +58,4 @@ class ProblemReportsController(override val auditConnector: AuditConnector)(impl
 
 }
 
-case class ProblemReport(reportAction: String, reportError: String, isJavascript: Boolean)
+case class ProblemReport(reportName: String, reportEmail: String, reportAction: String, reportError: String, isJavascript: Boolean)

@@ -5,11 +5,28 @@
         @helper.form(action = common.routes.ProblemReportsController.report) {
             <fieldset>
                 <div class="form-field">
+                    <label for="report-name"><strong>Name </strong></label>
+                    <span class="error-notification">@Messages("error.common.problem_report.name_mandatory")</span>
+                    <input id="report-name" class="input--fullwidth" name="report-name" type="text">
+                </div>
+                <div class="form-field">
+                    <label for="report-email"><strong>Email address</strong></label>
+                    <span class="error-notification">@Messages("error.common.problem_report.email_mandatory")</span>
+                    <input id="report-email" class="input--fullwidth" name="report-email" type="text">
+                </div>
+                <div class="form-field">
+                    <label for="report-telephone"><strong>Telephone number</strong></label>
+                    <span class="error-notification">@Messages("error.common.problem_report.telephone_mandatory")</span>
+                    <input id="report-telephone" class="input--fullwidth" name="report-telephone" type="text">
+                </div>
+                <div class="form-field">
                     <label for="report-action"><strong>What were you doing?</strong></label>
+                    <span class="error-notification">@Messages("error.common.problem_report.action_mandatory")</span>
                     <input id="report-action" class="input--fullwidth" name="report-action" type="text">
                 </div>
                 <div class="form-field">
                     <label for="report-error"><strong>What went wrong?</strong></label>
+                    <span class="error-notification">@Messages("error.common.problem_report.error_mandatory")</span>
                     <input id="report-error" class="input--fullwidth" name="report-error"  type="text">
                 </div>
                 <input type="hidden" name="isJavascript" value="false"/>
