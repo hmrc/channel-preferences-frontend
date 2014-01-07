@@ -38,7 +38,6 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
       val result = controllerUnderTest.otherServicesPage(user, request)
 
       status(result) shouldBe 200
-      println(contentAsString(result))
       val document = Jsoup.parse(contentAsString(result))
 
       document.getElementById("manageYourTaxesSection") should not be null
