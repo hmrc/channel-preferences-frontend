@@ -5,7 +5,6 @@ GET         /ct/make-a-payment                                      @controllers
 GET         /sa/make-a-payment                                      @controllers.bt.PaymentController.makeSaPayment
 GET         /epaye/make-a-payment                                   @controllers.bt.PaymentController.makeEpayePayment
 GET         /other-services                                         @controllers.bt.OtherServicesController.otherServices
-GET         /important-dates                                        @controllers.bt.ImportantDatesController.importantDates
 GET         /merge-accounts                                         @controllers.bt.MergeGGAccountsController.mergeGGAccounts
 
 GET         /account-details                                        @controllers.bt.AccountDetailsController.accountDetails
@@ -24,3 +23,6 @@ POST        /account-details/sa/opt-in-email-reminders              @controllers
 POST        /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
 GET         /account-details/sa/opt-in-email-reminders-thank-you    @controllers.bt.prefs.SaPrefsController.thankYou
 
+
+# Not for MVP - HMTB-2628
+#GET         /important-dates                                        @controllers.bt.ImportantDatesController.importantDates
