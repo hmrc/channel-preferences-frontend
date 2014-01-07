@@ -4,7 +4,8 @@ POST        /benefits/car/:year/:employmentSequenceNumber/remove                
 GET         /benefits/fuel/:year/:employmentSequenceNumber/remove                       @controllers.paye.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(year: Int, employmentSequenceNumber: Int)
 POST        /benefits/fuel/:year/:employmentSequenceNumber/remove                       @controllers.paye.RemoveBenefitController.requestRemoveFuelBenefit(year: Int, employmentSequenceNumber: Int)
 
-GET         /benefits/car/:year/:employmentSequenceNumber/replace                       @controllers.paye.ShowReplaceBenefitFormController.showReplaceCarBenefitForm(year: Int, employmentSequenceNumber: Int)
+GET         /benefits/car/:year/:employmentSequenceNumber/replace                       @controllers.paye.ReplaceBenefitController.showReplaceCarBenefitForm(year: Int, employmentSequenceNumber: Int)
+POST        /benefits/car/:year/:employmentSequenceNumber/replace                       @controllers.paye.ReplaceBenefitController.requestReplaceCarBenefit(year: Int, employmentSequenceNumber: Int)
 
 POST        /benefits/car/:year/:employmentSequenceNumber/confirm                       @controllers.paye.RemoveBenefitController.confirmCarBenefitRemoval(year: Int, employmentSequenceNumber: Int)
 POST        /benefits/fuel/:year/:employmentSequenceNumber/confirm                      @controllers.paye.RemoveBenefitController.confirmFuelBenefitRemoval(year: Int, employmentSequenceNumber: Int)

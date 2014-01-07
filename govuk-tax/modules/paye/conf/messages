@@ -155,6 +155,13 @@ paye.remove_car_benefit.h1=Tell HMRC about a change to your company car
 paye.remove_car_benefit.h2.company_info=' no longer supply a company car.
 paye.remove_car_benefit.benefit_type=Your old company car
 
+paye.replace_car_benefit.title=Replace your company car
+paye.replace_car_benefit.h1=Tell HMRC about a change to your company car
+paye.replace_car_benefit.subheading=Replace your company car
+paye.replace_car_benefit.benefit_type=Your old company car
+paye.replace_car_benefit.new_car=Your new company car
+paye.replace_car_benefit.submit_button=Submit
+
 paye.remove_car_benefit.withdraw_date=When did you give back your old company car?
 paye.remove_car_benefit.car_unavailable=Did you at any time not have access to the car since 6 April? Only answer if it was for 30 days or more
 paye.remove_car_benefit.car_unavailable.no=No

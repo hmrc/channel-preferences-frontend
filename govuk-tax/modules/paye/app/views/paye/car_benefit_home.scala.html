@@ -57,7 +57,7 @@
         @params.activeCarBenefit.map { carBenefit =>
         <ul>
             <li>
-                @helpers.link("replace-car-link", s"${controllers.paye.routes.ShowReplaceBenefitFormController.showReplaceCarBenefitForm(carBenefit.taxYear, carBenefit.employmentSequenceNumber)}",
+                @helpers.link("replace-car-link", s"${controllers.paye.routes.ReplaceBenefitController.showReplaceCarBenefitForm(carBenefit.taxYear, carBenefit.employmentSequenceNumber)}",
                 Messages("paye.car_benefit_home.replace_car_link_text"))
             </li>
             <li>

@@ -64,7 +64,7 @@ with PayeRegimeRoots {
     validationlessForm.bindFromRequest()(request).value.get
   }
 
-  private def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
+  def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
     mapping(
       providedFrom -> validateProvidedFrom(timeSource, taxYearInterval),
       carRegistrationDate -> validateCarRegistrationDate(timeSource),
