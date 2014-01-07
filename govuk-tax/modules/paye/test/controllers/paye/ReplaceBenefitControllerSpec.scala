@@ -79,9 +79,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
 
     private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
 
-    lazy val controller = new ReplaceBenefitController(mockKeyStoreService, mock[AuthConnector], mock[AuditConnector])(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
-      override def now = () => dateToday
-    }
+    lazy val controller = new ReplaceBenefitController(mockKeyStoreService, mock[AuthConnector], mock[AuditConnector])(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport
 
     def setupMocksForJohnDensmore(employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[CarBenefit] = johnDensmoresBenefits, taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes) {
       when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$testTaxYear")).thenReturn(Some(taxCodes))

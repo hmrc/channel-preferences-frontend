@@ -14,7 +14,7 @@
 
     @helpers.form(action = controllers.paye.routes.RemoveBenefitController.requestRemoveCarBenefit(activeCarBenefit.taxYear, primaryEmployment.sequenceNumber)) {
 
-        @remove_car_benefit_fields(updateForm, currentTaxYearYearsRange, activeCarBenefit)
+        @remove_car_benefit_fields(updateForm, currentTaxYearYearsRange, activeCarBenefit.hasActiveFuel)
 
         <div class="form-field">
             <input class="button button--next flush--left" type="submit" value="@Messages("paye.remove_car_benefit.submit_button")" />

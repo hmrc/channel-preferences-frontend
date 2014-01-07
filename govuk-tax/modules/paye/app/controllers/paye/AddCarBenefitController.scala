@@ -5,10 +5,7 @@ import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain._
 import models.paye._
 import play.api.Logger
-import org.joda.time._
 import play.api.data.Form
-import play.api.data.Forms._
-import CarBenefitFormFields._
 import controllers.common.validators.Validators
 import controllers.paye.validation.AddCarBenefitValidator._
 import controllers.common.service.Connectors
@@ -28,19 +25,19 @@ import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import scala.concurrent._
+import org.joda.time.LocalDate
 
 class AddCarBenefitController(keyStoreService: KeyStoreConnector, override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector) extends BaseController
 with Actions
 with Validators
-with TaxYearSupport
 with PayeRegimeRoots {
 
   def this() = this(Connectors.keyStoreConnector, Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
-  private val keyStoreKey = "AddCarBenefitForm"
+  def timeSource() = new LocalDate
 
-  def timeSource() = new LocalDate(DateTimeZone.UTC)
+  private val keyStoreKey = "AddCarBenefitForm"
 
   def startAddCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
     user =>
@@ -59,28 +56,6 @@ with PayeRegimeRoots {
   private def findEmployment(employmentSequenceNumber: Int, payeRootData: TaxYearData) = {
     payeRootData.employments.find(_.sequenceNumber == employmentSequenceNumber)
   }
-
-  private def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
-    validationlessForm.bindFromRequest()(request).value.get
-  }
-
-  def carBenefitForm(carBenefitValues: CarBenefitValues) = Form[CarBenefitData](
-    mapping(
-      providedFrom -> validateProvidedFrom(timeSource, taxYearInterval),
-      carRegistrationDate -> validateCarRegistrationDate(timeSource),
-      listPrice -> validateListPrice,
-      employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-      employeeContribution -> validateEmployeeContribution(carBenefitValues),
-      employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-      employerContribution -> validateEmployerContribution(carBenefitValues),
-      fuelType -> validateFuelType(carBenefitValues),
-      co2Figure -> validateCo2Figure(carBenefitValues),
-      co2NoFigure -> validateNoCo2Figure(carBenefitValues),
-      engineCapacity -> validateEngineCapacity(carBenefitValues),
-      employerPayFuel -> validateEmployerPayFuel(carBenefitValues),
-      dateFuelWithdrawn -> validateDateFuelWithdrawn(carBenefitValues, taxYearInterval)
-    )(CarBenefitData.apply)(CarBenefitData.unapply)
-  )
 
   private[paye] val startAddCarBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.CAR) {
     (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
@@ -104,9 +79,9 @@ with PayeRegimeRoots {
       case Some(carBenefitData) => {
         val rawForm = validationlessForm
         val valuesForValidation = rawForm.fill(rawValuesOf(carBenefitData)).value.get
-        carBenefitForm(valuesForValidation).fill(carBenefitData)
+        carBenefitForm(valuesForValidation, timeSource).fill(carBenefitData)
       }
-      case None => carBenefitForm(CarBenefitValues())
+      case None => carBenefitForm(CarBenefitValues(), timeSource)
     }
   }
 
@@ -163,8 +138,8 @@ with PayeRegimeRoots {
         case Some(employment) => {
           val dates = getCarBenefitDates(request)
 
-          carBenefitForm(dates).bindFromRequest()(request).fold(
-            errors => Future.successful(BadRequest(add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user,request))),
+          carBenefitForm(dates, timeSource).bindFromRequest()(request).fold(
+            errors => Future.successful(BadRequest(add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))),
             (addCarBenefitData: CarBenefitData) => {
               implicit val hc = HeaderCarrier(request)
 
@@ -173,7 +148,7 @@ with PayeRegimeRoots {
                   val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                     addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                     addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution,  addCarBenefitData.carRegistrationDate)
-                  Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber)(request))
+                  Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber))
               }
             }
           )

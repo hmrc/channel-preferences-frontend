@@ -1,16 +1,18 @@
 package controllers.paye.validation
 
-import play.api.data.{Mapping, Form}
+import play.api.data.{Form, Mapping}
 import play.api.data.Forms._
 import uk.gov.hmrc.utils.DateTimeUtils._
 import org.joda.time.{Interval, DateTimeZone, LocalDate}
 import controllers.paye.CarBenefitFormFields._
 import controllers.common.validators.{StopOnFirstFail, Validators}
-import models.paye.EngineCapacity
+import models.paye.{CarBenefitData, EngineCapacity}
 import EngineCapacity._
 import StopOnFirstFail._
+import controllers.paye.TaxYearSupport
+import play.api.mvc.Request
 
-object AddCarBenefitValidator extends Validators {
+object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
   private val carRegistrationDateCutoff = LocalDate.parse("1998-01-01")
   private val fuelTypeElectric = "electricity"
@@ -31,6 +33,12 @@ object AddCarBenefitValidator extends Validators {
                                      co2NoFigure:Option[String] = None,
                                      employerPayFuel:Option[String] = None)
 
+  def timeSource() = new LocalDate(DateTimeZone.UTC)
+
+  private[paye] def getCarBenefitDates(request: Request[_]): CarBenefitValues = {
+    validationlessForm.bindFromRequest()(request).value.get
+  }
+
   private[paye] def validationlessForm = Form[CarBenefitValues](
     mapping(
       providedFrom -> dateTuple(false),
@@ -46,6 +54,24 @@ object AddCarBenefitValidator extends Validators {
       co2NoFigure -> optional(text),
       employerPayFuel -> optional(text)
     )(CarBenefitValues.apply)(CarBenefitValues.unapply)
+  )
+
+  private[paye] def carBenefitForm(carBenefitValues: CarBenefitValues, timeSource: () => LocalDate = timeSource) = Form[CarBenefitData](
+    mapping(
+      providedFrom -> validateProvidedFrom(timeSource, taxYearInterval),
+      carRegistrationDate -> validateCarRegistrationDate(timeSource),
+      listPrice -> validateListPrice,
+      employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
+      employeeContribution -> validateEmployeeContribution(carBenefitValues),
+      employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
+      employerContribution -> validateEmployerContribution(carBenefitValues),
+      fuelType -> validateFuelType(carBenefitValues),
+      co2Figure -> validateCo2Figure(carBenefitValues),
+      co2NoFigure -> validateNoCo2Figure(carBenefitValues),
+      engineCapacity -> validateEngineCapacity(carBenefitValues),
+      employerPayFuel -> validateEmployerPayFuel(carBenefitValues),
+      dateFuelWithdrawn -> validateDateFuelWithdrawn(carBenefitValues, taxYearInterval)
+    )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
   private[paye] val validateListPrice = optional(number.verifying("error.paye.list_price_less_than_1000", e => e >= 1000)
