@@ -139,7 +139,7 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryptio
     val cookies = Cookies(result.header.headers.get(SET_COOKIE))
     cookies should not be 'empty
 
-    val sessionCookie = cookies.get("PLAY_SESSION")
+    val sessionCookie = cookies.get("mdtp")
 
     sessionCookie should not be None
     sessionCookie.get.value shouldBe ""

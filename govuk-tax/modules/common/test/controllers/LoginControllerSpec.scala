@@ -354,7 +354,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
       redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
 
-      val playSessionCookie = cookies(result).get("PLAY_SESSION")
+      val playSessionCookie = cookies(result).get("mdtp")
 
       playSessionCookie shouldBe None
     }
@@ -366,7 +366,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       status(result) shouldBe Status.SEE_OTHER
       redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
 
-      val playSessionCookie = cookies(result).get("PLAY_SESSION")
+      val playSessionCookie = cookies(result).get("mdtp")
 
       playSessionCookie shouldBe None
     }
