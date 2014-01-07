@@ -494,7 +494,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
   private def newRequestForSaveAddFuelBenefit(employerPayFuelVal: Option[String] = None, dateFuelWithdrawnVal: Option[(String, String, String)] = None, path: String = "") =
     FakeRequest("GET", path).withFormUrlEncodedBody(Seq(employerPayFuel -> employerPayFuelVal.getOrElse("")) ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal): _*).
-      withSession((BenefitFlowHelper.npsVersionKey, johnDensmoreVersionNumber.toString))
+      withSession(BenefitFlowHelper.npsVersionKey -> johnDensmoreVersionNumber.toString)
 
 }
 
