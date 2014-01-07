@@ -20,7 +20,7 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 
-class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption with ScalaFutures {
+class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto with ScalaFutures {
 
   "The Single Sign-on input page" should {
     "create a new session when the token is valid, the time not expired and no session exists - POST" in new WithSsoControllerInFakeApplication {
@@ -273,7 +273,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
 
 
 abstract class WithSsoControllerInFakeApplication extends WithApplication(FakeApplication())
-with MockitoSugar with CookieEncryption with org.scalatest.Matchers {
+with MockitoSugar with CookieCrypto with org.scalatest.Matchers {
 
   lazy val mockGovernmentGatewayService = mock[GovernmentGatewayConnector]
   val mockSsoWhiteListService = mock[SsoWhiteListService]

@@ -7,7 +7,7 @@ import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import controllers.common.CookieEncryption
+import controllers.common.CookieCrypto
 import java.util.UUID
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.SaConnector
@@ -27,7 +27,7 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 import org.mockito.Matchers
 
-class SaControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class SaControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
 
   import play.api.test.Helpers._
 

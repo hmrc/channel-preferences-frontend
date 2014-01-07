@@ -4,7 +4,7 @@ import play.api.test.{ FakeApplication, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common._
 
-class CookieEncryptionSpec extends BaseSpec with CookieEncryption {
+class CookieCryptoSpec extends BaseSpec with CookieCrypto {
 
   "Cookie encryption and decryption" should {
     "return the original value" in new WithApplication(FakeApplication()) {

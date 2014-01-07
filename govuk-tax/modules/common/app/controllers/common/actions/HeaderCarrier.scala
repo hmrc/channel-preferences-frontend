@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import controllers.common.{HeaderNames, CookieEncryption}
+import controllers.common.{HeaderNames, CookieCrypto}
 import play.api.mvc.Request
 
 /**
@@ -42,7 +42,7 @@ trait SessionKeys {
 
 object SessionKeys extends SessionKeys
 
-object HeaderCarrier extends CookieEncryption {
+object HeaderCarrier extends CookieCrypto {
   val names = HeaderNames
 
   import SessionKeys._
