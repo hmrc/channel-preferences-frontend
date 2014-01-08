@@ -15,6 +15,7 @@ import play.api.test.FakeApplication
 import play.api.mvc.Cookie
 import play.api.mvc.SimpleResult
 import org.scalatest.concurrent.ScalaFutures
+import play.api.http.HeaderNames
 
 class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypto with OptionValues with ScalaFutures with Inspectors {
 
@@ -104,7 +105,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       updatedRequest.getValue.cookies should contain allOf (encryptedCookie.copy(value = "decryptedValue"), normalCookie1, normalCookie2)
     }
 
-    "Cope with the decryption failing" in new WithApplication(FakeApplication()) with Setup {
+   "Remove the cookie header if the decryption fails and there are no other cookies" in new WithApplication(FakeApplication()) with Setup {
       val encryptedCookie = Cookie(name = CookieName, value = "invalidEncryptedValue")
       val incomingRequest = FakeRequest().withCookies(encryptedCookie)
 
@@ -113,7 +114,23 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       val updatedRequest = ArgumentCaptor.forClass(classOf[RequestHeader])
       verify(action).apply(updatedRequest.capture())
 
-      no(updatedRequest.getValue.cookies) should have ('name (CookieName))
+      updatedRequest.getValue.cookies should be (empty)
+      updatedRequest.getValue.headers.toMap should not contain key (HeaderNames.COOKIE)
+    }
+
+    "Remove the cookie (but leave other cookies intact) if with the decryption fails" in new WithApplication(FakeApplication()) with Setup {
+      val normalCookie1 = Cookie("AnotherCookie1", "normalValue1")
+      val encryptedCookie = Cookie(name = CookieName, value = "invalidEncryptedValue")
+      val normalCookie2 = Cookie("AnotherCookie2", "normalValue2")
+
+      val incomingRequest = FakeRequest().withCookies(normalCookie1, encryptedCookie, normalCookie2)
+
+      filter(action)(incomingRequest)
+
+      val updatedRequest = ArgumentCaptor.forClass(classOf[RequestHeader])
+      verify(action).apply(updatedRequest.capture())
+
+      updatedRequest.getValue.cookies should contain only (normalCookie1, normalCookie2)
     }
 
     "discard the session if it contains anything other than the encrypted entry" in pending
