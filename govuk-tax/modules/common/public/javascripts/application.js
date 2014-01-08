@@ -4,13 +4,13 @@
   var GOVUK = GOVUK || {};
   GOVUK.toggleDefaultOptions = function ($form, $options, bool) {
     if (bool) {
-      $options.prop("checked", true).parents('li').addClass('visuallyhidden');
+      $options.prop("checked", true).parents('.numbered').addClass('js-hidden');
       $form.find('#co2Figure').val('')
         .end().find('#co2NoFigure').prop("checked", false);
     } else {
       //check if electric has data flagged if true turn it off and reset everything
       if (typeof $form.data("electricFlagged") !== 'undefined') {
-        $options.prop("checked", false).parents('li').removeClass('visuallyhidden');
+        $options.prop("checked", false).parents('.numbered').removeClass('js-hidden');
         //remove the electric data
       }
     }

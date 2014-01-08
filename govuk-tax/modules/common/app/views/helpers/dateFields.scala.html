@@ -6,7 +6,7 @@
 
 @elements = @{ new FieldElements(formItem(fieldName).id, formItem(fieldName), null, args.toMap, lang) }
 
-<fieldset class="@elements.args.get('_groupClass) @if(elements.hasErrors) {error}">
+<fieldset class="@elements.args.get('_groupClass) @if(elements.hasErrors) {form-field--error}">
     <legend>@label</legend>
     @elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
 

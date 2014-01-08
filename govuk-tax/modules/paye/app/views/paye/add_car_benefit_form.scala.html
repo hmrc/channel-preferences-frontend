@@ -33,121 +33,103 @@
                                                                 true).toString)),
                                                     '_groupClass -> "form-field-group numbered")
             </fieldset>
-            <fieldset>
+            <fieldset class="list--numbered">
                 <legend class="h2-heading">@Messages("paye.add_car_benefit.cost_heading")</legend>
-                <fieldset class="numbered">
+                @helpers.fieldGroup(
+                        carBenefitForm,
+                        Seq(
+                            FormField(carBenefitForm(listPrice),
+                                        Seq(InputType("text", "", "£", Some("form-field--inline"), Some(""), Some("input--small"))))
+                        ),
+                        '_label -> Messages("paye.add_car_benefit.list_price"),
+                        '_groupClass -> "form-field-group numbered",
+                        '_valueAfter -> false
+                )
+            </fieldset>
+            <fieldset class="list--numbered">
+                <legend class="h2-heading">@Messages("paye.add_car_benefit.pay_heading")</legend>
+                @helpers.fieldGroup(
+                    carBenefitForm,
+                    Seq(
+                        FormField(carBenefitForm(employeeContributes), Seq(
+                            RadioButton("false", Messages("paye.add_car_benefit.employee_contributes.false"),
+                                    Some("form-field clear"),
+                                    Some("label--inlineRadio"),
+                                    Some(""), Some("data-contextual-helper=disable")),
+                            RadioButton("true", Messages("paye.add_car_benefit.employee_contributes.true"),
+                                    Some("form-field--inline"),
+                                    Some("label--inlineRadio"),
+                                    Some(""), Some("data-contextual-helper=enable")))),
+                        FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline js-input--contextual"), Some(""), Some("input--small"))))
+                    ),
+                    '_label -> Messages("paye.add_car_benefit.employee_contribution"),
+                    '_groupClass -> "form-field  js-includes-contextual numbered",
+                    '_valueAfter -> true
+                )
+            </fieldset>
+            <fieldset class="list--numbered">
+                    <legend class="h2-heading">@Messages("paye.add_car_benefit.engine_heading")</legend>
                     @helpers.fieldGroup(
-                            carBenefitForm,
-                            Seq(
-                                FormField(carBenefitForm(listPrice),
-                                            Seq(InputType("text", "", "£", Some("form-field--inline"), Some(""), Some("input--small"))))
-                            ),
-                            '_label -> Messages("paye.add_car_benefit.list_price"),
-                            '_groupDivClass -> "form-field--inline",
-                            '_valueAfter -> false
-                        )
-                </fieldset>
-            </fieldset>
-            <fieldset>
-                <ol class="list--numbered">
-                    <h2>@Messages("paye.add_car_benefit.pay_heading")</h2>
-                    <li>
-                        @helpers.fieldGroup(
-                            carBenefitForm,
-                            Seq(
-                                FormField(carBenefitForm(employeeContributes), Seq(
-                                    RadioButton("false", Messages("paye.add_car_benefit.employee_contributes.false"),
-                                            Some("form-field clear"),
-                                            Some("label--inlineRadio"),
-                                            Some(""), Some("data-contextual-helper=disable")),
-                                    RadioButton("true", Messages("paye.add_car_benefit.employee_contributes.true"),
-                                            Some("form-field--inline"),
-                                            Some("label--inlineRadio"),
-                                            Some(""), Some("data-contextual-helper=enable")))),
-                                FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline js-input--contextual"), Some(""), Some("input--small"))))
-                            ),
-                            '_label -> Messages("paye.add_car_benefit.employee_contribution"),
-                            '_groupDivClass -> "form-field  js-includes-contextual",
-                            '_valueAfter -> true
-                        )
-                    </li>
-                 </ol>
-            </fieldset>
-            <fieldset>
-                <ol class="list--numbered">
-                    <h2>@Messages("paye.add_car_benefit.engine_heading")</h2>
-                    <li>
-                        @helpers.fieldGroup(
-                            carBenefitForm,
-                            Seq(
-                                FormField(
-                                    carBenefitForm(fuelType),
-                                    Seq(
-                                        RadioButton("diesel", Messages("paye.add_car_benefit.fuel_type.diesel"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false")),
-                                        RadioButton("electricity", Messages("paye.add_car_benefit.fuel_type.electricity"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=true")),
-                                        RadioButton("other", Messages("paye.add_car_benefit.fuel_type.other"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false"))
-                                    )
+                        carBenefitForm,
+                        Seq(
+                            FormField(
+                                carBenefitForm(fuelType),
+                                Seq(
+                                    RadioButton("diesel", Messages("paye.add_car_benefit.fuel_type.diesel"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false")),
+                                    RadioButton("electricity", Messages("paye.add_car_benefit.fuel_type.electricity"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=true")),
+                                    RadioButton("other", Messages("paye.add_car_benefit.fuel_type.other"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false"))
                                 )
-                            ),
-                            '_label -> Messages("paye.add_car_benefit.fuel_type"),
-                            '_groupDivClass -> "form-field",
-                            '_valueAfter -> true
-                        )
-                    </li>
-                     <li>
-                        @helpers.fieldGroup(
-                            carBenefitForm,
-                            Seq(
-                                FormField(
-                                    carBenefitForm(co2Figure),
-                                    Seq(
-                                        InputText(Messages("paye.add_car_benefit.co2emissions_unit"), divClass = Some("form-field--inline"), inputClass = Some("input--small flush--left"), label = Some(""))
-                                    ),
-                                    Some(Html(Messages("paye.add_car_benefit.dvla_approved_emissions",
-                                                       helpers.link("",
-                                                                   Messages("link.dvla.url"),
-                                                                   Messages("paye.add_car_benefit.dvla_approved_emissions_enquiry_link_text"),
-                                                                   true).toString,
-                                                       helpers.link("",
-                                                                   Messages("link.vehicle_certification_agency.url"),
-                                                                   Messages("paye.add_car_benefit.vca_car_fuel_data_link_text"),
-                                                                   true).toString)))
+                            )
+                        ),
+                        '_label -> Messages("paye.add_car_benefit.fuel_type"),
+                        '_groupClass -> "form-field numbered",
+                        '_valueAfter -> true
+                    )
+                    @helpers.fieldGroup(
+                        carBenefitForm,
+                        Seq(
+                            FormField(
+                                carBenefitForm(co2Figure),
+                                Seq(
+                                    InputText(Messages("paye.add_car_benefit.co2emissions_unit"), divClass = Some("form-field--inline"), inputClass = Some("input--small flush--left"), label = Some(""))
                                 ),
-                                FormField(
-                                    carBenefitForm(co2NoFigure),
-                                    Seq(
-                                        InputType("checkbox", "", Messages("paye.add_car_benefit.dvla_no_emission_figure"), Some("form-field--inline"), Some(""), Some("input--small"), Some("data-default"))
-                                    )
+                                Some(Html(Messages("paye.add_car_benefit.dvla_approved_emissions",
+                                                   helpers.link("",
+                                                               Messages("link.dvla.url"),
+                                                               Messages("paye.add_car_benefit.dvla_approved_emissions_enquiry_link_text"),
+                                                               true).toString,
+                                                   helpers.link("",
+                                                               Messages("link.vehicle_certification_agency.url"),
+                                                               Messages("paye.add_car_benefit.vca_car_fuel_data_link_text"),
+                                                               true).toString)))
+                            ),
+                            FormField(
+                                carBenefitForm(co2NoFigure),
+                                Seq(
+                                    InputType("checkbox", "", Messages("paye.add_car_benefit.dvla_no_emission_figure"), Some("form-field--inline"), Some(""), Some("input--small"), Some("data-default"))
                                 )
-                            ),
-                            '_label -> Messages("paye.add_car_benefit.co2emissions"),
-                            '_groupDivClass -> "form-field--inline",
-                            '_valueAfter -> true
-                        )
-                        <p></p>
-                    </li>
-                    <li>
-                        @helpers.fieldGroup(
-                            carBenefitForm,
-                            Seq(
-                            FormField(carBenefitForm(engineCapacity), Seq(
-                                RadioButton("", "", Some("js-hidden"), Some("label--inlineRadio-right"), Some(""), Some("data-default")),
-                                RadioButton("1400", Messages("paye.add_car_benefit.engine_capacity.1400"), Some("form-field"), Some("label--inlineRadio-right")),
-                                RadioButton("2000", Messages("paye.add_car_benefit.engine_capacity.2000"), Some("form-field"), Some("label--inlineRadio-right")),
-                                RadioButton("9999", Messages("paye.add_car_benefit.engine_capacity.9999"), Some("form-field"), Some("label--inlineRadio-right"))))
-                            ),
-                            '_label -> Messages("paye.add_car_benefit.engine_capacity"),
-                            '_groupDivClass -> "form-field",
-                            '_valueAfter -> true
-                        )
-                    </li>
-
-                </ol>
+                            )
+                        ),
+                        '_label -> Messages("paye.add_car_benefit.co2emissions"),
+                        '_groupClass -> "form-field--inline numbered",
+                        '_valueAfter -> true
+                    )
+                    @helpers.fieldGroup(
+                        carBenefitForm,
+                        Seq(
+                        FormField(carBenefitForm(engineCapacity), Seq(
+                            RadioButton("1400", Messages("paye.add_car_benefit.engine_capacity.1400"), Some("form-field"), Some("label--inlineRadio-right")),
+                            RadioButton("2000", Messages("paye.add_car_benefit.engine_capacity.2000"), Some("form-field"), Some("label--inlineRadio-right")),
+                            RadioButton("9999", Messages("paye.add_car_benefit.engine_capacity.9999"), Some("form-field"), Some("label--inlineRadio-right")),
+                            RadioButton("", "", Some("visuallyhidden"), Some("label--inlineRadio-right"), Some(""), Some("data-default"))))
+                        ),
+                        '_label -> Messages("paye.add_car_benefit.engine_capacity"),
+                        '_groupClass -> "form-field numbered",
+                        '_valueAfter -> true
+                    )
             </fieldset>
-            <fieldset>
-                <ol class="list--numbered">
-                    <h2>@Messages("paye.add_car_benefit.private_use_heading")</h2>
-                    <li>
+            <fieldset class="list--numbered">
+                    <legend class="h2-heading">@Messages("paye.add_car_benefit.private_use_heading")</legend>
                          @helpers.fieldGroup(
                             carBenefitForm,
                             Seq(
@@ -157,12 +139,10 @@
                                 FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", Messages("paye.add_car_benefit.employer_pay.postfix"), Some("form-field--inline js-input--contextual"), Some(""), Some("input--xsmall"))))
                             ),
                             '_label -> Messages("paye.add_car_benefit.employer_pay"),
-                            '_groupDivClass -> "form-field js-includes-contextual",
+                            '_groupClass -> "form-field js-includes-contextual numbered",
                             '_valueAfter -> true
                          )
-                    </li>
                     @defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
-                    <li>
                         @helpers.fieldGroup(
                             carBenefitForm,
                             Seq(
@@ -175,12 +155,10 @@
                                 )
                             ),
                             '_label -> Messages("paye.add_car_benefit.employer_pay_fuel.label"),
-                            '_groupDivClass -> "form-field",
+                            '_groupClass -> "form-field numbered",
                             '_valueAfter -> true
                         )
-                    </li>
                     }
-                </ol>
              </fieldset>
             <div class="form-field">
                 <input type="submit" class="button" value="@Messages("paye.add_car_benefit.submit_button")">

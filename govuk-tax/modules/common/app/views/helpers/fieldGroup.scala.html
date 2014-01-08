@@ -10,8 +10,8 @@
 @argsMap = @{ args.toMap }
 @valueAfter = @{ argsMap.get('_valueAfter).getOrElse(false).asInstanceOf[Boolean] }
 
-<div class="@argsMap.get('_groupDivClass) @if(anyFieldHasError) {error}">
-    <p>@Html(allFieldElements(0).label.toString())</p>
+<fieldset class="@argsMap.get('_groupClass) @if(anyFieldHasError) {form-field--error}">
+    <legend>@Html(allFieldElements(0).label.toString())</legend>
     @if(argsMap.contains('_additionalTitleText)){<p>@argsMap.get('_additionalTitleText)</p>}
     @for(elements <- allFieldElements) {
         @elements.errors.map { error => <span class="error-notification">@Messages(error)</span> }
@@ -26,8 +26,7 @@
                 case inputType: InputType => {
                     @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
                     @defining(field.field.name + (if(inputType.key != ""){"-"+ inputType.key} else ""))  { inputId =>
-                    <div class='@inputType.divClass.getOrElse("")'>
-                        <label for="@inputId" class='@inputType.labelClass.getOrElse("")'>
+                        <label for="@inputId" class='@inputType.labelClass.getOrElse("") @inputType.divClass.getOrElse("")'>
 
                                 @if(inputType.label.isDefined) {@inputType.label}
                                 @if(!valueAfter) {
@@ -62,10 +61,9 @@
                         @if(field.explanationText.isDefined) {
                             <p>@field.explanationText</p>
                         }
-                    </div>
                     }}
                 }
              }
         }
     }
-</div>
+</fieldset>

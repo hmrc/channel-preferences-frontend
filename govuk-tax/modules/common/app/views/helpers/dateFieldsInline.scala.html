@@ -3,15 +3,14 @@
     @import controllers.common.validators.DateFields._
     @import play.api.i18n._
 
-    @className = @{ "form-field--inline" + extraClass.map(" " + _).getOrElse("") }
+    @className = @{ " form-field--inline" + extraClass.map(" " + _).getOrElse("") }
 
     @dayElem = @{ fieldName + "." + day }
     @helpers.dropdown(
         formItem(dayElem),
         (1 to 31) map { i => (i.toString, i.toString)},
         '_label -> Messages("date.fields.day"),
-        '_groupDivClass -> className,
-        '_labelClass -> "label--inlineDropdown",
+        '_labelClass -> "label--inlineDropdown".concat(className),
         '_emptyValueText -> " "
     )
     @monthElem = @{ fieldName + "." + month }
@@ -20,7 +19,7 @@
         (1 to 12) map { i => (i.toString, i.toString)},
         '_label -> Messages("date.fields.month"),
         '_groupDivClass -> className,
-        '_labelClass -> "label--inlineDropdown",
+        '_labelClass -> "label--inlineDropdown".concat(className),
         '_emptyValueText -> " "
     )
     @yearElem = @{ fieldName + "." + year }
@@ -29,6 +28,6 @@
         yearRange map { i => (i.toString, i.toString)},
         '_label -> Messages("date.fields.year"),
         '_groupDivClass -> className,
-        '_labelClass -> "label--inlineDropdown",
+        '_labelClass -> "label--inlineDropdown".concat(className),
         '_emptyValueText -> "   "
     )

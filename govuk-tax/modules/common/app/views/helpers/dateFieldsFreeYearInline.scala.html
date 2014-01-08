@@ -9,8 +9,7 @@
         formItem(dayElem),
         ( 1 to 31) map {  i=> (i.toString, i.toString) },
         '_label -> Messages("date.fields.day"),
-        '_groupDivClass -> "form-field--inline",
-        '_labelClass -> "label--inlineDropdown",
+        '_labelClass -> "label--inlineDropdown form-field--inline",
         '_emptyValueText -> " "
 )
 @monthElem = @{fieldName + "." + month}
@@ -18,15 +17,14 @@
         formItem(monthElem),
         ( 1 to 12) map {  i=> (i.toString, i.toString) },
         '_label -> Messages("date.fields.month"),
-        '_groupDivClass -> "form-field--inline",
-        '_labelClass -> "label--inlineDropdown",
+        '_labelClass -> "label--inlineDropdown form-field--inline",
         '_emptyValueText -> " "
 )
 @yearElem = @{fieldName + "." + year}
 @helpers.input(
         formItem(yearElem),
         '_label -> Messages("date.fields.year"),
-        '_divClass -> "form-field--inline",
+        '_labelClass -> "label--inlineTextinput form-field--inline-text-input",
         '_inputClass -> "input--xsmall",
         '_emptyValueText -> " "
 )

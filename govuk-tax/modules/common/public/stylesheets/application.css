@@ -2133,6 +2133,10 @@ label.indent {
   margin: 0 0.52em;
 }
 
+.form-field--inline-text-input {
+  margin-top: 0.6em;
+}
+
 .form-field--inline-spaced-right {
   margin-right: 15px;
 }
@@ -2147,8 +2151,8 @@ label.indent {
 .form-field--error {
   background-color: #fef7f7;
   border-left: 3px solid #df3034;
-  margin: 0 -1em 0.5em -1em;
-  padding: 0.75em 1em 1em 1em;
+  margin-left: 25px;
+  padding: 0.75em 1em 0.75em 1em;
 }
 
 .row {
@@ -2197,8 +2201,8 @@ ul li {
   font-weight: 400;
   text-transform: none;
   display: inline-block;
-  margin-bottom: 20px;
-  padding-left: 40px;
+  margin: 0 0 20px 25px;
+  padding-left: 15px;
   position: relative;
 }
 @media (max-width: 640px) {
@@ -2208,7 +2212,8 @@ ul li {
   }
 }
 .list--numbered .numbered legend {
-  margin-top: 0;
+  float: left;
+  width: 100%;
 }
 .list--numbered .numbered:before {
   counter-increment: section;
@@ -2216,7 +2221,7 @@ ul li {
   content: counter(section) ". ";
   /* Display the counter */
   position: absolute;
-  left: 0;
+  left: -25px;
   top: 0;
   padding-right: 10px;
 }
