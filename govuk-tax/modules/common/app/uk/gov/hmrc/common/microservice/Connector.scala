@@ -93,6 +93,8 @@ trait Connector extends Status with HeaderNames with ConnectionLogging {
         }
     }
   }
+
+  private def transform[TBody](body: Option[TBody]): JsValue = body.map(body => Json.parse(toRequestBody(body))).getOrElse(JsNull)
 }
 
 trait HasResponse {
