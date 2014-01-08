@@ -45,9 +45,9 @@ trait SaASBuild {
     regimeName = saRegimeName,
     messages = utrMessage(utr) +: buildMessages(saSummary),
     addenda = Seq(
-      AccountSummaryLink("sa-account-details-href", buildPortalUrl(saAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, sso = true),
-      AccountSummaryLink("sa-make-payment-href", saPaymentUrl, makeAPaymentLinkMessage, sso = false),
-      AccountSummaryLink("sa-file-return-href", buildPortalUrl(saFileAReturnPortalUrl), fileAReturnLinkMessage, sso = true)
+      AccountSummaryLink("sa-account-details-href", buildPortalUrl(saAccountDetailsPortalUrl), saViewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("sa-make-payment-href", saPaymentUrl, saMakeAPaymentLinkMessage, sso = false),
+      AccountSummaryLink("sa-file-return-href", buildPortalUrl(saFileAReturnPortalUrl), saFileAReturnLinkMessage, sso = true)
     ),
     status = SummaryStatus.success
   )
@@ -156,4 +156,7 @@ object SaMessageKeys {
   val saSummaryUnavailableErrorMessage2 = "sa.message.summaryUnavailable.2"
   val saSummaryUnavailableErrorMessage3 = "sa.message.summaryUnavailable.3"
   val saSummaryUnavailableErrorMessage4 = "sa.message.summaryUnavailable.4"
+  val saViewAccountDetailsLinkMessage = "sa.link.message.accountSummary.viewAccountDetails"
+  val saMakeAPaymentLinkMessage = "sa.link.message.accountSummary.makeAPayment"
+  val saFileAReturnLinkMessage = "sa.link.message.accountSummary.fileAReturn"
 }

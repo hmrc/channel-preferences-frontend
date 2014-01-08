@@ -36,8 +36,8 @@ abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
 }
 
 object CommonBusinessMessageKeys {
-  val viewAccountDetailsLinkMessage = "common.link.message.accountSummary.viewAccountDetails"
-  val makeAPaymentLinkMessage = "common.link.message.accountSummary.makeAPayment"
-  val fileAReturnLinkMessage = "common.link.message.accountSummary.fileAReturn"
+//  val viewAccountDetailsLinkMessage = "common.link.message.accountSummary.viewAccountDetails"
+//  val makeAPaymentLinkMessage = "common.link.message.accountSummary.makeAPayment"
+//  val fileAReturnLinkMessage = "common.link.message.accountSummary.fileAReturn"
   val oopsMessage = "common.message.oops"
 }

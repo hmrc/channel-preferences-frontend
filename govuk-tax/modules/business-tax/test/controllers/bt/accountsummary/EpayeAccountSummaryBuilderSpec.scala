@@ -31,13 +31,13 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val empRefMessageString: Msg = Msg(epayeEmpRefMessage, Seq(dummyEmpRef.toString))
 
   private val expectedRtiLinks = Seq(
-    AccountSummaryLink("epaye-account-details-href", homeUrl, viewAccountDetailsLinkMessage, sso = true),
-    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, makeAPaymentLinkMessage, sso = false)
+    AccountSummaryLink("epaye-account-details-href", homeUrl, epayeViewAccountDetailsLinkMessage, sso = true),
+    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, epayeMakeAPaymentLinkMessage, sso = false)
   )
 
   private val expectedNonRtiLinks = Seq(
-    AccountSummaryLink("epaye-account-details-href", homeUrl, viewAccountDetailsLinkMessage, sso = true),
-    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, makeAPaymentLinkMessage, sso = false)
+    AccountSummaryLink("epaye-account-details-href", homeUrl, epayeViewAccountDetailsLinkMessage, sso = true),
+    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, epayeMakeAPaymentLinkMessage, sso = false)
   )
 
   "EpayeAccountSummaryViewBuilder with RTI" should {
@@ -183,7 +183,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     }
 
     when(mockPortalUrlBuilder.build(epayeAccountDetailsPortalUrl)).thenReturn(homeUrl)
-    when(mockPortalUrlBuilder.build(makeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG
+    when(mockPortalUrlBuilder.build(epayeMakeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG
 
     val actualAccountSummary = await(EpayeAccountSummaryBuilder(mockEpayeConnector).build(mockPortalUrlBuilder.build _, mockUser).get)
 
