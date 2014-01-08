@@ -6,7 +6,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import play.api.test._
-import controllers.common.{CookieEncryption, CookieNames, HeaderNames}
+import controllers.common.{CookieCrypto, CookieNames, HeaderNames}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.bson.types.ObjectId
@@ -57,7 +57,7 @@ class AuditTestController(override val auditConnector: AuditConnector) extends C
     }
 }
 
-class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside with Inspectors with CookieEncryption {
+class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures with Inside with Inspectors with CookieCrypto {
 
   "AuditActionWrapper with traceRequestsEnabled " should {
     "generate audit events with no user details when no user is supplied" in new TestCase(traceRequests = true) {

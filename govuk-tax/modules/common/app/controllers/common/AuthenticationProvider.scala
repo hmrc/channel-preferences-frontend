@@ -12,7 +12,7 @@ trait AuthenticationProvider {
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[(Option[String], Option[String]), Future[Either[User, SimpleResult]]]
 }
 
-object Ida extends AuthenticationProvider with CookieEncryption {
+object Ida extends AuthenticationProvider with CookieCrypto {
   def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
     toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
 
@@ -30,7 +30,7 @@ object Ida extends AuthenticationProvider with CookieEncryption {
 }
 
 
-object GovernmentGateway extends AuthenticationProvider with CookieEncryption {
+object GovernmentGateway extends AuthenticationProvider with CookieCrypto {
   def handleRedirect(request: Request[AnyContent]) = Redirect(routes.HomeController.landing())
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {

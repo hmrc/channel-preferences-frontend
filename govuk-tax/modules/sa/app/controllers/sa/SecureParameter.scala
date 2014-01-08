@@ -2,7 +2,7 @@ package controllers.sa
 
 import play.api.libs.json.Json
 import org.joda.time.{ DateTimeZone, DateTime }
-import controllers.common.CookieEncryption
+import controllers.common.CookieCrypto
 import java.net.URLEncoder
 import scala.util.Try
 
@@ -26,5 +26,5 @@ object SecureParameter {
     }
   }
 
-  private[SecureParameter] object encryption extends CookieEncryption
+  private[SecureParameter] object encryption extends CookieCrypto
 }

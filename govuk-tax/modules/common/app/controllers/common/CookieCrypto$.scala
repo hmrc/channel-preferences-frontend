@@ -1,10 +1,10 @@
 package controllers.common
 
 import play.api.Play
-import controllers.common.service.Encryption
+import controllers.common.service.SymmetricCrypto
 
-trait CookieEncryption extends Encryption {
+trait CookieCrypto extends SymmetricCrypto {
   override lazy val encryptionKey = Play.current.configuration.getString("cookie.encryption.key").get
 }
 
-object CookieEncryption extends CookieEncryption
+object CookieCrypto extends CookieCrypto

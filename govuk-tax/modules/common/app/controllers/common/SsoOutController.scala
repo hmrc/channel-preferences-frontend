@@ -1,6 +1,6 @@
 package controllers.common
 
-import controllers.common.service.{Connectors, Encryption}
+import controllers.common.service.{Connectors, SymmetricCrypto}
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Request, Action}
 import config.PortalConfig
@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.Actions
 
-object SsoPayloadEncryptor extends Encryption {
+object SsoPayloadEncryptor extends SymmetricCrypto {
   val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
 }
 
@@ -18,7 +18,7 @@ class SsoOutController(override val auditConnector: AuditConnector)
                       (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with CookieEncryption
+  with CookieCrypto
   with SessionTimeoutWrapper
   with AllRegimeRoots {
 

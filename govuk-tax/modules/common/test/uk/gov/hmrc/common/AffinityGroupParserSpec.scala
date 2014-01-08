@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common
 
 import org.scalatest.mock.MockitoSugar
-import controllers.common.{SessionKeys, CookieEncryption}
+import controllers.common.{SessionKeys, CookieCrypto}
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 
 class AffinityGroupParserSpec extends BaseSpec with MockitoSugar {
@@ -13,7 +13,7 @@ class AffinityGroupParserSpec extends BaseSpec with MockitoSugar {
     "retrieve the affinity group from the request when affinity group is found in the session" in new WithApplication(FakeApplication()) {
 
       val affinityGroupParser = new AffinityGroupParserTest
-      implicit val request = FakeRequest().withSession(SessionKeys.affinityGroup -> CookieEncryption.encrypt("Organisation"))
+      implicit val request = FakeRequest().withSession(SessionKeys.affinityGroup -> CookieCrypto.encrypt("Organisation"))
 
       affinityGroupParser.parseAffinityGroup shouldBe "Organisation"
     }

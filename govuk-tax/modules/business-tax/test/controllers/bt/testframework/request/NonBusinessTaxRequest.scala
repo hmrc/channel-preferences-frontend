@@ -2,7 +2,7 @@ package controllers.bt.testframework.request
 
 import org.mockito.Mockito._
 import controllers.bt.testframework.fixtures.NonBusinessUserFixture
-import controllers.common.CookieEncryption
+import controllers.common.CookieCrypto
 import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.microservice.auth.domain._
@@ -18,7 +18,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 
-trait NonBusinessTaxRequest extends CookieEncryption with NonBusinessUserFixture with MockitoSugar {
+trait NonBusinessTaxRequest extends CookieCrypto with NonBusinessUserFixture with MockitoSugar {
 
   private val userAuthority = Authority(s"/auth/oid/$userId", Credentials(), Accounts(), lastLoginTimestamp, lastLoginTimestamp, CreationAndLastModifiedDetail())
 

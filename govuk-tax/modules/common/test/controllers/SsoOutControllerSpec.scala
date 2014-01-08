@@ -11,7 +11,7 @@ import config.{DateTimeProvider, PortalConfig}
 import uk.gov.hmrc.common.BaseSpec
 import org.joda.time.DateTime
 
-class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
 
   private def dateTime = DateTimeProvider.now
   private def controller = new SsoOutController() {

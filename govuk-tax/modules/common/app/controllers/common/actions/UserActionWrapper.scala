@@ -3,7 +3,7 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import play.api.Logger
-import controllers.common.{CookieEncryption, AuthenticationProvider}
+import controllers.common.{CookieCrypto, AuthenticationProvider}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 import scala.Some
@@ -16,7 +16,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 trait UserActionWrapper
   extends Results
-  with CookieEncryption {
+  with CookieCrypto {
 
   protected implicit val authConnector: AuthConnector
 

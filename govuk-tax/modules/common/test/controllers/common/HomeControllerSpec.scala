@@ -20,7 +20,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 
-class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
 
   private abstract class WithSetup extends WithApplication(FakeApplication()) {
     val controller = new HomeController()

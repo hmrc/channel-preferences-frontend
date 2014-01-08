@@ -25,7 +25,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 
-class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCrypto {
 
   import controllers.domain.AuthorityUtils._
 

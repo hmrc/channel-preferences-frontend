@@ -28,7 +28,7 @@ import uk.gov.hmrc.common.microservice.governmentgateway.GatewayToken
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 
-class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
 
   import play.api.test.Helpers._
 
