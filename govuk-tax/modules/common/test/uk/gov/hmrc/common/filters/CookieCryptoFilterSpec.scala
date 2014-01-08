@@ -170,6 +170,11 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       filter(action)(incomingRequest).futureValue should be(Ok.withCookies(normalCookie1, normalCookie2, Cookie(CookieName, "encryptedValue")))
     }
 
-    "do nothing with the cookie value if it is empty" in pending
+    "do nothing with the cookie value if it is empty" in new WithApplication(FakeApplication()) with Setup {
+      override val result = Ok.withCookies(Cookie(CookieName, ""))
+      val incomingRequest = FakeRequest()
+
+      filter(action)(incomingRequest).futureValue should be(Ok.withCookies(Cookie(CookieName, "")))
+    }
   }
 }

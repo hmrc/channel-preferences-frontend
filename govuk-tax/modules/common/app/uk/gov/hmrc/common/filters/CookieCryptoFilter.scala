@@ -46,7 +46,7 @@ trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
       val updatedHeader: Option[String] = result.header.headers.get(HeaderNames.SET_COOKIE).map {
         cookieHeader =>
           Cookies.encode(Cookies.decode(cookieHeader).map {
-            case c if c.name == cookieName => c.copy(value = encrypt(c.value))
+            case c if c.name == cookieName && !c.value.isEmpty => c.copy(value = encrypt(c.value))
             case other => other
           })
       }
