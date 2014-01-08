@@ -71,7 +71,7 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
       val result = add_car_benefit_fields(form, employerName, currentTaxYearYearsRange)
       val doc = Jsoup.parse(contentAsString(result))
 
-      doc.getElementsByClass("error") should have size 8
+      doc.getElementsByClass("form-field--error") should have size 8
 
     }
 

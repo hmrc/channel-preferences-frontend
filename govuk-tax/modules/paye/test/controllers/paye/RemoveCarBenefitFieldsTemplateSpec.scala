@@ -68,7 +68,7 @@ class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHel
       val result = remove_car_benefit_fields(form, currentTaxYearYearsRange, true)
       val doc = Jsoup.parse(contentAsString(result))
 
-      doc.getElementsByClass("error") should have size 4
+      doc.getElementsByClass("form-field--error") should have size 4
 
     }
 
