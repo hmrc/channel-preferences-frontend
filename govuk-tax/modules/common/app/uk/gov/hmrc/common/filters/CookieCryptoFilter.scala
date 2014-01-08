@@ -6,7 +6,7 @@ import controllers.common.service.{Decrypter, Encrypter}
 import play.api.mvc.SimpleResult
 import play.api.http.HeaderNames.{COOKIE => CookieHeaderName}
 
-abstract class SessionCryptoFilter extends Filter with Encrypter with Decrypter {
+trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
 
   override def apply(next: (RequestHeader) => Future[SimpleResult])(rh: RequestHeader): Future[SimpleResult] = {
 
@@ -25,6 +25,7 @@ abstract class SessionCryptoFilter extends Filter with Encrypter with Decrypter 
 
 
         val updatedCookies: Seq[Cookie] = cookies.map {
+          case session @ Cookie(Session.COOKIE_NAME, "", _, _, _, _, _) => session
           case session @ Cookie(Session.COOKIE_NAME, encryptedSession, _, _, _, _, _) => session.copy(value = decrypt(encryptedSession))
           case other => other
         }
