@@ -24,6 +24,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.paye.validation.RemoveBenefitValidator.RemoveCarBenefitFormDataValues
+import views.formatting.Strings
 
 class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
@@ -45,6 +46,14 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
             errorResult => Future.successful(errorResult),
             versionNumber => showReplaceCarBenefitFormAction(user, request, taxYear, employmentSequenceNumber))
         }
+  }
+
+  def confirmCarBenefitReplacement(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
+    implicit user =>
+      implicit request =>
+        validateVersionNumber(user, request.session).fold(
+          errorResult => Future.successful(errorResult),
+          versionNumber => confirmCarBenefitReplacementAction(taxYear, employmentSequenceNumber))
   }
 
   def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveCarBenefitFormData], user: User) = {
@@ -109,15 +118,23 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       val dates = getCarBenefitDates(request)
       val addForm = carBenefitForm(dates).bindFromRequest()
 
-
       if (addForm.hasErrors || removeForm.hasErrors) {
         BadRequest(replace_car_benefit_form(activeCarBenefit, primaryEmployment, removeForm, addForm, currentTaxYearYearsRange))
       } else {
-        Ok(replace_car_benefit_review(activeCarBenefit, primaryEmployment, removeForm.get, addForm.get))
+        val addCarBenefitData = addForm.get
+        val confirmationData = AddCarBenefitConfirmationData(Strings.optionalValue(primaryEmployment.employerName, "your.employer"), addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
+          addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
+          addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution,  addCarBenefitData.carRegistrationDate)
+
+        Ok(replace_car_benefit_review(activeCarBenefit, primaryEmployment, removeForm.get, confirmationData))
       }
     }
 
     Future.successful(result.getOrElse(InternalServerError("")))
+  }
+
+  def confirmCarBenefitReplacementAction(taxYear: Int, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]) = {
+    ???
   }
 }
 

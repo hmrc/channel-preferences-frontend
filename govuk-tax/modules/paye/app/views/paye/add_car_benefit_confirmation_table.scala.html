@@ -1,0 +1,50 @@
+@(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData)
+
+@import views.formatting.Money._
+@import views.formatting.Dates._
+<table id="new-company-car-details">
+    <tbody>
+    <tr>
+        <th scope="row">@Messages("paye.add_car_benefit_review.date_provided")</th>
+        <td>@{formatDate(data.providedFrom)}</td>
+    </tr>
+    <tr>
+        <th scope="row">@Messages("paye.add_car_benefit_review.list_price")</th>
+        <td>@pounds(data.listPrice)</td>
+    </tr>
+    <tr>
+        <th scope="row">@Messages("paye.add_car_benefit_review.fuel_type")</th>
+        <td>@{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</td>
+    </tr>
+    @if(data.co2Figure.isDefined) {
+    <tr>
+        <th scope="row">@Messages("paye.add_car_benefit_review.emissions")</th>
+        <td>@data.co2Figure.get g/km</td>
+    </tr>
+    }
+    @if(data.engineCapacity.isDefined){
+    <tr>
+        <th scope="row">@Messages("paye.add_car_benefit_review.engine_capacity")</th>
+        <td>@Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td>
+    </tr>
+    }
+    @if(data.employeeContributions.isDefined) {
+    <tr>
+        <th scope="row">@Messages("paye.add_car_benefit_review.employee_contributions")</th>
+        <td>@pounds(data.employeeContributions.get)</td>
+    </tr>
+    }
+    @if(data.dateRegistered.isDefined) {
+    <tr>
+        <th scope="row">@Messages("paye.add_car_benefit_review.date_registered")</th>
+        <td>@formatDate(data.dateRegistered.get)</td>
+    </tr>
+    }
+    @if(data.employerPayFuel.isDefined){
+    <tr>
+        <th scope="row">Private fuel</th>
+        <td>@{Messages(s"paye.add_car_benefit_review.employer_pay_fuel.${data.employerPayFuel.get}", data.employerName, formatDate(data.dateFuelWithdrawn, ""))}</td>
+    </tr>
+    }
+    </tbody>
+</table>
