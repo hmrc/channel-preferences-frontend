@@ -5,18 +5,21 @@ import scala.concurrent.Future
 import controllers.common.service.{Decrypter, Encrypter}
 import play.api.mvc.SimpleResult
 import play.api.http.HeaderNames.{COOKIE => CookieHeaderName}
+import controllers.common.CookieCrypto
 
 trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
 
+  val cookieName: String
+
   override def apply(next: (RequestHeader) => Future[SimpleResult])(rh: RequestHeader): Future[SimpleResult] = {
 
-    val resultWithPlainSession = next(decryptSession(rh))
+    val resultWithPlainCookie = next(decryptCookie(rh))
 
-//    encryptSession(resultWithPlainSession)
-    resultWithPlainSession
+//    encryptCookie(resultWithPlainCookie)
+    resultWithPlainCookie
   }
 
-  private def decryptSession(rh: RequestHeader): RequestHeader = {
+  private def decryptCookie(rh: RequestHeader): RequestHeader = {
 
     val cookies = rh.headers.getAll(CookieHeaderName).flatMap(Cookies.decode)
 
@@ -25,8 +28,8 @@ trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
 
 
         val updatedCookies: Seq[Cookie] = cookies.map {
-          case session @ Cookie(Session.COOKIE_NAME, "", _, _, _, _, _) => session
-          case session @ Cookie(Session.COOKIE_NAME, encryptedSession, _, _, _, _, _) => session.copy(value = decrypt(encryptedSession))
+          case c @ Cookie(cookieName, "", _, _, _, _, _) => c
+          case c @ Cookie(cookieName, encryptedCookie, _, _, _, _, _) => c.copy(value = decrypt(encryptedCookie))
           case other => other
         }
 
@@ -37,26 +40,9 @@ trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
   }
 
 
-  private def encryptSession(resultWithPlainSession: Future[SimpleResult]): Future[SimpleResult] = ???
+  private def encryptCookie(resultWithPlainCookie: Future[SimpleResult]): Future[SimpleResult] = ???
+}
 
-//new RequestHeader {
-//      def uri: String = rh.uri
-//
-//      def remoteAddress: String = rh.remoteAddress
-//
-//      def queryString: Map[String, Seq[String]] = rh.queryString
-//
-//      def method: String = rh.method
-//
-//      def headers: Headers = rh.headers
-//
-//      def path: String = rh.path
-//
-//      def version: String = rh.version
-//
-//      def tags: Map[String, String] = rh.tags
-//
-//      def id: Long = rh.id
-//    })
-//  }
+object SessionCookieCryptoFilter extends CookieCryptoFilter with CookieCrypto {
+  val cookieName: String = Session.COOKIE_NAME
 }

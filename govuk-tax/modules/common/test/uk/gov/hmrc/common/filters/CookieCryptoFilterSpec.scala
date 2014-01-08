@@ -23,8 +23,13 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
     override def encrypt(id: String): String = ???
   }
 
+  val CookieName = "someCookieName"
+
+  trait TestCookieName {
+    val cookieName = CookieName
+  }
+
   private trait Setup {
-    val CookieName = Session.COOKIE_NAME
     val action = mock[(RequestHeader) => Future[SimpleResult]]
     val outgoingResponse = Future.successful(mock[SimpleResult])
   }
@@ -33,7 +38,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
 
     "do nothing with the cookie if it is missing" in new WithApplication(FakeApplication()) {
       new Setup {
-        val filter = new CookieCryptoFilter with MockedCrypto
+        val filter = new CookieCryptoFilter with MockedCrypto with TestCookieName
         val incomingRequest = FakeRequest()
 
         when(action.apply(any())).thenReturn(outgoingResponse)
@@ -44,7 +49,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
 
     "decrypt the cookie" in new WithApplication(FakeApplication()) {
       new Setup {
-        val filter = new CookieCryptoFilter with MockedCrypto {
+        val filter = new CookieCryptoFilter with MockedCrypto with TestCookieName {
           override def decrypt(id: String): String = id match {
             case "encryptedValue" => "decryptedValue"
             case somethingElse => fail(s"Unexpectedly tried to decrypt $somethingElse")
@@ -63,7 +68,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
 
     "leave empty cookies unchanged" in new WithApplication(FakeApplication()) {
       new Setup {
-        val filter = new CookieCryptoFilter with MockedCrypto
+        val filter = new CookieCryptoFilter with MockedCrypto with TestCookieName
         val emptyCookie = Cookie(CookieName, "")
         val incomingRequest = FakeRequest().withCookies(emptyCookie)
         when(action.apply(any())).thenReturn(outgoingResponse)
@@ -72,6 +77,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
     }
 
     "Leave other cookies alone" in pending
+    "Cope with the decryption failing" in pending
 
     "discard the session if it contains anything other than the encrypted entry" in pending
     "discard the session if it cannot be decrypted" in pending
