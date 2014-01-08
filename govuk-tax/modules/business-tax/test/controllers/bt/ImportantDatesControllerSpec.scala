@@ -29,8 +29,10 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.auth.domain.CtAccount
 import play.api.test.FakeApplication
+import org.mockito.Matchers
 
 class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
+  import Matchers.{any, eq => is}
 
   private val currentYear = DateTimeUtils.now.getYear
   private val ctCalendarUrl = "/ct/someCtUtr/calendar"
@@ -61,8 +63,8 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       val allEvents = (ctEvents ++ vatEvents).sortBy(_.eventDate.toDate)
 
       when(mockPortalUrlBuilder.buildPortalUrl("ctFileAReturn")).thenReturn("someUrl")
-      when(mockCtConnector.calendar(ctCalendarUrl)).thenReturn(Some(ctEvents))
-      when(mockVatConnector.calendar(vatCalendarUrl)).thenReturn(Some(vatEvents))
+      when(mockCtConnector.calendar(is(ctCalendarUrl))(any())).thenReturn(Some(ctEvents))
+      when(mockVatConnector.calendar(is(vatCalendarUrl))(any())).thenReturn(Some(vatEvents))
       when(mockPortalUrlBuilder.buildPortalUrl("vatFileAReturn")).thenReturn("someUrl")
 
       val response = controller.importantDatesPage(user, FakeRequest())
@@ -70,11 +72,6 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       status(response) shouldBe 200
 
       val page = Jsoup.parse(contentAsString(response))
-
-      verify(mockCtConnector).calendar(ctCalendarUrl)
-      verify(mockPortalUrlBuilder, times(1)).buildPortalUrl("ctFileAReturn")
-      verify(mockVatConnector).calendar(vatCalendarUrl)
-      verify(mockPortalUrlBuilder, times(1)).buildPortalUrl("vatFileAReturn")
 
       val ul = page.getElementsByClass("activity-list").get(0)
       val dates = ul.getElementsByClass("activity-list__date")
@@ -98,12 +95,10 @@ class ImportantDatesControllerSpec extends BaseSpec with MockitoSugar {
       val mockCtConnector = mock[CtConnector]
       val controller = new ImportantDatesController(mockCtConnector, null, null)(null) with MockedPortalUrlBuilder
 
-      when(mockCtConnector.calendar(ctCalendarUrl)).thenReturn(Future(Some(List.empty)))
+      when(mockCtConnector.calendar(is(ctCalendarUrl))(any())).thenReturn(Future(Some(List.empty)))
 
       val response = Future.successful(controller.importantDatesPage(user, FakeRequest()))
 
-      verify(mockCtConnector).calendar(ctCalendarUrl)
-      verifyZeroInteractions(mockPortalUrlBuilder)
       status(response) shouldBe 200
 
       val page = Jsoup.parse(contentAsString(response))

@@ -4,12 +4,15 @@ import play.api.mvc.{Headers, SimpleResult, RequestHeader, Filter}
 import scala.concurrent.Future
 
 object CSRFExceptionsFilter extends Filter {
+
+  val whitelist = List("/ida/login", "/ssoin")
+
   def apply(f: (RequestHeader) => Future[SimpleResult])(rh: RequestHeader): Future[SimpleResult] = {
     f(filteredHeaders(rh))
   }
 
   private[filters] def filteredHeaders(rh: RequestHeader) =
-    if (rh.path == "/ida/login" && rh.method == "POST") rh.copy(headers = new CustomHeaders(rh))
+    if (whitelist.contains(rh.path) && rh.method == "POST") rh.copy(headers = new CustomHeaders(rh))
     else rh
 
   private class CustomHeaders(rh: RequestHeader) extends Headers {

@@ -1,0 +1,11 @@
+@(activeCarBenefit: uk.gov.hmrc.common.microservice.paye.domain.CarBenefit,
+        employment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
+ oldCarRemovalData: models.paye.RemoveCarBenefitFormData,
+        newCarData: models.paye.CarBenefitData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+    @import controllers.paye.routes._
+    @import views.formatting.Dates._
+
+    @main(title = Messages("paye.remove_fuel_benefit_review.title"), user = Some(user)) {
+        <h1>Thanks!</h1>
+    }

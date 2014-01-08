@@ -36,6 +36,14 @@ class CSRFExceptionsFilterSpec extends BaseSpec with MockitoSugar {
       requestHeader.headers("Csrf-Token") shouldBe "nocheck"
     }
 
+    "add Csrf-Token header with value nocheck to bypass validation for SSO POST request" in {
+      val rh = FakeRequest("POST", "/ssoin", FakeHeaders(), AnyContentAsEmpty)
+
+      val requestHeader = CSRFExceptionsFilter.filteredHeaders(rh)
+
+      requestHeader.headers("Csrf-Token") shouldBe "nocheck"
+    }
+
   }
 
 }

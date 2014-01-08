@@ -22,10 +22,11 @@ private[actions] trait RequestLogging extends HeaderNames with DateConverter {
       case _ => {
         val rid = s"govuk-tax-${UUID.randomUUID().toString}"
         val requestIdHeader = HeaderNames.xRequestId -> Seq(rid)
+        val requestTimestampHeader = HeaderNames.xRequestTimestamp -> Seq(System.nanoTime().toString)
 
         // TODO: Find a more efficient way of doing this, if possible.
         val newHeaders = new Headers {
-          val data: Seq[(String, Seq[String])] = (request.headers.toMap + requestIdHeader).toSeq
+          val data: Seq[(String, Seq[String])] = (request.headers.toMap + requestIdHeader + requestTimestampHeader).toSeq
         }
 
         new WrappedRequest(request) {

@@ -19,8 +19,10 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import scala.Some
+import org.mockito.Matchers
 
 class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
+  import Matchers.{any, eq => is}
 
   "Calling otherservices with a valid logged in business user" should {
 
@@ -33,12 +35,12 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
       val user = User(userId = "userId", userAuthority = saAuthority("userId", "sa-utr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
       val request = FakeRequest()
 
-      when(ggw.profile("userId")).thenReturn(ProfileResponse("Individual", List("HMCE-ECSL-ORG", "HMRC-EU-REF-ORG", "hmce-vatrsl-org")))
+      when(ggw.profile(is("userId"))(any())).thenReturn(ProfileResponse("Individual", List("HMCE-ECSL-ORG", "HMRC-EU-REF-ORG", "hmce-vatrsl-org")))
 
       val result = controllerUnderTest.otherServicesPage(user, request)
 
       status(result) shouldBe 200
-      println(contentAsString(result))
+
       val document = Jsoup.parse(contentAsString(result))
 
       document.getElementById("manageYourTaxesSection") should not be null
@@ -56,7 +58,7 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
       val vat = Some(mock[VatRoot])
       val user = User(userId = "userId", userAuthority = saAuthority("userId", "sa-utr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot, vat = vat, epaye = epaye), decryptedToken = None)
 
-      when(ggw.profile("userId")).thenReturn(ProfileResponse("Individual", List("HMCE-ECSL-ORG", "HMRC-EU-REF-ORG", "hmce-vatrsl-org")))
+      when(ggw.profile(is("userId"))(any())).thenReturn(ProfileResponse("Individual", List("HMCE-ECSL-ORG", "HMRC-EU-REF-ORG", "hmce-vatrsl-org")))
 
       val result = controllerUnderTest.otherServicesPage(user, FakeRequest())
 

@@ -16,5 +16,5 @@ class AuditConnector(override val serviceUrl: String = MicroServiceConfig.auditS
 
   lazy val enabled : Boolean = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.enabled").getOrElse(false)
 
-  def audit(auditEvent: AuditEvent)(implicit hc: HeaderCarrier) : Unit = if (enabled) httpPostF("/write/audit", auditEvent)
+  def audit(auditEvent: AuditEvent)(implicit hc: HeaderCarrier) : Unit = if (enabled) httpPostF("/write/audit", Some(auditEvent))
 }

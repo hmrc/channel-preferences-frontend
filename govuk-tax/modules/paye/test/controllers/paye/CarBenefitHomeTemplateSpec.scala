@@ -24,6 +24,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
   val removeFuelLinkId = "rm-fuel-link"
   val removeCarLinkId = "rm-car-link"
+  val replaceCarLinkId = "replace-car-link"
   val addCarLinkId = "add-car-link"
   val addFuelLinkId = "add-fuel-link"
   val taxYear = 2013
@@ -485,15 +486,16 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.getElementById(addFuelLinkId) shouldBe null
     }
 
-    "show a remove car link and not show a remove fuel link for a user who has a car without a fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
+    "show a remove and replace car link and not show a remove fuel link for a user who has a car without a fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(removeFuelLinkId) should be(null)
       doc.getElementById(removeCarLinkId) should not be (null)
+      doc.getElementById(replaceCarLinkId) should not be (null)
     }
 
-    "show a remove car and remove fuel link for a user who has a car and fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
+    "show a remove car, replace car and remove fuel link for a user who has a car and fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
       override val fuelBenefit = Some(fuelBenefitEmployer1)
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -501,6 +503,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(removeFuelLinkId) should not be (null)
       doc.getElementById(removeCarLinkId) should not be (null)
+      doc.getElementById(replaceCarLinkId) should not be (null)
     }
 
     "show an add Car link for a user without a company car" in new WithApplication(FakeApplication()) with BaseData {
@@ -512,7 +515,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.getElementById(addCarLinkId) should not be (null)
     }
 
-    "not show a remove car or remove fuel link for a user with no car benefit" in new WithApplication(FakeApplication()) with BaseData {
+    "not show a remove car, replace car, or remove fuel link for a user with no car benefit" in new WithApplication(FakeApplication()) with BaseData {
       override val activeCar = None
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -520,6 +523,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       doc.getElementById(removeFuelLinkId) should be(null)
       doc.getElementById(removeCarLinkId) should be(null)
+      doc.getElementById(replaceCarLinkId) should be(null)
     }
 
     "show a remove car link and not show a remove fuel link for a user with a car benefit but no fuel benefit" in new WithApplication(FakeApplication()) with BaseData {

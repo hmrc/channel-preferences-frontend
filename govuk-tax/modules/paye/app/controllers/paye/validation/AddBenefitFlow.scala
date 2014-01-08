@@ -5,15 +5,12 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import scala.util.Try
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.{TaxYearData, Employment}
 import Employment._
 import play.api.Logger
 import controllers.common.actions.HeaderCarrier
 import play.api.mvc.Results._
-import play.api.mvc.Session
-import controllers.paye.routes
 
 
 object AddBenefitFlow {

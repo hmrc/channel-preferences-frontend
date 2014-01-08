@@ -18,11 +18,11 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
                   version: Int,
                   employmentSequenceNumber: Int,
                   benefits: Seq[Benefit])(implicit hc: HeaderCarrier): Future[Option[AddBenefitResponse]] = {
-    httpPostF[AddBenefit, AddBenefitResponse](uri, AddBenefit(version,employmentSequenceNumber,benefits))
+    httpPostF[AddBenefitResponse, AddBenefit](uri, Some(AddBenefit(version, employmentSequenceNumber, benefits)))
   }
 
   def removeBenefits(uri: String, withdrawBenefitRequest: WithdrawnBenefitRequest)(implicit hc: HeaderCarrier): Future[Option[RemoveBenefitResponse]] = {
-    httpPostF[WithdrawnBenefitRequest, RemoveBenefitResponse](uri, withdrawBenefitRequest)
+    httpPostF[RemoveBenefitResponse, WithdrawnBenefitRequest](uri, Some(withdrawBenefitRequest))
   }
 
   def version(uri: String)(implicit hc: HeaderCarrier): Future[Int] = {

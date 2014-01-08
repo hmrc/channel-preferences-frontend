@@ -21,6 +21,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import java.net.URI
+import org.mockito.Matchers
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -33,7 +34,7 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
 }
 
 class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
-
+  import Matchers.{any, eq => is}
   import play.api.test.Helpers._
 
   val validUtr = SaUtr("1234567890")
@@ -44,17 +45,16 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect to the homepage when preferences already exist for a specific utr" in new Setup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
-      when(preferencesConnector.getPreferences(validUtr)(HeaderCarrier())).thenReturn(Some(preferencesAlreadyCreated))
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = Future.successful(controller.displayPrefsOnLoginFormAction(None)(user, request))
 
       status(page) shouldBe 303
       header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
-      verify(preferencesConnector, times(1)).getPreferences(validUtr)
     }
 
     "render an email input field with no value if no email address is supplied" in new Setup {
-      when(preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = Future.successful(controller.displayPrefsOnLoginFormAction(None)(user, request))
 
@@ -66,15 +66,13 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("email.main").attr("value") shouldBe ""
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe ""
-
-      verify(preferencesConnector, times(1)).getPreferences(validUtr)
     }
 
     "render an email input field populated with the supplied email address" in new Setup {
 
       val emailAddress = "bob@bob.com"
 
-      when(preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = Future.successful(controller.displayPrefsOnLoginFormAction(Some(emailAddress))(user, request))
 
@@ -87,11 +85,10 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe emailAddress
 
-      verify(preferencesConnector, times(1)).getPreferences(validUtr)
     }
 
     "include a link to keep paper preference" in new Setup {
-      when(preferencesConnector.getPreferences(validUtr)).thenReturn(None)
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = Future.successful(controller.displayPrefsOnLoginFormAction(None)(user, request))
 
@@ -100,8 +97,6 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val document = Jsoup.parse(contentAsString(page))
 
       document.getElementById("keep-paper-link").attr("value") shouldBe "No thanks, I don’t want to switch to email"
-
-      verify(preferencesConnector, times(1)).getPreferences(validUtr)
     }
   }
 
@@ -145,7 +140,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
+      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
@@ -154,23 +149,20 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val document = Jsoup.parse(contentAsString(page))
       document.select("#emailIsNotCorrectLink") shouldNot be(null)
       document.select("#emailIsCorrectLink") shouldNot be(null)
-
-      verifyZeroInteractions(preferencesConnector)
-      verify(emailConnector).validateEmailAddress(emailAddress)
     }
 
     "validate the email address, save the preference and redirect to the thank you page" in new Setup {
       val emailAddress = "someone@email.com"
-      when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(true)
-      when(preferencesConnector.savePreferences(validUtr, true, Some(emailAddress))).thenReturn(Future.successful(None))
+      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(true)
+      when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.SaPrefsController.thankYou().toString())
 
-      verify(preferencesConnector).savePreferences(validUtr, true, Some(emailAddress))
-      verify(emailConnector).validateEmailAddress(emailAddress)
+      verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
+      verify(emailConnector).validateEmailAddress(is(emailAddress))(any())
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
   }
@@ -179,21 +171,21 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new Setup {
       val emailAddress = "someone@email.com"
-      when(preferencesConnector.savePreferences(validUtr, true, Some(emailAddress))).thenReturn(Future.successful(None))
+      when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.SaPrefsController.thankYou().toString())
 
-      verify(preferencesConnector).savePreferences(validUtr, true, Some(emailAddress))
+      verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
 
     "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
+      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
 
@@ -204,13 +196,12 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       document.select("#emailIsCorrectLink") shouldNot be(null)
 
       verifyZeroInteractions(preferencesConnector)
-      verify(emailConnector).validateEmailAddress(emailAddress)
     }
 
     "if the verified flag is any value other than true, treat it as false" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      when(emailConnector.validateEmailAddress(emailAddress)).thenReturn(false)
+      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
 
@@ -219,9 +210,6 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val document = Jsoup.parse(contentAsString(page))
       document.select("#emailIsNotCorrectLink") shouldNot be(null)
       document.select("#emailIsCorrectLink") shouldNot be(null)
-
-      verifyZeroInteractions(preferencesConnector)
-      verify(emailConnector).validateEmailAddress(emailAddress)
     }
   }
 
@@ -229,13 +217,13 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "save the preference and redirect to the home page" in new Setup {
 
-      when(preferencesConnector.savePreferences(validUtr, false, None)).thenReturn(Future.successful(Some(FormattedUri(URI.create("/someuri")))))
+      when(preferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(Some(FormattedUri(URI.create("/someuri")))))
 
       val page = Future.successful(controller.submitKeepPaperFormAction(user, request))
       status(page) shouldBe 303
       header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
 
-      verify(preferencesConnector).savePreferences(validUtr, false, None)
+      verify(preferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
   }
