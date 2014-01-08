@@ -12,7 +12,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
     "return 200 and a valid json for a valid request and js is enabled" in new WithApplication(FakeApplication()){
       val controller = new ProblemReportsController()
 
-      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-action" -> "Some Action","report-error" -> "Some Error", "isJavascript" -> "true"))
+      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678", "report-action" -> "Some Action","report-error" -> "Some Error", "isJavascript" -> "true"))
 
       status(result) should be(200)
 
@@ -23,7 +23,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
     "return 200 and a valid html page for a valid request and js is not enabled" in new WithApplication(FakeApplication()){
       val controller = new ProblemReportsController()
 
-      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-action" -> "Some Action","report-error" -> "Some Error", "isJavascript" -> "false"))
+      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678", "report-action" -> "Some Action","report-error" -> "Some Error", "isJavascript" -> "false"))
 
       status(result) should be(200)
 
@@ -34,7 +34,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
     "return 200 and a valid html page for an invalid action and js is not enabled" in new WithApplication(FakeApplication()){
       val controller = new ProblemReportsController()
 
-      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-action" -> "","report-error" -> "Some Error", "isJavascript" -> "false"))
+      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678", "report-action" -> "","report-error" -> "Some Error", "isJavascript" -> "false"))
 
       status(result) should be(200)
 
@@ -46,7 +46,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
     "return 200 and a valid html page for an invalid error and js is not enabled" in new WithApplication(FakeApplication()){
       val controller = new ProblemReportsController()
 
-      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-action" -> "Some Action","report-error" -> "", "isJavascript" -> "false"))
+      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678", "report-action" -> "","report-error" -> "", "isJavascript" -> "false"))
 
       status(result) should be(200)
 
@@ -57,7 +57,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
     "return 400 and a valid json for an invalid action and js is enabled" in new WithApplication(FakeApplication()){
       val controller = new ProblemReportsController()
 
-      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-action" -> "","report-error" -> "Some Error", "isJavascript" -> "true"))
+      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678", "report-action" -> "","report-error" -> "Some Error", "isJavascript" -> "true"))
 
       status(result) should be(400)
 
@@ -67,7 +67,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
     "return 400 and a valid json for an invalid error and js is enabled" in new WithApplication(FakeApplication()){
       val controller = new ProblemReportsController()
 
-      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-action" -> "Some Action","report-error" -> "", "isJavascript" -> "true"))
+      val result = controller.report()(FakeRequest().withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678", "report-action" -> "Some Action","" -> "Some Error", "isJavascript" -> "true"))
 
       status(result) should be(400)
 

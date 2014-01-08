@@ -21,6 +21,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector)(impl
     mapping(
       "report-name" -> text.verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty),
       "report-email" -> text.verifying("error.prefs.email.missing", error => !error.isEmpty),
+      "report-telephone" -> text.verifying("error.common.problem_report.telephone_mandatory", error => !error.isEmpty),
       "report-action" -> text.verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty),
       "report-error" -> text.verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty),
       "isJavascript" -> boolean
@@ -58,4 +59,4 @@ class ProblemReportsController(override val auditConnector: AuditConnector)(impl
 
 }
 
-case class ProblemReport(reportName: String, reportEmail: String, reportAction: String, reportError: String, isJavascript: Boolean)
+case class ProblemReport(reportName: String, reportEmail: String, reportTelephone: String, reportAction: String, reportError: String, isJavascript: Boolean)

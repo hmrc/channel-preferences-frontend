@@ -169,7 +169,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      val error = doc.select(".error-notification").text
+      val error = doc.select("#form-remove-fuel-benefit .error-notification").text
       error shouldBe empty
     }
 
@@ -180,7 +180,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       val result = controller.requestRemoveCarBenefitAction(2013, 2)(johnDensmore, requestBenefitRemovalFormSubmission(Some(carWithdrawDate)))
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      val error = doc.select(".error-notification").text
+      val error = doc.select("#form-remove-fuel-benefit .error-notification").text
       error shouldBe empty
     }
 
@@ -326,7 +326,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Please answer this question."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Please answer this question."
 
     }
 
@@ -339,7 +339,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "You must specify the number of consecutive days the car has been unavailable."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "You must specify the number of consecutive days the car has been unavailable."
 
     }
 
@@ -352,7 +352,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Please use whole numbers only, not decimals or other characters."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Please use whole numbers only, not decimals or other characters."
 
     }
 
@@ -365,7 +365,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Days unavailable must be greater than zero if you have selected yes."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Days unavailable must be greater than zero if you have selected yes."
 
     }
 
@@ -378,7 +378,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Car cannot be unavailable for longer than the total time you have a company car for."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Car cannot be unavailable for longer than the total time you have a company car for."
 
     }
 
@@ -391,7 +391,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Please answer this question."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Please answer this question."
 
     }
 
@@ -404,7 +404,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "You must specify how much you paid your employer for private use of the company car."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "You must specify how much you paid your employer for private use of the company car."
 
     }
 
@@ -417,7 +417,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Please use whole numbers only, not decimals or other characters."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Please use whole numbers only, not decimals or other characters."
 
     }
 
@@ -430,7 +430,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Employee payment must be greater than zero if you have selected yes."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Employee payment must be greater than zero if you have selected yes."
     }
 
     "in step 1, display error message if user has contributed to the car but he has exceded the allowed maximum value" in new WithApplication(FakeApplication()) {
@@ -442,7 +442,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text shouldBe "Please enter a number of 5 characters or less."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Please enter a number of 5 characters or less."
     }
 
     "in step 2, display the infos provided in the form" in new WithApplication(FakeApplication()) {

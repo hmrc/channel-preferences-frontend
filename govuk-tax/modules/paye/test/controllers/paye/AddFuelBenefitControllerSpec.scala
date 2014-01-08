@@ -354,7 +354,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text should be(Messages("error.paye.answer_mandatory"))
+      doc.select("#form-add-fuel-benefit  .error-notification").text should be(Messages("error.paye.answer_mandatory"))
     }
 
     "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new TestCaseIn2012 {
