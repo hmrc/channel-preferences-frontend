@@ -15,6 +15,7 @@ import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransactio
 import BenefitTypes._
 import play.api.test.FakeRequest
 import controllers.paye.validation.BenefitFlowHelper
+import models.paye.RemoveCarBenefitFormData
 
 trait PayeBaseSpec extends BaseSpec {
 
@@ -24,6 +25,13 @@ trait PayeBaseSpec extends BaseSpec {
 
   val currentTestDate = new DateTime(testTaxYear - 1, 12, 2, 12, 1, ISOChronology.getInstanceUTC)
 
+  val bePresent = not be null
+
+  object LocalDate {
+    def apply(year: Int, month: Int, day: Int) = new LocalDate(year, month, day, ISOChronology.getInstanceUTC)
+    def apply() = new LocalDate()
+  }
+  
   def defaultTxLinks(nino: String) = Map(
     "history" -> s"/txqueue/current-status/paye/$nino/history/after/{from}?statuses={statuses}&max-results={maxResults}",
     "findByOid" -> "/txqueue/oid/{oid}")
@@ -67,7 +75,7 @@ trait PayeBaseSpec extends BaseSpec {
   val fuelGrossAmount = BigDecimal(22.22)
 
   val carBenefitEmployer1 = Benefit(31, testTaxYear, carGrossAmount, 1, None, None, None, None, None, None, None,
-    Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0),
+    Some(Car(Some(LocalDate(testTaxYear - 1, 12, 12)), None, Some(LocalDate(testTaxYear - 1, 12, 12)), Some(0),
       Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), Some(BigDecimal("120.21")), None)),
     actions("AB123456C", testTaxYear, 1), Map.empty, benefitAmount = Some(264.42))
 
@@ -91,19 +99,19 @@ trait PayeBaseSpec extends BaseSpec {
   val johnDensmoresTaxCodes = Seq(TaxCode(1, Some(1), testTaxYear, "430L", List(Allowance(1000, 2000, 11))))
 
   def johnDensmoresOneEmployment(sequenceNumberVal: Int = 1) = Seq(
-    Employment(sequenceNumber = sequenceNumberVal, startDate = new LocalDate(testTaxYear, 7, 2), endDate = Some(new LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = primaryEmploymentType))
+    Employment(sequenceNumber = sequenceNumberVal, startDate = LocalDate(testTaxYear, 7, 2), endDate = Some(LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = primaryEmploymentType))
 
   val johnDensmoresEmployments = Seq(
-    Employment(sequenceNumber = 1, startDate = new LocalDate(testTaxYear, 7, 2), endDate = Some(new LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = primaryEmploymentType),
-    Employment(sequenceNumber = 2, startDate = new LocalDate(testTaxYear, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 2))
+    Employment(sequenceNumber = 1, startDate = LocalDate(testTaxYear, 7, 2), endDate = Some(LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Weyland-Yutani Corp"), employmentType = primaryEmploymentType),
+    Employment(sequenceNumber = 2, startDate = LocalDate(testTaxYear, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 2))
 
   val carBenefit = Benefit(31, testTaxYear, 321.42, 2, None, None, None, None, None, None, None,
-    Some(Car(Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-05-30/withdrawDate"))
+    Some(Car(Some(LocalDate(testTaxYear - 1, 12, 12)), None, Some(LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-05-30/withdrawDate"))
 
   val fuelBenefit = Benefit(29, testTaxYear, 22.22, 2, None, None, None, None, None, None, None,
     None, actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-09-10/withdrawDate"))
 
-  val withdrawnFuelBenefit = Benefit(29, testTaxYear, 22.22, 2, None, None, None, None, None, None, Some(new LocalDate()),
+  val withdrawnFuelBenefit = Benefit(29, testTaxYear, 22.22, 2, None, None, None, None, None, None, Some(LocalDate()),
     None, actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-09-10/withdrawDate"))
 
   val carAndFuelBenefitWithDifferentEmploymentNumbers = Seq(CarAndFuel(carBenefit,
@@ -111,13 +119,17 @@ trait PayeBaseSpec extends BaseSpec {
 
   val johnDensmoresBenefits = Seq(CarBenefit(carBenefit, Some(fuelBenefit)))
 
+  val johnDensmoresRemovedCarBenefitFormData = new RemoveCarBenefitFormData(LocalDate(2014, 1, 8), Some(true), Some(10), Some(true), Some(2000), Some("12 January 2014"), Some(LocalDate(2013, 2, 8)))
+  val johnDensmoresNewCarData = AddCarBenefitConfirmationData("employerName", LocalDate(2014, 1, 8), 1234, "diesel", Some(222), Some("2000"),
+    Some("date"), Some(LocalDate(2014, 2, 5)), Some(50), Some(LocalDate(2000, 1, 1)))
+
 
   val removedCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
-    Some(Car(None, Some(new LocalDate(testTaxYear, 7, 12)), Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("RC123456B", testTaxYear, 1), Map.empty)
+    Some(Car(None, Some(LocalDate(testTaxYear, 7, 12)), Some(LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("RC123456B", testTaxYear, 1), Map.empty)
 
   val userWithRemovedCarEmployments = Some(Seq(
-    Employment(sequenceNumber = 1, startDate = new LocalDate(testTaxYear, 7, 2), endDate = Some(new LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Sansbury"), employmentType = primaryEmploymentType),
-    Employment(sequenceNumber = 2, startDate = new LocalDate(testTaxYear, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 2)))
+    Employment(sequenceNumber = 1, startDate = LocalDate(testTaxYear, 7, 2), endDate = Some(LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Sansbury"), employmentType = primaryEmploymentType),
+    Employment(sequenceNumber = 2, startDate = LocalDate(testTaxYear, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 2)))
 
   val userWithRemovedCarBenefits = Some(Seq(
     Benefit(29, testTaxYear, 22.22, 3, None, None, None, None, None, None, None, None, actions("RC123456B", testTaxYear, 1), Map.empty),

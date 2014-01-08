@@ -256,7 +256,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(LocalDate.now.withYear(1996)))))
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(org.joda.time.LocalDate.now.withYear(1996)))))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
     }

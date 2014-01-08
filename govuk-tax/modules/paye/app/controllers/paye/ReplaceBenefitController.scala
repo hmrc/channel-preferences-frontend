@@ -51,9 +51,12 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
   def confirmCarBenefitReplacement(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
     implicit user =>
       implicit request =>
-        validateVersionNumber(user, request.session).fold(
+        implicit val hc = HeaderCarrier(request)
+        validateVersionNumber(user, request.session).flatMap {
+          _.fold(
           errorResult => Future.successful(errorResult),
           versionNumber => confirmCarBenefitReplacementAction(taxYear, employmentSequenceNumber))
+        }
   }
 
   def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveCarBenefitFormData], user: User) = {

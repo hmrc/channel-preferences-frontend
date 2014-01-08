@@ -19,8 +19,6 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
       val result = add_car_benefit_fields(form, employerName, currentTaxYearYearsRange)
       val doc = Jsoup.parse(contentAsString(result))
 
-      val bePresent = not be null
-
       doc.getElementById("providedFrom.day") should bePresent
 
       doc.getElementById("providedFrom.month") should bePresent

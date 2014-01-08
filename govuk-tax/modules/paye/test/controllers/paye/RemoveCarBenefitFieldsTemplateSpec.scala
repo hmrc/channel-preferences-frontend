@@ -28,8 +28,6 @@ class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHel
       val result = remove_car_benefit_fields(form, currentTaxYearYearsRange, true)
       val doc = Jsoup.parse(contentAsString(result))
 
-      val bePresent = not be null
-
       doc.getElementById("withdrawDate.day") should bePresent
       doc.getElementById("withdrawDate.month") should bePresent
       doc.getElementById("withdrawDate.year") should bePresent
