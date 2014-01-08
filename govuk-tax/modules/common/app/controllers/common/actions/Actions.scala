@@ -48,8 +48,8 @@ trait Actions
     def async(body: AsyncPlayRequest): Action[AnyContent] = unauthedAction(Action.async(body))
 
     private def unauthedAction(body:Action[AnyContent]): Action[AnyContent] =
-      storeHeaders {
-        logRequest {
+      logRequest {
+        storeHeaders {
           WithRequestAuditing {
             body
           }
@@ -62,8 +62,8 @@ trait Actions
                          redirectToOrigin: Boolean,
                          pageVisibility: PageVisibilityPredicate,
                          body: UserAction) =
-    storeHeaders {
-      logRequest {
+    logRequest {
+      storeHeaders{
         WithSessionTimeoutValidation {
           WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
             user =>

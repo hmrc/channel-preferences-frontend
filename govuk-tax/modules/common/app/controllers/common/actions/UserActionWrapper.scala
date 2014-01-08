@@ -10,7 +10,7 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import views.html.login
 import scala.concurrent._
-import uk.gov.hmrc.common.StickyMdcExecutionContext.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 
@@ -25,6 +25,7 @@ trait UserActionWrapper
                                             redirectToOrigin: Boolean)
                                            (userAction: User => Action[AnyContent]): Action[AnyContent] =
     Action.async { request =>
+      implicit val hc = HeaderCarrier(request)
       val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime)
 
       handle((request.session.get("userId"), request.session.get("token"))).flatMap {

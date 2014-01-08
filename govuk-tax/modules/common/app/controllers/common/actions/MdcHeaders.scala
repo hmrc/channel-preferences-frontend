@@ -4,20 +4,19 @@ import controllers.common.{HeaderNames, CookieEncryption}
 import concurrent.Future
 import play.api.mvc._
 import org.slf4j.MDC
-import java.util.UUID
 import play.api.{Mode, Play}
 import views.html.server_error
 import play.Logger
-import uk.gov.hmrc.microservice.HasResponse
+import uk.gov.hmrc.common.microservice.HasResponse
 
 private[actions] trait MdcHeaders extends Results with CookieEncryption with HeaderNames {
   protected def storeHeaders(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     request =>
       request.session.get("userId").foreach(userId => MDC.put(authorisation, decrypt(userId)))
       request.session.get("token").foreach(token => MDC.put("token", token))
-      request.headers.get(forwardedFor).foreach(ip => MDC.put(forwardedFor, ip))
-      MDC.put(xRequestId, s"govuk-tax-${UUID.randomUUID().toString}")
       request.session.get("sessionId").foreach(sessionId => MDC.put(xSessionId, decrypt(sessionId)))
+      request.headers.get(forwardedFor).foreach(ip => MDC.put(forwardedFor, ip))
+      request.headers.get(xRequestId).foreach(rid => MDC.put(xRequestId, rid))
       Logger.debug("Request details added to MDC")
       try {
         action(request)

@@ -8,11 +8,11 @@ import scala.concurrent._
 import play.api.libs.json.JsValue
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.common.StickyMdcExecutionContext
+import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
 trait AsyncConnector extends Status with HeaderNames {
 
-  import StickyMdcExecutionContext.global
+  import MdcLoggingExecutionContext.fromLoggingDetails
 
   protected val serviceUrl: String
 

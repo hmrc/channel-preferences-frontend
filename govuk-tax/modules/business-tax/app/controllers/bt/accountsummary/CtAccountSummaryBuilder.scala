@@ -9,7 +9,7 @@ import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.domain.CtUtr
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import uk.gov.hmrc.common.StickyMdcExecutionContext.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
 

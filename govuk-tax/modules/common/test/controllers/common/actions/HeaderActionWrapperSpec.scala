@@ -7,21 +7,27 @@ import org.slf4j.MDC
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
 
-object HeaderTestController extends Controller with MdcHeaders {
+object HeaderTestController extends Controller with MdcHeaders with RequestLogging{
 
-  def test() = storeHeaders {
-    Action {
-      request =>
-        Ok(s"${MDC.get(xSessionId)}:${MDC.get(authorisation)}:${MDC.get("token")}:${MDC.get(forwardedFor)}:${MDC.get(xRequestId)}")
+  def test() =
+    logRequest {
+      storeHeaders {
+        Action {
+          request =>
+            Ok(s"${MDC.get(xSessionId)}:${MDC.get(authorisation)}:${MDC.get("token")}:${MDC.get(forwardedFor)}:${MDC.get(xRequestId)}")
+          }
+        }
     }
-  }
 
-  def fail() = storeHeaders {
-    Action {
-      request =>
-        throw new Exception
+  def fail() =
+    logRequest {
+      storeHeaders {
+        Action {
+          request =>
+            throw new Exception
+        }
+      }
     }
-  }
 }
 
 class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncryption {

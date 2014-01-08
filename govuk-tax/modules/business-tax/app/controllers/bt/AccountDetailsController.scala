@@ -50,7 +50,7 @@ with EmailControllerHelper {
   }
 
   def optedBackIntoPaperThankYou() = AuthorisedFor(account = SaRegime).async {
-    user => request => Future(Ok(views.html.opted_back_into_paper_thank_you(user)))
+    user => implicit request => Future(Ok(views.html.opted_back_into_paper_thank_you(user)))
   }
 
   def resendValidationEmail() = AuthorisedFor(account = SaRegime).async {

@@ -1,7 +1,7 @@
 package controllers.bt
 
 import controllers.common.{BaseController, GovernmentGateway}
-import uk.gov.hmrc.common.PortalUrlBuilder
+import uk.gov.hmrc.common.{MdcLoggingExecutionContext, PortalUrlBuilder}
 import controllers.common.service.Connectors
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -52,7 +52,7 @@ class ImportantDatesController(ctConnector: CtConnector, vatConnector: VatConnec
     datesF.map(dates => Ok(views.html.important_dates(dates.sortBy(_.date.toDate))(user)))
   }
   
-  private def getCalendarEvents(calendarEvents: Future[List[CalendarEvent]]):Future[List[CalendarEventWithShowLink]] = {
+  private def getCalendarEvents(calendarEvents: Future[List[CalendarEvent]])(implicit hc:HeaderCarrier):Future[List[CalendarEventWithShowLink]] = {
     calendarEvents.map{CalendarEventWithShowLink.addShowLinkToCalendarEvents(_)}
   }
 

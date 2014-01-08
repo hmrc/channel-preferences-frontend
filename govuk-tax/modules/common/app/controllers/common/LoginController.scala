@@ -34,8 +34,9 @@ class LoginController(samlConnector: SamlConnector,
 
   def samlLogin = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
-      samlConnector.create(HeaderCarrier(request)).map(authRequestFormData =>
-        Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest)))
+      implicit val headerCarrier = HeaderCarrier(request)
+      samlConnector.create(headerCarrier).map(authRequestFormData =>
+        Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest)))(headerCarrierExecutionContext(headerCarrier))
   })
 
   def businessTaxLogin = WithNewSessionTimeout(UnauthorisedAction {
@@ -56,7 +57,7 @@ class LoginController(samlConnector: SamlConnector,
       form.fold (
         erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
         credentials => {
-            governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response => 
+            governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response =>
               val sessionId = s"session-${UUID.randomUUID().toString}"
               auditConnector.audit(
                 AuditEvent(

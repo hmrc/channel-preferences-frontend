@@ -11,7 +11,7 @@ import scala.util.{Try, Failure}
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import com.ning.http.util.Base64
-import uk.gov.hmrc.common.StickyMdcExecutionContext
+import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
 trait AuditActionWrapper extends HeaderNames {
   val auditConnector : AuditConnector
@@ -20,7 +20,7 @@ trait AuditActionWrapper extends HeaderNames {
 
 class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends HeaderNames {
 
-  import StickyMdcExecutionContext.global
+  import MdcLoggingExecutionContext.fromLoggingDetails
 
   lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
 

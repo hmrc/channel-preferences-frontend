@@ -22,7 +22,7 @@ case class EpayeLinks(accountSummary: Option[String])
 case class EpayeRoot(empRef: EmpRef, links: EpayeLinks) extends RegimeRoot[EmpRef] {
 
   override val identifier = empRef
-  import uk.gov.hmrc.common.StickyMdcExecutionContext.global
+  import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
   def accountSummary(implicit epayeConnector: EpayeConnector, headerCarrier: HeaderCarrier): Future[Option[EpayeAccountSummary]] = {
     links.accountSummary map { uri =>

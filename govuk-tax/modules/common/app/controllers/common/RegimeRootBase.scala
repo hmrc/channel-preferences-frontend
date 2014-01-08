@@ -10,17 +10,18 @@ import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.StickyMdcExecutionContext
+import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
 trait RegimeRootBase {
-  implicit val executionContext = StickyMdcExecutionContext.global
+
+  import MdcLoggingExecutionContext._
 
   /**
    * Turns an Option of a Future into a Future of an Option:
    * Some(Future[T]) becomes Future(Some[T])
    * None becomes Future.successful(None)
    */
-  implicit def sequence[T](of: Option[Future[T]]): Future[Option[T]] = of.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
+  implicit def sequence[T](of: Option[Future[T]])(implicit hc: HeaderCarrier): Future[Option[T]] = of.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
 
   def payeRoot(authority: Authority)(implicit hc: HeaderCarrier): Future[Option[PayeRoot]] = authority.accounts.paye.map(paye => payeConnector.root(paye.link))
 

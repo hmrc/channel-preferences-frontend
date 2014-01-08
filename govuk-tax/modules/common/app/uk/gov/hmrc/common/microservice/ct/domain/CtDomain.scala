@@ -25,7 +25,7 @@ case class CtJsonRoot(links: Map[String, String])
 
 case class CtRoot(utr: CtUtr, links: Map[String, String]) extends RegimeRoot[CtUtr] {
 
-  import uk.gov.hmrc.common.StickyMdcExecutionContext.global
+  import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
   private val accountSummaryKey = "accountSummary"
 
