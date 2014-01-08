@@ -43,11 +43,15 @@ trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
 
   private def encryptCookie(f: Future[SimpleResult]): Future[SimpleResult] = f.map {
     result =>
-      val updatedCookie = result.header.headers.get(HeaderNames.SET_COOKIE).flatMap {
+      val updatedHeader: Option[String] = result.header.headers.get(HeaderNames.SET_COOKIE).map {
         cookieHeader =>
-          Cookies.decode(cookieHeader).find(_.name == cookieName).map(c => c.copy(value = encrypt(c.value)))
+          Cookies.encode(Cookies.decode(cookieHeader).map {
+            case c if c.name == cookieName => c.copy(value = encrypt(c.value))
+            case other => other
+          })
       }
-      updatedCookie.map(c => result.withCookies(c)).getOrElse(result)
+    
+      updatedHeader.map(header => result.withHeaders(HeaderNames.SET_COOKIE -> header)).getOrElse(result)
   }
 }
 

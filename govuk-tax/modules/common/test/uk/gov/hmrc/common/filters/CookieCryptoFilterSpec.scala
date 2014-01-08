@@ -56,7 +56,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
     }
   }
 
-  "The filter" should {
+  "During request pre-processing, the filter" should {
 
     "do nothing with no cookie header in the request" in new WithApplication(FakeApplication()) with Setup {
       val incomingRequest = FakeRequest()
@@ -82,7 +82,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       filter(action)(incomingRequest).futureValue should be(result)
     }
 
-    "Leave other cookies alone" in new WithApplication(FakeApplication()) with Setup {
+    "leave other cookies alone if our cookie is not present" in new WithApplication(FakeApplication()) with Setup {
       val normalCookie1 = Cookie("AnotherCookie1", "normalValue1")
       val normalCookie2 = Cookie("AnotherCookie2", "normalValue2")
       val incomingRequest = FakeRequest().withCookies(normalCookie1, normalCookie2)
@@ -93,7 +93,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       updatedRequest.getValue.cookies should contain allOf (normalCookie1, normalCookie2)
     }
 
-    "Leave other cookies alone when ours is present" in new WithApplication(FakeApplication()) with Setup {
+    "leave other cookies alone when ours is present" in new WithApplication(FakeApplication()) with Setup {
       val normalCookie1 = Cookie("AnotherCookie1", "normalValue1")
       val encryptedCookie = Cookie(CookieName, "encryptedValue")
       val normalCookie2 = Cookie("AnotherCookie2", "normalValue2")
@@ -105,7 +105,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       updatedRequest.getValue.cookies should contain allOf (encryptedCookie.copy(value = "decryptedValue"), normalCookie1, normalCookie2)
     }
 
-   "Remove the cookie header if the decryption fails and there are no other cookies" in new WithApplication(FakeApplication()) with Setup {
+   "remove the cookie header if the decryption fails and there are no other cookies" in new WithApplication(FakeApplication()) with Setup {
       val encryptedCookie = Cookie(name = CookieName, value = "invalidEncryptedValue")
       val incomingRequest = FakeRequest().withCookies(encryptedCookie)
 
@@ -118,7 +118,7 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       updatedRequest.getValue.headers.toMap should not contain key (HeaderNames.COOKIE)
     }
 
-    "Remove the cookie (but leave other cookies intact) if with the decryption fails" in new WithApplication(FakeApplication()) with Setup {
+    "remove the cookie (but leave other cookies intact) if with the decryption fails" in new WithApplication(FakeApplication()) with Setup {
       val normalCookie1 = Cookie("AnotherCookie1", "normalValue1")
       val encryptedCookie = Cookie(name = CookieName, value = "invalidEncryptedValue")
       val normalCookie2 = Cookie("AnotherCookie2", "normalValue2")
@@ -132,21 +132,44 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
 
       updatedRequest.getValue.cookies should contain only (normalCookie1, normalCookie2)
     }
+  }
 
-    "discard the session if it contains anything other than the encrypted entry" in pending
-    "discard the session if it cannot be decrypted" in pending
+  "During result post-processing, the filter" should {
 
-    "do nothing with the session result if it is empty" in pending
+    "do nothing with the result if there are no cookies" in new WithApplication(FakeApplication()) with Setup {
+      filter(action)(FakeRequest()).futureValue should be(result)
+    }
+
+    "do nothing with the result if there are cookies, but not our cookie" in new WithApplication(FakeApplication()) with Setup {
+
+      val normalCookie1 = Cookie("AnotherCookie1", "normalValue1")
+      val normalCookie2 = Cookie("AnotherCookie2", "normalValue2")
+
+      override val result = Ok.withCookies(normalCookie1, normalCookie2)
+      val incomingRequest = FakeRequest()
+
+      filter(action)(incomingRequest).futureValue should be(result)
+    }
 
     "encrypt the cookie value before returning it" in new WithApplication(FakeApplication()) with Setup {
       override val result = Ok.withCookies(Cookie(CookieName, "decryptedValue"))
       val incomingRequest = FakeRequest()
 
-      filter(action)(incomingRequest).futureValue should be(result.withCookies(Cookie(CookieName, "encryptedValue")))
+      filter(action)(incomingRequest).futureValue should be(Ok.withCookies(Cookie(CookieName, "encryptedValue")))
     }
 
-    "ignore the cookie header in the response unchanged if it does not contain the cookie we are looking for" in pending
+    "encrypt the cookie value before returning it, leaving other cookies unchanged" in new WithApplication(FakeApplication()) with Setup {
 
-    "cope with not having a cookie header in the response" in pending
+      val normalCookie1 = Cookie("AnotherCookie1", "normalValue1")
+      val ourCookie = Cookie(CookieName, "decryptedValue")
+      val normalCookie2 = Cookie("AnotherCookie2", "normalValue2")
+
+      override val result = Ok.withCookies(normalCookie1, ourCookie, normalCookie2)
+      val incomingRequest = FakeRequest()
+
+      filter(action)(incomingRequest).futureValue should be(Ok.withCookies(normalCookie1, normalCookie2, Cookie(CookieName, "encryptedValue")))
+    }
+
+    "do nothing with the cookie value if it is empty" in pending
   }
 }
