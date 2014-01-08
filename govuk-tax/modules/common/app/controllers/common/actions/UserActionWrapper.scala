@@ -53,7 +53,7 @@ trait UserActionWrapper
                 userId = userId,
                 userAuthority = ua,
                 regimes = regimeRoots,
-                nameFromGovernmentGateway = decrypt(request.session.get("name")),
+                nameFromGovernmentGateway = request.session.get("name").map(decrypt),
                 decryptedToken = token))
             }
         }

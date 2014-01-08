@@ -20,11 +20,7 @@ import play.api.http.HeaderNames
 class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypto with OptionValues with ScalaFutures with Inspectors {
 
   trait MockedCrypto extends Encrypter with Decrypter {
-
     override def decrypt(id: String): String = ???
-
-    override def decrypt(id: Option[String]): Option[String] = ???
-
     override def encrypt(id: String): String = ???
   }
 
@@ -62,7 +58,11 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       val incomingRequest = FakeRequest()
 
       filter(action)(incomingRequest).futureValue should be(result)
-      verify(action).apply(incomingRequest)
+      val updatedRequest = ArgumentCaptor.forClass(classOf[RequestHeader])
+      verify(action).apply(updatedRequest.capture())
+      val value = updatedRequest.getValue
+
+      value should equal (incomingRequest)
     }
 
     "decrypt the cookie" in new WithApplication(FakeApplication()) with Setup {
