@@ -60,7 +60,7 @@ class LoginController(samlConnector: SamlConnector,
               val sessionId = s"session-${UUID.randomUUID().toString}"
               auditConnector.audit(
                 AuditEvent(
-                  auditType = "TxSucceded",
+                  auditType = "TxSucceeded",
                   tags = Map( "transactionName" -> "GG Login",HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
                   detail = Map("authId" -> response.authId)
                 )
@@ -133,7 +133,7 @@ class LoginController(samlConnector: SamlConnector,
         case LoginSuccess(hashPid, authority, updatedHC) =>
           auditConnector.audit(
             AuditEvent(
-              auditType = "TxSucceded",
+              auditType = "TxSucceeded",
               tags = Map("transactionName" -> "IDA Login", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
               detail = Map("hashPid" -> hashPid, "authId" -> authority.uri) ++ authority.accounts.toMap
             )

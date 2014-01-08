@@ -139,7 +139,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
         val event = captor.getValue
 
         event.auditSource should be ("frontend")
-        event.auditType should be ("TxSucceded")
+        event.auditType should be ("TxSucceeded")
         event.tags should (
           contain ("transactionName" -> "IDA Login") and
           contain ("X-Request-ID" -> originalRequestId) and
@@ -334,7 +334,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieEncrypti
       val event = captor.getValue
 
       event.auditSource should be ("frontend")
-      event.auditType should be ("TxSucceded")
+      event.auditType should be ("TxSucceeded")
       event.tags should (
         contain ("transactionName" -> "GG Login") and
         contain key ("X-Request-ID") and
