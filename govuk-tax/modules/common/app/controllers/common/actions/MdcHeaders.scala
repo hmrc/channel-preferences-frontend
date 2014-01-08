@@ -1,6 +1,7 @@
 package controllers.common.actions
 
-import controllers.common.{HeaderNames, CookieEncryption}
+import controllers.common.{CookieCrypto, HeaderNames}
+
 import concurrent.Future
 import play.api.mvc._
 import org.slf4j.MDC
@@ -9,7 +10,7 @@ import views.html.server_error
 import play.Logger
 import uk.gov.hmrc.common.microservice.HasResponse
 
-private[actions] trait MdcHeaders extends Results with CookieEncryption with HeaderNames {
+private[actions] trait MdcHeaders extends Results with CookieCrypto with HeaderNames {
   protected def storeHeaders(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     request =>
       request.session.get("userId").foreach(userId => MDC.put(authorisation, decrypt(userId)))
