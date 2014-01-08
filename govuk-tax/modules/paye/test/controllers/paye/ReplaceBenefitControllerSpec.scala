@@ -12,28 +12,23 @@ import org.joda.time.chrono.ISOChronology
 import play.api.test._
 import org.mockito.Mockito._
 import play.api.test.Helpers._
-import uk.gov.hmrc.common.microservice.paye.domain.{TaxCode, CarBenefit, Employment, CarAndFuel}
+import uk.gov.hmrc.common.microservice.paye.domain.{CarBenefit, Employment}
 import scala.concurrent.Future
-import play.api.test.FakeApplication
-import scala.Some
 import controllers.DateFieldsHelper
 import controllers.paye.CarBenefitFormFields._
-import scala.Some
-import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
-import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import akka.actor.FSM.->
 import org.mockito.Matchers._
+import org.mockito.Matchers
 import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import org.mockito.Matchers
+import org.jsoup.Jsoup
+import models.paye.{ReplaceCarBenefitFormData, CarBenefitData}
 
 
 class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with ScalaFutures with DateFieldsHelper {
 
-  "Showing the replace cart benefit form" should {
+  "Showing the replace car benefit form" should {
 
     "redirect to carBenefitHomeController if the user does not have a car benefit" in new WithApplication(FakeApplication()) with TestCase {
       setupMocksForJohnDensmore(benefits = Seq.empty)
@@ -44,11 +39,38 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       redirectLocation(result) shouldBe Some(expectedUri)
     }
 
-    "return replace car benefit form" in new WithApplication(FakeApplication()) with TestCase {
+    "show the replace car benefit form" in new WithApplication(FakeApplication()) with TestCase {
       setupMocksForJohnDensmore()
       val result = controller.showReplaceCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, testTaxYear, 2)
 
       status(result) shouldBe 200
+    }
+
+    "show the prepopulated replace car benefit form if the keystore returns some data" in new WithApplication(FakeApplication()) with TestCase {
+      val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
+      setupMocksForJohnDensmore()
+      when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](
+        Matchers.eq("ReplaceCarBenefitFormData"), Matchers.eq("paye"), Matchers.eq("replace_benefit"), Matchers.eq(false))(any(), any())).thenReturn(Some(johnDensmoresReplaceCarBenefitData))
+      val result = controller.showReplaceCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, testTaxYear, 2)
+
+      status(result) shouldBe 200
+      println(contentAsString(result))
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedFrom]").select(s"[id~=year-$testTaxYear]").attr("selected") shouldBe "selected"
+      doc.select("#listPrice").attr("value") shouldBe "1000"
+      doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
+      doc.select("#employerContribution").attr("value") shouldBe "999"
+
+      doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
+      doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
+      doc.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
+      doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
+      doc.select("#employeeContribution").attr("value") shouldBe "100"
     }
   }
 
@@ -91,9 +113,18 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       when(mockPayeConnector.linkedResource[Seq[TaxCode]](Matchers.eq(s"/paye/AB123456C/tax-codes/$testTaxYear"))(any(), any())).thenReturn(Some(taxCodes))
       when(mockPayeConnector.linkedResource[Seq[CarAndFuel]](Matchers.eq(s"/paye/AB123456C/benefit-cars/$testTaxYear"))(any(), any())).thenReturn(Future.successful(Some(benefits.map(c => CarAndFuel(c.toBenefits(0), c.toBenefits.drop(1).headOption)))))
       when(mockPayeConnector.linkedResource[Seq[Employment]](Matchers.eq(s"/paye/AB123456C/employments/$testTaxYear"))(any(), any())).thenReturn(Future.successful(Some(johnDensmoresEmployments)))
+
+      when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(None)
+//      when(mockKeyStoreService.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
+//
+//      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](Matchers.eq(RemovalUtils.benefitFormDataActionId), Matchers.eq("paye"), Matchers.eq("remove_benefit"), any())(any(),any())).thenReturn(Future.successful(None))
+//      when(mockKeyStoreService.getEntry[RemoveFuelBenefitFormData](any(),any(),any(),any())(any(), any())).thenReturn(None)
+//      when(mockKeyStoreService.addKeyStoreEntry(any(), any(), any(), any(), any())(any(), any())).thenReturn(Future.successful(None))
+
     }
 
     import CarBenefitDataBuilder._
+
 
     def requestBenefitReplacementFormSubmission(dateReturned: Option[LocalDate] = Some(new LocalDate(testTaxYear, 5, 1)), carUnavailable: String = "false", employeeContributes: String = "false", fuelGiveUp: String = "sameDateFuel",
                                                providedFromVal: Option[(String, String, String)] = Some(localDateToTuple(Some(defaultProvidedFrom))),
@@ -133,5 +164,8 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
     }
   }
 
+  private def generateKeystoreActionId(taxYear: Int, employmentSequenceNumber: Int) = {
+    s"ReplaceCarBenefitFormData:$taxYear:$employmentSequenceNumber"
+  }
 
 }

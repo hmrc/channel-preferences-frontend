@@ -8,6 +8,7 @@ import models.paye.CarBenefitData
 import play.api.data.Form
 import play.api.test.Helpers._
 import controllers.paye.validation.AddCarBenefitValidator._
+import org.joda.time.LocalDate
 
 class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper {
   "add car benefit template" should {
@@ -56,6 +57,33 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
 
       doc.getElementById("employerPayFuel-false") should bePresent
       doc.getElementById("employerPayFuel-true") should bePresent
+    }
+
+
+    "render the form with a bunch of prepoulated data" in new WithApplication(FakeApplication()) {
+      val form: Form[CarBenefitData] = carBenefitForm(CarBenefitValues(employeeContributes = Some("true"), employerContributes = Some("true"))).fill(johnDensmoresCarBenefitData)
+      val employerName = Some("Sainsbury's")
+      val currentTaxYearYearsRange = testTaxYear to testTaxYear + 1
+
+      val result = add_car_benefit_fields(form, employerName, currentTaxYearYearsRange)
+      val doc = Jsoup.parse(contentAsString(result))
+
+      doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
+      doc.select("[id~=providedFrom]").select(s"[id~=year-$testTaxYear]").attr("selected") shouldBe "selected"
+      doc.select("#listPrice").attr("value") shouldBe "1000"
+      doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
+      doc.select("#employerContribution").attr("value") shouldBe "999"
+
+      doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
+      doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
+      doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
+      doc.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
+      doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
+      doc.select("#employeeContribution").attr("value") shouldBe "100"
+
     }
 
     "render any errors in the form data" in new WithApplication(FakeApplication()) {

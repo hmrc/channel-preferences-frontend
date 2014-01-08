@@ -27,6 +27,8 @@ object RemoveCarBenefitFormData {
     )
 }
 
+case class ReplaceCarBenefitFormData(removedCar: RemoveCarBenefitFormData, newCar: CarBenefitData)
+
 case class RemoveFuelBenefitFormData(withdrawDate: LocalDate)
 
 object RemoveFuelBenefitFormData {
