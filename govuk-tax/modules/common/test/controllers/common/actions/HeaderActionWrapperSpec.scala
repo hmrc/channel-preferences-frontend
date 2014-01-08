@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import controllers.common.{CookieEncryption, HeaderNames}
+import controllers.common.{CookieCrypto, HeaderNames}
 import play.api.mvc.{Action, Controller}
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import org.slf4j.MDC
@@ -30,7 +30,7 @@ object HeaderTestController extends Controller with MdcHeaders with RequestLoggi
     }
 }
 
-class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieEncryption {
+class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieCrypto {
 
   "HeaderActionWrapper" should {
     "add parameters from the session and the headers to the MDC " in new WithApplication(FakeApplication()) {

@@ -10,7 +10,7 @@ import SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 import java.util.UUID
 
-class SessionTimeoutWrapperSpec extends BaseSpec with CookieEncryption{
+class SessionTimeoutWrapperSpec extends BaseSpec with CookieCrypto {
 
   import play.api.test.Helpers._
 
