@@ -2,7 +2,7 @@ package uk.gov.hmrc.common.filters
 
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
-import play.api.mvc.{Session, Cookie, SimpleResult, RequestHeader}
+import play.api.mvc._
 import scala.concurrent.Future
 import play.api.test.{WithApplication, FakeApplication, FakeRequest}
 import org.mockito.Mockito._
@@ -11,6 +11,9 @@ import controllers.common.CookieCrypto
 import org.mockito.ArgumentCaptor
 import org.scalatest.OptionValues
 import controllers.common.service.{Encrypter, Decrypter}
+import play.api.test.FakeApplication
+import play.api.mvc.Cookie
+import play.api.mvc.SimpleResult
 
 class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypto with OptionValues {
 
@@ -76,7 +79,27 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       }
     }
 
-    "Leave other cookies alone" in pending
+    "Leave other cookies alone" in new WithApplication(FakeApplication()) {
+      new Setup {
+        val filter = new CookieCryptoFilter with MockedCrypto with TestCookieName {
+          override def decrypt(id: String): String = id match {
+            case "encryptedValue" => "decryptedValue"
+            case somethingElse => fail(s"Unexpectedly tried to decrypt $somethingElse")
+          }
+        }
+        val normalCookie1 = Cookie("AnotherCookie1", "normalValue1")
+        val encryptedCookie = Cookie(CookieName, "encryptedValue")
+        val normalCookie2 = Cookie("AnotherCookie2", "normalValue2")
+        val incomingRequest = FakeRequest().withCookies(normalCookie1, encryptedCookie, normalCookie2)
+        when(action.apply(any())).thenReturn(outgoingResponse)
+        filter(action)(incomingRequest) should be(outgoingResponse)
+        
+        val updatedRequest = ArgumentCaptor.forClass(classOf[RequestHeader])
+        verify(action).apply(updatedRequest.capture())
+        updatedRequest.getValue.cookies should contain allOf (encryptedCookie.copy(value = "decryptedValue"), normalCookie1, normalCookie2)
+      }
+    }
+    
     "Cope with the decryption failing" in pending
 
     "discard the session if it contains anything other than the encrypted entry" in pending

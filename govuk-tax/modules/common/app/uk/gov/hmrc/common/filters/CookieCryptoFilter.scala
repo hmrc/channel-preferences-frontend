@@ -28,8 +28,7 @@ trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
 
 
         val updatedCookies: Seq[Cookie] = cookies.map {
-          case c @ Cookie(cookieName, "", _, _, _, _, _) => c
-          case c @ Cookie(cookieName, encryptedCookie, _, _, _, _, _) => c.copy(value = decrypt(encryptedCookie))
+          case c if c.name == cookieName && !c.value.isEmpty => c.copy(value = decrypt(c.value))
           case other => other
         }
 
