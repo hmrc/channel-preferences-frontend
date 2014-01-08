@@ -9,14 +9,14 @@ import org.mockito.Mockito._
 import org.mockito.Matchers._
 import controllers.common.CookieCrypto
 import org.mockito.ArgumentCaptor
-import org.scalatest.OptionValues
+import org.scalatest.{Inspectors, OptionValues}
 import controllers.common.service.{Encrypter, Decrypter}
 import play.api.test.FakeApplication
 import play.api.mvc.Cookie
 import play.api.mvc.SimpleResult
 import org.scalatest.concurrent.ScalaFutures
 
-class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypto with OptionValues with ScalaFutures {
+class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypto with OptionValues with ScalaFutures with Inspectors {
 
   trait MockedCrypto extends Encrypter with Decrypter {
 
@@ -37,10 +37,10 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
     val result: SimpleResult = Ok
 
     lazy val action = {
-      val a = mock[(RequestHeader) => Future[SimpleResult]]
+      val mockAction = mock[(RequestHeader) => Future[SimpleResult]]
       val outgoingResponse = Future.successful(result)
-      when(a.apply(any())).thenReturn(outgoingResponse)
-      a
+      when(mockAction.apply(any())).thenReturn(outgoingResponse)
+      mockAction
     }
 
     val filter = new CookieCryptoFilter with MockedCrypto with TestCookieName {
@@ -104,7 +104,17 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       updatedRequest.getValue.cookies should contain allOf (encryptedCookie.copy(value = "decryptedValue"), normalCookie1, normalCookie2)
     }
 
-    "Cope with the decryption failing" in pending
+    "Cope with the decryption failing" in new WithApplication(FakeApplication()) with Setup {
+      val encryptedCookie = Cookie(name = CookieName, value = "invalidEncryptedValue")
+      val incomingRequest = FakeRequest().withCookies(encryptedCookie)
+
+      filter(action)(incomingRequest)
+
+      val updatedRequest = ArgumentCaptor.forClass(classOf[RequestHeader])
+      verify(action).apply(updatedRequest.capture())
+
+      no(updatedRequest.getValue.cookies) should have ('name (CookieName))
+    }
 
     "discard the session if it contains anything other than the encrypted entry" in pending
     "discard the session if it cannot be decrypted" in pending

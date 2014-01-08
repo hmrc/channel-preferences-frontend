@@ -17,29 +17,37 @@ trait CookieCryptoFilter extends Filter with Encrypter with Decrypter {
   private def decryptCookie(rh: RequestHeader) = {
     val cookies = rh.headers.getAll(HeaderNames.COOKIE).flatMap(Cookies.decode)
 
-    if (cookies.isEmpty) rh else rh.copy(headers = new Headers {
+    if (cookies.isEmpty) rh
+    else rh.copy(headers = new Headers {
       override protected val data: Seq[(String, Seq[String])] = {
 
-        val updatedCookies: Seq[Cookie] = cookies.map {
-          case c if c.name == cookieName && !c.value.isEmpty => c.copy(value = decrypt(c.value))
-          case other => other
+        val updatedCookies: Seq[Cookie] = cookies.flatMap {
+          case c if c.name == cookieName && !c.value.isEmpty =>
+            try {
+              Some(c.copy(value = decrypt(c.value)))
+            } catch {
+              case _: Exception => None
+            }
+          case other => Some(other)
         }
 
-        if (updatedCookies.isEmpty) rh.headers.toMap.toSeq
-        else (rh.headers.toMap + (HeaderNames.COOKIE -> Seq(Cookies.encode(updatedCookies)))).toSeq
+        val updatedHeaders =
+          if (updatedCookies.isEmpty) rh.headers.toMap - HeaderNames.COOKIE
+          else rh.headers.toMap + (HeaderNames.COOKIE -> Seq(Cookies.encode(updatedCookies)))
+
+        updatedHeaders.toSeq
       }
     })
   }
 
 
-  private def encryptCookie(f: Future[SimpleResult]): Future[SimpleResult] = f.map { result =>
-    val updatedCookie = result.header.headers.get(HeaderNames.SET_COOKIE).flatMap { cookieHeader =>
-      Cookies.decode(cookieHeader).find(_.name == cookieName).map { c =>
-        c.copy(value = encrypt(c.value))
+  private def encryptCookie(f: Future[SimpleResult]): Future[SimpleResult] = f.map {
+    result =>
+      val updatedCookie = result.header.headers.get(HeaderNames.SET_COOKIE).flatMap {
+        cookieHeader =>
+          Cookies.decode(cookieHeader).find(_.name == cookieName).map(c => c.copy(value = encrypt(c.value)))
       }
-    }
-  
-    updatedCookie.map(c => result.withCookies(c)).getOrElse(result)
+      updatedCookie.map(c => result.withCookies(c)).getOrElse(result)
   }
 }
 
