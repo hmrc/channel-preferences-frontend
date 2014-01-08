@@ -22,7 +22,7 @@
 
     <p>Enter your email address to sign up for email reminders.</p>
 
-    @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm) {
+    @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm, 'id -> "form-submit-preferences-email") {
 
 	@helpers.input(
 	    emailForm("email.main"),
