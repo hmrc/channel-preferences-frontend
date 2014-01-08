@@ -139,7 +139,7 @@ with PayeRegimeRoots {
           val dates = getCarBenefitDates(request)
 
           carBenefitForm(dates, timeSource).bindFromRequest()(request).fold(
-            errors => Future.successful(BadRequest(add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user))),
+            errors => Future.successful(BadRequest(add_car_benefit_form(errors, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user, request))),
             (addCarBenefitData: CarBenefitData) => {
               implicit val hc = HeaderCarrier(request)
 
@@ -148,7 +148,7 @@ with PayeRegimeRoots {
                   val confirmationData = AddCarBenefitConfirmationData(employment.employerName, addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                     addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
                     addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution,  addCarBenefitData.carRegistrationDate)
-                  Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber))
+                  Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber)(request))
               }
             }
           )

@@ -37,11 +37,14 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   def showReplaceCarBenefitForm(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    user =>
-      request =>
-        validateVersionNumber(user, request.session).fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => showReplaceCarBenefitFormAction(user, request, taxYear, employmentSequenceNumber))
+    implicit user =>
+      implicit request =>
+        implicit val hc = HeaderCarrier(request)
+        validateVersionNumber(user, request.session).flatMap {
+          _.fold(
+            errorResult => Future.successful(errorResult),
+            versionNumber => showReplaceCarBenefitFormAction(user, request, taxYear, employmentSequenceNumber))
+        }
   }
 
   def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveCarBenefitFormData], user: User) = {
@@ -56,9 +59,12 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
   def requestReplaceCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
     implicit user =>
       implicit request =>
-        validateVersionNumber(user, request.session).fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => requestReplaceCarAction(taxYear, employmentSequenceNumber))
+        implicit val hc = HeaderCarrier(request)
+        validateVersionNumber(user, request.session).flatMap {
+          _.fold(
+            errorResult => Future.successful(errorResult),
+            versionNumber => requestReplaceCarAction(taxYear, employmentSequenceNumber))
+        }
   }
 
   private[paye] def showReplaceCarBenefitFormAction(user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int): Future[SimpleResult] = {

@@ -23,6 +23,12 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import akka.actor.FSM.->
+import org.mockito.Matchers._
+import scala.Some
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
+import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
+import org.mockito.Matchers
 
 
 class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with ScalaFutures with DateFieldsHelper {
@@ -82,9 +88,9 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
     lazy val controller = new ReplaceBenefitController(mockKeyStoreService, mock[AuthConnector], mock[AuditConnector])(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport
 
     def setupMocksForJohnDensmore(employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[CarBenefit] = johnDensmoresBenefits, taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes) {
-      when(mockPayeConnector.linkedResource[Seq[TaxCode]](s"/paye/AB123456C/tax-codes/$testTaxYear")).thenReturn(Some(taxCodes))
-      when(mockPayeConnector.linkedResource[Seq[CarAndFuel]](s"/paye/AB123456C/benefit-cars/$testTaxYear")).thenReturn(Future.successful(Some(benefits.map(c => CarAndFuel(c.toBenefits(0), c.toBenefits.drop(1).headOption)))))
-      when(mockPayeConnector.linkedResource[Seq[Employment]](s"/paye/AB123456C/employments/$testTaxYear")).thenReturn(Future.successful(Some(johnDensmoresEmployments)))
+      when(mockPayeConnector.linkedResource[Seq[TaxCode]](Matchers.eq(s"/paye/AB123456C/tax-codes/$testTaxYear"))(any(), any())).thenReturn(Some(taxCodes))
+      when(mockPayeConnector.linkedResource[Seq[CarAndFuel]](Matchers.eq(s"/paye/AB123456C/benefit-cars/$testTaxYear"))(any(), any())).thenReturn(Future.successful(Some(benefits.map(c => CarAndFuel(c.toBenefits(0), c.toBenefits.drop(1).headOption)))))
+      when(mockPayeConnector.linkedResource[Seq[Employment]](Matchers.eq(s"/paye/AB123456C/employments/$testTaxYear"))(any(), any())).thenReturn(Future.successful(Some(johnDensmoresEmployments)))
     }
 
     import CarBenefitDataBuilder._
