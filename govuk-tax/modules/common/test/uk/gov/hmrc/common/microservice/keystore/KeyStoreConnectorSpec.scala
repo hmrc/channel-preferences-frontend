@@ -2,12 +2,10 @@ package uk.gov.hmrc.common.microservice.keystore
 
 import play.api.test.{FakeApplication, WithApplication}
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.JsValue
 import org.mockito.{ArgumentCaptor, Matchers, Mockito}
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common.actions.HeaderCarrier
-import org.specs2.specification.BeforeEach
 import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.Future
 
@@ -54,8 +52,6 @@ class KeyStoreConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures
   "KeyStoreConnector" should {
 
     "call the key store service when adding a key store entry " in new WithApplication(FakeApplication()) {
-
-      val headerCarrier = HeaderCarrier(Some(userId), sessionId = Some(sessionId))
 
       val keyStoreConnector = new TestKeyStoreConnector()
       keyStoreConnector.addKeyStoreEntry(actionId, source, formId, data)
