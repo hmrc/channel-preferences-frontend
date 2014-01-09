@@ -256,7 +256,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
 
     "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(LocalDate.now.withYear(1996)))))
+      val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(org.joda.time.LocalDate.now.withYear(1996)))))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
     }
@@ -410,7 +410,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text should be(Messages("error.paye.answer_mandatory"))
+      doc.select("#form-add-car-benefit .error-notification").text should be(Messages("error.paye.answer_mandatory"))
     }
 
     "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()) {
@@ -1030,7 +1030,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       ++ buildDateFormField(providedFrom, providedFromVal)
       ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal)
       ++ buildDateFormField(carRegistrationDate, carRegistrationDateVal): _*).
-      withSession((BenefitFlowHelper.npsVersionKey, johnDensmoreVersionNumber.toString))
+      withSession(BenefitFlowHelper.npsVersionKey -> johnDensmoreVersionNumber.toString)
   }
 
   private def generateKeystoreActionId(taxYear: Int, employmentSequenceNumber: Int) = {

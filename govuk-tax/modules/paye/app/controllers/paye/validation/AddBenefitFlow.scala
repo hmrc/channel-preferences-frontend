@@ -4,7 +4,7 @@ import play.api.mvc.{Request, SimpleResult}
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.{TaxYearData, Employment}
 import Employment._

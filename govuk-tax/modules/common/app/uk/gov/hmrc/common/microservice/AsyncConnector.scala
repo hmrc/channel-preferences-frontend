@@ -3,19 +3,21 @@ package uk.gov.hmrc.common.microservice
 import play.api.libs.ws.{Response, WS}
 import play.api.http.Status
 import controllers.common.domain.Transform._
-import scala.concurrent.ExecutionContext
-import ExecutionContext.Implicits.global
 import play.api.Logger
 import scala.concurrent._
 import play.api.libs.json.JsValue
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
 trait AsyncConnector extends Status with HeaderNames {
+
+  import MdcLoggingExecutionContext.fromLoggingDetails
+
   protected val serviceUrl: String
 
   protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = {
-    Logger.info(s"Accessing backend service: $serviceUrl$uri")
+    Logger.info(s"Asynchronously accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
 

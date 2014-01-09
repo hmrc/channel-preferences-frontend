@@ -6,7 +6,6 @@ import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 import controllers.common.actions.HeaderCarrier
 
@@ -25,6 +24,8 @@ object CtRoot {
 case class CtJsonRoot(links: Map[String, String])
 
 case class CtRoot(utr: CtUtr, links: Map[String, String]) extends RegimeRoot[CtUtr] {
+
+  import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
   private val accountSummaryKey = "accountSummary"
 

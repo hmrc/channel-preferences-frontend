@@ -1,8 +1,24 @@
 package controllers.common.actions
 
-import controllers.common.{HeaderNames, CookieEncryption}
+import controllers.common.{HeaderNames, CookieCrypto}
 import play.api.mvc.Request
 import scala.util.Try
+
+trait LoggingDetails {
+
+  def sessionId: Option[String]
+
+  def requestId: Option[String]
+
+  lazy val data = Map(
+    (HeaderNames.xRequestId, requestId),
+    (HeaderNames.xSessionId, sessionId))
+
+  def mdcData: Map[String, String]= for {
+    d <- data
+    v <- d._2
+  } yield (d._1, v)
+}
 
 /**
  * We need a way to carry header information from the request coming in
@@ -17,7 +33,7 @@ case class HeaderCarrier(userId: Option[String] = None,
                          forwarded: Option[String] = None,
                          sessionId: Option[String] = None,
                          requestId: Option[String] = None,
-                         nsStamp: Long = System.nanoTime()) {
+                         nsStamp: Long = System.nanoTime()) extends LoggingDetails {
 
   /**
    * @return the time, in nanoseconds, since this header carrier was created
@@ -42,7 +58,7 @@ trait SessionKeys {
 
 object SessionKeys extends SessionKeys
 
-object HeaderCarrier extends CookieEncryption {
+object HeaderCarrier extends CookieCrypto {
   val names = HeaderNames
 
   import SessionKeys._

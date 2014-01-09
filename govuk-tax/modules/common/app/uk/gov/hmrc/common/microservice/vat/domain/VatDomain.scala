@@ -7,7 +7,7 @@ import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 object VatRegime extends TaxRegime {
   def isAuthorised(accounts: Accounts) = accounts.vat.isDefined

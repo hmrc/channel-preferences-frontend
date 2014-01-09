@@ -8,7 +8,7 @@ import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatRoot}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 
@@ -48,9 +48,9 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
   private def successLinks(buildPortalUrl: (String) => String): Seq[AccountSummaryLink] = {
     val makeAPaymentUri = routes.PaymentController.makeVatPayment().url
     Seq[AccountSummaryLink](
-      AccountSummaryLink("vat-account-details-href", buildPortalUrl(vatAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, sso = true),
-      AccountSummaryLink("vat-make-payment-href", makeAPaymentUri, makeAPaymentLinkMessage, sso = false),
-      AccountSummaryLink("vat-file-return-href", buildPortalUrl(vatFileAReturnPortalUrl), fileAReturnLinkMessage, sso = true)
+      AccountSummaryLink("vat-account-details-href", buildPortalUrl(vatAccountDetailsPortalUrl), vatViewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("vat-make-payment-href", makeAPaymentUri, vatMakeAPaymentLinkMessage, sso = false),
+      AccountSummaryLink("vat-file-return-href", buildPortalUrl(vatFileAReturnPortalUrl), vatFileAReturnLinkMessage, sso = true)
     )
   }
 
@@ -74,4 +74,7 @@ object VatMessageKeys {
   val vatSummaryUnavailableErrorMessage2 = "vat.message.summaryUnavailable.2"
   val vatSummaryUnavailableErrorMessage3 = "vat.message.summaryUnavailable.3"
   val vatSummaryUnavailableErrorMessage4 = "vat.message.summaryUnavailable.4"
+  val vatViewAccountDetailsLinkMessage = "vat.link.message.accountSummary.viewAccountDetails"
+  val vatMakeAPaymentLinkMessage = "vat.link.message.accountSummary.makeAPayment"
+  val vatFileAReturnLinkMessage = "vat.link.message.accountSummary.fileAReturn"
 }

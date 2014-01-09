@@ -1,0 +1,30 @@
+@(formData: models.paye.RemoveCarBenefitFormData, employment: uk.gov.hmrc.common.microservice.paye.domain.Employment, hasFuelBenefit: Boolean, taxYear: Int)
+
+@import views.formatting.Dates._
+@import views.formatting.Money._
+
+<table id="company-car-details">
+    <caption id="company-name" class="table-row">
+        @Messages("paye.remove_car_benefit_review.car_provided_by", employment.employerNameOrReference)</caption>
+    <tbody>
+    <tr>
+        <th scope="row">@Messages("paye.remove_car_benefit_review.date_given_back")</th>
+        <td id="car-benefit-date-car-withdrawn">@formatDate(formData.withdrawDate)</td>
+    </tr>
+    <tr>
+        <th scope="row">@Messages("paye.remove_car_benefit_review.days_unavailable", taxYear)</th>
+        <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("none")</td>
+    </tr>
+
+    <tr>
+        <th scope="row">@Messages("paye.remove_car_benefit_review.employee_contributions")</th>
+        <td id="car-benefit-employee-payments">@formData.employeeContribution.map(x => pounds(x)).getOrElse("none")</td>
+    </tr>
+    @if(hasFuelBenefit) {
+        <tr>
+            <th scope="row">@Messages("paye.remove_car_benefit_review.fuel_withdrawn")</th>
+            <td id="car-benefit-date-fuel-withdrawn">@formatDate(formData.fuelWithdrawDate.getOrElse(formData.withdrawDate))</td>
+        </tr>
+    }
+    </tbody>
+</table>

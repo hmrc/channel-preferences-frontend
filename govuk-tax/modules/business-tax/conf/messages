@@ -3,15 +3,21 @@ email.confirmation.emails.unequal=The email addresses entered do not match
 
 
 vat.regimeName=VAT
-vat.message.registrationNumber=Your VAT registration number is: {0}.
+vat.link.message.accountSummary.viewAccountDetails=View your VAT account details
+vat.link.message.accountSummary.makeAPayment=Make a VAT payment
+vat.link.message.accountSummary.fileAReturn=File your VAT return
+vat.message.registrationNumber=Your Value Added Tax (VAT) registration number is: {0}.
 vat.message.accountBalance=Your account currently shows a balance of {0}
 vat.message.summaryUnavailable.1= We are unable to display your account information. This may be because:
-vat.message.summaryUnavailable.2= - the VAT registration number that you have entered is no longer active and there is no information
+vat.message.summaryUnavailable.2= - the Value Added Tax (VAT) registration number that you have entered is no longer active and there is no information
 vat.message.summaryUnavailable.3= - you have only just activated this service and there is a short delay before the information is available
 vat.message.summaryUnavailable.4=For any other problems, contact the <a id="vat.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
 
 
 ct.regimeName=Corporation Tax
+ct.link.message.accountSummary.viewAccountDetails=View your Corporation Tax account details
+ct.link.message.accountSummary.makeAPayment=Make a Corporation Tax payment
+ct.link.message.accountSummary.fileAReturn=File your Corporation Tax return
 ct.message.utr=Your Unique Taxpayer Reference (UTR) is: {0}.
 ct.message.amountAsOfDate={0} as of {1}.
 ct.message.summaryUnavailable.1= We are currently unable to display your account information. This may be because:
@@ -21,9 +27,9 @@ ct.message.summaryUnavailable.4=For any other problems, contact the <a id="ct.on
 
 ct.message.importantDates.additionalText.filing=' - already received so no action needed, thank you
 ct.message.importantDates.text.filing=Your Company Tax return for the accounting period {0} to {1} is due
-ct.message.importantDates.link.filing=File a return
+ct.message.importantDates.link.filing=File a CT return
 ct.message.importantDates.text.payment=Your Company Tax payment for the accounting period {0} to {1} is due
-ct.message.importantDates.link.payment=Make a payment
+ct.message.importantDates.link.payment=Make a CT payment
 
 vat.message.importantDates.text.filing=Your VAT return for the quarter running from {0} to {1} is due
 vat.message.importantDates.link.filing=File a return
@@ -36,11 +42,14 @@ vat.message.importantDates.link.payment-card=Make a payment
 vat.message.importantDates.text.payment-online=If you choose to pay your VAT for the quarter running from {0} to {1} by faster payments or online/telephone banking it will need to reach HMRC by this date
 vat.message.importantDates.link.payment-online=Make a payment
 
-sa.regimeName=Self-Assessment
+sa.regimeName=Self Assessment
+sa.link.message.accountSummary.viewAccountDetails=View your Self Assessment account details
+sa.link.message.accountSummary.makeAPayment=Make a Self Assessment payment
+sa.link.message.accountSummary.fileAReturn=File your Self Assessment return
 sa.message.utr=Your Unique Taxpayer Reference (UTR) is: {0}.
 sa.message.nothingToPay=You have nothing to pay.
 sa.message.amountDueForPayment=Tax you owe: {0}
-sa.message.interestApplicable=HMRC may may charge interest on late payments of tax due now.
+sa.message.interestApplicable=HM Revenue & Customs (HMRC) may charge interest on late payments of tax due now.
 sa.message.willBecomeDue=You have to pay {0} on {1}.
 sa.message.youHaveOverpaid=You have overpaid.
 sa.message.amountDueForRepayment=You get a repayment of {0}.
@@ -51,7 +60,9 @@ sa.message.summaryUnavailable.3=- you have only just activated this service and 
 sa.message.summaryUnavailable.4=For any other problems, contact the <a id="sa.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
 
 epaye.regimeName=Employers PAYE
-epaye.message.empRef=Your PAYE employer reference is: {0}.
+epaye.link.message.accountSummary.viewAccountDetails=View your Employers PAYE account details
+epaye.link.message.accountSummary.makeAPayment=Make an Employers PAYE payment
+epaye.message.empRef=Your Pay As You Earn (PAYE) employer reference is: {0}.
 epaye.message.nothingToPay=You have nothing to pay.
 epaye.message.youHaveOverPaid=You have overpaid by {0}.
 epaye.message.adjustFuturePayments=Please adjust your future payments.
@@ -93,7 +104,7 @@ bt.home.mergeAccounts.1=This account is for Self Assessment, VAT, PAYE and Corpo
 bt.home.mergeAccounts.2=If you&#39;re registered for these taxes and have online access but you can&#39;t see them here, you&#39;re using different Government Gateway accounts for them. You have to merge your accounts.
 bt.home.mergeAccountsLink=Merge your Government Gateway accounts
 bt.home.everythingElse.1=Go to
-bt.home.everythingElse.linkText=other taxes
+bt.home.everythingElse.linkText=other services
 bt.home.everythingElse.2= for everything else.
 bt.home.sidebarLinks.title=Information about business taxes
 bt.home.sidebarLinks.info=These links will open in a new window

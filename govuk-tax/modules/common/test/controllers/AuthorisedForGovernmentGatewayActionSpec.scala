@@ -33,7 +33,7 @@ import org.mockito.Matchers
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
   with MockitoSugar
-  with CookieEncryption
+  with CookieCrypto
   with HeaderNames {
 
   import config.DateTimeProvider._

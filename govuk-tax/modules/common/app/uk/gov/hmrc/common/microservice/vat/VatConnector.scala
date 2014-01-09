@@ -4,7 +4,6 @@ import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig}
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatJsonRoot}
 import uk.gov.hmrc.domain.CalendarEvent
 import controllers.common.actions.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class VatConnector extends Connector {

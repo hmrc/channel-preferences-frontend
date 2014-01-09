@@ -4,7 +4,6 @@ import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import uk.gov.hmrc.microservice.saml.domain.{AuthResponseValidationResult, AuthRequestFormData}
 import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class SamlConnector extends Connector with HeaderNames {
 

@@ -8,11 +8,11 @@ import play.api.mvc._
 import java.text.SimpleDateFormat
 import java.util.{UUID, Date}
 import play.api.Logger
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
 private[actions] trait RequestLogging extends HeaderNames with DateConverter {
 
-  import ExecutionContext.Implicits.global
+  import MdcLoggingExecutionContext._
 
   private val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZZ")
 
@@ -43,7 +43,7 @@ private[actions] trait RequestLogging extends HeaderNames with DateConverter {
 
       val reqWithId = requestWithID(request)
 
-      val hc = HeaderCarrier(reqWithId)
+      implicit val hc = HeaderCarrier(reqWithId)
 
       action(reqWithId).andThen {
         case Success(result) =>

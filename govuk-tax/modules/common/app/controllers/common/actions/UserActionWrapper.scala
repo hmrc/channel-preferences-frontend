@@ -3,20 +3,20 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import play.api.Logger
-import controllers.common.{CookieEncryption, AuthenticationProvider}
+import controllers.common.{CookieCrypto, AuthenticationProvider}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 import scala.Some
 import play.api.mvc.SimpleResult
 import views.html.login
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 
 trait UserActionWrapper
   extends Results
-  with CookieEncryption {
+  with CookieCrypto {
 
   protected implicit val authConnector: AuthConnector
 
@@ -25,6 +25,7 @@ trait UserActionWrapper
                                             redirectToOrigin: Boolean)
                                            (userAction: User => Action[AnyContent]): Action[AnyContent] =
     Action.async { request =>
+      implicit val hc = HeaderCarrier(request)
       val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime)
 
       handle((request.session.get("userId"), request.session.get("token"))).flatMap {

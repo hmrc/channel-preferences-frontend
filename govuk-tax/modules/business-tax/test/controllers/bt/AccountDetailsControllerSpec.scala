@@ -235,7 +235,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text shouldBe "The email addresses entered do not match"
+      document.select("#form-submit-email-address .error-notification").text shouldBe "The email addresses entered do not match"
     }
 
     "show error if the email address is not syntactically valid" in new Setup {
@@ -248,7 +248,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text shouldBe "Please provide a valid email address"
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Please provide a valid email address"
     }
 
     "show error if the email field is empty" in new Setup {
@@ -261,7 +261,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text shouldBe "Please provide a valid email address"
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Please provide a valid email address"
     }
 
     "show error if the two email fields are not equal" in new Setup {
@@ -275,7 +275,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text shouldBe "The email addresses entered do not match"
+      document.select("#form-submit-email-address .error-notification").text shouldBe "The email addresses entered do not match"
     }
 
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {

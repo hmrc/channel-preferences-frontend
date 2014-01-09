@@ -11,7 +11,7 @@
     <h1>@Messages("paye.remove_car_benefit.h1")</h1>
     <h2><span class="employer-name">@primaryEmployment.employerName</span>@Messages("paye.remove_car_benefit.h2.company_info")</h2>
 
-    @helpers.form(action = controllers.paye.routes.RemoveBenefitController.requestRemoveCarBenefit(activeCarBenefit.taxYear, primaryEmployment.sequenceNumber)) {
+    @helpers.form(action = controllers.paye.routes.RemoveBenefitController.requestRemoveCarBenefit(activeCarBenefit.taxYear, primaryEmployment.sequenceNumber), 'id -> "form-remove-car-benefit") {
 
         @remove_car_benefit_fields(updateForm, currentTaxYearYearsRange, activeCarBenefit.hasActiveFuel)
 

@@ -7,7 +7,7 @@ case class AddCarBenefit(carRegisteredBefore98: Boolean, fuelType: String, co2Em
 
 case class AddCarBenefitResponse(percentage: Int)
 
-case class AddCarBenefitConfirmationData(employerName: Option[String],
+case class AddCarBenefitConfirmationData(employerName: String,
                                          providedFrom: LocalDate,
                                          listPrice: Int,
                                          fuelType: String,

@@ -4,7 +4,6 @@ import scala.util.{Failure, Success, Try}
 import play.api.Logger
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 
 trait ConnectionLogging {
   self: Connector =>

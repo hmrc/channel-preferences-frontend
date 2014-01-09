@@ -12,7 +12,7 @@
 
    <p>Your current email address is <span id="current-email-address">@{currentEmail}</span></p>
 
-    @helpers.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress) {
+    @helpers.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress, 'id -> "form-submit-email-address") {
 
         <p>Email address</p>
         @helpers.input(

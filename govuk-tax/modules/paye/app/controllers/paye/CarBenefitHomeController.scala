@@ -43,20 +43,20 @@ with PayeRegimeRoots {
         }
   }
 
-  def cannotPlayInBeta = UnauthorisedAction {
-    request =>
-      Ok(cannot_play_in_beta())
+  def cannotPlayInBeta = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
+    user => request =>
+      Ok(cannot_play_in_beta(user))
   }
 
   def carBenefitHomeAction(details: RawTaxData)(implicit user: User): SimpleResult = {
-    def betaFilter = details.employments.size != 1 || details.cars.filter(_.isActive).size > 1
+    def betaFilter = details.employments.size != 1 || details.cars.count(_.isActive) > 1
 
-    if (betaFilter) SeeOther(routes.CarBenefitHomeController.cannotPlayInBeta.url)
+    if (betaFilter) SeeOther(routes.CarBenefitHomeController.cannotPlayInBeta().url)
     else buildHomePageResponse(buildHomePageParams(details, carAndFuelBenefitTypes, currentTaxYear))
   }
 
   private[paye] def sessionWithNpsVersion(session: Session, version: Int) =
-    session + ((BenefitFlowHelper.npsVersionKey, version.toString))
+    session + (BenefitFlowHelper.npsVersionKey -> version.toString)
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {

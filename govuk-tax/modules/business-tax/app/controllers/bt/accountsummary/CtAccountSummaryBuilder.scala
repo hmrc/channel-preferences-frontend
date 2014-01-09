@@ -9,7 +9,7 @@ import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountSummary, CtRoot}
 import uk.gov.hmrc.domain.CtUtr
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
 
@@ -59,9 +59,9 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
     val makeAPaymentUri = routes.PaymentController.makeCtPayment().url
 
     val links = Seq[AccountSummaryLink](
-      AccountSummaryLink("ct-account-details-href", buildPortalUrl(ctAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, true),
-      AccountSummaryLink("ct-make-payment-href", makeAPaymentUri, makeAPaymentLinkMessage, false),
-      AccountSummaryLink("ct-file-return-href", buildPortalUrl(ctFileAReturnPortalUrl), fileAReturnLinkMessage, true)
+      AccountSummaryLink("ct-account-details-href", buildPortalUrl(ctAccountDetailsPortalUrl), ctViewAccountDetailsLinkMessage, true),
+      AccountSummaryLink("ct-make-payment-href", makeAPaymentUri, ctMakeAPaymentLinkMessage, false),
+      AccountSummaryLink("ct-file-return-href", buildPortalUrl(ctFileAReturnPortalUrl), ctFileAReturnLinkMessage, true)
     )
 
     val messages = Seq(
@@ -96,4 +96,7 @@ object CtMessageKeys {
   val ctSummaryUnavailableErrorMessage3 = "ct.message.summaryUnavailable.3"
   val ctSummaryUnavailableErrorMessage4 = "ct.message.summaryUnavailable.4"
   val ctAmountAsOfDateMessage = "ct.message.amountAsOfDate"
+  val ctViewAccountDetailsLinkMessage = "ct.link.message.accountSummary.viewAccountDetails"
+  val ctMakeAPaymentLinkMessage = "ct.link.message.accountSummary.makeAPayment"
+  val ctFileAReturnLinkMessage = "ct.link.message.accountSummary.fileAReturn"
 }

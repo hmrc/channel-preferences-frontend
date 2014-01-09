@@ -2,7 +2,7 @@ package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import controllers.common.actions.HeaderCarrier
 
 class AccountSummariesFactory(saRegimeAccountSummaryViewBuilder: SaAccountSummaryBuilder = new SaAccountSummaryBuilder,

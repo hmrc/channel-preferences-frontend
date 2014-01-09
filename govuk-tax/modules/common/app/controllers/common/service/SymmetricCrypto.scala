@@ -4,7 +4,15 @@ import org.apache.commons.codec.binary.Base64
 import javax.crypto.spec.SecretKeySpec
 import uk.gov.hmrc.secure.{ SymmetricDecrypter, SymmetricEncrypter }
 
-trait Encryption {
+trait Encrypter {
+  def encrypt(id: String): String
+}
+trait Decrypter {
+  def decrypt(id: String): String
+  def decrypt(id: Option[String]): Option[String]
+}
+
+trait SymmetricCrypto extends Encrypter with Decrypter {
 
   val encryptionKey: String
 
@@ -16,9 +24,9 @@ trait Encryption {
 
   private val decrypter = new SymmetricDecrypter
 
-  def encrypt(id: String) = encrypter.encrypt(id, secretKey)
+  override def encrypt(id: String): String = encrypter.encrypt(id, secretKey)
 
-  def decrypt(id: String): String = decrypter.decrypt(id, secretKey)
+  override def decrypt(id: String): String = decrypter.decrypt(id, secretKey)
 
-  def decrypt(id: Option[String]): Option[String] = id.map(decrypt)
+  override def decrypt(id: Option[String]): Option[String] = id.map(decrypt)
 }

@@ -5,6 +5,7 @@ import scala.Some
 import org.joda.time.DateTime
 import play.api.Logger
 import concurrent.Future
+import controllers.common.actions.HeaderCarrier
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
   object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(now)
@@ -77,15 +78,16 @@ trait SessionTimeout {
 
   import play.api.mvc._
   import org.joda.time.DateTime
-  import scala.concurrent.ExecutionContext
-  import ExecutionContext.Implicits.global
   import SessionTimeoutWrapper._
   import play.api.http.HeaderNames.SET_COOKIE
+  import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 
   val now : () => DateTime
 
-  protected def addTimestamp(request: Request[AnyContent], result: Future[SimpleResult]): Future[SimpleResult] =
+  protected def addTimestamp(request: Request[AnyContent], result: Future[SimpleResult]): Future[SimpleResult] = {
+    implicit val headerCarrier = HeaderCarrier(request)
     result.map(insertTimestampNow(request))
+  }
 
   private def insertTimestampNow(request: Request[AnyContent])(result: SimpleResult): SimpleResult = {
     val sessionData = sessionFromResultOrRequest(request, result).data.toSeq

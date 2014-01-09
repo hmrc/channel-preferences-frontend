@@ -11,7 +11,7 @@ import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSummary, EpayeRoot}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
 
@@ -37,8 +37,8 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[AccountSummaryLink] = {
 
     def links = Seq[AccountSummaryLink](
-      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeAccountDetailsPortalUrl), viewAccountDetailsLinkMessage, sso = true),
-      AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, makeAPaymentLinkMessage, sso = false)
+      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeAccountDetailsPortalUrl), epayeViewAccountDetailsLinkMessage, sso = true),
+      AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, epayeMakeAPaymentLinkMessage, sso = false)
     )
 
     accountSummary match {
@@ -104,5 +104,7 @@ object EpayeMessageKeys {
   val epayeSummaryUnavailableErrorMessage2 = "epaye.message.summaryUnavailable.2"
   val epayeSummaryUnavailableErrorMessage3 = "epaye.message.summaryUnavailable.3"
   val epayeSummaryUnavailableErrorMessage4 = "epaye.message.summaryUnavailable.4"
+  val epayeViewAccountDetailsLinkMessage = "epaye.link.message.accountSummary.viewAccountDetails"
+  val epayeMakeAPaymentLinkMessage = "epaye.link.message.accountSummary.makeAPayment"
 }
 

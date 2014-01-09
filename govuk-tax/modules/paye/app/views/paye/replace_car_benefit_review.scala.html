@@ -1,11 +1,30 @@
 @(activeCarBenefit: uk.gov.hmrc.common.microservice.paye.domain.CarBenefit,
         employment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
- oldCarRemovalData: models.paye.RemoveCarBenefitFormData,
-        newCarData: models.paye.CarBenefitData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+        oldCarRemovalData: models.paye.RemoveCarBenefitFormData,
+        newCarData: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
     @import controllers.paye.routes._
     @import views.formatting.Dates._
 
-    @main(title = Messages("paye.remove_fuel_benefit_review.title"), user = Some(user)) {
-        <h1>Thanks!</h1>
-    }
+    @main(title = Messages("paye.replace_car_benefit_review.title"), user = Some(user)) {
+
+        <h1>@Messages("paye.replace_car_benefit.h1")</h1>
+        <h2>@Messages("paye.replace_car_benefit_review.subheading")</h2>
+        <h2 class="benefit-type">@Messages("paye.replace_car_benefit.benefit_type")</h2>
+        @remove_car_benefit_confirmation_table(oldCarRemovalData, employment, activeCarBenefit.hasActiveFuel, activeCarBenefit.taxYear)
+
+        <h2 class="benefit-type">@Messages("paye.replace_car_benefit.new_car")</h2>
+        @add_car_benefit_confirmation_table(newCarData)
+
+        @helpers.link("go-back",
+            s"${ReplaceBenefitController.showReplaceCarBenefitForm(activeCarBenefit.taxYear, employment.sequenceNumber)}",
+            Messages("paye.benefit_review.wrong_information"))
+
+        @helper.form(action = ReplaceBenefitController.confirmCarBenefitReplacement(activeCarBenefit.taxYear, employment.sequenceNumber)) {
+            <div class="form-field">
+                <input class="button button--confirm" type="submit" value="@Messages("paye.remove_car_benefit_review.submit_button")"/>
+            </div>
+        }
+
+
+}

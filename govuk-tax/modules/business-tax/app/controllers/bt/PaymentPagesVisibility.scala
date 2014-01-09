@@ -12,14 +12,17 @@ import uk.gov.hmrc.common.microservice.ct.domain.{CtAccountBalance, CtAccountSum
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountBalance, VatAccountSummary}
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 
 class EpayePaymentPredicate(epayeConnector: EpayeConnector) extends PageVisibilityPredicate {
 
+//  import HeaderCarrierExecutionContext.fromHeaderCarrier
+
   def this() = this(Connectors.epayeConnector)
 
   def isVisible(user: User, request: Request[AnyContent]): Future[Boolean] = {
+    implicit val headerCarrier = HeaderCarrier(request)
     val accountSummary = user.regimes.epaye.get.accountSummary(epayeConnector, HeaderCarrier(request))
     accountSummary map {
       case Some(EpayeAccountSummary(Some(rti), None)) => true
@@ -37,6 +40,7 @@ class SaPaymentPredicate(saConnector: SaConnector) extends PageVisibilityPredica
   def this() = this(Connectors.saConnector)
 
   def isVisible(user: User, request: Request[AnyContent]): Future[Boolean] = {
+    implicit val headerCarrier = HeaderCarrier(request)
     val accountSummary = user.regimes.sa.get.accountSummary(saConnector, HeaderCarrier(request))
     accountSummary map {
       case Some(ac) => true
@@ -71,6 +75,8 @@ class VatPaymentPredicate(vatConnector: VatConnector) extends PageVisibilityPred
 
   def isVisible(user: User, request: Request[AnyContent]): Future[Boolean] = {
     val accountSummary = user.regimes.vat.get.accountSummary(vatConnector, HeaderCarrier(request))
+    implicit val headerCarrier = HeaderCarrier(request)
+
     accountSummary map {
       case Some(VatAccountSummary(Some(VatAccountBalance(Some(balance))), Some(date))) => true
       case _ => false

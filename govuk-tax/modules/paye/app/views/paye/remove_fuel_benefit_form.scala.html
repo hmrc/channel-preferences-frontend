@@ -17,7 +17,7 @@
 
         <p>@Html(Messages("paye.remove_fuel_benefit.remove_benefit", s"""<span class="employer-name">${employment.employerName.getOrElse(Messages("your.employer"))}</span>""", sentence(iabdTypeFor(fuelBenefit.benefitCode))))</p>
 
-        @helpers.form(action = RemoveBenefitController.requestRemoveFuelBenefit(taxYear, employment.sequenceNumber)) {
+        @helpers.form(action = RemoveBenefitController.requestRemoveFuelBenefit(taxYear, employment.sequenceNumber), 'id -> "form-remove-fuel-benefit") {
             @helpers.dateFields(updateForm,
                 "withdrawDate",
                 Html(Messages("paye.remove_fuel_benefit.date_withdrawn")),

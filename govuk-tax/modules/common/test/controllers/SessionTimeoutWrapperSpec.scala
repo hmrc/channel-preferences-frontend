@@ -8,8 +8,11 @@ import play.api.test.Helpers._
 import controllers.common._
 import SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
+import java.util.UUID
 
-class SessionTimeoutWrapperSpec extends BaseSpec {
+class SessionTimeoutWrapperSpec extends BaseSpec with CookieCrypto {
+
+  import play.api.test.Helpers._
 
   val homepageLocation = "/"
   val hypotheticalCurrentTime: DateTime = new DateTime(2012, 7, 7, 4, 6, 20, DateTimeZone.UTC)
@@ -55,12 +58,14 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
 
     }
     "add a timestamp to the session but maintain the other values if the incoming session is not empty" in new WithApplication(FakeApplication()) {
-      val result = TestController.testWithNewSessionTimeout(FakeRequest().withSession("userId" -> "Bob"))
-      session(result) shouldBe Session(Map(lastRequestTimestampKey -> now().getMillis.toString, "userId" -> "Bob"))
+      val sessionId = encrypt(s"session-${UUID.randomUUID().toString}")
+      val result = TestController.testWithNewSessionTimeout(FakeRequest().withSession("userId" -> sessionId))
+      session(result) shouldBe Session(Map(lastRequestTimestampKey -> now().getMillis.toString, "userId" -> sessionId))
     }
 
     "add a timestamp to the session but maintain other values which have been added to the session overwriting request values" in new WithApplication(FakeApplication()) {
-      val result = TestController.testWithNewSessionTimeoutAddingData(FakeRequest().withSession("userId" -> "Bob"))
+      val sessionId = encrypt(s"session-${UUID.randomUUID().toString}")
+      val result = TestController.testWithNewSessionTimeoutAddingData(FakeRequest().withSession("userId" -> sessionId))
       session(result) shouldBe Session(Map(lastRequestTimestampKey -> now().getMillis.toString, "userId" -> "Jim"))
     }
 

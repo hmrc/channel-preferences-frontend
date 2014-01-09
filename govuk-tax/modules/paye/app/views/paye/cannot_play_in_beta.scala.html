@@ -1,5 +1,5 @@
-@()
+@(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@main(title = Messages("paye.cannot_play_in_beta.title")) {
+@main(title = Messages("paye.cannot_play_in_beta.title"), user = Some(user)) {
     @Messages("paye.cannot_play_in_beta.text")
 }

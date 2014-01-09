@@ -1,61 +1,10 @@
 @(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData, user: uk.gov.hmrc.common.microservice.domain.User, currentUri: String, taxYear: Int, employmentSequenceNumber: Int)(implicit request: Request[_])
 
-@import views.formatting.Strings._
-@import views.formatting.Money._
-@import views.formatting.Dates._
-
 @main(title = Messages("paye.add_car_benefit_review.title"), user = Some(user)) {
     <h1 id="main-heading">@Messages("paye.add_car_benefit_review.h1")</h1>
     <h2>@Messages("paye.add_car_benefit_review.h2")</h2>
-    @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>
-        <table>
-            <tbody>
-            <tr>
-                <th scope="row">@Messages("paye.add_car_benefit_review.date_provided")</th>
-                <td>@{formatDate(data.providedFrom)}</td>
-            </tr>
-            <tr>
-                <th scope="row">@Messages("paye.add_car_benefit_review.list_price")</th>
-                <td>@pounds(data.listPrice)</td>
-            </tr>
-            <tr>
-                <th scope="row">@Messages("paye.add_car_benefit_review.fuel_type")</th>
-                <td>@{Messages(s"paye.add_car_benefit.fuel_type.${data.fuelType}")}</td>
-            </tr>
-            @if(data.co2Figure.isDefined) {
-             <tr>
-                 <th scope="row">@Messages("paye.add_car_benefit_review.emissions")</th>
-                 <td>@data.co2Figure.get g/km</td>
-             </tr>
-            }
-            @if(data.engineCapacity.isDefined){
-            <tr>
-                <th scope="row">@Messages("paye.add_car_benefit_review.engine_capacity")</th>
-                <td>@Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td>
-            </tr>
-            }
-            @if(data.employeeContributions.isDefined) {
-            <tr>
-                <th scope="row">@Messages("paye.add_car_benefit_review.employee_contributions")</th>
-                <td>@pounds(data.employeeContributions.get)</td>
-            </tr>
-            }
-            @if(data.dateRegistered.isDefined) {
-            <tr>
-                <th scope="row">@Messages("paye.add_car_benefit_review.date_registered")</th>
-                <td>@formatDate(data.dateRegistered.get)</td>
-            </tr>
-            }
-            @if(data.employerPayFuel.isDefined){
-            <tr>
-                <th scope="row">Private fuel</th>
-                <td>@{Messages(s"paye.add_car_benefit_review.employer_pay_fuel.${data.employerPayFuel.get}", employerNameString, formatDate(data.dateFuelWithdrawn, ""))}</td>
-            </tr>
-            }
-            </tbody>
-        </table>
-        @helpers.link("edit-data", currentUri, Messages("paye.benefit_review.wrong_information"))
-    }
+    @add_car_benefit_confirmation_table(data)
+    @helpers.link("edit-data", currentUri, Messages("paye.benefit_review.wrong_information"))
 
   @helpers.form(action = controllers.paye.routes.AddCarBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
     <div class="form-field">

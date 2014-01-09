@@ -8,7 +8,7 @@ import org.mockito.Mockito._
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.common.{MdcLoggingExecutionContext, BaseSpec}
 import controllers.common._
 import org.scalatest.TestData
 import org.mockito.Matchers
@@ -25,7 +25,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 
-class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieEncryption {
+class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCrypto {
 
   import controllers.domain.AuthorityUtils._
 
@@ -164,6 +164,8 @@ sealed class TestController(payeConnector: PayeConnector,
   with Actions
   with HeaderNames
   with RegimeRootBase {
+
+  import MdcLoggingExecutionContext._
 
 
   override def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {

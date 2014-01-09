@@ -10,10 +10,7 @@ import play.api.test.Helpers._
 import controllers.paye.validation.AddCarBenefitValidator._
 
 class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper {
-
-
   "add car benefit template" should {
-
     "render the form with all the fields to add a car" in new WithApplication(FakeApplication()) {
       val form: Form[CarBenefitData] = carBenefitForm(CarBenefitValues())
       val employerName = Some("Sainsbury's")
@@ -21,8 +18,6 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
 
       val result = add_car_benefit_fields(form, employerName, currentTaxYearYearsRange)
       val doc = Jsoup.parse(contentAsString(result))
-
-      val bePresent = not be null
 
       doc.getElementById("providedFrom.day") should bePresent
 

@@ -6,7 +6,8 @@ import controllers.common.{AuthenticationProvider, SessionTimeoutWrapper}
 import scala.concurrent.Future
 
 trait Actions
-  extends RequestLogging
+  extends MdcHeaders
+  with RequestLogging
   with AuditActionWrapper
   with SessionTimeoutWrapper
   with UserActionWrapper {
@@ -48,8 +49,10 @@ trait Actions
 
     private def unauthedAction(body:Action[AnyContent]): Action[AnyContent] =
       logRequest {
-        WithRequestAuditing {
-          body
+        storeHeaders {
+          WithRequestAuditing {
+            body
+          }
         }
       }
   }
@@ -59,7 +62,8 @@ trait Actions
                          redirectToOrigin: Boolean,
                          pageVisibility: PageVisibilityPredicate,
                          body: UserAction) =
-      logRequest {
+    logRequest {
+      storeHeaders{
         WithSessionTimeoutValidation {
           WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
             user =>
@@ -72,6 +76,7 @@ trait Actions
           }
         }
       }
+    }
 }
 
 
