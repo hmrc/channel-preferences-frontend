@@ -29,10 +29,10 @@
 
             @helpers.fieldGroup(updateForm,
             Seq(
-            FormField(updateForm("employeeContributes"), Seq(
+            FormField(updateForm("removeEmployeeContributes"), Seq(
             RadioButton("false", Messages("paye.remove_car_benefit.employee_contributes.nothing"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
             RadioButton("true", Messages("paye.remove_car_benefit.employee_contributes.pounds"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
-            FormField(updateForm("employeeContribution"),
+            FormField(updateForm("removeEmployeeContribution"),
             Seq(InputType("text", "",
             Messages("paye.remove_car_benefit.employee_contributes.since_tax_year_started", formatDate(TaxYearResolver.startOfCurrentTaxYear)),
             Some("form-field--inline-text-input js-input--contextual"), Some(""),

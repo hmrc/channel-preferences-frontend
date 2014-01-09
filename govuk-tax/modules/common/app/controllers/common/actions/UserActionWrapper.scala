@@ -3,7 +3,7 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import play.api.Logger
-import controllers.common.{CookieCrypto, AuthenticationProvider}
+import controllers.common.{UserCredentials, CookieCrypto, AuthenticationProvider}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 import scala.Some
@@ -28,14 +28,14 @@ trait UserActionWrapper
       implicit val hc = HeaderCarrier(request)
       val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime)
 
-      handle((request.session.get("userId"), request.session.get("token"))).flatMap {
+      handle(UserCredentials(request.session)).flatMap {
         case Left(successfullyFoundUser) => userAction(successfullyFoundUser)(request)
         case Right(resultOfFailure) => Action(resultOfFailure)(request)
       }
     }
 
-  private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[(Option[String], Option[String]), Future[Either[User, SimpleResult]]] = {
-    case (Some(encryptedUserId), tokenOption) =>
+  private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
+    case UserCredentials(Some(encryptedUserId), tokenOption) =>
 
       implicit val hc = HeaderCarrier(request)
       val userId = decrypt(encryptedUserId)

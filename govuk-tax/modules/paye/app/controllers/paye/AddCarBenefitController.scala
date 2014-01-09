@@ -168,8 +168,13 @@ with PayeRegimeRoots {
 
 
 object CarBenefitFormFields {
-  val providedFrom = "providedFrom"
+  val agreement = "agreement"
   val carUnavailable = "carUnavailable"
+  val removeEmployeeContributes = "removeEmployeeContributes"
+  val removeEmployeeContribution = "removeEmployeeContribution"
+  val fuelRadio = "fuelRadio"
+  val withdrawDate = "withdrawDate"
+  val providedFrom = "providedFrom"
   val numberOfDaysUnavailable = "numberOfDaysUnavailable"
   val giveCarBack = "giveCarBack"
   val giveBackThisTaxYear = "giveBackThisTaxYear"

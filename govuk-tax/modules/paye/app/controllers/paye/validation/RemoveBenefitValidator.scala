@@ -13,8 +13,8 @@ object RemoveBenefitValidator extends Validators {
   private[paye] case class RemoveCarBenefitFormDataValues(withdrawDateVal: Option[LocalDate],
                                                        carUnavailableVal: Option[String],
                                                        numberOfDaysUnavailableVal: Option[String] = None,
-                                                       employeeContributesVal: Option[String],
-                                                       employeeContributionVal: Option[String] = None,
+                                                       removeEmployeeContributesVal: Option[String],
+                                                       removeEmployeeContributionVal: Option[String] = None,
                                                        fuelDateChoiceVal: Option[String],
                                                        fuelWithdrawDateVal: Option[LocalDate] = None)
   private[paye] object RemoveCarBenefitFormDataValues {
@@ -23,8 +23,8 @@ object RemoveBenefitValidator extends Validators {
         Some(data.withdrawDate),
         data.carUnavailable.map{_.toString},
         data.numberOfDaysUnavailable.map{_.toString},
-        data.employeeContributes.map{_.toString},
-        data.employeeContribution.map{_.toString},
+        data.removeEmployeeContributes.map{_.toString},
+        data.removeEmployeeContribution.map{_.toString},
         data.fuelDateChoice,
         data.fuelWithdrawDate
       )
@@ -36,8 +36,8 @@ object RemoveBenefitValidator extends Validators {
       "withdrawDate" -> dateTuple(validate = false),
       "carUnavailable" -> optional(text),
       "numberOfDaysUnavailable" -> optional(text),
-      "employeeContributes" -> optional(text),
-      "employeeContribution" -> optional(text),
+      "removeEmployeeContributes" -> optional(text),
+      "removeEmployeeContribution" -> optional(text),
       "fuelRadio" -> optional(text),
       "fuelWithdrawDate" -> dateTuple(validate = false)
     )(RemoveCarBenefitFormDataValues.apply)(RemoveCarBenefitFormDataValues.unapply)
@@ -66,7 +66,7 @@ object RemoveBenefitValidator extends Validators {
   private def getEndDate(values: Option[RemoveCarBenefitFormDataValues], taxYearInterval: Interval) = values.flatMap(v => v.withdrawDateVal).getOrElse(taxYearInterval.getEnd.toLocalDate)
 
   private[paye] def validateEmployeeContribution(values: Option[RemoveCarBenefitFormDataValues]): Mapping[Option[Int]] =
-    values.flatMap(s => s.employeeContributesVal.map(_.toBoolean)) match {
+    values.flatMap(s => s.removeEmployeeContributesVal.map(_.toBoolean)) match {
       case Some(true) => optional(number
         .verifying("error.paye.remove_car_benefit.question3.number_max_5_chars", e => e <= 99999)
         .verifying("error.paye.remove_car_benefit.question3.number_less_than_0", data => data > 0))

@@ -186,7 +186,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         val request = WithdrawnBenefitRequest(version,
           Some(WithdrawnCarBenefit(formData.withdrawDate,
             formData.numberOfDaysUnavailable,
-            formData.employeeContribution)),
+            formData.removeEmployeeContribution)),
           withdrawnFuelBenefit)
 
         payeConnector.removeBenefits(uri, request).map(_.get).map { removeBenefitResponse =>
