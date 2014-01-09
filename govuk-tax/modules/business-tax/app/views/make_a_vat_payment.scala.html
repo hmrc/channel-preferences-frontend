@@ -2,19 +2,18 @@
 
 @import views.helpers.RenderableMessageProperty.Link._
 
-@main(title = "Make a VAT payment", nav = true, user= Some(user)) {
+@main(title = "Pay your VAT", nav = true, user= Some(user)) {
 
-<h1>Your tax account</h1>
+<h1>Pay your VAT</h1>
 
-<p>Pay your VAT bill by Direct Debit, online with a debit or credit card or through your bank.</p>
-<p>It’s your responsibility to make sure payments reach HMRC on time. Use the
+<p>Pay your Value Added Tax (VAT) bill by Direct Debit, online with a debit or credit card or through your bank.</p>
+<p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on time. Use the
     @helpers.link("paymentDeadlineCalculatorHref1", "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", "payment deadline calculator", true)
-    to make sure you pay on time - you may be charged a @helpers.link("penaltyHref", "https://www.gov.uk/vat-returns/surcharges-and-penalties", "penalty", true) if your payment is late.</p>
+    to make sure you pay on time - @helpers.link("penaltyHref", "https://www.gov.uk/vat-returns/surcharges-and-penalties", "you may be charged a penalty if your payment is late", true).</p>
 
 <h2>Direct Debit</h2>
 
-<p>Use your @helpers.link("vatOnlineAccountHref", vatOnlineAccountLink.url, "VAT online account", vatOnlineAccountLink.newWindow,vatOnlineAccountLink.sso)
-    to set up a Direct Debit at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday).</p>
+<p>Use your VAT online account to @helpers.link("vatOnlineAccountHref", vatOnlineAccountLink.url, "set up a Direct Debit", vatOnlineAccountLink.newWindow,vatOnlineAccountLink.sso) at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday).</p>
 <p>HMRC will tell you when the Direct Debit has been set up. The
     @helpers.link("paymentDeadlineCalculatorHref2", "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", "payment deadline calculator", true) tells you when the payment leaves your account. If you need to make changes to your Direct Debit, do this through your bank.</p>
 
@@ -30,7 +29,7 @@
 
 <h2>Online with a debit or credit card</h2>
 
-<p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online", true) - you’ll need your VAT registration number @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
+<p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online with a card", true) - you’ll need your VAT registration number @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
 
 <p>You must use a card from a UK card issuer - not American Express or Diners Club. Allow 3 working days for payments to reach HMRC.</p>
 
