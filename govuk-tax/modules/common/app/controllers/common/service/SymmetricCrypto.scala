@@ -9,7 +9,6 @@ trait Encrypter {
 }
 trait Decrypter {
   def decrypt(id: String): String
-  def decrypt(id: Option[String]): Option[String]
 }
 
 trait SymmetricCrypto extends Encrypter with Decrypter {
@@ -27,6 +26,4 @@ trait SymmetricCrypto extends Encrypter with Decrypter {
   override def encrypt(id: String): String = encrypter.encrypt(id, secretKey)
 
   override def decrypt(id: String): String = decrypter.decrypt(id, secretKey)
-
-  override def decrypt(id: Option[String]): Option[String] = id.map(decrypt)
 }
