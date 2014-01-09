@@ -18,7 +18,7 @@
 
     <tr>
         <th scope="row">@Messages("paye.remove_car_benefit_review.employee_contributions")</th>
-        <td id="car-benefit-employee-payments">@formData.employeeContribution.map(x => pounds(x)).getOrElse("none")</td>
+        <td id="car-benefit-employee-payments">@formData.removeEmployeeContribution.map(x => pounds(x)).getOrElse("none")</td>
     </tr>
     @if(hasFuelBenefit) {
         <tr>
