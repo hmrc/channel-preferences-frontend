@@ -9,6 +9,12 @@ import play.api._
 import play.api.mvc._
 import play.filters.csrf._
 import uk.gov.hmrc.common.filters.CSRFExceptionsFilter
+import scala.concurrent.Future
+import play.api.mvc.Results._
+import scala.Some
+import play.api.i18n.Messages
+import play.api.http.HeaderNames._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Global extends WithFilters(MetricsFilter, CSRFExceptionsFilter, CSRFFilter()) {
 
@@ -40,8 +46,35 @@ object Global extends WithFilters(MetricsFilter, CSRFExceptionsFilter, CSRFFilte
     reporter.start(app.configuration.getLong(s"govuk-tax.$env.metrics.graphite.interval").getOrElse(10L), TimeUnit.SECONDS)
   }
 
+  def NoCache(action: EssentialAction): EssentialAction = EssentialAction { request =>
+    action(request).map(_.withHeaders(PRAGMA -> "no-cache"))
+  }
+
   // Play 2.0 doesn't support trailing slash: http://play.lighthouseapp.com/projects/82401/tickets/98
   override def onRouteRequest(request: RequestHeader) = super.onRouteRequest(request).orElse {
     Some(request.path).filter(_.endsWith("/")).flatMap(p => super.onRouteRequest(request.copy(path = p.dropRight(1))))
+  }
+
+  override def doFilter(action: EssentialAction) = EssentialAction { request =>
+    action(request).map(_.withHeaders(
+      "Cache-Control" -> "no-cache;no-store;must-revalidate;max-age=0",
+      PRAGMA -> "no-cache"
+    ))
+  }
+
+  override def onError(request: RequestHeader, ex: Throwable) = {
+    Future.successful(InternalServerError(
+      views.html.global_error(Messages("global.error.heading"), "An error has occurred template text") //ex
+    ))
+  }
+
+  override def onHandlerNotFound(request: RequestHeader) = {
+    Future.successful(NotFound(
+      views.html.global_error(Messages("global.error.heading"), "The requested resource doesn't seem to exist: " + request.path)
+    ))
+  }
+
+  override def onBadRequest(request: RequestHeader, error: String) = {
+    Future.successful(BadRequest("Bad Request: " + error))
   }
 }

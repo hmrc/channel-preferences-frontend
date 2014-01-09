@@ -41,3 +41,5 @@ link.dvla.url=https://www.taxdisc.direct.gov.uk/EvlPortalApp/app/home/intro
 button.sign_in=Sign in
 
 info.links_open_new_window=These links will open in a new window
+
+global.error.heading=I say Dear Watson, Something seems to be amiss. The clues lay below...
