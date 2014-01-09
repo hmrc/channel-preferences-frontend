@@ -25,7 +25,7 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
   }
 
   def replaceBenefits(uri: String, replaceBenefit:ReplaceBenefit)(implicit hc: HeaderCarrier): Future[Option[WriteBenefitResponse]] = {
-    httpPutF(uri, replaceBenefit)
+    httpPutF[ReplaceBenefit, WriteBenefitResponse](uri, replaceBenefit)
   }
 
   def version(uri: String)(implicit hc: HeaderCarrier): Future[Int] = {

@@ -153,7 +153,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       activeCarBenefit <- taxYearData.findActiveCarBenefit(employmentSequenceNumber)
     } yield {
       val url = activeCarBenefit.actions.getOrElse("replace",
-        throw new IllegalArgumentException(s"No remove action uri found for this car benefit."))
+        throw new IllegalArgumentException(s"No replace action uri found for this car benefit."))
 
       payeConnector.replaceBenefits(url, buildRequest(version, formData, taxYear, employmentSequenceNumber)).map {
         case Some(response) => {
