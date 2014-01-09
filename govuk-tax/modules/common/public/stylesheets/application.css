@@ -2178,6 +2178,7 @@ label.indent {
 }
 .form-field--error.numbered {
   margin-left: 22px !important;
+  width: 90%;
 }
 
 .row {

@@ -10,40 +10,37 @@
 
 @defining(optionalValue(employerName, "your.employer", true)) { employerNameString =>
 
-<h2 id="heading">@Html(Messages("paye.add_fuel_benefit.h2", s"""<span id="company-name">$employerNameString</span>"""))</h2>
-
-    <p>@Messages("paye.add_fuel_benefit.info", employerNameString)</p>
-
     @helpers.form(action = controllers.paye.routes.AddFuelBenefitController.reviewAddFuelBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit") {
-    <ol class="list--numbered">
-        <li>
-            @helpers.fieldGroup(
-                fuelBenefitForm,
-                Seq(
-                    FormField(
-                        fuelBenefitForm(employerPayFuel),
-                        Seq(
-                            RadioButton("true", Messages("paye.add_fuel_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable")),
-                            RadioButton("date", Messages("paye.add_fuel_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline-spaced-right"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=enable"))
-                        )
-                    ),
-                    FormField(
-                        fuelBenefitForm(dateFuelWithdrawn),
-                        Seq(DateControl(currentTaxYearYearsRange, Some("js-input--contextual")))
-                    ),
-                    FormField(
-                        fuelBenefitForm(employerPayFuel),
-                        Seq(
-                            RadioButton("again", Messages("paye.add_fuel_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable"))
-                        )
+    <fieldset class="list--numbered">
+        <legend class="h2-heading">@Html(Messages("paye.add_fuel_benefit.h2", s"""<span id="company-name">$employerNameString</span>"""))</legend>
+
+        <p>@Messages("paye.add_fuel_benefit.info", employerNameString)</p>
+        @helpers.fieldGroup(
+            fuelBenefitForm,
+            Seq(
+                FormField(
+                    fuelBenefitForm(employerPayFuel),
+                    Seq(
+                        RadioButton("true", Messages("paye.add_fuel_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+                        RadioButton("date", Messages("paye.add_fuel_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable"))
                     )
                 ),
-                '_label -> Messages("paye.add_fuel_benefit.employer_pay_fuel.label", employerNameString),
-                '_groupDivClass -> "form-field js-includes-contextual",
-                '_valueAfter -> true
-            )
-        </li>
-    </ol>
+                FormField(
+                    fuelBenefitForm(dateFuelWithdrawn),
+                    Seq(DateControl(currentTaxYearYearsRange, Some("js-input--contextual")))
+                ),
+                FormField(
+                    fuelBenefitForm(employerPayFuel),
+                    Seq(
+                        RadioButton("again", Messages("paye.add_fuel_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable"))
+                    )
+                )
+            ),
+            '_label -> Messages("paye.add_fuel_benefit.employer_pay_fuel.label", employerNameString),
+            '_groupClass -> "form-field js-includes-contextual numbered",
+            '_valueAfter -> true
+        )
+    </fieldset>
         <div class="form-field">
             <input type="submit" class="button" value="@Messages("paye.add_fuel_benefit.submit_button")"/>
         </div>
