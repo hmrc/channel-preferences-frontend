@@ -11,6 +11,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 import play.api.libs.ws.WS
 import scala.concurrent.Future
+import play.api.libs.json._
 
 class DataController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                     (implicit payeConnector: PayeConnector) extends BaseController
@@ -31,6 +32,12 @@ with PayeRegimeRoots {
         }.getOrElse {
           Future.successful(BadRequest)
         }
+  }
+
+  def root = AuthorisedFor(PayeRegime) {
+    user =>
+      implicit request =>
+      Ok(user.getPaye.links.toString)
   }
 
 }

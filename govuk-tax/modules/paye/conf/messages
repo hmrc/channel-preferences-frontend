@@ -225,6 +225,20 @@ paye.remove_benefit_confirmation.tax_codes_link_text=tax codes
 paye.remove_benefit_confirmation.tax_on_company_benefits_link_url=https://www.gov.uk/tax-company-benefits
 paye.remove_benefit_confirmation.tax_on_company_benefits_link_text=tax on company benefits
 
+paye.replace_benefit_confirmation.title=Car Benefit replaced
+paye.replace_benefit_confirmation.header=Tell HMRC about a change to your company car
+paye.replace_benefit_confirmation.thanks=Thanks.
+paye.replace_benefit_confirmation.details_changed=Your company car details have been changed.
+paye.replace_benefit_confirmation.tax_code_changed=Your tax code has changed from {0}.
+paye.replace_benefit_confirmation.new_tax_code=Your new tax code is {0}.
+paye.replace_benefit_confirmation.confirmation=HMRC will write to you to confirm your new tax code within 7 days.
+paye.replace_benefit_confirmation.updated_info=See your updated company car information.
+paye.replace_benefit_confirmation.tax_codes_info=More about {0} and {1}.
+paye.replace_benefit_confirmation.tax_codes_link_url=https://www.gov.uk/tax-codes
+paye.replace_benefit_confirmation.tax_codes_link_text=tax codes
+paye.replace_benefit_confirmation.tax_on_company_benefits_link_url=https://www.gov.uk/tax-company-benefits
+paye.replace_benefit_confirmation.tax_on_company_benefits_link_text=tax on company benefits
+
 
 paye.home.title=Tell HMRC about a change to your company car
 paye.home.heading=Tell HMRC about a change to your company car

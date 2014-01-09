@@ -84,6 +84,7 @@ case class PayeRoot(nino: String,
   }
 
   def addBenefitLink(taxYear: Int): Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
+  def replaceBenefitLink(taxYear: Int): Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
 
   private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Seq[T]] =
     links.get(resource) match {
@@ -139,6 +140,10 @@ case class WithdrawnFuelBenefit(withdrawDate: LocalDate)
 case class AddBenefit(version: Int,
                       employmentSequence: Int,
                       benefits: Seq[Benefit])
+
+case class ReplaceBenefit(withdrawBenefitRequest: WithdrawnBenefitRequest, addBenefit: AddBenefit)
+
+case class WriteBenefitResponse(transaction: TransactionId, taxCode: Option[String], allowance: Option[Int])
 
 object Employment {
   val primaryEmploymentType = 1

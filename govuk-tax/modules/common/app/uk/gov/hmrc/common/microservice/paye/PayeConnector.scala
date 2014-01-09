@@ -24,6 +24,10 @@ class PayeConnector extends TaxRegimeConnector[PayeRoot] {
     httpPostF[RemoveBenefitResponse, WithdrawnBenefitRequest](uri, Some(withdrawBenefitRequest))
   }
 
+  def replaceBenefits(uri: String, replaceBenefit:ReplaceBenefit)(implicit hc: HeaderCarrier): Future[Option[WriteBenefitResponse]] = {
+    httpPutF(uri, replaceBenefit)
+  }
+
   def version(uri: String)(implicit hc: HeaderCarrier): Future[Int] = {
     httpGetF[Int](uri).map(_.getOrElse(throw new IllegalStateException(s"Expected paye version number not found at URI '$uri'")))
   }
