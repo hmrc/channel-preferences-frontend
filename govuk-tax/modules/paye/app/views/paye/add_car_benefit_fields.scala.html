@@ -52,7 +52,7 @@
         Some("form-field--inline"),
         Some("label--inlineRadio"),
         Some(""), Some("data-contextual-helper=enable")))),
-        FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline js-input--contextual"), Some(""), Some("input--small"))))
+        FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline-text-input js-input--contextual"), Some(""), Some("input--small"))))
         ),
         '_label -> Messages("paye.add_car_benefit.employee_contribution"),
         '_groupClass -> "form-field  js-includes-contextual numbered",
@@ -67,9 +67,9 @@
         FormField(
         carBenefitForm(fuelType),
         Seq(
-        RadioButton("diesel", Messages("paye.add_car_benefit.fuel_type.diesel"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false")),
-        RadioButton("electricity", Messages("paye.add_car_benefit.fuel_type.electricity"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=true")),
-        RadioButton("other", Messages("paye.add_car_benefit.fuel_type.other"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-iselectric=false"))
+        RadioButton("diesel", Messages("paye.add_car_benefit.fuel_type.diesel"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-iselectric=false")),
+        RadioButton("electricity", Messages("paye.add_car_benefit.fuel_type.electricity"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-iselectric=true")),
+        RadioButton("other", Messages("paye.add_car_benefit.fuel_type.other"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-iselectric=false"))
         )
         )
         ),
@@ -83,7 +83,7 @@
         FormField(
         carBenefitForm(co2Figure),
         Seq(
-        InputText(Messages("paye.add_car_benefit.co2emissions_unit"), divClass = Some("form-field--inline"), inputClass = Some("input--small flush--left"), label = Some(""))
+        InputText(Messages("paye.add_car_benefit.co2emissions_unit"), divClass = Some("form-field"), inputClass = Some("input--small flush--left"), label = Some(""))
         ),
         Some(Html(Messages("paye.add_car_benefit.dvla_approved_emissions",
         helpers.link("",
@@ -110,10 +110,10 @@
         carBenefitForm,
         Seq(
         FormField(carBenefitForm(engineCapacity), Seq(
-        RadioButton("1400", Messages("paye.add_car_benefit.engine_capacity.1400"), Some("form-field"), Some("label--inlineRadio-right")),
-        RadioButton("2000", Messages("paye.add_car_benefit.engine_capacity.2000"), Some("form-field"), Some("label--inlineRadio-right")),
-        RadioButton("9999", Messages("paye.add_car_benefit.engine_capacity.9999"), Some("form-field"), Some("label--inlineRadio-right")),
-        RadioButton("", "", Some("visuallyhidden"), Some("label--inlineRadio-right"), Some(""), Some("data-default"))))
+        RadioButton("1400", Messages("paye.add_car_benefit.engine_capacity.1400"), Some("form-field"), Some("label--inlineRadio")),
+        RadioButton("2000", Messages("paye.add_car_benefit.engine_capacity.2000"), Some("form-field"), Some("label--inlineRadio")),
+        RadioButton("9999", Messages("paye.add_car_benefit.engine_capacity.9999"), Some("form-field"), Some("label--inlineRadio")),
+        RadioButton("", "", Some("visuallyhidden"), Some("label--inlineRadio"), Some(""), Some("data-default"))))
         ),
         '_label -> Messages("paye.add_car_benefit.engine_capacity"),
         '_groupClass -> "form-field numbered",
@@ -128,7 +128,7 @@
         FormField(carBenefitForm(employerContributes), Seq(
         RadioButton("false", Messages("paye.add_car_benefit.employer_contributes.false"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
         RadioButton("true", Messages("paye.add_car_benefit.employer_contributes.true"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
-        FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", Messages("paye.add_car_benefit.employer_pay.postfix"), Some("form-field--inline js-input--contextual"), Some(""), Some("input--xsmall"))))
+        FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", Messages("paye.add_car_benefit.employer_pay.postfix"), Some("form-field--inline-text-input js-input--contextual"), Some(""), Some("input--xsmall"))))
         ),
         '_label -> Messages("paye.add_car_benefit.employer_pay"),
         '_groupClass -> "form-field js-includes-contextual numbered",
@@ -141,8 +141,8 @@
         FormField(
         carBenefitForm(employerPayFuel),
         Seq(
-        RadioButton("false", Messages("paye.add_car_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-default data-contextual-helper=disable")),
-        RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio-right"), Some(""), Some("data-contextual-helper=disable"))
+        RadioButton("false", Messages("paye.add_car_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-default data-contextual-helper=disable")),
+        RadioButton("true", Messages("paye.add_car_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable"))
         )
         )
         ),
