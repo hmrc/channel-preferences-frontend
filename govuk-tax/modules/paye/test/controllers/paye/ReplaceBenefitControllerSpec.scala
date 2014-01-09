@@ -7,8 +7,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import org.joda.time.{LocalDate => JLocalDate, DateTime}
-import org.joda.time.chrono.ISOChronology
+import org.joda.time.{LocalDate => JLocalDate}
 import play.api.test._
 import org.mockito.Mockito._
 import play.api.test.Helpers._
@@ -66,7 +65,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       addTable.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
       addTable.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
       addTable.select("#fuelType-electricity").attr("checked") shouldBe "checked"
-      addTable.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
+      addTable.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
       addTable.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
       addTable.select("#employeeContributes-true").attr("checked") shouldBe "checked"
       addTable.select("#employeeContribution").attr("value") shouldBe "100"
@@ -139,8 +138,6 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
     val mockKeyStoreService = mock[KeyStoreConnector]
     val mockPayeConnector = mock[PayeConnector]
     val mockTxQueueConnector = mock[TxQueueConnector]
-
-    private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
 
     lazy val controller = new ReplaceBenefitController(mockKeyStoreService, mock[AuthConnector], mock[AuditConnector])(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport
 

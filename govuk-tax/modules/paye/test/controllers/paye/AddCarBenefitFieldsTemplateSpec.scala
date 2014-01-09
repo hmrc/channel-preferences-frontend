@@ -79,7 +79,7 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
       doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
       doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
-      doc.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
+      doc.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
       doc.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
       doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
       doc.select("#employeeContribution").attr("value") shouldBe "100"
