@@ -3,7 +3,6 @@ package controllers.paye
 import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.common.microservice.paye.domain.Benefit
 import org.joda.time.{Interval, DateTime, LocalDate}
-import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
 import play.api.data.Form
 import play.api.data.Forms._
 import controllers.paye.validation.RemoveBenefitValidator._
@@ -32,8 +31,8 @@ object RemovalUtils {
       "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval),
       "carUnavailable" -> validateMandatoryBoolean,
       "numberOfDaysUnavailable" -> validateNumberOfDaysUnavailable(values, benefitStartDate, taxYearInterval),
-      "employeeContributes" -> validateMandatoryBoolean,
-      "employeeContribution" -> validateEmployeeContribution(values),
+      "removeEmployeeContributes" -> validateMandatoryBoolean,
+      "removeEmployeeContribution" -> validateEmployeeContribution(values),
       "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
       "fuelWithdrawDate" -> validateFuelDate(dates, Some(benefitStartDate), taxYearInterval)
     )(RemoveCarBenefitFormData.apply)(RemoveCarBenefitFormData.unapply)

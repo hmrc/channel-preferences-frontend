@@ -8,31 +8,6 @@
 
 <div id="add-car-benefit-fields">
 
-    @println("At the top of the fields, the form data is: " + carBenefitForm)
-    @println("At the top of the fields, the employeeContribution is: " + carBenefitForm(employeeContribution).value)
-    @println("At the top of the fields, the engineCapacity is: " + carBenefitForm(engineCapacity).value)
-
-    @println(helpers.fieldGroup(
-    carBenefitForm,
-    Seq(
-    FormField(carBenefitForm(employeeContributes), Seq(
-    RadioButton("false", Messages("paye.add_car_benefit.employee_contributes.false"),
-    Some("form-field clear"),
-    Some("label--inlineRadio"),
-    Some(""), Some("data-contextual-helper=disable")),
-    RadioButton("true", Messages("paye.add_car_benefit.employee_contributes.true"),
-    Some("form-field--inline"),
-    Some("label--inlineRadio"),
-    Some(""), Some("data-contextual-helper=enable")))),
-    FormField(carBenefitForm(employeeContribution), Seq(InputType("text", "", "", Some("form-field--inline js-input--contextual"), Some(""), Some("input--small"))))
-    ),
-    '_label -> Messages("paye.add_car_benefit.employee_contribution"),
-    '_groupDivClass -> "form-field  js-includes-contextual",
-    '_valueAfter -> true
-    ))
-
-    @println("---")
-
     <fieldset>
         <h2>@Messages("paye.add_car_benefit.dates_heading")</h2>
         <ol class="list--numbered">

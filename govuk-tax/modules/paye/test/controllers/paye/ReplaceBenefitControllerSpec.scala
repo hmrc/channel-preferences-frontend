@@ -7,7 +7,7 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import org.joda.time.{LocalDate, DateTime}
+import org.joda.time.{LocalDate => JLocalDate, DateTime}
 import org.joda.time.chrono.ISOChronology
 import play.api.test._
 import org.mockito.Mockito._
@@ -23,7 +23,7 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import org.jsoup.Jsoup
-import models.paye.{ReplaceCarBenefitFormData, CarBenefitData}
+import models.paye.{RemoveCarBenefitFormData, ReplaceCarBenefitFormData}
 
 
 class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with ScalaFutures with DateFieldsHelper {
@@ -46,7 +46,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       status(result) shouldBe 200
     }
 
-    "show the prepopulated replace car benefit form if the keystore returns some data" in new WithApplication(FakeApplication()) with TestCase {
+    "show the prepopulated add car benefit form if the keystore returns some data" in new WithApplication(FakeApplication()) with TestCase {
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       setupMocksForJohnDensmore()
       when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](
@@ -54,23 +54,58 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       val result = controller.showReplaceCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, testTaxYear, 2)
 
       status(result) shouldBe 200
-      println(contentAsString(result))
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
-      doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
-      doc.select("[id~=providedFrom]").select(s"[id~=year-$testTaxYear]").attr("selected") shouldBe "selected"
-      doc.select("#listPrice").attr("value") shouldBe "1000"
-      doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
-      doc.select("#employerContribution").attr("value") shouldBe "999"
+      val addTable = doc.select("#add-car-benefit-fields")
+      addTable.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
+      addTable.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
+      addTable.select("[id~=providedFrom]").select(s"[id~=year-$testTaxYear]").attr("selected") shouldBe "selected"
+      addTable.select("#listPrice").attr("value") shouldBe "1000"
+      addTable.select("#employerContributes-true").attr("checked") shouldBe "checked"
+      addTable.select("#employerContribution").attr("value") shouldBe "999"
+      addTable.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
+      addTable.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
+      addTable.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
+      addTable.select("#fuelType-electricity").attr("checked") shouldBe "checked"
+      addTable.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
+      addTable.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
+      addTable.select("#employeeContributes-true").attr("checked") shouldBe "checked"
+      addTable.select("#employeeContribution").attr("value") shouldBe "100"
+    }
+    
+    "show the prepopulated remove car benefit form if the keystore returns some data" in new WithApplication(FakeApplication()) with TestCase {
+      val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
+      setupMocksForJohnDensmore()
+      when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](
+        Matchers.eq("ReplaceCarBenefitFormData"), Matchers.eq("paye"), Matchers.eq("replace_benefit"), Matchers.eq(false))(any(), any())).thenReturn(Some(johnDensmoresReplaceCarBenefitData))
+      val result = controller.showReplaceCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, testTaxYear, 2)
 
-      doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
-      doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
-      doc.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
-      doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
-      doc.select("#engineCapacity-1400").attr("checked") shouldBe "checked"
-      doc.select("#employerPayFuel-false").attr("checked") shouldBe "checked"
-      doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
-      doc.select("#employeeContribution").attr("value") shouldBe "100"
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      val removeTable = doc.select("#remove-car-benefit-fields")
+      removeTable.select("[id~=withdrawDate]").select("[id~=day-8]").attr("selected") shouldBe "selected"
+      removeTable.select("[id~=withdrawDate]").select("[id~=month-1]").attr("selected") shouldBe "selected"
+      removeTable.select("[id~=withdrawDate]").select(s"[id~=year-2014]").attr("selected") shouldBe "selected"
+      removeTable.select("#carUnavailable-true").attr("checked") shouldBe "checked"
+      removeTable.select("#numberOfDaysUnavailable").attr("value") shouldBe "10"
+      removeTable.select("#removeEmployeeContributes-true").attr("checked") shouldBe "checked"
+      removeTable.select("#removeEmployeeContribution").attr("value") shouldBe "2000"
+      removeTable.select("#fuelRadio-differentDateFuel").attr("checked") shouldBe "checked"
+      removeTable.select("[id~=fuelWithdrawDate]").select("[id~=day-8]").attr("selected") shouldBe "selected"
+      removeTable.select("[id~=fuelWithdrawDate]").select("[id~=month-2]").attr("selected") shouldBe "selected"
+      removeTable.select("[id~=fuelWithdrawDate]").select("[id~=year-2013]").attr("selected") shouldBe "selected"
+    }
+
+    "Save the form values to the keystore when the next button is pressed."in new WithApplication(FakeApplication()) with TestCase {
+      import Matchers.{eq => is}
+      val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
+      setupMocksForJohnDensmore()
+      val result = controller.requestReplaceCarAction(testTaxYear, 2)(johnDensmore, requestBenefitReplacementFormSubmission(removeEmployeeContributesVal = "true", removeEmployeeContributionVal = "200", employeeContributesVal = Some("true"), employeeContributionVal = Some("500")))
+
+      status(result) shouldBe 200
+
+      verify(mockKeyStoreService).addKeyStoreEntry(is("ReplaceCarBenefitFormData"), is("paye"), is("replace_benefit"), is(ReplaceCarBenefitFormData(RemoveCarBenefitFormData(LocalDate(2013, 5, 1), Some(false), None, Some(true), Some(200), Some("sameDateFuel"), None),
+        CarBenefitDataBuilder(employeeContributes = Some(true), employeeContribution = Some(500)))), any())(any(), any())
+
     }
   }
 
@@ -78,7 +113,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
     implicit val user = johnDensmore
 
     "return bad request if the remove car form contains errors"  in new WithApplication(FakeApplication()) with TestCase {
-      implicit val request = requestBenefitReplacementFormSubmission(dateReturned = None)
+      implicit val request = requestBenefitReplacementFormSubmission(dateReturnedVal = None)
       setupMocksForJohnDensmore()
       val result = controller.requestReplaceCarAction(testTaxYear, 2)
       status(result) shouldBe 400
@@ -115,18 +150,17 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       when(mockPayeConnector.linkedResource[Seq[Employment]](Matchers.eq(s"/paye/AB123456C/employments/$testTaxYear"))(any(), any())).thenReturn(Future.successful(Some(johnDensmoresEmployments)))
 
       when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(None)
-//      when(mockKeyStoreService.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
-//
-//      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](Matchers.eq(RemovalUtils.benefitFormDataActionId), Matchers.eq("paye"), Matchers.eq("remove_benefit"), any())(any(),any())).thenReturn(Future.successful(None))
-//      when(mockKeyStoreService.getEntry[RemoveFuelBenefitFormData](any(),any(),any(),any())(any(), any())).thenReturn(None)
-//      when(mockKeyStoreService.addKeyStoreEntry(any(), any(), any(), any(), any())(any(), any())).thenReturn(Future.successful(None))
-
+      when(mockKeyStoreService.addKeyStoreEntry(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
     }
 
     import CarBenefitDataBuilder._
 
 
-    def requestBenefitReplacementFormSubmission(dateReturned: Option[LocalDate] = Some(new LocalDate(testTaxYear, 5, 1)), carUnavailable: String = "false", employeeContributes: String = "false", fuelGiveUp: String = "sameDateFuel",
+    def requestBenefitReplacementFormSubmission(dateReturnedVal: Option[JLocalDate] = Some(LocalDate(testTaxYear, 5, 1)),
+                                               carUnavailableVal: String = "false",
+                                               removeEmployeeContributesVal: String = "false",
+                                               removeEmployeeContributionVal: String = "0",
+                                               fuelGiveUpVal: String = "sameDateFuel",
                                                providedFromVal: Option[(String, String, String)] = Some(localDateToTuple(Some(defaultProvidedFrom))),
                                                listPriceVal: Option[String] = Some(defaultListPrice.toString),
                                                employeeContributesVal: Option[String] = Some(defaultEmployeeContributes.toString),
@@ -141,12 +175,12 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
                                                employerPayFuelVal: Option[String] = Some(defaultEmployerPayFuel.toString),
                                                dateFuelWithdrawnVal: Option[(String, String, String)] = Some(localDateToTuple(defaultDateFuelWithdrawn)),
                                                path: String = "")  = {
-
       requestWithCorrectVersion.withFormUrlEncodedBody(Seq(
-        "agreement" -> "true",
-        "carUnavailable" -> carUnavailable,
-        "employeeContributes" -> employeeContributes,
-        "fuelRadio" -> fuelGiveUp,
+        agreement -> "true",
+        carUnavailable -> carUnavailableVal,
+        removeEmployeeContributes -> removeEmployeeContributesVal,
+        removeEmployeeContribution -> removeEmployeeContributionVal,
+        fuelRadio -> fuelGiveUpVal,
         listPrice -> listPriceVal.getOrElse(""),
         employeeContributes -> employeeContributesVal.getOrElse(""),
         employeeContribution -> employeeContributionVal.getOrElse(""),
@@ -157,15 +191,10 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
         co2NoFigure -> co2NoFigureVal.getOrElse(""),
         engineCapacity -> engineCapacityVal.getOrElse(""),
         employerPayFuel -> employerPayFuelVal.getOrElse(""))
-        ++ buildDateFormField("withdrawDate", Some(localDateToTuple(dateReturned)))
+        ++ buildDateFormField(withdrawDate, Some(localDateToTuple(dateReturnedVal)))
         ++ buildDateFormField(providedFrom, providedFromVal)
         ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal)
         ++ buildDateFormField(carRegistrationDate, carRegistrationDateVal): _*)
     }
   }
-
-  private def generateKeystoreActionId(taxYear: Int, employmentSequenceNumber: Int) = {
-    s"ReplaceCarBenefitFormData:$taxYear:$employmentSequenceNumber"
-  }
-
 }

@@ -24,7 +24,6 @@
                     @dateFieldsInline(formItem, field.field.id, Html(""), dateControl.yearRange, dateControl.extraClass)
                 }
                 case inputType: InputType => {
-                    @println("Raw value of " + field.field.name + " = " + field.field.value)
                     @defining(field.field.value match { case Some(x) => x case None => "" case x => x }) { currentValue =>
                     @defining(field.field.name + (if(inputType.key != ""){"-"+ inputType.key} else ""))  { inputId =>
                     <div class='@inputType.divClass.getOrElse("")'>
@@ -36,7 +35,6 @@
                                         @inputType.value
                                     </span>
                                 }
-                            @println(field.field.name + " = " + currentValue)
                                 <input type="@inputType.inputType"
                                         id="@inputId"
                                         class="@inputType.inputClass"

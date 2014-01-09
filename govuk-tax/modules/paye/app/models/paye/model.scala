@@ -11,8 +11,8 @@ case class BenefitInfo(startDate: String, withdrawDate: String, apportionedValue
 case class RemoveCarBenefitFormData(withdrawDate: LocalDate,
                                     carUnavailable: Option[Boolean] = None,
                                     numberOfDaysUnavailable: Option[Int] = None,
-                                    employeeContributes: Option[Boolean],
-                                    employeeContribution: Option[Int],
+                                    removeEmployeeContributes: Option[Boolean],
+                                    removeEmployeeContribution: Option[Int],
                                     fuelDateChoice: Option[String],
                                     fuelWithdrawDate: Option[LocalDate])
 
@@ -20,8 +20,8 @@ object RemoveCarBenefitFormData {
   def apply(data: RemoveFuelBenefitFormData): RemoveCarBenefitFormData =
     RemoveCarBenefitFormData(
       withdrawDate = data.withdrawDate,
-      employeeContributes = None,
-      employeeContribution = None,
+      removeEmployeeContributes = None,
+      removeEmployeeContribution = None,
       fuelDateChoice = None,
       fuelWithdrawDate = None
     )

@@ -81,7 +81,7 @@ trait PayeBaseSpec extends BaseSpec {
     fuelType = Some("electricity"),
     co2Figure = None,
     co2NoFigure = None,
-    engineCapacity = Some("1400"),
+    engineCapacity = Some("2000"),
     employerPayFuel = Some("false"),
     dateFuelWithdrawn = None)
   val carGrossAmount = BigDecimal(321.42)
@@ -133,7 +133,7 @@ trait PayeBaseSpec extends BaseSpec {
 
   val johnDensmoresBenefits = Seq(CarBenefit(carBenefit, Some(fuelBenefit)))
 
-  val johnDensmoresRemovedCarBenefitFormData = new RemoveCarBenefitFormData(LocalDate(2014, 1, 8), Some(true), Some(10), Some(true), Some(2000), Some("12 January 2014"), Some(LocalDate(2013, 2, 8)))
+  val johnDensmoresRemovedCarBenefitFormData = new RemoveCarBenefitFormData(LocalDate(2014, 1, 8), Some(true), Some(10), Some(true), Some(2000), Some("differentDateFuel"), Some(LocalDate(2013, 2, 8)))
 
   val johnDensmoresReplaceCarBenefitData = ReplaceCarBenefitFormData(johnDensmoresRemovedCarBenefitFormData ,johnDensmoresCarBenefitData)
   val johnDensmoresNewCarData = AddCarBenefitConfirmationData("employerName", LocalDate(2014, 1, 8), 1234, "diesel", Some(222), Some("2000"),

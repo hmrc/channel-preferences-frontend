@@ -103,17 +103,10 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
 
   private[paye] def requestReplaceCarAction(taxYear: Int, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
-    val f1 = user.getPaye.fetchTaxYearData(taxYear)
-    val f2 = keyStoreService.loadFormData
-
-    for {
-      taxYearData <- f1
-      defaults <- f2
-      result <- validateRemoveCarBenefitForm(taxYearData, employmentSequenceNumber, None)
-    } yield result
+    user.getPaye.fetchTaxYearData(taxYear).flatMap(renderReplaceCarBenefitSummary(_, employmentSequenceNumber))
   }
 
-  private def validateRemoveCarBenefitForm(taxYearData: TaxYearData, employmentSequenceNumber: Int, formData: Option[RemoveCarBenefitFormData])(implicit user: User, request: Request[_]): Future[SimpleResult] = {
+  private def renderReplaceCarBenefitSummary(taxYearData: TaxYearData, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {
     val result = for {
       activeCarBenefit <- taxYearData.findActiveCarBenefit(employmentSequenceNumber)
       primaryEmployment <- taxYearData.findPrimaryEmployment
@@ -125,18 +118,19 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       val addForm = carBenefitForm(dates).bindFromRequest()
 
       if (addForm.hasErrors || removeForm.hasErrors) {
-        BadRequest(replace_car_benefit_form(activeCarBenefit, primaryEmployment, removeForm, addForm, currentTaxYearYearsRange))
+        Future.successful(BadRequest(replace_car_benefit_form(activeCarBenefit, primaryEmployment, removeForm, addForm, currentTaxYearYearsRange)))
       } else {
         val addCarBenefitData = addForm.get
         val confirmationData = AddCarBenefitConfirmationData(Strings.optionalValue(primaryEmployment.employerName, "your.employer"), addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
           addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
           addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution, addCarBenefitData.carRegistrationDate)
-
-        Ok(replace_car_benefit_review(activeCarBenefit, primaryEmployment, removeForm.get, confirmationData))
+        keyStoreService.storeFormData(ReplaceCarBenefitFormData(removeForm.get, addCarBenefitData)).map {_ =>
+          Ok(replace_car_benefit_review(activeCarBenefit, primaryEmployment, removeForm.get, confirmationData))
+        }
       }
     }
 
-    Future.successful(result.getOrElse(InternalServerError("")))
+    result.getOrElse(Future.successful(InternalServerError("")))
   }
 
   def confirmCarBenefitReplacementAction(taxYear: Int, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]) = {
@@ -147,10 +141,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
     carBenefitDataO.map { carBenefitData =>
         val rawForm = validationlessForm
       val valuesForValidation = rawForm.fill(rawValuesOf(carBenefitData)).value.get
-      println("valuesForValidation = " + valuesForValidation)
-      println("carBenefitData = " + carBenefitData)
       val form = carBenefitForm(valuesForValidation, timeSource).fill(carBenefitData)
-      println("FORM "+form)
       form
       }.getOrElse(carBenefitForm(CarBenefitValues(), timeSource))
     }

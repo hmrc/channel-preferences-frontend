@@ -39,10 +39,10 @@ class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHel
 
       doc.getElementById("numberOfDaysUnavailable") should bePresent
 
-      doc.getElementById("employeeContributes-false") should bePresent
-      doc.getElementById("employeeContributes-true") should bePresent
+      doc.getElementById("removeEmployeeContributes-false") should bePresent
+      doc.getElementById("removeEmployeeContributes-true") should bePresent
 
-      doc.getElementById("employeeContribution") should bePresent
+      doc.getElementById("removeEmployeeContribution") should bePresent
 
       doc.getElementById("fuelRadio-sameDateFuel") should bePresent
       doc.getElementById("fuelRadio-differentDateFuel") should bePresent

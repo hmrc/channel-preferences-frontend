@@ -152,11 +152,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
 
   "Given a user who has car and fuel benefits, removing fuel and then separately car benefit " should {
 
-    def requestBenefitRemovalFormSubmission(date: Option[LocalDate], carUnavailable: String = "false", employeeContributes: String = "false") =
+    def requestBenefitRemovalFormSubmission(date: Option[LocalDate], carUnavailable: String = "false", removeEmployeeContributes: String = "false") =
       requestWithCorrectVersion.withFormUrlEncodedBody(Seq(
         "agreement" -> "true",
         "carUnavailable" -> carUnavailable,
-        "employeeContributes" -> employeeContributes)
+        "removeEmployeeContributes" -> removeEmployeeContributes)
         ++ buildDateFormField("withdrawDate", Some(localDateToTuple(date))): _*)
 
     "allow the user to remove fuel first without showing error" in new WithApplication(FakeApplication()) {
@@ -386,7 +386,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val withdrawDate = new LocalDate(2013, 6, 9)
-      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, employeeContributes = "")
+      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, removeEmployeeContributes = "")
       val result = controller.requestRemoveCarBenefitAction(2013, 2)(johnDensmore, request)
 
       status(result) shouldBe BAD_REQUEST
@@ -399,7 +399,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val withdrawDate = new LocalDate(2013, 6, 9)
-      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, employeeContributes = "true")
+      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, removeEmployeeContributes = "true")
       val result = controller.requestRemoveCarBenefitAction(2013, 2)(johnDensmore, request)
 
       status(result) shouldBe BAD_REQUEST
@@ -412,7 +412,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val withdrawDate = new LocalDate(2013, 6, 9)
-      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, employeeContributes = "true", employeeContribution = "not-a-valid-input")
+      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, removeEmployeeContributes = "true", removeEmployeeContribution = "not-a-valid-input")
       val result = controller.requestRemoveCarBenefitAction(2013, 2)(johnDensmore, request)
 
       status(result) shouldBe BAD_REQUEST
@@ -425,7 +425,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val withdrawDate = new LocalDate(2013, 6, 9)
-      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, employeeContributes = "true", employeeContribution = "-343")
+      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, removeEmployeeContributes = "true", removeEmployeeContribution = "-343")
       val result = controller.requestRemoveCarBenefitAction(2013, 2)(johnDensmore, request)
 
       status(result) shouldBe BAD_REQUEST
@@ -437,7 +437,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
       val withdrawDate = new LocalDate(2013, 6, 9)
-      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, employeeContributes = "true", employeeContribution = "100000")
+      val request = requestBenefitRemovalFormSubmission(withdrawDate = Some(withdrawDate), agreement = true, removeEmployeeContributes = "true", removeEmployeeContribution = "100000")
       val result = controller.requestRemoveCarBenefitAction(2013, 2)(johnDensmore, request)
 
       status(result) shouldBe BAD_REQUEST
@@ -809,15 +809,15 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Co
                                           fuelWithdrawDate: Option[LocalDate] = None,
                                           carUnavailable: String = "false",
                                           numberOfDaysUnavailable: String = "",
-                                          employeeContributes: String = "false",
-                                          employeeContribution: String = "") =
+                                          removeEmployeeContributes: String = "false",
+                                          removeEmployeeContribution: String = "") =
     requestWithCorrectVersion.withFormUrlEncodedBody(Seq(
       "agreement" -> agreement.toString.toLowerCase,
       "fuelRadio" -> fuelRadio.getOrElse(""),
       "carUnavailable" -> carUnavailable,
       "numberOfDaysUnavailable" -> numberOfDaysUnavailable,
-      "employeeContributes" -> employeeContributes,
-      "employeeContribution" -> employeeContribution)
+      "removeEmployeeContributes" -> removeEmployeeContributes,
+      "removeEmployeeContribution" -> removeEmployeeContribution)
       ++ buildDateFormField("fuelWithdrawDate", Some(localDateToTuple(fuelWithdrawDate)))
       ++ buildDateFormField("withdrawDate", Some(localDateToTuple(withdrawDate))): _*)
 }
