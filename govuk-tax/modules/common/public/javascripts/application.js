@@ -339,8 +339,8 @@ GOVUK.ReportAProblem = function () {
       // setup showing/hiding of contextual fields
       GOVUK.toggleContextualFields.setup();
     }
-      //toggle fuel quesitons depending on if user has selected zero emissions
-      var $form = $("#form-add-car-benefit"),
+      //toggle fuel questions depending on if user has selected zero emissions
+      var $form = $("#add-car-benefit-fields"),
         $defaultOptions = $form.find('*[data-default]');
       /**
        * if the server side validation returns an error and the user has already selected
