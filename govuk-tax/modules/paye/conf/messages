@@ -116,6 +116,7 @@ paye.add_car_benefit_review.employer_pay_fuel.false=No
 paye.add_car_benefit_review.employer_pay_fuel.true=Yes, private fuel is available when you use the car
 paye.add_car_benefit_review.employer_pay_fuel.date={0} did pay for fuel for private travel, but stopped paying on {1}
 paye.add_car_benefit_review.submit_button=Submit
+paye.add_car_benefit_review.none=None
 
 paye.add_car_benefit_confirmation.title=Tell HMRC about a change to your company car - confirmation
 paye.add_car_benefit_confirmation.h2=Your company car details have been changed.
@@ -302,3 +303,4 @@ paye.error_page.header=Tell HMRC about a change to your company car
 paye.version_changed.title=Employee version has changed
 paye.version_changed.message=Sorry, the employee version changed while you weren't looking. This is usually due to changes being made to your employment elsewhere, perhaps by your employer or agent.
 paye.version_changed.start_again=Start again
+paye.add_car_benefit_review.none=None

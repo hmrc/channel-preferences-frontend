@@ -28,12 +28,14 @@
         <td>@Messages(s"paye.add_car_benefit.engine_capacity.${data.engineCapacity.get}")</td>
     </tr>
     }
-    @if(data.employeeContributions.isDefined) {
-    <tr>
+    <tr id="employee_contributions">
         <th scope="row">@Messages("paye.add_car_benefit_review.employee_contributions")</th>
-        <td>@pounds(data.employeeContributions.get)</td>
+        @if(data.employeeContributions.isDefined) {
+            <td>@pounds(data.employeeContributions.get)</td>
+        } else {
+            <td>@Messages("paye.add_car_benefit_review.none")</td>
+        }
     </tr>
-    }
     @if(data.dateRegistered.isDefined) {
     <tr>
         <th scope="row">@Messages("paye.add_car_benefit_review.date_registered")</th>
