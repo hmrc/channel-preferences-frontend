@@ -43,9 +43,9 @@ with PayeRegimeRoots {
         }
   }
 
-  def cannotPlayInBeta = UnauthorisedAction {
-    request =>
-      Ok(cannot_play_in_beta())
+  def cannotPlayInBeta = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
+    user => request =>
+      Ok(cannot_play_in_beta(user))
   }
 
   def carBenefitHomeAction(details: RawTaxData)(implicit user: User): SimpleResult = {
