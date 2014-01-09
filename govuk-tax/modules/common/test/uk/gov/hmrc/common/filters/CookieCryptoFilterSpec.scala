@@ -11,13 +11,8 @@ import controllers.common.CookieCrypto
 import org.mockito.ArgumentCaptor
 import org.scalatest.{Inspectors, OptionValues}
 import controllers.common.service.{Encrypter, Decrypter}
-import play.api.mvc.Cookie
-import play.api.mvc.SimpleResult
 import org.scalatest.concurrent.ScalaFutures
-import play.api.http.HeaderNames
-import play.api.mvc.SimpleResult
-import play.api.mvc.Cookie
-import org.scalautils.{TypeCheckedTripleEquals, Equivalence}
+import org.scalautils.TypeCheckedTripleEquals
 import play.api.mvc.SimpleResult
 import play.api.test.FakeApplication
 import play.api.mvc.Cookie

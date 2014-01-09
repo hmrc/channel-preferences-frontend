@@ -8,14 +8,14 @@ import java.util.concurrent.TimeUnit
 import play.api._
 import play.api.mvc._
 import play.filters.csrf._
-import uk.gov.hmrc.common.filters.CSRFExceptionsFilter
 import scala.concurrent.Future
 import play.api.mvc.Results._
 import scala.Some
 import play.api.i18n.Messages
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.filters.{SessionCookieCryptoFilter, CSRFExceptionsFilter}
 
-object Global extends WithFilters(MetricsFilter, CSRFExceptionsFilter, CSRFFilter()) {
+object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter, CSRFFilter()) {
 
   override def onStart(app: Application) {
     val env = app.mode
