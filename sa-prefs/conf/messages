@@ -1,2 +1,4 @@
 error.email=Please provide a valid email address
 email.confirmation.emails.unequal=The email addresses entered do not match
+
+global.error.heading=I say Dear Watson, Something seems to be amiss. The clues lay below...
