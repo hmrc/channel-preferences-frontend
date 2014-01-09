@@ -103,12 +103,6 @@
 GOVUK.ReportAProblem = function () {
     var $reportErrorContainer = $('.report-error__content'),
       $submitButton = $reportErrorContainer.find('.button'),
-      validationErrors = {
-      	"report-action" : '<p class="error-notification">Please enter details of what you were doing.</p>',
-      	"report-error" : '<p class="error-notification">Please enter details of what went wrong.</p>',
-      	"report-name" : '<p class="error-notification">Please enter your name.</p>',
-      	"report-email" : '<p class="error-notification">Email address must be provided.</p>',
-      },
       showErrorMessage = function () {
         var response = "<h2>Sorry, we're unable to receive your message right now.</h2> " +
           			   "<p>We have other ways for you to provide feedback on the " +
@@ -117,18 +111,13 @@ GOVUK.ReportAProblem = function () {
         $reportErrorContainer.html(response);
       },
       promptUserToEnterValidData = function ($input) {
-      console.log($input.attr("name"));
 			if (!$input.parent().hasClass('error')) {
-          		//$(validationErrors[$input.attr("name")]).insertBefore($input);
   	        	$input.parent().addClass('error');
         	}
-
       },
       clearError = function ($input) {
           $input.removeData("error")
-          	.parent().removeClass('error')
-          		//.find('.error-notification').remove();
-
+          	.parent().removeClass('error');
       },
       disableSubmitButton = function () {
         $submitButton.attr("disabled", true);
