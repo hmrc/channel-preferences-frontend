@@ -47,7 +47,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
-      doc.select("#heading").text should include("company fuel")
+      doc.select(".h2-heading").text should include("company fuel")
     }
 
     "return 200 and show the fuel page with the employer s name and previously populated data. EmployerPayFuelTrue and no dateWithdrawn specified" in new TestCaseIn2012 {

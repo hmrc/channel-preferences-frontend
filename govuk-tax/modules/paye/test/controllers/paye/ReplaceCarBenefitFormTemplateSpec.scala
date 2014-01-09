@@ -47,7 +47,7 @@ class ReplaceCarBenefitFormTemplateSpec extends PayeBaseSpec  with MockedTaxYear
       val benefitType = doc.getElementsByClass("benefit-type").toList.map(_.text)
       benefitType should have size 2
       benefitType should contain (Messages("paye.replace_car_benefit.benefit_type"))
-      benefitType should contain (Messages("paye.replace_car_benefit.new_car"))
+      benefitType should contain (Messages("paye.add_car_benefit.new_company_car_heading"))
 
       doc.getElementsByClass("button button--next flush--left")
       doc.getElementById("remove-car-benefit-fields") should bePresent

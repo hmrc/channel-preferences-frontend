@@ -7,7 +7,7 @@
 @import uk.gov.hmrc.utils.TaxYearResolver
 
 <fieldset id="remove-car-benefit-fields" class="list--numbered">
-    <legend class="h2-heading">@Messages("paye.remove_car_benefit.benefit_type")</legend>
+    <legend class="benefit-type h2-heading">@Messages("paye.remove_car_benefit.benefit_type")</legend>
             @helpers.dateFields(updateForm,
             "withdrawDate",
             Html(Messages("paye.remove_car_benefit.withdraw_date")),
