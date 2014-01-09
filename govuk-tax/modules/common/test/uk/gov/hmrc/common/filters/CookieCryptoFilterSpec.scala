@@ -7,8 +7,7 @@ import scala.concurrent.Future
 import play.api.test._
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-import controllers.common.CookieCrypto
-import org.mockito.ArgumentCaptor
+import org.mockito.{Answers, Matchers, ArgumentCaptor}
 import org.scalatest.{Inspectors, OptionValues}
 import controllers.common.service.{Encrypter, Decrypter}
 import org.scalatest.concurrent.ScalaFutures
@@ -16,14 +15,10 @@ import org.scalautils.TypeCheckedTripleEquals
 import play.api.mvc.SimpleResult
 import play.api.test.FakeApplication
 import play.api.mvc.Cookie
+import org.mockito.stubbing.Answer
+import org.mockito.invocation.InvocationOnMock
 
-class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypto with OptionValues with ScalaFutures with Inspectors with TypeCheckedTripleEquals {
-
-  trait MockedCrypto extends Encrypter with Decrypter {
-    override def decrypt(id: String): String = ???
-    override def encrypt(id: String): String = ???
-  }
-
+class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with OptionValues with ScalaFutures with Inspectors with TypeCheckedTripleEquals {
 
   private trait Setup extends Results {
     implicit val headerEquiv = RequestHeaderEquivalence
@@ -46,16 +41,18 @@ class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with CookieCrypt
       mockAction
     }
 
-    val filter = new CookieCryptoFilter with MockedCrypto {
+    val crypto = {
+      trait Crypto extends Encrypter with Decrypter // appease the Mockito fairies
+      val c = mock[Crypto]
+      when(c.decrypt(encryptedCookie.value)).thenReturn(unencryptedCookie.value)
+      when(c.decrypt(corruptEncryptedCookie.value)).thenThrow(new RuntimeException("Couldn't decrypt that"))
+      when(c.encrypt(unencryptedCookie.value)).thenReturn(encryptedCookie.value)
+      c
+    }
+
+    val filter = new CookieCryptoFilter {
+      override val crypto: Encrypter with Decrypter = Setup.this.crypto
       override val cookieName = Setup.this.cookieName
-      override def decrypt(id: String): String = id match {
-        case "encryptedValue" => "decryptedValue"
-        case somethingElse => fail(s"Unexpectedly tried to decrypt $somethingElse")
-      }
-      override def encrypt(id: String): String = id match {
-        case "decryptedValue" => "encryptedValue"
-        case somethingElse => fail(s"Unexpectedly tried to encrypt $somethingElse")
-      }
     }
 
     def requestPassedToAction = {

@@ -22,4 +22,5 @@ object SessionKeys {
   val name = "name"
   val token = "token"
   val affinityGroup = "affinityGroup"
+  val lastRequestTimestamp = SessionTimeoutWrapper.lastRequestTimestampKey
 }

@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import controllers.common.{CookieCrypto, HeaderNames}
+import controllers.common.HeaderNames
 import play.api.mvc.{Action, Controller}
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import org.slf4j.MDC
@@ -30,12 +30,12 @@ object HeaderTestController extends Controller with MdcHeaders with RequestLoggi
     }
 }
 
-class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieCrypto {
+class HeaderActionWrapperSpec extends BaseSpec with HeaderNames {
 
   "HeaderActionWrapper" should {
-    "add parameters from the session and the headers to the MDC " in new WithApplication(FakeApplication()) {
+    "add parameters from the session and the headers to the MDC" in new WithApplication(FakeApplication()) {
       val headers = Seq((forwardedFor, "192.168.1.1"))
-      val sessionParams = Seq(("sessionId", encrypt("012345")), ("userId", encrypt("john")), ("token", "12345"))
+      val sessionParams = Seq("sessionId" -> "012345", "userId" -> "john", "token" -> "12345")
       val request = FakeRequest().withHeaders(headers: _*).withSession(sessionParams: _*)
 
       val result = HeaderTestController.test()(request)
@@ -50,7 +50,7 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames with CookieCrypt
 
     "return an internal server error " in new WithApplication(FakeApplication()) {
       val headers = Seq((forwardedFor, "192.168.1.1"))
-      val sessionParams = Seq(("userId", encrypt("john")), ("token", "12345"))
+      val sessionParams = Seq("userId" -> "john", "token" -> "12345")
       val request = FakeRequest().withHeaders(headers: _*).withSession(sessionParams: _*)
 
       val result = HeaderTestController.fail()(request)

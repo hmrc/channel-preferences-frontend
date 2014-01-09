@@ -1,7 +1,6 @@
 package controllers.paye
 
 import org.scalatest.mock.MockitoSugar
-import controllers.common.CookieCrypto
 import org.scalatest.TestData
 import org.joda.time.{DateTime, LocalDate}
 import play.api.test.{WithApplication, FakeRequest}
@@ -39,7 +38,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
 import models.paye.{RemoveFuelBenefitFormData, RemoveCarBenefitFormData}
 
-class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with CookieCrypto with DateFieldsHelper with ScalaFutures {
+class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with DateFieldsHelper with ScalaFutures {
   import Matchers.{any, eq => is}
   import controllers.domain.AuthorityUtils._
 

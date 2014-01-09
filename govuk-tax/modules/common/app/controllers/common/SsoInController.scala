@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
-import play.api.mvc.{Request, Session}
+import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.UnauthorizedException
 
 class SsoInController(ssoWhiteListService: SsoWhiteListService,
@@ -43,7 +43,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
   })
 
   def in (payload: String)(implicit request: Request[_]) = {
-      val decryptedPayload = SsoPayloadEncryptor.decrypt(payload)
+      val decryptedPayload = SsoPayloadCrypto.decrypt(payload)
       Logger.debug(s"token: $payload")
       val json = Json.parse(decryptedPayload)
       val token = (json \ "gw").as[String]
@@ -86,12 +86,12 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
         detail = Map("authId" -> response.authId, "name" -> response.name, "affinityGroup" -> response.affinityGroup)
       )
     )
-    Redirect(destination).withSession(Session(Map(
+    Redirect(destination).withSession(
       SessionKeys.userId -> response.authId,
       SessionKeys.name -> response.name,
       SessionKeys.affinityGroup -> response.affinityGroup,
       SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
-    ).mapValues(encrypt)))
+    )
   }
 
   private def handleFailedLogin(reason: String, token: String)(implicit request: Request[_]) = {

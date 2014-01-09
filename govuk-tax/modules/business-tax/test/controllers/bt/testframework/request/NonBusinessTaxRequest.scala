@@ -2,7 +2,6 @@ package controllers.bt.testframework.request
 
 import org.mockito.Mockito._
 import controllers.bt.testframework.fixtures.NonBusinessUserFixture
-import controllers.common.CookieCrypto
 import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.microservice.auth.domain._
@@ -17,8 +16,9 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
+import controllers.common.SessionKeys
 
-trait NonBusinessTaxRequest extends CookieCrypto with NonBusinessUserFixture with MockitoSugar {
+trait NonBusinessTaxRequest extends NonBusinessUserFixture with MockitoSugar {
 
   private val userAuthority = Authority(s"/auth/oid/$userId", Credentials(), Accounts(), lastLoginTimestamp, lastLoginTimestamp, CreationAndLastModifiedDetail())
 
@@ -34,9 +34,9 @@ trait NonBusinessTaxRequest extends CookieCrypto with NonBusinessUserFixture wit
   def request = {
 
     val session: Seq[(String, Option[String])] = Seq(
-      "sessionId" -> Some(encrypt(s"session-${UUID.randomUUID().toString}")),
-      lastRequestTimestampKey -> lastRequestTimestamp.map(_.getMillis.toString),
-      "userId" -> Some(encrypt(userId)))
+      SessionKeys.sessionId -> Some(s"session-${UUID.randomUUID().toString}"),
+      SessionKeys.lastRequestTimestamp -> lastRequestTimestamp.map(_.getMillis.toString),
+      SessionKeys.userId -> Some(userId))
 
     val cleanSession = session.collect {
       case (paramName, Some(paramValue)) => (paramName, paramValue)

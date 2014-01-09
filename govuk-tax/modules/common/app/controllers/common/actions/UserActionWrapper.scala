@@ -3,7 +3,7 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import play.api.Logger
-import controllers.common.{UserCredentials, CookieCrypto, AuthenticationProvider}
+import controllers.common.{UserCredentials, AuthenticationProvider}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 import scala.Some
@@ -15,8 +15,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 
 trait UserActionWrapper
-  extends Results
-  with CookieCrypto {
+  extends Results {
 
   protected implicit val authConnector: AuthConnector
 
@@ -35,11 +34,8 @@ trait UserActionWrapper
     }
 
   private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
-    case UserCredentials(Some(encryptedUserId), tokenOption) =>
-
+    case UserCredentials(Some(userId), tokenOption) =>
       implicit val hc = HeaderCarrier(request)
-      val userId = decrypt(encryptedUserId)
-      val token = tokenOption.map(decrypt)
       val authority = authConnector.authority(userId)
       Logger.debug(s"Received user authority: $authority")
 
@@ -54,14 +50,13 @@ trait UserActionWrapper
                 userId = userId,
                 userAuthority = ua,
                 regimes = regimeRoots,
-                nameFromGovernmentGateway = request.session.get("name").map(decrypt),
-                decryptedToken = token))
+                nameFromGovernmentGateway = request.session.get("name"),
+                decryptedToken = tokenOption))
             }
         }
-        case _ => {
+        case _ =>
           Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
           Future.successful(Right(Unauthorized(login()).withNewSession))
-        }
       }
   }
 

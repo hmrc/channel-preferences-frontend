@@ -5,7 +5,6 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.{ FakeApplication, WithApplication }
 import play.api.mvc.{ Session, Request }
-import uk.gov.hmrc.common.microservice.governmentgateway.AffinityGroupValue
 
 class PortalUrlBuilderSpec extends BaseSpec with MockitoSugar {
 

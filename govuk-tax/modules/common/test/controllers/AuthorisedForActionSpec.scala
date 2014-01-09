@@ -24,7 +24,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 
-class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCrypto {
+class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
   import controllers.domain.AuthorityUtils._
 
@@ -58,9 +58,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCryp
   "basic homepage test" should {
     "contain the users first name in the response" ignore new WithApplication(FakeApplication()) {
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID()}",
         lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/jdensmore"))
+        "userId" -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(200)
@@ -73,9 +73,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCryp
       when(mockAuthConnector.authority(Matchers.eq("/auth/oid/jdensmore"))(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID().toString}",
         lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/jdensmore"))
+        "userId" -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(401)
@@ -83,9 +83,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCryp
 
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
       val result = testController.testThrowsException(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID().toString}",
         lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/jdensmore"))
+        "userId" -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(500)
@@ -96,9 +96,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCryp
       when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID().toString}",
         lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/jdensmore"))
+        "userId" -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(500)
@@ -109,9 +109,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCryp
       when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(Some(saAuthority("john", "12345678")))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID}",
         lastRequestTimestampKey -> now.getMillis.toString,
-        "userId" -> encrypt("/auth/oid/john"))
+        "userId" -> "/auth/oid/john")
       )
 
       status(result) should equal(303)
@@ -129,10 +129,10 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCryp
 
     "redirect to the login page when the userId is found but a gateway token is present" in new WithApplication(FakeApplication()) {
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
-        "userId" -> encrypt("/auth/oid/john"),
+        "sessionId" -> s"session-${UUID.randomUUID}",
+        "userId" -> "/auth/oid/john",
         lastRequestTimestampKey -> now.getMillis.toString,
-        "token" -> encrypt("a-government-gateway-token")))
+        "token" -> "a-government-gateway-token"))
 
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/samllogin"
@@ -141,10 +141,10 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar with CookieCryp
     "add redirect information to the session when required" in new WithApplication(FakeApplication()) {
       val result = testController.testAuthorisationWithRedirectCommand(
         FakeRequest("GET", "/some/path").withSession(
-          "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
-          "userId" -> encrypt("/auth/oid/john"),
+          "sessionId" -> s"session-${UUID.randomUUID}",
+          "userId" -> "/auth/oid/john",
           lastRequestTimestampKey -> now.getMillis.toString,
-          "token" -> encrypt("a-government-gateway-token")
+          "token" -> "a-government-gateway-token"
         )
       )
       status(result) should equal(303)

@@ -14,7 +14,6 @@ import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayResponse
 import uk.gov.hmrc.common.microservice.UnauthorizedException
 import play.api.libs.ws.Response
-import scala.Some
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
 import uk.gov.hmrc.common.microservice.governmentgateway.Credentials
 import uk.gov.hmrc.common.microservice.ForbiddenException
@@ -28,7 +27,7 @@ import uk.gov.hmrc.common.microservice.governmentgateway.GatewayToken
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 
-class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
+class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
   import play.api.test.Helpers._
 
@@ -93,13 +92,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
     }
   }
 
-  "LoginController " should {
-    "encrypt cookie value" in new WithSetup {
-      val enc = loginController.encrypt("/auth/oid/9875928746298467209348650298847235")
-      enc should not include "/auth/oid/9875928746298467209348650298847235"
-    }
-  }
-
   "Login controller POST /ida/login" should {
 
     val samlResponse = "98ewgiher9t8ho4fh4hfgo48whfkw4h8o"
@@ -125,7 +117,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
       redirectLocation(result).get shouldBe FrontEndRedirect.payeHome
 
       val sess = session(result)
-      decrypt(sess("userId")) shouldBe id
+      sess("userId") shouldBe id
 
       verify(mockAuditConnector).audit(Matchers.any())(Matchers.any())
     }
@@ -143,8 +135,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
         event.tags should (
           contain ("transactionName" -> "IDA Login") and
           contain ("X-Request-ID" -> originalRequestId) and
-          contain key ("X-Request-ID-Original") and
-          contain key ("X-Session-ID")
+          contain key "X-Request-ID-Original" and
+          contain key "X-Session-ID"
         )
         event.detail should (
           contain ("hashPid" -> hashPid) and
@@ -170,7 +162,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
         event.tags should (
           contain ("transactionName" -> "IDA Login") and
             contain ("X-Request-ID" -> originalRequestId) and
-            contain key ("X-Request-ID-Original")
+            contain key "X-Request-ID-Original"
           )
         event.detail should contain ("transactionFailureReason" -> "SAMLResponse failed validation")
       }
@@ -180,7 +172,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("Noddy", "BigEars")))
 
-      status(result) shouldBe(401)
+      status(result) shouldBe 401
       contentAsString(result) should include("Login error")
 
       whenReady (result) { _=>
@@ -324,9 +316,9 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
       redirectLocation(result).get shouldBe FrontEndRedirect.businessTaxHome
 
       val sess = session(result)
-      decrypt(sess("name")) shouldBe geoff.nameFromGovernmentGateway
-      decrypt(sess("userId")) shouldBe geoff.userId
-      decrypt(sess("token")) shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
+      sess("name") shouldBe geoff.nameFromGovernmentGateway
+      sess("userId") shouldBe geoff.userId
+      sess("token") shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
 
       val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
       verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
@@ -337,8 +329,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
       event.auditType should be ("TxSucceeded")
       event.tags should (
         contain ("transactionName" -> "GG Login") and
-        contain key ("X-Request-ID") and
-        contain key ("X-Session-ID")
+        contain key "X-Request-ID" and
+        contain key "X-Session-ID"
       )
       event.detail should contain ("authId" -> geoff.userId)
     }
@@ -376,7 +368,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
     "return the logged out view and clear any session data" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
       val result = loginController.loggedout(FakeRequest().withSession("someKey" -> "someValue"))
 
-      status(result) shouldBe(200)
+      status(result) shouldBe 200
       contentAsString(result) should include("signed out")
 
       val sess = session(result)

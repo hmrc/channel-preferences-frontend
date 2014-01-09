@@ -33,7 +33,6 @@ import org.mockito.Matchers
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
   with MockitoSugar
-  with CookieCrypto
   with HeaderNames {
 
   import config.DateTimeProvider._
@@ -78,10 +77,10 @@ class AuthorisedForGovernmentGatewayActionSpec
   "basic homepage test" should {
     "contain the users first name in the response" ignore new WithApplication(FakeApplication()) {
       val result = testController.test(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID}",
         lastRequestTimestampKey -> now().getMillis.toString,
-        "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(tokenValue)))
+        "userId" -> "/auth/oid/gfisher",
+        "token" -> tokenValue))
 
       status(result) should equal(200)
       contentAsString(result) should include("3333333333")
@@ -93,20 +92,20 @@ class AuthorisedForGovernmentGatewayActionSpec
       when(authConnector.authority(Matchers.eq("/auth/oid/gfisher"))(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = testController.test(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID}",
         lastRequestTimestampKey -> now().getMillis.toString,
-        "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(tokenValue)))
+        "userId" -> "/auth/oid/gfisher",
+        "token" -> tokenValue))
 
       status(result) should equal(401)
     }
 
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
       val result = testController.testThrowsException(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID}",
         lastRequestTimestampKey -> now().getMillis.toString,
-        "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(tokenValue)))
+        "userId" -> "/auth/oid/gfisher",
+        "token" -> tokenValue))
 
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
@@ -116,10 +115,10 @@ class AuthorisedForGovernmentGatewayActionSpec
       when(authConnector.authority("/auth/oid/gfisher")).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.test(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID}",
         lastRequestTimestampKey -> now().getMillis.toString,
-        "userId" -> encrypt("/auth/oid/gfisher"),
-        "token" -> encrypt(tokenValue)))
+        "userId" -> "/auth/oid/gfisher",
+        "token" -> tokenValue))
 
       status(result) should equal(500)
       contentAsString(result) should include("java.lang.RuntimeException")
@@ -128,10 +127,10 @@ class AuthorisedForGovernmentGatewayActionSpec
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
       when(authConnector.authority("/auth/oid/bob")).thenReturn(Some(payeAuthority("bob","12345678")))
       val result = testController.testAuthorisation(FakeRequest().withSession(
-        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+        "sessionId" -> s"session-${UUID.randomUUID}",
         lastRequestTimestampKey -> now().getMillis.toString,
-        "userId" -> encrypt("/auth/oid/bob"),
-        "token" -> encrypt(tokenValue))
+        "userId" -> "/auth/oid/bob",
+        "token" -> tokenValue)
       )
 
       status(result) should equal(303)
@@ -165,10 +164,10 @@ class AuthorisedForGovernmentGatewayActionSpec
     //      }
     //
     //      val result = testRegimeRoots(FakeRequest().withSession(
-    //        "sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"),
+    //        "sessionId" -> s"session-${UUID.randomUUID}",
     //        lastRequestTimestampKey -> now().getMillis.toString,
-    //        "userId" -> encrypt("/auth/oid/lottyRegimes"),
-    //        "token" -> encrypt(token)
+    //        "userId" -> "/auth/oid/lottyRegimes",
+    //        "token" -> token
     //      ))
     //
     //      status(result) should equal(200)

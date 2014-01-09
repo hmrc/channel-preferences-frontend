@@ -7,13 +7,11 @@ import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import controllers.common.CookieCrypto
 import java.util.UUID
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.SaConnector
 import org.scalatest.TestData
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import controllers.common.actions.HeaderCarrier
 import controllers.domain.AuthorityUtils._
 import uk.gov.hmrc.common.microservice.sa.domain.write.SaAddressForUpdate
 import uk.gov.hmrc.common.microservice.sa.domain.SaIndividualAddress
@@ -27,7 +25,7 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 import org.mockito.Matchers
 
-class SaControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
+class SaControllerSpec extends BaseSpec with MockitoSugar {
 
   import Matchers.{any, eq => is}
   import play.api.test.Helpers._
@@ -99,7 +97,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
 
       when(saConnector.person(Matchers.eq("/sa/individual/123456789012/details"))(Matchers.any())).thenReturn(None)
-      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> encrypt(s"session-${UUID.randomUUID().toString}"), "userId" -> encrypt("/auth/oid/gfisher"), "name" -> encrypt(nameFromGovernmentGateway), "token" -> encrypt("<governmentGatewayToken/>"), lastRequestTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> s"session-${UUID.randomUUID().toString}", "userId" -> "/auth/oid/gfisher", "name" -> nameFromGovernmentGateway, "token" -> "<governmentGatewayToken/>", lastRequestTimestampKey -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }

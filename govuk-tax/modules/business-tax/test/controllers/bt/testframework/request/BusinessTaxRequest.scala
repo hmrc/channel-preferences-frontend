@@ -3,7 +3,6 @@ package controllers.bt.testframework.request
 import java.net.URI
 import org.mockito.Mockito._
 import controllers.bt.testframework.fixtures.BusinessUserFixture
-import controllers.common.CookieCrypto
 import java.util.UUID
 import controllers.common.SessionTimeoutWrapper._
 import play.api.test.FakeRequest
@@ -22,8 +21,9 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.ct.domain.CtJsonRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeJsonRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatJsonRoot
+import controllers.common.SessionKeys
 
-trait BusinessTaxRequest extends CookieCrypto with BusinessUserFixture with MockitoSugar {
+trait BusinessTaxRequest extends BusinessUserFixture with MockitoSugar {
 
   private def saRootLink = saRoot.map(root => URI.create("/sa/" + root.utr.toString))
 
@@ -73,11 +73,11 @@ trait BusinessTaxRequest extends CookieCrypto with BusinessUserFixture with Mock
   def request = {
 
     val session: Seq[(String, Option[String])] = Seq(
-      "sessionId" -> Some(encrypt(s"session-${UUID.randomUUID().toString}")),
+      SessionKeys.sessionId -> Some(s"session-${UUID.randomUUID().toString}"),
       lastRequestTimestampKey -> lastRequestTimestamp.map(_.getMillis.toString),
-      "userId" -> Some(encrypt(userId)),
-      "name" -> nameFromGovernmentGateway.map(encrypt),
-      "token" -> governmentGatewayToken.map(encrypt))
+      SessionKeys.userId -> Some(userId),
+      SessionKeys.name -> nameFromGovernmentGateway,
+      SessionKeys.token -> governmentGatewayToken)
 
     val cleanSession = session.collect {
       case (paramName, Some(paramValue)) => (paramName, paramValue)

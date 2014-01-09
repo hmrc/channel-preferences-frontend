@@ -20,7 +20,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 
-class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
+class HomeControllerSpec extends BaseSpec with MockitoSugar {
 
   private abstract class WithSetup extends WithApplication(FakeApplication()) {
     val controller = new HomeController()
@@ -115,8 +115,8 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
   private def sessionFor(user: User, redirectUrlForPaye: Option[String] = None): Session = {
 
     val session = Map(
-      "sessionId" -> Some(encrypt(s"session-${UUID.randomUUID().toString}")),
-      "userId" -> Some(encrypt(user.userId)),
+      "sessionId" -> Some(s"session-${UUID.randomUUID}"),
+      "userId" -> Some(user.userId),
       FrontEndRedirect.redirectSessionKey -> redirectUrlForPaye)
 
     val cleanMap = session.collect {

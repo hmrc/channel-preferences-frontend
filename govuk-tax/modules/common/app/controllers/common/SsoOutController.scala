@@ -6,19 +6,13 @@ import play.api.mvc.{AnyContent, Request, Action}
 import config.PortalConfig
 import play.api.{Logger, Play}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.Actions
-
-object SsoPayloadEncryptor extends SymmetricCrypto {
-  val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
-}
 
 class SsoOutController(override val auditConnector: AuditConnector)
                       (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with CookieCrypto
   with SessionTimeoutWrapper
   with AllRegimeRoots {
 
@@ -29,8 +23,8 @@ class SsoOutController(override val auditConnector: AuditConnector)
 
       if (requestValid(request)) {
         val destinationUrl = retriveDestinationUrl
-        val decryptedEncodedGovernmentGatewayToken = decrypt(request.session.get("token").get)
-        val encryptedPayload = SsoPayloadEncryptor.encrypt(generateJsonPayload(decryptedEncodedGovernmentGatewayToken, destinationUrl))
+        val encodedGovernmentGatewayToken = request.session.get("token").get
+        val encryptedPayload = SsoPayloadCrypto.encrypt(generateJsonPayload(encodedGovernmentGatewayToken, destinationUrl))
         Ok(encryptedPayload)
       } else {
         BadRequest("Error")

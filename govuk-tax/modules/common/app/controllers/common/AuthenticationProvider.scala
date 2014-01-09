@@ -18,7 +18,7 @@ object UserCredentials {
   def apply(session: Session): UserCredentials = UserCredentials(session.get(userId), session.get(token))
 }
 
-object Ida extends AuthenticationProvider with CookieCrypto {
+object Ida extends AuthenticationProvider {
   def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
     toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
 
@@ -29,22 +29,22 @@ object Ida extends AuthenticationProvider with CookieCrypto {
     case UserCredentials(None, token@_) =>
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
       Future.successful(Right(handleRedirect(request, redirectToOrigin)))
-    case UserCredentials(Some(encryptedUserId), Some(token)) =>
-      Logger.info(s"Wrong user type - redirecting to login. user : ${decrypt(encryptedUserId)} token : $token")
+    case UserCredentials(Some(userId), Some(token)) =>
+      Logger.info(s"Wrong user type - redirecting to login. user : $userId token : $token")
       Future.successful(Right(handleRedirect(request, redirectToOrigin)))
   }
 }
 
 
-object GovernmentGateway extends AuthenticationProvider with CookieCrypto {
+object GovernmentGateway extends AuthenticationProvider {
   def handleRedirect(request: Request[AnyContent]) = Redirect(routes.HomeController.landing())
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
     case UserCredentials(None, token@_) =>
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
       Future.successful(Right(handleRedirect(request)))
-    case UserCredentials(Some(encryptedUserId), None) =>
-      Logger.info(s"No gateway token - redirecting to login. user : ${decrypt(encryptedUserId)} token : None")
+    case UserCredentials(Some(userId), None) =>
+      Logger.info(s"No gateway token - redirecting to login. user : $userId token : None")
       Future.successful(Right(handleRedirect(request)))
   }
 }

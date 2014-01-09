@@ -11,7 +11,7 @@ import config.{DateTimeProvider, PortalConfig}
 import uk.gov.hmrc.common.BaseSpec
 import org.joda.time.DateTime
 
-class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto {
+class SsoOutControllerSpec extends BaseSpec with MockitoSugar {
 
   private def dateTime = DateTimeProvider.now
   private def controller = new SsoOutController() {
@@ -27,12 +27,12 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto 
 
       val validDestinationUrl = PortalConfig.destinationRoot + "/somepath"
 
-      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl").withSession("token" -> encrypt(encodedGovernmentGatewayToken), lastRequestTimestampKey -> sessionTimeout))
+      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl").withSession("token" -> encodedGovernmentGatewayToken, lastRequestTimestampKey -> sessionTimeout))
       status(result) should be(200)
 
       val content = contentAsString(result)
 
-      val decryptedResult = SsoPayloadEncryptor.decrypt(content)
+      val decryptedResult = SsoPayloadCrypto.decrypt(content)
       val decryptedJson = Json.parse(decryptedResult)
 
       (decryptedJson \ "gw").as[String] should be(encodedGovernmentGatewayToken)
@@ -43,12 +43,12 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto 
 
     "when no destination url provided return an encrypt token, time and destination in a JSON and return the encrypted string with the default destination url" in new WithApplication(FakeApplication()) {
 
-      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout").withSession("token" -> encrypt(encodedGovernmentGatewayToken), lastRequestTimestampKey -> sessionTimeout))
+      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout").withSession("token" -> encodedGovernmentGatewayToken, lastRequestTimestampKey -> sessionTimeout))
       status(result) should be(200)
 
       val content = contentAsString(result)
 
-      val decryptedResult = SsoPayloadEncryptor.decrypt(content)
+      val decryptedResult = SsoPayloadCrypto.decrypt(content)
       val decryptedJson = Json.parse(decryptedResult)
 
       (decryptedJson \ "gw").as[String] should be(encodedGovernmentGatewayToken)
@@ -63,7 +63,7 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto 
 
       val anotherValidDestinationUrl = PortalConfig.destinationRoot + "/someotherpath"
       val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl&destinationUrl=$anotherValidDestinationUrl")
-        .withSession("token" -> encrypt(encodedGovernmentGatewayToken), lastRequestTimestampKey -> sessionTimeout))
+        .withSession("token" -> encodedGovernmentGatewayToken, lastRequestTimestampKey -> sessionTimeout))
       status(response) shouldBe 400
     }
 
@@ -71,7 +71,7 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar with CookieCrypto 
 
       val invalidDestinationUrl = "www.bad.com/someotherpath"
       val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$invalidDestinationUrl")
-        .withSession("token" -> encrypt(encodedGovernmentGatewayToken), lastRequestTimestampKey -> sessionTimeout))
+        .withSession("token" -> encodedGovernmentGatewayToken, lastRequestTimestampKey -> sessionTimeout))
       status(response) shouldBe 400
     }
 

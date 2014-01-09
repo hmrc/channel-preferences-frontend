@@ -1,6 +1,6 @@
 package controllers.common
 
-import play.api.mvc.{Session, AnyContent, Action}
+import play.api.mvc.{AnyContent, Action}
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
@@ -66,13 +66,13 @@ class LoginController(samlConnector: SamlConnector,
                   detail = Map("authId" -> response.authId)
                 )
               )
-              FrontEndRedirect.toBusinessTax.withSession(Session(Map(
+              FrontEndRedirect.toBusinessTax.withSession(
                 SessionKeys.sessionId -> sessionId,
                 SessionKeys.userId -> response.authId,
                 SessionKeys.name -> response.name,
                 SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
                 SessionKeys.affinityGroup -> response.affinityGroup
-              ).mapValues(encrypt)))
+              )
 
 
             }.recover {
@@ -140,8 +140,8 @@ class LoginController(samlConnector: SamlConnector,
             )
           )
           FrontEndRedirect.forSession(session).withSession(
-            SessionKeys.userId -> encrypt(authority.uri),
-            SessionKeys.sessionId -> encrypt(updatedHC.sessionId.get)
+            SessionKeys.userId -> authority.uri,
+            SessionKeys.sessionId -> updatedHC.sessionId.get
           )
         case LoginFailure(reason, hashPid, originalRequestId) =>
           Logger.warn(reason)

@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import controllers.common.{SessionKeys, HeaderNames, CookieCrypto}
+import controllers.common.{SessionKeys, HeaderNames}
 import play.api.mvc.Request
 import scala.util.Try
 
@@ -50,14 +50,14 @@ case class HeaderCarrier(userId: Option[String] = None,
   }
 }
 
-object HeaderCarrier extends CookieCrypto {
+object HeaderCarrier {
   val names = HeaderNames
 
   def apply(request: Request[_]) = {
-    val userId = request.session.get(SessionKeys.userId).map(decrypt)
+    val userId = request.session.get(SessionKeys.userId)
     val token = request.session.get(SessionKeys.token)
     val forwardedFor = request.headers.get(names.forwardedFor)
-    val sessionId = request.session.get(SessionKeys.sessionId).map(decrypt)
+    val sessionId = request.session.get(SessionKeys.sessionId)
 
     val requestTimestamp = Try[Long] {
       request.session.get(names.xRequestTimestamp).map(_.toLong).getOrElse(System.nanoTime())
