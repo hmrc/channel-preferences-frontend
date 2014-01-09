@@ -5,9 +5,9 @@ import scala.concurrent.Future
 import play.api.mvc.Results._
 import play.api.i18n.Messages
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.GlobalSettings
+import play.filters.csrf._
 
-object Global extends GlobalSettings {
+object Global extends WithFilters(CSRFFilter()) {
 
   override def doFilter(action: EssentialAction) = EssentialAction { request =>
     action(request).map(_.withHeaders(

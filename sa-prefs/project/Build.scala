@@ -9,6 +9,7 @@ object ApplicationBuild extends Build {
   val appVersion      = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
+    filters,
     anorm,
     Dependencies.Compile.nscalaTime,
     Dependencies.Compile.json4sExt,
