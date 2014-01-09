@@ -27,6 +27,7 @@ error.common.problem_report.telephone_mandatory=Please provide your telephone nu
 error.common.problem_report.email_mandatory=Please provide your email address.
 error.common.problem_report.error_mandatory=Please enter details of what went wrong.
 error.common.problem_report.action_mandatory=Please enter details of what you were doing.
+error.common.comments_mandatory = Please provide details
 
 info.need_to_register=You need to register to use this service. If you’re already registered just sign in.
 
@@ -43,3 +44,5 @@ button.sign_in=Sign in
 info.links_open_new_window=These links will open in a new window
 
 global.error.heading=I say Dear Watson, Something seems to be amiss. The clues lay below...
+contact.heading = Contact
+

@@ -1,0 +1,32 @@
+
+@()(implicit request : Request[_])
+@import views.helpers._
+@main(title = "Your tax home") {
+
+    <h1>@Messages("contact.heading")</h1>
+    @helpers.form(action = common.routes.ContactController.submit) {
+        <fieldset>
+            <legend class="h2-heading">How can we help you?</legend>
+            <div class="form-field">
+                <label for="contact-name"><strong>Your name </strong></label>
+                <span class="error-notification">@Messages("error.common.problem_report.name_mandatory")</span>
+                <input id="contact-name" class="input--fullwidth" name="contact-name" type="text">
+            </div>
+            <div class="form-field">
+                <label for="contact-comments"><strong>Comments</strong></label>
+                <span class="error-notification">@Messages("error.common.problem_report.email_mandatory")</span>
+                <textarea id="contact-comments" class="input--fullwidth" name="contact-comments" rows="8" columns="150"></textarea>
+            </div>
+            <div class="form-field">
+                <label for="contact-email"><strong>Email address</strong></label>
+                <span class="error-notification">@Messages("error.common.problem_report.email_mandatory")</span>
+                <input id="contact-email" class="input--fullwidth" name="contact-email" type="text">
+            </div>
+            <input type="hidden" name="isJavascript" value="false"/>
+            <div class="form-field">
+                <button class="button" type="submit">Send</button>
+            </div>
+        </fieldset>
+    }
+
+}
