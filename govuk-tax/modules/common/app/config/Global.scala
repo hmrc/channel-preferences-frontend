@@ -57,8 +57,7 @@ object Global extends WithFilters(MetricsFilter, CSRFExceptionsFilter, CSRFFilte
 
   override def doFilter(action: EssentialAction) = EssentialAction { request =>
     action(request).map(_.withHeaders(
-      "Cache-Control" -> "no-cache;no-store;must-revalidate;max-age=0",
-      PRAGMA -> "no-cache"
+      "Cache-Control" -> "no-cache;no-store;max-age=0"
     ))
   }
 
