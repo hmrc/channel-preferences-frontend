@@ -1,15 +1,21 @@
 package controllers.common
 
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.{Session, AnyContent, Request, SimpleResult}
 import controllers.common.FrontEndRedirect._
 import uk.gov.hmrc.common.microservice.domain.User
-import scala.Some
-import play.api.mvc.SimpleResult
 import play.api.Logger
 import scala.concurrent._
 
+
 trait AuthenticationProvider {
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[(Option[String], Option[String]), Future[Either[User, SimpleResult]]]
+  type FailureResult = SimpleResult
+  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]]
+}
+
+case class UserCredentials(userId: Option[String], token: Option[String])
+object UserCredentials {
+  import SessionKeys._
+  def apply(session: Session): UserCredentials = UserCredentials(session.get(userId), session.get(token))
 }
 
 object Ida extends AuthenticationProvider with CookieCrypto {
@@ -20,10 +26,10 @@ object Ida extends AuthenticationProvider with CookieCrypto {
     if (redirectToOrigin) Some(request.uri) else None
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-    case (None, token@_) =>
+    case UserCredentials(None, token@_) =>
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
       Future.successful(Right(handleRedirect(request, redirectToOrigin)))
-    case (Some(encryptedUserId), Some(token)) =>
+    case UserCredentials(Some(encryptedUserId), Some(token)) =>
       Logger.info(s"Wrong user type - redirecting to login. user : ${decrypt(encryptedUserId)} token : $token")
       Future.successful(Right(handleRedirect(request, redirectToOrigin)))
   }
@@ -34,10 +40,10 @@ object GovernmentGateway extends AuthenticationProvider with CookieCrypto {
   def handleRedirect(request: Request[AnyContent]) = Redirect(routes.HomeController.landing())
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-    case (None, token@_) =>
+    case UserCredentials(None, token@_) =>
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
       Future.successful(Right(handleRedirect(request)))
-    case (Some(encryptedUserId), None) =>
+    case UserCredentials(Some(encryptedUserId), None) =>
       Logger.info(s"No gateway token - redirecting to login. user : ${decrypt(encryptedUserId)} token : None")
       Future.successful(Right(handleRedirect(request)))
   }

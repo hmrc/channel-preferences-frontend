@@ -21,7 +21,6 @@ import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
-import scala.Some
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 

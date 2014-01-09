@@ -46,7 +46,7 @@ class HomeController(override val auditConnector: AuditConnector)
 
   private object AnyLoggedInUser extends AuthenticationProvider with CookieCrypto {
     def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-      case (None, token@_) =>
+      case UserCredentials(None, token@_) =>
         Logger.info(s"No identity cookie found - redirecting to login. user: None token: $token")
         Future.successful(Right(redirectToLoginPage))
     }

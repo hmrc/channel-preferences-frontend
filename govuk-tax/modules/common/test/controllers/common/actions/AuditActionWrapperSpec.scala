@@ -6,7 +6,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import play.api.test._
-import controllers.common.{CookieCrypto, CookieNames, HeaderNames}
+import controllers.common.{SessionKeys, CookieCrypto, CookieNames, HeaderNames}
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.bson.types.ObjectId
@@ -197,7 +197,7 @@ class AuditActionWrapperSpec extends BaseSpec with HeaderNames with ScalaFutures
       val sessionId = s"session-${UUID.randomUUID().toString}"
 
       val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withSession(
-        SessionKeys.sessionIdName -> encrypt(sessionId),
+        SessionKeys.sessionId -> encrypt(sessionId),
         lastRequestTimestampKey -> now.getMillis.toString,
         "userId" -> encrypt("/auth/oid/123123123"))
         .withHeaders((forwardedFor, "192.168.1.1"), (xRequestId, "govuk-tax-")))
