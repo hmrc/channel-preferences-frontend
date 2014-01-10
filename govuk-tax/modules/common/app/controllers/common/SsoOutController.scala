@@ -24,7 +24,7 @@ class SsoOutController(override val auditConnector: AuditConnector)
 
       if (requestValid(request)) {
         val destinationUrl = retriveDestinationUrl
-        val encodedGovernmentGatewayToken = request.session.get("token").get
+        val encodedGovernmentGatewayToken = request.session.get(SessionKeys.token).get
         val encryptedPayload = SsoPayloadCrypto.encrypt(generateJsonPayload(encodedGovernmentGatewayToken, destinationUrl))
         Ok(encryptedPayload)
       } else {
@@ -62,7 +62,7 @@ class SsoOutController(override val auditConnector: AuditConnector)
       }
     }
     def theTokenIsMissing = {
-      request.session.get("token") match {
+      request.session.get(SessionKeys.token) match {
         case Some(_) => false
         case _ => {
           Logger.error("Single Sign On was attempted without a valid government gateway token")

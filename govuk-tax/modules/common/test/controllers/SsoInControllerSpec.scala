@@ -35,10 +35,10 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry("userId", john.userId))
-          header.headers("Set-Cookie") should include(sessionEntry("name", john.name))
-          header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", john.affinityGroup))
-          header.headers("Set-Cookie") should include(sessionEntry("token", john.encodedToken.encodeBase64))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, john.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, john.name))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, john.affinityGroup))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, john.encodedToken.encodeBase64))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(john)
@@ -55,10 +55,10 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry("userId", john.userId))
-          header.headers("Set-Cookie") should include(sessionEntry("name", john.name))
-          header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", john.affinityGroup))
-          header.headers("Set-Cookie") should include(sessionEntry("token", john.encodedToken.encodeBase64))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, john.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, john.name))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, john.affinityGroup))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, john.encodedToken.encodeBase64))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(john)
@@ -69,7 +69,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
       val encryptedPayload = SsoPayloadCrypto.encrypt( s"""{"gw": "${bob.encodedToken.encodeBase64}", "time": ${bob.loginTimestamp}, "dest": "$redirectUrl"}""")
       val request = FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64)
+        .withSession(SessionKeys.userId -> john.userId, SessionKeys.name -> john.name, SessionKeys.affinityGroup -> john.affinityGroup, SessionKeys.token -> john.encodedToken.encodeBase64)
 
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(bob.encodedToken.encodeBase64, bob.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.affinityGroup, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
@@ -82,10 +82,10 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry("userId", bob.userId))
-          header.headers("Set-Cookie") should include(sessionEntry("name", bob.name))
-          header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", bob.affinityGroup))
-          header.headers("Set-Cookie") should include(sessionEntry("token", bob.encodedToken.encodeBase64))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, bob.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, bob.name))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, bob.affinityGroup))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, bob.encodedToken.encodeBase64))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(bob)
@@ -95,7 +95,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val encryptedPayload = URLEncoder.encode(SsoPayloadCrypto.encrypt( s"""{"gw": "${bob.encodedToken.encodeBase64}", "time": ${bob.loginTimestamp}, "dest": "$redirectUrl"}"""), "UTF-8")
       val request = FakeRequest()
-        .withSession("userId" -> john.userId, "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64)
+        .withSession(SessionKeys.userId -> john.userId, SessionKeys.name -> john.name, SessionKeys.affinityGroup -> john.affinityGroup, SessionKeys.token -> john.encodedToken.encodeBase64)
 
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(bob.encodedToken.encodeBase64, bob.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(bob.userId, bob.name, bob.affinityGroup, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
@@ -108,10 +108,10 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry("userId", bob.userId))
-          header.headers("Set-Cookie") should include(sessionEntry("name", bob.name))
-          header.headers("Set-Cookie") should include(sessionEntry("affinityGroup", bob.affinityGroup))
-          header.headers("Set-Cookie") should include(sessionEntry("token", bob.encodedToken.encodeBase64))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, bob.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, bob.name))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, bob.affinityGroup))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, bob.encodedToken.encodeBase64))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(bob)
@@ -125,16 +125,16 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val response = controller.postIn(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> johnInvalidCredentials.userId, "name" -> johnInvalidCredentials.name, "token" -> johnInvalidCredentials.encodedToken.encodeBase64))
+        .withSession(SessionKeys.userId -> johnInvalidCredentials.userId, SessionKeys.name -> johnInvalidCredentials.name, SessionKeys.token -> johnInvalidCredentials.encodedToken.encodeBase64))
 
       whenReady(response) {
         result =>
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe "/"
-          header.headers("Set-Cookie") should not include "userId"
-          header.headers("Set-Cookie") should not include "name"
-          header.headers("Set-Cookie") should not include "token"
+          header.headers("Set-Cookie") should not include SessionKeys.userId
+          header.headers("Set-Cookie") should not include SessionKeys.name
+          header.headers("Set-Cookie") should not include SessionKeys.token
       }
 
       expectAnSsoLoginFailedAuditEventFor(johnInvalidCredentials, transactionFailureReason = "Invalid Token")
@@ -151,17 +151,17 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val response = controller.postIn(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> johnWithInvalidTimestamp.userId, "name" -> johnWithInvalidTimestamp.name, "affinityGroup" -> johnWithInvalidTimestamp.affinityGroup, "token" -> john.encodedToken.encodeBase64))
+        .withSession(SessionKeys.userId -> johnWithInvalidTimestamp.userId, SessionKeys.name -> johnWithInvalidTimestamp.name, SessionKeys.affinityGroup -> johnWithInvalidTimestamp.affinityGroup, SessionKeys.token -> john.encodedToken.encodeBase64))
 
       whenReady(response) {
         result =>
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe "/"
-          header.headers("Set-Cookie") should not include "userId"
-          header.headers("Set-Cookie") should not include "name"
-          header.headers("Set-Cookie") should not include "affinityGroup"
-          header.headers("Set-Cookie") should not include "token"
+          header.headers("Set-Cookie") should not include SessionKeys.userId
+          header.headers("Set-Cookie") should not include SessionKeys.name
+          header.headers("Set-Cookie") should not include SessionKeys.affinityGroup
+          header.headers("Set-Cookie") should not include SessionKeys.token
       }
 
       expectAnSsoLoginFailedAuditEventFor(johnWithInvalidTimestamp, transactionFailureReason = "Unauthorized")
@@ -177,17 +177,17 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val response = controller.postIn(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64))
+        .withSession(SessionKeys.userId -> john.userId, SessionKeys.name -> john.name, SessionKeys.affinityGroup -> john.affinityGroup, SessionKeys.token -> john.encodedToken.encodeBase64))
 
       whenReady(response) {
         result =>
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe "/"
-          header.headers("Set-Cookie") should not include "userId"
-          header.headers("Set-Cookie") should not include "name"
-          header.headers("Set-Cookie") should not include "affinityGroup"
-          header.headers("Set-Cookie") should not include "token"
+          header.headers("Set-Cookie") should not include SessionKeys.userId
+          header.headers("Set-Cookie") should not include SessionKeys.name
+          header.headers("Set-Cookie") should not include SessionKeys.affinityGroup
+          header.headers("Set-Cookie") should not include SessionKeys.token
       }
 
       expectAnSsoLoginFailedAuditEventFor(john, transactionFailureReason = s"Unknown - $errorMessage")
@@ -199,7 +199,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val result = controller.postIn(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken.encodeBase64))
+        .withSession(SessionKeys.userId -> john.userId, SessionKeys.name -> john.name, SessionKeys.token -> john.encodedToken.encodeBase64))
 
       status(result) shouldBe 400
 
@@ -213,7 +213,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val result = controller.postIn(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64))
+        .withSession(SessionKeys.userId -> john.userId, SessionKeys.name -> john.name, SessionKeys.affinityGroup -> john.affinityGroup, SessionKeys.token -> john.encodedToken.encodeBase64))
 
       status(result) shouldBe 400
 
@@ -225,7 +225,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val result = controller.postIn(FakeRequest("POST", s"www.governmentgateway.com")
         .withFormUrlEncodedBody("payload" -> encryptedPayload)
-        .withSession("userId" -> john.userId, "name" -> john.name, "affinityGroup" -> john.affinityGroup, "token" -> john.encodedToken.encodeBase64))
+        .withSession(SessionKeys.userId -> john.userId, SessionKeys.name -> john.name, SessionKeys.affinityGroup -> john.affinityGroup, SessionKeys.token -> john.encodedToken.encodeBase64))
 
       status(result) shouldBe 400
 
@@ -235,16 +235,16 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
   "The Single Sign-on logout page" should {
     " logout a logged-in user and redirect to the Portal loggedout page" in new WithSsoControllerInFakeApplication {
 
-      val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession("userId" -> john.userId, "name" -> john.name, "token" -> john.encodedToken.encodeBase64))
+      val result = controller.out(FakeRequest("POST", s"www.governmentgateway.com").withSession(SessionKeys.userId -> john.userId, SessionKeys.name -> john.name, SessionKeys.token -> john.encodedToken.encodeBase64))
 
       whenReady(result) {
         case SimpleResult(header, _, _) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
-          header.headers("Set-Cookie") should not include "userId"
-          header.headers("Set-Cookie") should not include "name"
-          header.headers("Set-Cookie") should not include "affinityGroup"
-          header.headers("Set-Cookie") should not include "token"
+          header.headers("Set-Cookie") should not include SessionKeys.userId
+          header.headers("Set-Cookie") should not include SessionKeys.name
+          header.headers("Set-Cookie") should not include SessionKeys.affinityGroup
+          header.headers("Set-Cookie") should not include SessionKeys.token
         }
         case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
       }
@@ -259,10 +259,10 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
         case SimpleResult(header, _, _) => {
           header.status shouldBe 303
           header.headers("Location") shouldBe "http://localhost:8080/portal/loggedout"
-          header.headers("Set-Cookie") should not include "userId"
-          header.headers("Set-Cookie") should not include "name"
-          header.headers("Set-Cookie") should not include "affinityGroup"
-          header.headers("Set-Cookie") should not include "token"
+          header.headers("Set-Cookie") should not include SessionKeys.userId
+          header.headers("Set-Cookie") should not include SessionKeys.name
+          header.headers("Set-Cookie") should not include SessionKeys.affinityGroup
+          header.headers("Set-Cookie") should not include SessionKeys.token
         }
         case _ => fail("the response from the SsoIn (logout) controller was not of the expected format")
       }
@@ -320,7 +320,7 @@ with MockitoSugar with org.scalatest.Matchers {
     auditEvent.getValue.detail should (
       contain("authId" -> user.userId) and
         contain("name" -> user.name) and
-        contain("affinityGroup" -> user.affinityGroup)
+        contain(SessionKeys.affinityGroup -> user.affinityGroup)
       )
     auditEvent.getValue.detail should not contain key("transactionFailureReason")
   }
@@ -331,7 +331,7 @@ with MockitoSugar with org.scalatest.Matchers {
 
     auditEvent.getValue.auditType should be("TxFailed")
     auditEvent.getValue.tags should contain("transactionName" -> "SSO Login")
-    auditEvent.getValue.detail should contain("token" -> user.encodedToken.encodeBase64)
+    auditEvent.getValue.detail should contain(SessionKeys.token -> user.encodedToken.encodeBase64)
     auditEvent.getValue.detail should contain("transactionFailureReason" -> transactionFailureReason)
   }
 }

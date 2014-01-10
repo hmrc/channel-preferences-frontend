@@ -16,6 +16,7 @@ import play.api.mvc.Session
 import org.joda.time.LocalDate
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
+import controllers.common.SessionKeys
 
 //TODO: Create a separate test case for the public method (carBenefitHome)
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with ScalaFutures {
@@ -155,13 +156,13 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     "stash the nps version from the user on the session" in {
       val session = controller.sessionWithNpsVersion(stubSession, 22)
 
-      session.get("nps-version") shouldBe Some("22")
+      session.get(SessionKeys.npsVersion) should contain ("22")
     }
 
     "not trash other session properties" in {
       val session = controller.sessionWithNpsVersion(stubSession, 22)
 
-      session.get("foo") shouldBe Some("bar")
+      session.get("foo") should contain ("bar")
     }
   }
 

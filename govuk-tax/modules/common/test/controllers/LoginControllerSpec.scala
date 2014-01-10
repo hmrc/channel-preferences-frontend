@@ -117,7 +117,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       redirectLocation(result).get shouldBe FrontEndRedirect.payeHome
 
       val sess = session(result)
-      sess("userId") shouldBe id
+      sess(SessionKeys.userId) shouldBe id
 
       verify(mockAuditConnector).audit(Matchers.any())(Matchers.any())
     }
@@ -257,7 +257,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       contentAsString(result) should include("Invalid Username: This field is required")
       contentAsString(result) should not include "Invalid Password"
 
-      session(result).get("userId") shouldBe None
+      session(result).get(SessionKeys.userId) shouldBe None
       verifyZeroInteractions(mockGovernmentGatewayConnector)
     }
 
@@ -270,7 +270,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       contentAsString(result) should include("Invalid Password: This field is required")
       contentAsString(result) should not include "Invalid User ID"
 
-      session(result).get("userId") shouldBe None
+      session(result).get(SessionKeys.userId) shouldBe None
       verifyZeroInteractions(mockGovernmentGatewayConnector)
     }
 
@@ -285,7 +285,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       contentAsString(result) should include("form")
       contentAsString(result) should include("Invalid username or password. Try again.")
 
-      session(result).get("userId") shouldBe None
+      session(result).get(SessionKeys.userId) shouldBe None
 
       expectALoginFailedAuditEventFor("GG Login", "Invalid Credentials")
 
@@ -300,7 +300,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
       status(result) shouldBe 403
-      session(result).get("userId") shouldBe None
+      session(result).get(SessionKeys.userId) shouldBe None
       contentAsString(result) should include("NOT IN WHITELIST")
 
       expectALoginFailedAuditEventFor("GG Login", "Not on the whitelist")
@@ -316,9 +316,9 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       redirectLocation(result).get shouldBe FrontEndRedirect.businessTaxHome
 
       val sess = session(result)
-      sess("name") shouldBe geoff.nameFromGovernmentGateway
-      sess("userId") shouldBe geoff.userId
-      sess("token") shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
+      sess(SessionKeys.name) shouldBe geoff.nameFromGovernmentGateway
+      sess(SessionKeys.userId) shouldBe geoff.userId
+      sess(SessionKeys.token) shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
 
       val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
       verify(mockAuditConnector).audit(captor.capture())(Matchers.any())

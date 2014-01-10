@@ -28,7 +28,7 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar {
 
       val validDestinationUrl = PortalConfig.destinationRoot + "/somepath"
 
-      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl").withSession("token" -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
+      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl").withSession(SessionKeys.token -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
       status(result) should be(200)
 
       val content = contentAsString(result)
@@ -44,7 +44,7 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar {
 
     "when no destination url provided return an encrypt token, time and destination in a JSON and return the encrypted string with the default destination url" in new WithApplication(FakeApplication()) {
 
-      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout").withSession("token" -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
+      val result = controller.encryptPayload(FakeRequest("GET", s"/ssoout").withSession(SessionKeys.token -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
       status(result) should be(200)
 
       val content = contentAsString(result)
@@ -64,7 +64,7 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar {
 
       val anotherValidDestinationUrl = PortalConfig.destinationRoot + "/someotherpath"
       val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl&destinationUrl=$anotherValidDestinationUrl")
-        .withSession("token" -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
+        .withSession(SessionKeys.token -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
       status(response) shouldBe 400
     }
 
@@ -72,7 +72,7 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar {
 
       val invalidDestinationUrl = "www.bad.com/someotherpath"
       val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$invalidDestinationUrl")
-        .withSession("token" -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
+        .withSession(SessionKeys.token -> encodedGovernmentGatewayToken, SessionKeys.lastRequestTimestamp -> sessionTimeout))
       status(response) shouldBe 400
     }
 

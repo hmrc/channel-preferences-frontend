@@ -1,20 +1,20 @@
 package controllers.common.actions
 
-import controllers.common.HeaderNames
+import controllers.common.{SessionKeys, HeaderNames}
 import play.api.mvc.{Action, Controller}
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import org.slf4j.MDC
 import play.api.test.Helpers._
 import uk.gov.hmrc.common.BaseSpec
 
-object HeaderTestController extends Controller with MdcHeaders with RequestLogging{
+object HeaderTestController extends Controller with MdcHeaders with RequestLogging {
 
   def test() =
     logRequest {
       storeHeaders {
         Action {
           request =>
-            Ok(s"${MDC.get(xSessionId)}:${MDC.get(authorisation)}:${MDC.get("token")}:${MDC.get(forwardedFor)}:${MDC.get(xRequestId)}")
+            Ok(s"${MDC.get(MdcKeys.xSessionId)}:${MDC.get(MdcKeys.authorisation)}:${MDC.get(MdcKeys.token)}:${MDC.get(MdcKeys.forwardedFor)}:${MDC.get(MdcKeys.xRequestId)}")
           }
         }
     }
@@ -30,13 +30,13 @@ object HeaderTestController extends Controller with MdcHeaders with RequestLoggi
     }
 }
 
-class HeaderActionWrapperSpec extends BaseSpec with HeaderNames {
+class HeaderActionWrapperSpec extends BaseSpec {
 
   "HeaderActionWrapper" should {
     "add parameters from the session and the headers to the MDC" in new WithApplication(FakeApplication()) {
-      val headers = Seq((forwardedFor, "192.168.1.1"))
-      val sessionParams = Seq("sessionId" -> "012345", "userId" -> "john", "token" -> "12345")
-      val request = FakeRequest().withHeaders(headers: _*).withSession(sessionParams: _*)
+      val request = FakeRequest()
+        .withHeaders(HeaderNames.forwardedFor -> "192.168.1.1")
+        .withSession(SessionKeys.sessionId -> "012345", SessionKeys.userId -> "john", SessionKeys.token -> "12345")
 
       val result = HeaderTestController.test()(request)
       val fields = contentAsString(result) split ":"
@@ -49,9 +49,9 @@ class HeaderActionWrapperSpec extends BaseSpec with HeaderNames {
     }
 
     "return an internal server error " in new WithApplication(FakeApplication()) {
-      val headers = Seq((forwardedFor, "192.168.1.1"))
-      val sessionParams = Seq("userId" -> "john", "token" -> "12345")
-      val request = FakeRequest().withHeaders(headers: _*).withSession(sessionParams: _*)
+      val request = FakeRequest()
+        .withHeaders(HeaderNames.forwardedFor -> "192.168.1.1")
+        .withSession(SessionKeys.userId -> "john", SessionKeys.token -> "12345")
 
       val result = HeaderTestController.fail()(request)
 

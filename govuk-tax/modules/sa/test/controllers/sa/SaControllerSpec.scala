@@ -97,7 +97,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar {
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
 
       when(saConnector.person(Matchers.eq("/sa/individual/123456789012/details"))(Matchers.any())).thenReturn(None)
-      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> s"session-${UUID.randomUUID().toString}", "userId" -> "/auth/oid/gfisher", "name" -> nameFromGovernmentGateway, "token" -> "<governmentGatewayToken/>", SessionKeys.lastRequestTimestamp -> controller.now().getMillis.toString))
+      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession(SessionKeys.sessionId -> s"session-${UUID.randomUUID().toString}", SessionKeys.userId -> "/auth/oid/gfisher", SessionKeys.name -> nameFromGovernmentGateway, SessionKeys.token -> "<governmentGatewayToken/>", SessionKeys.lastRequestTimestamp -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }

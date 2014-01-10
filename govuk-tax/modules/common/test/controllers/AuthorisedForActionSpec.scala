@@ -58,9 +58,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
   "basic homepage test" should {
     "contain the users first name in the response" ignore new WithApplication(FakeApplication()) {
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> s"session-${UUID.randomUUID()}",
+        SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        "userId" -> "/auth/oid/jdensmore")
+        SessionKeys.userId -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(200)
@@ -73,9 +73,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
       when(mockAuthConnector.authority(Matchers.eq("/auth/oid/jdensmore"))(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> s"session-${UUID.randomUUID().toString}",
+        SessionKeys.sessionId -> s"session-${UUID.randomUUID().toString}",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        "userId" -> "/auth/oid/jdensmore")
+        SessionKeys.userId -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(401)
@@ -83,9 +83,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
       val result = testController.testThrowsException(FakeRequest().withSession(
-        "sessionId" -> s"session-${UUID.randomUUID().toString}",
+        SessionKeys.sessionId -> s"session-${UUID.randomUUID().toString}",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        "userId" -> "/auth/oid/jdensmore")
+        SessionKeys.userId -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(500)
@@ -96,9 +96,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
       when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> s"session-${UUID.randomUUID().toString}",
+        SessionKeys.sessionId -> s"session-${UUID.randomUUID().toString}",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        "userId" -> "/auth/oid/jdensmore")
+        SessionKeys.userId -> "/auth/oid/jdensmore")
       )
 
       status(result) should equal(500)
@@ -109,9 +109,9 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
       when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(Some(saAuthority("john", "12345678")))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> s"session-${UUID.randomUUID}",
+        SessionKeys.sessionId -> s"session-${UUID.randomUUID}",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        "userId" -> "/auth/oid/john")
+        SessionKeys.userId -> "/auth/oid/john")
       )
 
       status(result) should equal(303)
@@ -129,10 +129,10 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
     "redirect to the login page when the userId is found but a gateway token is present" in new WithApplication(FakeApplication()) {
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        "sessionId" -> s"session-${UUID.randomUUID}",
-        "userId" -> "/auth/oid/john",
+        SessionKeys.sessionId -> s"session-${UUID.randomUUID}",
+        SessionKeys.userId -> "/auth/oid/john",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        "token" -> "a-government-gateway-token"))
+        SessionKeys.token -> "a-government-gateway-token"))
 
       status(result) should equal(303)
       redirectLocation(result).get shouldBe "/samllogin"
@@ -141,10 +141,10 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
     "add redirect information to the session when required" in new WithApplication(FakeApplication()) {
       val result = testController.testAuthorisationWithRedirectCommand(
         FakeRequest("GET", "/some/path").withSession(
-          "sessionId" -> s"session-${UUID.randomUUID}",
-          "userId" -> "/auth/oid/john",
+          SessionKeys.sessionId -> s"session-${UUID.randomUUID}",
+          SessionKeys.userId -> "/auth/oid/john",
           SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-          "token" -> "a-government-gateway-token"
+          SessionKeys.token -> "a-government-gateway-token"
         )
       )
       status(result) should equal(303)

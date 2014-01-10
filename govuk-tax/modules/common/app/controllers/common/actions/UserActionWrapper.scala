@@ -3,7 +3,7 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import play.api.Logger
-import controllers.common.{UserCredentials, AuthenticationProvider}
+import controllers.common.{SessionKeys, UserCredentials, AuthenticationProvider}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 import scala.Some
@@ -50,7 +50,7 @@ trait UserActionWrapper
                 userId = userId,
                 userAuthority = ua,
                 regimes = regimeRoots,
-                nameFromGovernmentGateway = request.session.get("name"),
+                nameFromGovernmentGateway = request.session.get(SessionKeys.name),
                 decryptedToken = tokenOption))
             }
         }
