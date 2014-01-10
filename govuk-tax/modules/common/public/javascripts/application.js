@@ -6,7 +6,6 @@
   GOVUK.toggleNonElectricFields = function ($form, electricChecked) {
     var $fieldsets = $form.find('.non-electric');
 
-
     if (electricChecked) {
         $fieldsets.addClass('js-hidden');
         $fieldsets.find(':text').val('');
@@ -335,14 +334,12 @@ GOVUK.ReportAProblem = function () {
       GOVUK.toggleContextualFields.setup();
     }
       //toggle fuel questions depending on if user has selected zero emissions
-      var $form = $("#add-car-benefit-fields"),
-        $defaultOptions = $form.find('*[data-default]');
+      var $form = $("#add-car-benefit-fields");
       /**
        * if the server side validation returns an error and the user has already selected
        * an electric car. We need to hide the questions
        **/
       if ($form.find("#fuelType-electricity").prop("checked")) {
-//        GOVUK.toggleDefaultOptions($form, $defaultOptions, true);
         GOVUK.toggleNonElectricFields($form, true);
         $form.data('electricFlagged', true);
       }
