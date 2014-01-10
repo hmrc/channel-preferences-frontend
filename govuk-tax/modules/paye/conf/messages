@@ -160,7 +160,8 @@ paye.replace_car_benefit.title=Replace your company car
 paye.replace_car_benefit_review.subheading=Check your company car details before submitting them
 paye.replace_car_benefit.h1=Tell HMRC about a change to your company car
 paye.replace_car_benefit.subheading=Replace your company car
-paye.replace_car_benefit.benefit_type=Your old company car
+paye.replace_car_benefit.benefit_type=Your old car
+paye.replace_car_benefit.new_car=Your new car
 paye.replace_car_benefit.submit_button=Submit
 
 paye.remove_car_benefit.withdraw_date=When did you give back your old company car?
