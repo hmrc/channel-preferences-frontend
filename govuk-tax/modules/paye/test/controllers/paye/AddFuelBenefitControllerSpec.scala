@@ -245,7 +245,6 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#second-heading").text should include("Check your private fuel details")
       doc.select("#private-fuel").text should include(s"3 June $testTaxYear")
-      doc.select("#provided-from").text should include(s"12 May $testTaxYear")
       doc.select("#fuel-benefit-taxable-value") shouldBe empty
 
     }
@@ -264,7 +263,6 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#second-heading").text should include("Check your private fuel details")
-      doc.select("#provided-from").text should include(s"6 April $testTaxYear")
       doc.select("#private-fuel").text should include(s"Yes, private fuel is available when you use the car")
     }
 
