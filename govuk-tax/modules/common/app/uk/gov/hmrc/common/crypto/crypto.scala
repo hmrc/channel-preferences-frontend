@@ -11,5 +11,5 @@ trait Decrypter {
 }
 
 case class CryptoWithKeyFromConfig(configKey: String) extends SymmetricCrypto {
-  lazy val encryptionKey = Play.current.configuration.getString(configKey).getOrElse(throw new SecurityException("Missing required configuration entry: $configKey"))
+  lazy val encryptionKey = Play.current.configuration.getString(configKey).getOrElse(throw new SecurityException(s"Missing required configuration entry: $configKey"))
 }
