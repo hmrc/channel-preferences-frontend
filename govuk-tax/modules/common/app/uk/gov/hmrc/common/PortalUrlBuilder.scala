@@ -6,26 +6,21 @@ import play.api.Logger
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.utils.TaxYearResolver
 import scala.annotation.tailrec
+import controllers.common.SessionKeys
 
-trait PortalUrlBuilder extends AffinityGroupParser {
+trait PortalUrlBuilder {
 
   def buildPortalUrl(destinationPathKey: String)(implicit request: Request[AnyRef], user: User): String = {
-    val currentTaxYear = TaxYearResolver.currentTaxYear
-    val saUtr = user.userAuthority.accounts.sa.map(_.utr)
-    val vrn = user.userAuthority.accounts.vat.map(_.vrn)
-    val ctUtr = user.userAuthority.accounts.ct.map(_.utr)
-    val empRef = user.userAuthority.accounts.epaye.map(_.empRef.value)
-    val destinationUrl = PortalConfig.getDestinationUrl(destinationPathKey)
-    val tagsToBeReplacedWithData = Seq(
-      ("<year>", Some(toSaTaxYearRepresentation(currentTaxYear))),
-      ("<utr>", saUtr),
-      ("<vrn>", vrn),
-      ("<ctutr>", ctUtr),
-      ("<affinitygroup>", Some(parseAffinityGroup)),
-      ("<empref>", empRef)
-    )
-
-    resolvePlaceHolder(destinationUrl, tagsToBeReplacedWithData)
+    resolvePlaceHolder(
+      url = PortalConfig.getDestinationUrl(destinationPathKey),
+      tagsToBeReplacedWithData = Seq(
+        ("<year>", Some(toSaTaxYearRepresentation(TaxYearResolver.currentTaxYear))),
+        ("<utr>", user.userAuthority.accounts.sa.map(_.utr)),
+        ("<vrn>", user.userAuthority.accounts.vat.map(_.vrn)),
+        ("<ctutr>", user.userAuthority.accounts.ct.map(_.utr)),
+        ("<affinitygroup>", request.session.get(SessionKeys.affinityGroup).orElse { throw new RuntimeException("Affinity Group not found") }),
+        ("<empref>", user.userAuthority.accounts.epaye.map(_.empRef.value))
+      ))
   }
 
   @tailrec
