@@ -2,11 +2,10 @@ error.email=Please provide a valid email address
 email.confirmation.emails.unequal=The email addresses entered do not match
 
 
-vat.regimeName=VAT
+vat.regimeName=Value Added Tax (VAT)
 vat.link.message.accountSummary.viewAccountDetails=View your VAT account details
 vat.link.message.accountSummary.makeAPayment=Make a VAT payment
 vat.link.message.accountSummary.fileAReturn=File your VAT return
-vat.message.registrationNumber=Your Value Added Tax (VAT) registration number is: {0}.
 vat.message.accountBalance=Your account currently shows a balance of {0}
 vat.message.summaryUnavailable.1= We are unable to display your account information. This may be because:
 vat.message.summaryUnavailable.2= - the Value Added Tax (VAT) registration number that you have entered is no longer active and there is no information
@@ -18,7 +17,6 @@ ct.regimeName=Corporation Tax
 ct.link.message.accountSummary.viewAccountDetails=View your Corporation Tax account details
 ct.link.message.accountSummary.makeAPayment=Make a Corporation Tax payment
 ct.link.message.accountSummary.fileAReturn=File your Corporation Tax return
-ct.message.utr=Your Unique Taxpayer Reference (UTR) is: {0}.
 ct.message.amountAsOfDate={0} as of {1}.
 ct.message.summaryUnavailable.1= We are currently unable to display your account information. This may be because:
 ct.message.summaryUnavailable.2=- there is no information to view at this time
@@ -46,7 +44,6 @@ sa.regimeName=Self Assessment
 sa.link.message.accountSummary.viewAccountDetails=View your Self Assessment account details
 sa.link.message.accountSummary.makeAPayment=Make a Self Assessment payment
 sa.link.message.accountSummary.fileAReturn=File your Self Assessment return
-sa.message.utr=Your Unique Taxpayer Reference (UTR) is: {0}.
 sa.message.nothingToPay=You have nothing to pay.
 sa.message.amountDueForPayment=Tax you owe: {0}
 sa.message.interestApplicable=HM Revenue & Customs (HMRC) may charge interest on late payments of tax due now.
@@ -59,10 +56,9 @@ sa.message.summaryUnavailable.2=- there is no information to view at this time
 sa.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available
 sa.message.summaryUnavailable.4=For any other problems, contact the <a id="sa.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
 
-epaye.regimeName=Employers PAYE
+epaye.regimeName=Employers Pay As You Earn (PAYE)
 epaye.link.message.accountSummary.viewAccountDetails=View your Employers PAYE account details
 epaye.link.message.accountSummary.makeAPayment=Make an Employers PAYE payment
-epaye.message.empRef=Your Pay As You Earn (PAYE) employer reference is: {0}.
 epaye.message.nothingToPay=You have nothing to pay.
 epaye.message.youHaveOverPaid=You have overpaid by {0}.
 epaye.message.adjustFuturePayments=Please adjust your future payments.

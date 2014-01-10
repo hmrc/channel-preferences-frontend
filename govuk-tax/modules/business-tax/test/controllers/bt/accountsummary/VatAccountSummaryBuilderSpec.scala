@@ -37,7 +37,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
-      accountSummaryView.messages shouldBe Seq[Msg](Msg(vatRegistrationNumberMessage ,Seq("12345")), Msg(vatAccountBalanceMessage,Seq(MoneyPounds(BigDecimal(6.1)))) )
+      accountSummaryView.messages shouldBe Seq[Msg](Msg(vatAccountBalanceMessage,Seq(MoneyPounds(BigDecimal(6.1)))) )
       accountSummaryView.addenda shouldBe Seq[AccountSummaryLink](
         AccountSummaryLink("vat-account-details-href", vatAccountDetailsPortalUrl, vatViewAccountDetailsLinkMessage, sso = true),
         AccountSummaryLink("vat-make-payment-href", "/vat/make-a-payment", vatMakeAPaymentLinkMessage, sso = false),
@@ -56,7 +56,7 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       accountSummaryViewOption shouldNot be(None)
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
-      accountSummaryView.messages shouldBe Seq[Msg](Msg(vatRegistrationNumberMessage, Seq(vrn.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
+      accountSummaryView.messages shouldBe Seq[Msg](Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
         Msg(vatSummaryUnavailableErrorMessage3), Msg(vatSummaryUnavailableErrorMessage4))
       accountSummaryView.addenda shouldBe Seq.empty
       accountSummaryView.status shouldBe SummaryStatus.default

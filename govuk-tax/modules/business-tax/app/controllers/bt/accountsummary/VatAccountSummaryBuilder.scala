@@ -12,7 +12,6 @@ import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
 
-  import CommonBusinessMessageKeys._
   import VatMessageKeys._
   import VatPortalUrls._
 
@@ -31,11 +30,11 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
       accountValueOption match {
         case Some(accountValue) => {
           val links = successLinks(buildPortalUrl)
-          val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatAccountBalanceMessage, Seq(MoneyPounds(accountValue))))
+          val messages = Seq(Msg(vatAccountBalanceMessage, Seq(MoneyPounds(accountValue))))
           AccountSummary(vatRegimeNameMessage, messages, links, SummaryStatus.success)
         }
         case _ => {
-          val messages = Seq(Msg(vatRegistrationNumberMessage, Seq(vatRoot.identifier.vrn)), Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
+          val messages = Seq(Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
             Msg(vatSummaryUnavailableErrorMessage3),
             //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
             Msg(vatSummaryUnavailableErrorMessage4))
@@ -66,7 +65,6 @@ object VatMessageKeys {
 
   val vatRegimeNameMessage = "vat.regimeName"
 
-  val vatRegistrationNumberMessage = "vat.message.registrationNumber"
   val vatAccountBalanceMessage = "vat.message.accountBalance"
   val vatHelpDeskLinkMessage = "vat.link.message.accountSummary.helpDesk"
 

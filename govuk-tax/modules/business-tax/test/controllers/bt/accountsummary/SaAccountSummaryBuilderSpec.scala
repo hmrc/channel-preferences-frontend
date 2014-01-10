@@ -17,7 +17,6 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
   private val makeAPaymentUrl = routes.PaymentController.makeSaPayment().url
   private val liabilityDate = new LocalDate(2014, 1, 15)
   private val saUtr = SaUtr("123456789")
-  private val utrMessage = Msg("sa.message.utr", Seq(saUtr.utr))
 
   val saAsBuilder = new SaASBuild {
     def saPaymentUrl: String = makeAPaymentUrl
@@ -151,7 +150,7 @@ class SaAccountSummaryBuilderSpec extends BaseSpec {
     val actualAccountSummary = saAsBuilder.build(aso, saUtr)
 
     actualAccountSummary.regimeName shouldBe SaMessageKeys.saRegimeName
-    actualAccountSummary.messages shouldBe utrMessage +: expectedMessages
+    actualAccountSummary.messages shouldBe expectedMessages
 
     actualAccountSummary.addenda shouldBe expectedLinks
   }

@@ -2,7 +2,6 @@ package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
-import CommonBusinessMessageKeys._
 import EpayeMessageKeys._
 import EpayePortalUrlKeys._
 import views.helpers.MoneyPounds
@@ -18,9 +17,8 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary] = {
     val accountSummaryOF = epayeRoot.accountSummary(epayeConnector, headerCarrier)
     accountSummaryOF map { accountSummary =>
-      val messages = renderEmpRefMessage(epayeRoot.identifier) ++ messageStrategy(accountSummary)()
       val links = createLinks(buildPortalUrl, accountSummary)
-      AccountSummary(epayeRegimeNameMessage, messages, links, SummaryStatus.success)
+      AccountSummary(epayeRegimeNameMessage, messageStrategy(accountSummary)(), links, SummaryStatus.success)
     }
   }
 
@@ -66,8 +64,6 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
     }
   }
 
-  private def renderEmpRefMessage(empRef: EmpRef): Seq[Msg] = Seq(Msg(epayeEmpRefMessage, Seq(empRef.toString)))
-
   private def createMessages(nonRti: NonRTI)(): Seq[Msg] = {
     val amountDue = nonRti.paidToDate
     val currentTaxYear = nonRti.currentTaxYear
@@ -99,7 +95,6 @@ object EpayeMessageKeys {
   val epayeAdjustFuturePaymentsMessage = "epaye.message.adjustFuturePayments"
   val epayeDueForPaymentMessage = "epaye.message.dueForPayment"
   val epayePaidToDateForPeriodMessage = "epaye.message.paidToDateForPeriod"
-  val epayeEmpRefMessage = "epaye.message.empRef"
   val epayeSummaryUnavailableErrorMessage1 = "epaye.message.summaryUnavailable.1"
   val epayeSummaryUnavailableErrorMessage2 = "epaye.message.summaryUnavailable.2"
   val epayeSummaryUnavailableErrorMessage3 = "epaye.message.summaryUnavailable.3"

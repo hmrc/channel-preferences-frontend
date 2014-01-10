@@ -13,7 +13,6 @@ import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 
 case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
 
-  import CommonBusinessMessageKeys._
   import CtMessageKeys._
   import CtPortalUrlKeys._
 
@@ -39,7 +38,6 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
 
   private def defaultAccountSummary(ctRoot: CtRoot): AccountSummary = {
     val messages = Seq(
-      Msg(ctUtrMessage, Seq(ctRoot.identifier.utr)),
       Msg(ctSummaryUnavailableErrorMessage1),
       Msg(ctSummaryUnavailableErrorMessage2),
       Msg(ctSummaryUnavailableErrorMessage3),
@@ -64,9 +62,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
       AccountSummaryLink("ct-file-return-href", buildPortalUrl(ctFileAReturnPortalUrl), ctFileAReturnLinkMessage, true)
     )
 
-    val messages = Seq(
-      Msg(ctUtrMessage, Seq(ctRoot.identifier.utr)),
-      Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))))
+    val messages = Seq(Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))))
 
     AccountSummary(ctRegimeNameMessage, messages, links, SummaryStatus.success)
   }
@@ -90,7 +86,6 @@ object CtMessageKeys {
 
   val ctRegimeNameMessage = "ct.regimeName"
 
-  val ctUtrMessage = "ct.message.utr"
   val ctSummaryUnavailableErrorMessage1 = "ct.message.summaryUnavailable.1"
   val ctSummaryUnavailableErrorMessage2 = "ct.message.summaryUnavailable.2"
   val ctSummaryUnavailableErrorMessage3 = "ct.message.summaryUnavailable.3"

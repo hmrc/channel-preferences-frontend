@@ -39,7 +39,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
   val ctRegime = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))
   val vatRegime = Some(VatRoot(Vrn("vrn"), Map.empty[String, String]))
   val epayeRegime = Some(EpayeRoot(EmpRef("emp/ref"), EpayeLinks(Some("link"))))
-  val saAccountSummary = AccountSummary("sa.regimeName", List(Msg(SaMessageKeys.saUtrMessage)), Seq.empty, SummaryStatus.success)
+  val saAccountSummary = AccountSummary("sa.regimeName", List(), Seq.empty, SummaryStatus.success)
 
   def createUser(saRegime: Option[SaRoot] = None, ctRegime: Option[CtRoot] = None, vatRegime: Option[VatRoot] = None, epayeRegime: Option[EpayeRoot] = None) = {
     User(userId = "userId", userAuthority = allBizTaxAuthority("userId", "sa-utr", "ct-utr", "vrn", "emp/ref"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRegime, ct = ctRegime, vat = vatRegime, epaye = epayeRegime), decryptedToken = None)
@@ -65,7 +65,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
       val document = Jsoup.parse(contentAsString(result))
 
-      document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home.url
+      document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home().url
       document.getElementById("otherServicesNavHref").attr("href") shouldBe "/business-tax" + businessTaxRoutes.OtherServicesController.otherServices().url
       document.getElementById("logOutNavHref").attr("href") shouldBe commonRoutes.LoginController.logout().url
 
@@ -97,7 +97,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
     "render the epaye widget" in new BusinessTaxControllerTestSetup {
 
-      val accountSummary = AccountSummary("epaye.regimeName", List(Msg(EpayeMessageKeys.epayeEmpRefMessage)), Seq.empty, SummaryStatus.success)
+      val accountSummary = AccountSummary("epaye.regimeName", List(), Seq.empty, SummaryStatus.success)
       val user = createUser(epayeRegime = epayeRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(accountSummary))))
@@ -120,7 +120,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "render the ct widget" in new BusinessTaxControllerTestSetup {
-      val accountSummary = AccountSummary("ct.regimeName", List(Msg(CtMessageKeys.ctUtrMessage)), Seq.empty, SummaryStatus.success)
+      val accountSummary = AccountSummary("ct.regimeName", List(), Seq.empty, SummaryStatus.success)
       val  user = createUser(ctRegime = ctRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(accountSummary))))
@@ -164,9 +164,9 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "render all the widgets in the right order" in new BusinessTaxControllerTestSetup {
-      val ctAccountSummary = AccountSummary("ct.regimeName", List(Msg(CtMessageKeys.ctUtrMessage)), Seq.empty, SummaryStatus.success)
+      val ctAccountSummary = AccountSummary("ct.regimeName", List(), Seq.empty, SummaryStatus.success)
       val vatAccountSummary = AccountSummary("vat.regimeName", List(Msg(VatMessageKeys.vatRegimeNameMessage)), Seq.empty, SummaryStatus.success)
-      val epayeAcountSummary = AccountSummary("epaye.regimeName", List(Msg(EpayeMessageKeys.epayeEmpRefMessage)), Seq.empty, SummaryStatus.success)
+      val epayeAcountSummary = AccountSummary("epaye.regimeName", List(), Seq.empty, SummaryStatus.success)
       val user = createUser(saRegime, ctRegime, vatRegime, epayeRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAcountSummary))))
@@ -196,7 +196,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
     "display business tax homepage for user without SA regime" in new BusinessTaxControllerTestSetup {
 
-      val accountSummary = AccountSummary("epaye.regimeName", List(Msg(EpayeMessageKeys.epayeEmpRefMessage)), Seq.empty, SummaryStatus.success)
+      val accountSummary = AccountSummary("epaye.regimeName", List(), Seq.empty, SummaryStatus.success)
       val user = createUser(epayeRegime = epayeRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(accountSummary))))

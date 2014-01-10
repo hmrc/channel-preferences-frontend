@@ -1,7 +1,6 @@
 package controllers.bt.accountsummary
 
 import uk.gov.hmrc.common.microservice.sa.SaConnector
-import CommonBusinessMessageKeys._
 import SaMessageKeys._
 import SaPortalUrlKeys._
 import uk.gov.hmrc.common.microservice.domain.User
@@ -22,7 +21,7 @@ class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector)
 
   def buildAccountSummary(saRoot: SaRoot, bpu: String => String)(implicit hc: HeaderCarrier): Future[AccountSummary] = {
     val builder = new SaASBuild {
-      val saPaymentUrl = routes.PaymentController.makeSaPayment.url
+      val saPaymentUrl = routes.PaymentController.makeSaPayment().url
       def buildPortalUrl(s:String) = bpu(s)
     }
     saRoot.accountSummary(saConnector, hc).map(builder.build(_, saRoot.identifier))
@@ -39,11 +38,9 @@ trait SaASBuild {
     case _ => unavailable(utr)
   }
 
-  def utrMessage(utr: SaUtr) = Msg(saUtrMessage, Seq(utr.utr))
-
   def makeSummary(saSummary: SaAccountSummary, utr: SaUtr) = AccountSummary(
     regimeName = saRegimeName,
-    messages = utrMessage(utr) +: buildMessages(saSummary),
+    messages = buildMessages(saSummary),
     addenda = Seq(
       AccountSummaryLink("sa-account-details-href", buildPortalUrl(saAccountDetailsPortalUrl), saViewAccountDetailsLinkMessage, sso = true),
       AccountSummaryLink("sa-make-payment-href", saPaymentUrl, saMakeAPaymentLinkMessage, sso = false),
@@ -54,7 +51,7 @@ trait SaASBuild {
 
   def unavailable(utr: SaUtr) =
     AccountSummary(regimeName = saRegimeName,
-      messages = utrMessage(utr) +: Seq(
+      messages = Seq(
         Msg(saSummaryUnavailableErrorMessage1),
         Msg(saSummaryUnavailableErrorMessage2),
         Msg(saSummaryUnavailableErrorMessage3),
@@ -144,7 +141,6 @@ object SaMessageKeys {
 
   val saRegimeName = "sa.regimeName"
 
-  val saUtrMessage = "sa.message.utr"
   val saNothingToPayMessage = "sa.message.nothingToPay"
   val saAmountDueForPaymentMessage = "sa.message.amountDueForPayment"
   val saInterestApplicableMessage = "sa.message.interestApplicable"

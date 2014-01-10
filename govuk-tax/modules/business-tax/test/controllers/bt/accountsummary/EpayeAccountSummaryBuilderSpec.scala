@@ -28,7 +28,6 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val dummyEmpRef = EmpRef("abc", "defg")
   private val homeUrl = "http://homeUrl"
   private val makeAPaymentUrl = routes.PaymentController.makeEpayePayment().url
-  private val empRefMessageString: Msg = Msg(epayeEmpRefMessage, Seq(dummyEmpRef.toString))
 
   private val expectedRtiLinks = Seq(
     AccountSummaryLink("epaye-account-details-href", homeUrl, epayeViewAccountDetailsLinkMessage, sso = true),
@@ -47,7 +46,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val rti = RTI(BigDecimal(0))
       val accountSummary = EpayeAccountSummary(rti = Some(rti))
 
-      val expectedMessages = Seq(empRefMessageString, Msg(epayeNothingToPayMessage, Seq.empty))
+      val expectedMessages = Seq(Msg(epayeNothingToPayMessage, Seq.empty))
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
@@ -59,7 +58,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val overPaidMessage = Msg(epayeYouHaveOverpaidMessage, Seq(MoneyPounds(BigDecimal(8))))
       val adjustFuturePaymentsMessageString = Msg(epayeAdjustFuturePaymentsMessage)
 
-      val expectedMessages = Seq[Msg](empRefMessageString, overPaidMessage, adjustFuturePaymentsMessageString)
+      val expectedMessages = Seq[Msg](overPaidMessage, adjustFuturePaymentsMessageString)
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
@@ -70,7 +69,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val dueForPaymentMessageString = Msg(epayeDueForPaymentMessage, Seq(MoneyPounds(BigDecimal(8))))
 
-      val expectedMessages = Seq(empRefMessageString, dueForPaymentMessageString)
+      val expectedMessages = Seq(dueForPaymentMessageString)
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
@@ -85,7 +84,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val paidToDateForPeriodMessageString = Msg(epayePaidToDateForPeriodMessage, Seq(MoneyPounds(BigDecimal(0)), "2013 - 14"))
 
-      val expectedMessages = Seq(empRefMessageString, paidToDateForPeriodMessageString)
+      val expectedMessages = Seq(paidToDateForPeriodMessageString)
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
     }
@@ -97,7 +96,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val paidToDateForPeriodMessageString = Msg(epayePaidToDateForPeriodMessage, Seq(MoneyPounds(BigDecimal(100)), "2011 - 12"))
 
-      val expectedMessages = Seq(empRefMessageString, paidToDateForPeriodMessageString)
+      val expectedMessages = Seq(paidToDateForPeriodMessageString)
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
     }
@@ -109,7 +108,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val paidToDateForPeriodMessageString = Msg(epayePaidToDateForPeriodMessage, Seq(MoneyPounds(BigDecimal(100)), "1999 - 00"))
 
-      val expectedMessages = Seq(empRefMessageString, paidToDateForPeriodMessageString)
+      val expectedMessages = Seq(paidToDateForPeriodMessageString)
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedNonRtiLinks)
     }
@@ -125,8 +124,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
         Msg(epayeSummaryUnavailableErrorMessage3),
         Msg(epayeSummaryUnavailableErrorMessage4))
 
-      val expectedMessages = empRefMessageString +: unableToDisplayAccountInfoMessages
-      testEpayeAccountSummaryBuilder("epaye.regimeName", Success(Some(accountSummary)), expectedMessages, Seq.empty)
+      testEpayeAccountSummaryBuilder("epaye.regimeName", Success(Some(accountSummary)), unableToDisplayAccountInfoMessages, Seq.empty)
     }
 
     "build the correct account summary model if no summary is returned from the service (e.g. due to 404 or 500 from the REST call)" in {
@@ -135,8 +133,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
         Msg(epayeSummaryUnavailableErrorMessage2),
         Msg(epayeSummaryUnavailableErrorMessage3),
         Msg(epayeSummaryUnavailableErrorMessage4))
-      val expectedMessages = empRefMessageString +: unableToDisplayAccountInfoMessages
-      testEpayeAccountSummaryBuilder("epaye.regimeName", Success(None), expectedMessages, Seq.empty)
+      testEpayeAccountSummaryBuilder("epaye.regimeName", Success(None), unableToDisplayAccountInfoMessages, Seq.empty)
     }
 
     //    "return the oops summary if there is an exception when requesting the root" in {
@@ -185,7 +182,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     when(mockPortalUrlBuilder.build(epayeAccountDetailsPortalUrl)).thenReturn(homeUrl)
     when(mockPortalUrlBuilder.build(epayeMakeAPaymentLinkMessage)).thenReturn(makeAPaymentUrl) // TODO [JJS] THIS ISN'T A PORTAL LINK IS IT? AND WE'RE PASSING A MESSAGE TO THE LINK BUILDER? - THIS LINE LOOKS WRONG
 
-    val actualAccountSummary = await(EpayeAccountSummaryBuilder(mockEpayeConnector).build(mockPortalUrlBuilder.build _, mockUser).get)
+    val actualAccountSummary = await(EpayeAccountSummaryBuilder(mockEpayeConnector).build(url => mockPortalUrlBuilder.build(url), mockUser).get)
 
     actualAccountSummary.regimeName shouldBe expectedRegimeName
     actualAccountSummary.messages shouldBe expectedMessages
