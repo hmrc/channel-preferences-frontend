@@ -22,8 +22,11 @@ trait SymmetricCrypto extends Encrypter with Decrypter {
   override def decrypt(value: String): String = decrypter.decrypt(value, secretKey)
 }
 
-class CompositeSymmetricCrypto(currentCrypto: Encrypter with Decrypter, previousCryptos: Seq[Decrypter])
-  extends Encrypter with Decrypter {
+trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
+
+  protected val currentCrypto: Encrypter with Decrypter
+
+  protected val previousCryptos: Seq[Decrypter]
 
   override def encrypt(value: String): String = currentCrypto.encrypt(value)
 

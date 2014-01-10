@@ -12,7 +12,10 @@ class CompositeSymmetricCryptoSpec extends BaseSpec {
     val currentCrypto = mock[Crypto]
     val previousCryptos = Seq.empty[Decrypter]
 
-    lazy val crypto = new CompositeSymmetricCrypto(currentCrypto, previousCryptos)
+    lazy val crypto = new CompositeSymmetricCrypto {
+      override val currentCrypto = Setup.this.currentCrypto
+      override val previousCryptos = Setup.this.previousCryptos
+    }
 
     val message = "some message"
     val encryptedMessage = "encrypted message"
