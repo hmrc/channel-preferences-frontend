@@ -11,12 +11,6 @@
     @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>
     <table>
         <tbody>
-        @if(data.providedFrom.isDefined){
-        <tr>
-            <th scope="row">@Messages("paye.add_fuel_benefit_review.date_provided")</th>
-            <td id="provided-from">@{formatDate(data.providedFrom.get)}</td>
-        </tr>
-        }
         <tr>
             <th scope="row">@Messages("paye.add_fuel_benefit_review.private_fuel")</th>
             <td id="private-fuel">@{Messages(s"paye.add_fuel_benefit_review.employer_pay_fuel.${data.employerPayFuel}", employerNameString, formatDate(data.dateFuelWithdrawn, ""))}</td>
