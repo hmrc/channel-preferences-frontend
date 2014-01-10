@@ -3,12 +3,8 @@ package models.paye
 import org.joda.time.LocalDate
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.BenefitTypes._
-import controllers.paye.FuelBenefitData
-import models.paye.CarBenefitData
-import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import controllers.paye.FuelBenefitData
-import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 
 case class CarBenefitData(providedFrom: Option[LocalDate],
                           carRegistrationDate: Option[LocalDate],

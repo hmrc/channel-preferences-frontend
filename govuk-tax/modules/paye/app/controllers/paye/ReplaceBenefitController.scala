@@ -1,30 +1,34 @@
 package controllers.paye
 
-import uk.gov.hmrc.common.microservice.paye.domain._
+import scala.concurrent._
+
 import play.api.mvc._
-import views.html.paye._
-import models.paye._
-import controllers.common.{BaseController, SessionTimeoutWrapper}
+import play.api.data.Form
+import play.api.mvc.SimpleResult
+
+import uk.gov.hmrc.utils.TaxYearResolver
+
+import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
-import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import controllers.common.actions.{HeaderCarrier, Actions}
-import scala.concurrent._
-import controllers.paye.validation.RemoveBenefitValidator
-import controllers.paye.validation.BenefitFlowHelper._
-import controllers.paye.validation.AddCarBenefitValidator._
-import play.api.data.Form
-import scala.Some
-import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
-import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import uk.gov.hmrc.utils.TaxYearResolver
-import controllers.paye.validation.RemoveBenefitValidator.RemoveCarBenefitFormDataValues
+
+import models.paye._
+
+import views.html.paye._
 import views.formatting.Strings
+
+import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.paye.validation.RemoveBenefitValidator.RemoveCarBenefitFormDataValues
+import controllers.paye.validation.BenefitFlowHelper._
+import controllers.paye.validation.RemoveBenefitValidator
+import controllers.paye.validation.AddCarBenefitValidator._
+import controllers.common.{BaseController, SessionTimeoutWrapper}
+import controllers.common.service.Connectors
 
 class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                               (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
@@ -48,16 +52,6 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
         }
   }
 
-  def confirmCarBenefitReplacement(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user =>
-      implicit request =>
-        implicit val hc = HeaderCarrier(request)
-        validateVersionNumber(user, request.session).flatMap {
-          _.fold(
-            errorResult => Future.successful(errorResult),
-            versionNumber => confirmCarBenefitReplacementAction(taxYear, employmentSequenceNumber, versionNumber))
-        }
-  }
 
   def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], removeDefaults: Option[RemoveCarBenefitFormData], addDefaults: Form[CarBenefitData], user: User, request: Request[_]) = {
     val hasUnremovedFuel = activeCarBenefit.hasActiveFuel
@@ -80,6 +74,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
             versionNumber => requestReplaceCarAction(taxYear, employmentSequenceNumber))
         }
   }
+
 
   private[paye] def showReplaceCarBenefitFormAction(user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
@@ -105,6 +100,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
     implicit val hc = HeaderCarrier(request)
     user.getPaye.fetchTaxYearData(taxYear).flatMap(renderReplaceCarBenefitSummary(_, employmentSequenceNumber))
   }
+
 
   private def renderReplaceCarBenefitSummary(taxYearData: TaxYearData, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {
     val result = for {
@@ -133,49 +129,6 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
     result.getOrElse(Future.successful(InternalServerError("")))
   }
 
-  def confirmCarBenefitReplacementAction(taxYear: Int, employmentSequenceNumber: Int, version: Int)(implicit user: User, request: Request[_]) = {
-    val taxYeadDataF = user.getPaye.fetchTaxYearData(TaxYearResolver.currentTaxYear)
-    val taxCodeF = TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear)
-    val formDataF = keyStoreService.loadFormData
-
-    for {
-      taxYearData <- taxYeadDataF
-      formDataO <- formDataF
-      currentTaxCode <- taxCodeF
-      result <- doUpdate(formDataO, taxYearData, employmentSequenceNumber, version, taxYear, currentTaxCode)
-    } yield result
-  }
-
-  private def doUpdate(formDataO: Option[ReplaceCarBenefitFormData], taxYearData: TaxYearData, employmentSequenceNumber: Int, version: Int, taxYear: Int, currentTaxCode: String)
-                      (implicit user: User, hc: HeaderCarrier): Future[SimpleResult] = {
-    val result = for {
-      formData <- formDataO
-      activeCarBenefit <- taxYearData.findActiveCarBenefit(employmentSequenceNumber)
-    } yield {
-      val url = activeCarBenefit.actions.getOrElse("replace",
-        throw new IllegalArgumentException(s"No replace action uri found for this car benefit."))
-
-      payeConnector.replaceBenefits(url, buildRequest(version, formData, taxYear, employmentSequenceNumber)).map {
-        case Some(response) => {
-          keyStoreService.clearFormData
-          Ok(replace_benefit_confirmation(currentTaxCode, response.taxCode)(user))
-        }
-      }
-    }
-    result.getOrElse(Future.successful(InternalServerError("Either form data was missing or there was no active car benefit")))
-  }
-
-  private def buildRequest(version: Int, formData: ReplaceCarBenefitFormData, taxYear: Int, employmentSequenceNumber: Int) = {
-    val wbr = WithdrawnBenefitRequest(version,
-      Some(WithdrawnCarBenefit(formData.removedCar.withdrawDate,
-        formData.removedCar.numberOfDaysUnavailable,
-        formData.removedCar.removeEmployeeContribution)),
-      Some(WithdrawnFuelBenefit(formData.removedCar.withdrawDate)))
-
-    val addBenefits = CarBenefitBuilder(formData.newCar, taxYear, employmentSequenceNumber).toBenefits
-    val addBenefit = AddBenefit(version, employmentSequenceNumber, addBenefits)
-    ReplaceBenefit(wbr, addBenefit)
-  }
 
   private def extractCarBenefitValuesAndBuildForm(carBenefitDataO: Option[CarBenefitData])(implicit hc: HeaderCarrier): Form[CarBenefitData] = {
     carBenefitDataO.map { carBenefitData =>
@@ -186,6 +139,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
     }.getOrElse(carBenefitForm(CarBenefitValues(), timeSource))
   }
 
+
   private[paye] def rawValuesOf(defaults: CarBenefitData) =
     CarBenefitValues(providedFromVal = defaults.providedFrom,
       carRegistrationDate = defaults.carRegistrationDate,
@@ -195,24 +149,6 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       co2Figure = defaults.co2Figure.map(_.toString),
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
       employerPayFuel = defaults.employerPayFuel)
-
-
-  implicit class ReplaceBenefitKeyStore(keyStoreService: KeyStoreConnector) {
-    val actionId = "ReplaceCarBenefitFormData"
-    val keystoreKey = "replace_benefit"
-
-    def storeFormData(formData: ReplaceCarBenefitFormData)(implicit hc: HeaderCarrier) = {
-      keyStoreService.addKeyStoreEntry(actionId, KeystoreUtils.source, keystoreKey, formData)
-    }
-
-    def loadFormData(implicit hc: HeaderCarrier) = {
-      keyStoreService.getEntry[ReplaceCarBenefitFormData](actionId, KeystoreUtils.source, keystoreKey)
-    }
-
-    def clearFormData(implicit hc: HeaderCarrier) = {
-      keyStoreService.deleteKeyStore(actionId, KeystoreUtils.source)
-    }
-  }
 
 }
 

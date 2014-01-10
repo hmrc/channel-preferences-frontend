@@ -20,7 +20,7 @@
             s"${ReplaceBenefitController.showReplaceCarBenefitForm(activeCarBenefit.taxYear, employment.sequenceNumber)}",
             Messages("paye.benefit_review.wrong_information"))
 
-        @helper.form(action = ReplaceBenefitController.confirmCarBenefitReplacement(activeCarBenefit.taxYear, employment.sequenceNumber)) {
+        @helper.form(action = ReplaceCarBenefitConfirmController.confirmCarBenefitReplacement(activeCarBenefit.taxYear, employment.sequenceNumber)) {
             <div class="form-field">
                 <input class="button button--confirm" type="submit" value="@Messages("paye.remove_car_benefit_review.submit_button")"/>
             </div>

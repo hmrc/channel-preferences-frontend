@@ -11,7 +11,7 @@ import uk.gov.hmrc.utils.TaxYearResolver
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
-import models.paye.{RemoveFuelBenefitFormData, CarFuelBenefitDates, RemoveCarBenefitFormData}
+import models.paye.{ReplaceCarBenefitFormData, RemoveFuelBenefitFormData, CarFuelBenefitDates, RemoveCarBenefitFormData}
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import scala.Some
 
@@ -103,7 +103,23 @@ object RemovalUtils {
     def clearBenefitFormData(implicit hc: HeaderCarrier): Unit = {
       keyStoreService.deleteKeyStore(benefitFormDataActionId, KeystoreUtils.source)
     }
+  }
 
+  implicit class ReplaceBenefitKeyStore(keyStoreService: KeyStoreConnector) {
+    val actionId = "ReplaceCarBenefitFormData"
+    val keystoreKey = "replace_benefit"
+
+    def storeFormData(formData: ReplaceCarBenefitFormData)(implicit hc: HeaderCarrier) = {
+      keyStoreService.addKeyStoreEntry(actionId, KeystoreUtils.source, keystoreKey, formData)
+    }
+
+    def loadFormData(implicit hc: HeaderCarrier) = {
+      keyStoreService.getEntry[ReplaceCarBenefitFormData](actionId, KeystoreUtils.source, keystoreKey)
+    }
+
+    def clearFormData(implicit hc: HeaderCarrier) = {
+      keyStoreService.deleteKeyStore(actionId, KeystoreUtils.source)
+    }
   }
 
 }
