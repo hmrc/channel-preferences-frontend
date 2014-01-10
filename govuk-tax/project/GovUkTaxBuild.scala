@@ -11,6 +11,7 @@ object GovUkTaxBuild extends Build {
 
   val appDependencies = Seq(
     filters,
+    anorm,
     Dependencies.Compile.nscalaTime,
     Dependencies.Compile.json4sExt,
     Dependencies.Compile.json4sJackson,
@@ -75,6 +76,15 @@ object GovUkTaxBuild extends Build {
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
 
+  val saPrefs = play.Project(
+    appName + "-sa-prefs", Version.thisApp, appDependencies, path = file("modules/sa-prefs"), settings = Common.commonSettings
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(common % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
+
   lazy val govukTax = play.Project(
     appName,
     Version.thisApp, appDependencies,
@@ -82,7 +92,7 @@ object GovUkTaxBuild extends Build {
   ).settings(publishArtifact := true,
     Keys.fork in Test := false)
     .dependsOn(paye, sa, bt)
-    .aggregate(common, paye, sa, bt)
+    .aggregate(common, paye, sa, bt, saPrefs)
 
 }
 
