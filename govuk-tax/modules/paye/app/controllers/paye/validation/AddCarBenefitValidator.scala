@@ -105,8 +105,8 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
   private[paye] def validateEngineCapacity(values: CarBenefitValues) : Mapping[Option[String]] = optional(text
     .verifying("error.paye.non_valid_option" , data => engineCapacityOptions.contains(data))
-    .verifying("error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity" , data => engineCapacityEmpty(data) || !isFuelTypeElectric(values.fuelType))
-  ).verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(engineCapacityEmpty(data)) {isFuelTypeElectric(values.fuelType)} else true)
+  ).verifying("error.paye.engine_capacity_must_be_blank_for_fuel_type_electricity" , data => data.isEmpty || !isFuelTypeElectric(values.fuelType))
+   .verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(data.isEmpty) {isFuelTypeElectric(values.fuelType)} else true)
 
   private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[Option[String]] = validateEmployerPayFuel(values.fuelType)
 

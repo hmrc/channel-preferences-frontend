@@ -45,7 +45,7 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
       doc.getElementById("co2Figure") should bePresent
       doc.getElementById("co2NoFigure") should bePresent
 
-      doc.getElementById("engineCapacity") should bePresent
+      doc.getElementById("engineCapacity") should not(bePresent)
       doc.getElementById("engineCapacity-1400") should bePresent
       doc.getElementById("engineCapacity-2000") should bePresent
       doc.getElementById("engineCapacity-9999") should bePresent

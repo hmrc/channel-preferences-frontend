@@ -382,13 +382,18 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is electric or zero emissions, then you must not select an engine size.")
     }
 
+    "accept engine capacity value if fuel type is electricity and engine capacity is blank" in new WithApplication(FakeApplication()) {
+      val form = dummyForm(getValues(fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity"))
+      form.errors(engineCapacity) shouldBe empty
+    }
+
     "reject co2 figures if co2 no figure is false (blank) and co2 figure is blank and fuel type is not electricity" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "diesel", co2Figure -> "", co2NoFigure -> ""))
       assertHasThisErrorMessage(form, co2NoFigure, "You must provide a CO2 emissions figure, or select that the DVLA do not have one.")
     }
 
     "reject engine capacity blank if fuel type is not electricity" in new WithApplication(FakeApplication()) {
-      val form = dummyForm(getValues(carRegistrationDateVal = Some(now.withYear(1996)), fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> "true", engineCapacity -> ""))
+      val form = dummyForm(getValues(carRegistrationDateVal = Some(now.withYear(1996)), fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> "true"))
       assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is not electric or zero emissions, then you must select an engine capacity. No engine size does not apply to non-electric vehicles.")
     }
   }

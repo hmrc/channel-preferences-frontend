@@ -365,7 +365,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       status(result) shouldBe 400
     }
 
-    "keep the checkbox elected for the CO2 NO VALUE option if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
+    "keep the checkbox selected for the CO2 NO VALUE option if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(providedFromVal = Some(("3000", "1", "1")), co2NoFigureVal = Some("true"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -761,6 +761,63 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.title should include("Your Tax - Tell HMRC about a change to your company car - confirmation")
     }
 
+    "call the paye microservice to add a new benefit for an electric car with no fuel" in new WithApplication(FakeApplication()) {
+
+      setupMocksForJohnDensmore()
+
+      val carBenefitData = johnDensmoresCarBenefitData.copy (
+        employeeContribution = Some(50),
+        fuelType = Some("electricity"),
+        co2NoFigure = None,
+        engineCapacity = None,
+        dateFuelWithdrawn = None
+      )
+      val fuelBenefitGrossAmount = None
+
+      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
+      when(mockKeyStoreService.getEntry[CarBenefitData](
+        is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)),
+        is("paye"),
+        is("AddCarBenefitForm"),
+        is(false))(any(), any())).thenReturn(Some(carBenefitData))
+
+      val result = controller.confirmAddingBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
+      status(result) shouldBe 200
+
+      val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
+        dateCarWithdrawn = None,
+        dateCarRegistered = carBenefitData.carRegistrationDate,
+        employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
+        fuelType = carBenefitData.fuelType,
+        co2Emissions = carBenefitData.co2Figure,
+        engineSize = carBenefitData.engineCapacity.map(_.toInt),
+        mileageBand = None,
+        carValue = carBenefitData.listPrice.map(BigDecimal(_)),
+        employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
+        daysUnavailable = None
+      )
+      val benefit = Benefit(benefitType = CAR,
+        taxYear = taxYear,
+        grossAmount = 0,
+        employmentSequenceNumber = employmentSeqNumberOne,
+        costAmount = None,
+        amountMadeGood = None,
+        cashEquivalent = None,
+        expensesIncurred = None,
+        amountOfRelief = None,
+        paymentOrBenefitDescription = None,
+        dateWithdrawn = None,
+        car = Some(car),
+        actions = Map.empty[String, String],
+        calculations = Map.empty[String, String],
+        benefitAmount = Some(0))
+
+      verify(mockPayeConnector).addBenefits(
+        is(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013"),
+        is(johnDensmoreVersionNumber),
+        is(employmentSeqNumberOne),
+        is(Seq(benefit)))(any())
+    }
     "call the paye microservice to add a new benefit for a car only" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore()

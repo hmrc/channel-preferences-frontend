@@ -67,11 +67,7 @@ object CarBenefitBuilder {
   }
 
   private def engineSize(engineCapacity: Option[String]) : Option[Int] = {
-    engineCapacity match {
-      // TODO: Investigate why keystore is returning a string value 'none' instead of an Option None value
-      case Some(engine) if engine != EngineCapacity.NOT_APPLICABLE => Some(engine.toInt)
-      case _ => None
-    }
+    engineCapacity.map (_.toInt)
   }
 
   private def createBenefit(benefitType: Int, withdrawnDate: Option[LocalDate], taxYear: Int, employmentSeqNumber: Int, car: Option[Car], benefitAmount : Int, forecastBenefitAmount: Option[Int]) = {
