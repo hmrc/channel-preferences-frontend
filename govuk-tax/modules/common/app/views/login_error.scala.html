@@ -1,10 +1,10 @@
-@main(title = "Login Error") {
+@main(title = Messages("login_error.title")) {
 
-    <h2 id="error-title">Login error</h2>
+    <h2 id="error-title">@Messages("login_error.title")</h2>
 
-    <p id="error-reason">Your credentials have not been recognised by HMRC.</p>
+    <p id="error-reason">@Messages("login_error.reason")</p>
 
-    <p>Please try again by clicking @helpers.link("login-again-on-error", common.routes.LoginController.samlLogin.url, "here")</p>
+    <p>@Messages("login_error.tryagain") @helpers.link("login-again-on-error", common.routes.LoginController.samlLogin.url, Messages("login_error.linktext"))</p>
     
-    <p>If the problem persists please contact the HM Revenue &amp; Customs Online Services Helpdesk.</p>
+    <p>@Messages("login_error.persistentproblem")</p>
 }

@@ -46,3 +46,8 @@ info.links_open_new_window=These links will open in a new window
 global.error.heading=I say Dear Watson, Something seems to be amiss. The clues lay below...
 contact.heading = Contact
 
+login_error.title=Login error
+login_error.reason=Your credentials have not been recognised by HMRC.
+login_error.tryagain=Please try again by clicking
+login_error.linktext=here
+login_error.persistentproblem=If the problem persists please contact the HM Revenue & Customs Online Services Helpdesk.
