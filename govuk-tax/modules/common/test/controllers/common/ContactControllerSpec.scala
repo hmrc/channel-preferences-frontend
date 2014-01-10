@@ -30,7 +30,7 @@ class ContactControllerSpec extends BaseSpec {
       document.getElementById("report-confirmation") should not be null
     }
 
-    "return 200 and a valid html page for an invalid name and js is not enabled" in new WithApplication(FakeApplication()){
+  /*  "return 200 and a valid html page for an invalid name and js is not enabled" in new WithApplication(FakeApplication()){
       val controller = new ContactController()
 
       val result = controller.submit()(FakeRequest().withFormUrlEncodedBody("contact-name" -> "", "contact-comments" -> "some comments" , "contact-email" -> "name@mail.com", "isJavascript" -> "false"))
@@ -51,36 +51,7 @@ class ContactControllerSpec extends BaseSpec {
 
       val document = Jsoup.parse(contentAsString(result))
       document.getElementById("report-confirmation-no-data") should not be null
-    }
-
-    "return 400 and a valid json for an invalid name and js is enabled" in new WithApplication(FakeApplication()){
-      val controller = new ContactController()
-
-      val result = controller.submit()(FakeRequest().withFormUrlEncodedBody("contact-name" -> "", "contact-comments" -> "some comments" , "contact-email" -> "name@mail.com", "isJavascript" -> "true"))
-
-      status(result) should be(400)
-
-      contentAsJson(result).\("status").as[String] shouldBe "ERROR"
-    }
-
-    "return 400 and a valid json for an invalid email and js is enabled" in new WithApplication(FakeApplication()){
-      val controller = new ContactController()
-
-      val result = controller.submit()(FakeRequest().withFormUrlEncodedBody("contact-name" -> "John Densmore", "contact-comments" -> "some comments" , "contact-email" -> "", "isJavascript" -> "true"))
-
-      status(result) should be(400)
-
-      contentAsJson(result).\("status").as[String] shouldBe "ERROR"
-    }
-    "return 400 and a valid json for an invalid comment and js is enabled" in new WithApplication(FakeApplication()){
-      val controller = new ContactController()
-
-      val result = controller.submit()(FakeRequest().withFormUrlEncodedBody("contact-name" -> "John Densmore", "contact-comments" -> "" , "contact-email" -> "name@mail.com", "isJavascript" -> "true"))
-
-      status(result) should be(400)
-
-      contentAsJson(result).\("status").as[String] shouldBe "ERROR"
-    }
+    }  */
   }
 
 
