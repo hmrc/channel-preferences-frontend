@@ -1,15 +1,8 @@
-package controllers.common.service
+package uk.gov.hmrc.common.crypto
 
 import org.apache.commons.codec.binary.Base64
 import javax.crypto.spec.SecretKeySpec
 import uk.gov.hmrc.secure.{ SymmetricDecrypter, SymmetricEncrypter }
-
-trait Encrypter {
-  def encrypt(id: String): String
-}
-trait Decrypter {
-  def decrypt(id: String): String
-}
 
 trait SymmetricCrypto extends Encrypter with Decrypter {
 

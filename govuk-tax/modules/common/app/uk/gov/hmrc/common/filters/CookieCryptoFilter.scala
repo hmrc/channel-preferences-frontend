@@ -2,12 +2,11 @@ package uk.gov.hmrc.common.filters
 
 import play.api.mvc._
 import scala.concurrent.Future
-import controllers.common.service.{Decrypter, Encrypter}
 import play.api.mvc.SimpleResult
 import play.api.http.HeaderNames
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
-import controllers.common.SessionCookieCrypto
+import uk.gov.hmrc.common.crypto.{Decrypter, Encrypter, SessionCookieCrypto}
 
 trait CookieCryptoFilter extends Filter {
 

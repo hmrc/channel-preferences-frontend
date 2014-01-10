@@ -19,6 +19,7 @@ import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
+import uk.gov.hmrc.common.crypto.SsoPayloadCrypto
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 

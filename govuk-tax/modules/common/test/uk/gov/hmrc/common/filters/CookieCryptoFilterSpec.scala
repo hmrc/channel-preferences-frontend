@@ -9,7 +9,6 @@ import org.mockito.Mockito._
 import org.mockito.Matchers._
 import org.mockito.{Answers, Matchers, ArgumentCaptor}
 import org.scalatest.{Inspectors, OptionValues}
-import controllers.common.service.{Encrypter, Decrypter}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalautils.TypeCheckedTripleEquals
 import play.api.mvc.SimpleResult
@@ -17,6 +16,7 @@ import play.api.test.FakeApplication
 import play.api.mvc.Cookie
 import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
+import uk.gov.hmrc.common.crypto.{Decrypter, Encrypter}
 
 class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with OptionValues with ScalaFutures with Inspectors with TypeCheckedTripleEquals {
 

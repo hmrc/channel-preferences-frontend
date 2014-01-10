@@ -14,6 +14,7 @@ import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.UnauthorizedException
+import uk.gov.hmrc.common.crypto.SsoPayloadCrypto
 
 class SsoInController(ssoWhiteListService: SsoWhiteListService,
                       governmentGatewayConnector: GovernmentGatewayConnector,
