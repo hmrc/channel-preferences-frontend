@@ -28,6 +28,7 @@ import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
 import org.scalatest.concurrent.ScalaFutures
 import controllers.paye.validation.BenefitFlowHelper
 import models.paye.RemoveCarBenefitFormData
+import controllers.common.SessionKeys
 
 class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper with ScalaFutures {
   import Matchers.{any, eq => is}
@@ -494,7 +495,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
   private def newRequestForSaveAddFuelBenefit(employerPayFuelVal: Option[String] = None, dateFuelWithdrawnVal: Option[(String, String, String)] = None, path: String = "") =
     FakeRequest("GET", path).withFormUrlEncodedBody(Seq(employerPayFuel -> employerPayFuelVal.getOrElse("")) ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal): _*).
-      withSession(BenefitFlowHelper.npsVersionKey -> johnDensmoreVersionNumber.toString)
+      withSession(SessionKeys.npsVersion -> johnDensmoreVersionNumber.toString)
 
 }
 

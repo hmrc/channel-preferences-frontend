@@ -15,6 +15,7 @@ import BenefitFlowHelper._
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import scala.concurrent.Future
+import controllers.common.SessionKeys
 
 class BenefitFlowHelperSpec extends BaseSpec with MockitoSugar {
   val validVersion: Int = 22
@@ -29,7 +30,7 @@ class BenefitFlowHelperSpec extends BaseSpec with MockitoSugar {
     "return the version to indicate the version check passed" in new WithApplication(FakeApplication()) {
       when(payeConnectorMock.version(versionUri)).thenReturn(Future.successful(validVersion))
 
-      val session = FakeRequest().withSession((npsVersionKey, validVersion.toString)).session
+      val session = FakeRequest().withSession(SessionKeys.npsVersion -> validVersion.toString).session
       val result = validateVersionNumber(user, session)
 
       result.isRight shouldBe true
@@ -50,7 +51,7 @@ class BenefitFlowHelperSpec extends BaseSpec with MockitoSugar {
 
     "return a redirect to an error page when the version in the session does not match the current version of the user" in new WithApplication(FakeApplication()) {
       when(payeConnectorMock.version(versionUri)).thenReturn(Future.successful(validVersion))
-      val session = FakeRequest().withSession((npsVersionKey, invalidVersion.toString)).session
+      val session = FakeRequest().withSession(SessionKeys.npsVersion -> invalidVersion.toString).session
       val result = validateVersionNumber(user, session)
 
       result.isLeft shouldBe true

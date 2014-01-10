@@ -23,4 +23,6 @@ object SessionKeys {
   val token = "token"
   val affinityGroup = "affinityGroup"
   val lastRequestTimestamp = SessionTimeoutWrapper.lastRequestTimestampKey
+  val redirect = "login_redirect"
+  val npsVersion = "nps-version"
 }

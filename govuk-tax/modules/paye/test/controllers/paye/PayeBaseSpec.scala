@@ -16,6 +16,7 @@ import BenefitTypes._
 import play.api.test.FakeRequest
 import controllers.paye.validation.BenefitFlowHelper
 import models.paye.{ReplaceCarBenefitFormData, CarBenefitData, RemoveCarBenefitFormData}
+import controllers.common.SessionKeys
 
 trait PayeBaseSpec extends BaseSpec {
 
@@ -104,9 +105,9 @@ trait PayeBaseSpec extends BaseSpec {
 
   val johnDensmoreVersionNumber = 22
 
-  def requestWithCorrectVersion = FakeRequest().withSession((BenefitFlowHelper.npsVersionKey, johnDensmoreVersionNumber.toString))
+  def requestWithCorrectVersion = FakeRequest().withSession((SessionKeys.npsVersion, johnDensmoreVersionNumber.toString))
 
-  def requestWithIncorrectVersion = FakeRequest().withSession((BenefitFlowHelper.npsVersionKey, "20"))
+  def requestWithIncorrectVersion = FakeRequest().withSession((SessionKeys.npsVersion, "20"))
 
   val userWithRemovedCar = setupUser("/auth/oid/removedCar", "RC123456B", "User With Removed Car")
 

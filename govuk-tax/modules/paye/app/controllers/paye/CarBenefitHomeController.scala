@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.BaseController
+import controllers.common.{SessionKeys, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain._
 import models.paye.{ EmploymentView, EmploymentViews}
 import play.api.Logger
@@ -56,7 +56,7 @@ with PayeRegimeRoots {
   }
 
   private[paye] def sessionWithNpsVersion(session: Session, version: Int) =
-    session + (BenefitFlowHelper.npsVersionKey -> version.toString)
+    session + (SessionKeys.npsVersion -> version.toString)
 
   private[paye] def buildHomePageResponse(params: Option[HomePageParams])(implicit user: User): SimpleResult = {
     params.map {

@@ -9,21 +9,15 @@ object FrontEndRedirect extends Controller {
   val carBenefit = "/paye/car-benefit"
   val payeHome = "/paye"
 
-  val redirectSessionKey = "login_redirect"
+  //TODO what is the default destination?
+  private val defaultDestination = payeHome
 
-  def forSession(session: Session) = {
-    (session.data.get(redirectSessionKey) match {
-      case Some(redirectUrl) => Redirect(redirectUrl)
-      case None => toPaye //todo what is the default destination?
-    }).withSession(session - redirectSessionKey)
-  }
+  def forSession(session: Session) =
+    Redirect(session.data.get(SessionKeys.redirect).getOrElse(defaultDestination)).withSession(session - SessionKeys.redirect)
 
-  def buildSessionForRedirect(session: Session, redirectTo: Option[String]) = {
-    redirectTo match {
-      case Some(redirectUrl) => session + (redirectSessionKey -> redirectUrl)
-      case None => session
-    }
-  }
+
+  def buildSessionForRedirect(session: Session, redirectTo: Option[String]) =
+    session.copy(session.data ++ redirectTo.map(SessionKeys.redirect -> _).toMap)
 
   def toPaye = {
     Logger.debug("Redirecting to paye...")

@@ -10,11 +10,11 @@ import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
+import controllers.common.SessionKeys
 
 object BenefitFlowHelper {
   type HodVersionNumber = Int
 
-  val npsVersionKey: String = "nps-version"
   val redirectToCarBenefitHome = Redirect(routes.CarBenefitHomeController.carBenefitHome().url)
 
   /**
@@ -36,7 +36,7 @@ object BenefitFlowHelper {
     val errorLookingUpLatestVersion = redirectToCarBenefitHome
     val versionMismatch = Redirect(routes.VersionChangedController.versionChanged().url)
 
-    val sessionVersion = session.get(npsVersionKey)
+    val sessionVersion = session.get(SessionKeys.npsVersion)
 
     sessionVersion match {
       case None => Future.successful(Left(noVersion))

@@ -148,7 +148,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
         )
       )
       status(result) should equal(303)
-      session(result).get(FrontEndRedirect.redirectSessionKey) shouldBe Some("/some/path")
+      session(result).get(SessionKeys.redirect) shouldBe Some("/some/path")
     }
 
   }

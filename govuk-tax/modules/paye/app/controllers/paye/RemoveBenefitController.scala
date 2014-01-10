@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.microservice.paye.domain._
 import play.api.mvc._
 import views.html.paye._
 import models.paye._
-import controllers.common.{BaseController, SessionTimeoutWrapper}
+import controllers.common.{SessionKeys, BaseController, SessionTimeoutWrapper}
 import controllers.paye.validation.RemoveBenefitValidator._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
@@ -82,7 +82,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     AuthorisedFor(PayeRegime).async {
       user =>
         implicit request =>
-          benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance).removeSessionKey(BenefitFlowHelper.npsVersionKey)
+          benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance).removeSessionKey(SessionKeys.npsVersion)
     }
 
   private[paye] def requestRemoveCarBenefitAction(taxYear: Int, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {

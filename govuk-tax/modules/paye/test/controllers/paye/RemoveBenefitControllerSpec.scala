@@ -37,6 +37,7 @@ import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
 import models.paye.{RemoveFuelBenefitFormData, RemoveCarBenefitFormData}
+import controllers.common.SessionKeys
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with DateFieldsHelper with ScalaFutures {
   import Matchers.{any, eq => is}
@@ -764,7 +765,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       val request = FakeRequest().
         withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true").
-        withSession((BenefitFlowHelper.npsVersionKey, versionNumber.toString))
+        withSession(SessionKeys.npsVersion -> versionNumber.toString)
 
       val result = controller.requestRemoveCarBenefitAction(2013, 1)(user, request)
       status(result) shouldBe 400
@@ -790,7 +791,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val user = User("wshakespeare", payeAuthority("someId", "CE927349E"), RegimeRoots(paye = Some(payeRoot)), None, None)
 
       val request: play.api.mvc.Request[_] = FakeRequest().withFormUrlEncodedBody("withdrawDate" -> "2013-07-13", "agreement" -> "true").
-        withSession((BenefitFlowHelper.npsVersionKey, versionNumber.toString))
+        withSession(SessionKeys.npsVersion -> versionNumber.toString)
 
       when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any(), any())).thenReturn(None)
 

@@ -117,7 +117,7 @@ class HomeControllerSpec extends BaseSpec with MockitoSugar {
     val session = Map(
       "sessionId" -> Some(s"session-${UUID.randomUUID}"),
       "userId" -> Some(user.userId),
-      FrontEndRedirect.redirectSessionKey -> redirectUrlForPaye)
+      SessionKeys.redirect -> redirectUrlForPaye)
 
     val cleanMap = session.collect {
       case (k, Some(v)) => k -> v

@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.BaseController
+import controllers.common.{SessionKeys, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain._
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
@@ -59,7 +59,7 @@ with PayeRegimeRoots {
     AuthorisedFor(PayeRegime).async {
       user =>
         implicit request =>
-          confirmAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber).removeSessionKey(BenefitFlowHelper.npsVersionKey)
+          confirmAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber).removeSessionKey(SessionKeys.npsVersion)
     }
 
   private def fuelBenefitForm(values: CarBenefitValues) = Form[FuelBenefitData](

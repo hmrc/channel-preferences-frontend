@@ -31,6 +31,7 @@ import controllers.DateFieldsHelper
 import controllers.paye.CarBenefitFormFields._
 import controllers.common.actions.HeaderCarrier
 import controllers.paye.validation.BenefitFlowHelper
+import controllers.common.SessionKeys
 
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
@@ -984,7 +985,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       ++ buildDateFormField(providedFrom, providedFromVal)
       ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal)
       ++ buildDateFormField(carRegistrationDate, carRegistrationDateVal): _*).
-      withSession(BenefitFlowHelper.npsVersionKey -> johnDensmoreVersionNumber.toString)
+      withSession(SessionKeys.npsVersion -> johnDensmoreVersionNumber.toString)
   }
 
   private def generateKeystoreActionId(taxYear: Int, employmentSequenceNumber: Int) = {
