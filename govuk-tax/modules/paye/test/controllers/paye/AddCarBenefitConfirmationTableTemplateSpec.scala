@@ -49,8 +49,24 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with Mocke
 
       // then
       withClue("row with id=employee_contributions") {
-        doc.select("#employee_contributions") should not be (empty)
+        doc.select("#employee_contributions") should not be empty
         doc.select("#employee_contributions td").text should be(Messages("paye.add_car_benefit_review.none"))
+      }
+    }
+
+    "display a \"not selected\" on every fields if none of them is defined" in {
+      val data = addCarBenefitConfirmationDataForEmployeeContribution(None)
+
+      println(contentAsString(add_car_benefit_confirmation_table(data)))
+      val doc = Jsoup.parse(contentAsString(add_car_benefit_confirmation_table(data)))
+      doc.getElementById("new-company-car-details") should bePresent
+
+
+      val tableData = doc.getElementsByTag("td").toList.map(_.text)
+
+      withClue("add car benefit review table") {
+        doc.getElementsByTag("th") should have size 8
+        tableData.filter(_.equals(Messages("paye.add_car_benefit_review.none"))) should have size 5
       }
     }
   }
@@ -78,38 +94,6 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with Mocke
       tableData should contain("£50")
       tableData should contain("1 January 2000")
       tableData should contain("employerName did pay for fuel for private travel, but stopped paying on 5 February 2014")
-    }
-
-    "not render the row containing the co2Figure value if not defined" in new WithApplication(FakeApplication()) {
-      val doc = documentOf(add_car_benefit_confirmation_table(data.copy(co2Figure = None)))
-
-      doc.getElementById("new-company-car-details") should bePresent
-
-      doc.getElementsByTag("th").toList.map(_.text) should not contain (Messages("paye.add_car_benefit_review.emissions"))
-    }
-
-    "not render the row containing the engineCapacity value if not defined" in new WithApplication(FakeApplication()) {
-      val doc = documentOf(add_car_benefit_confirmation_table(data.copy(engineCapacity = None)))
-
-      doc.getElementById("new-company-car-details") should bePresent
-
-      doc.getElementsByTag("th").toList.map(_.text) should not contain (Messages("paye.add_car_benefit_review.engine_capacity"))
-    }
-
-    "not render the row containing the dateRegistered value if not defined" in new WithApplication(FakeApplication()) {
-      val doc = documentOf(add_car_benefit_confirmation_table(data.copy(dateRegistered = None)))
-
-      doc.getElementById("new-company-car-details") should bePresent
-
-      doc.getElementsByTag("th").toList.map(_.text) should not contain (Messages("paye.add_car_benefit_review.date_registered"))
-    }
-
-    "not render the row containing the employerPayFuel value if not defined" in new WithApplication(FakeApplication()) {
-      val doc = documentOf(add_car_benefit_confirmation_table(data.copy(employerPayFuel = None)))
-
-      doc.getElementById("new-company-car-details") should bePresent
-
-      doc.getElementsByTag("th").toList.map(_.text) should not contain (Messages("paye.add_car_benefit_review.employer_pay_fuel"))
     }
   }
 
