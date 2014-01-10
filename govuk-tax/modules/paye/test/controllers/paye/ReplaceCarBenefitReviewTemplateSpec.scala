@@ -13,6 +13,7 @@ class ReplaceCarBenefitReviewTemplateSpec extends PayeBaseSpec {
 
     "render the old car and new car summary tables" in new WithApplication(FakeApplication()){
       implicit val user = johnDensmore
+      implicit val request = requestWithCorrectVersion
       val doc = Jsoup.parse(contentAsString(replace_car_benefit_review(johnDensmoresBenefits(0), johnDensmoresEmployments(0), johnDensmoresRemovedCarBenefitFormData, johnDensmoresNewCarData)))
       doc.getElementById("company-car-details") should bePresent
       doc.getElementById("new-company-car-details") should bePresent
