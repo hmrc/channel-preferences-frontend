@@ -1,8 +1,6 @@
 package uk.gov.hmrc.common.crypto
 
 import play.api.Play
-import uk.gov.hmrc.common.crypto.SymmetricCrypto
-
 
 trait Encrypter {
   def encrypt(id: String): String
