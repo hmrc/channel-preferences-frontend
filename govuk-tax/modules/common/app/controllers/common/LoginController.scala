@@ -135,7 +135,7 @@ class LoginController(samlConnector: SamlConnector,
           auditConnector.audit(
             AuditEvent(
               auditType = "TxSucceeded",
-              tags = Map("transactionName" -> "IDA Login", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
+              tags = Map("transactionName" -> "IDA Login", HeaderNames.xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ updatedHC.headers.toMap,
               detail = Map("hashPid" -> hashPid, "authId" -> authority.uri) ++ authority.accounts.toMap
             )
           )
@@ -148,7 +148,7 @@ class LoginController(samlConnector: SamlConnector,
           auditConnector.audit(
             AuditEvent(
               auditType = "TxFailed",
-              tags = Map("transactionName" -> "IDA Login", xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ originalRequestId.map(xRequestId -> _).toMap ,
+              tags = Map("transactionName" -> "IDA Login", HeaderNames.xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ originalRequestId.map(HeaderNames.xRequestId -> _).toMap ,
               detail = Map("transactionFailureReason" -> reason) ++ hashPid.map("hashPid" -> _).toMap
             )
           )

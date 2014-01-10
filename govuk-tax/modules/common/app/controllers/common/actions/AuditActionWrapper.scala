@@ -13,12 +13,12 @@ import uk.gov.hmrc.common.microservice.domain.User
 import com.ning.http.util.Base64
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
-trait AuditActionWrapper extends HeaderNames {
+trait AuditActionWrapper {
   val auditConnector : AuditConnector
   object WithRequestAuditing extends WithRequestAuditing(auditConnector)
 }
 
-class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends HeaderNames {
+class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) {
 
   import MdcLoggingExecutionContext.fromLoggingDetails
 

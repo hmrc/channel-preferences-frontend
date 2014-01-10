@@ -10,7 +10,7 @@ import java.util.{UUID, Date}
 import play.api.Logger
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
-private[actions] trait RequestLogging extends HeaderNames with DateConverter {
+private[actions] trait RequestLogging extends DateConverter {
 
   import MdcLoggingExecutionContext._
 

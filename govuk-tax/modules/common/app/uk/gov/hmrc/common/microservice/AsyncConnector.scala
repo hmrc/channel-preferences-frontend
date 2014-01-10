@@ -10,7 +10,7 @@ import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
-trait AsyncConnector extends Status with HeaderNames {
+trait AsyncConnector extends Status {
 
   import MdcLoggingExecutionContext.fromLoggingDetails
 

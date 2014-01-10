@@ -2,10 +2,9 @@ package uk.gov.hmrc.common.microservice.saml
 
 import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import uk.gov.hmrc.microservice.saml.domain.{AuthResponseValidationResult, AuthRequestFormData}
-import controllers.common.HeaderNames
 import controllers.common.actions.HeaderCarrier
 
-class SamlConnector extends Connector with HeaderNames {
+class SamlConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.samlServiceUrl
 
@@ -14,8 +13,8 @@ class SamlConnector extends Connector with HeaderNames {
 
   def validate(authResponse: String)(implicit hc: HeaderCarrier) = {
     httpPostF[AuthResponseValidationResult, Map[String, String]](
-      "/saml/validate",
-      Some(Map("samlResponse" -> authResponse)))
-      .map(_.getOrElse(throw new IllegalStateException("Expected SAML validation response but none returned")))
+      uri = "/saml/validate",
+      body = Some(Map("samlResponse" -> authResponse))
+    ).map(_.getOrElse(throw new IllegalStateException("Expected SAML validation response but none returned")))
   }
 }

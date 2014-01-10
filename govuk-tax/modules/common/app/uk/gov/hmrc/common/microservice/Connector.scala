@@ -18,7 +18,7 @@ trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   }
 }
 
-trait Connector extends Status with HeaderNames with ConnectionLogging {
+trait Connector extends Status with ConnectionLogging {
 
   import play.api.libs.json.Json
   import controllers.common.domain.Transform._

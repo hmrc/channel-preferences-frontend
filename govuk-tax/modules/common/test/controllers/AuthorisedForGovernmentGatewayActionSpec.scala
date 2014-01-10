@@ -15,7 +15,6 @@ import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import uk.gov.hmrc.common.microservice.ct.CtConnector
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.domain.EmpRef
-import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors._
 import controllers.common.actions.{HeaderCarrier, Actions}
@@ -32,8 +31,7 @@ import org.mockito.Matchers
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
-  with MockitoSugar
-  with HeaderNames {
+  with MockitoSugar {
 
   import config.DateTimeProvider._
   import controllers.domain.AuthorityUtils._

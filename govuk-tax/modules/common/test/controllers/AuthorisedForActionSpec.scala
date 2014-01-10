@@ -13,7 +13,6 @@ import controllers.common._
 import org.scalatest.TestData
 import org.mockito.Matchers
 import java.util.UUID
-import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.utils.DateTimeUtils.now
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors._
@@ -155,17 +154,14 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
 }
 
-
 sealed class TestController(payeConnector: PayeConnector,
                             override val auditConnector: AuditConnector)
                            (implicit override val authConnector: AuthConnector)
   extends Controller
   with Actions
-  with HeaderNames
   with RegimeRootBase {
 
   import MdcLoggingExecutionContext._
-
 
   override def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
     for {
