@@ -17,7 +17,7 @@ private[actions] trait MdcHeaders extends Results {
       request.session.get(SessionKeys.userId).foreach(MDC.put(MdcKeys.authorisation, _))
       request.session.get(SessionKeys.token).foreach(MDC.put(MdcKeys.token, _))
       request.session.get(SessionKeys.sessionId).foreach(MDC.put(MdcKeys.xSessionId, _))
-      request.headers.get(HeaderNames.forwardedFor).foreach(MDC.put(MdcKeys.forwardedFor, _))
+      request.headers.get(HeaderNames.xForwardedFor).foreach(MDC.put(MdcKeys.forwardedFor, _))
       request.headers.get(HeaderNames.xRequestId).foreach(MDC.put(MdcKeys.xRequestId, _))
       Logger.debug("Request details added to MDC")
       try {

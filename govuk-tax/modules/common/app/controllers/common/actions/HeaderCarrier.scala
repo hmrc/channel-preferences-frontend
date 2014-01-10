@@ -45,7 +45,7 @@ case class HeaderCarrier(userId: Option[String] = None,
     List(userId.map(u => names.authorisation -> s"Bearer $u"),
       token.map(t => SessionKeys.token -> t),
       requestId.map(rid => names.xRequestId -> rid),
-      forwarded.map(fo => names.forwardedFor -> fo),
+      forwarded.map(fo => names.xForwardedFor -> fo),
       sessionId.map(sid => names.xSessionId -> sid)).flatten.toList
   }
 }
@@ -56,7 +56,7 @@ object HeaderCarrier {
   def apply(request: Request[_]) = {
     val userId = request.session.get(SessionKeys.userId)
     val token = request.session.get(SessionKeys.token)
-    val forwardedFor = request.headers.get(names.forwardedFor)
+    val forwardedFor = request.headers.get(names.xForwardedFor)
     val sessionId = request.session.get(SessionKeys.sessionId)
 
     val requestTimestamp = Try[Long] {

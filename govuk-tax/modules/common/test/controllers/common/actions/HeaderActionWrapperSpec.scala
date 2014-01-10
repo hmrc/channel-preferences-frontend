@@ -35,7 +35,7 @@ class HeaderActionWrapperSpec extends BaseSpec {
   "HeaderActionWrapper" should {
     "add parameters from the session and the headers to the MDC" in new WithApplication(FakeApplication()) {
       val request = FakeRequest()
-        .withHeaders(HeaderNames.forwardedFor -> "192.168.1.1")
+        .withHeaders(HeaderNames.xForwardedFor -> "192.168.1.1")
         .withSession(SessionKeys.sessionId -> "012345", SessionKeys.userId -> "john", SessionKeys.token -> "12345")
 
       val result = HeaderTestController.test()(request)
@@ -50,7 +50,7 @@ class HeaderActionWrapperSpec extends BaseSpec {
 
     "return an internal server error " in new WithApplication(FakeApplication()) {
       val request = FakeRequest()
-        .withHeaders(HeaderNames.forwardedFor -> "192.168.1.1")
+        .withHeaders(HeaderNames.xForwardedFor -> "192.168.1.1")
         .withSession(SessionKeys.userId -> "john", SessionKeys.token -> "12345")
 
       val result = HeaderTestController.fail()(request)

@@ -65,7 +65,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
         SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         SessionKeys.userId -> "/auth/oid/123123123")
-        .withHeaders((HeaderNames.forwardedFor, "192.168.1.1"), (HeaderNames.xRequestId, "govuk-tax-"))
+        .withHeaders((HeaderNames.xForwardedFor, "192.168.1.1"), (HeaderNames.xRequestId, "govuk-tax-"))
       )
 
       whenReady(response) {
@@ -80,7 +80,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
               auditSource should be("frontend")
               auditType should be("Request")
               tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
-              tags should contain(HeaderNames.forwardedFor -> "192.168.1.1")
+              tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
               tags should not contain key("authId")
@@ -102,7 +102,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
               auditSource should be("frontend")
               auditType should be("Response")
               tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
-              tags should contain(HeaderNames.forwardedFor -> "192.168.1.1")
+              tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
 
@@ -199,7 +199,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
         SessionKeys.sessionId -> sessionId,
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         SessionKeys.userId -> "/auth/oid/123123123")
-        .withHeaders((HeaderNames.forwardedFor, "192.168.1.1"), (HeaderNames.xRequestId, "govuk-tax-")))
+        .withHeaders((HeaderNames.xForwardedFor, "192.168.1.1"), (HeaderNames.xRequestId, "govuk-tax-")))
 
       whenReady(response) {
         result =>
@@ -212,7 +212,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
               auditSource should be("frontend")
               auditType should be("Request")
               tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
-              tags should contain(HeaderNames.forwardedFor -> "192.168.1.1")
+              tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
               tags should contain(HeaderNames.xSessionId -> sessionId)
@@ -236,7 +236,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
               auditSource should be("frontend")
               auditType should be("Response")
               tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
-              tags should contain(HeaderNames.forwardedFor -> "192.168.1.1")
+              tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
               tags should contain(HeaderNames.xSessionId -> sessionId)
