@@ -758,7 +758,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.title should include("Your Tax - Tell HMRC about a change to your company car - confirmation")
+      doc.title should include("Tell HMRC about a change to your company car - Confirm your details")
     }
 
     "call the paye microservice to add a new benefit for an electric car with no fuel" in new WithApplication(FakeApplication()) {
