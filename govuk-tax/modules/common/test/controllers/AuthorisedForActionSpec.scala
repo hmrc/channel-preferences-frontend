@@ -59,7 +59,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
     "contain the users first name in the response" ignore new WithApplication(FakeApplication()) {
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID()}",
-        lastRequestTimestampKey -> now.getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         "userId" -> "/auth/oid/jdensmore")
       )
 
@@ -74,7 +74,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID().toString}",
-        lastRequestTimestampKey -> now.getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         "userId" -> "/auth/oid/jdensmore")
       )
 
@@ -84,7 +84,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
       val result = testController.testThrowsException(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID().toString}",
-        lastRequestTimestampKey -> now.getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         "userId" -> "/auth/oid/jdensmore")
       )
 
@@ -97,7 +97,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID().toString}",
-        lastRequestTimestampKey -> now.getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         "userId" -> "/auth/oid/jdensmore")
       )
 
@@ -110,7 +110,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID}",
-        lastRequestTimestampKey -> now.getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         "userId" -> "/auth/oid/john")
       )
 
@@ -120,7 +120,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
     "redirect to the login page when the userId is not found in the session " in new WithApplication(FakeApplication()) {
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
-        lastRequestTimestampKey -> now.getMillis.toString
+        SessionKeys.lastRequestTimestamp -> now.getMillis.toString
       ))
 
       status(result) should equal(303)
@@ -131,7 +131,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID}",
         "userId" -> "/auth/oid/john",
-        lastRequestTimestampKey -> now.getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
         "token" -> "a-government-gateway-token"))
 
       status(result) should equal(303)
@@ -143,7 +143,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
         FakeRequest("GET", "/some/path").withSession(
           "sessionId" -> s"session-${UUID.randomUUID}",
           "userId" -> "/auth/oid/john",
-          lastRequestTimestampKey -> now.getMillis.toString,
+          SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
           "token" -> "a-government-gateway-token"
         )
       )

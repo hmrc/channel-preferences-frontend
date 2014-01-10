@@ -13,7 +13,6 @@ trait SessionTimeoutWrapper extends DateTimeProvider {
 }
 
 object SessionTimeoutWrapper {
-  val lastRequestTimestampKey = "ts"
   val timeoutSeconds = 900
 }
 
@@ -53,7 +52,7 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
 
   private def extractTimestamp(session: Session): Option[DateTime] = {
     try {
-      session.get(lastRequestTimestampKey) map (timestamp => new DateTime(timestamp.toLong, DateTimeZone.UTC))
+      session.get(SessionKeys.lastRequestTimestamp) map (timestamp => new DateTime(timestamp.toLong, DateTimeZone.UTC))
     } catch {
       case e: NumberFormatException => None
     }
@@ -91,7 +90,7 @@ trait SessionTimeout {
 
   private def insertTimestampNow(request: Request[AnyContent])(result: SimpleResult): SimpleResult = {
     val sessionData = sessionFromResultOrRequest(request, result).data.toSeq
-    val newSessionData = sessionData :+ (lastRequestTimestampKey -> now().getMillis.toString)
+    val newSessionData = sessionData :+ (SessionKeys.lastRequestTimestamp -> now().getMillis.toString)
     result.withSession(newSessionData: _*)
   }
 

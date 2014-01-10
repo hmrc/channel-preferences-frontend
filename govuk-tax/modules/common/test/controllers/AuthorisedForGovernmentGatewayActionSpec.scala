@@ -78,7 +78,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     "contain the users first name in the response" ignore new WithApplication(FakeApplication()) {
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID}",
-        lastRequestTimestampKey -> now().getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now().getMillis.toString,
         "userId" -> "/auth/oid/gfisher",
         "token" -> tokenValue))
 
@@ -93,7 +93,7 @@ class AuthorisedForGovernmentGatewayActionSpec
 
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID}",
-        lastRequestTimestampKey -> now().getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now().getMillis.toString,
         "userId" -> "/auth/oid/gfisher",
         "token" -> tokenValue))
 
@@ -103,7 +103,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
       val result = testController.testThrowsException(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID}",
-        lastRequestTimestampKey -> now().getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now().getMillis.toString,
         "userId" -> "/auth/oid/gfisher",
         "token" -> tokenValue))
 
@@ -116,7 +116,7 @@ class AuthorisedForGovernmentGatewayActionSpec
 
       val result = testController.test(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID}",
-        lastRequestTimestampKey -> now().getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now().getMillis.toString,
         "userId" -> "/auth/oid/gfisher",
         "token" -> tokenValue))
 
@@ -128,7 +128,7 @@ class AuthorisedForGovernmentGatewayActionSpec
       when(authConnector.authority("/auth/oid/bob")).thenReturn(Some(payeAuthority("bob","12345678")))
       val result = testController.testAuthorisation(FakeRequest().withSession(
         "sessionId" -> s"session-${UUID.randomUUID}",
-        lastRequestTimestampKey -> now().getMillis.toString,
+        SessionKeys.lastRequestTimestamp -> now().getMillis.toString,
         "userId" -> "/auth/oid/bob",
         "token" -> tokenValue)
       )
@@ -165,7 +165,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     //
     //      val result = testRegimeRoots(FakeRequest().withSession(
     //        "sessionId" -> s"session-${UUID.randomUUID}",
-    //        lastRequestTimestampKey -> now().getMillis.toString,
+    //        SessionKeys.lastRequestTimestamp -> now().getMillis.toString,
     //        "userId" -> "/auth/oid/lottyRegimes",
     //        "token" -> token
     //      ))

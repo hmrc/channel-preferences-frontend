@@ -3,7 +3,6 @@ package controllers.sa
 import play.api.test._
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URLDecoder
-import controllers.common.SessionTimeoutWrapper._
 import uk.gov.hmrc.common.BaseSpec
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
@@ -24,6 +23,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaPerson
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 import org.mockito.Matchers
+import controllers.common.SessionKeys
 
 class SaControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -97,7 +97,7 @@ class SaControllerSpec extends BaseSpec with MockitoSugar {
     "display an error page if personal details do not come back from backend service" in new WithApplication(FakeApplication()) {
 
       when(saConnector.person(Matchers.eq("/sa/individual/123456789012/details"))(Matchers.any())).thenReturn(None)
-      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> s"session-${UUID.randomUUID().toString}", "userId" -> "/auth/oid/gfisher", "name" -> nameFromGovernmentGateway, "token" -> "<governmentGatewayToken/>", lastRequestTimestampKey -> controller.now().getMillis.toString))
+      val result = controller.detailsAction(geoffFisher, FakeRequest().withSession("sessionId" -> s"session-${UUID.randomUUID().toString}", "userId" -> "/auth/oid/gfisher", "name" -> nameFromGovernmentGateway, "token" -> "<governmentGatewayToken/>", SessionKeys.lastRequestTimestamp -> controller.now().getMillis.toString))
       status(result) should be(404)
     }
   }

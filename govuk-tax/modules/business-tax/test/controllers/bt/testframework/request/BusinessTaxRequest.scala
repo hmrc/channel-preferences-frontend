@@ -74,7 +74,7 @@ trait BusinessTaxRequest extends BusinessUserFixture with MockitoSugar {
 
     val session: Seq[(String, Option[String])] = Seq(
       SessionKeys.sessionId -> Some(s"session-${UUID.randomUUID().toString}"),
-      lastRequestTimestampKey -> lastRequestTimestamp.map(_.getMillis.toString),
+      SessionKeys.lastRequestTimestamp -> lastRequestTimestamp.map(_.getMillis.toString),
       SessionKeys.userId -> Some(userId),
       SessionKeys.name -> nameFromGovernmentGateway,
       SessionKeys.token -> governmentGatewayToken)
