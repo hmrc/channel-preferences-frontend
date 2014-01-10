@@ -77,6 +77,7 @@
         '_groupClass -> "form-field numbered",
         '_valueAfter -> true
         )
+
         @helpers.fieldGroup(
         carBenefitForm,
         Seq(
@@ -98,14 +99,15 @@
         FormField(
         carBenefitForm(co2NoFigure),
         Seq(
-        InputType("checkbox", "", Messages("paye.add_car_benefit.dvla_no_emission_figure"), Some("form-field--inline"), Some(""), Some("input--small"), Some("data-default"))
+        InputType("checkbox", "", Messages("paye.add_car_benefit.dvla_no_emission_figure"), Some("form-field--inline"), Some(""), Some("input--small"))
         )
         )
         ),
         '_label -> Messages("paye.add_car_benefit.co2emissions"),
-        '_groupClass -> "form-field--inline numbered",
+        '_groupClass -> "non-electric form-field--inline numbered",
         '_valueAfter -> true
         )
+
         @helpers.fieldGroup(
         carBenefitForm,
         Seq(
@@ -115,7 +117,7 @@
         RadioButton("9999", Messages("paye.add_car_benefit.engine_capacity.9999"), Some("form-field"), Some("label--inlineRadio"))))
         ),
         '_label -> Messages("paye.add_car_benefit.engine_capacity"),
-        '_groupClass -> "form-field numbered",
+        '_groupClass -> "non-electric form-field numbered",
         '_valueAfter -> true
         )
     </fieldset>
@@ -133,6 +135,7 @@
         '_groupClass -> "form-field js-includes-contextual numbered",
         '_valueAfter -> true
         )
+
         @defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
         @helpers.fieldGroup(
         carBenefitForm,
@@ -146,7 +149,7 @@
         )
         ),
         '_label -> Messages("paye.add_car_benefit.employer_pay_fuel.label"),
-        '_groupClass -> "form-field numbered",
+        '_groupClass -> "non-electric form-field numbered",
         '_valueAfter -> true
         )
         }

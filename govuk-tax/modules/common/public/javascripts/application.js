@@ -2,18 +2,21 @@
 (function ($, window, document) {
   "use strict";
   var GOVUK = GOVUK || {};
-  GOVUK.toggleDefaultOptions = function ($form, $options, bool) {
-    if (bool) {
-      $options.prop("checked", true).parents('.numbered').addClass('js-hidden');
-      $form.find('#co2Figure').val('')
-        .end().find('#co2NoFigure').prop("checked", false);
+
+  GOVUK.toggleNonElectricFields = function ($form, electricChecked) {
+    var $fieldsets = $form.find('.non-electric');
+
+
+    if (electricChecked) {
+        $fieldsets.addClass('js-hidden');
+        $fieldsets.find(':text').val('');
+        $fieldsets.find(':checked').prop('checked', false);
+        $fieldsets.find('*[data-default]').prop('checked', true);
     } else {
-      //check if electric has data flagged if true turn it off and reset everything
-      if (typeof $form.data("electricFlagged") !== 'undefined') {
-        $options.prop("checked", false).parents('.numbered').removeClass('js-hidden');
-        //remove the electric data
-      }
+        $fieldsets.removeClass('js-hidden');
+        $fieldsets.find(':checked').prop('checked', false);
     }
+
   };
   GOVUK.toggleContextualFields = function () {
     var $DOM = $("#content"),
@@ -339,15 +342,16 @@ GOVUK.ReportAProblem = function () {
        * an electric car. We need to hide the questions
        **/
       if ($form.find("#fuelType-electricity").prop("checked")) {
-        GOVUK.toggleDefaultOptions($form, $defaultOptions, true);
+//        GOVUK.toggleDefaultOptions($form, $defaultOptions, true);
+        GOVUK.toggleNonElectricFields($form, true);
         $form.data('electricFlagged', true);
       }
       $form.on('click', '*[data-iselectric]', function () {
         if ($(this).data("iselectric")) {
-          GOVUK.toggleDefaultOptions($form, $defaultOptions, true);
+          GOVUK.toggleNonElectricFields($form, true);
           $form.data('electricFlagged', true);
         } else {
-          GOVUK.toggleDefaultOptions($form, $defaultOptions, false);
+          GOVUK.toggleNonElectricFields($form, false);
           $form.removeData('electricFlagged');
         }
       });
