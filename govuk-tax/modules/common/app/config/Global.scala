@@ -12,10 +12,9 @@ import scala.concurrent.Future
 import play.api.mvc.Results._
 import scala.Some
 import play.api.i18n.Messages
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.common.filters.{SessionCookieCryptoFilter, CSRFExceptionsFilter}
+import uk.gov.hmrc.common.filters.{CacheControlFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter}
 
-object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter, CSRFFilter()) {
+object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter, CSRFFilter(), CacheControlFilter) {
 
   override def onStart(app: Application) {
     val env = app.mode
@@ -48,12 +47,6 @@ object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRF
   // Play 2.0 doesn't support trailing slash: http://play.lighthouseapp.com/projects/82401/tickets/98
   override def onRouteRequest(request: RequestHeader) = super.onRouteRequest(request).orElse {
     Some(request.path).filter(_.endsWith("/")).flatMap(p => super.onRouteRequest(request.copy(path = p.dropRight(1))))
-  }
-
-  override def doFilter(action: EssentialAction) = EssentialAction { request =>
-    action(request).map(_.withHeaders(
-      "Cache-Control" -> "no-cache,no-store,max-age=0"
-    ))
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
