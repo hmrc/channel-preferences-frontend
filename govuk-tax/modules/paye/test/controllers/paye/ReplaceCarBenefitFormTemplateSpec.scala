@@ -1,8 +1,7 @@
 package controllers.paye
 
-import controllers.DateFieldsHelper
-import play.api.test.{FakeRequest, WithApplication}
-import views.html.paye.{replace_car_benefit_form, remove_car_benefit_fields}
+import play.api.test.WithApplication
+import views.html.paye.replace_car_benefit_form
 import org.jsoup.Jsoup
 import models.paye.RemoveCarBenefitFormData
 import play.api.data.Form
@@ -27,6 +26,7 @@ class ReplaceCarBenefitFormTemplateSpec extends PayeBaseSpec  with MockedTaxYear
   "replace car benefit form template" should {
 
     implicit val user = johnDensmore
+    implicit lazy val request = requestWithCorrectVersion
 
     "render the form with all the fields to replace a car benefit" in new WithApplication(FakeApplication()) {
       val addForm: Form[CarBenefitData] = carBenefitForm(CarBenefitValues())

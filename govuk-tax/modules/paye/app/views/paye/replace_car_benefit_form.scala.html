@@ -2,7 +2,7 @@
         primaryEmployment: uk.gov.hmrc.common.microservice.paye.domain.Employment,
         updateForm: Form[models.paye.RemoveCarBenefitFormData],
         addForm: Form[models.paye.CarBenefitData],
-        currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+        currentTaxYearYearsRange: Range)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
     @import views.helpers._
     @import views.formatting.Dates._
@@ -11,7 +11,7 @@
 @main(title = Messages("paye.replace_car_benefit.title"), user = Some(user)) {
     <h1>@Messages("paye.replace_car_benefit.h1")</h1>
 
-    @helper.form(action = controllers.paye.routes.ReplaceBenefitController.requestReplaceCarBenefit(activeCarBenefit.taxYear, primaryEmployment.sequenceNumber)) {
+    @helpers.form(action = controllers.paye.routes.ReplaceBenefitController.requestReplaceCarBenefit(activeCarBenefit.taxYear, primaryEmployment.sequenceNumber)) {
         <fieldset><legend class="h2-heading">@Messages("paye.replace_car_benefit.subheading")</legend>
             @remove_car_benefit_fields(updateForm, currentTaxYearYearsRange, activeCarBenefit.hasActiveFuel)
 

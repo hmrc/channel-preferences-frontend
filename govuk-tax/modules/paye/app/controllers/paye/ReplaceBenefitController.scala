@@ -59,7 +59,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
         }
   }
 
-  def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], removeDefaults: Option[RemoveCarBenefitFormData], addDefaults: Form[CarBenefitData], user: User) = {
+  def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], removeDefaults: Option[RemoveCarBenefitFormData], addDefaults: Form[CarBenefitData], user: User, request: Request[_]) = {
     val hasUnremovedFuel = activeCarBenefit.hasActiveFuel
     val benefitValues: Option[RemoveCarBenefitFormDataValues] = removeDefaults.map(RemoveCarBenefitFormDataValues(_))
     val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, hasUnremovedFuel, dates, now(), taxYearInterval)
@@ -67,7 +67,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       preFill => benefitForm.fill(preFill)
     }.getOrElse(benefitForm)
 
-    replace_car_benefit_form(activeCarBenefit, primaryEmployment, filledForm, addDefaults, currentTaxYearYearsRange)(user)
+    replace_car_benefit_form(activeCarBenefit, primaryEmployment, filledForm, addDefaults, currentTaxYearYearsRange)(user, request)
   }
 
   def requestReplaceCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
@@ -96,7 +96,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       } yield {
         val removeFormData = defaults.map(_.removedCar)
         val addFormData = extractCarBenefitValuesAndBuildForm(defaults.map(_.newCar))
-        Ok(replaceCarBenefit(activeCarBenefit, primaryEmployment, getDatesFromDefaults(removeFormData), removeFormData, addFormData, user))
+        Ok(replaceCarBenefit(activeCarBenefit, primaryEmployment, getDatesFromDefaults(removeFormData), removeFormData, addFormData, user, request))
       }
     }.getOrElse(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
   }
