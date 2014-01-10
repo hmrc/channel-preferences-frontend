@@ -28,18 +28,14 @@ class ContactController(override val auditConnector: AuditConnector)(implicit ov
   )
   def index = WithNewSessionTimeout(UnauthorisedAction{
     implicit request =>
-    Ok(views.html.contact())
+    Ok(views.html.contact(form))
   })
 
   def submit = WithNewSessionTimeout(UnauthorisedAction {
     implicit request => {
       form.bindFromRequest.fold(
         error => {
-          if (!error.data.getOrElse("isJavascript", "true").toBoolean) {
-            responseForNoJsBrowsers(true)
-          } else {
-            BadRequest(Json.toJson(Map("status" -> "ERROR")))
-          }
+            BadRequest(views.html.contact(error))
         },
         problemReport => {
           // TODO, Store here the feedback
@@ -57,7 +53,7 @@ class ContactController(override val auditConnector: AuditConnector)(implicit ov
     }
   })
 
-  private def responseForNoJsBrowsers(hasErrors: Boolean)(implicit request: Request[AnyRef]) = Ok(views.html.problem_reports_confirmation(hasErrors, request.headers.get("referer").getOrElse("/home")))
+  private def responseForNoJsBrowsers(hasErrors: Boolean)(implicit request: Request[AnyRef]) = Ok(views.html.contact_confirmation(hasErrors, request.headers.get("referer").getOrElse("/home")))
 
 }
 
