@@ -43,7 +43,7 @@ class CompositeSymmetricCryptoSpec extends BaseSpec {
 
     "throw a SecurityException if the current crypto cannot decrypt the message" in new Setup {
       when(currentCrypto.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Can't decrypt"))
-      evaluating(crypto.decrypt(encryptedMessage)) should produce [SecurityException]
+      evaluating(crypto.decrypt(encryptedMessage)) should produce[SecurityException]
     }
   }
 
@@ -70,7 +70,7 @@ class CompositeSymmetricCryptoSpec extends BaseSpec {
     "throw a SecurityException if neither the current nor previous crypto can decrypt the message" in new SetupWithSinglePreviousCrypto {
       when(currentCrypto.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Can't decrypt"))
       when(previousCrypto.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Still can't decrypt"))
-      evaluating(crypto.decrypt(encryptedMessage)) should produce [SecurityException]
+      evaluating(crypto.decrypt(encryptedMessage)) should produce[SecurityException]
       verify(currentCrypto).decrypt(encryptedMessage)
       verify(previousCrypto).decrypt(encryptedMessage)
     }
@@ -106,14 +106,14 @@ class CompositeSymmetricCryptoSpec extends BaseSpec {
       verify(previousCrypto1).decrypt(encryptedMessage)
     }
 
-      "throw a SecurityException if none of the cryptos can decrypt the message" in new SetupWithTwoPreviousCryptos {
-        when(currentCrypto.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Can't decrypt"))
-        when(previousCrypto1.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Still can't decrypt"))
-        when(previousCrypto2.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Nope"))
-        evaluating(crypto.decrypt(encryptedMessage)) should produce [SecurityException]
-        verify(currentCrypto).decrypt(encryptedMessage)
-        verify(previousCrypto1).decrypt(encryptedMessage)
-        verify(previousCrypto2).decrypt(encryptedMessage)
+    "throw a SecurityException if none of the cryptos can decrypt the message" in new SetupWithTwoPreviousCryptos {
+      when(currentCrypto.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Can't decrypt"))
+      when(previousCrypto1.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Still can't decrypt"))
+      when(previousCrypto2.decrypt(encryptedMessage)).thenThrow(new RuntimeException("Nope"))
+      evaluating(crypto.decrypt(encryptedMessage)) should produce[SecurityException]
+      verify(currentCrypto).decrypt(encryptedMessage)
+      verify(previousCrypto1).decrypt(encryptedMessage)
+      verify(previousCrypto2).decrypt(encryptedMessage)
     }
   }
 }
