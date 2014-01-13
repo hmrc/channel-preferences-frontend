@@ -2,10 +2,6 @@
     <h1>@Messages("paye.home.title")</h1>
     <p>@Html(Messages("paye.home.intro", helpers.link("", Messages("paye.home.intro.calculator_link.url"), Messages("paye.home.intro.calculator_link.text"), true)))</p>
     <strong>@Messages("paye.home.intro.warning")</strong>
-    <ul class="bullets">
-        <li>@Messages("paye.home.intro.warning.single_car_only")</li>
-        <li>@Messages("paye.home.intro.warning.single_active_employment_only")</li>
-    </ul>
     <h2>@Messages("paye.home.instructions.heading")</h2>
     <p>@Messages("paye.home.instructions.need")</p>
     <ul class="bullets">
@@ -14,7 +10,7 @@
     </ul>
     <p>@Html(Messages("paye.home.instructions.info", helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("link.vehicle_certification_agency.text"), true).toString))</p>
     <p>@Messages("info.need_to_register")</p>
-    @helpers.link("", common.FrontEndRedirect.carBenefit, Messages("button.sign_in"), false, false, "button")
+    @helpers.link("", common.FrontEndRedirect.carBenefit, Messages("paye.home.start_button.text"), false, false, "button")
 }
 
 @sidebarLinks = {

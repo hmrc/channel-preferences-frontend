@@ -8,7 +8,13 @@
 
 <fieldset class="@elements.args.get('_groupClass) @if(elements.hasErrors) {form-field--error}">
     <legend>@label</legend>
+    @if(elements.args.get('_hintText).isDefined) {
+    <p class="hint">@elements.args.get('_hintText)</p>
+    }
     @elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
 
     @dateFieldsInline(formItem, fieldName, label, yearRange, extraClass, args : _*)
+    @if(elements.args.get('_subText).isDefined) {
+    <p>@elements.args.get('_subText)</p>
+    }
 </fieldset>

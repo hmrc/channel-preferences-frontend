@@ -12,6 +12,9 @@
 
 <fieldset class="@argsMap.get('_groupClass) @if(anyFieldHasError) {form-field--error}">
     <legend>@Html(allFieldElements(0).label.toString())</legend>
+    @if(argsMap.get('_hintText).isDefined) {
+        <p class="hint">@argsMap.get('_hintText)</p>
+    }
     @if(argsMap.contains('_additionalTitleText)){<p>@argsMap.get('_additionalTitleText)</p>}
     @for(elements <- allFieldElements) {
         @elements.errors.map { error => <span class="error-notification">@Messages(error)</span> }
@@ -65,5 +68,8 @@
                 }
              }
         }
+    }
+    @if(argsMap.get('_subText).isDefined) {
+        <p>@argsMap.get('_subText)</p>
     }
 </fieldset>

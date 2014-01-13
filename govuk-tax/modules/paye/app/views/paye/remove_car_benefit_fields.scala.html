@@ -25,23 +25,21 @@
             ),
             '_label -> Messages("paye.remove_car_benefit.car_unavailable"),
             '_groupClass -> "form-field-group  js-includes-contextual numbered",
-            '_valueAfter -> true)
+            '_valueAfter -> true,
+            '_hintText -> Messages("paye.remove_car_benefit.car_unavailable.hint"))
 
             @helpers.fieldGroup(updateForm,
             Seq(
             FormField(updateForm("removeEmployeeContributes"), Seq(
-            RadioButton("false", Messages("paye.remove_car_benefit.employee_contributes.nothing"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
-            RadioButton("true", Messages("paye.remove_car_benefit.employee_contributes.pounds"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
-            FormField(updateForm("removeEmployeeContribution"),
-            Seq(InputType("text", "",
-            Messages("paye.remove_car_benefit.employee_contributes.since_tax_year_started", formatDate(TaxYearResolver.startOfCurrentTaxYear)),
-            Some("form-field--inline-text-input js-input--contextual"), Some(""),
-            Some("input--xsmall"))))
+            RadioButton("false", Messages("paye.remove_car_benefit.employee_contributes.no"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+            RadioButton("true", Messages("paye.remove_car_benefit.employee_contributes.yes"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+
+
+            FormField(updateForm("removeEmployeeContribution"), Seq(InputType("text", "", "",Some("form-field--inline-text-input js-input--contextual"), Some(""), Some("input--xsmall"))))
             ),
             '_label -> Messages("paye.remove_car_benefit.employee_contributes"),
             '_groupClass -> "form-field js-includes-contextual numbered",
-            '_valueAfter -> true
-            )
+            '_valueAfter -> true)
 
         @if(activeFuel){
             <p class="fuel-benefit-info" >@Messages("paye.remove_car_benefit.fuel_benefit.info")</p>
@@ -55,7 +53,8 @@
             ),
             '_label -> Messages("paye.remove_car_benefit.fuel_benefit"),
             '_groupClass -> "form-field-group js-includes-contextual numbered",
-            '_valueAfter -> true)
+            '_valueAfter -> true,
+            '_hintText -> Messages("paye.remove_car_benefit.fuel_benefit.hint"))
         }
     </fieldset>
 </fieldset>
