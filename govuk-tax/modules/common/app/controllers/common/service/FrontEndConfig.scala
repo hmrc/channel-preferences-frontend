@@ -15,4 +15,8 @@ object FrontEndConfig {
   lazy val domainWhiteList = Play.configuration.getStringList(s"govuk-tax.$env.portal.domainWhiteList").getOrElse(Collections.emptyList()).toSet
   lazy val portalLoggedOutUrl = Play.configuration.getString(s"govuk-tax.$env.portal.loggedOutUrl").getOrElse("http://localhost:8080/portal/loggedout")
   lazy val portalSsoInLogoutUrl = Play.configuration.getString(s"govuk-tax.$env.portal.ssoInLogoutUrl").getOrElse("http://localhost:8080/ssoin/logout")
+
+  lazy val redirectDomainWhiteList = Play.configuration.getStringList(s"govuk-tax.$env.portal.redirectDomainWhiteList").getOrElse(Collections.emptyList()).toSet
+  lazy val tokenTimeout = Play.configuration.getInt(s"govuk-tax.$env.portal.tokenTimeout").getOrElse(240)
+  lazy val portalHome = Play.configuration.getString(s"govuk-tax.$env.portal.destinationRoot").getOrElse("http://hmrc.gov.uk") + Play.configuration.getString(s"govuk-tax.$env.portal.destinationPath.home").getOrElse("")
 }

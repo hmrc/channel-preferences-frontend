@@ -6,7 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, Credentials}
 import uk.gov.hmrc.common.microservice.{ForbiddenException, UnauthorizedException}
-import controllers.common.service.{Connectors, FrontEndConfig}
+import controllers.common.service.{FrontEndConfig, Connectors}
 import java.util.UUID
 import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
