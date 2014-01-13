@@ -6,5 +6,5 @@
 ->     /paye                        paye.Routes
 ->     /business-tax                business_tax.Routes
 ->     /sa                          sa.Routes
-->     /sa                          sa_prefs.Routes
+->     /                            sa_prefs.Routes
 
