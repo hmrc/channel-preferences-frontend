@@ -21,15 +21,11 @@
     var $DOM = $("#content"),
       setup = function () {
         //select 'yes' option when user selects a contextual input
-        $DOM.on('click', '.js-includes-contextual .js-input--contextual input', function (e) {
-          preselect($(e.currentTarget));
-        });
-        // select 'yes' option if its a select input
-        $DOM.on('change', '.js-includes-contextual .js-input--contextual select', function (e) {
-          preselect($(e.currentTarget));
+        $DOM.on('focus', '.js-includes-contextual .js-input--contextual input, .js-includes-contextual .js-input--contextual select', function(e) {
+            preselect($(e.currentTarget));
         });
         // if we select 'no' the contextual input values should be cleared
-        $DOM.on('click', '*[data-contextual-helper]', function () {
+        $DOM.on('focus', '*[data-contextual-helper]', function () {
           toggle($(this));
         });
       },
@@ -42,13 +38,21 @@
           //clear value inputs
           $el.parents('.js-includes-contextual').find('.js-input--contextual').find(':input').each(function (i, el) {
             el.value = '';
+            if($el.data('isenabled') === "undefined"){
+                $(el).attr('data-isenabled', "disabled");
+            } else {
+                $(el).data('isenabled', "disabled")
+            }
           });
         } else {
           var $inputs = $el.parents('.js-includes-contextual').find('.js-input--contextual').find(':input');
           //set focus on first input if its a text box
           $.each($inputs, function (index, element) {
             if (index === 0 && element.type === "text") {
-              $(element).focus();
+                if( $(element).data('isenabled') !== "enabled") {
+                    $(element).focus();
+                    $(element).data('isenabled', "enabled");
+                }
             }
           });
         }
