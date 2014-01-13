@@ -50,7 +50,7 @@
             Seq(
             FormField(updateForm("fuelRadio"), Seq(
             InputType("radio", "sameDateFuel", Messages("paye.remove_car_benefit.fuel_benefit.same_time"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
-            InputType("radio", "differentDateFuel", Messages("paye.remove_car_benefit.fuel_benefit.different_time"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+            InputType("radio", "differentDateFuel", Messages("paye.remove_car_benefit.fuel_benefit.different_time"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
             FormField(updateForm("fuelWithdrawDate"), Seq(DateControl(currentTaxYearYearsRange, Some("js-input--contextual"))))
             ),
             '_label -> Messages("paye.remove_car_benefit.fuel_benefit"),
