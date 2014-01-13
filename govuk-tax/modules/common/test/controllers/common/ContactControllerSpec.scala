@@ -12,6 +12,7 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.auth.domain.{CreationAndLastModifiedDetail, Accounts, Credentials, Authority}
 import uk.gov.hmrc.utils.DateTimeUtils
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 
 class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -27,8 +28,11 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "inject the referer if available" in new WithContactController {
-
-      private val index = controller.renderIndex(FakeRequest().withHeaders("Referer" -> "SomeURL"))
+      val user = {
+        val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
+        User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root)))
+      }
+      private val index = controller.renderIndex(user, FakeRequest().withHeaders("Referer" -> "SomeURL"))
       val page = Jsoup.parse(contentAsString(index))
 
       page.getElementById("referer").attr("value") shouldBe "SomeURL"
@@ -36,8 +40,10 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "verify that all fields are set" in new WithContactController {
-
-      val user = User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots())
+      val user = {
+        val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
+        User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root)))
+      }
       val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "", "contact-email" -> "", "contact-comments" -> ""))
       val page = Jsoup.parse(contentAsString(submit))
 
