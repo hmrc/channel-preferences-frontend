@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import scala.Some
 
 
-class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with MockedTaxYearSupport {
+class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubTaxYearSupport {
 
   def documentOf(content: Content) = Jsoup.parse(contentAsString(content))
 

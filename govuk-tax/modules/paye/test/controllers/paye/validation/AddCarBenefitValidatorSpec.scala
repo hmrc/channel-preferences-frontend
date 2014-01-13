@@ -1,6 +1,6 @@
 package controllers.paye.validation
 
-import controllers.paye.{MockedTaxYearSupport, PayeBaseSpec}
+import controllers.paye.{StubTaxYearSupport, PayeBaseSpec}
 import org.scalatest.mock.MockitoSugar
 import play.api.data.{Mapping, Form}
 import play.api.data.Forms._
@@ -14,7 +14,7 @@ import controllers.DateFieldsHelper
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import play.api.test.FakeApplication
 
-class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with MockedTaxYearSupport {
+class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with StubTaxYearSupport {
   override def currentTaxYear = 2013
    val now = new LocalDate(currentTaxYear, 10, 2)
    val endOfTaxYear = new LocalDate(currentTaxYear, 4, 5)

@@ -532,11 +532,11 @@ class TestCase(protected val taxYear: Int = 2012) extends WithApplication(FakeAp
 }
 
 class TestCaseIn2012 extends TestCase {
-  lazy val controller = new AddFuelBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
+  lazy val controller = new AddFuelBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport {
     override def currentTaxYear = taxYear
   }
 }
 
 class TestCaseIn2013 extends TestCase(2013) {
-  lazy val controller = new AddFuelBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport
+  lazy val controller = new AddFuelBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport
 }

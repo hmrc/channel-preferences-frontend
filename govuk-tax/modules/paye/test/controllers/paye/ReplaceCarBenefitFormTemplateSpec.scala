@@ -20,7 +20,7 @@ import JavaConversions._
 import play.api.i18n.Messages
 
 
-class ReplaceCarBenefitFormTemplateSpec extends PayeBaseSpec  with MockedTaxYearSupport with LoneElement {
+class ReplaceCarBenefitFormTemplateSpec extends PayeBaseSpec  with StubTaxYearSupport with LoneElement {
 
 
   "replace car benefit form template" should {

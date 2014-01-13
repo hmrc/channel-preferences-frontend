@@ -45,7 +45,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
   val mockAuthConnector = mock[AuthConnector]
   val mockAuditConnector = mock[AuditConnector]
 
-  private lazy val controller = new AddCarBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
+  private lazy val controller = new AddCarBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport {
     override def timeSource() = CarBenefitDataBuilder.now
   }
 
