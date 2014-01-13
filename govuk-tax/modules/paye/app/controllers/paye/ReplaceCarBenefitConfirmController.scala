@@ -18,31 +18,18 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import models.paye._
 import views.html.paye.replace_benefit_confirmation
 
-import controllers.common.actions.{Actions, HeaderCarrier}
-import controllers.paye.validation.BenefitFlowHelper._
-import controllers.common.{SessionTimeoutWrapper, BaseController}
+import controllers.common.actions.HeaderCarrier
 import controllers.common.service.Connectors
 
 class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                                         (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
-  extends BaseController
-  with Actions
-  with SessionTimeoutWrapper
-  with PayeRegimeRoots {
-
+  extends BenefitController {
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   import RemovalUtils.ReplaceBenefitKeyStore
 
-  def confirmCarBenefitReplacement(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user =>
-      implicit request =>
-        implicit val hc = HeaderCarrier(request)
-        validateVersionNumber(user, request.session).flatMap {
-          _.fold(
-            errorResult => Future.successful(errorResult),
-            versionNumber => confirmCarBenefitReplacementAction(taxYear, employmentSequenceNumber, versionNumber))
-        }
+  def confirmCarBenefitReplacement(taxYear: Int, employmentSequenceNumber: Int) = benefitController { (user: User, request: Request[_], version: Int) =>
+    confirmCarBenefitReplacementAction(taxYear, employmentSequenceNumber, version)(user, request)
   }
 
   import ReplaceCarBenefitConfirmController._
