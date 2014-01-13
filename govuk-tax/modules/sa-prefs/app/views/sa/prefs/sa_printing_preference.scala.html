@@ -1,4 +1,4 @@
-@(emailForm: Form[controllers.EmailPreferenceData], token: String, redirectUrl: String)
+@(emailForm: Form[controllers.EmailPreferenceData], token: String, redirectUrl: String)(implicit request: Request[_])
 
 @import views.helpers.CustomHelpers._
 @import helper._
@@ -22,7 +22,7 @@
 
     <p>Enter your email address to sign up for email reminders.</p>
 
-    @helper.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
+    @_root_.views.html.helpers.form(action = controllers.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
 
 	@helpers.input(
 	    emailForm("email.main"),
@@ -46,7 +46,7 @@
 
     }
 
-    @helper.form(action = controllers.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl)) {
+    @_root_.views.html.helpers.form(action = controllers.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl)) {
     <div class="form-field">
         <input id="keep-paper-link" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" />
     </div>

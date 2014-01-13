@@ -17,12 +17,12 @@ class EmailValidation extends Controller {
     token match {
       case regex(_) => {
         preferencesMicroService.updateEmailValidationStatus(token) map {
-          case EmailVerificationLinkResponse.OK => Ok(views.html.sa_printing_preference_verify_email())
-          case EmailVerificationLinkResponse.EXPIRED => Ok(views.html.sa_printing_preference_expired_email())
-          case EmailVerificationLinkResponse.ERROR => BadRequest(views.html.sa_printing_preference_verify_email_failed())
+          case EmailVerificationLinkResponse.OK => Ok(views.html.sa.prefs.sa_printing_preference_verify_email())
+          case EmailVerificationLinkResponse.EXPIRED => Ok(views.html.sa.prefs.sa_printing_preference_expired_email())
+          case EmailVerificationLinkResponse.ERROR => BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed())
         }
       }
-      case _ => Future.successful(BadRequest(views.html.sa_printing_preference_verify_email_failed()))
+      case _ => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed()))
     }
   }
 }

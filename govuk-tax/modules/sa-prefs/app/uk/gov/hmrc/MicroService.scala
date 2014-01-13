@@ -95,13 +95,15 @@ object MicroServiceConfig {
 
   private lazy val env = Play.mode
 
-  lazy val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
+  private lazy val services = s"govuk-tax.$env.services"
 
-  lazy val preferenceServiceUrl = s"$protocol://${Play.configuration.getString(s"sa-prefs.$env.services.preferences.host").getOrElse("localhost")}:${Play.configuration.getInt(s"sa-prefs.$env.services.preferences.port").getOrElse(8900)}"
+  lazy val protocol = Play.configuration.getString(s"$services.protocol").get
 
-  lazy val emailServiceUrl = s"$protocol://${Play.configuration.getString(s"sa-prefs.$env.services.email.host").getOrElse("localhost")}:${Play.configuration.getInt(s"sa-prefs.$env.services.email.port").getOrElse(8300)}"
+  lazy val preferenceServiceUrl = s"$protocol://${Play.configuration.getString(s"$services.preferences.host").get}:${Play.configuration.getInt(s"$services.preferences.port").get}"
 
-  lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
+  lazy val emailServiceUrl = s"$protocol://${Play.configuration.getString(s"$services.email.host").get}:${Play.configuration.getInt(s"$services.email.port").get}"
+
+  lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$services.timeout").get)
 
 }
 

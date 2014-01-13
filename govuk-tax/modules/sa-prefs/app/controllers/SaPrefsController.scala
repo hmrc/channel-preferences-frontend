@@ -27,7 +27,9 @@ class SaPrefsController extends Controller {
         request: Request[AnyContent] =>
           redirectWhiteListService.check(return_url) match {
             case true => action(request)
-            case false => Future.successful(InternalServerError)
+            case false =>
+              Logger.debug(s"Return URL '$return_url' was invalid as it was not on the whitelist")
+              Future.successful(InternalServerError)
           }
       }
   }
@@ -58,17 +60,17 @@ class SaPrefsController extends Controller {
         implicit request =>
           preferencesConnector.getPreferences(utr) map {
             case Some(saPreference) => Redirect(return_url)
-            case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)), token, return_url))
+            case _ => Ok(views.html.sa.prefs.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)), token, return_url))
           }
       })
   )
 
   def confirm(return_url: String) = Action {
-    Ok(views.html.sa_printing_preference_confirm(return_url))
+    Ok(views.html.sa.prefs.sa_printing_preference_confirm(return_url))
   }
 
   def noAction(return_url: String, digital: Boolean) = Action {
-    Ok(views.html.sa_printing_preference_no_action(return_url, digital))
+    Ok(views.html.sa.prefs.sa_printing_preference_no_action(return_url, digital))
   }
 
   private val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(
@@ -87,9 +89,9 @@ class SaPrefsController extends Controller {
     WithValidToken(token, return_url) {
       utr =>
         Action.async {
-          request =>
+          implicit request =>
             emailForm.bindFromRequest()(request).fold(
-              errors => Future.successful(BadRequest(views.html.sa_printing_preference(errors, token, return_url))),
+              errors => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(errors, token, return_url))),
               emailForm => {
                 val isEmailValid = if (emailForm.isEmailVerified)
                   Future.successful(true)
@@ -106,7 +108,7 @@ class SaPrefsController extends Controller {
                       }
                     }
                   }
-                  case false => Future.successful(Ok(views.html.sa_printing_preference_warning_email(emailForm.mainEmail, token, return_url)))
+                  case false => Future.successful(Ok(views.html.sa.prefs.sa_printing_preference_warning_email(emailForm.mainEmail, token, return_url)))
                 }
               }
             )
