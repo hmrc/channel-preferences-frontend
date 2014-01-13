@@ -535,7 +535,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         is("remove_benefit"),
         is(false))(any(), any())).thenReturn(Some(formData))
 
-      val resultF = controller.confirmCarBenefitRemovalAction(2013, 2)(johnDensmore, requestWithCorrectVersion)
+      val resultF = controller.confirmCarBenefitRemovalAction(2013, 2)(johnDensmore, requestWithCorrectVersion, johnDensmoreVersionNumber)
 
       val requestBody = WithdrawnBenefitRequest(22, Some(WithdrawnCarBenefit(withdrawDate, Some(11), Some(250))), Some(WithdrawnFuelBenefit(withdrawDate)))
 
