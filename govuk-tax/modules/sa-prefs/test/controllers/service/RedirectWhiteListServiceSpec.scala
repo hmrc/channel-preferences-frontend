@@ -3,6 +3,7 @@ package controllers.service
 import org.scalatest._
 import java.net.URL
 import java.net.URLEncoder
+import controllers.sa.prefs.service.RedirectWhiteListService
 
 class RedirectWhiteListServiceSpec extends WordSpec with ShouldMatchers {
   val allowedHost = "localhost"

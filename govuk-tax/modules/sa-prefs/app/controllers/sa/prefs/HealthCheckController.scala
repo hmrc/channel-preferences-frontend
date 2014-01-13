@@ -1,4 +1,4 @@
-package controllers
+package controllers.sa.prefs
 
 import play.api.mvc.{Action, Controller}
 import play.api.Play

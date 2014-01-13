@@ -1,10 +1,10 @@
-GET     /sa/print-preferences/:token                            @controllers.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[String])
-GET     /sa/print-preferences-saved                             @controllers.SaPrefsController.confirm(return_url: String)
-GET     /sa/print-preferences-no-action                         @controllers.SaPrefsController.noAction(return_url: String, digital: Boolean)
-POST    /sa/print-preferences/:token                            @controllers.SaPrefsController.submitPrefsForm(token: String, return_url: String)
-POST    /sa/print-preferences/keep-paper/:token                 @controllers.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
+GET     /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[String])
+GET     /sa/print-preferences-saved                             @controllers.sa.prefs.SaPrefsController.confirm(return_url: String)
+GET     /sa/print-preferences-no-action                         @controllers.sa.prefs.SaPrefsController.noAction(return_url: String, digital: Boolean)
+POST    /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.submitPrefsForm(token: String, return_url: String)
+POST    /sa/print-preferences/keep-paper/:token                 @controllers.sa.prefs.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
 
-GET     /sa/print-preferences/verification/:token               @controllers.EmailValidation.verify(token: String)
+GET     /sa/print-preferences/verification/:token               @controllers.sa.prefs.EmailValidation.verify(token: String)
 
 
 # Map static resources from the /public folder to the /assets URL path

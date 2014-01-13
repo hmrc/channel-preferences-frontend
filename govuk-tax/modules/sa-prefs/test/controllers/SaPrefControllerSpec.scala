@@ -9,13 +9,14 @@ import org.mockito.Mockito._
 import uk.gov.hmrc.{EmailConnector, SaPreference, PreferencesConnector}
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URLEncoder
-import controllers.service.RedirectWhiteListService
 import org.mockito.Mockito
 import org.jsoup.Jsoup
 import uk.gov.hmrc.SaPreference
 import scala.Some
 import play.api.test.FakeApplication
 import scala.concurrent.Future
+import controllers.sa.prefs.service.RedirectWhiteListService
+import controllers.sa.prefs.{SsoPayloadEncryptor, SaPrefsController}
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 

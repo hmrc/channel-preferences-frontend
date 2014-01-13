@@ -6,9 +6,9 @@ import uk.gov.hmrc.PreferencesConnector
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
-import controllers.service.FrontEndConfig
 import org.jsoup.Jsoup
 import scala.concurrent.Future
+import controllers.sa.prefs.EmailValidation
 
 class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar {
 

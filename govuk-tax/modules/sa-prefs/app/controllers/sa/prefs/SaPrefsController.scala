@@ -1,4 +1,4 @@
-package controllers
+package controllers.sa.prefs
 
 import play.api.data._
 import play.api.mvc.Results._
@@ -8,12 +8,12 @@ import play.api.mvc.{AnyContent, Request, Action}
 import uk.gov.hmrc.{EmailConnector, PreferencesConnector, TokenEncryption}
 import play.api.{Logger, Play}
 import java.net.URLDecoder
-import controllers.service.RedirectWhiteListService
 import concurrent.Future
 import scala.Some
 import uk.gov.hmrc.TokenExpiredException
 import scala.concurrent.ExecutionContext.Implicits.global
 import controllers.common.service.FrontEndConfig
+import controllers.sa.prefs.service.RedirectWhiteListService
 
 class SaPrefsController extends Controller {
 

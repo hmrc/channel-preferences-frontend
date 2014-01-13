@@ -1,4 +1,4 @@
-package controllers.service
+package controllers.sa.prefs.service
 
 import java.net.{ URLDecoder, URL }
 
