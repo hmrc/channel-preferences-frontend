@@ -1,7 +1,6 @@
-
-@(contactForm: Form[controllers.common.ContactForm])(implicit request : Request[_])
+@(contactForm: Form[controllers.common.ContactForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 @import views.helpers._
-@main(title = "Your tax home") {
+@main(title = Messages("contact.heading"), nav = true, supportLinkEnabled = false, user = Some(user)) {
 
     <h1>@Messages("contact.heading")</h1>
     @helpers.form(action = common.routes.ContactController.submit, 'class -> "form--feedback") {

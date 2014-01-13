@@ -1,4 +1,4 @@
-@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None)(content: Html)
+@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true)(content: Html)
 <!DOCTYPE html>
 <!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
@@ -20,7 +20,7 @@
         <article>
 	        @content
         </article>
-        @includes.error_feedback()
+            @if(supportLinkEnabled && user.isDefined) { @includes.error_feedback() }
 	    </div>
 
 	    @if( user.isDefined ) {
