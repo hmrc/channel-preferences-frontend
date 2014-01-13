@@ -1,81 +1,52 @@
 package controllers.paye
 
-import uk.gov.hmrc.common.microservice.paye.domain._
+import scala.concurrent._
+
 import play.api.mvc._
-import views.html.paye._
-import models.paye._
-import controllers.common.{SessionKeys, BaseController, SessionTimeoutWrapper}
-import controllers.paye.validation.RemoveBenefitValidator._
+import play.api.Logger
+import play.api.mvc.SimpleResult
+
+import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
-import controllers.common.service.Connectors
-import play.api.Logger
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import controllers.common.actions.{HeaderCarrier, Actions}
-import scala.concurrent._
-import controllers.paye.validation.BenefitFlowHelper
-import controllers.paye.validation.BenefitFlowHelper._
-import scala.Some
-import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
+
 import models.paye.BenefitUpdatedConfirmationData
-import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnFuelBenefit
-import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
-import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnCarBenefit
 import models.paye.CarFuelBenefitDates
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
+import models.paye._
+import views.html.paye._
+import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.service.Connectors
+import controllers.common.{SessionKeys, BaseController, SessionTimeoutWrapper}
+import controllers.paye.validation.RemoveBenefitValidator._
 
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                              (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
-  extends BaseController
-  with Actions
+  extends BenefitController
   with SessionTimeoutWrapper
-  with TaxYearSupport
-  with PayeRegimeRoots {
+  with TaxYearSupport {
 
   import RemovalUtils._
 
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
-
-  def requestRemoveCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user =>
-      implicit request =>
-        validateVersionNumber(user, request.session).flatMap { _.fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => requestRemoveCarBenefitAction(taxYear, employmentSequenceNumber))
-        }
+  def requestRemoveCarBenefit(taxYear: Int, employmentSequenceNumber: Int) = benefitController { (user: User, request: Request[_]) =>
+    requestRemoveCarBenefitAction(taxYear, employmentSequenceNumber)(user, request)
   }
 
-  def requestRemoveFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user =>
-      implicit request =>
-        validateVersionNumber(user, request.session).flatMap { _.fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => requestRemoveFuelBenefitAction(taxYear, employmentSequenceNumber))
-        }
+  def requestRemoveFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) = benefitController {
+    (user: User, request: Request[_]) => requestRemoveFuelBenefitAction(taxYear, employmentSequenceNumber)(user, request)
   }
 
-  def confirmCarBenefitRemoval(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user =>
-      implicit request =>
-        implicit val hc = HeaderCarrier(request)
-        validateVersionNumber(user, request.session).flatMap { _.fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => confirmCarBenefitRemovalAction(taxYear, employmentSequenceNumber))
-        }
+  def confirmCarBenefitRemoval(taxYear: Int, employmentSequenceNumber: Int) = benefitController { (user: User, request: Request[_]) =>
+    confirmCarBenefitRemovalAction(taxYear, employmentSequenceNumber)(user, request)
   }
 
-  def confirmFuelBenefitRemoval(taxYear: Int, employmentSequenceNumber: Int) = AuthorisedFor(PayeRegime).async {
-    implicit user =>
-      implicit request =>
-       implicit val hc = HeaderCarrier(request)
-        validateVersionNumber(user, request.session).flatMap { _.fold(
-          errorResult => Future.successful(errorResult),
-          versionNumber => confirmFuelBenefitRemovalAction(taxYear, employmentSequenceNumber))
-        }
+  def confirmFuelBenefitRemoval(taxYear: Int, employmentSequenceNumber: Int) = benefitController { (user: User, request: Request[_]) =>
+    confirmFuelBenefitRemovalAction(taxYear, employmentSequenceNumber)(user, request)
   }
 
   def benefitRemoved(benefitTypes: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]) =
@@ -146,8 +117,8 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         },
         removeBenefitData => {
           implicit def hc = HeaderCarrier(request)
-          keyStoreService.storeBenefitFormData(removeBenefitData).map {_ =>
-            Ok(remove_fuel_benefit_review(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, removeBenefitData)(user,request))
+          keyStoreService.storeBenefitFormData(removeBenefitData).map { _ =>
+            Ok(remove_fuel_benefit_review(fuelBenefit, primaryEmployment, activeCarBenefit.taxYear, removeBenefitData)(user, request))
           }
         }
       )
@@ -178,24 +149,24 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       user.getPaye.version.flatMap {
         version =>
 
-        val uri = activeCarBenefit.actions.getOrElse("remove",
-          throw new IllegalArgumentException(s"No remove action uri found for this car benefit."))
+          val uri = activeCarBenefit.actions.getOrElse("remove",
+            throw new IllegalArgumentException(s"No remove action uri found for this car benefit."))
 
-        val withdrawnFuelBenefit = activeCarBenefit.activeFuelBenefit.map(_ => WithdrawnFuelBenefit(formData.fuelWithdrawDate.getOrElse(formData.withdrawDate)))
+          val withdrawnFuelBenefit = activeCarBenefit.activeFuelBenefit.map(_ => WithdrawnFuelBenefit(formData.fuelWithdrawDate.getOrElse(formData.withdrawDate)))
 
-        val request = WithdrawnBenefitRequest(version,
-          Some(WithdrawnCarBenefit(formData.withdrawDate,
-            formData.numberOfDaysUnavailable,
-            formData.removeEmployeeContribution)),
-          withdrawnFuelBenefit)
+          val request = WithdrawnBenefitRequest(version,
+            Some(WithdrawnCarBenefit(formData.withdrawDate,
+              formData.numberOfDaysUnavailable,
+              formData.removeEmployeeContribution)),
+            withdrawnFuelBenefit)
 
-        payeConnector.removeBenefits(uri, request).map(_.get).map { removeBenefitResponse =>
-          keyStoreService.clearBenefitFormData
+          payeConnector.removeBenefits(uri, request).map(_.get).map { removeBenefitResponse =>
+            keyStoreService.clearBenefitFormData
 
-          Redirect(routes.RemoveBenefitController.benefitRemoved(activeCarBenefit.benefitCode.toString,
-            activeCarBenefit.taxYear, employmentSequenceNumber, removeBenefitResponse.transaction.oid,
-            removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
-        }
+            Redirect(routes.RemoveBenefitController.benefitRemoved(activeCarBenefit.benefitCode.toString,
+              activeCarBenefit.taxYear, employmentSequenceNumber, removeBenefitResponse.transaction.oid,
+              removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
+          }
       }
     }
 
@@ -233,18 +204,18 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
       val withdrawnFuelBenefit = WithdrawnFuelBenefit(formData.withdrawDate)
 
-      user.getPaye.version.flatMap{
+      user.getPaye.version.flatMap {
         version =>
 
-        val withdrawRequest = WithdrawnBenefitRequest(version, None, Some(withdrawnFuelBenefit))
+          val withdrawRequest = WithdrawnBenefitRequest(version, None, Some(withdrawnFuelBenefit))
 
-        payeConnector.removeBenefits(uri, withdrawRequest).map(_.get).map { removeBenefitResponse =>
+          payeConnector.removeBenefits(uri, withdrawRequest).map(_.get).map { removeBenefitResponse =>
             keyStoreService.clearBenefitFormData
 
             Redirect(routes.RemoveBenefitController.benefitRemoved(fuelBenefit.benefitCode.toString,
-            activeCarBenefit.taxYear, employmentSequenceNumber, removeBenefitResponse.transaction.oid,
-            removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
-        }
+              activeCarBenefit.taxYear, employmentSequenceNumber, removeBenefitResponse.transaction.oid,
+              removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
+          }
       }
     }
 
