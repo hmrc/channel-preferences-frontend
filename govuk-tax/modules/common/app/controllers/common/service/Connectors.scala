@@ -1,5 +1,7 @@
 package controllers.common.service
 
+import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
+
 object Connectors {
 
   import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
@@ -29,4 +31,5 @@ object Connectors {
   implicit lazy val epayeConnector = new EpayeConnector()
   implicit lazy val preferencesConnector = new PreferencesConnector()
   implicit lazy val emailConnector = new EmailConnector()
+  implicit lazy val hmrcDeskproConnector = new HmrcDeskproConnector()
 }

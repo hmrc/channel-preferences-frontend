@@ -8,27 +8,25 @@
         <fieldset>
             <legend class="h2-heading">How can we help you?</legend>
             @helpers.input(
-            contactForm("contactName"),
+            contactForm("contact-name"),
             '_label -> "Your Name",
             '_divClass -> "form-field",
-            '_inputClass -> "input--fullwidth",
-            '_error ->  Messages("error.common.problem_report.name_mandatory")
+            '_inputClass -> "input--fullwidth"
             )
             @helpers.input(
-            contactForm("contactEmail"),
+            contactForm("contact-email"),
             '_label -> "Email address",
             '_divClass -> "form-field",
-            '_inputClass -> "input--fullwidth",
-            '_error ->  Messages("error.common.problem_report.email_mandatory")
+            '_inputClass -> "input--fullwidth"
             )
             @helpers.textArea(
-            contactForm("contactComments"),
+            contactForm("contact-comments"),
             '_label -> "Your comments",
             '_divClass -> "form-field",
-            '_inputClass -> "input--fullwidth",
-            '_error ->  Messages("error.common.comments_mandatory")
+            '_inputClass -> "input--fullwidth"
             )
-            <input type="hidden" name="isJavascript" id="isJavascript" value="">
+            <input type="hidden" name="isJavascript" id="isJavascript" value="@contactForm.data.get("isJavascript")">
+            <input type="hidden" name="referer" id="referer" value="@contactForm.data.get("referer")">
 
             <div class="form-field">
                 <button class="button" type="submit">Send</button>

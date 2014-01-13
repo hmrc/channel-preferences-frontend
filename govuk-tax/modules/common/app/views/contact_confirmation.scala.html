@@ -1,4 +1,3 @@
-@(formError: Boolean, url: String)
 <!DOCTYPE html>
 <!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
@@ -16,20 +15,11 @@
 
 <section id="content" class="l-constrained--topBordered">
     <div class="l-bodyLeftColumn">
-        @if(formError) {
-        <article id="report-confirmation-no-data">
-            <h2>Sorry, we're unable to send your message as you haven't given us any information.</h2>
-
-            <p>Please tell us what you were doing or what went wrong.</p>
-            <a href="@url">Return to where you were</a>
-        </article>
-        } else {
         <article id="report-confirmation">
             <h2 id="feedback-thank-you-header">Thank you</h2>
 
             <p>Your comments will be reviewed by our customer support team.</p>
         </article>
-        }
     </div>
 
 
