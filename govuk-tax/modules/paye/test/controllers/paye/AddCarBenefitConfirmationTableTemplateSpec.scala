@@ -57,7 +57,6 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with Mocke
     "display a \"not selected\" on every fields if none of them is defined" in {
       val data = addCarBenefitConfirmationDataForEmployeeContribution(None)
 
-      println(contentAsString(add_car_benefit_confirmation_table(data)))
       val doc = Jsoup.parse(contentAsString(add_car_benefit_confirmation_table(data)))
       doc.getElementById("new-company-car-details") should bePresent
 

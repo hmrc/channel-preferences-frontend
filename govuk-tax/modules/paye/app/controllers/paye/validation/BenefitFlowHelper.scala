@@ -4,13 +4,14 @@ import play.api.mvc.Results._
 import scala.Some
 import controllers.paye.routes
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{SimpleResult, Session}
+import play.api.mvc.{Request, SimpleResult, Session}
 import scala.util.Try
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
-import controllers.common.actions.HeaderCarrier
+import controllers.common.actions.{Actions, HeaderCarrier}
 import scala.concurrent.ExecutionContext.Implicits.global
 import controllers.common.SessionKeys
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 
 object BenefitFlowHelper {
   type HodVersionNumber = Int
@@ -47,7 +48,7 @@ object BenefitFlowHelper {
           } else {
             Right(version)
           }
-        }.recover { case _ => Left(errorLookingUpLatestVersion) }
+        }.recover { case _ => Left(errorLookingUpLatestVersion)}
       }
     }
   }

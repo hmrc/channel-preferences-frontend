@@ -131,6 +131,7 @@ object MicroServiceConfig {
   lazy val ctServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.ct.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.ct.port").getOrElse(8880)}"
   lazy val preferencesServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.preferences.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.preferences.port").getOrElse(8025)}"
   lazy val emailServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.email.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.email.port").getOrElse(8300)}"
+  lazy val hmrcDeskproServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.hmrc-deskpro.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.hmrc-deskpro.port").getOrElse(8650)}"
 
   lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$env.services.timeout").getOrElse("30 seconds"))
 

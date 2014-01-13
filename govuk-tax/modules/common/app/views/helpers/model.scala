@@ -4,11 +4,11 @@ import play.api.templates.Html
 
 trait FieldType
 
-case class InputType(inputType: String, key: String, value: String,  divClass: Option[String] = None, labelClass: Option[String] = None, inputClass: Option[String] = None, dataAtrribute: Option[String] = None, label:Option[String] = None) extends FieldType
+case class InputType(inputType: String, key: String, value: String,  divClass: Option[String] = None, labelClass: Option[String] = None, inputClass: Option[String] = None, dataAttribute: Option[String] = None, label:Option[String] = None) extends FieldType
 
 object RadioButton {
-  def apply(key: String, value: String, divClass: Option[String] = None, labelClass: Option[String] = None, inputClass: Option[String] = None, dataAtrribute: Option[String] = None) = {
-    InputType("radio", key, value, divClass, labelClass, inputClass, dataAtrribute)
+  def apply(key: String, value: String, divClass: Option[String] = None, labelClass: Option[String] = None, inputClass: Option[String] = None, dataAttribute: Option[String] = None) = {
+    InputType("radio", key, value, divClass, labelClass, inputClass, dataAttribute)
   }
 }
 

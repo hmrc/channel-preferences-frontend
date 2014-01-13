@@ -29,6 +29,7 @@ GET     /admin/details                  @controllers.common.HealthCheckControlle
 GET     /admin/detail/:name             @controllers.common.HealthCheckController.detail(name: String)
 GET     /admin/metrics                  com.kenshoo.play.metrics.MetricsController.metrics
 
-GET     /contact                        @controllers.common.ContactController.index
-POST     /contact/submit                        @controllers.common.ContactController.submit
-POST    /contact/problem_reports          @controllers.common.ProblemReportsController.report
+GET     /contact-hmrc                   @controllers.common.ContactController.index
+POST    /contact-hmrc                   @controllers.common.ContactController.submit
+GET     /contact-hmrc/thanks            @controllers.common.ContactController.thanks
+POST    /contact/problem_reports        @controllers.common.ProblemReportsController.report

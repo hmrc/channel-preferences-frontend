@@ -49,8 +49,10 @@ trait CookieCryptoFilter extends Filter {
 }
 
 object SessionCookieCryptoFilter extends CookieCryptoFilter {
+
   // Lazy because the filter is instantiated before the config is loaded
+
   protected override lazy val cookieName: String = Session.COOKIE_NAME
 
-  protected override val crypto = SessionCookieCrypto
+  protected override lazy val crypto = SessionCookieCrypto
 }

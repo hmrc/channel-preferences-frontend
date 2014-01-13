@@ -32,12 +32,14 @@ class LoginController(samlConnector: SamlConnector,
 
   def this() = this(Connectors.samlConnector, Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
-  def samlLogin = WithNewSessionTimeout(UnauthorisedAction.async {
-    implicit request =>
-      implicit val headerCarrier = HeaderCarrier(request)
-      samlConnector.create(headerCarrier).map(authRequestFormData =>
-        Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest)))(headerCarrierExecutionContext(headerCarrier))
-  })
+  def samlLogin = WithNewSessionTimeout {
+    UnauthorisedAction.async {
+      implicit request =>
+        samlConnector.create.map { authRequestFormData =>
+          Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
+        }
+    }
+  }
 
   def businessTaxLogin = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
@@ -54,50 +56,50 @@ class LoginController(samlConnector: SamlConnector,
         )(Credentials.apply)(Credentials.unapply)
       )
       val form = loginForm.bindFromRequest()
-      form.fold (
+      form.fold(
         erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
         credentials => {
-            governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response =>
-              val sessionId = s"session-${UUID.randomUUID().toString}"
+          governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response =>
+            val sessionId = s"session-${UUID.randomUUID().toString}"
+            auditConnector.audit(
+              AuditEvent(
+                auditType = "TxSucceeded",
+                tags = Map("transactionName" -> "GG Login", HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
+                detail = Map("authId" -> response.authId)
+              )
+            )
+            FrontEndRedirect.toBusinessTax.withSession(
+              SessionKeys.sessionId -> sessionId,
+              SessionKeys.userId -> response.authId,
+              SessionKeys.name -> response.name,
+              SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
+              SessionKeys.affinityGroup -> response.affinityGroup
+            )
+
+
+          }.recover {
+            case _: UnauthorizedException =>
               auditConnector.audit(
                 AuditEvent(
-                  auditType = "TxSucceeded",
-                  tags = Map( "transactionName" -> "GG Login",HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
-                  detail = Map("authId" -> response.authId)
+                  auditType = "TxFailed",
+                  tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
+                  detail = Map("transactionFailureReason" -> "Invalid Credentials")
                 )
               )
-              FrontEndRedirect.toBusinessTax.withSession(
-                SessionKeys.sessionId -> sessionId,
-                SessionKeys.userId -> response.authId,
-                SessionKeys.name -> response.name,
-                SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
-                SessionKeys.affinityGroup -> response.affinityGroup
+              Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
+            case _: ForbiddenException => {
+              auditConnector.audit(
+                AuditEvent(
+                  auditType = "TxFailed",
+                  tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
+                  detail = Map("transactionFailureReason" -> "Not on the whitelist")
+                )
               )
-
-
-            }.recover {
-              case _: UnauthorizedException =>
-                auditConnector.audit(
-                  AuditEvent(
-                    auditType = "TxFailed",
-                    tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
-                    detail = Map("transactionFailureReason" -> "Invalid Credentials")
-                  )
-                )
-                Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
-              case _: ForbiddenException => {
-                auditConnector.audit(
-                  AuditEvent(
-                    auditType = "TxFailed",
-                    tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
-                    detail = Map("transactionFailureReason" -> "Not on the whitelist")
-                  )
-                )
-                Forbidden(notOnBusinessTaxWhitelistPage)
-              }
+              Forbidden(notOnBusinessTaxWhitelistPage)
+            }
           }
         })
-    })
+  })
 
   def notOnBusinessTaxWhitelistPage = views.html.whitelist_notice()
 
@@ -110,7 +112,8 @@ class LoginController(samlConnector: SamlConnector,
   )
 
   case class LoginSuccess(hashPid: String, authority: Authority, updatedHC: HeaderCarrier)
-  case class LoginFailure(reason: String, hashPid: Option[String] = None, originalRequestId: Option[String]  =None)
+
+  case class LoginFailure(reason: String, hashPid: Option[String] = None, originalRequestId: Option[String] = None)
 
   def idaLogin = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
@@ -148,7 +151,7 @@ class LoginController(samlConnector: SamlConnector,
           auditConnector.audit(
             AuditEvent(
               auditType = "TxFailed",
-              tags = Map("transactionName" -> "IDA Login", HeaderNames.xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ originalRequestId.map(HeaderNames.xRequestId -> _).toMap ,
+              tags = Map("transactionName" -> "IDA Login", HeaderNames.xRequestId + "-Original" -> hc.requestId.getOrElse("")) ++ originalRequestId.map(HeaderNames.xRequestId -> _).toMap,
               detail = Map("transactionFailureReason" -> reason) ++ hashPid.map("hashPid" -> _).toMap
             )
           )

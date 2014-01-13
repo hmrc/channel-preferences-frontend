@@ -1,31 +1,37 @@
 
-@()(implicit request : Request[_])
+@(contactForm: Form[controllers.common.ContactForm])(implicit request : Request[_])
 @import views.helpers._
 @main(title = "Your tax home") {
 
     <h1>@Messages("contact.heading")</h1>
-    @helpers.form(action = common.routes.ContactController.submit) {
+    @helpers.form(action = common.routes.ContactController.submit, 'class -> "form--feedback") {
         <fieldset>
             <legend class="h2-heading">How can we help you?</legend>
-            <div class="form-field">
-                <label for="contact-name"><strong>Your name </strong></label>
-                <span class="error-notification">@Messages("error.common.problem_report.name_mandatory")</span>
-                <input id="contact-name" class="input--fullwidth" name="contact-name" type="text">
-            </div>
-            <div class="form-field">
-                <label for="contact-comments"><strong>Comments</strong></label>
-                <span class="error-notification">@Messages("error.common.problem_report.email_mandatory")</span>
-                <textarea id="contact-comments" class="input--fullwidth" name="contact-comments" rows="8" columns="150"></textarea>
-            </div>
-            <div class="form-field">
-                <label for="contact-email"><strong>Email address</strong></label>
-                <span class="error-notification">@Messages("error.common.problem_report.email_mandatory")</span>
-                <input id="contact-email" class="input--fullwidth" name="contact-email" type="text">
-            </div>
-            <input type="hidden" name="isJavascript" value="false"/>
+            @helpers.input(
+            contactForm("contact-name"),
+            '_label -> "Your Name",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--fullwidth"
+            )
+            @helpers.input(
+            contactForm("contact-email"),
+            '_label -> "Email address",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--fullwidth"
+            )
+            @helpers.textArea(
+            contactForm("contact-comments"),
+            '_label -> "Your comments",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--fullwidth"
+            )
+            <input type="hidden" name="isJavascript" id="isJavascript" value="@contactForm.data.get("isJavascript")">
+            <input type="hidden" name="referer" id="referer" value="@contactForm.data.get("referer")">
+
             <div class="form-field">
                 <button class="button" type="submit">Send</button>
             </div>
+
         </fieldset>
     }
 

@@ -2,7 +2,7 @@ package controllers.common
 
 import play.api.mvc._
 import play.api.http.MimeTypes
-import controllers.common.actions.HeaderCarrier
+import controllers.common.actions.{LoggingDetails, HeaderCarrier}
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
@@ -15,7 +15,7 @@ abstract class BaseController extends Controller {
 
   implicit def hc(implicit request: Request[_]): HeaderCarrier = HeaderCarrier(request)
 
-  implicit def headerCarrierExecutionContext(implicit headerCarrier:HeaderCarrier):ExecutionContext = MdcLoggingExecutionContext.fromLoggingDetails
+  implicit def mdcExecutionContext(implicit loggingDetails: LoggingDetails): ExecutionContext = MdcLoggingExecutionContext.fromLoggingDetails
 
   implicit class SessionKeyRemover(simpleResult: Future[SimpleResult]) {
     def removeSessionKey(key: String)(implicit request: Request[_]) = simpleResult.map {_.withSession(request.session - key)}
