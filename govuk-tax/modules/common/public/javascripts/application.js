@@ -243,9 +243,13 @@ GOVUK.ReportAProblem = function () {
         $('.report-error__content').toggleClass('js-hidden');
           e.preventDefault();
       });
-      var $errorReportForm = $('.report-error__content form');
+
+      //feedback forms require a hidden field denoting if javascript is enabled
+
+      var $feedbackForms = $('.form--feedback'),
+          $errorReportForm = $('.report-error__content form');
       //we have javascript enabled so change hidden input to reflect this
-      $errorReportForm.find('input[name="isJavascript"]').attr("value", true);
+      $feedbackForms.find('input[name="isJavascript"]').attr("value", true);
 
       $errorReportForm.submit(function(e){
       	GOVUK.ReportAProblem.submitForm($(this), $errorReportForm.attr("action"));

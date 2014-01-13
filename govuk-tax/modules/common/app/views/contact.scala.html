@@ -4,7 +4,7 @@
 @main(title = "Your tax home") {
 
     <h1>@Messages("contact.heading")</h1>
-    @helpers.form(action = common.routes.ContactController.submit) {
+    @helpers.form(action = common.routes.ContactController.submit, 'class -> "form--feedback") {
         <fieldset>
             <legend class="h2-heading">How can we help you?</legend>
             @helpers.input(
