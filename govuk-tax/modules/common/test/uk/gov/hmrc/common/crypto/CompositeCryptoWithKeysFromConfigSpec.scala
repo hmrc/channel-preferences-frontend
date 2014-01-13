@@ -23,10 +23,10 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
 
   private val baseConfigKey = "crypto.spec.key"
   
-  private val currentConfigKey = baseConfigKey + ".current"
+  private val currentConfigKey = baseConfigKey + ".key"
   private val currentEncryptionKey = SymmetricCryptoTestData.encryptionKey
 
-  private val previousConfigKey = baseConfigKey + ".previous"
+  private val previousConfigKey = baseConfigKey + ".previousKeys"
   private val previousEncryptionKeys = PreviousSymmetricCryptoTestData.encryptionKeys
 
   "Constructing a CompositeCryptoWithKeysFromConfig without current or previous keys" should {
@@ -67,15 +67,10 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
       currentConfigKey -> currentEncryptionKey
     ))
 
-    // TODO Due to lazy instantiation, this currently doesn't throw an exception.  Review setup of configuration.
-    "throw a SecurityException on first use of encrypt" ignore new WithApplication(fakeApplicationWithCurrentKeyOnly) {
+    "return a properly initialised, functional CompositeSymmetricCrypto object" in new WithApplication(fakeApplicationWithCurrentKeyOnly)  {
       val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
-      evaluating(crypto.encrypt(plainMessage)) should produce [SecurityException]
-    }
-
-    "throw a SecurityException on first use of decrypt" in new WithApplication(fakeApplicationWithCurrentKeyOnly) {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
-      evaluating(crypto.decrypt(encryptedMessage)) should produce [SecurityException]
+      crypto.encrypt(plainMessage) shouldBe encryptedMessage
+      crypto.decrypt(encryptedMessage) shouldBe plainMessage
     }
   }
 

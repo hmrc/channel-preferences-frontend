@@ -20,17 +20,14 @@ case class CryptoWithKeyFromConfig(configKey: String) extends SymmetricCrypto {
 
 case class CompositeCryptoWithKeysFromConfig(baseConfigKey: String) extends CompositeSymmetricCrypto {
 
-  private val currentConfigKey = baseConfigKey + ".current"
-  private val previousConfigKey = baseConfigKey + ".previous"
+  private val currentConfigKey = baseConfigKey + ".key"
+  private val previousConfigKey = baseConfigKey + ".previousKeys"
 
   override protected lazy val currentCrypto = CryptoWithKeyFromConfig(currentConfigKey)
 
   override protected lazy val previousCryptos = {
 
-    val previousKeys = Play.current.configuration.getStringList(previousConfigKey).getOrElse {
-      Logger.error(s"Missing required configuration entry: $previousConfigKey")
-      throw new SecurityException(s"Missing required configuration entry: $previousConfigKey")
-    }
+    val previousKeys = Play.current.configuration.getStringList(previousConfigKey).map(_.toSeq).getOrElse(Seq.empty)
 
     previousKeys.map { key => new SymmetricCrypto {
       override val encryptionKey = key
