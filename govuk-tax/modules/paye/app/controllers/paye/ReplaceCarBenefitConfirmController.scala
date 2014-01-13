@@ -23,7 +23,6 @@ import controllers.paye.validation.BenefitFlowHelper._
 import controllers.common.{SessionTimeoutWrapper, BaseController}
 import controllers.common.service.Connectors
 
-
 class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                                         (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
   extends BaseController
@@ -46,6 +45,8 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
         }
   }
 
+  import ReplaceCarBenefitConfirmController._
+
   private[paye] def confirmCarBenefitReplacementAction(taxYear: Int, employmentSequenceNumber: Int, version: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {
     val taxYeadDataF = user.getPaye.fetchTaxYearData(TaxYearResolver.currentTaxYear)
     val taxCodeF = TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear)
@@ -56,14 +57,13 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
       taxYearData <- taxYeadDataF
       formDataO <- formDataF
       result <- withCarBenefitAndFormData(taxYearData.findActiveCarBenefit(employmentSequenceNumber), formDataO) {
-        doUpdate(version, taxYear, employmentSequenceNumber, currentTaxCode, user)
-      }.fold(err => Future.successful(InternalServerError(err)), r => r)
+        buildUpdateFunction(version, taxYear, employmentSequenceNumber, currentTaxCode, user)
+      }.fold(err => Future.successful(InternalServerError(err + s" version=$version, taxYear=$taxYear, employmentSequenceNumber=$employmentSequenceNumber")), r => r)
     } yield result
   }
 
-
-  private def doUpdate(version: Int, taxYear: Int, employmentSequenceNumber: Int, currentTaxCode: String, user: User)
-              (implicit hc:HeaderCarrier): (CarBenefit, ReplaceCarBenefitFormData) => Future[SimpleResult] = {
+  private def buildUpdateFunction(version: Int, taxYear: Int, employmentSequenceNumber: Int, currentTaxCode: String, user: User)
+                                 (implicit hc: HeaderCarrier): UpdateFunction = {
     (activeCarBenefit, formData) =>
       val url = activeCarBenefit.actions.getOrElse("replace", throw new IllegalArgumentException(s"No replace action uri found for this car benefit."))
 
@@ -75,9 +75,13 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
         case None => InternalServerError("Got no response back from microservice call to replace benefits")
       }
   }
+}
 
-  private def withCarBenefitAndFormData(carBenefitO: Option[CarBenefit], formDataO: Option[ReplaceCarBenefitFormData])
-                                       (body: (CarBenefit, ReplaceCarBenefitFormData) => Future[SimpleResult]): Either[String, Future[SimpleResult]] = {
+object ReplaceCarBenefitConfirmController {
+  type UpdateFunction = (CarBenefit, ReplaceCarBenefitFormData) => Future[SimpleResult]
+
+  def withCarBenefitAndFormData(carBenefitO: Option[CarBenefit], formDataO: Option[ReplaceCarBenefitFormData])
+                               (body: UpdateFunction): Either[String, Future[SimpleResult]] = {
     (carBenefitO, formDataO) match {
       case (None, None) => Left("Could not find an active car benefit and form data")
       case (None, Some(_)) => Left("Could not find an active car benefit")
@@ -86,7 +90,7 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
     }
   }
 
-  private def buildRequest(version: Int, formData: ReplaceCarBenefitFormData, taxYear: Int, employmentSequenceNumber: Int) = {
+  def buildRequest(version: Int, formData: ReplaceCarBenefitFormData, taxYear: Int, employmentSequenceNumber: Int) = {
     val wbr = WithdrawnBenefitRequest(version,
       Some(WithdrawnCarBenefit(formData.removedCar.withdrawDate,
         formData.removedCar.numberOfDaysUnavailable,
