@@ -5,7 +5,7 @@ import play.api.test.{FakeApplication, WithApplication}
 import SymmetricCryptoTestData.{plainMessage, encryptedMessage}
 import org.apache.commons.codec.binary.Base64
 
-class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
+class CryptoWithKeysFromConfigSpec extends BaseSpec {
 
   private object PreviousSymmetricCryptoTestData {
 
@@ -21,7 +21,7 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
     val message2EncryptedWithPreviousKey2 = "PmNS+l5oVk2JNVyJfa0lANm9s2qy3uAlfEBl1n0AqoM6TyxjVl4j44MU4z7Bydih"
   }
 
-  private val baseConfigKey = "crypto.spec.key"
+  private val baseConfigKey = "crypto.spec"
   
   private val currentConfigKey = baseConfigKey + ".key"
   private val currentEncryptionKey = SymmetricCryptoTestData.encryptionKey
@@ -33,14 +33,8 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
 
     val fakeApplicationWithoutAnyKeys = FakeApplication()
 
-    "throw a SecurityException on first use of encrypt" in new WithApplication(fakeApplicationWithoutAnyKeys) {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
-      evaluating(crypto.encrypt(plainMessage)) should produce [SecurityException]
-    }
-
-    "throw a SecurityException on first use of decrypt" in new WithApplication(fakeApplicationWithoutAnyKeys) {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
-      evaluating(crypto.decrypt(encryptedMessage)) should produce [SecurityException]
+    "throw a SecurityException on construction" in new WithApplication(fakeApplicationWithoutAnyKeys) {
+      evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
     }
   }
 
@@ -50,14 +44,8 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
       previousConfigKey -> previousEncryptionKeys
     ))
 
-    "throw a SecurityException on first use of encrypt" in new WithApplication(fakeApplicationWithPreviousKeysOnly) {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
-      evaluating(crypto.encrypt(plainMessage)) should produce [SecurityException]
-    }
-
-    "throw a SecurityException on first use of decrypt" in new WithApplication(fakeApplicationWithPreviousKeysOnly) {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
-      evaluating(crypto.decrypt(encryptedMessage)) should produce [SecurityException]
+    "throw a SecurityException on construction" in new WithApplication(fakeApplicationWithPreviousKeysOnly) {
+      evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
     }
   }
 
@@ -68,7 +56,7 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
     ))
 
     "return a properly initialised, functional CompositeSymmetricCrypto object" in new WithApplication(fakeApplicationWithCurrentKeyOnly)  {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
+      val crypto = CryptoWithKeysFromConfig(baseConfigKey)
       crypto.encrypt(plainMessage) shouldBe encryptedMessage
       crypto.decrypt(encryptedMessage) shouldBe plainMessage
     }
@@ -82,8 +70,8 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
         previousConfigKey -> List.empty))
     }
 
-    "return a properly initialised, functional CompositeSymmetricCrypto object" in new WithApplication(fakeApplicationWithEmptyPreviousKeys)  {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
+    "return a properly initialised, functional CompositeSymmetricCrypto object that works with the current key" in new WithApplication(fakeApplicationWithEmptyPreviousKeys)  {
+      val crypto = CryptoWithKeysFromConfig(baseConfigKey)
       crypto.encrypt(plainMessage) shouldBe encryptedMessage
       crypto.decrypt(encryptedMessage) shouldBe plainMessage
     }
@@ -99,8 +87,8 @@ class CompositeCryptoWithKeysFromConfigSpec extends BaseSpec {
         previousConfigKey -> previousEncryptionKeys))
     }
 
-    "return a properly initialised, functional CompositeSymmetricCrypto object" in new WithApplication(fakeApplicationWithCurrentAndPreviousKeys)  {
-      val crypto = CompositeCryptoWithKeysFromConfig(baseConfigKey)
+    "return a properly initialised, functional CompositeSymmetricCrypto object that works with both old and new keys" in new WithApplication(fakeApplicationWithCurrentAndPreviousKeys)  {
+      val crypto = CryptoWithKeysFromConfig(baseConfigKey)
       crypto.encrypt(plainMessage) shouldBe encryptedMessage
       crypto.decrypt(encryptedMessage) shouldBe plainMessage
       crypto.decrypt(message1EncryptedWithPreviousKey1) shouldBe plainMessage1
