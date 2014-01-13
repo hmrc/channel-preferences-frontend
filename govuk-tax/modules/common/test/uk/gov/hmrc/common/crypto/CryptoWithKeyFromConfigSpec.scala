@@ -5,17 +5,17 @@ import play.api.test.{FakeApplication, WithApplication}
 
 class CryptoWithKeyFromConfigSpec extends BaseSpec {
 
-  private val configKey = "crypto.spec.key"
-
-  private val fakeApplicationWithValidKey = {
-    FakeApplication(additionalConfiguration = Map(configKey -> SymmetricCryptoTestData.key))
-  }
-
-  private val fakeApplicationWithoutValidKey = FakeApplication()
-
   "Constructing a CryptoWithKeyFromConfig" should {
 
-    import SymmetricCryptoTestData.{plainMessage, encryptedMessage}
+    import SymmetricCryptoTestData._
+
+    val configKey = "crypto.spec.key"
+
+    val fakeApplicationWithValidKey = {
+      FakeApplication(additionalConfiguration = Map(configKey -> encryptionKey))
+    }
+
+    val fakeApplicationWithoutValidKey = FakeApplication()
 
     "return a properly initialised SymmetricCrypto object" in new WithApplication(fakeApplicationWithValidKey)  {
       val crypto = CryptoWithKeyFromConfig(configKey)

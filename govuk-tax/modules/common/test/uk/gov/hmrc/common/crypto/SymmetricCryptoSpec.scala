@@ -7,7 +7,7 @@ class SymmetricCryptoSpec extends BaseSpec {
 
   trait Setup {
     val crypto = new SymmetricCrypto {
-      override val encryptionKey = SymmetricCryptoTestData.key
+      override val encryptionKey = SymmetricCryptoTestData.encryptionKey
     }
   }
 
