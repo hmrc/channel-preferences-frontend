@@ -91,7 +91,7 @@ object GovUkTaxBuild extends Build {
     settings = Common.commonSettings ++ SassPlugin.sassSettings
   ).settings(publishArtifact := true,
     Keys.fork in Test := false)
-    .dependsOn(paye, sa, bt)
+    .dependsOn(paye, sa, bt, saPrefs)
     .aggregate(common, paye, sa, bt, saPrefs)
 
 }

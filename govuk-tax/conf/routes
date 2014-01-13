@@ -5,6 +5,6 @@
 ->     /                            common.Routes
 ->     /paye                        paye.Routes
 ->     /business-tax                business_tax.Routes
-->     /sa/print-preferences        sa_prefs.Routes
 ->     /sa                          sa.Routes
+->     /sa                          sa_prefs.Routes
 

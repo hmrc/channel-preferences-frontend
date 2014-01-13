@@ -1,14 +1,11 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
+GET     /print-preferences/:token                            @controllers.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[String])
+GET     /print-preferences-saved                             @controllers.SaPrefsController.confirm(return_url: String)
+GET     /print-preferences-no-action                         @controllers.SaPrefsController.noAction(return_url: String, digital: Boolean)
+POST    /print-preferences/:token                            @controllers.SaPrefsController.submitPrefsForm(token: String, return_url: String)
+POST    /print-preferences/keep-paper/:token                 @controllers.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
 
-# Home page
-GET     /:token                            @controllers.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[String])
-GET     /saved                             @controllers.SaPrefsController.confirm(return_url: String)
-GET     /no-action                         @controllers.SaPrefsController.noAction(return_url: String, digital: Boolean)
-POST    /:token                            @controllers.SaPrefsController.submitPrefsForm(token: String, return_url: String)
-POST    /keep-paper/:token                 @controllers.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
+GET     /print-preferences/verification/:token               @controllers.EmailValidation.verify(token: String)
 
-GET     /verification/:token               @controllers.EmailValidation.verify(token: String)
 
-#GET     /assets/*file                      @controllers.Assets.at(path="/public", file)
+# Map static resources from the /public folder to the /assets URL path
+GET     /print-preferences/assets/*file                      controllers.sa.prefs.Assets.at(path="/public", file)
