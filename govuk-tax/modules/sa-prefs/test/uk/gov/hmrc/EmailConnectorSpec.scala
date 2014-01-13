@@ -12,6 +12,8 @@ class TestEmailConnector extends EmailConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
+  override protected val serviceUrl: String = "notUsed"
+
   override protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] = {
     httpWrapper.getF(uri)
   }

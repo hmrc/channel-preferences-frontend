@@ -92,7 +92,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       verify(controller.preferencesConnector, times(1)).getPreferences(validUtr)
     }
 
-    "return bad request if redirect_url is not in the whitelist" in {
+    "return bad request if redirect_url is not in the whitelist" in new WithApplication(FakeApplication()) {
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(false)
       val controller = createController
 
@@ -101,7 +101,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       status(page) shouldBe 500
     }
 
-    "fill the email form if user is coming from the warning page" in {
+    "fill the email form if user is coming from the warning page" in new WithApplication(FakeApplication()) {
       val controller = createController
       val previouslyEnteredAddress = "some@mail.com"
 

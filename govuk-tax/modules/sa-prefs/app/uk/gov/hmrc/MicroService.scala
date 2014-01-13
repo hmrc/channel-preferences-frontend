@@ -97,13 +97,13 @@ object MicroServiceConfig {
 
   private lazy val services = s"govuk-tax.$env.services"
 
-  lazy val protocol = Play.configuration.getString(s"$services.protocol").get
+  lazy val protocol = Play.configuration.getString(s"$services.protocol").getOrElse("http")
 
-  lazy val preferenceServiceUrl = s"$protocol://${Play.configuration.getString(s"$services.preferences.host").get}:${Play.configuration.getInt(s"$services.preferences.port").get}"
+  lazy val preferenceServiceUrl = s"$protocol://${Play.configuration.getString(s"$services.preferences.host").getOrElse("localhost")}:${Play.configuration.getInt(s"$services.preferences.port").getOrElse(8900)}"
 
-  lazy val emailServiceUrl = s"$protocol://${Play.configuration.getString(s"$services.email.host").get}:${Play.configuration.getInt(s"$services.email.port").get}"
+  lazy val emailServiceUrl = s"$protocol://${Play.configuration.getString(s"$services.email.host").getOrElse("localhost")}:${Play.configuration.getInt(s"$services.email.port").getOrElse(8300)}"
 
-  lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$services.timeout").get)
+  lazy val defaultTimeoutDuration = Duration(Play.configuration.getString(s"$services.timeout").getOrElse("30 seconds"))
 
 }
 
@@ -138,7 +138,7 @@ object EmailVerificationLinkResponse extends Enumeration {
   val OK, EXPIRED, ERROR = Value
 }
 
-class EmailConnector extends MicroService {
+class EmailConnector() extends MicroService {
 
   protected val serviceUrl = MicroServiceConfig.emailServiceUrl
 
