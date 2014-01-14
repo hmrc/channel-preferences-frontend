@@ -1,15 +1,12 @@
 package uk.gov.hmrc
 
-import scala.concurrent.duration.Duration
-import uk.gov.hmrc.Transform._
-import play.api.Play
 import scala.concurrent.Future
 import play.api.libs.json.Json
 import java.net.URLEncoder
 import uk.gov.hmrc.EmailVerificationLinkResponse.EmailVerificationLinkResponse
 import uk.gov.hmrc.common.microservice.{MicroServiceConfig, MicroServiceException, Connector}
 import controllers.common.actions.HeaderCarrier
-
+import controllers.common.domain.Transform._
 
 object EmailVerificationLinkResponse extends Enumeration {
   type EmailVerificationLinkResponse = Value

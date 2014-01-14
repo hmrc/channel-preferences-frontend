@@ -7,7 +7,6 @@ import play.api.test.WithApplication
 import org.mockito.Mockito._
 import org.mockito.{Matchers, ArgumentCaptor}
 import Matchers.any
-import uk.gov.hmrc.Transform._
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import play.api.libs.json.JsBoolean
@@ -16,6 +15,7 @@ import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.MicroServiceException
+import controllers.common.domain.Transform._
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
