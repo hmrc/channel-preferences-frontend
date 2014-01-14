@@ -1,4 +1,7 @@
 @charset "UTF-8";
+/*------------------------------------*\
+    Non-IE Version
+\*------------------------------------*/
 @-ms-viewport {
   width: device-width;
 }
@@ -1741,7 +1744,7 @@ body {
 
 .l-constrained--topBordered {
   border-top: 10px solid #2b8cc4;
-  margin-bottom: 60px;
+  margin-bottom: 60px !important;
 }
 
 .l-bodyLeftColumn {
