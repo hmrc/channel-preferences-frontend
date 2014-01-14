@@ -313,7 +313,8 @@ paye.display_car_and_fuel.engine_capacity=Engine capacity
 paye.benefit_review.wrong_information=This information is wrong
 
 paye.cannot_play_in_beta.title=Tell HMRC about a change to your company car - Not Allowed
-paye.cannot_play_in_beta.text=You cannot use this service if you have multiple employments (or no employment) or multiple concurrent cars.
+paye.cannot_play_in_beta.text.p1=At the moment you can''t use this service if you have more than one job or one company car.
+paye.cannot_play_in_beta.text.p2=To update your company car details, contact {0}
 
 paye.error_page.title=Tell HMRC about a change to your company car - Error
 paye.error_page.header=Tell HMRC about a change to your company car
@@ -321,3 +322,6 @@ paye.error_page.header=Tell HMRC about a change to your company car
 paye.version_changed.title=Employee version has changed
 paye.version_changed.message=Sorry, the employee version changed while you weren't looking. This is usually due to changes being made to your employment elsewhere, perhaps by your employer or agent.
 paye.version_changed.start_again=Start again
+
+link.hmrc.contact.url=http://search2.hmrc.gov.uk/kb5/hmrc/contactus/view.page?record=hpkspulskxM
+link.hmrc.contact.text=HM Revenue and Customs
