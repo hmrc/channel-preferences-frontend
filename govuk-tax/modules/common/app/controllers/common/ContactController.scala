@@ -21,6 +21,8 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
   with Actions
   with AllRegimeRoots {
 
+
+  val subject: String = "Contact form submission"
   val actionId: String = "confirmTicket"
   val source: String = "tickets"
   val formId: String = "FeedbackForm"
@@ -56,7 +58,8 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
         Future.successful(BadRequest(views.html.contact(error)))
       },
       data => {
-        hmrcDeskproConnector.createTicket(createTicket(data)).flatMap {
+        import data._
+        hmrcDeskproConnector.createTicket(contactName, contactEmail, subject, contactComments, referer, data.isJavascript, request, Some(user)).flatMap {
           ticket =>
             val ticketId = ticket.map(_.ticket_id.toString).getOrElse("Unknown")
             keyStoreConnector.addKeyStoreEntry[Map[String, String]](actionId, source, formId, Map(ticketKey -> ticketId)).map(
@@ -67,20 +70,6 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
       })
   }
 
-
-  def createTicket(data: ContactForm)(implicit user: User, request: Request[AnyRef]): Ticket = {
-    Ticket(
-      data.contactName,
-      data.contactEmail,
-      "Contact form submission",
-      data.contactComments,
-      data.referer,
-      if (data.isJavascript) "Y" else "N",
-      request.headers.get("User-Agent").getOrElse("n/a"),
-      hc.userId.getOrElse("n/a"),
-      if (user.regimes.paye.isDefined) "paye" else "biztax",
-      hc.sessionId.getOrElse("n/a"))
-  }
 
   def thanks = WithNewSessionTimeout(AuthenticatedBy(AuthenticatedOr404Provider).async({
     implicit user => implicit request => doThanks(user, request)
@@ -103,7 +92,7 @@ object ContactForm {
   def apply(referer: String): ContactForm = ContactForm("", "", "", false, referer)
 }
 
-object AuthenticatedOr404Provider extends AuthenticationProvider{
+object AuthenticatedOr404Provider extends AuthenticationProvider {
 
   def notFoundPage(request: Request[AnyContent]) = Future.successful(Right(NotFound(views.html.global_error(Messages("global.error.pageNotFound404.title"),
     Messages("global.error.pageNotFound404.heading"),

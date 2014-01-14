@@ -1,17 +1,23 @@
 package controllers.common
 
 import uk.gov.hmrc.common.BaseSpec
-import play.api.test.{FakeRequest, WithApplication, FakeApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.deskpro.{TicketId, Ticket, HmrcDeskproConnector}
+import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.mockito.Mockito._
 import scala.concurrent.Future
 import org.mockito.Matchers
+import org.mockito.Matchers.{eq => meq, any}
 import controllers.common.actions.HeaderCarrier
+import scala.Some
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.deskpro.TicketId
+import play.api.mvc.Request
+import ProblemReportsController._
 
 class ProblemReportsControllerSpec extends BaseSpec {
 
@@ -20,23 +26,10 @@ class ProblemReportsControllerSpec extends BaseSpec {
     .withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678",
     "report-action" -> action, "report-error" -> error, "isJavascript" -> javascriptEnabled.toString)
 
-
-  def ticket = Ticket(
-    "John Densmore",
-    "name@mail.com",
-    "Support Request",
-    ProblemReportsController.message("Some Action", "Some Error"),
-    "/contact/problem_reports",
-    "Y",
-    "iAmAUserAgent",
-    "n/a",
-    "paye|biztax",
-    "n/a")
-
   "Reporting a problem" should {
     "return 200 and a valid json for a valid request and js is enabled" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(Matchers.eq(ticket))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(true), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
       val result = controller.report()(generateRequest())
 
@@ -48,7 +41,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
     "return 200 and a valid html page for a valid request and js is not enabled" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(Matchers.eq(ticket.copy(javascriptEnabled = "N")))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
       val result = controller.report()(generateRequest(javascriptEnabled = false))
 
