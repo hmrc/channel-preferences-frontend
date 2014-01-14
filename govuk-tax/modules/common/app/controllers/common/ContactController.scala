@@ -44,13 +44,13 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
     )(ContactForm.apply)(ContactForm.unapply)
   )
 
-  def index = WithNewSessionTimeout(AuthenticatedBy(AuthenticatedOr404Provider)({
+  def index = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway)( {
     user => request => renderIndex(user, request)
   }))
 
   private[common] def renderIndex(implicit user: User, request: Request[AnyRef]) = Ok(views.html.contact(form.fill(ContactForm(request.headers.get("Referer").getOrElse("n/a")))))
 
-  def submit = WithNewSessionTimeout(AuthenticatedBy(AuthenticatedOr404Provider).async({
+  def submit = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async( {
     user => request => doSubmit(user, request)
   }))
 
@@ -75,7 +75,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
   }
 
 
-  def thanks = WithNewSessionTimeout(AuthenticatedBy(AuthenticatedOr404Provider).async({
+  def thanks = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async({
     implicit user => implicit request => doThanks(user, request)
   }))
 
@@ -94,17 +94,4 @@ case class ContactForm(contactName: String, contactEmail: String, contactComment
 
 object ContactForm {
   def apply(referer: String): ContactForm = ContactForm("", "", "", false, referer)
-}
-
-object AuthenticatedOr404Provider extends AuthenticationProvider {
-
-  def notFoundPage(request: Request[AnyContent]) = Future.successful(Right(NotFound(views.html.global_error(Messages("global.error.pageNotFound404.title"),
-    Messages("global.error.pageNotFound404.heading"),
-    Messages("global.error.pageNotFound404.message")))))
-
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-    case UserCredentials(None, _) => notFoundPage(request)
-    case UserCredentials(Some(_), None) => notFoundPage(request)
-  }
-
 }

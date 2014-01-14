@@ -20,6 +20,7 @@ object SessionKeys {
   val name = "name"
   val token = "token"
   val affinityGroup = "affinityGroup"
+  val authProvider = "ap"
   val lastRequestTimestamp = "ts"
   val redirect = "login_redirect"
   val npsVersion = "nps-version"

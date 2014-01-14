@@ -9,6 +9,7 @@ import scala.concurrent._
 
 trait AuthenticationProvider {
   type FailureResult = SimpleResult
+  val id: String
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]]
 }
 
@@ -19,6 +20,8 @@ object UserCredentials {
 }
 
 object Ida extends AuthenticationProvider {
+  override val id = "IDA"
+
   def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
     toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
 
@@ -37,6 +40,8 @@ object Ida extends AuthenticationProvider {
 
 
 object GovernmentGateway extends AuthenticationProvider {
+  override val id = "GGW"
+
   def handleRedirect(request: Request[AnyContent]) = Redirect(routes.HomeController.landing())
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
@@ -47,6 +52,19 @@ object GovernmentGateway extends AuthenticationProvider {
       Logger.info(s"No gateway token - redirecting to login. user : $userId token : None")
       Future.successful(Right(handleRedirect(request)))
   }
+}
+
+
+object AnyAuthenticationProvider extends AuthenticationProvider{
+
+  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
+    request.session.get(SessionKeys.authProvider) match {
+      case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(request, redirectToOrigin)
+      case _ => Ida.handleNotAuthenticated(request, redirectToOrigin)
+    }
+  }
+
+  override val id: String = "IDAorGGW"
 }
 
 

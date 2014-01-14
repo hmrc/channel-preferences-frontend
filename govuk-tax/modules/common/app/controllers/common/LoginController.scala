@@ -73,7 +73,8 @@ class LoginController(samlConnector: SamlConnector,
               SessionKeys.userId -> response.authId,
               SessionKeys.name -> response.name,
               SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
-              SessionKeys.affinityGroup -> response.affinityGroup
+              SessionKeys.affinityGroup -> response.affinityGroup,
+              SessionKeys.authProvider -> GovernmentGateway.id
             )
 
 
@@ -144,7 +145,8 @@ class LoginController(samlConnector: SamlConnector,
           )
           FrontEndRedirect.forSession(session).withSession(
             SessionKeys.userId -> authority.uri,
-            SessionKeys.sessionId -> updatedHC.sessionId.get
+            SessionKeys.sessionId -> updatedHC.sessionId.get,
+            SessionKeys.authProvider -> Ida.id
           )
         case LoginFailure(reason, hashPid, originalRequestId) =>
           Logger.warn(reason)

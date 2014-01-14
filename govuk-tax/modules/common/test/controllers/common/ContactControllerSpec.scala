@@ -76,7 +76,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
     "return 404 if not authenticated" in new WithContactController {
       private val index = controller.index(FakeRequest().withSession(SessionKeys.lastRequestTimestamp -> DateTimeUtils.now.getMillis.toString))
-      status(index) shouldBe 404
+      status(index) shouldBe 303
     }
 
     "inject the referer if available" in new WithContactController {
