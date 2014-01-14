@@ -5,6 +5,10 @@ import controllers.common.FrontEndRedirect._
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.Logger
 import scala.concurrent._
+import scala._
+import uk.gov.hmrc.common.microservice.domain.User
+import scala.Some
+import play.api.mvc.SimpleResult
 
 
 trait AuthenticationProvider {
@@ -60,7 +64,8 @@ object AnyAuthenticationProvider extends AuthenticationProvider{
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
     request.session.get(SessionKeys.authProvider) match {
       case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(request, redirectToOrigin)
-      case _ => Ida.handleNotAuthenticated(request, redirectToOrigin)
+      case Some(Ida.id) => Ida.handleNotAuthenticated(request, redirectToOrigin)
+      case _ => { case _ => Future.successful(Right(Redirect(routes.LoginController.login()).withNewSession)) }
     }
   }
 
