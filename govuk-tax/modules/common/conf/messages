@@ -1,3 +1,4 @@
+error.email=Please provide a valid email address
 error.illegal.value=Please select a valid option
 error.prefs.printsuppression=Please select a Print Suppression Option
 error.prefs.email.missing=Email address must be provided
@@ -22,12 +23,14 @@ date.fields.year=Year
 common.firstlogin={0}, this is the first time you have logged in
 common.previousLoginTime={0}, you last signed in to your account on {1}
 
-error.common.problem_report.name_mandatory=Please provide your name.
-error.common.problem_report.telephone_mandatory=Please provide your telephone number.
-error.common.problem_report.email_mandatory=Please provide your email address.
-error.common.problem_report.error_mandatory=Please enter details of what went wrong.
-error.common.problem_report.action_mandatory=Please enter details of what you were doing.
-error.common.comments_mandatory = Please provide details
+error.common.problem_report.name_mandatory=Please provide your name
+error.common.problem_report.name_too_long=Your name cannot be longer than 70 characters
+error.common.problem_report.telephone_mandatory=Please provide your telephone number
+error.common.problem_report.email_mandatory=Please provide your email address
+error.common.problem_report.error_mandatory=Please enter details of what went wrong
+error.common.problem_report.action_mandatory=Please enter details of what you were doing
+error.common.comments_mandatory=Please provide details
+error.common.comments_too_long=The comment cannot be longer than 2000 characters
 
 problem_report.action=What were you doing?
 problem_report.error=What went wrong?

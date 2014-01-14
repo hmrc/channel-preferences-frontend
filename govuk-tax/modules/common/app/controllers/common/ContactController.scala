@@ -32,9 +32,13 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
 
   val form = Form[ContactForm](
     mapping(
-      "contact-name" -> text.verifying("error.common.problem_report.name_mandatory", action => !action.isEmpty),
+      "contact-name" -> text
+        .verifying("error.common.problem_report.name_mandatory", name => !name.isEmpty)
+        .verifying("error.common.problem_report.name_too_long", name => name.size < 70),
       "contact-email" -> email,
-      "contact-comments" -> text.verifying("error.common.comments_mandatory", action => !action.isEmpty),
+      "contact-comments" -> text
+        .verifying("error.common.comments_mandatory", comment => !comment.isEmpty)
+        .verifying("error.common.comments_too_long", comment => comment.size < 2000),
       "isJavascript" -> boolean,
       "referer" -> text
     )(ContactForm.apply)(ContactForm.unapply)

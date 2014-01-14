@@ -17,6 +17,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future._
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import scala.util.Random
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
@@ -95,9 +96,29 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
       status(submit) shouldBe 400
 
       page.getElementsByClass("error-notification").size() shouldBe 3
-      page.getElementsByClass("error-notification").get(0).text() shouldBe "Please provide your name."
-      page.getElementsByClass("error-notification").get(1).text() shouldBe "Valid email required"
+      page.getElementsByClass("error-notification").get(0).text() shouldBe "Please provide your name"
+      page.getElementsByClass("error-notification").get(1).text() shouldBe "Please provide a valid email address"
       page.getElementsByClass("error-notification").get(2).text() shouldBe "Please provide details"
+    }
+
+    "fail if the comment is longer than 2000 chars" in new WithContactController {
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Name", "contact-email" -> "a@b.com", "contact-comments" -> Random.alphanumeric.take(2001).mkString))
+      val page = Jsoup.parse(contentAsString(submit))
+
+      status(submit) shouldBe 400
+
+      page.getElementsByClass("error-notification").size() shouldBe 1
+      page.getElementsByClass("error-notification").first().text() shouldBe "The comment cannot be longer than 2000 characters"
+    }
+
+    "fail if the name is longer than 70 chars" in new WithContactController {
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> Random.alphanumeric.take(71).mkString, "contact-email" -> "a@b.com", "contact-comments" -> "A comment"))
+      val page = Jsoup.parse(contentAsString(submit))
+
+      status(submit) shouldBe 400
+
+      page.getElementsByClass("error-notification").size() shouldBe 1
+      page.getElementsByClass("error-notification").first().text() shouldBe "Your name cannot be longer than 70 characters"
     }
 
   }
