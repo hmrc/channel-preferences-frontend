@@ -40,10 +40,12 @@ object Repositories {
 
   import sbt.Keys._
 
-  val hmrcNexusReleases = "hmrc-releases" at "https://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-releases"
-  val hmrcNexusSnapshots = "hmrc-snapshots" at "https://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-snapshots"
-  val hmrcThirdpartyReleases = "thirdparty-releases" at "https://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-releases"
-  val hmrcThirdpartySnapshots = "thirdparty-snapshots" at "https://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-snapshots"
+  private val hmrcRepoHost = System.getProperty("hmrc.repo.host", "https://nexus-preview.tax.service.gov.uk")
+
+  private val hmrcNexusReleases = "hmrc-releases" at hmrcRepoHost + "/content/repositories/hmrc-releases"
+  private val hmrcNexusSnapshots = "hmrc-snapshots" at hmrcRepoHost + "/content/repositories/hmrc-snapshots"
+  private val hmrcThirdpartyReleases = "thirdparty-releases" at hmrcRepoHost + "/content/repositories/thirdparty-releases"
+  private val hmrcThirdpartySnapshots = "thirdparty-snapshots" at hmrcRepoHost + "/content/repositories/thirdparty-snapshots"
 
   val resolvers = Seq(
     Resolver.mavenLocal,
