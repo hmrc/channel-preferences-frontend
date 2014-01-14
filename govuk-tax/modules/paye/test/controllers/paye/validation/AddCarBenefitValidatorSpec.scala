@@ -419,7 +419,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
         providedToVal = providedToVal,
         carRegistrationDate = carRegistrationDateVal,
         employeeContributes = None,
-        employerContributes = None,
+        privateUsePayment = None,
         fuelType = fuelTypeVal,
         co2Figure = co2FigureVal,
         co2NoFigure = co2NoFigureVal,

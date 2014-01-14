@@ -27,7 +27,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
                                      providedToVal: Option[LocalDate] = None,
                                      carRegistrationDate: Option[LocalDate] = None,
                                      employeeContributes: Option[String] = None,
-                                     employerContributes: Option[String] = None,
+                                     privateUsePayment: Option[String] = None,
                                      fuelType: Option[String] = None,
                                      co2Figure: Option[String] = None,
                                      co2NoFigure:Option[String] = None,
@@ -48,7 +48,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
       providedTo -> dateTuple(false),
       carRegistrationDate -> dateTuple(false),
       employeeContributes -> optional(text),
-      employerContributes -> optional(text),
+      privateUsePayment -> optional(text),
       fuelType -> optional(text),
       co2Figure -> optional(text),
       co2NoFigure -> optional(text),
@@ -63,8 +63,8 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employeeContribution -> validateEmployeeContribution(carBenefitValues),
-      employerContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-      employerContribution -> validateEmployerContribution(carBenefitValues),
+      privateUsePayment -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
+      privateUsePaymentAmount -> validateEmployerContribution(carBenefitValues),
       fuelType -> validateFuelType(carBenefitValues),
       co2Figure -> validateCo2Figure(carBenefitValues),
       co2NoFigure -> validateNoCo2Figure(carBenefitValues),
@@ -79,7 +79,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
                             ).verifying("error.paye.list_price_mandatory", e => e.isDefined)
 
   private[paye] def validateEmployerContribution(values: CarBenefitValues) : Mapping[Option[Int]] =
-    values.employerContributes.map(_.toBoolean) match {
+    values.privateUsePayment.map(_.toBoolean) match {
       case Some(true) => optional(number
         .verifying("error.paye.employer_contribution_greater_than_99999", e => e <= 99999)
         .verifying("error.paye.employer_contribution_less_than_0", e => e > 0 )

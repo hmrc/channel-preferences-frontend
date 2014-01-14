@@ -59,8 +59,8 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       addTable.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
       addTable.select("[id~=providedFrom]").select(s"[id~=year-$testTaxYear]").attr("selected") shouldBe "selected"
       addTable.select("#listPrice").attr("value") shouldBe "1000"
-      addTable.select("#employerContributes-true").attr("checked") shouldBe "checked"
-      addTable.select("#employerContribution").attr("value") shouldBe "999"
+      addTable.select("#privateUsePayment-true").attr("checked") shouldBe "checked"
+      addTable.select("#privateUsePaymentAmount").attr("value") shouldBe "999"
       addTable.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
       addTable.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
       addTable.select("[id~=carRegistrationDate]").select("[id~=year]").attr("value") shouldBe "1950"
@@ -183,8 +183,8 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
         listPrice -> listPriceVal.getOrElse(""),
         employeeContributes -> employeeContributesVal.getOrElse(""),
         employeeContribution -> employeeContributionVal.getOrElse(""),
-        employerContributes -> employerContributesVal.getOrElse(""),
-        employerContribution -> employerContributionVal.getOrElse(""),
+        privateUsePayment -> employerContributesVal.getOrElse(""),
+        privateUsePaymentAmount -> employerContributionVal.getOrElse(""),
         fuelType -> fuelTypeVal.getOrElse(""),
         co2Figure -> co2FigureVal.getOrElse(""),
         co2NoFigure -> co2NoFigureVal.getOrElse(""),

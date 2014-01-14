@@ -17,10 +17,10 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubT
   def documentOf(content: Content) = Jsoup.parse(contentAsString(content))
 
   "the review add car benefit table" should {
-    def addCarBenefitConfirmationDataForEmployeeContribution(employeeContribution: Option[Int]): AddCarBenefitConfirmationData = {
+    def addCarBenefitConfirmationDataForEmployeeContribution(employeeContribution: Option[Int], employerContribution: Option[Int] = None): AddCarBenefitConfirmationData = {
       AddCarBenefitConfirmationData(
         "", LocalDate.apply(), 0, "", None, None, None, None,
-        employeeContribution, None)
+        employeeContribution, None, employerContribution)
     }
 
     "display the contribution to the price of the car when entered" in new WithApplication(FakeApplication()) {
@@ -64,8 +64,8 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubT
       val tableData = doc.getElementsByTag("td").toList.map(_.text)
 
       withClue("add car benefit review table") {
-        doc.getElementsByTag("th") should have size 8
-        tableData.filter(_.equals(Messages("paye.add_car_benefit_review.none"))) should have size 5
+        doc.getElementsByTag("th") should have size 9
+        tableData.filter(_.equals(Messages("paye.add_car_benefit_review.none"))) should have size 6
       }
     }
   }
@@ -81,16 +81,17 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubT
 
       doc.getElementById("new-company-car-details") should bePresent
 
-      doc.getElementsByTag("th") should have size 8
+      doc.getElementsByTag("th") should have size 9
 
       val tableData = doc.getElementsByTag("td").toList.map(_.text)
-      tableData should have size 8
+      tableData should have size 9
       tableData should contain("8 January 2014")
       tableData should contain("£1,234")
       tableData should contain("Diesel")
       tableData should contain("222 g/km")
       tableData should contain("1,401cc to 2,000cc")
       tableData should contain("£50")
+      tableData should contain("£300")
       tableData should contain("1 January 2000")
       tableData should contain("employerName did pay for fuel for private travel, but stopped paying on 5 February 2014")
     }

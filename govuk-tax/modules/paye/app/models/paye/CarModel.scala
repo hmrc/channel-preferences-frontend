@@ -11,8 +11,8 @@ case class CarBenefitData(providedFrom: Option[LocalDate],
                           listPrice: Option[Int],
                           employeeContributes: Option[Boolean],
                           employeeContribution: Option[Int],
-                          employerContributes: Option[Boolean],
-                          employerContribution: Option[Int],
+                          privateUsePayment: Option[Boolean],
+                          privateUsePaymentAmount: Option[Int],
                           fuelType: Option[String],
                           co2Figure: Option[Int],
                           co2NoFigure: Option[Boolean],
@@ -62,7 +62,7 @@ object CarBenefitBuilder {
       engineSize = engineSize(carBenefitData.engineCapacity),
       mileageBand = None,
       carValue = carBenefitData.listPrice.map(BigDecimal(_)),
-      employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
+      employeePayments = carBenefitData.privateUsePaymentAmount.map(BigDecimal(_)),
       daysUnavailable = None)
   }
 
