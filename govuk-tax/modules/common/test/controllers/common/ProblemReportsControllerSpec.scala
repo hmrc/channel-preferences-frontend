@@ -21,10 +21,14 @@ import ProblemReportsController._
 
 class ProblemReportsControllerSpec extends BaseSpec {
 
-  def generateRequest(action: String = "Some Action", error: String = "Some Error", javascriptEnabled: Boolean = true) = FakeRequest()
+  def generateRequest(javascriptEnabled: Boolean = true) = FakeRequest()
     .withHeaders(("referer", "/contact/problem_reports"), ("User-Agent", "iAmAUserAgent"))
     .withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678",
-    "report-action" -> action, "report-error" -> error, "isJavascript" -> javascriptEnabled.toString)
+    "report-action" -> "Some Action", "report-error" -> "Some Error", "isJavascript" -> javascriptEnabled.toString)
+
+  def generateInvalidRequest(javascriptEnabled: Boolean = true) = FakeRequest()
+    .withHeaders(("referer", "/contact/problem_reports"), ("User-Agent", "iAmAUserAgent"))
+    .withFormUrlEncodedBody("isJavascript" -> javascriptEnabled.toString)
 
   "Reporting a problem" should {
     "return 200 and a valid json for a valid request and js is enabled" in new ProblemReportsControllerApplication {
@@ -51,21 +55,9 @@ class ProblemReportsControllerSpec extends BaseSpec {
       document.getElementById("report-confirmation") should not be null
     }
 
-    "return 200 and a valid html page for an invalid action and js is not enabled" in new ProblemReportsControllerApplication {
+    "return 200 and a valid html page for invalid input and js is not enabled" in new ProblemReportsControllerApplication {
 
-      val result = controller.report()(generateRequest(action = "", javascriptEnabled = false))
-
-      status(result) should be(200)
-      verifyZeroInteractions(hmrcDeskproConnector)
-
-      val document = Jsoup.parse(contentAsString(result))
-      document.getElementById("report-confirmation-no-data") should not be null
-    }
-
-
-    "return 200 and a valid html page for an invalid error and js is not enabled" in new ProblemReportsControllerApplication {
-
-      val result = controller.report()(generateRequest(error = "", javascriptEnabled = false))
+      val result = controller.report()(generateInvalidRequest( javascriptEnabled = false))
 
       status(result) should be(200)
       verifyZeroInteractions(hmrcDeskproConnector)
@@ -74,19 +66,9 @@ class ProblemReportsControllerSpec extends BaseSpec {
       document.getElementById("report-confirmation-no-data") should not be null
     }
 
-    "return 400 and a valid json for an invalid action and js is enabled" in new ProblemReportsControllerApplication {
+    "return 400 and a valid json for invalid input and js is enabled" in new ProblemReportsControllerApplication {
 
-      val result = controller.report()(generateRequest(action = ""))
-
-      status(result) should be(400)
-      verifyZeroInteractions(hmrcDeskproConnector)
-
-      contentAsJson(result).\("status").as[String] shouldBe "ERROR"
-    }
-
-    "return 400 and a valid json for an invalid error and js is enabled" in new ProblemReportsControllerApplication {
-
-      val result = controller.report()(generateRequest(error = ""))
+      val result = controller.report()(generateInvalidRequest())
 
       status(result) should be(400)
       verifyZeroInteractions(hmrcDeskproConnector)
