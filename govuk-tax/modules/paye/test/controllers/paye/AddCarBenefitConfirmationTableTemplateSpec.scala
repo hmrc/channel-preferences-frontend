@@ -63,8 +63,8 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with TaxYe
       val tableData = doc.getElementsByTag("td").toList.map(_.text)
 
       withClue("add car benefit review table") {
-        doc.getElementsByTag("th") should have size 9
-        tableData.filter(_.equals(Messages("paye.add_car_benefit_review.none"))) should have size 6
+        doc.getElementsByTag("th") should have size 6
+        tableData.filter(_.equals(Messages("paye.add_car_benefit_review.none"))) should have size 3
       }
     }
   }
