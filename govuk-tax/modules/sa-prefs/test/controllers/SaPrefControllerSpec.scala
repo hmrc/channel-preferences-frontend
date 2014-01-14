@@ -1,24 +1,24 @@
 package controllers
 
 import org.scalatest.{BeforeAndAfter, ShouldMatchers, WordSpec}
-import play.api.test.{ FakeApplication, WithApplication }
+import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers
 import Matchers.{eq => meq, any}
 import org.mockito.Mockito._
-import uk.gov.hmrc.{EmailConnector, SaPreference, PreferencesConnector}
+import uk.gov.hmrc._
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URLEncoder
-import org.mockito.{Matchers, Mockito}
+import org.mockito.Mockito
 import org.jsoup.Jsoup
+import scala.concurrent.Future
+import controllers.sa.prefs.service.RedirectWhiteListService
+import controllers.sa.prefs.SaPrefsController
+import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.SaPreference
 import scala.Some
 import play.api.test.FakeApplication
-import scala.concurrent.Future
-import controllers.sa.prefs.service.RedirectWhiteListService
-import controllers.sa.prefs.{SsoPayloadEncryptor, SaPrefsController}
-import controllers.common.actions.HeaderCarrier
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 

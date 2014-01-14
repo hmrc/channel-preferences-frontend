@@ -3,16 +3,18 @@ package controllers.sa.prefs
 import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc.{AnyContent, Request, Action}
-import uk.gov.hmrc.{EmailConnector, PreferencesConnector, TokenEncryption}
+import uk.gov.hmrc._
 import play.api.{Logger, Play}
 import java.net.URLDecoder
 import concurrent.Future
 import scala.Some
-import uk.gov.hmrc.TokenExpiredException
 import scala.concurrent.ExecutionContext.Implicits.global
 import controllers.common.service.FrontEndConfig
 import controllers.sa.prefs.service.RedirectWhiteListService
 import controllers.common.BaseController
+import controllers.sa.prefs.EmailPreferenceData
+import scala.Some
+import uk.gov.hmrc.TokenExpiredException
 
 class SaPrefsController extends BaseController {
 
@@ -132,10 +134,6 @@ class SaPrefsController extends BaseController {
       })
   )
 
-}
-
-object SsoPayloadEncryptor extends TokenEncryption {
-  val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
 }
 
 case class EmailPreferenceData(email: (String, Option[String]), emailVerified: Option[String]) {
