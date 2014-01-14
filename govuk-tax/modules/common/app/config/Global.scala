@@ -51,17 +51,25 @@ object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRF
 
   override def onError(request: RequestHeader, ex: Throwable) = {
     Future.successful(InternalServerError(
-      views.html.global_error(Messages("global.error.heading"), "An error has occurred template text") //ex
+      views.html.global_error(Messages("global.error.InternalServerError500.title"),
+        Messages("global.error.InternalServerError500.heading"),
+        Messages("global.error.InternalServerError500.message"))
     ))
   }
 
   override def onHandlerNotFound(request: RequestHeader) = {
     Future.successful(NotFound(
-      views.html.global_error(Messages("global.error.heading"), "The requested resource doesn't seem to exist: " + request.path)
+      views.html.global_error(Messages("global.error.pageNotFound404.title"),
+        Messages("global.error.pageNotFound404.heading"),
+        Messages("global.error.pageNotFound404.message"))
     ))
   }
 
   override def onBadRequest(request: RequestHeader, error: String) = {
-    Future.successful(BadRequest("Bad Request: " + error))
+    Future.successful(BadRequest(
+      views.html.global_error(Messages("global.error.badRequest400.title"),
+        Messages("global.error.badRequest400.heading"),
+        Messages("global.error.badRequest400.message"))
+    ))
   }
 }

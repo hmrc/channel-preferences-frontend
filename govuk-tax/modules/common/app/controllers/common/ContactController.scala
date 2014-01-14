@@ -82,9 +82,14 @@ object ContactForm {
 }
 
 object AuthenticatedOr404Provider extends AuthenticationProvider{
-  def notFoundPage(request: Request[AnyContent]) = Future.successful(Right(NotFound(views.html.global_error(Messages("global.error.heading"), "The requested resource doesn't seem to exist: " + request.path))))
+
+  def notFoundPage(request: Request[AnyContent]) = Future.successful(Right(NotFound(views.html.global_error(Messages("global.error.pageNotFound404.title"),
+    Messages("global.error.pageNotFound404.heading"),
+    Messages("global.error.pageNotFound404.message")))))
+
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
     case UserCredentials(None, _) =>  notFoundPage(request)
     case UserCredentials(Some(_), None) =>  notFoundPage(request)
   }
+
 }
