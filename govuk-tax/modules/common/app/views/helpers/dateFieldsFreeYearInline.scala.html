@@ -3,6 +3,7 @@
 @import controllers.common.validators.DateFields._
 @import play.api.i18n._
 @import views.html.helper._
+@import views.helpers.DateFormatSymbols._
 
 @dayElem = @{fieldName + "." + day}
 @helpers.dropdown(
@@ -15,7 +16,7 @@
 @monthElem = @{fieldName + "." + month}
 @helpers.dropdown(
         formItem(monthElem),
-        ( 1 to 12) map {  i=> (i.toString, i.toString) },
+        monthsWithIndexes,
         '_label -> Messages("date.fields.month"),
         '_labelClass -> "label--inlineDropdown form-field--inline",
         '_emptyValueText -> " "
