@@ -14,5 +14,10 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8")
 
 addSbtPlugin("com.eed3si9n" % "sbt-dirty-money" % "0.1.0")
 
+val hmrcRepoHost = java.lang.System.getProperty("hmrc.repo.host", "https://nexus-preview.tax.service.gov.uk")
+
+resolvers ++= Seq("hmrc-snapshots" at hmrcRepoHost + "/content/repositories/hmrc-snapshots",
+                  "hmrc-releases" at hmrcRepoHost + "/content/repositories/hmrc-releases")
+
 addSbtPlugin("uk.gov.hmrc" % "sbt-git-stamp" % "1.0.1")
 
