@@ -24,9 +24,9 @@
             contactForm("contact-comments"),
             '_label -> "Your comments",
             '_divClass -> "form-field",
-            '_inputClass -> "input--fullwidth"
+            '_inputClass -> "input--fullwidth",
+            '_help -> "2000 Characters max"
             )
-            <small>2000 Characters max</small>
             <input type="hidden" name="isJavascript" id="isJavascript" value="@contactForm.data.get("isJavascript")">
             <input type="hidden" name="referer" id="referer" value="@contactForm.data.get("referer")">
 

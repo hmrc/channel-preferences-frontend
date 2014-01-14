@@ -121,6 +121,16 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
       page.getElementsByClass("error-notification").first().text() shouldBe "Your name cannot be longer than 70 characters"
     }
 
+    "fail if the email is longer than 320 chars" in new WithContactController {
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Name", "contact-email" -> s"${Random.alphanumeric.take(315).mkString}@b.com", "contact-comments" -> "A comment"))
+      val page = Jsoup.parse(contentAsString(submit))
+
+      status(submit) shouldBe 400
+
+      page.getElementsByClass("error-notification").size() shouldBe 1
+      page.getElementsByClass("error-notification").first().text() shouldBe "The email cannot be longer than 320 characters"
+    }
+
   }
 
   "Contact Confirmation Page" should {

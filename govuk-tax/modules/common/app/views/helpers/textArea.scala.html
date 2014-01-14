@@ -22,4 +22,6 @@
     name="@elements.field.name"
     id="@elements.field.name"></textarea>
     @if(labelAfter && elements.args.contains('_label)) { @elements.label }
+    @if(elements.args.contains('_help)) { <small>@elements.infos</small> }
+
 </label>

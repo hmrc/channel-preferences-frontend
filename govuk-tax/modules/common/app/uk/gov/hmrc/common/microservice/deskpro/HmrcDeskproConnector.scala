@@ -28,10 +28,10 @@ case class Ticket private(name: String,
 object Ticket {
   def apply(name: String, email: String, subject: String, message: String, referrer: String, isJavascript: Boolean, hc: HeaderCarrier, request: Request[AnyRef], userOption: Option[User]): Ticket =
     Ticket(
-      name,
+      name.trim,
       email,
       subject,
-      message,
+      message.trim,
       referrer,
       if (isJavascript) "Y" else "N",
       request.headers.get("User-Agent").getOrElse("n/a"),
