@@ -39,7 +39,7 @@ class EmailConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers 
     "correctly invoke the email microservice and return true if the service returns true" in new WithApplication(FakeApplication()) {
       when(emailConnector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(true))))
 
-      emailConnector.validateEmailAddress(emailAddress)(any[HeaderCarrier]).futureValue shouldBe true
+      emailConnector.validateEmailAddress(emailAddress)(HeaderCarrier()).futureValue shouldBe true
 
       verify(emailConnector.httpWrapper).getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")
     }
@@ -47,7 +47,7 @@ class EmailConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers 
     "correctly invoke the email microservice and return false if the service returns false" in new WithApplication(FakeApplication()) {
       when(emailConnector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(false))))
 
-      emailConnector.validateEmailAddress(emailAddress)(any[HeaderCarrier]).futureValue shouldBe false
+      emailConnector.validateEmailAddress(emailAddress)(HeaderCarrier()).futureValue shouldBe false
 
       verify(emailConnector.httpWrapper).getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")
     }

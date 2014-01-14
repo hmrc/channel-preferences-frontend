@@ -15,6 +15,7 @@ import scala.Some
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.MicroServiceException
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
