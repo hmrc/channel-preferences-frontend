@@ -2,10 +2,11 @@ package controllers.common
 
 import config.DateTimeProvider
 import scala.Some
-import org.joda.time.DateTime
+import org.joda.time.{DateTimeZone, Duration, DateTime}
 import play.api.Logger
 import concurrent.Future
 import controllers.common.actions.HeaderCarrier
+import play.api.mvc.Session
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
   object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(now)
@@ -14,33 +15,8 @@ trait SessionTimeoutWrapper extends DateTimeProvider {
 
 object SessionTimeoutWrapper {
   val timeoutSeconds = 900
-}
 
-class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeout {
-
-  import play.api.mvc._
-  import org.joda.time.{Duration, DateTimeZone, DateTime}
-  import SessionTimeoutWrapper._
-  import play.api.libs.concurrent.Execution.Implicits._
-
-  val defaultErrorAction: Action[AnyContent] = Action(Results.Redirect(routes.HomeController.landing()))
-
-  def apply(errorResult: Action[AnyContent], action: Action[AnyContent]): Action[AnyContent] = Action.async {
-    request: Request[AnyContent] => {
-
-      val result = if (hasValidTimestamp(request.session)) {
-        action(request)
-      } else {
-        Logger.debug(s"request refused as the session had timed out in ${request.path}")
-        errorResult(request).map(_.withNewSession)
-      }
-      addTimestamp(request, result)
-    }
-  }
-
-  def apply(action: Action[AnyContent]): Action[AnyContent] = apply(defaultErrorAction, action)
-
-  private def hasValidTimestamp(session: Session): Boolean = {
+  def hasValidTimestamp(session: Session, now: () => DateTime ): Boolean = {
     val valid: Option[Boolean] = for {
       lastRequestTimestamp: DateTime <- extractTimestamp(session)
       sessionExpiryTimestamp: DateTime <- Some(lastRequestTimestamp.plus(Duration.standardSeconds(timeoutSeconds)))
@@ -57,6 +33,32 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
       case e: NumberFormatException => None
     }
   }
+}
+
+class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeout {
+
+  import play.api.mvc._
+  import org.joda.time.{Duration, DateTimeZone, DateTime}
+  import SessionTimeoutWrapper._
+  import play.api.libs.concurrent.Execution.Implicits._
+
+  val defaultErrorAction: Action[AnyContent] = Action(Results.Redirect(routes.HomeController.landing()))
+
+  def apply(errorResult: Action[AnyContent], action: Action[AnyContent]): Action[AnyContent] = Action.async {
+    request: Request[AnyContent] => {
+
+      val result = if (hasValidTimestamp(request.session, now)) {
+        action(request)
+      } else {
+        Logger.debug(s"request refused as the session had timed out in ${request.path}")
+        errorResult(request).map(_.withNewSession)
+      }
+      addTimestamp(request, result)
+    }
+  }
+
+  def apply(action: Action[AnyContent]): Action[AnyContent] = apply(defaultErrorAction, action)
+
 }
 
 class WithNewSessionTimeout(val now: () => DateTime) extends SessionTimeout {
