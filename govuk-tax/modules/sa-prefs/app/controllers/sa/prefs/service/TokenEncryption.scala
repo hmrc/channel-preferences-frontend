@@ -1,15 +1,15 @@
-package uk.gov.hmrc
+package controllers.sa.prefs.service
 
-import play.api.Play
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URLDecoder
-import uk.gov.hmrc.common.crypto.SymmetricCrypto
+import uk.gov.hmrc.common.crypto._
 
 case class TokenExpiredException(token: String, time: Long) extends Exception(s"Token expired: $token. Timestamp: $time, Now: ${DateTime.now(DateTimeZone.UTC).getMillis}")
 
-trait TokenEncryption extends SymmetricCrypto {
+trait TokenEncryption extends Decrypter {
 
   val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+  val baseConfigKey = "sso.encryption"
 
   def decryptToken(token: String, timeout: Int): String = {
     val decryptedQueryParameters = if (token.matches(base64)) decrypt(token) else decrypt(URLDecoder.decode(token, "UTF-8"))
@@ -21,6 +21,4 @@ trait TokenEncryption extends SymmetricCrypto {
   }
 }
 
-object SsoPayloadEncryptor extends TokenEncryption {
-  val encryptionKey = Play.current.configuration.getString("sso.encryption.key").get
-}
+object SsoPayloadCrypto extends TokenEncryption with CompositeSymmetricCrypto with KeysFromConfig

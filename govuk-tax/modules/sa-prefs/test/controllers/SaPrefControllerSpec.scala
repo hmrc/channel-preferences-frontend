@@ -13,7 +13,7 @@ import java.net.URLEncoder
 import org.mockito.Mockito
 import org.jsoup.Jsoup
 import scala.concurrent.Future
-import controllers.sa.prefs.service.RedirectWhiteListService
+import controllers.sa.prefs.service.{SsoPayloadCrypto, RedirectWhiteListService}
 import controllers.sa.prefs.SaPrefsController
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.SaPreference
@@ -25,8 +25,8 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   import play.api.test.Helpers._
 
   val validUtr = "1234567"
-  lazy val validToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
-  lazy val expiredToken = URLEncoder.encode(SsoPayloadEncryptor.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
+  lazy val validToken = URLEncoder.encode(SsoPayloadCrypto.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
+  lazy val expiredToken = URLEncoder.encode(SsoPayloadCrypto.encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
   lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
   val validReturnUrl = URLEncoder.encode("http://localhost:8080/portal", "UTF-8")
   private val mockRedirectWhiteListService = mock[RedirectWhiteListService]
@@ -43,6 +43,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
   val request = FakeRequest()
   implicit def hc: HeaderCarrier = any()
+
 
   "Preferences pages" should {
     "redirect to the portal when preferences already exist for a specific utr" in new WithApplication(FakeApplication()) {

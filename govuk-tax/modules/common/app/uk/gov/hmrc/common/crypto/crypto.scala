@@ -11,7 +11,10 @@ trait Decrypter {
   def decrypt(id: String): String
 }
 
-case class CryptoWithKeysFromConfig(baseConfigKey: String) extends CompositeSymmetricCrypto {
+trait KeysFromConfig {
+  this: CompositeSymmetricCrypto =>
+
+  val baseConfigKey: String
 
   override protected val currentCrypto = {
     val configKey = baseConfigKey + ".key"
@@ -27,8 +30,10 @@ case class CryptoWithKeysFromConfig(baseConfigKey: String) extends CompositeSymm
     val previousEncryptionKeys = Play.current.configuration.getStringList(configKey).map(_.toSeq).getOrElse(Seq.empty)
     previousEncryptionKeys.map(symmetricCrypto)
   }
-  
+
   private def symmetricCrypto(key: String) = new SymmetricCrypto {
     override val encryptionKey = key
   }
 }
+
+case class CryptoWithKeysFromConfig(baseConfigKey: String) extends CompositeSymmetricCrypto with KeysFromConfig

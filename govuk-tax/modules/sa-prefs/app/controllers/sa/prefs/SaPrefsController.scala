@@ -10,11 +10,10 @@ import concurrent.Future
 import scala.Some
 import scala.concurrent.ExecutionContext.Implicits.global
 import controllers.common.service.FrontEndConfig
-import controllers.sa.prefs.service.RedirectWhiteListService
+import controllers.sa.prefs.service.{SsoPayloadCrypto, TokenExpiredException, RedirectWhiteListService}
 import controllers.common.BaseController
 import controllers.sa.prefs.EmailPreferenceData
 import scala.Some
-import uk.gov.hmrc.TokenExpiredException
 
 class SaPrefsController extends BaseController {
 
@@ -41,7 +40,7 @@ class SaPrefsController extends BaseController {
       Action.async {
         request: Request[AnyContent] =>
           try {
-            implicit val utr = SsoPayloadEncryptor.decryptToken(token, FrontEndConfig.tokenTimeout)
+            implicit val utr = SsoPayloadCrypto.decryptToken(token, FrontEndConfig.tokenTimeout)
             action(utr)(request)
           } catch {
             case e: TokenExpiredException => {
