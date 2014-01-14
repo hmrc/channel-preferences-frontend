@@ -137,11 +137,11 @@ object EmailVerificationLinkResponse extends Enumeration {
   val OK, EXPIRED, ERROR = Value
 }
 
-class EmailConnector() extends MicroService {
+class EmailConnector() extends Connector {
 
   protected val serviceUrl = MicroServiceConfig.emailServiceUrl
 
-  def validateEmailAddress(emailAddress: String): Future[Boolean] = {
+  def validateEmailAddress(emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
     httpGetF[ValidateEmailResponse](s"/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}") map
       (_.getOrElse(throw new RuntimeException(s"Access to resource: '/validate-email-address' gave an invalid response")).valid)
   }

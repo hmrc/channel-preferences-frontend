@@ -147,14 +147,14 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(false))
+      when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(false))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(request)
 
       status(page) shouldBe 200
 
-      verify(controller.emailConnector).validateEmailAddress(emailAddress)
+      verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verifyZeroInteractions(controller.preferencesConnector)
 
     }
@@ -199,7 +199,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(true))
+      when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
       when(controller.preferencesConnector.getPreferences(meq(validUtr))).thenReturn(Future.successful(None))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("email.confirm", emailAddress))
@@ -207,7 +207,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(page) shouldBe 303
 
-      verify(controller.emailConnector).validateEmailAddress(emailAddress)
+      verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verify(controller.preferencesConnector).getPreferences(meq(validUtr))
       verify(controller.preferencesConnector).savePreferences(meq(validUtr), meq(true), meq(Some(emailAddress)))
     }
@@ -216,7 +216,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(true))
+      when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
       when(controller.preferencesConnector.getPreferences(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(true, Some(emailAddress)))))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
@@ -224,7 +224,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(action) shouldBe 303
 
-      verify(controller.emailConnector).validateEmailAddress(emailAddress)
+      verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verify(controller.preferencesConnector, times(1)).getPreferences(meq(validUtr))
       verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
@@ -236,7 +236,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(validReturnUrl)).thenReturn(true)
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(emailAddress)).thenReturn(Future.successful(true))
+      when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
       when(controller.preferencesConnector.getPreferences(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(false, None))))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
@@ -244,7 +244,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(action) shouldBe 303
 
-      verify(controller.emailConnector).validateEmailAddress(emailAddress)
+      verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verify(controller.preferencesConnector, times(1)).getPreferences(meq(validUtr))
       verify(controller.preferencesConnector, times(0)).savePreferences(any[String], any[Boolean], any[Option[String]])
 
