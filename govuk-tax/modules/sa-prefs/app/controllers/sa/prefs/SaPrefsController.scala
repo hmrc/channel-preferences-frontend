@@ -1,8 +1,6 @@
 package controllers.sa.prefs
 
 import play.api.data._
-import play.api.mvc.Results._
-import play.mvc._
 import play.api.data.Forms._
 import play.api.mvc.{AnyContent, Request, Action}
 import uk.gov.hmrc.{EmailConnector, PreferencesConnector, TokenEncryption}
@@ -14,8 +12,9 @@ import uk.gov.hmrc.TokenExpiredException
 import scala.concurrent.ExecutionContext.Implicits.global
 import controllers.common.service.FrontEndConfig
 import controllers.sa.prefs.service.RedirectWhiteListService
+import controllers.common.BaseController
 
-class SaPrefsController extends Controller {
+class SaPrefsController extends BaseController {
 
   implicit lazy val preferencesConnector = new PreferencesConnector()
   implicit lazy val emailConnector = new EmailConnector()
@@ -103,6 +102,7 @@ class SaPrefsController extends Controller {
                     preferencesConnector.getPreferences(utr).map {
                       case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
                       case None => {
+                        // FIXME this should map over the result
                         preferencesConnector.savePreferences(utr, true, Some(emailForm.mainEmail))
     //                  Play redirect is encoding query params, we need to decode the url to avoid double encoding
                         Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
@@ -121,7 +121,7 @@ class SaPrefsController extends Controller {
   def submitKeepPaperForm(token: String, return_url: String) = WithValidReturnUrl(return_url)(WithValidToken(token, return_url)(
     utr =>
       Action.async {
-        request =>
+        implicit request =>
           preferencesConnector.getPreferences(utr) map {
             case Some(saPreference) => Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
             case None => {

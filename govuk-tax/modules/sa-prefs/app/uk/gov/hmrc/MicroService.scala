@@ -4,7 +4,7 @@ import scala.concurrent.duration.Duration
 import play.api.libs.ws.{Response, WS}
 import play.api.http.Status
 import uk.gov.hmrc.Transform._
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import play.api.{Logger, Play}
 import scala.concurrent.Future
@@ -12,8 +12,9 @@ import play.api.libs.json.{Json, JsValue}
 import com.google.common.net.HttpHeaders
 import java.net.URLEncoder
 import uk.gov.hmrc.EmailVerificationLinkResponse.EmailVerificationLinkResponse
-import scala.collection.immutable.Range
 import scala.Range
+import uk.gov.hmrc.common.microservice.Connector
+import controllers.common.actions.HeaderCarrier
 
 trait HeaderNames {
   val requestId = "X-Request-ID"
@@ -107,24 +108,22 @@ object MicroServiceConfig {
 
 }
 
-class PreferencesConnector extends MicroService {
+class PreferencesConnector extends Connector {
 
   override val serviceUrl = MicroServiceConfig.preferenceServiceUrl
 
-  def savePreferences(utr: String, digital: Boolean, email: Option[String] = None) {
-    httpPostAndForget(s"/portal/preferences/sa/individual/$utr/print-suppression", Json.parse(toRequestBody(SaPreference(digital, email))))
-  }
+  def savePreferences(utr: String, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier) =
+    httpPostF(s"/portal/preferences/sa/individual/$utr/print-suppression", Some(Json.parse(toRequestBody(SaPreference(digital, email)))))
 
-  def getPreferences(utr: String): Future[Option[SaPreference]] = {
-    httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression") map
-      (_.orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response"))) recover {
-      case MicroServiceException(errorMessage, response) if response.status == 404 => None
-    }
-  }
+  def getPreferences(utr: String)(implicit hc: HeaderCarrier): Future[Option[SaPreference]] =
+    httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      .map(_.orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response")))
+      .recover { case MicroServiceException(errorMessage, response) if response.status == 404 => None}
 
-  def updateEmailValidationStatus(token: String) : Future[EmailVerificationLinkResponse] = {
-    httpPostRawF("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token)))).map { _.status match {
-        case success() =>  EmailVerificationLinkResponse.OK
+  def updateEmailValidationStatus(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] = {
+    httpPost("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token)))) {
+      _.status match {
+        case s if OK to MULTI_STATUS contains s => EmailVerificationLinkResponse.OK
         case GONE => EmailVerificationLinkResponse.EXPIRED
         case _ => EmailVerificationLinkResponse.ERROR
       }

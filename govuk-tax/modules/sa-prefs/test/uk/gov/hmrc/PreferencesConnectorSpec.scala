@@ -1,11 +1,12 @@
 package uk.gov.hmrc
 
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ BeforeAndAfterEach, ShouldMatchers, WordSpec }
+import org.scalatest.{OptionValues, BeforeAndAfterEach, ShouldMatchers, WordSpec}
 import play.api.libs.json.{Json, JsValue}
 import play.api.test.WithApplication
 import org.mockito.Mockito._
 import org.mockito.{Matchers, ArgumentCaptor}
+import Matchers.any
 import uk.gov.hmrc.Transform._
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
@@ -13,35 +14,33 @@ import play.api.libs.json.JsBoolean
 import scala.Some
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
+import controllers.common.actions.HeaderCarrier
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
-  override protected def httpPostAndForget(uri: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
-    httpWrapper.post(uri, body, headers)
-  }
 
-  override protected def httpGetF[A](uri: String)(implicit m: Manifest[A]): Future[Option[A]] = {
-    httpWrapper.getF(uri)
-  }
+  override protected def httpPostF[TResult, TBody](uri: String, body: Option[TBody], headers: Map[String, String])(implicit bodyManifest: Manifest[TBody], resultManifest: Manifest[TResult], headerCarrier: HeaderCarrier): Future[Option[TResult]] =
+    httpWrapper.httpPostF(uri, body, headers)(bodyManifest, resultManifest, headerCarrier)
 
-  override protected def httpPostRawF(uri: String, body: JsValue, headers: Map[String, String] = Map.empty): Future[Response] = {
-    httpWrapper.httpPostRawF(uri, body, headers)
-  }
+  override protected def httpPost[A, B](uri: String, body: A, headers: Map[String, String])(responseProcessor: (Response) => B)(implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[B] =
+    Future.successful(responseProcessor(httpWrapper.httpPost(uri, body, headers)))
 
-  class HttpWrapper {
-    def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
+  override protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] =
+    httpWrapper.httpGetF(uri)(m, headerCarrier)
 
-    def post[T](uri: String, body: JsValue, headers: Map[String, String]): Option[T] = None
+  abstract class HttpWrapper {
+    def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]]
 
-    def httpPostRawF(uri: String, body: JsValue, headers: Map[String, String]): Future[Response] = Future.successful(mock[Response])
+    def httpPostF[TResult, TBody](uri: String, body: Option[TBody], headers: Map[String, String])(implicit bodyManifest: Manifest[TBody], resultManifest: Manifest[TResult], headerCarrier: HeaderCarrier): Future[Option[TResult]]
+
+    def httpPost[A, B](uri: String, body: A, headers: Map[String, String]): Response
   }
 
 }
 
-class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach with ScalaFutures {
-  //
+class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach with ScalaFutures with OptionValues {
 
   lazy val preferenceConnector = new TestPreferencesConnector
 
@@ -50,15 +49,18 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
   val utr = "2134567"
 
   val email = "someEmail@email.com"
+
+  implicit val hc = HeaderCarrier()
+
   "SaMicroService" should {
     "save preferences for a user that wants email notifications" in new WithApplication(FakeApplication()) {
 
       preferenceConnector.savePreferences(utr, true, Some(email))
 
-      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceConnector.httpWrapper).post(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[JsValue]])
+      verify(preferenceConnector.httpWrapper).httpPostF(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])(any(), any(), Matchers.eq(hc))
 
-      val body = bodyCaptor.getValue
+      val body = bodyCaptor.getValue.value
       (body \ "digital").as[JsBoolean].value shouldBe (true)
       (body \ "email").as[String] shouldBe email
     }
@@ -67,41 +69,41 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       preferenceConnector.savePreferences(utr, false)
 
-      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(manifest.runtimeClass.asInstanceOf[Class[JsValue]])
-      verify(preferenceConnector.httpWrapper).post(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])
+      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[JsValue]])
+      verify(preferenceConnector.httpWrapper).httpPostF(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])(any(), any(), Matchers.eq(hc))
 
-      val body = bodyCaptor.getValue
-      (body \ "digital").as[JsBoolean].value shouldBe (false)
-      (body \ "email").asOpt[String] shouldBe (None)
+      val body = bodyCaptor.getValue.value
+      (body \ "digital").as[JsBoolean].value should be(false)
+      (body \ "email").asOpt[String] should be(None)
 
     }
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(true, Some("someEmail@email.com")))))
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(true, Some("someEmail@email.com")))))
       val result = preferenceConnector.getPreferences(utr).futureValue.get
-      verify(preferenceConnector.httpWrapper).getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
-      result.digital shouldBe (true)
-      result.email shouldBe (Some("someEmail@email.com"))
+      result.digital should be(true)
+      result.email should be(Some("someEmail@email.com"))
     }
 
     "get preferences for a user who opted for paper notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(false))))
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(false))))
       val result = preferenceConnector.getPreferences(utr).futureValue.get
-      verify(preferenceConnector.httpWrapper).getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
-      result.digital shouldBe (false)
-      result.email shouldBe (None)
+      result.digital should be(false)
+      result.email should be(None)
     }
 
     "return none for a user who has not set preferences" in new WithApplication(FakeApplication()) {
       val mockPlayResponse = mock[Response]
       when(mockPlayResponse.status).thenReturn(404)
-      when(preferenceConnector.httpWrapper.getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.failed(new MicroServiceException("Not Found", mockPlayResponse)))
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.failed(new MicroServiceException("Not Found", mockPlayResponse)))
       preferenceConnector.getPreferences(utr).futureValue shouldBe None
-      verify(preferenceConnector.httpWrapper).getF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
     }
 
   }
@@ -115,9 +117,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(200)
-      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
-                                                                  Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
+      when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
+        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
@@ -130,9 +132,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(204)
-      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
-                                                                  Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
+      when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
+        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
@@ -145,9 +147,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(400)
-      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
-                                                                  Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
+      when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
+        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
@@ -160,9 +162,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(404)
-      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
-                                                                  Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
+      when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
+        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
@@ -175,9 +177,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(500)
-      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
-                                                                  Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
+      when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
+        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
@@ -190,9 +192,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val response = mock[Response]
 
       when(response.status).thenReturn(410)
-      when(preferenceConnector.httpWrapper.httpPostRawF(Matchers.eq("/preferences/sa/verify-email"),
-                                                                  Matchers.eq(Json.parse(toRequestBody(expected))),
-                                                                  Matchers.any[Map[String, String]])).thenReturn(Future.successful(response))
+      when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
+        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
 
