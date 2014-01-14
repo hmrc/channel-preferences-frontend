@@ -13,8 +13,15 @@ case class AddCarBenefitConfirmationData(employerName: String,
                                          fuelType: String,
                                          co2Figure: Option[Int],
                                          engineCapacity: Option[String],
-                                         employerPayFuel: Option[String],
-                                         dateFuelWithdrawn: Option[LocalDate],
+                                         employerPayFuel: Option[Boolean],
                                          employeeContributions: Option[Int],
                                          dateRegistered: Option[LocalDate],
                                          privateUsePayments: Option[Int])
+
+object AddCarBenefitConfirmationData {
+  def convertEmployerPayFuel(employerPayFuel: Option[String]): Option[Boolean] = employerPayFuel.flatMap {
+    case "true" => Some(true)
+    case "false" => Some(false)
+    case _ => None
+  }
+}
