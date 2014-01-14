@@ -19,9 +19,16 @@ case class AddCarBenefitConfirmationData(employerName: String,
                                          privateUsePayments: Option[Int])
 
 object AddCarBenefitConfirmationData {
-  def convertEmployerPayFuel(employerPayFuel: Option[String]): Option[Boolean] = employerPayFuel.flatMap {
-    case "true" => Some(true)
-    case "false" => Some(false)
-    case _ => None
+  val fuelTypeElectric = "electricity"
+
+  def convertEmployerPayFuel(fuelType: Option[String], employerPayFuel: Option[String]): Option[Boolean] = {
+    fuelType match {
+      case Some(s) if s == fuelTypeElectric => None
+      case _ => employerPayFuel match {
+        case Some(s) if s == "true" => Some(true)
+        case Some(s) if s == "false" => Some(false)
+        case _ => None
+      }
+    }
   }
 }

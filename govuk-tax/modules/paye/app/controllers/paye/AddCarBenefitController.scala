@@ -148,9 +148,18 @@ with PayeRegimeRoots {
                 _ => {
                   import AddCarBenefitConfirmationData._
 
-                  val confirmationData = AddCarBenefitConfirmationData(Strings.optionalValue(employment.employerName, "your.employer"), addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
-                    addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-                    convertEmployerPayFuel(addCarBenefitData.employerPayFuel), addCarBenefitData.employeeContribution, addCarBenefitData.carRegistrationDate, addCarBenefitData.privateUsePaymentAmount)
+                  val confirmationData =
+                    AddCarBenefitConfirmationData(
+                      Strings.optionalValue(employment.employerName, "your.employer"),
+                      addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
+                      addCarBenefitData.listPrice.get,
+                      addCarBenefitData.fuelType.get,
+                      addCarBenefitData.co2Figure,
+                      addCarBenefitData.engineCapacity,
+                      convertEmployerPayFuel(addCarBenefitData.fuelType, addCarBenefitData.employerPayFuel),
+                      addCarBenefitData.employeeContribution,
+                      addCarBenefitData.carRegistrationDate,
+                      addCarBenefitData.privateUsePaymentAmount)
 
                   Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber)(request))
                 }

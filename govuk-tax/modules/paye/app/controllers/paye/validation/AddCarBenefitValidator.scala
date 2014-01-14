@@ -11,12 +11,12 @@ import EngineCapacity._
 import StopOnFirstFail._
 import controllers.paye.TaxYearSupport
 import play.api.mvc.Request
+import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 
 object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
   private val carRegistrationDateCutoff = LocalDate.parse("1998-01-01")
-  private val fuelTypeElectric = "electricity"
-  private val fuelTypeOptions = Seq("diesel", fuelTypeElectric, "other")
+  private val fuelTypeOptions = Seq("diesel", AddCarBenefitConfirmationData.fuelTypeElectric, "other")
   private val employerPayeFuelDateOption = "date"
   private val employerPayFuelOptions = Seq("false", "true", employerPayeFuelDateOption, "again")
 
@@ -162,7 +162,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
     .verifying("error.paye.co2_figure_and_co2_no_figure_cannot_be_both_present", data => (carBenefitValues.co2NoFigure.getOrElse("") != "true"))
   )
 
-  private def isFuelTypeElectric(fuelType:Option[String]) = fuelType.getOrElse("") == fuelTypeElectric
+  private def isFuelTypeElectric(fuelType:Option[String]) = fuelType.getOrElse("") == AddCarBenefitConfirmationData.fuelTypeElectric
 
   private def dateInCurrentTaxYear(taxYearInterval:Interval): Mapping[Option[LocalDate]] = dateTuple.verifying(
     "error.paye.date_not_in_current_tax_year", data => isInCurrentTaxYear(data, taxYearInterval)
