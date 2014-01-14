@@ -40,7 +40,7 @@ case class User(userId: String,
   def getEPaye = regimes.epaye.get
 
   def displayName : Option[String] = {
-    regimes.paye.map(_.name).orElse(nameFromGovernmentGateway)
+    regimes.paye.map(_.firstName).orElse(nameFromGovernmentGateway)
   }
 
 }

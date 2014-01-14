@@ -19,7 +19,7 @@ object Dependencies {
     val playMetrics = "com.kenshoo" %% "metrics-play" % "0.1.3"
     val metricsGraphite = "com.codahale.metrics" % "metrics-graphite" % "3.0.1"
     val secureUtils = "uk.gov.hmrc" % "secure-utils" % "0.1.0-SNAPSHOT"
-    val taxCore = "uk.gov.hmrc" %% "tax-core" % "0.2.0-SNAPSHOT"
+    val taxCore = "uk.gov.hmrc" %% "tax-core" % "0.2.1-SNAPSHOT"
   }
 
   sealed abstract class Test(scope: String) {
@@ -39,10 +39,12 @@ object Repositories {
 
   import sbt.Keys._
 
-  val hmrcNexusReleases = "hmrc-releases" at "https://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-releases"
-  val hmrcNexusSnapshots = "hmrc-snapshots" at "https://nexus-preview.tax.service.gov.uk/content/repositories/hmrc-snapshots"
-  val hmrcThirdpartyReleases = "thirdparty-releases" at "https://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-releases"
-  val hmrcThirdpartySnapshots = "thirdparty-snapshots" at "https://nexus-preview.tax.service.gov.uk/content/repositories/thirdparty-snapshots"
+  private val hmrcRepoHost = System.getProperty("hmrc.repo.host", "https://nexus-preview.tax.service.gov.uk")
+
+  private val hmrcNexusReleases = "hmrc-releases" at hmrcRepoHost + "/content/repositories/hmrc-releases"
+  private val hmrcNexusSnapshots = "hmrc-snapshots" at hmrcRepoHost + "/content/repositories/hmrc-snapshots"
+  private val hmrcThirdpartyReleases = "thirdparty-releases" at hmrcRepoHost + "/content/repositories/thirdparty-releases"
+  private val hmrcThirdpartySnapshots = "thirdparty-snapshots" at hmrcRepoHost + "/content/repositories/thirdparty-snapshots"
 
   val resolvers = Seq(
     Resolver.mavenLocal,

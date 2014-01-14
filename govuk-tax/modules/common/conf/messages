@@ -29,6 +29,9 @@ error.common.problem_report.error_mandatory=Please enter details of what went wr
 error.common.problem_report.action_mandatory=Please enter details of what you were doing.
 error.common.comments_mandatory = Please provide details
 
+problem_report.action=What were you doing?
+problem_report.error=What went wrong?
+
 info.need_to_register=You need to register to use this service. If you’re already registered just sign in.
 
 link.vehicle_certification_agency.text=Vehicle Certification Agency (VCA)
@@ -43,8 +46,27 @@ button.sign_in=Sign in
 
 info.links_open_new_window=These links will open in a new window
 
+global.error.badRequest400.title=Bad request - 400
+global.error.badRequest400.heading=Bad Request
+global.error.badRequest400.message=Please check that you have entered the correct web address.
+global.error.pageNotFound404.title=Page not found - 404
+global.error.pageNotFound404.heading=Page not found
+global.error.pageNotFound404.message=Please check that you have entered the correct web address.
+#global.error.pageNotAcceptable406.title=Page not found - 406
+#global.error.pageNotAcceptable406.heading=The page you are looking for can't be found
+#global.error.pageNotAcceptable406.message=Please check that you have entered the correct web address.
+#global.error.gone410.title=Page no longer here - 410
+#global.error.gone410.heading=The page you are looking for is no longer here
+#global.error.gone410.message=Please check that you have entered the correct web address.
+global.error.InternalServerError500.title=Sorry, we are experiencing technical difficulties - 500
+global.error.InternalServerError500.heading=Sorry, we’re experiencing technical difficulties
+global.error.InternalServerError500.message=Please try again in a few minutes.
 global.error.heading=I say Dear Watson, Something seems to be amiss. The clues lay below...
 contact.heading = Contact
+contact.feedback_thank_you_header=Thank you
+contact.confirmation.message = Your comments will be reviewed by our customer support team.
+contact.confirmation.ticket_number = Your support reference number is
+
 
 login_error.title=Login error
 login_error.reason=Your credentials have not been recognised by HMRC.

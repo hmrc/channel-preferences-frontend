@@ -45,7 +45,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
   val mockAuthConnector = mock[AuthConnector]
   val mockAuditConnector = mock[AuditConnector]
 
-  private lazy val controller = new AddCarBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
+  private lazy val controller = new AddCarBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport {
     override def timeSource() = CarBenefitDataBuilder.now
   }
 
@@ -81,10 +81,10 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#employeeContribution") should not be empty
       doc.select("#employeeContribution").attr("value") shouldBe empty
 
-      doc.select("#employerContributes-false") should not be empty
-      doc.select("#employerContributes-true") should not be empty
-      doc.select("#employerContribution") should not be empty
-      doc.select("#employerContribution").attr("value") shouldBe empty
+      doc.select("#privateUsePayment-false") should not be empty
+      doc.select("#privateUsePayment-true") should not be empty
+      doc.select("#privateUsePaymentAmount") should not be empty
+      doc.select("#privateUsePaymentAmount").attr("value") shouldBe empty
 
 
       doc.select("[id~=carRegistrationDate]").select("[id~=day]") should not be empty
@@ -656,8 +656,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#listPrice").attr("value") shouldBe "1000"
       doc.select("#employeeContributes-true").attr("checked") shouldBe empty
       doc.select("#employeeContribution").attr("value") shouldBe empty
-      doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
-      doc.select("#employerContribution").attr("value") shouldBe "999"
+      doc.select("#privateUsePayment-true").attr("checked") shouldBe "checked"
+      doc.select("#privateUsePaymentAmount").attr("value") shouldBe "999"
 
       doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
@@ -692,8 +692,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#listPrice").attr("value") shouldBe "1000"
       doc.select("#employeeContributes-true").attr("checked") shouldBe "checked"
       doc.select("#employeeContribution").attr("value") shouldBe "100"
-      doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
-      doc.select("#employerContribution").attr("value") shouldBe "999"
+      doc.select("#privateUsePayment-true").attr("checked") shouldBe "checked"
+      doc.select("#privateUsePaymentAmount").attr("value") shouldBe "999"
 
       doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"
@@ -793,7 +793,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         engineSize = carBenefitData.engineCapacity.map(_.toInt),
         mileageBand = None,
         carValue = carBenefitData.listPrice.map(BigDecimal(_)),
-        employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
+        employeePayments = carBenefitData.privateUsePaymentAmount.map(BigDecimal(_)),
         daysUnavailable = None
       )
       val benefit = Benefit(benefitType = CAR,
@@ -850,7 +850,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         engineSize = carBenefitData.engineCapacity.map(_.toInt),
         mileageBand = None,
         carValue = carBenefitData.listPrice.map(BigDecimal(_)),
-        employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
+        employeePayments = carBenefitData.privateUsePaymentAmount.map(BigDecimal(_)),
         daysUnavailable = None
       )
       val benefit = Benefit(benefitType = CAR,
@@ -908,7 +908,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
         engineSize = carBenefitData.engineCapacity.map(_.toInt),
         mileageBand = None,
         carValue = carBenefitData.listPrice.map(BigDecimal(_)),
-        employeePayments = carBenefitData.employerContribution.map(BigDecimal(_)),
+        employeePayments = carBenefitData.privateUsePaymentAmount.map(BigDecimal(_)),
         daysUnavailable = None
       )
       val carBenefit = Benefit(benefitType = CAR,
@@ -1032,8 +1032,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       listPrice -> listPriceVal.getOrElse(""),
       employeeContributes -> employeeContributesVal.getOrElse(""),
       employeeContribution -> employeeContributionVal.getOrElse(""),
-      employerContributes -> employerContributesVal.getOrElse(""),
-      employerContribution -> employerContributionVal.getOrElse(""),
+      privateUsePayment -> employerContributesVal.getOrElse(""),
+      privateUsePaymentAmount -> employerContributionVal.getOrElse(""),
       fuelType -> fuelTypeVal.getOrElse(""),
       co2Figure -> co2FigureVal.getOrElse(""),
       co2NoFigure -> co2NoFigureVal.getOrElse(""),

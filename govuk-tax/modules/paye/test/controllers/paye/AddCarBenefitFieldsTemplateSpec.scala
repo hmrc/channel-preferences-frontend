@@ -50,10 +50,10 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
       doc.getElementById("engineCapacity-2000") should bePresent
       doc.getElementById("engineCapacity-9999") should bePresent
 
-      doc.getElementById("employerContributes-false") should bePresent
-      doc.getElementById("employerContributes-true") should bePresent
+      doc.getElementById("privateUsePayment-false") should bePresent
+      doc.getElementById("privateUsePayment-true") should bePresent
 
-      doc.getElementById("employerContribution") should bePresent
+      doc.getElementById("privateUsePaymentAmount") should bePresent
 
       doc.getElementById("employerPayFuel-false") should bePresent
       doc.getElementById("employerPayFuel-true") should bePresent
@@ -61,7 +61,7 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
 
 
     "render the form with a bunch of prepoulated data" in new WithApplication(FakeApplication()) {
-      val form: Form[CarBenefitData] = carBenefitForm(CarBenefitValues(employeeContributes = Some("true"), employerContributes = Some("true"))).fill(johnDensmoresCarBenefitData)
+      val form: Form[CarBenefitData] = carBenefitForm(CarBenefitValues(employeeContributes = Some("true"), privateUsePayment = Some("true"))).fill(johnDensmoresCarBenefitData)
       val employerName = Some("Sainsbury's")
       val currentTaxYearYearsRange = testTaxYear to testTaxYear + 1
 
@@ -72,8 +72,8 @@ class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper
       doc.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
       doc.select("[id~=providedFrom]").select(s"[id~=year-$testTaxYear]").attr("selected") shouldBe "selected"
       doc.select("#listPrice").attr("value") shouldBe "1000"
-      doc.select("#employerContributes-true").attr("checked") shouldBe "checked"
-      doc.select("#employerContribution").attr("value") shouldBe "999"
+      doc.select("#privateUsePayment-true").attr("checked") shouldBe "checked"
+      doc.select("#privateUsePaymentAmount").attr("value") shouldBe "999"
 
       doc.select("[id~=carRegistrationDate]").select("[id~=day-13]").attr("selected") shouldBe "selected"
       doc.select("[id~=carRegistrationDate]").select("[id~=month-9]").attr("selected") shouldBe "selected"

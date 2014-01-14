@@ -101,7 +101,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
         val addCarBenefitData = addForm.get
         val confirmationData = AddCarBenefitConfirmationData(Strings.optionalValue(primaryEmployment.employerName, "your.employer"), addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
           addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-          addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution, addCarBenefitData.carRegistrationDate)
+          addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution, addCarBenefitData.carRegistrationDate, addCarBenefitData.privateUsePaymentAmount)
         keyStoreService.storeFormData(ReplaceCarBenefitFormData(removeForm.get, addCarBenefitData)).map { _ =>
           Ok(replace_car_benefit_review(activeCarBenefit, primaryEmployment, removeForm.get, confirmationData))
         }
@@ -126,7 +126,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
     CarBenefitValues(providedFromVal = defaults.providedFrom,
       carRegistrationDate = defaults.carRegistrationDate,
       employeeContributes = defaults.employeeContributes.map(_.toString),
-      employerContributes = defaults.employerContributes.map(_.toString),
+      privateUsePayment = defaults.privateUsePayment.map(_.toString),
       fuelType = defaults.fuelType,
       co2Figure = defaults.co2Figure.map(_.toString),
       co2NoFigure = defaults.co2NoFigure.map(_.toString),

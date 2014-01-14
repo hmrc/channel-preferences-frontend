@@ -2,7 +2,7 @@ package controllers.paye
 
 import org.joda.time.{DateTimeZone, Interval, LocalDate}
 
-trait MockedTaxYearSupport extends TaxYearSupport {
+trait StubTaxYearSupport extends TaxYearSupport {
 
   override def currentTaxYear = 2013
   private def nextTaxYear = currentTaxYear + 1

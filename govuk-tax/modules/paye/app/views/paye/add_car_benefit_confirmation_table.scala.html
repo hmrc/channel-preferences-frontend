@@ -40,6 +40,14 @@
             <td>@Messages("paye.add_car_benefit_review.none")</td>
         }
     </tr>
+    <tr id="private_use_payments">
+        <th scope="row">@Messages("paye.add_car_benefit_review.private_use_payments")</th>
+        @if(data.privateUsePayments.isDefined) {
+        <td>@pounds(data.privateUsePayments.get)</td>
+        } else {
+        <td>@Messages("paye.add_car_benefit_review.none")</td>
+        }
+    </tr>
     <tr>
         <th scope="row">@Messages("paye.add_car_benefit_review.date_registered")</th>
         @if(data.dateRegistered.isDefined) {

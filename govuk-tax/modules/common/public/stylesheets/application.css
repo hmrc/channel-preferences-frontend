@@ -1,7 +1,4 @@
 @charset "UTF-8";
-/*------------------------------------*\
-    Non-IE Version
-\*------------------------------------*/
 @-ms-viewport {
   width: device-width;
 }
@@ -14,6 +11,19 @@
 
   Add them as you need them. This should let us manage vendor prefixes in one place.
  */
+@font-face {
+  font-family: GDS-Logo;
+  src: local("HelveticaNeue"), local("Helvetica Neue"), local("Arial"), local("Helvetica");
+}
+
+@-ms-viewport {
+  width: device-width;
+}
+
+@-o-viewport {
+  width: device-width;
+}
+
 @font-face {
   font-family: GDS-Logo;
   src: local("HelveticaNeue"), local("Helvetica Neue"), local("Arial"), local("Helvetica");
@@ -55,7 +65,7 @@
    }
 
 */
-.l-constrained:after, .l-constrained--header:after, .l-constrained--topBordered:after, .beta-warning p:after, .label--inlineRadio:after, .label--inlineRadio--expanded:after, .label--inlineDropDown:after, .form-field-group:after, .form-field-single:after, .form-field:after, .form-field--inline:after, .form-field--inline-text-input:after, .form-field--inline-spaced-right:after, .form-field--inline-spaced-left:after, .form-field--error:after, .header:after, .header__logo:after {
+.l-constrained:after, .l-constrained--header:after, .l-constrained--topBordered:after, .label--inlineRadio:after, .label--inlineRadio--expanded:after, .label--inlineDropDown:after, .form-field-group:after, .form-field-single:after, .form-field:after, .form-field--inline:after, .form-field--inline-text-input:after, .form-field--inline-spaced-right:after, .form-field--inline-spaced-left:after, .form-field--error:after, .header:after, .header__logo:after {
   content: "";
   display: block;
   clear: both;
@@ -1552,20 +1562,6 @@ article ol.steps > li:nth-child(14) {
   font-style: normal;
 }
 
-a {
-  font-family: "nta", Arial, sans-serif;
-  font-size: 19px;
-  line-height: 1.31579;
-  font-weight: 400;
-  text-transform: none;
-}
-@media (max-width: 640px) {
-  a {
-    font-size: 16px;
-    line-height: 1.25;
-  }
-}
-
 p {
   font-family: "nta", Arial, sans-serif;
   font-size: 19px;
@@ -1720,7 +1716,6 @@ h4, .h4-heading {
 * @requires     [ toolkit/_colours.scss ]
 */
 body {
-  text-align: center;
   counter-reset: section;
 }
 
@@ -1729,10 +1724,15 @@ body {
   padding-top: 20px;
 }
 
-.l-constrained, .l-constrained--header, .l-constrained--topBordered, .beta-warning p {
+.l-constrained, .l-constrained--header, .l-constrained--topBordered {
   text-align: left;
   max-width: 960px;
   margin: 0 auto;
+}
+.l-constrained *, .l-constrained--header *, .l-constrained--topBordered *, .l-constrained *:before, .l-constrained--header *:before, .l-constrained--topBordered *:before, .l-constrained *:after, .l-constrained--header *:after, .l-constrained--topBordered *:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .l-constrained--header {
@@ -1756,6 +1756,12 @@ body {
 
 .l-bodyRightColumn {
   width: 31.25%;
+}
+
+#content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 30px;
 }
 
 /**
@@ -2179,6 +2185,9 @@ label.indent {
 .form-field--error.numbered {
   margin-left: 22px !important;
   width: 90%;
+}
+.form-field--error .error-notification {
+  display: block;
 }
 
 .row {
@@ -2824,7 +2833,9 @@ article table td {
 }
 
 .phase-tag {
-  display: inline;
+  display: block;
+  float: left;
+  background-color: #f47738;
   color: #fff;
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -2832,12 +2843,14 @@ article table td {
   font-weight: 300;
   text-transform: none;
   font-weight: 700;
-  line-height: 20px;
   text-transform: uppercase;
   letter-spacing: 1px;
   text-decoration: none;
-  margin: 3px 10px 0 5px;
+  margin: 3px 10px 0 0;
   padding: 2px 5px 0;
+  display: inline-block;
+  float: none;
+  margin-left: 5px;
 }
 @media (max-width: 640px) {
   .phase-tag {
@@ -2845,38 +2858,33 @@ article table td {
     line-height: 1.14286;
   }
 }
-.phase-tag.beta {
-  background-color: #f47738;
-}
-.phase-tag:hover {
-  color: white;
-}
 
-.beta-warning {
+.beta-banner {
+  padding: 8px 0;
   background-color: #f47738;
-  padding: 0.5em 0;
 }
-.beta-warning p {
+.beta-banner p {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 15px;
+  color: #0b0c0c;
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.25;
   font-weight: 300;
   text-transform: none;
-  color: #0b0c0c;
 }
 @media (max-width: 640px) {
-  .beta-warning p {
+  .beta-banner p {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
-.beta-warning a,
-.beta-warning a:link,
-.beta-warning a:hover,
-.beta-warning a:active,
-.beta-warning a:visited {
+.beta-banner a, .beta-banner a:link, .beta-banner a:visited, .beta-banner a:active {
   color: #0b0c0c;
-  font-size: 16px;
+}
+.beta-banner a:hover {
+  color: #0b0c0c;
 }
 
 .service-info__organisation-logo {
@@ -2966,32 +2974,21 @@ article table td {
 }
 .dashboard .overview {
   margin: 0 auto;
-  padding: 0 30px;
   max-width: 960px;
-  border-top: 10px solid #2b8cc4;
 }
-.dashboard .overview article {
-  margin: 2em 0 3em 0;
+.dashboard .overview .wrapper article {
+  margin: 2em 60px 3em 0;
   min-height: 0;
 }
-.dashboard .overview article .wrapper {
-  margin-top: 30px;
-}
-@media (min-width: 641px) {
-  .dashboard .overview article .wrapper {
-    float: left;
-    width: 69%;
-  }
-}
-.dashboard .overview article .inner {
+.dashboard .overview .wrapper article .inner {
   padding: 0;
 }
 @media (min-width: 641px) {
-  .dashboard .overview article .inner {
+  .dashboard .overview .wrapper article .inner {
     margin: 0 4em 0 0;
   }
 }
-.dashboard .overview article h2, .dashboard .overview article .h2-heading {
+.dashboard .overview .wrapper article h2, .dashboard .overview .wrapper article .h2-heading {
   font-family: "nta", Arial, sans-serif;
   font-size: 36px;
   line-height: 1.11111;
@@ -3001,12 +2998,18 @@ article table td {
   padding: 0;
 }
 @media (max-width: 640px) {
-  .dashboard .overview article h2, .dashboard .overview article .h2-heading {
+  .dashboard .overview .wrapper article h2, .dashboard .overview .wrapper article .h2-heading {
     font-size: 24px;
     line-height: 1.04167;
   }
 }
-.dashboard .overview article aside {
+@media (min-width: 641px) {
+  .dashboard .overview .wrapper {
+    float: left;
+    width: 69%;
+  }
+}
+.dashboard .overview aside {
   border-top: none;
   position: static;
   float: none;
@@ -3014,13 +3017,13 @@ article table td {
   margin: 0;
 }
 @media (min-width: 641px) {
-  .dashboard .overview article aside {
+  .dashboard .overview aside {
     float: right;
     width: 31%;
     margin: 0;
   }
 }
-.dashboard .overview article aside h2, .dashboard .overview article aside .h2-heading {
+.dashboard .overview aside h2, .dashboard .overview aside .h2-heading {
   font-family: "nta", Arial, sans-serif;
   font-size: 24px;
   line-height: 1.25;
@@ -3030,19 +3033,19 @@ article table td {
   margin-top: 0;
 }
 @media (max-width: 640px) {
-  .dashboard .overview article aside h2, .dashboard .overview article aside .h2-heading {
+  .dashboard .overview aside h2, .dashboard .overview aside .h2-heading {
     font-size: 20px;
     line-height: 1.2;
   }
 }
-.dashboard .overview article aside div {
+.dashboard .overview aside div {
   margin-top: 30px;
 }
-.dashboard .overview article aside ul {
+.dashboard .overview aside ul {
   list-style: none;
   padding: 0;
 }
-.dashboard .overview article aside ul li {
+.dashboard .overview aside ul li {
   padding: 0;
   margin: 0 -15px;
   padding: 0;
@@ -3053,30 +3056,30 @@ article table td {
   text-transform: none;
 }
 @media (min-width: 641px) {
-  .dashboard .overview article aside ul li {
+  .dashboard .overview aside ul li {
     padding: 0;
     margin: 0 0 0.75em 0;
   }
 }
 @media (max-width: 640px) {
-  .dashboard .overview article aside ul li {
+  .dashboard .overview aside ul li {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
-.dashboard .overview article aside ul li a {
+.dashboard .overview aside ul li a {
   display: block;
   border-top: solid 1px #bfc1c3;
   padding: 1em 15px;
 }
 @media (min-width: 641px) {
-  .dashboard .overview article aside ul li a {
+  .dashboard .overview aside ul li a {
     display: inline;
     border: none;
     padding: 0;
   }
 }
-.dashboard .overview article aside .helpful {
+.dashboard .overview aside .helpful {
   color: #6f777b;
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
@@ -3086,7 +3089,7 @@ article table td {
   margin: 0.5em 0;
 }
 @media (max-width: 640px) {
-  .dashboard .overview article aside .helpful {
+  .dashboard .overview aside .helpful {
     font-size: 14px;
     line-height: 1.14286;
   }
@@ -3169,7 +3172,6 @@ article table td {
 
 .page-header {
   padding-bottom: 2em;
-  border-bottom: 1px solid #bfc1c3;
 }
 .page-header h1, .page-header .h1-heading {
   margin-top: 30px;
@@ -3395,10 +3397,6 @@ article h1, article .h1-heading {
   }
 }
 
-h2, .h2-heading {
-  padding: 0.5em 0 0 0;
-}
-
 article ul {
   list-style: none;
   margin: 0.75em 0;
@@ -3497,17 +3495,16 @@ div.email {
 /*------------------------------------*\
     form validations
 \*------------------------------------*/
-.form-field.error , .form-field-group.error{
+.form-field.error, .error.form-field--inline, .error.form-field--inline-text-input, .error.form-field--inline-spaced-right, .error.form-field--inline-spaced-left, .error.form-field--error, .form-field-group.error, .error.form-field-single {
   background-color: #fef7f7;
   border-left: 3px solid #df3034;
   margin: 0 -1em 0.5em -1em;
   padding: 0.75em 1em 1em 1em;
 }
 
-
 .error-notification {
   color: #df3034;
-  display: block;
+  display: none;
   font-family: "nta",Arial,sans-serif;
   font-size: 16px;
   line-height: 1.25;
@@ -3515,4 +3512,6 @@ div.email {
   text-transform: none;
   padding-bottom: 0.5em;
 }
-
+.error .error-notification {
+  display: block;
+}

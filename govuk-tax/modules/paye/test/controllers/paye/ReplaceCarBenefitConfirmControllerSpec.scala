@@ -100,7 +100,7 @@ class ReplaceCarBenefitConfirmControllerSpec extends BaseSpec with ScalaFutures 
 
     val carBenefitData = CarBenefitData(
       providedFrom = None, carRegistrationDate = Some(dateCarRegistered), listPrice = Some(listPrice), employeeContributes = None,
-      employeeContribution = None, employerContributes = None, employerContribution = None, fuelType = Some(fuelType),
+      employeeContribution = None, privateUsePayment = None, privateUsePaymentAmount = None, fuelType = Some(fuelType),
       co2Figure = None, co2NoFigure = None, engineCapacity = None, employerPayFuel = None, dateFuelWithdrawn = None)
     val formData = ReplaceCarBenefitFormData(removeFormData, carBenefitData)
   }

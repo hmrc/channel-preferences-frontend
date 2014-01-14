@@ -1,6 +1,6 @@
 package controllers.paye.validation
 
-import controllers.paye.{MockedTaxYearSupport, PayeBaseSpec}
+import controllers.paye.{StubTaxYearSupport, PayeBaseSpec}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
@@ -14,7 +14,7 @@ import org.joda.time.LocalDate
 import models.paye.CarFuelBenefitDates
 import play.api.i18n.Messages
 
-class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with MockedTaxYearSupport {
+class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with StubTaxYearSupport {
 
   override def currentTaxYear = 2012
   val now = new LocalDate(currentTaxYear, 10, 2)

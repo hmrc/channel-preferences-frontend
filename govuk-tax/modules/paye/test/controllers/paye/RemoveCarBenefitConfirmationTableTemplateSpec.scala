@@ -16,7 +16,7 @@ import org.joda.time.chrono.ISOChronology
 import models.paye.{RemoveFuelBenefitFormData, RemoveCarBenefitFormData}
 
 
-class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with MockedTaxYearSupport with LoneElement {
+class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubTaxYearSupport with LoneElement {
 
   "add car benefit confirmation table template" should {
 

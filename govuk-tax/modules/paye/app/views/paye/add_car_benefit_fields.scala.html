@@ -18,12 +18,10 @@
         '_groupClass -> "form-field-group numbered")
         @helpers.dateFieldsFreeYear(carBenefitForm,
         carRegistrationDate,
-        Html(Messages("paye.add_car_benefit.car_registration_date",
-        helpers.link("",
-        Messages("link.dvla.url"),
-        Messages("paye.add_car_benefit.car_registration_date.dvla_website.text"),
-        true).toString)),
-        '_groupClass -> "form-field-group numbered")
+        Html(Messages("paye.add_car_benefit.car_registration_date")),
+        '_groupClass -> "form-field-group numbered",
+        '_hintText -> Messages("paye.add_car_benefit.car_registration_date.hint"),
+        '_subText -> helpers.link("", Messages("link.dvla.url"), Messages("paye.add_car_benefit.car_registration_date.dvla_website.text"),true))
     </fieldset>
     <fieldset class="list--numbered">
         <legend class="h2-heading">@Messages("paye.add_car_benefit.cost_heading")</legend>
@@ -35,7 +33,8 @@
         ),
         '_label -> Messages("paye.add_car_benefit.list_price"),
         '_groupClass -> "form-field-group numbered",
-        '_valueAfter -> false
+        '_valueAfter -> false,
+        '_hintText -> Messages("paye.add_car_benefit.list_price.hint")
         )
     </fieldset>
     <fieldset class="list--numbered">
@@ -56,7 +55,8 @@
         ),
         '_label -> Messages("paye.add_car_benefit.employee_contribution"),
         '_groupClass -> "form-field  js-includes-contextual numbered",
-        '_valueAfter -> true
+        '_valueAfter -> true,
+        '_hintText -> Messages("paye.add_car_benefit.employee_contribution.hint")
         )
     </fieldset>
     <fieldset class="list--numbered">
@@ -126,10 +126,10 @@
         @helpers.fieldGroup(
         carBenefitForm,
         Seq(
-        FormField(carBenefitForm(employerContributes), Seq(
-        RadioButton("false", Messages("paye.add_car_benefit.employer_contributes.false"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
-        RadioButton("true", Messages("paye.add_car_benefit.employer_contributes.true"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
-        FormField(carBenefitForm(employerContribution), Seq(InputType("text", "", Messages("paye.add_car_benefit.employer_pay.postfix"), Some("form-field--inline-text-input js-input--contextual"), Some(""), Some("input--xsmall"))))
+        FormField(carBenefitForm(privateUsePayment), Seq(
+        RadioButton("false", Messages("paye.add_car_benefit.private_use_payment.false"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
+        RadioButton("true", Messages("paye.add_car_benefit.private_use_payment.true"), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable")))),
+        FormField(carBenefitForm(privateUsePaymentAmount), Seq(InputType("text", "", Messages("paye.add_car_benefit.employer_pay.postfix"), Some("form-field--inline-text-input js-input--contextual"), Some(""), Some("input--xsmall"))))
         ),
         '_label -> Messages("paye.add_car_benefit.employer_pay"),
         '_groupClass -> "form-field js-includes-contextual numbered",

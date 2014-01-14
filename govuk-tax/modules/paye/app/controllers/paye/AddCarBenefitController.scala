@@ -92,7 +92,7 @@ with PayeRegimeRoots {
     CarBenefitValues(providedFromVal = defaults.providedFrom,
       carRegistrationDate = defaults.carRegistrationDate,
       employeeContributes = defaults.employeeContributes.map(_.toString),
-      employerContributes = defaults.employerContributes.map(_.toString),
+      privateUsePayment = defaults.privateUsePayment.map(_.toString),
       fuelType = defaults.fuelType,
       co2Figure = defaults.co2Figure.map(_.toString),
       co2NoFigure = defaults.co2NoFigure.map(_.toString),
@@ -148,7 +148,7 @@ with PayeRegimeRoots {
                 _ =>
                   val confirmationData = AddCarBenefitConfirmationData(Strings.optionalValue(employment.employerName, "your.employer"), addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
                     addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution,  addCarBenefitData.carRegistrationDate)
+                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution,  addCarBenefitData.carRegistrationDate, addCarBenefitData.privateUsePaymentAmount)
                   Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber)(request))
               }
             }
@@ -183,8 +183,8 @@ object CarBenefitFormFields {
   val listPrice = "listPrice"
   val employeeContributes = "employeeContributes"
   val employeeContribution = "employeeContribution"
-  val employerContributes = "employerContributes"
-  val employerContribution = "employerContribution"
+  val privateUsePayment = "privateUsePayment"
+  val privateUsePaymentAmount = "privateUsePaymentAmount"
   val fuelType = "fuelType"
   val engineCapacity = "engineCapacity"
   val employerPayFuel = "employerPayFuel"

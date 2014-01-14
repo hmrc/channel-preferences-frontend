@@ -25,17 +25,13 @@ class UserSpec extends BaseSpec with MockitoSugar {
   "a PAYE User" should {
 
     "have their display name the same as the name from PayeRoot" in {
-
-      val payeRoot = mock[PayeRoot]
+      val payeRoot = PayeRoot("nino", "Mr", "Steve", None, "Rogers", "John Densmore", "05-07-1990", Map.empty, Map.empty, Map.empty)
 
       val regimes = RegimeRoots(paye = Some(payeRoot))
 
       val user = User("id", mock[Authority], regimes, None, None)
 
-      when(payeRoot.name).thenReturn("John Densmore")
-
-      user.displayName shouldBe Some("John Densmore")
-
+      user.displayName shouldBe Some("Steve")
     }
 
   }

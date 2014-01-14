@@ -10,7 +10,7 @@ import play.api.test.Helpers._
 import controllers.paye.RemovalUtils._
 import uk.gov.hmrc.utils.DateTimeUtils
 
-class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper with MockedTaxYearSupport {
+class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper with StubTaxYearSupport {
 
 
   "remove car benefit template" should {

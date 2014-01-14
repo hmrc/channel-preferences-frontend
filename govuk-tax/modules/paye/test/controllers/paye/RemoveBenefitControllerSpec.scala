@@ -40,6 +40,7 @@ import models.paye.{RemoveFuelBenefitFormData, RemoveCarBenefitFormData}
 import controllers.common.SessionKeys
 
 class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with DateFieldsHelper with ScalaFutures {
+
   import Matchers.{any, eq => is}
   import controllers.domain.AuthorityUtils._
 
@@ -49,14 +50,13 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
   val mockAuthConnector = mock[AuthConnector]
   val mockAuditConnector = mock[AuditConnector]
 
-  private lazy val controller = new RemoveBenefitController(mockKeyStoreService, mockAuthConnector, mockAuditConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
+  private lazy val controller = new RemoveBenefitController(mockKeyStoreService, mockAuthConnector, mockAuditConnector)(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport {
     override def now = () => dateToday
   }
 
-  private lazy val formController = new ShowRemoveBenefitFormController(mockKeyStoreService, mockAuthConnector, mockAuditConnector)(mockPayeConnector, mockTxQueueConnector) with MockedTaxYearSupport {
+  private lazy val formController = new ShowRemoveBenefitFormController(mockKeyStoreService, mockAuthConnector, mockAuditConnector)(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport {
     override def now = () => dateToday
   }
-
 
   private lazy val dateToday: DateTime = new DateTime(2013, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
 
@@ -81,45 +81,19 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     when(mockPayeConnector.version(is("/paye/AB123456C/version"))(any())).thenReturn(Future.successful(johnDensmoreVersionNumber))
 
     val benefits = cars.map(c => CarAndFuel(c.toBenefits(0), c.toBenefits.drop(1).headOption))
-    when(mockPayeConnector.linkedResource[Seq[CarAndFuel]](is("/paye/AB123456C/benefit-cars/2013"))(any(),any())).thenReturn(Some(benefits))
+    when(mockPayeConnector.linkedResource[Seq[CarAndFuel]](is("/paye/AB123456C/benefit-cars/2013"))(any(), any())).thenReturn(Some(benefits))
 
 
     val withdrawDate = new LocalDate(2013, 12, 8)
     val formData: RemoveCarBenefitFormData = RemoveCarBenefitFormData(withdrawDate, Some(true), Some(11), Some(true), Some(250), Some("differentDateFuel"), Some(withdrawDate))
-    when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](is(RemovalUtils.benefitFormDataActionId), is("paye"), is("remove_benefit"), is(false))(any(),any())).thenReturn(Some(formData))
-    when(mockKeyStoreService.getEntry[RemoveFuelBenefitFormData](any(),any(),any(),any())(any(), any())).thenReturn(None)
+    when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](is(RemovalUtils.benefitFormDataActionId), is("paye"), is("remove_benefit"), is(false))(any(), any())).thenReturn(Some(formData))
+    when(mockKeyStoreService.getEntry[RemoveFuelBenefitFormData](any(), any(), any(), any())(any(), any())).thenReturn(None)
 
 
     when(mockKeyStoreService.addKeyStoreEntry(any(), any(), any(), any(), any())(any(), any())).
       thenReturn(Future.successful(None))
   }
 
-  "Removing FUEL benefit only" should {
-    "notify the user the fuel benefit will be removed for benefit with no company name" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any(), any())).thenReturn(None)
-
-      val result = formController.showRemoveFuelBenefitFormAction(johnDensmore, requestWithCorrectVersion, 2013, 2)
-
-      val doc = Jsoup.parse(contentAsString(result))
-
-      doc.select(".benefit-type").text shouldBe "Your old company fuel benefit"
-    }
-  }
-
-  "Removing Car benefit " should {
-
-    "not display car removal checkbox" in new WithApplication(FakeApplication()) {
-
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any(), any())).thenReturn(None)
-      val result = formController.showRemoveCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, 2013, 2)
-
-      val doc = Jsoup.parse(contentAsString(result))
-
-      doc.select("label[for=removeCar]").text shouldBe ""
-    }
-  }
 
   "Removing your car prior to its start date" should {
 
@@ -739,7 +713,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "render a view with correct elements" in new WithApplication(FakeApplication()) {
 
       val car = Car(Some(new LocalDate(testTaxYear, 3, 6, ISOChronology.getInstanceUTC)), None, Some(new LocalDate(2000, 5, 8, ISOChronology.getInstanceUTC)),
-                    Some(BigDecimal(10)), Some("diesel"), Some(1), Some(1400), None, Some(BigDecimal("1432")), None, None)
+        Some(BigDecimal(10)), Some("diesel"), Some(1), Some(1400), None, Some(BigDecimal("1432")), None, None)
 
       val versionNumber = 1
       val payeRoot = new PayeRoot("CE927349E", "Mr", "Will", None, "Shakespeare", "Will Shakespeare", "1983-01-02", Map(), Map(), Map()) {

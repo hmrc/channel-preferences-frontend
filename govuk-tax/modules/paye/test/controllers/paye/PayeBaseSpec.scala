@@ -77,8 +77,8 @@ trait PayeBaseSpec extends BaseSpec {
     listPrice = Some(1000),
     employeeContributes = Some(true),
     employeeContribution = Some(100),
-    employerContributes = Some(true),
-    employerContribution = Some(999),
+    privateUsePayment = Some(true),
+    privateUsePaymentAmount = Some(999),
     fuelType = Some("electricity"),
     co2Figure = None,
     co2NoFigure = None,
@@ -138,7 +138,7 @@ trait PayeBaseSpec extends BaseSpec {
 
   val johnDensmoresReplaceCarBenefitData = ReplaceCarBenefitFormData(johnDensmoresRemovedCarBenefitFormData ,johnDensmoresCarBenefitData)
   val johnDensmoresNewCarData = AddCarBenefitConfirmationData("employerName", LocalDate(2014, 1, 8), 1234, "diesel", Some(222), Some("2000"),
-    Some("date"), Some(LocalDate(2014, 2, 5)), Some(50), Some(LocalDate(2000, 1, 1)))
+    Some("date"), Some(LocalDate(2014, 2, 5)), Some(50), Some(LocalDate(2000, 1, 1)), Some(300))
 
 
   val removedCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
@@ -224,8 +224,8 @@ trait PayeBaseSpec extends BaseSpec {
         listPrice = listPrice,
         employeeContributes = employeeContributes,
         employeeContribution = employeeContribution,
-        employerContributes = employerContributes,
-        employerContribution = employerContribution,
+        privateUsePayment = employerContributes,
+        privateUsePaymentAmount = employerContribution,
         fuelType = fuelType,
         co2Figure = co2Figure,
         co2NoFigure = co2NoFigure,

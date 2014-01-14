@@ -1,30 +1,19 @@
-<!DOCTYPE html>
-<!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-<head>
-    @includes.head("error")
-</head>
+@(ticketId: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
+@main(title = Messages("contact.heading"), nav = true, supportLinkEnabled = false, user = Some(user)) {
 
-<body>
-@helpers.link("", "#content", "Skip to main content", false, false, "visuallyhidden")
-
-
-<div class="beta-banner">
-    <p><b>BETA:</b> This is a prototype, designed to be simpler, clearer and faster. <a href="https://www.gov.uk/service-manual">Find out more</a></p>
-</div>
+    <h1>@Messages("contact.heading")</h1>
 
 <section id="content" class="l-constrained--topBordered">
     <div class="l-bodyLeftColumn">
         <article id="report-confirmation">
-            <h2 id="feedback-thank-you-header">Thank you</h2>
+            <h2 id="feedback-thank-you-header">@Messages("contact.feedback_thank_you_header")</h2>
 
-            <p>Your comments will be reviewed by our customer support team.</p>
+            <p>
+                @Messages("contact.confirmation.message")
+                @Messages("contact.confirmation.ticket_number")
+                <span id="ticketId">@ticketId</span></p>
         </article>
     </div>
-
-
 </section>
 
-@includes.footer()
-</body>
-</html>
+}
