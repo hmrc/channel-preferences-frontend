@@ -13,6 +13,10 @@ import play.api.libs.ws.WS
 import scala.concurrent.Future
 import play.api.libs.json._
 
+/**
+ * This controller is for diagnostic purposes. It calls through to the microservices and forwards
+ * the responses back out to the client.
+ */
 class DataController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                     (implicit payeConnector: PayeConnector) extends BaseController
 with Actions
@@ -27,7 +31,7 @@ with PayeRegimeRoots {
       implicit request =>
         user.getPaye.links.get("benefit-cars").map { uri =>
           WS.url("http://localhost:8600" + uri.replace("{taxYear}", year.toString)).withHeaders(hc.headers: _*).get.map { response =>
-            Ok(response.body).withHeaders(("Content-Type", "application/json"))
+            Ok(response.json)
           }
         }.getOrElse {
           Future.successful(BadRequest)
@@ -37,7 +41,7 @@ with PayeRegimeRoots {
   def root = AuthorisedFor(PayeRegime) {
     user =>
       implicit request =>
-      Ok(user.getPaye.links.toString)
+      Ok(Json.toJson(user.getPaye.links))
   }
 
 }

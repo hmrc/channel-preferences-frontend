@@ -6,8 +6,8 @@ import play.api.mvc.{Controller, Session}
 object FrontEndRedirect extends Controller {
 
   val businessTaxHome = "/business-tax"
-  val carBenefit = "/paye/car-benefit"
-  val payeHome = "/paye"
+  val carBenefit = "/paye/company-car/details"
+  val payeHome = "/paye/company-car"
 
   //TODO what is the default destination?
   private val defaultDestination = payeHome
