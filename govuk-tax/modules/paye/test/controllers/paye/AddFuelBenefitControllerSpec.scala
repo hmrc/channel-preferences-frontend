@@ -55,7 +55,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
       setupMocksForJohnDensmore()
 
-      val fuelBenefitData = FuelBenefitData(Some("true"), None)
+      val fuelBenefitData = FuelBenefitData(Some("true"))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](
         is(generateKeystoreActionId(testTaxYear, employmentSeqNumberOne)),
         is("paye"),
@@ -68,60 +68,8 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       val doc = Jsoup.parse(contentAsString(result))
 
       doc.select("#employerPayFuel-true").attr("checked") shouldBe "checked"
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe empty
-      doc.select("#employerPayFuel-again").attr("checked") shouldBe empty
+      doc.select("#employerPayFuel-false").attr("checked") shouldBe empty
     }
-
-    "return 200 and show the fuel page with the employer s name and previously populated data. EmployerPayFuelTrue and dateWithdrawn specified including a date value" in new TestCaseIn2013 {
-      val currentTaxYear = TaxYearResolver.currentTaxYear
-
-      setupMocksForJohnDensmore()
-
-      val dateWithdrawn = new LocalDate(currentTaxYear, 5, 30)
-      val fuelBenefitData = FuelBenefitData(Some("date"), Some(dateWithdrawn))
-
-      when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](
-        is(generateKeystoreActionId(testTaxYear, employmentSeqNumberOne)),
-        is("paye"),
-        is("AddFuelBenefitForm"),
-        is(false))(any(), any())).thenReturn(Some((fuelBenefitData)))
-
-      val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, currentTaxYear, employmentSeqNumberOne)
-
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-
-      doc.select("#employerPayFuel-true").attr("checked") shouldBe empty
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
-      doc.select("#employerPayFuel-again").attr("checked") shouldBe empty
-
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=month-5]").attr("selected") shouldBe "selected"
-      doc.select("[id~=dateFuelWithdrawn]").select(s"[id~=year-$currentTaxYear]").attr("selected") shouldBe "selected"
-    }
-
-    "return 200 and show the fuel page with the employer s name and previously populated data. EmployerPayFuelAgain and no dateWithdrawn specified" in new TestCaseIn2012 {
-
-      setupMocksForJohnDensmore()
-
-      val fuelBenefitData = FuelBenefitData(Some("again"), None)
-
-      when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](
-        is(generateKeystoreActionId(testTaxYear, employmentSeqNumberOne)),
-        is("paye"),
-        is("AddFuelBenefitForm"),
-        is(false))(any(), any())).thenReturn(Some((fuelBenefitData)))
-
-      val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
-
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-
-      doc.select("#employerPayFuel-true").attr("checked") shouldBe empty
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe empty
-      doc.select("#employerPayFuel-again").attr("checked") shouldBe "checked"
-    }
-
 
     "return 200 and show the add fuel benefit form with the required fields and no values filled in" in new TestCaseIn2012 {
 
@@ -133,11 +81,8 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#employerPayFuel-false") shouldBe empty
-      doc.select("#employerPayFuel-true") should not be empty
-      doc.select("#employerPayFuel-again") should not be empty
-      doc.select("#employerPayFuel-date") should not be empty
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe empty
+      doc.select("#employerPayFuel-false").attr("checked") shouldBe empty
+      doc.select("#employerPayFuel-true").attr("checked") shouldBe empty
     }
 
     "return 200 and show the page for the fuel form with default employer name message if employer name does not exist " in new TestCaseIn2012 {
@@ -203,14 +148,11 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
       val fuelBenefitValue = 1234
 
-      val dateFuelWithdrawnFormData = new LocalDate(testTaxYear, 6, 3)
-      val employerPayFuelFormData = "date"
+      val employerPayFuelFormData = "true"
       val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal =
-        Some(employerPayFuelFormData),
-        dateFuelWithdrawnVal = Some((testTaxYear.toString, "6", "3")))
+        Some(employerPayFuelFormData))
 
       val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
-
       status(result) shouldBe 200
 
       val keyStoreDataCaptor = ArgumentCaptor.forClass(classOf[(FuelBenefitData)])
@@ -222,21 +164,19 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         keyStoreDataCaptor.capture(),
         Matchers.eq(false))(Matchers.any(), Matchers.any())
 
-      val (fuelBenefitData) = keyStoreDataCaptor.getValue
+      val fuelBenefitData = keyStoreDataCaptor.getValue
 
-      fuelBenefitData.dateFuelWithdrawn shouldBe Some(dateFuelWithdrawnFormData)
       fuelBenefitData.employerPayFuel shouldBe Some(employerPayFuelFormData)
     }
 
-    "return 200 for employerpayefuel of type date with a correct date withdrawn and display some details (not including the new tax code) in a table" in new TestCaseIn2012 {
+    "return 200 for employerpayefuel of type true with correct data  in the table" in new TestCaseIn2012 {
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
 
       setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitStartedThisYear)))
 
-      val dateFuelWithdrawnFormData = new LocalDate(testTaxYear, 6, 3)
-      val employerPayFuelFormData = "date"
-      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some(employerPayFuelFormData), dateFuelWithdrawnVal = Some((testTaxYear.toString, "6", "3")))
+      val employerPayFuelFormData = "true"
+      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some(employerPayFuelFormData))
 
       val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
 
@@ -244,9 +184,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#second-heading").text should include("Check your private fuel details")
-      doc.select("#private-fuel").text should include(s"3 June $testTaxYear")
-      doc.select("#fuel-benefit-taxable-value") shouldBe empty
-
+      doc.select("#private-fuel").text should include("Yes, private fuel is available when you use the car")
     }
 
     "return 200 and show start date as beginning of the tax year if carMadeAvailable is earlier" in new TestCaseIn2012 {
@@ -301,24 +239,21 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
     }
 
-    "ignore invalid withdrawn date if employerpayfuel is not date" in new TestCaseIn2012 {
+
+    "return 400 if employerPayFuelVal is false" in new TestCaseIn2012 {
       setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1)))
 
-      val result = controller.reviewAddFuelBenefitAction(johnDensmore, newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"), dateFuelWithdrawnVal = Some(("isdufgpsiuf", "6", "3"))), testTaxYear, employmentSeqNumberOne)
-      status(result) shouldBe 200
-    }
+      val request =  newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("false"))
 
-    "return 400 and display error when values form data fails validation" in new TestCaseIn2012 {
-      setupMocksForJohnDensmore()
 
-      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("date"), dateFuelWithdrawnVal = Some(("jkhasgdkhsa", "05", "30")))
+
       val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
+      //println(contentAsString(result))
       status(result) shouldBe 400
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#employerPayFuel-date").attr("checked") shouldBe "checked"
-      doc.select("[id~=dateFuelWithdrawn]").select("[id~=day-30]").attr("selected") shouldBe "selected"
-
       verifyNoSaveToKeyStore()
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#form-add-fuel-benefit  .error-notification").text should be(Messages("error.paye.add_fuel_benefit.question1.employer_pay_fuel_cannot_be_false"))
     }
 
     "return 400 if the year submitted is not the current tax year" in new TestCaseIn2012 {
@@ -337,14 +272,6 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
       status(result) shouldBe 400
       verifyNoSaveToKeyStore()
-    }
-
-    "return 200 if the user selects again for the EMPLOYER PAY FUEL" in new TestCaseIn2012 {
-      setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1)))
-
-      val request = newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("again"))
-      val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
-      status(result) shouldBe 200
     }
 
     "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new TestCaseIn2012 {
@@ -390,7 +317,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
 
 
-      val fuelBenefitData = FuelBenefitData(Some("true"), None)
+      val fuelBenefitData = FuelBenefitData(Some("true"))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](
         is(generateKeystoreActionId(testTaxYear, employmentSeqNumberOne)),
         is("paye"),
@@ -445,7 +372,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
     "show an error if the user does not have a car benefit" in new TestCaseIn2012 {
       setupMocksForJohnDensmore(cars = Seq.empty)
-      val fuelBenefitData = FuelBenefitData(Some("true"), None)
+      val fuelBenefitData = FuelBenefitData(Some("true"))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](
         is(generateKeystoreActionId(testTaxYear, employmentSeqNumberOne)),
         is("paye"),
@@ -467,7 +394,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), None, Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
       setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitStartedThisYear)), taxCodes = Seq(TaxCode(employmentSeqNumberOne, Some(1), testTaxYear, "oldTaxCode", List.empty)))
-      val fuelBenefitData = FuelBenefitData(Some("true"), None)
+      val fuelBenefitData = FuelBenefitData(Some("true"))
 
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](
         is(generateKeystoreActionId(testTaxYear, employmentSeqNumberOne)),
@@ -491,8 +418,8 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
     s"AddFuelBenefit:$taxYear:$employmentSequenceNumber"
   }
 
-  private def newRequestForSaveAddFuelBenefit(employerPayFuelVal: Option[String] = None, dateFuelWithdrawnVal: Option[(String, String, String)] = None, path: String = "") =
-    FakeRequest("GET", path).withFormUrlEncodedBody(Seq(employerPayFuel -> employerPayFuelVal.getOrElse("")) ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal): _*).
+  private def newRequestForSaveAddFuelBenefit(employerPayFuelVal: Option[String] = None, path: String = "") =
+    FakeRequest("POST", path).withFormUrlEncodedBody(employerPayFuel -> employerPayFuelVal.getOrElse("")).
       withSession(SessionKeys.npsVersion -> johnDensmoreVersionNumber.toString)
 
 }

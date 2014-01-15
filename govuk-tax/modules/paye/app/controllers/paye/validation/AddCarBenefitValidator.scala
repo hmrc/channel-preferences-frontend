@@ -18,7 +18,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
   private val carRegistrationDateCutoff = LocalDate.parse("1998-01-01")
   private val fuelTypeOptions = Seq("diesel", AddCarBenefitConfirmationData.fuelTypeElectric, "other")
   private val employerPayeFuelDateOption = "date"
-  private val employerPayFuelOptions = Seq("false", "true", employerPayeFuelDateOption, "again")
+  private val employerPayFuelOptions = Seq("false", "true")
 
   private[paye] case class CarBenefitValues(providedFromVal : Option[LocalDate] = None,
                                      carUnavailableVal:  Option[String] = None,
@@ -109,6 +109,13 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
    .verifying("error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity" , data => if(data.isEmpty) {isFuelTypeElectric(values.fuelType)} else true)
 
   private[paye] def validateEmployerPayFuel(values: CarBenefitValues) : Mapping[Option[String]] = validateEmployerPayFuel(values.fuelType)
+
+  private[paye] def validateEmployerPayFuelForAddFuelOnly(values: CarBenefitValues) : Mapping[Option[String]] = validateEmployerPayFuelForAddFuelOnly(values.fuelType)
+
+  private[paye] def validateEmployerPayFuelForAddFuelOnly(fuelType: Option[String]) : Mapping[Option[String]] = optional(text
+    .verifying("error.paye.non_valid_option" , data => employerPayFuelOptions.contains(data))
+    .verifying("error.paye.add_fuel_benefit.question1.employer_pay_fuel_cannot_be_false", data => data == "true")
+  ).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateEmployerPayFuel(fuelType: Option[String]) : Mapping[Option[String]] = optional(text
     .verifying("error.paye.non_valid_option" , data => employerPayFuelOptions.contains(data))

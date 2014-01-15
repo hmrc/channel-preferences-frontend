@@ -21,18 +21,8 @@
                 FormField(
                     fuelBenefitForm(employerPayFuel),
                     Seq(
-                        RadioButton("true", Messages("paye.add_fuel_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable")),
-                        RadioButton("date", Messages("paye.add_fuel_benefit.employer_pay_fuel.date", employerNameString), Some("form-field--inline"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=enable"))
-                    )
-                ),
-                FormField(
-                    fuelBenefitForm(dateFuelWithdrawn),
-                    Seq(DateControl(currentTaxYearYearsRange, Some("js-input--contextual")))
-                ),
-                FormField(
-                    fuelBenefitForm(employerPayFuel),
-                    Seq(
-                        RadioButton("again", Messages("paye.add_fuel_benefit.employer_pay_fuel.again", employerNameString), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable"))
+                        RadioButton("false", Messages("paye.add_fuel_benefit.employer_pay_fuel.false"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-default data-contextual-helper=disable")),
+                        RadioButton("true", Messages("paye.add_fuel_benefit.employer_pay_fuel.true"), Some("form-field"), Some("label--inlineRadio"), Some(""), Some("data-contextual-helper=disable"))
                     )
                 )
             ),

@@ -398,13 +398,6 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
     }
 
-    "return 200 if the user selects an option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore()
-      val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("again"))
-      val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
-      status(result) shouldBe 200
-    }
-
     "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = None)
