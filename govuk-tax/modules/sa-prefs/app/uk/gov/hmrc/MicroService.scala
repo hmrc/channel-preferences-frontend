@@ -20,7 +20,7 @@ class PreferencesConnector extends Connector {
   override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
 
   def savePreferences(utr: String, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier) =
-    httpPostF(s"/portal/preferences/sa/individual/$utr/print-suppression", Some(Json.parse(toRequestBody(SaPreference(digital, email)))))
+    httpPostF(s"/portal/preferences/sa/individual/$utr/print-suppression", Some(SaPreference(digital, email)))
 
   def getPreferences(utr: String)(implicit hc: HeaderCarrier): Future[Option[SaPreference]] =
     httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
@@ -28,7 +28,7 @@ class PreferencesConnector extends Connector {
 //      .recover { case MicroServiceException(errorMessage, response) if response.status == 404 => None}
 
   def updateEmailValidationStatus(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] = {
-    httpPost("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token)))) {
+    httpPost("/preferences/sa/verify-email", ValidateEmail(token)) {
       _.status match {
         case s if OK to MULTI_STATUS contains s => EmailVerificationLinkResponse.OK
         case GONE => EmailVerificationLinkResponse.EXPIRED

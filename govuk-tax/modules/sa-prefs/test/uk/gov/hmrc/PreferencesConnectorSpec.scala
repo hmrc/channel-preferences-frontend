@@ -59,25 +59,24 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       preferenceConnector.savePreferences(utr, true, Some(email))
 
-      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[JsValue]])
+      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[SaPreference]])
       verify(preferenceConnector.httpWrapper).httpPostF(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])(any(), any(), Matchers.eq(hc))
 
       val body = bodyCaptor.getValue.value
-      (body \ "digital").as[JsBoolean].value shouldBe (true)
-      (body \ "email").as[String] shouldBe email
+      body.digital shouldBe true
+      body.email.value shouldBe email
     }
 
     "save preferences for a user that wants paper notifications" in new WithApplication(FakeApplication()) {
 
       preferenceConnector.savePreferences(utr, false)
 
-      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[JsValue]])
+      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[SaPreference]])
       verify(preferenceConnector.httpWrapper).httpPostF(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])(any(), any(), Matchers.eq(hc))
 
       val body = bodyCaptor.getValue.value
-      (body \ "digital").as[JsBoolean].value should be(false)
-      (body \ "email").asOpt[String] should be(None)
-
+      body.digital shouldBe false
+      body.email should not be 'defined
     }
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
@@ -86,8 +85,8 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
       val result = preferenceConnector.getPreferences(utr).futureValue.get
       verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
-      result.digital should be(true)
-      result.email should be(Some("someEmail@email.com"))
+      result.digital should be (true)
+      result.email should be (Some("someEmail@email.com"))
     }
 
     "get preferences for a user who opted for paper notification" in new WithApplication(FakeApplication()) {
@@ -120,7 +119,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       when(response.status).thenReturn(200)
       when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
-        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
@@ -135,7 +134,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       when(response.status).thenReturn(204)
       when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
-        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
@@ -150,7 +149,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       when(response.status).thenReturn(400)
       when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
-        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
@@ -165,7 +164,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       when(response.status).thenReturn(404)
       when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
-        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
@@ -180,7 +179,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       when(response.status).thenReturn(500)
       when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
-        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
@@ -195,7 +194,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
       when(response.status).thenReturn(410)
       when(preferenceConnector.httpWrapper.httpPost(Matchers.eq("/preferences/sa/verify-email"),
-        Matchers.eq(Json.parse(toRequestBody(expected))),
+        Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
       val result = preferenceConnector.updateEmailValidationStatus(token)
