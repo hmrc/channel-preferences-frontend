@@ -25,6 +25,12 @@ date.fields.year=Year
 common.firstlogin={0}, this is the first time you have logged in
 common.previousLoginTime={0}, you last signed in to your account on {1}
 
+
+error.common.feedback.name_mandatory=Please provide your name
+error.common.feedback.name_too_long=Your name cannot be longer than 70 characters
+error.common.feedback.rating_mandatory=Please rate your experience
+error.common.feedback.rating_valid=Please select a valid experience rating
+
 error.common.problem_report.name_mandatory=Please provide your name
 error.common.problem_report.name_too_long=Your name cannot be longer than 70 characters
 error.common.problem_report.telephone_mandatory=Please provide your telephone number

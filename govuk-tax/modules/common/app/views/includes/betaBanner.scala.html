@@ -1,3 +1,7 @@
+@(feedbackLinkEnabled:Boolean)
 <div class="beta-banner">
-    <p><b>BETA:</b> This is a prototype, designed to be simpler, clearer and faster. @helpers.link("", "https://www.gov.uk/service-manual/phases/beta.html", "Find out more", true)</p>
+    <p><b>BETA:</b> This is a trial service - your @helpers.link("feedback-link",
+        controllers.common.routes.FeedbackController.feedbackForm().url, "feedback") will help us to improve it.
+        @helpers.link("", "https://www.gov.uk/service-manual/phases/beta.html", "Find out more", true).
+    </p>
 </div>

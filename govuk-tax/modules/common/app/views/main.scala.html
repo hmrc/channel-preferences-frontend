@@ -1,4 +1,4 @@
-@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true)(mainContent: Html)
+@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true, feedbackLinkEnabled:Boolean = true)(mainContent: Html)
 
 
 @head = {
@@ -8,7 +8,7 @@
 @includes.header(nav)
 }
 @afterHeader = {
-@includes.betaBanner()
+@includes.betaBanner(feedbackLinkEnabled)
 }
 @content = {
 @includes.mainContent(mainContent, user, sidebarLinks, supportLinkEnabled)

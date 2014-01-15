@@ -1,0 +1,46 @@
+@(feedbackForm: Form[controllers.common.FeedbackForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
+@import views.helpers._
+@import controllers.common.FeedbackFormConfig._
+@main(title = Messages("feedback.heading"), nav = true, supportLinkEnabled = false, user = Some(user)) {
+
+    <h1>@Messages("feedback.heading")</h1>
+    @helpers.form(action = common.routes.FeedbackController.submit, 'class -> "form--feedback") {
+        <fieldset>
+            <legend class="h2-heading">Send feedback</legend>
+            @helpers.dropdown(
+            feedbackForm("feedback-rating"),
+            feedbackRatings,
+            '_label -> "Rate your experience of using Tax Platform",
+            '_labelClass -> "label--inlineDropdown",
+            '_emptyValueText -> " "
+            )
+            @helpers.input(
+            feedbackForm("feedback-name"),
+            '_label -> "Your name",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--fullwidth"
+            )
+            @helpers.input(
+            feedbackForm("feedback-email"),
+            '_label -> "Email address",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--fullwidth"
+            )
+            @helpers.textArea(
+            feedbackForm("feedback-comments"),
+            '_label -> "Your comments",
+            '_divClass -> "form-field",
+            '_inputClass -> "input--fullwidth",
+            '_help -> "2000 Characters max"
+            )
+            <input type="hidden" name="isJavascript" id="isJavascript" value="@feedbackForm.data.get("isJavascript")">
+            <input type="hidden" name="referer" id="referer" value="@feedbackForm.data.get("referer")">
+
+            <div class="form-field">
+                <button class="button" type="submit">Send</button>
+            </div>
+
+        </fieldset>
+    }
+
+}
