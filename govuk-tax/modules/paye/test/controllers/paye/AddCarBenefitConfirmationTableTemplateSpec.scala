@@ -9,7 +9,6 @@ import JavaConversions._
 import play.api.i18n.Messages
 import play.api.mvc.Content
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
-import scala.Some
 import org.specs2.reporter.Fixed
 import org.specs2.specification.so
 
