@@ -168,8 +168,8 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      assertFailedDatesSubmit(Some(("2012", "1", "1")), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date within the current tax year.")
-      assertFailedDatesSubmit(Some(localDateToTuple(Some(now.plusDays(8)))), Some("false"), None, Some("false"), None, "error_q_1", "You must specify a date, which is not more than 7 days in future from today.")
+      assertFailedDatesSubmit(Some(("2012", "1", "1")), Some("false"), None, Some("false"), None, "error_q_1", "Enter a date between 6 April 2012 and 5 April 2013.")
+      assertFailedDatesSubmit(Some(localDateToTuple(Some(now.plusDays(8)))), Some("false"), None, Some("false"), None, "error_q_1", "Enter a date that’s no more than 7 days from today - you can’t report a change more than 7 days in advance.")
 
       assertFailedDatesSubmit(Some((s"$taxYear", "5", "")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "17")), "error_q_1", "You must specify a valid date")
       assertFailedDatesSubmit(Some((s"$taxYear", "", "1")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "17")), "error_q_1", "You must specify a valid date")
@@ -189,12 +189,12 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "return 400 and display error when listPrice form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      assertFailedListPriceSubmit(None, "error_q_5", "You must specify the list price of your company car.")
-      assertFailedListPriceSubmit(Some("999"), "error_q_5", "List price must be greater than or equal to £1,000.")
+      assertFailedListPriceSubmit(None, "error_q_5", "Enter the car’s list price (including VAT and accessories).")
+      assertFailedListPriceSubmit(Some("999"), "error_q_5", "Enter a number between £1,000 and £99,999.")
       assertFailedListPriceSubmit(Some("10000.1"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
       assertFailedListPriceSubmit(Some("Ten thousand1"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
       assertFailedListPriceSubmit(Some("I own @ cat"), "error_q_5", "Please use whole numbers only, not decimals or other characters.")
-      assertFailedListPriceSubmit(Some("100000"), "error_q_5", "List price must not be higher than £99,999.")
+      assertFailedListPriceSubmit(Some("100000"), "error_q_5", "Enter a number between £1,000 and £99,999.")
     }
 
     "return 200 when employeeContribution form data validates successfully" in new WithApplication(FakeApplication()) {
@@ -209,13 +209,13 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "return 400 and display error when employeeContribution form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      assertFailedEmployeeContributionSubmit(Some("true"), None, "error_q_6", "You must specify how much you paid towards the cost of the car.")
+      assertFailedEmployeeContributionSubmit(Some("true"), None, "error_q_6", "Enter a number between £1 and £5,000.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("100.25"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployeeContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_6", "Please use whole numbers only, not decimals or other characters.")
-      assertFailedEmployeeContributionSubmit(Some("true"), Some("5002"), "error_q_6", "Capital contribution must not be higher than £5,000.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("5002"), "error_q_6", "Enter a number between £1 and £5,000.")
       assertFailedEmployeeContributionSubmit(None, None, "error_q_6", "Please answer this question.")
-      assertFailedEmployeeContributionSubmit(Some("true"), Some("0"), "error_q_6", "Capital contribution must be greater than zero if you have selected yes.")
+      assertFailedEmployeeContributionSubmit(Some("true"), Some("0"), "error_q_6", "Enter a number between £1 and £5,000.")
     }
 
     "return 200 when employers form data validates successfully" in new WithApplication(FakeApplication()) {
@@ -230,13 +230,13 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "return 400 and display error when employerContribution form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      assertFailedEmployerContributionSubmit(Some("true"), None, "error_q_7", "You must specify how much you pay your employer towards the cost of the car.")
+      assertFailedEmployerContributionSubmit(Some("true"), None, "error_q_7", "Confirm how much you paid towards the car.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("1000.25"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("Ten thousand"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
       assertFailedEmployerContributionSubmit(Some("true"), Some("I own @ cat"), "error_q_7", "Please use whole numbers only, not decimals or other characters.")
-      assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Employee payment must not be higher than £99,999.")
+      assertFailedEmployerContributionSubmit(Some("true"), Some("100000"), "error_q_7", "Enter a number between £1 and £99,999.")
       assertFailedEmployerContributionSubmit(None, None, "error_q_7", "Please answer this question.")
-      assertFailedEmployerContributionSubmit(Some("true"), Some("0"), "error_q_7", "Payment towards private use must be greater than zero if you have selected yes.")
+      assertFailedEmployerContributionSubmit(Some("true"), Some("0"), "error_q_7", "Enter a number between £1 and £99,999.")
     }
 
     "return 400 if the submitting is for year that is not the current tax year" in new WithApplication(FakeApplication()) {
