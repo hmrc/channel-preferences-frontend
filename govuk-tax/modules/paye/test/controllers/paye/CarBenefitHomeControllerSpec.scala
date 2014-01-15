@@ -148,6 +148,36 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       )
 
     }
+
+    "return the list of old company cars in reverse chronological order" in {
+
+      val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
+
+      val fuelBenefit = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
+      val fuelBenefit2 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
+      val fuelBenefit3 = fuelBenefitEmployer1.copy(grossAmount = BigDecimal(55.21))
+
+      val carBenefit = CarBenefit(carBenefitEmployer1.copy(grossAmount = BigDecimal(600)), Some(fuelBenefit))
+      val carBenefit2 = CarBenefit(carBenefitEmployer1.copy(grossAmount = BigDecimal(600), car = Some(carBenefitEmployer1.car.get.copy(dateCarMadeAvailable = Some(LocalDate(2010, 1, 10)), dateCarWithdrawn = Some(LocalDate(2010, 10, 10))))), Some(fuelBenefit2))
+      val carBenefit3 = CarBenefit(carBenefitEmployer1.copy(grossAmount = BigDecimal(600), car = Some(carBenefitEmployer1.car.get.copy(dateCarMadeAvailable = Some(LocalDate(2011, 1, 10)), dateCarWithdrawn = Some(LocalDate(2011, 10, 10))))), Some(fuelBenefit3))
+      val carBenefit4 = CarBenefit(carBenefitEmployer1.copy(grossAmount = BigDecimal(600), car = Some(carBenefitEmployer1.car.get.copy(dateCarMadeAvailable = Some(LocalDate(2012, 1, 10)),  dateCarWithdrawn = Some(LocalDate(2012, 10, 10))))), None)
+
+
+      val cars: Seq[CarBenefit] = Seq(carBenefit, carBenefit2, carBenefit3, carBenefit4)
+
+
+      val benefitDetails = RawTaxData(testTaxYear, cars, johnDensmoresEmployments, Seq(), Seq())
+
+      val actualHomePageParams = controller.buildHomePageParams(benefitDetails, benefitTypes, testTaxYear)
+
+      actualHomePageParams shouldNot be(None)
+
+      actualHomePageParams.get should have(
+        'activeCarBenefit(Some(carBenefit)),
+        'previousCarBenefits(Seq(carBenefit4, carBenefit3, carBenefit2))
+      )
+
+    }
   }
 
   "sessionWithNpsVersion" should {
