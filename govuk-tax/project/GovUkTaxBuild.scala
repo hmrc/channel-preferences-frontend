@@ -36,6 +36,8 @@ object GovUkTaxBuild extends Build {
   lazy val TemplateTest = config("tt") extend(Test)
 
   val configPath = "-Dconfig.file=../../conf/application.conf"
+  val uiDirectory = SettingKey[File]("ui-directory")
+
 
   val common = play.Project(
     appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
@@ -46,6 +48,12 @@ object GovUkTaxBuild extends Build {
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
     .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "common" })
+    .settings(GovukTemplatePlay.playSettings:_*)
+    .settings(
+      // Where does the UI live?
+      uiDirectory <<= (baseDirectory in Compile) { _ / "ui" }
+    )
+
 
   val paye = play.Project(
     appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
@@ -113,4 +121,14 @@ object Common {
       jasmineConfFile <+= baseDirectory { _ / ".." / "common" / "public" / "javascripts" / "test" /  "test.dependencies.js"},
       (test in Test) <<= (test in Test) dependsOn (jasmine)
     ) ++ playScalaSettings ++ Repositories.publishingSettings
+}
+object GovukTemplatePlay extends Plugin {
+
+  lazy val templateKey = SettingKey[Seq[File]]("template-dir", "Template directory for govuk_template_play")
+
+  val playSettings = Seq(
+    templateKey <<= baseDirectory(_ / "public" / "govuk_template_play")(Seq(_)),
+    sourceGenerators in Compile <+= (state, templateKey, sourceManaged in Compile, templatesTypes, templatesImport) map ScalaTemplates,
+    playAssetsDirectories <+= baseDirectory { _ / "public" / "govuk_template_play" / "assets" }
+  )
 }

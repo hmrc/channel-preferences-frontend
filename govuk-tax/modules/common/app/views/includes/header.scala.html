@@ -1,30 +1,21 @@
 @(nav: Boolean)
-<!--start header-->
-<header role="banner" class="header">
-    <div class="l-constrained--header">
-	<h1 class="header__logo">
-	    <a href="https://www.gov.uk/" title="Go to the gov.uk homepage" id="logo" class="content">
-		<img alt="GOV.UK" src="@common.routes.Assets.at("images/gov.uk_logotype-2x.png")" />
-	    </a>
-	</h1>
-	@if( nav ) {
-	    <nav class="header__menu" role="navigation">
-		<a href="#" class="js-header-toggle menu visuallyhidden">Menu</a>
-		<span class="header__menu__proposition-name">Your tax account</span>
-		<a href="https://www.gov.uk/service-manual" class="phase-tag beta">Beta</a>
-		<ul class="header__menu__proposition-links">
-		    <li><a id="homeNavHref" href="/home">Home</a></li>
-		    <li><a id="accountDetailsNavHref" href="/business-tax/account-details">Account details</a></li>
-		    <li><a id="otherServicesNavHref" href="/business-tax/other-services">Other taxes</a></li>
-            <!-- Not for MVP - HMTB-2628 -->
-		    <!--<li><a id="importantDatesNavHref" href="/business-tax/important-dates">Important Dates</a></li>-->
-		    <li><a href="@common.routes.ContactController.index ">Contact HMRC</a></li>
-		    <li><a id="logOutNavHref" href="@common.routes.LoginController.logout">Sign out</a></li>
-		</ul>
-	    </nav>
-	} else {
-        <a href="https://www.gov.uk/service-manual" class="phase-tag beta">Beta</a>
-	}
-    </div>
-</header>
-<!--end header-->
+
+@if( nav ) {
+<nav class="header__menu" role="navigation">
+    <a href="#" class="js-header-toggle menu visuallyhidden">Menu</a>
+    <span class="header__menu__proposition-name">Your tax account</span>
+    <a href="https://www.gov.uk/service-manual" class="phase-tag beta">Beta</a>
+    <ul class="header__menu__proposition-links">
+        <li><a id="homeNavHref" href="/home">Home</a></li>
+        <li><a id="accountDetailsNavHref" href="/business-tax/account-details">Account details</a></li>
+        <li><a id="otherServicesNavHref" href="/business-tax/other-services">Other taxes</a></li>
+        <!-- Not for MVP - HMTB-2628 -->
+        <!--<li><a id="importantDatesNavHref" href="/business-tax/important-dates">Important Dates</a></li>-->
+        <li><a href="@common.routes.ContactController.index ">Contact HMRC</a></li>
+        <li><a id="logOutNavHref" href="@common.routes.LoginController.logout">Sign out</a></li>
+    </ul>
+</nav>
+} else {
+<a href="https://www.gov.uk/service-manual" class="phase-tag beta">Beta</a>
+}
+

@@ -1,6 +1,7 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
+GET     /assets/template/*file          controllers.common.Template.at(path="/public/govuk_template_play/assets", file)
 GET     /assets/*file                   controllers.common.Assets.at(path="/public", file)
 
 GET     /login                          @controllers.common.LoginController.login

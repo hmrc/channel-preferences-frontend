@@ -1,0 +1,17 @@
+@(content: Html, user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html], supportLinkEnabled: Boolean = true)
+<section id="content" class="l-constrained--topBordered">
+    <div class="l-bodyLeftColumn">
+        <article>
+            @content
+        </article>
+        @if(supportLinkEnabled && user.isDefined) {
+            @includes.error_feedback()
+        }
+    </div>
+
+    @if( user.isDefined ) {
+    <aside class="l-bodyRightColumn">
+        @includes.sidebar(user, sidebarLinks)
+    </aside>
+    }
+</section>
