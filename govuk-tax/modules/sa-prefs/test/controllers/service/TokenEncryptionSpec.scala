@@ -4,11 +4,11 @@ import org.scalatest.{ ShouldMatchers, WordSpec }
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URLEncoder }
 import controllers.sa.prefs.service.{TokenExpiredException, TokenEncryption}
-import uk.gov.hmrc.crypto.SymmetricCrypto
+import uk.gov.hmrc.crypto.AesCrypto
 
 class TokenEncryptionSpec extends WordSpec with ShouldMatchers {
 
-  val crypto = new TokenEncryption with SymmetricCrypto {
+  val crypto = new TokenEncryption with AesCrypto {
     override val encryptionKey = "P5xsJ9Nt+quxGZzB4DeLfw=="
   }
 
