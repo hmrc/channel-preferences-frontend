@@ -101,7 +101,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
     "return none for a user who has not set preferences" in new WithApplication(FakeApplication()) {
       val mockPlayResponse = mock[Response]
       when(mockPlayResponse.status).thenReturn(404)
-      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.failed(new MicroServiceException("Not Found", mockPlayResponse)))
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(None))
       preferenceConnector.getPreferences(utr).futureValue shouldBe None
       verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
     }
