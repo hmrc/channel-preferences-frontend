@@ -118,7 +118,6 @@ paye.add_car_benefit_review.private_use_payments=Private use of the car: your co
 paye.add_car_benefit_review.date_registered=Date registered with DVLA
 paye.add_car_benefit_review.employer_pay_fuel.false=No
 paye.add_car_benefit_review.employer_pay_fuel.true=Yes, private fuel is available when you use the car
-paye.add_car_benefit_review.employer_pay_fuel.date={0} did pay for fuel for private travel, but stopped paying on {1}
 paye.add_car_benefit_review.submit_button=Submit
 paye.add_car_benefit_review.none=None
 

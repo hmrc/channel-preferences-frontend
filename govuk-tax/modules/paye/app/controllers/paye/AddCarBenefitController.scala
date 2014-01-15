@@ -65,7 +65,7 @@ with PayeRegimeRoots {
           implicit val hc = HeaderCarrier(request)
           lookupValuesFromKeystoreAndBuildForm(generateKeystoreActionId(taxYear, employmentSequenceNumber)).map {
             benefitFormWithSavedValues =>
-              Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user,request))
+              Ok(views.html.paye.add_car_benefit_form(benefitFormWithSavedValues, employment.employerName, taxYear, employmentSequenceNumber, currentTaxYearYearsRange)(user, request))
           }
         }
         case None => {
@@ -128,7 +128,7 @@ with PayeRegimeRoots {
                     Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
                   }
               }
-        }
+          }
       }
     }
   }
@@ -145,11 +145,24 @@ with PayeRegimeRoots {
               implicit val hc = HeaderCarrier(request)
 
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keyStoreKey, addCarBenefitData).map {
-                _ =>
-                  val confirmationData = AddCarBenefitConfirmationData(Strings.optionalValue(employment.employerName, "your.employer"), addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
-                    addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-                    addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution,  addCarBenefitData.carRegistrationDate, addCarBenefitData.privateUsePaymentAmount)
+                _ => {
+                  import AddCarBenefitConfirmationData._
+
+                  val confirmationData =
+                    AddCarBenefitConfirmationData(
+                      Strings.optionalValue(employment.employerName, "your.employer"),
+                      addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
+                      addCarBenefitData.listPrice.get,
+                      addCarBenefitData.fuelType.get,
+                      addCarBenefitData.co2Figure,
+                      addCarBenefitData.engineCapacity,
+                      convertEmployerPayFuel(addCarBenefitData.fuelType, addCarBenefitData.employerPayFuel),
+                      addCarBenefitData.employeeContribution,
+                      addCarBenefitData.carRegistrationDate,
+                      addCarBenefitData.privateUsePaymentAmount)
+
                   Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber)(request))
+                }
               }
             }
           )

@@ -2,11 +2,9 @@ package controllers.service
 
 import org.scalatest.{ ShouldMatchers, WordSpec }
 import org.joda.time.{ DateTimeZone, DateTime }
-import uk.gov.hmrc.secure.SymmetricEncrypter
-import org.apache.commons.codec.binary.Base64
 import java.net.{ URLDecoder, URLEncoder }
-import uk.gov.hmrc.common.crypto.SymmetricCrypto
 import controllers.sa.prefs.service.{TokenExpiredException, TokenEncryption}
+import uk.gov.hmrc.crypto.SymmetricCrypto
 
 class TokenEncryptionSpec extends WordSpec with ShouldMatchers {
 

@@ -99,9 +99,14 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
         Future.successful(BadRequest(replace_car_benefit_form(activeCarBenefit, primaryEmployment, removeForm, addForm, currentTaxYearYearsRange)))
       } else {
         val addCarBenefitData = addForm.get
+
+        import AddCarBenefitConfirmationData._
+
         val confirmationData = AddCarBenefitConfirmationData(Strings.optionalValue(primaryEmployment.employerName, "your.employer"), addCarBenefitData.providedFrom.getOrElse(startOfCurrentTaxYear),
           addCarBenefitData.listPrice.get, addCarBenefitData.fuelType.get, addCarBenefitData.co2Figure, addCarBenefitData.engineCapacity,
-          addCarBenefitData.employerPayFuel, addCarBenefitData.dateFuelWithdrawn, addCarBenefitData.employeeContribution, addCarBenefitData.carRegistrationDate, addCarBenefitData.privateUsePaymentAmount)
+          convertEmployerPayFuel(addCarBenefitData.fuelType, addCarBenefitData.employerPayFuel), addCarBenefitData.employeeContribution,
+          addCarBenefitData.carRegistrationDate, addCarBenefitData.privateUsePaymentAmount)
+
         keyStoreService.storeFormData(ReplaceCarBenefitFormData(removeForm.get, addCarBenefitData)).map { _ =>
           Ok(replace_car_benefit_review(activeCarBenefit, primaryEmployment, removeForm.get, confirmationData))
         }

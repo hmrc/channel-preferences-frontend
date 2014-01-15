@@ -91,7 +91,7 @@ with PayeRegimeRoots {
       details.transactionHistory)
 
     val carBenefit = details.cars.find(_.isActive)
-    val previousCars = details.cars.filterNot(_.isActive)
+    val previousCars = details.cars.filterNot(_.isActive).sortBy(_.dateMadeAvailable.toDate).reverse
 
 
     val carBenefitGrossAmount = details.cars.headOption.map(c => BenefitValue(c.grossAmount))

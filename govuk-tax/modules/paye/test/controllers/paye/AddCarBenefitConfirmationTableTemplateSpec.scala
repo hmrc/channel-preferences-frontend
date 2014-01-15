@@ -9,18 +9,17 @@ import JavaConversions._
 import play.api.i18n.Messages
 import play.api.mvc.Content
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
-import scala.Some
+import org.specs2.reporter.Fixed
+import org.specs2.specification.so
 
 
-class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubTaxYearSupport {
+class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with TaxYearSupport {
 
   def documentOf(content: Content) = Jsoup.parse(contentAsString(content))
 
   "the review add car benefit table" should {
     def addCarBenefitConfirmationDataForEmployeeContribution(employeeContribution: Option[Int], employerContribution: Option[Int] = None): AddCarBenefitConfirmationData = {
-      AddCarBenefitConfirmationData(
-        "", LocalDate.apply(), 0, "", None, None, None, None,
-        employeeContribution, None, employerContribution)
+      AddCarBenefitConfirmationData("", LocalDate.apply(), 0, "", None, None, None, employeeContribution, None, employerContribution)
     }
 
     "display the contribution to the price of the car when entered" in new WithApplication(FakeApplication()) {
@@ -54,18 +53,17 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubT
       }
     }
 
-    "display a \"not selected\" on every fields if none of them is defined" in {
+    "Display None in fields that are not selected" in {
       val data = addCarBenefitConfirmationDataForEmployeeContribution(None)
 
       val doc = Jsoup.parse(contentAsString(add_car_benefit_confirmation_table(data)))
       doc.getElementById("new-company-car-details") should bePresent
 
-
       val tableData = doc.getElementsByTag("td").toList.map(_.text)
 
       withClue("add car benefit review table") {
-        doc.getElementsByTag("th") should have size 9
-        tableData.filter(_.equals(Messages("paye.add_car_benefit_review.none"))) should have size 6
+        doc.getElementsByTag("th") should have size 6
+        tableData.filter(_.equals(Messages("paye.add_car_benefit_review.none"))) should have size 3
       }
     }
   }
@@ -93,7 +91,6 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubT
       tableData should contain("£50")
       tableData should contain("£300")
       tableData should contain("1 January 2000")
-      tableData should contain("employerName did pay for fuel for private travel, but stopped paying on 5 February 2014")
     }
   }
 

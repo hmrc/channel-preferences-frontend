@@ -1,19 +1,11 @@
 package controllers.paye
 
 import play.api.test.WithApplication
-import views.html.paye.{remove_car_benefit_confirmation_table, add_car_benefit_confirmation_table}
+import views.html.paye.remove_car_benefit_confirmation_table
 import org.jsoup.Jsoup
 import play.api.test.Helpers._
 import play.api.test.FakeApplication
-import scala.Some
-import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import org.scalatest.LoneElement
-import scala.collection.JavaConversions
-import JavaConversions._
-import play.api.i18n.Messages
-import org.joda.time.LocalDate
-import org.joda.time.chrono.ISOChronology
-import models.paye.{RemoveFuelBenefitFormData, RemoveCarBenefitFormData}
 
 
 class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubTaxYearSupport with LoneElement {

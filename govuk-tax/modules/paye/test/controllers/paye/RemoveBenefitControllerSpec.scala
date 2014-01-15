@@ -162,20 +162,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
   "Given a user who has car and fuel benefits, removing car benefit " should {
 
-    "In step 1, give the user the option to remove fuel benefit on the same (or different) date as the car" in new WithApplication(FakeApplication()) {
-
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any(), any())).thenReturn(None)
-
-      val result = formController.showRemoveCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, 2013, 2)
-      status(result) shouldBe 200
-
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".fuel-benefit-info") should not be empty
-      doc.getElementById("fuelRadio-sameDateFuel") should not be null
-      doc.getElementById("fuelRadio-differentDateFuel") should not be null
-    }
-
     "in step 1, display error message if user has not selected the type of date for fuel removal" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 

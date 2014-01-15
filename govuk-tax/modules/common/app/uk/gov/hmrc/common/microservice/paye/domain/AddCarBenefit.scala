@@ -13,8 +13,22 @@ case class AddCarBenefitConfirmationData(employerName: String,
                                          fuelType: String,
                                          co2Figure: Option[Int],
                                          engineCapacity: Option[String],
-                                         employerPayFuel: Option[String],
-                                         dateFuelWithdrawn: Option[LocalDate],
+                                         employerPayFuel: Option[Boolean],
                                          employeeContributions: Option[Int],
                                          dateRegistered: Option[LocalDate],
                                          privateUsePayments: Option[Int])
+
+object AddCarBenefitConfirmationData {
+  val fuelTypeElectric = "electricity"
+
+  def convertEmployerPayFuel(fuelType: Option[String], employerPayFuel: Option[String]): Option[Boolean] = {
+    fuelType match {
+      case Some(s) if s == fuelTypeElectric => None
+      case _ => employerPayFuel match {
+        case Some(s) if s == "true" => Some(true)
+        case Some(s) if s == "false" => Some(false)
+        case _ => None
+      }
+    }
+  }
+}
