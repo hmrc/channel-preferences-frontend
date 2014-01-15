@@ -6,7 +6,8 @@ import play.api.mvc.SimpleResult
 import play.api.http.HeaderNames
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
-import uk.gov.hmrc.common.crypto.{Decrypter, Encrypter, SessionCookieCrypto}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
+import uk.gov.hmrc.common.crypto.SessionCookieCrypto
 
 trait CookieCryptoFilter extends Filter {
 

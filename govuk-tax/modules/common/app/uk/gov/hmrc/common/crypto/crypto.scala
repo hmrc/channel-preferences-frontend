@@ -2,14 +2,7 @@ package uk.gov.hmrc.common.crypto
 
 import play.api.{Logger, Play}
 import scala.collection.JavaConversions._
-
-trait Encrypter {
-  def encrypt(id: String): String
-}
-
-trait Decrypter {
-  def decrypt(id: String): String
-}
+import uk.gov.hmrc.crypto.{SymmetricCrypto, CompositeSymmetricCrypto}
 
 trait KeysFromConfig {
   this: CompositeSymmetricCrypto =>

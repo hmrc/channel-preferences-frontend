@@ -14,7 +14,7 @@ import org.scalautils.TypeCheckedTripleEquals
 import play.api.mvc.SimpleResult
 import play.api.test.FakeApplication
 import play.api.mvc.Cookie
-import uk.gov.hmrc.common.crypto.{Decrypter, Encrypter}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 class CookieCryptoFilterSpec extends BaseSpec with MockitoSugar with OptionValues with ScalaFutures with Inspectors with TypeCheckedTripleEquals {
 
