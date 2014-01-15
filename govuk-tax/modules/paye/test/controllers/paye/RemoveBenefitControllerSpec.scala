@@ -456,31 +456,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe 200
     }
 
-    "in step 1, notify the user that the fuel benefit is going to be removed with the car benefit when removing car benefit" in new WithApplication(FakeApplication()) {
-
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any(), any())).thenReturn(None)
-
-      val result = formController.showRemoveCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, 2013, 2)
-      status(result) shouldBe 200
-
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".fuel-benefit-info") should not be empty
-
-    }
-
-    "in step 1, not notify the user about fuel benefit if the user does not have one" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, Seq(CarBenefit(carBenefit)))
-      when(mockKeyStoreService.getEntry(anyString, anyString, anyString, anyBoolean)(any(), any())).thenReturn(None)
-
-      val result = formController.showRemoveCarBenefitFormAction(johnDensmore, requestWithCorrectVersion, 2013, 2)
-      status(result) shouldBe 200
-
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".fuel-benefit-info") shouldBe empty
-
-    }
-
     "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
