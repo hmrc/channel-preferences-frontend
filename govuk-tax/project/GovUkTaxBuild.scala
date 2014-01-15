@@ -38,22 +38,29 @@ object GovUkTaxBuild extends Build {
   val configPath = "-Dconfig.file=../../conf/application.conf"
   val uiDirectory = SettingKey[File]("ui-directory")
 
-
-  val common = play.Project(
-    appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
-    settings = Common.commonSettings ++ SassPlugin.sassSettings
+  val govukTemplate = play.Project(
+    appName + "-template", Version.thisApp, appDependencies, path = file("modules/govuk-template"), settings = Common.commonSettings
   ).settings(Keys.fork in Test := false)
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
+
+
+  val common = play.Project(
+    appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
+    settings = Common.commonSettings ++ SassPlugin.sassSettings
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(govukTemplate % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
     .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "common" })
-    .settings(GovukTemplatePlay.playSettings:_*)
     .settings(
       // Where does the UI live?
       uiDirectory <<= (baseDirectory in Compile) { _ / "ui" }
     )
-
 
   val paye = play.Project(
     appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
@@ -90,7 +97,7 @@ object GovUkTaxBuild extends Build {
   ).settings(publishArtifact := true,
     Keys.fork in Test := false)
     .dependsOn(paye, sa, bt)
-    .aggregate(common, paye, sa, bt)
+    .aggregate(common, paye, sa, bt, govukTemplate)
 
 }
 
@@ -122,13 +129,4 @@ object Common {
       (test in Test) <<= (test in Test) dependsOn (jasmine)
     ) ++ playScalaSettings ++ Repositories.publishingSettings
 }
-object GovukTemplatePlay extends Plugin {
 
-  lazy val templateKey = SettingKey[Seq[File]]("template-dir", "Template directory for govuk_template_play")
-
-  val playSettings = Seq(
-    templateKey <<= baseDirectory(_ / "public" / "govuk_template_play")(Seq(_)),
-    sourceGenerators in Compile <+= (state, templateKey, sourceManaged in Compile, templatesTypes, templatesImport) map ScalaTemplates,
-    playAssetsDirectories <+= baseDirectory { _ / "public" / "govuk_template_play" / "assets" }
-  )
-}

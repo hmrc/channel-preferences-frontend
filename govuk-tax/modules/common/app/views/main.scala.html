@@ -1,5 +1,5 @@
 @(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true)(mainContent: Html)
-@import layouts.govuk_template
+
 
 @head = {
 @includes.head()
@@ -23,5 +23,5 @@
 
 }
 
-@govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, footerLinks)(content)
+@layouts.govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, footerLinks)(content)
 
