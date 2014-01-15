@@ -57,17 +57,17 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
     "reject a value that is more than 999" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "1000")
-      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Please enter a number of 3 characters or less.")
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Enter a number between 1 and 999.")
     }
 
     "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "-1")
-      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Days unavailable must be greater than zero if you have selected yes.")
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Enter a number more than 0.")
     }
 
     "reject a value that is 0" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "0")
-      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Days unavailable must be greater than zero if you have selected yes.")
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Enter a number more than 0.")
     }
 
     "accept a correct value" in new WithApplication(FakeApplication()) {
@@ -77,14 +77,14 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
     "reject when the carUnavailable flag is true, but no value is provided." in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "")
-      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "You must specify the number of consecutive days the car has been unavailable.")
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Enter the number of days the car was unavailable.")
     }
 
     "reject when the value is bigger than the providedFrom -> providedTo range." in new WithApplication(FakeApplication()) {
       val fromDate = Some(new LocalDate(2012, 5, 30))
       val toDate = Some(new LocalDate(2012, 5, 31))
       val form = bindFormWithValue(dummyForm(getValues(providedFromVal = fromDate, providedToVal = toDate, carUnavailableVal=Some("true"), giveBackThisTaxYearVal = Some("true"))), numberOfDaysUnavailable, "3")
-      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Car cannot be unavailable for longer than the total time you have a company car for.")
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "The car can’t be unavailable for longer than the total number of days you’ve had it. Reduce the number of days unavailable or check the date you got the car.")
     }
   }
 
@@ -155,7 +155,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
     "reject the date value for employer pays fuel if the date withdrawn field is empty" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(employerPayFuel -> "date", dateFuelWithdrawn -> ""))
       form.errors(dateFuelWithdrawn).size shouldBe 1
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Please specify when your employer stopped paying for fuel.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter the date your fuel benefit stopped.")
     }
 
     "accept the date value for employer pays fuel if days unavailable is not blank" in new WithApplication(FakeApplication()) {
@@ -168,7 +168,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
 
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a date within the current tax year.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date between 6 April 2012 and 5 April 2013.")
     }
 
     "reject fuel withdrawn date if it is in next tax year" in new WithApplication(FakeApplication()) {
@@ -177,7 +177,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val form = dummyForm(getValues(employerPayFuelVal = Some("date"), providedToVal= Some(endOfTaxYear))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(dateInLastTaxYear: _*))
 
       form.errors(dateFuelWithdrawn).size shouldBe 1
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "You must specify a date within the current tax year.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date between 6 April 2012 and 5 April 2013.")
     }
 
     "reject fuel withdrawn date if it is before the car benefit was made available" in new WithApplication(FakeApplication()) {
@@ -191,7 +191,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
         providedToVal = carStopDate,
         giveBackThisTaxYearVal = Some("true"))
       val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end before you get the car.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date that’s on or after the date you got the car.")
     }
 
     "reject fuel withdrawn date if it is after the date when the car benefit was removed"  in new WithApplication(FakeApplication()) {
@@ -206,7 +206,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
         giveBackThisTaxYearVal = Some("true"))
       val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
 
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end after you gave back the car.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date that’s on or before the date you returned the car.")
     }
 
     "accept fuel withdrawn date if it is the same date than when the car benefit was removed"  in new WithApplication(FakeApplication()) {
@@ -228,13 +228,13 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
       val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
 
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Your fuel cannot end before you get the car.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date that’s on or after the date you got the car.")
     }
 
     "reject fuel benefit if fuel type is electricity" in new WithApplication(FakeApplication()) {
       def haveErrors = have ('hasErrors (true))
       val form = dummyForm(getValues(fuelTypeVal = Some("electricity"), employerPayFuelVal = Some("Yes"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", employerPayFuel -> "true"))
-      assertHasThisErrorMessage(form, employerPayFuel, "Fuel benefits cannot be claimed for electric or zero emission cars.")
+      assertHasThisErrorMessage(form, employerPayFuel, "You can’t claim fuel benefit for electric cars or cars with zero C02 emissions.")
     }
   }
 
@@ -254,12 +254,12 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
     "reject a negative integer" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), co2Figure, "-123")
-      assertHasThisErrorMessage(form, co2Figure, "You must provide a number greater than zero.")
+      assertHasThisErrorMessage(form, co2Figure, "Enter a number between 1 and 999.")
     }
 
     "reject an integer with more than 3 characters" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), co2Figure, "1000")
-      assertHasThisErrorMessage(form, co2Figure, "You must provide a number which is 3 characters or less.")
+      assertHasThisErrorMessage(form, co2Figure, "Enter a number between 1 and 999.")
     }
 
     "reject a number value which is not an integer" in new WithApplication(FakeApplication()) {
@@ -323,7 +323,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(tooLateRegistrationDate:_*))
       form.errors(carRegistrationDate) should have size 1
-      assertHasThisErrorMessage(form, carRegistrationDate, "Date first registered with the DVLA cannot be in the future.")
+      assertHasThisErrorMessage(form, carRegistrationDate, "Enter a date that’s on or before today.")
     }
 
     "accept the car registration date if it is today" in new WithApplication(FakeApplication()) {
@@ -343,12 +343,12 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val registartionDateBefore1900 = buildDateFormField(carRegistrationDate, Some(("1899", "12", "31")))
       val form = dummyForm(getValues()).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(registartionDateBefore1900:_*))
       form.errors(carRegistrationDate).size shouldBe 1
-      assertHasThisErrorMessage(form, carRegistrationDate, "You must specify a valid date.")
+      assertHasThisErrorMessage(form, carRegistrationDate, "Enter a year after 1900.")
     }
 
     "reject fuel type is electricity if registered before 98 is true" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(carRegistrationDateVal = Some(now.withYear(1996)), fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> "true", fuelType -> "electricity"))
-      assertHasThisErrorMessage(form, fuelType, "Fuel type cannot be electric or zero emissions if your car was first registered with the DVLA before 1998.")
+      assertHasThisErrorMessage(form, fuelType, "If the car was registered with DVLA before 1998 the fuel can’t be electric and the emissions figure must be more than \"0\".")
     }
 
     "accept fuel type is electricity if registered the first of january 98" in new WithApplication(FakeApplication()) {
@@ -358,28 +358,28 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
     "reject co2 figure value if fuel type is electricity and co2 figure is not blank" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", co2Figure -> "123"))
-      assertHasThisErrorMessage(form, co2Figure, "CO2 emissions must be blank if your fuel type is electric or zero emissions.")
+      assertHasThisErrorMessage(form, co2Figure, "Don’t enter an emissions figure if the car fuel is electric or the emission figure is \"0\".")
     }
 
     "reject co2 no figure value if fuel type is electricity and no co2 figure is true" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", co2NoFigure -> "true"))
-      assertHasThisErrorMessage(form, co2NoFigure, "CO2 emissions must be blank if your fuel type is electric or zero emissions.")
+      assertHasThisErrorMessage(form, co2NoFigure, "Don’t enter an emissions figure if the car fuel is electric or the emission figure is \"0\".")
     }
 
     "reject CO2 figure if Co2 no figure is selected" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(co2NoFigureVal = Some("true"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(co2Figure -> "123", co2NoFigure -> "true"))
-      assertHasThisErrorMessage(form, co2Figure, "You cannot specify a CO2 emission figure and select that DVLA do not have a CO2 figure.")
+      assertHasThisErrorMessage(form, co2Figure, "Enter an emissions figure or confirm that one is unavailable.")
     }
 
     "reject CO2 figures with only one error message for blank field if fuel type is electricity" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("electricity"),  co2FigureVal = Some("123") ,  co2NoFigureVal = Some("true"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", co2Figure -> "123", co2NoFigure -> "true"))
-      assertHasThisErrorMessage(form, co2Figure, "CO2 emissions must be blank if your fuel type is electric or zero emissions.")
+      assertHasThisErrorMessage(form, co2Figure, "Don’t enter an emissions figure if the car fuel is electric or the emission figure is \"0\".")
       form.errors(co2NoFigure) shouldBe empty
     }
 
     "reject engine capacity value if fuel type is electricity and engine capacity is not blank" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("electricity"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "electricity", engineCapacity -> "1400"))
-      assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is electric or zero emissions, then you must not select an engine size.")
+      assertHasThisErrorMessage(form, engineCapacity, "Don’t select an engine size if the car fuel is electric or the emission figure is \"0\".")
     }
 
     "accept engine capacity value if fuel type is electricity and engine capacity is blank" in new WithApplication(FakeApplication()) {
@@ -389,12 +389,12 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
 
     "reject co2 figures if co2 no figure is false (blank) and co2 figure is blank and fuel type is not electricity" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelType -> "diesel", co2Figure -> "", co2NoFigure -> ""))
-      assertHasThisErrorMessage(form, co2NoFigure, "You must provide a CO2 emissions figure, or select that the DVLA do not have one.")
+      assertHasThisErrorMessage(form, co2NoFigure, "Confirm the car’s CO2 emissions.")
     }
 
     "reject engine capacity blank if fuel type is not electricity" in new WithApplication(FakeApplication()) {
       val form = dummyForm(getValues(carRegistrationDateVal = Some(now.withYear(1996)), fuelTypeVal = Some("diesel"))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carRegistrationDate -> "true"))
-      assertHasThisErrorMessage(form, engineCapacity, "If your fuel type is not electric or zero emissions, then you must select an engine capacity. No engine size does not apply to non-electric vehicles.")
+      assertHasThisErrorMessage(form, engineCapacity, "Select an engine size if the car’s emission figure is more than zero or the fuel type is diesel, petrol, hybrid or other.")
     }
   }
 

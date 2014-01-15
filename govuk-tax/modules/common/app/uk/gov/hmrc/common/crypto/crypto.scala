@@ -2,7 +2,7 @@ package uk.gov.hmrc.common.crypto
 
 import play.api.{Logger, Play}
 import scala.collection.JavaConversions._
-import uk.gov.hmrc.crypto.{SymmetricCrypto, CompositeSymmetricCrypto}
+import uk.gov.hmrc.crypto.{AesCrypto, CompositeSymmetricCrypto}
 
 trait KeysFromConfig {
   this: CompositeSymmetricCrypto =>
@@ -15,16 +15,16 @@ trait KeysFromConfig {
       Logger.error(s"Missing required configuration entry: $configKey")
       throw new SecurityException(s"Missing required configuration entry: $configKey")
     }
-    symmetricCrypto(currentEncryptionKey)
+    aesCrypto(currentEncryptionKey)
   }
 
   override protected val previousCryptos = {
     val configKey = baseConfigKey + ".previousKeys"
     val previousEncryptionKeys = Play.current.configuration.getStringList(configKey).map(_.toSeq).getOrElse(Seq.empty)
-    previousEncryptionKeys.map(symmetricCrypto)
+    previousEncryptionKeys.map(aesCrypto)
   }
 
-  private def symmetricCrypto(key: String) = new SymmetricCrypto {
+  private def aesCrypto(key: String) = new AesCrypto {
     override val encryptionKey = key
   }
 }

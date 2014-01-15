@@ -71,13 +71,13 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "-1")
       form.hasErrors shouldBe true
-      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Days unavailable must be greater than zero if you have selected yes.")
+      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Enter a number more than 0.")
     }
 
     "reject a value that is 0" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "0")
       form.hasErrors shouldBe true
-      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Days unavailable must be greater than zero if you have selected yes.")
+      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Enter a number more than 0.")
     }
 
     "accept a correct value" in new WithApplication(FakeApplication()) {
@@ -96,7 +96,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       val toDate = Some(new LocalDate(2012, 5, 31))
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"), withdrawDateVal = toDate), fromDate), "daysUnavailable", "3")
       form.hasErrors shouldBe true
-      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Car cannot be unavailable for longer than the total time you have a company car for.")
+      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("The car can’t be unavailable for longer than the total number of days you’ve had it. Reduce the number of days unavailable or check the date you got the car.")
     }
   }
 
@@ -114,7 +114,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     "reject a value that is more than 99999" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal = Some("true"))), "employeeContribution", "100000")
       form.hasErrors shouldBe true
-      form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("Please enter a number of 5 characters or less.")
+      form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("Enter a number between £1 and £99,999.")
     }
 
     "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
