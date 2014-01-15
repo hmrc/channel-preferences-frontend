@@ -24,8 +24,8 @@ class PreferencesConnector extends Connector {
 
   def getPreferences(utr: String)(implicit hc: HeaderCarrier): Future[Option[SaPreference]] =
     httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
-      .map(_.orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response")))
-      .recover { case MicroServiceException(errorMessage, response) if response.status == 404 => None}
+//      .map(_.orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response")))
+//      .recover { case MicroServiceException(errorMessage, response) if response.status == 404 => None}
 
   def updateEmailValidationStatus(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] = {
     httpPost("/preferences/sa/verify-email", Json.parse(toRequestBody(ValidateEmail(token)))) {
