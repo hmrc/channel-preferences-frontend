@@ -14,6 +14,7 @@ import controllers.sa.prefs.service.{SsoPayloadCrypto, TokenExpiredException, Re
 import controllers.common.BaseController
 import controllers.sa.prefs.EmailPreferenceData
 import scala.Some
+import uk.gov.hmrc.common.microservice.email.EmailConnector
 
 class SaPrefsController extends BaseController {
 

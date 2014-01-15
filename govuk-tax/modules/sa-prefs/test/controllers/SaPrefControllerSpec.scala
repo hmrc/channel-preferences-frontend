@@ -19,6 +19,7 @@ import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.SaPreference
 import scala.Some
 import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.email.EmailConnector
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 

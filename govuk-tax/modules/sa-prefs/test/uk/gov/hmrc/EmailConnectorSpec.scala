@@ -9,6 +9,8 @@ import play.api.test.{FakeApplication, WithApplication}
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.email.domain.ValidateEmailResponse
+import uk.gov.hmrc.common.microservice.email.EmailConnector
 
 class TestEmailConnector extends EmailConnector with MockitoSugar {
 
@@ -25,6 +27,7 @@ class TestEmailConnector extends EmailConnector with MockitoSugar {
 
 }
 
+// TODO: Delete/Merge with same name in common
 class EmailConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach with ScalaFutures {
 
   lazy val emailConnector = new TestEmailConnector

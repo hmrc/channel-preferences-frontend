@@ -7,6 +7,7 @@ import uk.gov.hmrc.EmailVerificationLinkResponse.EmailVerificationLinkResponse
 import uk.gov.hmrc.common.microservice.{MicroServiceConfig, MicroServiceException, Connector}
 import controllers.common.actions.HeaderCarrier
 import controllers.common.domain.Transform._
+import uk.gov.hmrc.common.microservice.preferences.ValidateEmail
 
 object EmailVerificationLinkResponse extends Enumeration {
   type EmailVerificationLinkResponse = Value
@@ -36,20 +37,6 @@ class PreferencesConnector extends Connector {
     }
   }
 }
-
-class EmailConnector() extends Connector {
-
-  protected val serviceUrl = MicroServiceConfig.emailServiceUrl
-
-  def validateEmailAddress(emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    httpGetF[ValidateEmailResponse](s"/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}") map
-      (_.getOrElse(throw new RuntimeException(s"Access to resource: '/validate-email-address' gave an invalid response")).valid)
-  }
-}
-
-case class ValidateEmailResponse(valid: Boolean)
-
-case class ValidateEmail(token: String)
 
 case class SaPreference(digital: Boolean, email: Option[String] = None)
 

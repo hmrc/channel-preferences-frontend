@@ -16,6 +16,7 @@ import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.MicroServiceException
 import controllers.common.domain.Transform._
+import uk.gov.hmrc.common.microservice.preferences.ValidateEmail
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 

@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 class EmailConnector extends Connector {
 
-  override val serviceUrl = MicroServiceConfig.emailServiceUrl
+  override protected val serviceUrl = MicroServiceConfig.emailServiceUrl
 
   def validateEmailAddress(address: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
     httpGetF[ValidateEmailResponse](s"/validate-email-address?email=${URLEncoder.encode(address, "UTF-8")}").map {
