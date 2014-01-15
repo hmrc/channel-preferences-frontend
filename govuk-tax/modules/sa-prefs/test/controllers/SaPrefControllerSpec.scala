@@ -16,10 +16,10 @@ import scala.concurrent.Future
 import controllers.sa.prefs.service.{SsoPayloadCrypto, RedirectWhiteListService}
 import controllers.sa.prefs.SaPrefsController
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.SaPreference
 import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.email.EmailConnector
+import uk.gov.hmrc.sa.prefs.{PreferencesConnector, SaPreference}
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 

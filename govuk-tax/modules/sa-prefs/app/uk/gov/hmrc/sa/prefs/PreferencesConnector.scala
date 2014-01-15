@@ -1,9 +1,8 @@
-package uk.gov.hmrc
+package uk.gov.hmrc.sa.prefs
 
 import scala.concurrent.Future
 import play.api.libs.json.Json
 import java.net.URLEncoder
-import uk.gov.hmrc.EmailVerificationLinkResponse.EmailVerificationLinkResponse
 import uk.gov.hmrc.common.microservice.{MicroServiceConfig, MicroServiceException, Connector}
 import controllers.common.actions.HeaderCarrier
 import controllers.common.domain.Transform._
@@ -24,10 +23,8 @@ class PreferencesConnector extends Connector {
 
   def getPreferences(utr: String)(implicit hc: HeaderCarrier): Future[Option[SaPreference]] =
     httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
-//      .map(_.orElse(throw new RuntimeException(s"Access to resource: '/portal/preferences/sa/individual/$utr/print-suppression' gave an inconsistent response")))
-//      .recover { case MicroServiceException(errorMessage, response) if response.status == 404 => None}
 
-  def updateEmailValidationStatus(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] = {
+  def updateEmailValidationStatus(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     httpPost("/preferences/sa/verify-email", ValidateEmail(token)) {
       _.status match {
         case s if OK to MULTI_STATUS contains s => EmailVerificationLinkResponse.OK

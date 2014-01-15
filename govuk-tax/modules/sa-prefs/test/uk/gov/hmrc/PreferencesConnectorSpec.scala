@@ -17,6 +17,7 @@ import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.MicroServiceException
 import controllers.common.domain.Transform._
 import uk.gov.hmrc.common.microservice.preferences.ValidateEmail
+import uk.gov.hmrc.sa.prefs.{SaPreference, EmailVerificationLinkResponse, PreferencesConnector}
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 

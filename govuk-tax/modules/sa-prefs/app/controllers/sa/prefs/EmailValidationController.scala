@@ -1,11 +1,11 @@
 package controllers.sa.prefs
 
 import play.api.mvc.Action
-import uk.gov.hmrc.{EmailVerificationLinkResponse, PreferencesConnector}
 import scala.concurrent.Future
 import controllers.common.BaseController
+import uk.gov.hmrc.sa.prefs.{EmailVerificationLinkResponse, PreferencesConnector}
 
-class EmailValidation extends BaseController {
+class EmailValidationController extends BaseController {
 
   implicit lazy val preferencesMicroService = new PreferencesConnector()
 

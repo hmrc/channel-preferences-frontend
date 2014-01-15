@@ -4,7 +4,7 @@ GET     /sa/print-preferences-no-action                         @controllers.sa.
 POST    /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.submitPrefsForm(token: String, return_url: String)
 POST    /sa/print-preferences/keep-paper/:token                 @controllers.sa.prefs.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
 
-GET     /sa/print-preferences/verification/:token               @controllers.sa.prefs.EmailValidation.verify(token: String)
+GET     /sa/print-preferences/verification/:token               @controllers.sa.prefs.EmailValidationController.verify(token: String)
 
 
 # Map static resources from the /public folder to the /assets URL path
