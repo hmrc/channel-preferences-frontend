@@ -12,21 +12,21 @@ import uk.gov.hmrc.common.microservice.auth.domain.CreationAndLastModifiedDetail
 import uk.gov.hmrc.utils.DateTimeUtils
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import org.mockito.Mockito._
-import org.mockito.Matchers.any
-import org.mockito.Matchers.{eq => meq}
+import org.mockito.Matchers.{eq => meq, any}
 import scala.concurrent.Future
 import scala.concurrent.Future._
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import scala.util.Random
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import uk.gov.hmrc.common.microservice.auth.domain.Credentials
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.deskpro.Ticket
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.deskpro.TicketId
+import play.api.mvc.Request
 
 class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -46,15 +46,26 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
 
     "redirect to the confirmation page when ticket is created" in new WithContactController {
-      when(deskProConnector.createTicket(any[Ticket])(any[HeaderCarrier])).thenReturn(Future.successful(Some(TicketId(123))))
+
 
       import controller._
 
+      def name = "Foo"
+      def email = "foo@bar.com"
+      def comments = "it works"
+      def isJavascript = true
+      def referer = "referer"
+      def subject = "Contact form submission"
 
-      private val keyStoreData: StoredTicket= Map(ticketKey -> "123")
+      when(deskProConnector.createTicket(meq(name), meq(email), meq(subject), meq(comments), meq(referer), meq(isJavascript), any[Request[AnyRef]], meq(Some(user)))(any[HeaderCarrier])).
+        thenReturn(Future.successful(Some(TicketId(123))))
+
+
+      private val keyStoreData: StoredTicket = Map(ticketKey -> "123")
       when(keyStoreConnector.addKeyStoreEntry[StoredTicket](meq(actionId), meq(source), meq(formId), meq(keyStoreData), meq(false))(any(classOf[Manifest[StoredTicket]]), any[HeaderCarrier])).thenReturn(successful(None))
 
-      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Foo", "contact-email" -> "foo@bar.com", "contact-comments" -> "it works", "isJavascript" -> "true", "referer" -> "mozilllaaaaa"))
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> name, "contact-email" -> email, "contact-comments" -> comments, "isJavascript" -> isJavascript.toString, "referer" -> referer))
+
       val page = Jsoup.parse(contentAsString(submit))
 
       status(submit) shouldBe 303
@@ -65,7 +76,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
     "return 404 if not authenticated" in new WithContactController {
       private val index = controller.index(FakeRequest().withSession(SessionKeys.lastRequestTimestamp -> DateTimeUtils.now.getMillis.toString))
-      status(index) shouldBe 404
+      status(index) shouldBe 303
     }
 
     "inject the referer if available" in new WithContactController {
@@ -85,27 +96,39 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
       status(submit) shouldBe 400
 
       page.getElementsByClass("error-notification").size() shouldBe 3
-      page.getElementsByClass("error-notification").get(0).text() shouldBe "Please provide your name."
-      page.getElementsByClass("error-notification").get(1).text() shouldBe "Valid email required"
+      page.getElementsByClass("error-notification").get(0).text() shouldBe "Please provide your name"
+      page.getElementsByClass("error-notification").get(1).text() shouldBe "Please provide a valid email address"
       page.getElementsByClass("error-notification").get(2).text() shouldBe "Please provide details"
     }
 
-    "create a ticket when the form is correct" in new WithContactController {
+    "fail if the comment is longer than 2000 chars" in new WithContactController {
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Name", "contact-email" -> "a@b.com", "contact-comments" -> Random.alphanumeric.take(2001).mkString))
+      val page = Jsoup.parse(contentAsString(submit))
 
-      val request = FakeRequest().withHeaders("User-Agent" -> "UA").withSession("sessionId" -> "123")
+      status(submit) shouldBe 400
 
-      val ticket = controller.createTicket(ContactForm("My Name", "my@email.com", "TP Rocks!", false, "SomeUrl"))(user, request)
+      page.getElementsByClass("error-notification").size() shouldBe 1
+      page.getElementsByClass("error-notification").first().text() shouldBe "The comment cannot be longer than 2000 characters"
+    }
 
-      ticket.name shouldBe "My Name"
-      ticket.email shouldBe "my@email.com"
-      ticket.message shouldBe "TP Rocks!"
-      ticket.javascriptEnabled shouldBe "N"
-      ticket.referrer shouldBe "SomeUrl"
-      ticket.userAgent shouldBe "UA"
-      ticket.sessionId shouldBe "123"
-      ticket.subject shouldBe "Contact form submission"
-      ticket.areaOfTax shouldBe "paye"
+    "fail if the name is longer than 70 chars" in new WithContactController {
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> Random.alphanumeric.take(71).mkString, "contact-email" -> "a@b.com", "contact-comments" -> "A comment"))
+      val page = Jsoup.parse(contentAsString(submit))
 
+      status(submit) shouldBe 400
+
+      page.getElementsByClass("error-notification").size() shouldBe 1
+      page.getElementsByClass("error-notification").first().text() shouldBe "Your name cannot be longer than 70 characters"
+    }
+
+    "fail if the email is longer than 320 chars" in new WithContactController {
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Name", "contact-email" -> s"${Random.alphanumeric.take(315).mkString}@b.com", "contact-comments" -> "A comment"))
+      val page = Jsoup.parse(contentAsString(submit))
+
+      status(submit) shouldBe 400
+
+      page.getElementsByClass("error-notification").size() shouldBe 1
+      page.getElementsByClass("error-notification").first().text() shouldBe "The email cannot be longer than 320 characters"
     }
 
   }
@@ -114,7 +137,8 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
     "retrieve the ticket id from the keystore and display it" in new WithContactController {
 
       import controller._
-      private val keyStoreData: StoredTicket= Map(ticketKey -> "123")
+
+      private val keyStoreData: StoredTicket = Map(ticketKey -> "123")
       when(keyStoreConnector.getEntry[StoredTicket](meq(actionId), meq(source), meq(formId), meq(false))(any(classOf[Manifest[StoredTicket]]), any[HeaderCarrier])).
         thenReturn(successful(Some(keyStoreData)))
 

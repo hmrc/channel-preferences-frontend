@@ -17,7 +17,7 @@ trait EmailControllerHelper {
 
   protected val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(
     "email" -> tuple(
-      "main" -> email,
+      "main" -> email.verifying("error.email_too_long", email => email.size < 320),
       "confirm" -> optional(text)
     ).verifying(
         "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")

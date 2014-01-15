@@ -21,6 +21,8 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
   with Actions
   with AllRegimeRoots {
 
+
+  val subject: String = "Contact form submission"
   val actionId: String = "confirmTicket"
   val source: String = "tickets"
   val formId: String = "FeedbackForm"
@@ -30,21 +32,25 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
 
   val form = Form[ContactForm](
     mapping(
-      "contact-name" -> text.verifying("error.common.problem_report.name_mandatory", action => !action.isEmpty),
-      "contact-email" -> email,
-      "contact-comments" -> text.verifying("error.common.comments_mandatory", action => !action.isEmpty),
+      "contact-name" -> text
+        .verifying("error.common.problem_report.name_mandatory", name => !name.trim.isEmpty)
+        .verifying("error.common.problem_report.name_too_long", name => name.size < 70),
+      "contact-email" -> email.verifying("error.email_too_long", email => email.size < 320),
+      "contact-comments" -> text
+        .verifying("error.common.comments_mandatory", comment => !comment.trim.isEmpty)
+        .verifying("error.common.comments_too_long", comment => comment.size < 2000),
       "isJavascript" -> boolean,
       "referer" -> text
     )(ContactForm.apply)(ContactForm.unapply)
   )
 
-  def index = WithNewSessionTimeout(AuthenticatedBy(AuthenticatedOr404Provider)({
+  def index = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway)( {
     user => request => renderIndex(user, request)
   }))
 
   private[common] def renderIndex(implicit user: User, request: Request[AnyRef]) = Ok(views.html.contact(form.fill(ContactForm(request.headers.get("Referer").getOrElse("n/a")))))
 
-  def submit = WithNewSessionTimeout(AuthenticatedBy(AuthenticatedOr404Provider).async({
+  def submit = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async( {
     user => request => doSubmit(user, request)
   }))
 
@@ -56,7 +62,8 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
         Future.successful(BadRequest(views.html.contact(error)))
       },
       data => {
-        hmrcDeskproConnector.createTicket(createTicket(data)).flatMap {
+        import data._
+        hmrcDeskproConnector.createTicket(contactName, contactEmail, subject, contactComments, referer, data.isJavascript, request, Some(user)).flatMap {
           ticket =>
             val ticketId = ticket.map(_.ticket_id.toString).getOrElse("Unknown")
             keyStoreConnector.addKeyStoreEntry[Map[String, String]](actionId, source, formId, Map(ticketKey -> ticketId)).map(
@@ -68,21 +75,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
   }
 
 
-  def createTicket(data: ContactForm)(implicit user: User, request: Request[AnyRef]): Ticket = {
-    Ticket(
-      data.contactName,
-      data.contactEmail,
-      "Contact form submission",
-      data.contactComments,
-      data.referer,
-      if (data.isJavascript) "Y" else "N",
-      request.headers.get("User-Agent").getOrElse("n/a"),
-      hc.userId.getOrElse("n/a"),
-      if (user.regimes.paye.isDefined) "paye" else "biztax",
-      hc.sessionId.getOrElse("n/a"))
-  }
-
-  def thanks = WithNewSessionTimeout(AuthenticatedBy(AuthenticatedOr404Provider).async({
+  def thanks = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async({
     implicit user => implicit request => doThanks(user, request)
   }))
 
@@ -101,17 +94,4 @@ case class ContactForm(contactName: String, contactEmail: String, contactComment
 
 object ContactForm {
   def apply(referer: String): ContactForm = ContactForm("", "", "", false, referer)
-}
-
-object AuthenticatedOr404Provider extends AuthenticationProvider{
-
-  def notFoundPage(request: Request[AnyContent]) = Future.successful(Right(NotFound(views.html.global_error(Messages("global.error.pageNotFound404.title"),
-    Messages("global.error.pageNotFound404.heading"),
-    Messages("global.error.pageNotFound404.message")))))
-
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-    case UserCredentials(None, _) => notFoundPage(request)
-    case UserCredentials(Some(_), None) => notFoundPage(request)
-  }
-
 }

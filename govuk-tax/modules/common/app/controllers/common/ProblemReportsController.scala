@@ -11,6 +11,7 @@ import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.deskpro.{TicketId, HmrcDeskproConnector, Ticket}
 import play.api.i18n.Messages
 import scala.concurrent.Future
+import uk.gov.hmrc.common.microservice.domain.User
 
 
 class ProblemReportsController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
@@ -32,7 +33,6 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
 
 
   def report = WithNewSessionTimeout(UnauthorisedAction.async {
-
     implicit request => {
       form.bindFromRequest.fold(
         error => {
@@ -63,17 +63,16 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
   private def createTicket(problemReport: ProblemReport, request: Request[AnyRef]): Future[Option[TicketId]] = {
     import ProblemReportsController._
     implicit val hc = HeaderCarrier(request)
-    hmrcDeskproConnector.createTicket(Ticket(
+    hmrcDeskproConnector.createTicket(
       problemReport.reportName,
       problemReport.reportEmail,
       "Support Request",
-      message(problemReport.reportAction, problemReport.reportError),
+      problemMessage(problemReport.reportAction, problemReport.reportError),
       referrerFrom(request),
-      if (problemReport.isJavascript) "Y" else "N",
-      request.headers.get("User-Agent").getOrElse("n/a"),
-      hc.userId.getOrElse("n/a"),
-      "paye|biztax",
-      hc.sessionId.getOrElse("n/a")))
+      problemReport.isJavascript,
+      request,
+      None
+    )
   }
 
   private def responseForNoJsBrowsers(hasErrors: Boolean)(implicit request: Request[AnyRef]) = Ok(views.html.problem_reports_confirmation(hasErrors, referrerFrom(request)))
@@ -86,7 +85,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
 
 object ProblemReportsController {
 
-  def message(action: String, error: String): String = {
+  def problemMessage(action: String, error: String): String = {
     s"""
     ${Messages("problem_report.action")}:
     $action

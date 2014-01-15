@@ -1,3 +1,6 @@
+error.email=Please provide a valid email address
+error.email_too_long=The email cannot be longer than 320 characters
+
 error.illegal.value=Please select a valid option
 error.prefs.printsuppression=Please select a Print Suppression Option
 error.prefs.email.missing=Email address must be provided
@@ -22,12 +25,14 @@ date.fields.year=Year
 common.firstlogin={0}, this is the first time you have logged in
 common.previousLoginTime={0}, you last signed in to your account on {1}
 
-error.common.problem_report.name_mandatory=Please provide your name.
-error.common.problem_report.telephone_mandatory=Please provide your telephone number.
-error.common.problem_report.email_mandatory=Please provide your email address.
-error.common.problem_report.error_mandatory=Please enter details of what went wrong.
-error.common.problem_report.action_mandatory=Please enter details of what you were doing.
-error.common.comments_mandatory = Please provide details
+error.common.problem_report.name_mandatory=Please provide your name
+error.common.problem_report.name_too_long=Your name cannot be longer than 70 characters
+error.common.problem_report.telephone_mandatory=Please provide your telephone number
+error.common.problem_report.email_mandatory=Please provide your email address
+error.common.problem_report.error_mandatory=Please enter details of what went wrong
+error.common.problem_report.action_mandatory=Please enter details of what you were doing
+error.common.comments_mandatory=Please provide details
+error.common.comments_too_long=The comment cannot be longer than 2000 characters
 
 problem_report.action=What were you doing?
 problem_report.error=What went wrong?
@@ -62,14 +67,16 @@ global.error.InternalServerError500.title=Sorry, we are experiencing technical d
 global.error.InternalServerError500.heading=Sorry, we’re experiencing technical difficulties
 global.error.InternalServerError500.message=Please try again in a few minutes.
 global.error.heading=I say Dear Watson, Something seems to be amiss. The clues lay below...
-contact.heading = Contact
+contact.heading = Contact HMRC
 contact.feedback_thank_you_header=Thank you
 contact.confirmation.message = Your comments will be reviewed by our customer support team.
 contact.confirmation.ticket_number = Your support reference number is
 
 
-login_error.title=Login error
-login_error.reason=Your credentials have not been recognised by HMRC.
-login_error.tryagain=Please try again by clicking
-login_error.linktext=here
-login_error.persistentproblem=If the problem persists please contact the HM Revenue & Customs Online Services Helpdesk.
+login_error.title=There was a problem signing you in
+login_error.reason=Your sign in details have not been recognised by HM Revenue and Customs.
+login_error.tryagain=Please try {0}.
+login_error.linktext=signing in again
+login_error.persistentproblem=Contact the {0} if this problem happens again.
+login_error.contact_help_desk.link.text=help desk
+login_error.contact_help_desk.link.url=https://www.gov.uk/hmrc-online-services-helpdesk

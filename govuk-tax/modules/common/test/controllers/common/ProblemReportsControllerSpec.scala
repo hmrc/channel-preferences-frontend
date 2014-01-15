@@ -1,42 +1,39 @@
 package controllers.common
 
 import uk.gov.hmrc.common.BaseSpec
-import play.api.test.{FakeRequest, WithApplication, FakeApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.deskpro.{TicketId, Ticket, HmrcDeskproConnector}
+import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import org.mockito.Mockito._
 import scala.concurrent.Future
 import org.mockito.Matchers
+import org.mockito.Matchers.{eq => meq, any}
 import controllers.common.actions.HeaderCarrier
+import scala.Some
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.deskpro.TicketId
+import play.api.mvc.Request
+import ProblemReportsController._
 
 class ProblemReportsControllerSpec extends BaseSpec {
 
-  def generateRequest(action: String = "Some Action", error: String = "Some Error", javascriptEnabled: Boolean = true) = FakeRequest()
+  def generateRequest(javascriptEnabled: Boolean = true) = FakeRequest()
     .withHeaders(("referer", "/contact/problem_reports"), ("User-Agent", "iAmAUserAgent"))
     .withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678",
-    "report-action" -> action, "report-error" -> error, "isJavascript" -> javascriptEnabled.toString)
+    "report-action" -> "Some Action", "report-error" -> "Some Error", "isJavascript" -> javascriptEnabled.toString)
 
-
-  def ticket = Ticket(
-    "John Densmore",
-    "name@mail.com",
-    "Support Request",
-    ProblemReportsController.message("Some Action", "Some Error"),
-    "/contact/problem_reports",
-    "Y",
-    "iAmAUserAgent",
-    "n/a",
-    "paye|biztax",
-    "n/a")
+  def generateInvalidRequest(javascriptEnabled: Boolean = true) = FakeRequest()
+    .withHeaders(("referer", "/contact/problem_reports"), ("User-Agent", "iAmAUserAgent"))
+    .withFormUrlEncodedBody("isJavascript" -> javascriptEnabled.toString)
 
   "Reporting a problem" should {
     "return 200 and a valid json for a valid request and js is enabled" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(Matchers.eq(ticket))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(true), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
       val result = controller.report()(generateRequest())
 
@@ -48,7 +45,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
     "return 200 and a valid html page for a valid request and js is not enabled" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(Matchers.eq(ticket.copy(javascriptEnabled = "N")))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
       val result = controller.report()(generateRequest(javascriptEnabled = false))
 
@@ -58,21 +55,9 @@ class ProblemReportsControllerSpec extends BaseSpec {
       document.getElementById("report-confirmation") should not be null
     }
 
-    "return 200 and a valid html page for an invalid action and js is not enabled" in new ProblemReportsControllerApplication {
+    "return 200 and a valid html page for invalid input and js is not enabled" in new ProblemReportsControllerApplication {
 
-      val result = controller.report()(generateRequest(action = "", javascriptEnabled = false))
-
-      status(result) should be(200)
-      verifyZeroInteractions(hmrcDeskproConnector)
-
-      val document = Jsoup.parse(contentAsString(result))
-      document.getElementById("report-confirmation-no-data") should not be null
-    }
-
-
-    "return 200 and a valid html page for an invalid error and js is not enabled" in new ProblemReportsControllerApplication {
-
-      val result = controller.report()(generateRequest(error = "", javascriptEnabled = false))
+      val result = controller.report()(generateInvalidRequest( javascriptEnabled = false))
 
       status(result) should be(200)
       verifyZeroInteractions(hmrcDeskproConnector)
@@ -81,19 +66,9 @@ class ProblemReportsControllerSpec extends BaseSpec {
       document.getElementById("report-confirmation-no-data") should not be null
     }
 
-    "return 400 and a valid json for an invalid action and js is enabled" in new ProblemReportsControllerApplication {
+    "return 400 and a valid json for invalid input and js is enabled" in new ProblemReportsControllerApplication {
 
-      val result = controller.report()(generateRequest(action = ""))
-
-      status(result) should be(400)
-      verifyZeroInteractions(hmrcDeskproConnector)
-
-      contentAsJson(result).\("status").as[String] shouldBe "ERROR"
-    }
-
-    "return 400 and a valid json for an invalid error and js is enabled" in new ProblemReportsControllerApplication {
-
-      val result = controller.report()(generateRequest(error = ""))
+      val result = controller.report()(generateInvalidRequest())
 
       status(result) should be(400)
       verifyZeroInteractions(hmrcDeskproConnector)

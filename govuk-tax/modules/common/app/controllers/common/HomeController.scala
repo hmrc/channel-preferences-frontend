@@ -26,7 +26,7 @@ class HomeController(override val auditConnector: AuditConnector)
     Redirect(routes.LoginController.login()).withNewSession
   }
 
-  def home = AuthenticatedBy(AnyLoggedInUser) {
+  def home = AuthenticatedBy(AnyAuthenticationProvider) {
     user => implicit request => redirectToHomepage(user, session)
   }
 
@@ -44,11 +44,4 @@ class HomeController(override val auditConnector: AuditConnector)
     }
   }
 
-  private object AnyLoggedInUser extends AuthenticationProvider {
-    def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-      case UserCredentials(None, token@_) =>
-        Logger.info(s"No identity cookie found - redirecting to login. user: None token: $token")
-        Future.successful(Right(redirectToLoginPage))
-    }
-  }
 }

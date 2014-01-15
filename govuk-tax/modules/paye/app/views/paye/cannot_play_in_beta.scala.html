@@ -1,5 +1,9 @@
 @(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @main(title = Messages("paye.cannot_play_in_beta.title"), user = Some(user)) {
-    @Messages("paye.cannot_play_in_beta.text")
+    <p>@Messages("paye.cannot_play_in_beta.text.p1")</p>
+    <p>@Html(Messages("paye.cannot_play_in_beta.text.p2", helpers.link("",
+        Messages("link.hmrc.contact.url"),
+        Messages("link.hmrc.contact.text"),
+        true).toString))</p>
 }

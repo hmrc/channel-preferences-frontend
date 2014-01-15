@@ -173,7 +173,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("Noddy", "BigEars")))
 
       status(result) shouldBe 401
-      contentAsString(result) should include("Login error")
+      contentAsString(result) should include("There was a problem signing you in")
 
       whenReady (result) { _=>
         expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
@@ -186,7 +186,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", "")))
 
       status(result) shouldBe 401
-      contentAsString(result) should include("Login error")
+      contentAsString(result) should include("There was a problem signing you in")
 
       whenReady (result) { _=>
         expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
@@ -200,7 +200,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
       status(result) shouldBe 401
-      contentAsString(result) should include("Login error")
+      contentAsString(result) should include("There was a problem signing you in")
 
       whenReady (result) { _=>
         expectALoginFailedAuditEventFor("IDA Login", "SAMLResponse failed validation")
@@ -216,7 +216,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
       status(result) shouldBe 401
-      contentAsString(result) should include("Login error")
+      contentAsString(result) should include("There was a problem signing you in")
 
       whenReady (result) { _=>
         expectALoginFailedAuditEventFor("IDA Login", "No record found in Auth for the PID")
