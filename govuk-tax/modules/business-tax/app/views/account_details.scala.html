@@ -1,5 +1,6 @@
 @(saPreferences : Option[uk.gov.hmrc.common.microservice.preferences.SaPreference])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 @import uk.gov.hmrc.common.microservice.preferences.SaEmailPreference
+@import uk.gov.hmrc.domain.Email._
 
 @main(title = "Your Self Assessment reminders", nav = true, user= Some(user)) {
 
@@ -33,7 +34,7 @@
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified ) {
            <p>You have signed up for email reminders.</p>
-           <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
+           <p>Email address: <span id="email-address">@{obfuscate(saPreferences.get.email.get.email)}</span></p>
            <hr>
            <p>
            @helpers.link(

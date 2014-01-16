@@ -100,6 +100,20 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       page.getElementById("opt-out-of-email-link") should not be null
     }
 
+    "include only the obfuscated version of the email address'" in new Setup {
+
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = Future.successful(controller.accountDetailsPage(user, request))
+
+      status(result) shouldBe 200
+      val page = Jsoup.parse(contentAsString(result))
+
+      page.getElementById("email-address") should have ('text ("t**t@test.com"))
+      page.toString should not include "test@test.com"
+    }
+
     "not include Change email address section for non-SA customer" in new Setup {
 
       val nonSaUser = User(userId = "userId", userAuthority = ctAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(), decryptedToken = None)
