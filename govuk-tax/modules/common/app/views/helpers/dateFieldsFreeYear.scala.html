@@ -14,7 +14,4 @@
     @elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
 
     @dateFieldsFreeYearInline(formItem, fieldName, label, args : _*)
-    @if(elements.args.get('_subText).isDefined) {
-        <p>@elements.args.get('_subText)</p>
-    }
 </fieldset>

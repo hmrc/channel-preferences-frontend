@@ -20,8 +20,8 @@
         carRegistrationDate,
         Html(Messages("paye.add_car_benefit.car_registration_date")),
         '_groupClass -> "form-field-group numbered",
-        '_hintText -> Messages("paye.add_car_benefit.car_registration_date.hint"),
-        '_subText -> helpers.link("", Messages("link.dvla.url"), Messages("paye.add_car_benefit.car_registration_date.dvla_website.text"),true))
+        '_hintText -> Html(Messages("paye.add_car_benefit.car_registration_date.hint", helpers.link("", Messages("link.dvla.url"), Messages("paye.add_car_benefit.car_registration_date.hint.link.text"),true)))
+        )
     </fieldset>
     <fieldset class="list--numbered">
         <legend class="h2-heading">@Messages("paye.add_car_benefit.cost_heading")</legend>
@@ -85,17 +85,7 @@
         carBenefitForm(co2Figure),
         Seq(
         InputText(Messages("paye.add_car_benefit.co2emissions_unit"), divClass = Some("form-field"), inputClass = Some("input--small flush--left"), label = Some(""))
-        ),
-        Some(Html(Messages("paye.add_car_benefit.dvla_approved_emissions",
-        helpers.link("",
-        Messages("link.dvla.url"),
-        Messages("paye.add_car_benefit.dvla_approved_emissions_enquiry_link_text"),
-        true).toString,
-        helpers.link("",
-        Messages("link.vehicle_certification_agency.url"),
-        Messages("paye.add_car_benefit.vca_car_fuel_data_link_text"),
-        true).toString)))
-        ),
+        )),
         FormField(
         carBenefitForm(co2NoFigure),
         Seq(
@@ -105,7 +95,8 @@
         ),
         '_label -> Messages("paye.add_car_benefit.co2emissions"),
         '_groupClass -> "non-electric form-field--inline numbered",
-        '_valueAfter -> true
+        '_valueAfter -> true,
+        '_hintText -> Html(Messages("paye.add_car_benefit.co2emissions.hint", helpers.link("", Messages("link.dvla.url"), Messages("paye.add_car_benefit.co2emissions.hint.link.text"),true)))
         )
 
         @helpers.fieldGroup(
