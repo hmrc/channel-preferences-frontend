@@ -34,7 +34,7 @@
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified ) {
            <p>You have signed up for email reminders.</p>
-           <p>Email address: <span id="email-address">@{obfuscate(saPreferences.get.email.get.email)}</span></p>
+           <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email.obfuscated}</span></p>
            <hr>
            <p>
            @helpers.link(
