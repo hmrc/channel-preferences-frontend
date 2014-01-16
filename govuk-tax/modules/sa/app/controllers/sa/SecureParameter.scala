@@ -3,7 +3,7 @@ package controllers.sa
 import play.api.libs.json.Json
 import org.joda.time.{ DateTimeZone, DateTime }
 import scala.util.Try
-import uk.gov.hmrc.common.crypto.QueryParameterCrypto
+import uk.gov.hmrc.common.crypto.ApplicationCrypto.QueryParameterCrypto
 
 case class SecureParameter(value: String, timestamp: DateTime) {
 

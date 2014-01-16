@@ -13,6 +13,7 @@ import play.api.mvc.Results._
 import scala.Some
 import play.api.i18n.Messages
 import uk.gov.hmrc.common.filters.{CacheControlFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter}
+import uk.gov.hmrc.common.crypto.ApplicationCrypto
 
 object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter, CSRFFilter(), CacheControlFilter) {
 
@@ -22,6 +23,8 @@ object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRF
       app.configuration.getBoolean(s"govuk-tax.$env.metrics.graphite.enabled").getOrElse(false)) {
       startGraphite(app)
     }
+
+    ApplicationCrypto.initialiseAndAssertKeyValidity()
   }
 
   def startGraphite(app: Application) {

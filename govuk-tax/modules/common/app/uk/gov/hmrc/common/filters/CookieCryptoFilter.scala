@@ -7,7 +7,7 @@ import play.api.http.HeaderNames
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
-import uk.gov.hmrc.common.crypto.SessionCookieCrypto
+import uk.gov.hmrc.common.crypto.ApplicationCrypto.SessionCookieCrypto
 
 trait CookieCryptoFilter extends Filter {
 

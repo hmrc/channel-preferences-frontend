@@ -67,11 +67,10 @@ class CryptoWithKeysFromConfigSpec extends BaseSpec {
 
   "Constructing a CompositeCryptoWithKeysFromConfig with a current key and empty previous keys" should {
 
-    val fakeApplicationWithEmptyPreviousKeys = {
-      FakeApplication(additionalConfiguration = Map(
-        CurrentKey.configKey -> CurrentKey.encryptionKey,
-        PreviousKeys.configKey -> List.empty))
-    }
+    val fakeApplicationWithEmptyPreviousKeys = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> List.empty)
+    )
 
     "return a properly initialised, functional CompositeSymmetricCrypto object that works with the current key" in new WithApplication(fakeApplicationWithEmptyPreviousKeys)  {
       val crypto = CryptoWithKeysFromConfig(baseConfigKey)
@@ -82,11 +81,10 @@ class CryptoWithKeysFromConfigSpec extends BaseSpec {
 
   "Constructing a CompositeCryptoWithKeysFromConfig with both current and previous keys" should {
 
-    val fakeApplicationWithCurrentAndPreviousKeys = {
-      FakeApplication(additionalConfiguration = Map(
-        CurrentKey.configKey -> CurrentKey.encryptionKey,
-        PreviousKeys.configKey -> PreviousKeys.encryptionKeys))
-    }
+    val fakeApplicationWithCurrentAndPreviousKeys = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> PreviousKeys.encryptionKeys)
+    )
 
     "return a properly initialised, functional CompositeSymmetricCrypto object that works with both old and new keys" in new WithApplication(fakeApplicationWithCurrentAndPreviousKeys)  {
       val crypto = CryptoWithKeysFromConfig(baseConfigKey)
@@ -94,6 +92,66 @@ class CryptoWithKeysFromConfigSpec extends BaseSpec {
       crypto.decrypt(CurrentKey.encryptedMessage) shouldBe CurrentKey.plainMessage
       crypto.decrypt(PreviousKey1.encryptedMessage) shouldBe PreviousKey1.plainMessage
       crypto.decrypt(PreviousKey2.encryptedMessage) shouldBe PreviousKey2.plainMessage
+    }
+  }
+
+  "Constructing a CompositeCryptoWithKeysFromConfig with an invalid key" should {
+
+    val keyWithInvalidNumberOfBits = "ZGVmZ2hpamtsbW4K"
+    val keyWithInvalidBase64Encoding = "defgh£jklmn"
+
+    val fakeApplicationWithShortCurrentKey = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> keyWithInvalidNumberOfBits,
+      PreviousKeys.configKey -> PreviousKeys.encryptionKeys
+    ))
+
+    val fakeApplicationWithInvalidBase64CurrentKey = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> keyWithInvalidBase64Encoding,
+      PreviousKeys.configKey -> PreviousKeys.encryptionKeys
+    ))
+
+    val fakeApplicationWithShortFirstPreviousKey = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> Seq(keyWithInvalidNumberOfBits, PreviousKey1.encryptionKey, PreviousKey2.encryptionKey)
+    ))
+
+    val fakeApplicationWithInvalidBase64FirstPreviousKey = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> Seq(keyWithInvalidBase64Encoding, PreviousKey1.encryptionKey, PreviousKey2.encryptionKey)
+    ))
+
+    val fakeApplicationWithShortOtherPreviousKey = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> Seq(PreviousKey1.encryptionKey, keyWithInvalidNumberOfBits, PreviousKey2.encryptionKey)
+    ))
+
+    val fakeApplicationWithInvalidBase64OtherPreviousKey = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> Seq(PreviousKey1.encryptionKey, keyWithInvalidBase64Encoding, PreviousKey2.encryptionKey)
+    ))
+
+    "throw a SecurityException if the current key is too short" in new WithApplication(fakeApplicationWithShortCurrentKey) {
+        evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
+    }
+
+    "throw a SecurityException if the current key cannot be base 64 decoded" in new WithApplication(fakeApplicationWithInvalidBase64CurrentKey) {
+      evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
+    }
+
+    "throw a SecurityException if the first previous key is too short" in new WithApplication(fakeApplicationWithShortFirstPreviousKey) {
+      evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
+    }
+
+    "throw a SecurityException if the first previous key cannot be base 64 decoded" in new WithApplication(fakeApplicationWithInvalidBase64FirstPreviousKey) {
+      evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
+    }
+
+    "throw a SecurityException if the other previous key is too short" in new WithApplication(fakeApplicationWithShortOtherPreviousKey) {
+      evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
+    }
+
+    "throw a SecurityException if the other previous key cannot be base 64 decoded" in new WithApplication(fakeApplicationWithInvalidBase64OtherPreviousKey) {
+      evaluating(CryptoWithKeysFromConfig(baseConfigKey)) should produce [SecurityException]
     }
   }
 }

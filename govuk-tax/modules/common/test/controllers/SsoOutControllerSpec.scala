@@ -10,7 +10,7 @@ import play.api.test.FakeApplication
 import config.{DateTimeProvider, PortalConfig}
 import uk.gov.hmrc.common.BaseSpec
 import org.joda.time.DateTime
-import uk.gov.hmrc.common.crypto.SsoPayloadCrypto
+import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
 
 class SsoOutControllerSpec extends BaseSpec with MockitoSugar {
 

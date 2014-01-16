@@ -1,14 +1,14 @@
 package controllers.common
 
-import controllers.common.service.{Connectors}
+import controllers.common.service.Connectors
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Request, Action}
 import config.PortalConfig
-import play.api.{Logger, Play}
+import play.api.Logger
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.Actions
-import uk.gov.hmrc.common.crypto.SsoPayloadCrypto
+import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
 
 class SsoOutController(override val auditConnector: AuditConnector)
                       (implicit override val authConnector: AuthConnector)

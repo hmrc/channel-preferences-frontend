@@ -24,8 +24,16 @@ trait KeysFromConfig {
     previousEncryptionKeys.map(aesCrypto)
   }
 
-  private def aesCrypto(key: String) = new AesCrypto {
-    override val encryptionKey = key
+  private def aesCrypto(key: String) = {
+    try {
+      val crypto = new AesCrypto {
+        override val encryptionKey = key
+      }
+      crypto.decrypt(crypto.encrypt("assert-valid-key"))
+      crypto
+    } catch {
+      case e: Exception => Logger.error(s"Invalid encryption key: $key"); throw new SecurityException("Invalid encryption key", e)
+    }
   }
 }
 

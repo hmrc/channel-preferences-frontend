@@ -2,7 +2,7 @@ package controllers.common
 
 import play.api.test.{ FakeApplication, WithApplication }
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.crypto.SessionCookieCrypto
+import uk.gov.hmrc.common.crypto.ApplicationCrypto.SessionCookieCrypto
 
 class SessionCookieCryptoSpec extends BaseSpec {
 
