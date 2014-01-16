@@ -54,6 +54,14 @@ class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with St
       doc.getElementById("car-benefit-employee-payments").text shouldBe "£2,000"
       doc.getElementById("car-benefit-date-fuel-withdrawn") shouldBe null
     }
+
+    "render the days unavailable table heading in the correct format" in new WithApplication(FakeApplication()) {
+      val doc = Jsoup.parse(contentAsString(remove_car_benefit_confirmation_table(formData, employment, false, testTaxYear)))
+
+      val daysUnavailableHeading = doc.getElementById("car-benefit-num-days-unavailable").parents().first().select("th").text()
+      daysUnavailableHeading should include("2013")
+      daysUnavailableHeading should not include "2,013"
+    }
   }
 
 }
