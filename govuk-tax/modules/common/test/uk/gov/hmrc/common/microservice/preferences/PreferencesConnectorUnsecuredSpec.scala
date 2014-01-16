@@ -1,4 +1,4 @@
-package uk.gov.hmrc
+package uk.gov.hmrc.common.microservice.preferences
 
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{OptionValues, BeforeAndAfterEach, ShouldMatchers, WordSpec}
@@ -14,7 +14,7 @@ import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.preferences.{EmailVerificationLinkResponse, SaPreferenceSimplified, PreferencesConnector, ValidateEmail}
 
-class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
+class TestPreferencesConnectorUnsecured extends PreferencesConnector with MockitoSugar {
 
   val httpWrapper = mock[HttpWrapper]
 
@@ -38,9 +38,9 @@ class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
 }
 
-class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach with ScalaFutures with OptionValues {
+class PreferencesConnectorUnsecuredSpec extends WordSpec with MockitoSugar with ShouldMatchers with BeforeAndAfterEach with ScalaFutures with OptionValues {
 
-  lazy val preferenceConnector = new TestPreferencesConnector
+  lazy val preferenceConnector = new TestPreferencesConnectorUnsecured
 
   override def afterEach = reset(preferenceConnector.httpWrapper)
 
