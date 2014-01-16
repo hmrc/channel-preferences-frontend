@@ -41,7 +41,8 @@ class RemoveCarBenefitTemplateSpec extends PayeBaseSpec with StubTaxYearSupport 
 
       val doc = Jsoup.parse(contentAsString(result))
 
-      doc.select(".fuel-benefit-info").text shouldBe ""
+      doc.getElementById("fuelRadio-sameDateFuel") shouldBe null
+      doc.getElementById("fuelRadio-differentDateFuel") shouldBe null
     }
 
   }
@@ -55,7 +56,6 @@ class RemoveCarBenefitTemplateSpec extends PayeBaseSpec with StubTaxYearSupport 
       val result = remove_car_benefit_form(activeCarBenefit, johnDensmoresOneEmployment(1).head, form, currentTaxYearYearsRange)(johnDensmore, FakeRequest())
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".fuel-benefit-info") should not be empty
       doc.getElementById("fuelRadio-sameDateFuel") should not be null
       doc.getElementById("fuelRadio-differentDateFuel") should not be null
     }
