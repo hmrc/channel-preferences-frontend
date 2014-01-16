@@ -2,22 +2,17 @@ package uk.gov.hmrc
 
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{OptionValues, BeforeAndAfterEach, ShouldMatchers, WordSpec}
-import play.api.libs.json.{Json, JsValue}
 import play.api.test.WithApplication
 import org.mockito.Mockito._
 import org.mockito.{Matchers, ArgumentCaptor}
 import Matchers.any
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
-import play.api.libs.json.JsBoolean
 import scala.Some
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.common.microservice.MicroServiceException
-import controllers.common.domain.Transform._
-import uk.gov.hmrc.common.microservice.preferences.ValidateEmail
-import uk.gov.hmrc.sa.prefs.{SaPreference, EmailVerificationLinkResponse, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences.{EmailVerificationLinkResponse, SaPreferenceSimplified, PreferencesConnector, ValidateEmail}
 
 class TestPreferencesConnector extends PreferencesConnector with MockitoSugar {
 
@@ -58,9 +53,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
   "SaMicroService" should {
     "save preferences for a user that wants email notifications" in new WithApplication(FakeApplication()) {
 
-      preferenceConnector.savePreferences(utr, true, Some(email))
+      preferenceConnector.savePreferencesUnsecured(utr, true, Some(email))
 
-      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[SaPreference]])
+      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[SaPreferenceSimplified]])
       verify(preferenceConnector.httpWrapper).httpPostF(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])(any(), any(), Matchers.eq(hc))
 
       val body = bodyCaptor.getValue.value
@@ -70,9 +65,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
     "save preferences for a user that wants paper notifications" in new WithApplication(FakeApplication()) {
 
-      preferenceConnector.savePreferences(utr, false)
+      preferenceConnector.savePreferencesUnsecured(utr, false)
 
-      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[SaPreference]])
+      val bodyCaptor = ArgumentCaptor.forClass(classOf[Option[SaPreferenceSimplified]])
       verify(preferenceConnector.httpWrapper).httpPostF(Matchers.eq(s"/portal/preferences/sa/individual/$utr/print-suppression"), bodyCaptor.capture(), Matchers.any[Map[String, String]])(any(), any(), Matchers.eq(hc))
 
       val body = bodyCaptor.getValue.value
@@ -82,9 +77,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(true, Some("someEmail@email.com")))))
-      val result = preferenceConnector.getPreferences(utr).futureValue.get
-      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreferenceSimplified(true, Some("someEmail@email.com")))))
+      val result = preferenceConnector.getPreferencesUnsecured(utr).futureValue.get
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital should be (true)
       result.email should be (Some("someEmail@email.com"))
@@ -92,9 +87,9 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
 
     "get preferences for a user who opted for paper notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(false))))
-      val result = preferenceConnector.getPreferences(utr).futureValue.get
-      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreferenceSimplified(false))))
+      val result = preferenceConnector.getPreferencesUnsecured(utr).futureValue.get
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital should be(false)
       result.email should be(None)
@@ -103,17 +98,17 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
     "return none for a user who has not set preferences" in new WithApplication(FakeApplication()) {
       val mockPlayResponse = mock[Response]
       when(mockPlayResponse.status).thenReturn(404)
-      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(None))
-      preferenceConnector.getPreferences(utr).futureValue shouldBe None
-      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(None))
+      preferenceConnector.getPreferencesUnsecured(utr).futureValue shouldBe None
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")
     }
 
   }
 
-  "The updateEmailValidationStatus" should {
+  "The updateEmailValidationStatusUnsecured" should {
     import EmailVerificationLinkResponse._
 
-    "return ok if updateEmailValidationStatus returns 200" in {
+    "return ok if updateEmailValidationStatusUnsecured returns 200" in {
       val token = "someGoodToken"
       val expected = ValidateEmail(token)
       val response = mock[Response]
@@ -123,12 +118,12 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
         Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceConnector.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatusUnsecured(token)
 
       result.futureValue shouldBe OK
     }
 
-    "return ok if updateEmailValidationStatus returns 204" in {
+    "return ok if updateEmailValidationStatusUnsecured returns 204" in {
       val token = "someGoodToken"
       val expected = ValidateEmail(token)
       val response = mock[Response]
@@ -138,12 +133,12 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
         Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceConnector.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatusUnsecured(token)
 
       result.futureValue shouldBe OK
     }
 
-    "return error if updateEmailValidationStatus returns 400" in {
+    "return error if updateEmailValidationStatusUnsecured returns 400" in {
       val token = "someGoodToken"
       val expected = ValidateEmail(token)
       val response = mock[Response]
@@ -153,12 +148,12 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
         Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceConnector.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatusUnsecured(token)
 
       result.futureValue shouldBe ERROR
     }
 
-    "return error if updateEmailValidationStatus returns 404" in {
+    "return error if updateEmailValidationStatusUnsecured returns 404" in {
       val token = "someGoodToken"
       val expected = ValidateEmail(token)
       val response = mock[Response]
@@ -168,12 +163,12 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
         Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceConnector.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatusUnsecured(token)
 
       result.futureValue shouldBe ERROR
     }
 
-    "return error if updateEmailValidationStatus returns 500" in {
+    "return error if updateEmailValidationStatusUnsecured returns 500" in {
       val token = "someGoodToken"
       val expected = ValidateEmail(token)
       val response = mock[Response]
@@ -183,12 +178,12 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
         Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceConnector.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatusUnsecured(token)
 
       result.futureValue shouldBe ERROR
     }
 
-    "return expired if updateEmailValidationStatus returns 410" in {
+    "return expired if updateEmailValidationStatusUnsecured returns 410" in {
       val token = "someGoodToken"
       val expected = ValidateEmail(token)
       val response = mock[Response]
@@ -198,7 +193,7 @@ class PreferencesConnectorSpec extends WordSpec with MockitoSugar with ShouldMat
         Matchers.eq(expected),
         Matchers.any[Map[String, String]])).thenReturn(response)
 
-      val result = preferenceConnector.updateEmailValidationStatus(token)
+      val result = preferenceConnector.updateEmailValidationStatusUnsecured(token)
 
       result.futureValue shouldBe EXPIRED
     }

@@ -3,7 +3,7 @@ package controllers.sa.prefs
 import play.api.mvc.Action
 import scala.concurrent.Future
 import controllers.common.BaseController
-import uk.gov.hmrc.sa.prefs.{EmailVerificationLinkResponse, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences.{EmailVerificationLinkResponse, PreferencesConnector}
 
 class EmailValidationController extends BaseController {
 
@@ -15,7 +15,7 @@ class EmailValidationController extends BaseController {
     implicit request =>
       token match {
         case regex(_) =>
-          preferencesMicroService.updateEmailValidationStatus(token) map {
+          preferencesMicroService.updateEmailValidationStatusUnsecured(token) map {
             case EmailVerificationLinkResponse.OK => Ok(views.html.sa.prefs.sa_printing_preference_verify_email())
             case EmailVerificationLinkResponse.EXPIRED => Ok(views.html.sa.prefs.sa_printing_preference_expired_email())
             case EmailVerificationLinkResponse.ERROR => BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed())

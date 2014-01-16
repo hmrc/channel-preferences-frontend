@@ -11,7 +11,7 @@ import controllers.sa.prefs.service.{SsoPayloadCrypto, TokenExpiredException, Re
 import controllers.common.BaseController
 import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.sa.prefs.PreferencesConnector
+import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 
 class SaPrefsController extends BaseController {
 
@@ -57,7 +57,7 @@ class SaPrefsController extends BaseController {
         utr =>
           Action.async {
             implicit request =>
-              preferencesConnector.getPreferences(utr) map {
+              preferencesConnector.getPreferencesUnsecured(utr) map {
                 case Some(saPreference) =>
                   Redirect(return_url)
                 case _ =>
@@ -105,12 +105,12 @@ class SaPrefsController extends BaseController {
                     else emailConnector.validateEmailAddress(emailForm.mainEmail)
                   isEmailValid flatMap {
                     case true => {
-                      preferencesConnector.getPreferences(utr).map {
+                      preferencesConnector.getPreferencesUnsecured(utr).map {
                         case Some(saPreference) =>
                           Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
                         case None => {
                           // FIXME this should map over the result
-                          preferencesConnector.savePreferences(utr, true, Some(emailForm.mainEmail))
+                          preferencesConnector.savePreferencesUnsecured(utr, true, Some(emailForm.mainEmail))
                           //                  Play redirect is encoding query params, we need to decode the url to avoid double encoding
                           Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
                         }
@@ -131,11 +131,11 @@ class SaPrefsController extends BaseController {
         utr =>
           Action.async {
             implicit request =>
-              preferencesConnector.getPreferences(utr) map {
+              preferencesConnector.getPreferencesUnsecured(utr) map {
                 case Some(saPreference) =>
                   Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
                 case None =>
-                  preferencesConnector.savePreferences(utr, false)
+                  preferencesConnector.savePreferencesUnsecured(utr, false)
                   Redirect(return_url)
               }
           }
