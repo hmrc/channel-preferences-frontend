@@ -12,7 +12,7 @@
         <td id="car-benefit-date-car-withdrawn">@formatDate(formData.withdrawDate)</td>
     </tr>
     <tr>
-        <th scope="row">@Messages("paye.remove_car_benefit_review.days_unavailable", taxYear)</th>
+        <th scope="row">@Messages("paye.remove_car_benefit_review.days_unavailable", taxYear.toString)</th>
         <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("none")</td>
     </tr>
 
