@@ -8,7 +8,6 @@ import models.paye.CarBenefitData
 import play.api.data.Form
 import play.api.test.Helpers._
 import controllers.paye.validation.AddCarBenefitValidator._
-import org.joda.time.LocalDate
 
 class AddCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper {
   "add car benefit template" should {

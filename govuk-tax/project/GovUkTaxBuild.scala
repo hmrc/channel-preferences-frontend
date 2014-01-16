@@ -37,16 +37,31 @@ object GovUkTaxBuild extends Build {
   lazy val TemplateTest = config("tt") extend(Test)
 
   val configPath = "-Dconfig.file=../../conf/application.conf"
+  val uiDirectory = SettingKey[File]("ui-directory")
 
-  val common = play.Project(
-    appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
-    settings = Common.commonSettings ++ SassPlugin.sassSettings
+  val govukTemplate = play.Project(
+    appName + "-template", Version.thisApp, appDependencies, path = file("modules/govuk-template"), settings = Common.commonSettings
   ).settings(Keys.fork in Test := false)
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
+
+
+  val common = play.Project(
+    appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
+    settings = Common.commonSettings ++ SassPlugin.sassSettings
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(govukTemplate % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
     .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "common" })
+    .settings(
+      // Where does the UI live?
+      uiDirectory <<= (baseDirectory in Compile) { _ / "ui" }
+    )
 
   val paye = play.Project(
     appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
@@ -92,7 +107,7 @@ object GovUkTaxBuild extends Build {
   ).settings(publishArtifact := true,
     Keys.fork in Test := false)
     .dependsOn(paye, sa, bt, saPrefs)
-    .aggregate(common, paye, sa, bt, saPrefs)
+    .aggregate(common, paye, sa, bt, saPrefs, govukTemplate)
 
 }
 
@@ -124,3 +139,4 @@ object Common {
       (test in Test) <<= (test in Test) dependsOn (jasmine)
     ) ++ playScalaSettings ++ Repositories.publishingSettings
 }
+

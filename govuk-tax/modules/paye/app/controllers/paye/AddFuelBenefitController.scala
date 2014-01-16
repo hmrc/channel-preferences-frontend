@@ -7,7 +7,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import play.api.mvc.Request
-import controllers.paye.validation.{BenefitFlowHelper, AddBenefitFlow}
+import controllers.paye.validation.AddBenefitFlow
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import play.api.Logger
@@ -23,7 +23,7 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import models.paye.{CarBenefitBuilder, TaxCodeResolver, BenefitUpdatedConfirmationData}
+import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
@@ -64,8 +64,7 @@ with PayeRegimeRoots {
 
   private def fuelBenefitForm(values: CarBenefitValues) = Form[FuelBenefitData](
     mapping(
-      employerPayFuel -> validateEmployerPayFuel(values),
-      dateFuelWithdrawn -> validateDateFuelWithdrawn(values, taxYearInterval)
+      employerPayFuel -> validateEmployerPayFuelForAddFuelOnly(values)
     )(FuelBenefitData.apply)(FuelBenefitData.unapply)
   )
 
@@ -97,7 +96,7 @@ with PayeRegimeRoots {
 
   def initialFuelBenefitValues(user: User, taxYear: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): Future[FuelBenefitDataWithGrossBenefit] = {
     keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey)
-      .map(_.getOrElse((FuelBenefitData(None, None))))
+      .map(_.getOrElse((FuelBenefitData(None))))
   }
 
   private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.FUEL) {
@@ -118,8 +117,7 @@ with PayeRegimeRoots {
 
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData)).map {
                 _ =>
-                  val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get,
-                    addFuelBenefitData.dateFuelWithdrawn)
+                  val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get)
 
                   Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, taxYear, employmentSequenceNumber, user)(request))
               }
@@ -141,12 +139,11 @@ with PayeRegimeRoots {
 
       keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](keystoreId, KeystoreUtils.source, keystoreKey).flatMap {
         values =>
-          val (fuelBenefitData) = values.getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddFuelBenefit:${
+          values.getOrElse(throw new IllegalStateException(s"No value was returned from the keystore for AddFuelBenefit:${
             user.oid
           }:$taxYear:$employmentSequenceNumber"))
-
           val carBenefit = retrieveCarBenefit(taxYearData, employmentSequenceNumber)
-          val updatedCarBenefit = carBenefit.copy(fuelBenefit = Some(FuelBenefit(carBenefit.startDate, 0, 0, fuelBenefitData.dateFuelWithdrawn)))
+          val updatedCarBenefit = carBenefit.copy(fuelBenefit = Some(FuelBenefit(carBenefit.startDate, 0, 0)))
 
           val payeRoot = user.regimes.paye.get
           val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${
@@ -200,13 +197,12 @@ with PayeRegimeRoots {
   }
 }
 
-case class FuelBenefitData(employerPayFuel: Option[String], dateFuelWithdrawn: Option[LocalDate])
+case class FuelBenefitData(employerPayFuel: Option[String])
 
 case class EmployerPayeFuelString(employerPayFuel: Option[String])
 
 object FuelBenefitFormFields {
   val employerPayFuel = "employerPayFuel"
-  val dateFuelWithdrawn = "dateFuelWithdrawn"
 }
 
 class StaleHodDataException(message: String, cause: Throwable) extends RuntimeException(message, cause) {

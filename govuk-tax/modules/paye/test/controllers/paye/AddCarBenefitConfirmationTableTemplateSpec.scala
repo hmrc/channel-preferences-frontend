@@ -1,17 +1,16 @@
 package controllers.paye
 
-import play.api.test.{FakeRequest, WithApplication, FakeApplication}
-import views.html.paye.{add_car_benefit_review, add_car_benefit_confirmation_table}
+import scala.collection.JavaConversions._
 import org.jsoup.Jsoup
-import play.api.test.Helpers._
-import scala.collection.JavaConversions
-import JavaConversions._
-import play.api.i18n.Messages
-import play.api.mvc.Content
-import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
-import org.specs2.reporter.Fixed
-import org.specs2.specification.so
 
+import play.api.test.{FakeRequest, WithApplication, FakeApplication}
+import play.api.i18n.Messages
+import play.api.test.Helpers._
+import play.api.mvc.Content
+
+import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
+
+import views.html.paye.{add_car_benefit_review, add_car_benefit_confirmation_table}
 
 class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with TaxYearSupport {
 

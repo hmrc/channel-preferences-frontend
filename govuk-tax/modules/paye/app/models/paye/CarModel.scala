@@ -40,14 +40,8 @@ object CarBenefitBuilder {
 
   def apply(addFuelBenefit: FuelBenefitData, carBenefit: Benefit, taxYear: Int, employmentSequenceNumber: Int) : CarBenefit  = {
     val car = carBenefit.car
-    val fuelBenefit = addFuelBenefit.employerPayFuel match {
+    val fuelBenefit = addFuelBenefit.employerPayFuel.map( _ => Some(createBenefit(FUEL, carBenefit.dateWithdrawn, taxYear, employmentSequenceNumber, car, 0, None))).getOrElse(None)
 
-      case Some("true" | "again") => Some(createBenefit(FUEL, carBenefit.dateWithdrawn, taxYear, employmentSequenceNumber, car, 0, None))
-
-      case Some("date") => Some(createBenefit(FUEL, addFuelBenefit.dateFuelWithdrawn, taxYear, employmentSequenceNumber, car, 0, None))
-
-      case _ => None
-    }
     CarBenefit(carBenefit, fuelBenefit)
   }
 

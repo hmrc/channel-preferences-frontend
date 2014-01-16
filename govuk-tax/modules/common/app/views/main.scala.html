@@ -1,35 +1,27 @@
-@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true)(content: Html)
-<!DOCTYPE html>
-<!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-	@includes.head(title)
-    </head>
+@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true)(mainContent: Html)
 
-    <body>
-    @helpers.link("", "#content", "Skip to main content", false, false, "visuallyhidden")
 
-	@includes.header(nav)
+@head = {
+@includes.head()
+}
+@insideHeader = {
+@includes.header(nav)
+}
+@afterHeader = {
+@includes.betaBanner()
+}
+@content = {
+@includes.mainContent(mainContent, user, sidebarLinks, supportLinkEnabled)
+}
+@footerTop = {
 
-	<div class="beta-banner">
-	    <p><b>BETA:</b> This is a prototype, designed to be simpler, clearer and faster. @helpers.link("", "https://www.gov.uk/service-manual/phases/beta.html", "Find out more", true)</p>
-	</div>
+}
+@bodyEnd = {
+@includes.footer()
+}
+@footerLinks = {
 
-	<section id="content" class="l-constrained--topBordered">
-	    <div class="l-bodyLeftColumn">
-        <article>
-	        @content
-        </article>
-            @if(supportLinkEnabled && user.isDefined) { @includes.error_feedback() }
-	    </div>
+}
 
-	    @if( user.isDefined ) {
-	    <aside class="l-bodyRightColumn">
-		@includes.sidebar(user, sidebarLinks)
-	    </aside>
-	    }
-	</section>
+@layouts.govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, footerLinks)(content)
 
-	@includes.footer()
-    </body>
-</html>
