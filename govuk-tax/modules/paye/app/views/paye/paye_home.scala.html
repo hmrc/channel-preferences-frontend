@@ -6,10 +6,8 @@
     <p>@Messages("paye.home.instructions.need")</p>
     <ul class="bullets">
         <li>@Messages("paye.home.instructions.list_item.1")</li>
-        <li>@Messages("paye.home.instructions.list_item.2")</li>
+        <li>@helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("paye.home.instructions.list_item.2"), true)</li>
     </ul>
-    <p>@Html(Messages("paye.home.instructions.info", helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("link.vehicle_certification_agency.text"), true).toString))</p>
-    <p>@Messages("info.need_to_register")</p>
     @helpers.link("", common.FrontEndRedirect.carBenefit, Messages("paye.home.start_button.text"), false, false, "button")
 }
 
