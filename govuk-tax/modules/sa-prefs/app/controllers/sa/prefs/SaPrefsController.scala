@@ -72,11 +72,21 @@ class SaPrefsController extends BaseController {
     }
 
   def confirm(return_url: String) = Action {
-    Ok(views.html.sa.prefs.sa_printing_preference_confirm(return_url))
+    redirectWhiteListService.check(return_url) match {
+      case true => Ok(views.html.sa.prefs.sa_printing_preference_confirm(return_url))
+      case false =>
+        Logger.debug(s"Return URL '$return_url' was invalid as it was not on the whitelist")
+        InternalServerError
+    }
   }
 
   def noAction(return_url: String, digital: Boolean) = Action {
-    Ok(views.html.sa.prefs.sa_printing_preference_no_action(return_url, digital))
+    redirectWhiteListService.check(return_url) match {
+      case true => Ok(views.html.sa.prefs.sa_printing_preference_no_action(return_url, digital))
+      case false =>
+        Logger.debug(s"Return URL '$return_url' was invalid as it was not on the whitelist")
+        InternalServerError
+    }
   }
 
   private val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(
