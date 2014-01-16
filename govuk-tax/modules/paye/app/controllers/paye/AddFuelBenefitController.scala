@@ -75,16 +75,20 @@ with PayeRegimeRoots {
   )
 
   private[paye] def startAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.FUEL) {
-    (user, request, taxYear, employmentSequenceNumber, payeRootData) =>
+    (user, request, taxYear, employmentSequenceNumber, taxYearData) =>
       implicit def hc = HeaderCarrier(request)
-      findEmployment(employmentSequenceNumber, payeRootData) match {
+      findEmployment(employmentSequenceNumber, taxYearData) match {
         case Some(employment) => {
-          initialFuelBenefitValues(user, taxYear, employmentSequenceNumber).map {
-            values =>
-              val (initialFuelValues) = values
-              val form = fuelBenefitForm(CarBenefitValues(employerPayFuel = initialFuelValues.employerPayFuel)).fill(initialFuelValues)
 
-              Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user,request))
+          if (missingActiveCarBenefit(taxYearData, employmentSequenceNumber)) {
+            Logger.info(s"Tried to start addFuelBenefitAction for ${user.getPaye.nino}, but they did not have an active car benefit without an existing fuel.")
+            Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
+          } else {
+            initialFuelBenefitValues(user, taxYear, employmentSequenceNumber).map {
+              initialFuelValues =>
+                val form = fuelBenefitForm(CarBenefitValues(employerPayFuel = initialFuelValues.employerPayFuel)).fill(initialFuelValues)
+                Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user,request))
+            }
           }
         }
         case None => {
@@ -96,7 +100,7 @@ with PayeRegimeRoots {
 
   def initialFuelBenefitValues(user: User, taxYear: Int, employmentSequenceNumber: Int)(implicit hc: HeaderCarrier): Future[FuelBenefitDataWithGrossBenefit] = {
     keyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey)
-      .map(_.getOrElse((FuelBenefitData(None))))
+      .map(_.getOrElse(FuelBenefitData(None)))
   }
 
   private[paye] def reviewAddFuelBenefitAction: (User, Request[_], Int, Int) => Future[SimpleResult] = AddBenefitFlow(BenefitTypes.FUEL) {
@@ -115,10 +119,9 @@ with PayeRegimeRoots {
               val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
               val carBenefitStartDate = getDateInTaxYear(Some(carBenefit.dateMadeAvailable))
 
-              keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, (addFuelBenefitData)).map {
+              keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, addFuelBenefitData).map {
                 _ =>
                   val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get)
-
                   Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, taxYear, employmentSequenceNumber, user)(request))
               }
             })
@@ -179,6 +182,10 @@ with PayeRegimeRoots {
       case Some(carBenefit) => carBenefit
       case _ => throw new StaleHodDataException("No Car benefit found!") //TODO: Refine this error scenario
     }
+  }
+
+  private def missingActiveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): Boolean = {
+    taxYearData.findActiveCarBenefit(employmentSequenceNumber).filter(!_.hasActiveFuel).isEmpty
   }
 
   private def getDateInTaxYear(benefitDate: Option[LocalDate]): LocalDate = {

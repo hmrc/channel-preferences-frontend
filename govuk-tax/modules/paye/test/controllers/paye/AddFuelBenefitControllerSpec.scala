@@ -39,7 +39,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
   "calling start add fuel benefit" should {
     "return 200 and show the fuel page with the employer s name" in new TestCaseIn2012 {
 
-      setupMocksForJohnDensmore()
+      setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1)))
 
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(None)
 
@@ -53,7 +53,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
     "return 200 and show the fuel page with the employer s name and previously populated data. EmployerPayFuelTrue and no dateWithdrawn specified" in new TestCaseIn2012 {
 
-      setupMocksForJohnDensmore()
+      setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1)))
 
       val fuelBenefitData = FuelBenefitData(Some("true"))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](
@@ -73,7 +73,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
     "return 200 and show the add fuel benefit form with the required fields and no values filled in" in new TestCaseIn2012 {
 
-      setupMocksForJohnDensmore()
+      setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1)))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(None)
 
       val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
@@ -90,7 +90,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       val johnDensmoresNamelessEmployments = Seq(
         Employment(sequenceNumber = employmentSeqNumberOne, startDate = new LocalDate(testTaxYear, 7, 2), endDate = Some(new LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType))
 
-      setupMocksForJohnDensmore(employments = johnDensmoresNamelessEmployments)
+      setupMocksForJohnDensmore(employments = johnDensmoresNamelessEmployments, cars = Seq(CarBenefit(carBenefitEmployer1)))
       when(mockKeyStoreService.getEntry[FuelBenefitDataWithGrossBenefit](generateKeystoreActionId(testTaxYear, employmentSeqNumberOne), "paye", "AddFuelBenefitForm", false)).thenReturn(None)
 
       val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
@@ -112,6 +112,14 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
     "return to the car benefit home page if the user already has a fuel benefit" in new TestCaseIn2012 {
 
       setupMocksForJohnDensmore(cars = johnDensmoresBenefitsForEmployer1)
+
+      val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
+    }
+
+    "redirect to the car benefit home page if the user does not have a car benefit" in new TestCaseIn2012 {
+      setupMocksForJohnDensmore(cars = Seq.empty)
 
       val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
       status(result) shouldBe 303
