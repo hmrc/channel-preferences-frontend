@@ -149,8 +149,6 @@ paye.add_fuel_benefit_review.date_provided=Date provided
 paye.add_fuel_benefit_review.private_fuel=Private fuel
 paye.add_fuel_benefit_review.employer_pay_fuel.false=No
 paye.add_fuel_benefit_review.employer_pay_fuel.true=Yes, private fuel is available when you use the car
-paye.add_fuel_benefit_review.employer_pay_fuel.date={0} did pay for fuel for private travel, but stopped paying on {1}
-paye.add_fuel_benefit_review.employer_pay_fuel.again={0} stopped providing fuel for private use after 5 April but has now started again
 paye.add_fuel_benefit_review.submit_button=Submit
 
 paye.remove_car_benefit.title=Tell HMRC about a change to your company car - Remove your company benefit
