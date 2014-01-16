@@ -18,7 +18,9 @@ class GlobalSpec extends BaseSpec {
   )
 
   private def startup(app: FakeApplication): Boolean = {
-    new WithApplication(app) { Global }
+    new WithApplication(app) {
+      app.global shouldBe Global // Force instantiation of the Global object - which lazily kicks off the app startup.
+    }
     true
   }
 

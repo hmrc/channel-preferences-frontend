@@ -1,12 +1,18 @@
 package uk.gov.hmrc.common.crypto
 
-import uk.gov.hmrc.crypto.CompositeSymmetricCrypto
-
 object ApplicationCrypto {
 
-  lazy val SessionCookieCrypto = CryptoWithKeysFromConfig(baseConfigKey = "cookie.encryption")
-  lazy val QueryParameterCrypto = CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption")
-  lazy val SsoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption")
+  private def sessionCookieCrypto = CryptoWithKeysFromConfig(baseConfigKey = "cookie.encryption")
+  private def ssoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption")
+  private def queryParameterCrypto = CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption")
 
-  def initialiseAndAssertKeyValidity(): Seq[CompositeSymmetricCrypto] = Seq(SessionCookieCrypto, QueryParameterCrypto, SsoPayloadCrypto)
+  lazy val SessionCookieCrypto = sessionCookieCrypto
+  lazy val SsoPayloadCrypto = ssoPayloadCrypto
+  lazy val QueryParameterCrypto = queryParameterCrypto
+
+  def verifyConfiguration() {
+    sessionCookieCrypto
+    queryParameterCrypto
+    ssoPayloadCrypto
+  }
 }

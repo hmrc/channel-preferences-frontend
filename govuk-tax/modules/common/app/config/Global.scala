@@ -24,7 +24,7 @@ object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRF
       startGraphite(app)
     }
 
-    ApplicationCrypto.initialiseAndAssertKeyValidity()
+    ApplicationCrypto.verifyConfiguration()
   }
 
   def startGraphite(app: Application) {
