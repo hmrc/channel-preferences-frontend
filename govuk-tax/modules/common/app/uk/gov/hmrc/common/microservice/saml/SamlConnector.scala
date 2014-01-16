@@ -4,6 +4,10 @@ import uk.gov.hmrc.common.microservice.{MicroServiceConfig, Connector}
 import uk.gov.hmrc.microservice.saml.domain.{AuthResponseValidationResult, AuthRequestFormData}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
+import org.json4s.JObject
+import play.api.Logger
+import scala.util.Try
+
 
 class SamlConnector extends Connector {
 
@@ -21,5 +25,15 @@ class SamlConnector extends Connector {
     ).map(_.getOrElse(throw new IllegalStateException("Expected SAML validation response but none returned")))
   }
 
-  def validateToken(token: String): Future[Boolean] = Future.successful(true)
+  def validateToken(token: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    case class TokenValid(valid: Boolean)
+    httpPostF[JObject, Nothing](s"/ida/tokens/$token/validate", None).map { json =>
+      Try {
+        json.map { json =>
+          implicit val formats = org.json4s.DefaultFormats
+          (json \ "valid").extract[Boolean]
+        }.getOrElse(false)
+      }.getOrElse(false)
+    }
+  }
 }
