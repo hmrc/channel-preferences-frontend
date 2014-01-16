@@ -184,7 +184,7 @@ GOVUK.ReportAProblem = function () {
       encodedFingerPrint = B64.encode(fingerprint.get()),
       mdtpdfCookie = GOVUK.getCookie("mdtpdf");
   if (!mdtpdfCookie) {
-    GOVUK.setCookie("mdtpdf", encodedFingerPrint);
+    GOVUK.setCookie("mdtpdf", encodedFingerPrint, 7300);
   }
   /**
    * Attach a one-time event handler for all global links
