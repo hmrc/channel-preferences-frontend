@@ -126,6 +126,22 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
     }
 
+    "redirect to the car benefit home page if the user has an electric car benefit" in new TestCaseIn2012 {
+      setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1).copy(fuelType = "electricity")))
+
+      val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
+    }
+
+    "redirect to the car benefit home page if the user already has a fuel benefit" in new TestCaseIn2012 {
+      setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1).copy(fuelType = "electricity")))
+
+      val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
+    }
+
     "return 400 if the requested tax year is not the current tax year" in new TestCaseIn2012 {
 
       setupMocksForJohnDensmore()
@@ -253,10 +269,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
       val request =  newRequestForSaveAddFuelBenefit(employerPayFuelVal = Some("false"))
 
-
-
       val result = controller.reviewAddFuelBenefitAction(johnDensmore, request, testTaxYear, employmentSeqNumberOne)
-      //println(contentAsString(result))
       status(result) shouldBe 400
       verifyNoSaveToKeyStore()
 

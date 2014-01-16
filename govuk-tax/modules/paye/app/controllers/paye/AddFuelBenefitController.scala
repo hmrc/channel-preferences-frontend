@@ -28,6 +28,7 @@ import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
 import scala.concurrent._
+import controllers.paye.data.ActionsAvailable
 
 
 object AddFuelBenefitController {
@@ -80,15 +81,17 @@ with PayeRegimeRoots {
       findEmployment(employmentSequenceNumber, taxYearData) match {
         case Some(employment) => {
 
-          if (missingActiveCarBenefit(taxYearData, employmentSequenceNumber)) {
-            Logger.info(s"Tried to start addFuelBenefitAction for ${user.getPaye.nino}, but they did not have an active car benefit without an existing fuel.")
-            Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
-          } else {
+          val actions = new ActionsAvailable(taxYearData.findActiveCarBenefit(employmentSequenceNumber), taxYear, employmentSequenceNumber)
+
+          if (actions.canAddFuel) {
             initialFuelBenefitValues(user, taxYear, employmentSequenceNumber).map {
               initialFuelValues =>
                 val form = fuelBenefitForm(CarBenefitValues(employerPayFuel = initialFuelValues.employerPayFuel)).fill(initialFuelValues)
                 Ok(views.html.paye.add_fuel_benefit_form(form, taxYear, employmentSequenceNumber, employment.employerName, currentTaxYearYearsRange)(user,request))
             }
+          } else {
+            Logger.info(s"Tried to start addFuelBenefitAction for ${user.getPaye.nino}, but they did not have an active car benefit without an existing fuel.")
+            Future.successful(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
           }
         }
         case None => {
