@@ -15,9 +15,9 @@ import org.mockito.Matchers.{eq => meq, any}
 import controllers.common.actions.HeaderCarrier
 import scala.Some
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.deskpro.TicketId
 import play.api.mvc.Request
 import ProblemReportsController._
+import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 
 class ProblemReportsControllerSpec extends BaseSpec {
 

@@ -30,6 +30,12 @@ error.common.feedback.name_mandatory=Please provide your name
 error.common.feedback.name_too_long=Your name cannot be longer than 70 characters
 error.common.feedback.rating_mandatory=Please rate your experience
 error.common.feedback.rating_valid=Please select a valid experience rating
+common.feedback.heading=Send Feedback
+common.feedback.feedback_thank_you_header=Thank you
+common.feedback.confirmation.message = Your feedback will be reviewed by our customer support team.
+
+common.main.banner_no_feedback_link=This is a trial service.
+common.main.banner_with_feedback_link=This is a trial service &mdash; your {0} will help us to improve it.
 
 error.common.problem_report.name_mandatory=Please provide your name
 error.common.problem_report.name_too_long=Your name cannot be longer than 70 characters

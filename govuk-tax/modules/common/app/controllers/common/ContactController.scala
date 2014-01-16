@@ -7,11 +7,9 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
 import play.api.data._
 import play.api.data.Forms._
-import play.api.mvc.Results._
-import uk.gov.hmrc.common.microservice.deskpro.{Ticket, HmrcDeskproConnector}
-import play.api.mvc.{AnyContent, Request}
+import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
+import play.api.mvc.Request
 import scala.concurrent.Future
-import play.api.i18n.Messages
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 
@@ -70,7 +68,6 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
               _ => Redirect(routes.ContactController.thanks())
             )
         }
-
       })
   }
 

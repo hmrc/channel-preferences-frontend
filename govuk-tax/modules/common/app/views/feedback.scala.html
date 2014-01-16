@@ -1,10 +1,9 @@
 @(feedbackForm: Form[controllers.common.FeedbackForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 @import views.helpers._
 @import controllers.common.FeedbackFormConfig._
-@main(title = Messages("feedback.heading"), nav = true, supportLinkEnabled = false, user = Some(user)) {
+@main(title = Messages("feedback.heading"), nav = true, user = Some(user), feedbackLinkEnabled = false) {
 
-    <h1>@Messages("feedback.heading")</h1>
-    @helpers.form(action = common.routes.FeedbackController.submit, 'class -> "form--feedback") {
+    @helpers.form(action = common.routes.FeedbackController.submit, 'id -> "feedback-form") {
         <fieldset>
             <legend class="h2-heading">Send feedback</legend>
             @helpers.dropdown(

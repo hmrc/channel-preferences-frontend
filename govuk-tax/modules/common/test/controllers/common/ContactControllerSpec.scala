@@ -25,8 +25,8 @@ import uk.gov.hmrc.common.microservice.auth.domain.Credentials
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.deskpro.TicketId
 import play.api.mvc.Request
+import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 
 class ContactControllerSpec extends BaseSpec with MockitoSugar {
 

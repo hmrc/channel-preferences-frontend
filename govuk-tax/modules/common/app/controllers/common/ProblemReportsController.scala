@@ -8,10 +8,10 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.mvc.Request
-import uk.gov.hmrc.common.microservice.deskpro.{TicketId, HmrcDeskproConnector, Ticket}
+import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import play.api.i18n.Messages
 import scala.concurrent.Future
-import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 
 
 class ProblemReportsController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
