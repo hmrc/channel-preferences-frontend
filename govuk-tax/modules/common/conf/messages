@@ -48,6 +48,8 @@ error.common.comments_too_long=The comment cannot be longer than 2000 characters
 
 problem_report.action=What were you doing?
 problem_report.error=What went wrong?
+common.problem_report.confirmation_nojavascript_title=Thank you
+common.problem_report.error_nojavascript_title=Please try again
 
 info.need_to_register=You need to register to use this service. If you’re already registered just sign in.
 

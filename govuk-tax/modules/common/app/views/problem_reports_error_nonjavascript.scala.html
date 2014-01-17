@@ -1,0 +1,11 @@
+@(url: String)
+@pageTitle = @{Messages("common.problem_report.error_nojavascript_title")}
+@main(title = pageTitle) {
+<h1>@pageTitle</h1>
+    <article id="report-confirmation-no-data">
+        <h2>Sorry, we're unable to send your message as you haven't given us any information.</h2>
+
+        <p>Please tell us what you were doing or what went wrong.</p>
+        <a href="@url">Return to where you were</a>
+    </article>
+}

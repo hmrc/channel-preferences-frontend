@@ -23,10 +23,16 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
 
   val form = Form[ProblemReport](
     mapping(
-      "report-name" -> text.verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty),
-      "report-email" -> text.verifying("error.prefs.email.missing", error => !error.isEmpty),
-      "report-action" -> text.verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty),
-      "report-error" -> text.verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty),
+      "report-name" -> text
+        .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
+        .verifying("error.common.problem_report.name_too_long", name => name.size < 70),
+      "report-email" -> email.verifying("error.email_too_long", email => email.size < 320),
+      "report-action" -> text
+        .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
+        .verifying("error.common.comments_too_long", action => action.size < 1000),
+      "report-error" -> text
+        .verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty)
+        .verifying("error.common.comments_too_long", error => error.size < 1000),
       "isJavascript" -> boolean
     )(ProblemReport.apply)(ProblemReport.unapply)
   )
@@ -37,7 +43,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
       form.bindFromRequest.fold(
         error => {
           if (!error.data.getOrElse("isJavascript", "true").toBoolean) {
-            Future.successful(responseForNoJsBrowsers(true))
+            Future.successful(Ok(views.html.problem_reports_error_nonjavascript(referrerFrom(request))))
           } else {
             Future.successful(BadRequest(Json.toJson(Map("status" -> "ERROR"))))
           }
@@ -46,7 +52,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
           createTicket(problemReport, request).map {
             ticketOption =>
               if (!problemReport.isJavascript) {
-                responseForNoJsBrowsers(false)
+                Ok(views.html.problem_reports_confirmation_nonjavascript())
               } else {
                 val ticket = ticketOption.map(_.ticket_id).getOrElse("Unknown")
                 Ok(Json.toJson(
@@ -74,9 +80,6 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
       None
     )
   }
-
-  private def responseForNoJsBrowsers(hasErrors: Boolean)(implicit request: Request[AnyRef]) = Ok(views.html.problem_reports_confirmation(hasErrors, referrerFrom(request)))
-
 
   private def referrerFrom(request: Request[AnyRef]): String = {
     request.headers.get("referer").getOrElse("/home")
