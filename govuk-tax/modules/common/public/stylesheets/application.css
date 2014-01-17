@@ -1,7 +1,4 @@
 @charset "UTF-8";
-/*------------------------------------*\
-    Non-IE Version
-\*------------------------------------*/
 @-ms-viewport {
   width: device-width;
 }
@@ -68,7 +65,7 @@
    }
 
 */
-.l-constrained:after, .l-constrained--header:after, .l-constrained--topBordered:after, .label--inlineRadio:after, .label--inlineRadio--expanded:after, .label--inlineDropDown:after, .form-field-group:after, .form-field-single:after, .form-field:after, .form-field--inline:after, .form-field--inline-text-input:after, .form-field--inline-spaced-right:after, .form-field--inline-spaced-left:after, .form-field--error:after, .header:after, .header__logo:after {
+.l-constrained:after, .l-constrained--header:after, .l-constrained--topBordered:after, #content:after, .label--inlineRadio:after, .label--inlineRadio--expanded:after, .label--inlineDropDown:after, .form-field-group:after, .form-field-single:after, .form-field:after, .form-field--inline:after, .form-field--inline-text-input:after, .form-field--inline-spaced-right:after, .form-field--inline-spaced-left:after, .form-field--error:after, .header:after, .header__logo:after, .service-info:after, nav.help-contents ul:after {
   content: "";
   display: block;
   clear: both;
@@ -642,47 +639,6 @@ article h1, article .h1-heading {
   }
 }
 
-article header h1, article header .h1-heading {
-  font-family: "nta", Arial, sans-serif;
-  font-size: 27px;
-  line-height: 1.11111;
-  font-weight: 400;
-  text-transform: none;
-  padding-top: 8px;
-  padding-bottom: 7px;
-  font-weight: 700;
-  color: #0b0c0c;
-  margin-top: 0;
-  margin-bottom: 0;
-}
-@media (max-width: 640px) {
-  article header h1, article header .h1-heading {
-    font-size: 18px;
-    line-height: 1.11111;
-  }
-}
-@media (min-width: 641px) {
-  article header h1, article header .h1-heading {
-    padding-top: 4px;
-    padding-bottom: 6px;
-  }
-}
-article header h1 span, article header .h1-heading span {
-  font-family: "nta", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
-  display: block;
-  margin-bottom: 0.4em;
-}
-@media (max-width: 640px) {
-  article header h1 span, article header .h1-heading span {
-    font-size: 14px;
-    line-height: 1.14286;
-  }
-}
-
 .wf-nta-n4-active article header h1 span, .wf-nta-n4-active article header .h1-heading span {
   font-family: "NTA", "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
@@ -1158,7 +1114,7 @@ article .help-notice {
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 20 / 10), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
   article .help-notice {
     background-image: url("../images/icon-important-2x.png");
-    background-size: 27px 27px;
+    background-size: 29px 24px;
   }
 }
 article .help-notice p {
@@ -1744,7 +1700,7 @@ body {
 
 .l-constrained--topBordered {
   border-top: 10px solid #2b8cc4;
-  margin-bottom: 60px !important;
+  margin-bottom: 60px;
 }
 
 .l-bodyLeftColumn {
@@ -1765,6 +1721,36 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 30px;
+}
+
+/**
+* @desc         layout classes.
+* @name         layouts
+* @author       Anthony Munene
+* @tested       N/A
+* @requires     [ toolkit/_colours.scss ]
+*/
+body {
+  counter-reset: section;
+}
+
+#content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 15px 2em 15px;
+  border-top: 10px solid #2b8cc4;
+}
+@media (min-width: 641px) {
+  #content {
+    padding: 0 30px 2em 30px;
+  }
+}
+
+@media (min-width: 641px) {
+  #content > article {
+    width: 64%;
+    float: left;
+  }
 }
 
 /**
@@ -2890,75 +2876,54 @@ article table td {
   color: #0b0c0c;
 }
 
-.service-info__organisation-logo {
-  background-image: url("../images/hmrc_crest_27px.png");
-  background-repeat: no-repeat;
-  border-left: 2px solid #bbb;
-  border-color: #009390;
-  padding: 50px 0 0 9px;
-  margin-top: 5px;
-  background-position: 9px top;
-  background-size: auto 40px;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 18px;
-  line-height: 20px;
+.service-info {
+  display: block;
+  margin: 0;
+  padding: 0.5em 0;
 }
-
-.service-info__related-subsection {
-  border-top: 10px solid #2b8cc4;
-  margin-top: 3em;
+.service-info .inner {
+  max-width: 990px;
+  margin: 0 auto;
 }
-
-.service-info__help {
+@media (min-width: 641px) {
+  .service-info {
+    margin: 0 -30px;
+    padding: 0.5em 15px;
+  }
+  .service-info .logo {
+    float: left;
+    width: 33.33%;
+  }
+  .service-info .organisation-logo, .service-info .organisation-logo-stacked {
+    margin-left: 15px;
+  }
+}
+@media (min-width: 641px) {
+  .service-info .service-info__help {
+    float: left;
+    width: 66.66%;
+  }
+}
+.service-info .service-info__help p {
   font-family: "nta", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.25;
   font-weight: 300;
   text-transform: none;
   color: #6f777b;
+  margin: 1em 0;
 }
 @media (max-width: 640px) {
-  .service-info__help {
+  .service-info .service-info__help p {
     font-size: 14px;
     line-height: 1.14286;
   }
 }
-
-.service-info__navigation a {
-  font-family: "nta", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
-}
-@media (max-width: 640px) {
-  .service-info__navigation a {
-    font-size: 14px;
-    line-height: 1.14286;
+@media (min-width: 641px) {
+  .service-info .service-info__help p {
+    margin: 0;
+    padding-top: 5px;
   }
-}
-
-.service-info__navigation__more {
-  padding: 0 0.5em;
-  background-color: #d5e8f3;
-  text-decoration: none;
-}
-
-.organisation-logo span {
-  margin-left: 0;
-  padding-top: 5px;
-}
-
-#legacy-sources {
-  position: relative;
-  left: 43.3em;
-}
-
-.organisation-logo-stacked-hmrc-large {
-  padding: 40px 0 0 10px;
-  background-image: url("/assets/images/hmrc_crest_27px.png");
-  background-position: 9px top;
-  background-size: auto 40px;
 }
 
 .action-list {
@@ -2980,8 +2945,13 @@ article table td {
   max-width: 960px;
 }
 .dashboard .overview .wrapper article {
-  margin: 2em 60px 3em 0;
+  margin: 0 0 3em 0;
   min-height: 0;
+}
+@media (min-width: 641px) {
+  .dashboard .overview .wrapper article {
+    margin-right: 60px;
+  }
 }
 .dashboard .overview .wrapper article .inner {
   padding: 0;
@@ -2999,6 +2969,7 @@ article table td {
   text-transform: none;
   font-weight: 700;
   padding: 0;
+  margin-top: 0;
 }
 @media (max-width: 640px) {
   .dashboard .overview .wrapper article h2, .dashboard .overview .wrapper article .h2-heading {
@@ -3010,91 +2981,6 @@ article table td {
   .dashboard .overview .wrapper {
     float: left;
     width: 69%;
-  }
-}
-.dashboard .overview aside {
-  border-top: none;
-  position: static;
-  float: none;
-  width: auto;
-  margin: 0;
-}
-@media (min-width: 641px) {
-  .dashboard .overview aside {
-    float: right;
-    width: 31%;
-    margin: 0;
-  }
-}
-.dashboard .overview aside h2, .dashboard .overview aside .h2-heading {
-  font-family: "nta", Arial, sans-serif;
-  font-size: 24px;
-  line-height: 1.25;
-  font-weight: 400;
-  text-transform: none;
-  font-weight: 700;
-  margin-top: 0;
-}
-@media (max-width: 640px) {
-  .dashboard .overview aside h2, .dashboard .overview aside .h2-heading {
-    font-size: 20px;
-    line-height: 1.2;
-  }
-}
-.dashboard .overview aside div {
-  margin-top: 30px;
-}
-.dashboard .overview aside ul {
-  list-style: none;
-  padding: 0;
-}
-.dashboard .overview aside ul li {
-  padding: 0;
-  margin: 0 -15px;
-  padding: 0;
-  font-family: "nta", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
-}
-@media (min-width: 641px) {
-  .dashboard .overview aside ul li {
-    padding: 0;
-    margin: 0 0 0.75em 0;
-  }
-}
-@media (max-width: 640px) {
-  .dashboard .overview aside ul li {
-    font-size: 14px;
-    line-height: 1.14286;
-  }
-}
-.dashboard .overview aside ul li a {
-  display: block;
-  border-top: solid 1px #bfc1c3;
-  padding: 1em 15px;
-}
-@media (min-width: 641px) {
-  .dashboard .overview aside ul li a {
-    display: inline;
-    border: none;
-    padding: 0;
-  }
-}
-.dashboard .overview aside .helpful {
-  color: #6f777b;
-  font-family: "nta", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
-  margin: 0.5em 0;
-}
-@media (max-width: 640px) {
-  .dashboard .overview aside .helpful {
-    font-size: 14px;
-    line-height: 1.14286;
   }
 }
 .dashboard .calendar li {
@@ -3173,11 +3059,8 @@ article table td {
   border: none;
 }
 
-.page-header {
-  padding-bottom: 2em;
-}
 .page-header h1, .page-header .h1-heading {
-  margin-top: 30px;
+  margin-top: 0;
 }
 @media (min-width: 641px) {
   .page-header h1, .page-header .h1-heading {
@@ -3187,6 +3070,7 @@ article table td {
     font-weight: 400;
     text-transform: none;
     font-weight: 700;
+    margin-top: 30px;
   }
 }
 @media (min-width: 641px) and (max-width: 640px) {
@@ -3211,37 +3095,6 @@ article table td {
     font-size: 24px;
     line-height: 1.04167;
   }
-}
-.page-header .hgroup {
-  width: 64%;
-  float: left;
-}
-.page-header .service-info {
-  float: right;
-  width: 31%;
-  padding: 1em 0;
-}
-.page-header .service-info > div {
-  padding-bottom: 1em;
-}
-.page-header .service-info__help {
-  float: right;
-  width: 31%;
-  font-family: "nta", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 300;
-  text-transform: none;
-  margin: 0;
-}
-@media (max-width: 640px) {
-  .page-header .service-info__help {
-    font-size: 14px;
-    line-height: 1.14286;
-  }
-}
-.page-header .group {
-  clear: both;
 }
 
 .page-navigation {
@@ -3357,6 +3210,100 @@ article table td {
   }
 }
 
+.organisation-logo, .organisation-logo-stacked {
+  font-family: Helvetica, Arial;
+  font-weight: 400;
+  display: block;
+  position: relative;
+  font-size: 13px;
+  line-height: 15px;
+  padding: 3px 0 2px 0;
+  text-decoration: none;
+  padding: 3px 0 2px 30px;
+  background-image: url("/assets/images/hmrc_crest_13px.png");
+  background-position: 5px center;
+  background-size: auto 20px;
+  background-repeat: no-repeat;
+  border-left: 2px solid #009390;
+}
+.organisation-logo:link, .organisation-logo-stacked:link, .organisation-logo:visited, .organisation-logo-stacked:visited {
+  color: #0b0c0c;
+}
+.organisation-logo a, .organisation-logo-stacked a, .organisation-logo span, .organisation-logo-stacked span {
+  color: #0b0c0c;
+}
+
+a.organisation-logo:hover, a.organisation-logo-stacked:hover, a.organisation-logo:focus, a.organisation-logo-stacked:focus {
+  text-decoration: underline;
+}
+
+.organisation-logo-stacked {
+  padding: 20px 0 0 6px;
+  background-image: url("/assets/images/hmrc_crest_13px.png");
+  background-position: 5px top;
+  background-size: auto 20px;
+}
+
+.organisation-logo-stacked span {
+  display: block;
+  position: relative;
+  top: 3px;
+}
+
+@media all and (-webkit-min-device-pixel-ratio: 2) {
+  .organisation-logo, .organisation-logo-stacked,
+  .organisation-logo-stacked {
+    background-image: url("/assets/images/hmrc_crest_13px.png");
+  }
+}
+@media (min-width: 641px) {
+  .organisation-logo-medium, .organisation-logo-stacked-medium {
+    font-size: 18px;
+    line-height: 20px;
+    padding: 3px 0 2px 38px;
+    background-image: url("/assets/images/hmrc_crest_18px.png");
+    background-position: 6px center;
+    background-size: auto 25px;
+    border-left: 2px solid #009390;
+  }
+}
+
+@media (min-width: 641px) {
+  .organisation-logo-stacked-medium {
+    padding: 25px 0 0 7px;
+    background-image: url("/assets/images/hmrc_crest_18px.png");
+    background-position: 6px top;
+    background-size: auto 25px;
+  }
+}
+
+@media (min-width: 641px) {
+  .organisation-logo-stacked-medium span {
+    display: block;
+    position: relative;
+    top: 3px;
+  }
+}
+@media all and (min-width: 641px) and (-webkit-min-device-pixel-ratio: 2) {
+  .organisation-logo-medium, .organisation-logo-stacked-medium,
+  .organisation-logo-stacked-medium {
+    background-image: url("/assets/images/hmrc_crest_18px_x2.png");
+  }
+}
+.footer-meta ul li {
+  font-family: "nta", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 300;
+  text-transform: none;
+}
+@media (max-width: 640px) {
+  .footer-meta ul li {
+    font-size: 14px;
+    line-height: 1.14286;
+  }
+}
+
 .report-error {
   display: inline-block;
   clear: both;
@@ -3373,6 +3320,166 @@ article table td {
 }
 @media (max-width: 640px) {
   .report-error .report-error__toggle {
+    font-size: 14px;
+    line-height: 1.14286;
+  }
+}
+@media (min-width: 641px) {
+  .report-error {
+    width: 66%;
+    float: left;
+  }
+}
+
+nav.help-contents {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+nav.help-contents .inner {
+  padding: 0;
+  width: auto;
+}
+nav.help-contents .inner p {
+  margin-bottom: 0.75em;
+  padding-bottom: 1em;
+}
+@media (min-width: 641px) {
+  nav.help-contents .inner p {
+    padding-bottom: 1.5em;
+  }
+}
+nav.help-contents ul {
+  margin: 0;
+  padding: 0;
+}
+nav.help-contents ul li {
+  display: block;
+  float: left;
+  margin-bottom: 0;
+  margin-right: 2.5%;
+  width: 48.75%;
+}
+nav.help-contents ul li:nth-child(2n) {
+  margin-right: 0;
+}
+@media (max-width: 800px) {
+  nav.help-contents ul li {
+    width: auto;
+    margin: 0;
+    float: none;
+  }
+}
+nav.help-contents ul li a {
+  font-family: "nta", Arial, sans-serif;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 400;
+  text-transform: none;
+  font-family: "nta", Arial, sans-serif;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 400;
+  text-transform: none;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-decoration: none;
+}
+@media (max-width: 640px) {
+  nav.help-contents ul li a {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+}
+@media (max-width: 640px) {
+  nav.help-contents ul li a {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+}
+nav.help-contents ul li p {
+  margin-top: 0.2em;
+}
+
+aside {
+  border-top: 10px solid #2b8cc4;
+  position: static;
+  float: none;
+  width: auto;
+  margin: 30px 0 0 0;
+}
+@media (min-width: 641px) {
+  aside {
+    float: right;
+    width: 31%;
+    margin: 0;
+  }
+}
+aside h2, aside .h2-heading {
+  font-family: "nta", Arial, sans-serif;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 400;
+  text-transform: none;
+  font-weight: 700;
+  margin-top: 15px;
+}
+@media (max-width: 640px) {
+  aside h2, aside .h2-heading {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+}
+aside ul {
+  list-style: none;
+  padding: 0;
+}
+aside ul li {
+  padding: 0;
+  margin: 0 -15px;
+  padding: 0;
+  font-family: "nta", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 300;
+  text-transform: none;
+}
+@media (min-width: 641px) {
+  aside ul li {
+    padding: 0;
+    margin: 0 0 0.75em 0;
+  }
+}
+@media (max-width: 640px) {
+  aside ul li {
+    font-size: 14px;
+    line-height: 1.14286;
+  }
+}
+aside ul li a {
+  display: block;
+  border-top: solid 1px #bfc1c3;
+  padding: 1em 15px;
+}
+@media (min-width: 641px) {
+  aside ul li a {
+    display: inline;
+    border: none;
+    padding: 0;
+  }
+}
+aside .helpful {
+  color: #6f777b;
+  font-family: "nta", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 300;
+  text-transform: none;
+  margin: 0.5em 0;
+}
+@media (max-width: 640px) {
+  aside .helpful {
     font-size: 14px;
     line-height: 1.14286;
   }
