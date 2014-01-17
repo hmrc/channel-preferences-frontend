@@ -7,12 +7,13 @@
 
     @helpers.form(action = common.routes.FeedbackController.submit, 'id -> "feedback-form", 'class -> "form--feedback") {
         <fieldset>
-            @helpers.dropdown(
+            @helpers.inputRadioGroup(
             feedbackForm("feedback-rating"),
             feedbackRatings,
             '_label -> "Rate your experience of using Tax Platform",
-            '_labelClass -> "label--inlineDropdown",
-            '_emptyValueText -> " "
+            '_divClass -> "form-field",
+            '_labelClass -> "label--inlineRadio",
+            '_inputClass -> "input--fullwidth"
             )
             @helpers.input(
             feedbackForm("feedback-name"),
