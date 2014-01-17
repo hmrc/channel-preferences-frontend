@@ -25,14 +25,14 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
     mapping(
       "report-name" -> text
         .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
-        .verifying("error.common.problem_report.name_too_long", name => name.size < 70),
-      "report-email" -> email.verifying("error.email_too_long", email => email.size < 320),
+        .verifying("error.common.problem_report.name_too_long", name => name.size <= 70),
+      "report-email" -> email.verifying("error.email_too_long", email => email.size <= 320),
       "report-action" -> text
         .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
-        .verifying("error.common.comments_too_long", action => action.size < 1000),
+        .verifying("error.common.comments_too_long", action => action.size <= 1000),
       "report-error" -> text
         .verifying("error.common.problem_report.action_mandatory", error => !error.isEmpty)
-        .verifying("error.common.comments_too_long", error => error.size < 1000),
+        .verifying("error.common.comments_too_long", error => error.size <= 1000),
       "isJavascript" -> boolean
     )(ProblemReport.apply)(ProblemReport.unapply)
   )

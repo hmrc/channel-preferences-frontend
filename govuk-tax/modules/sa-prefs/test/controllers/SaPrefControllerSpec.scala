@@ -193,7 +193,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val page = controller.submitPrefsForm(validToken, validReturnUrl)(request)
 
       status(page) shouldBe 400
-      contentAsString(page) should include("Check your email addresses - they don't match.")
+      contentAsString(page) should include("Check your email addresses - they don&#x27;t match.")
       verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
     }
 
