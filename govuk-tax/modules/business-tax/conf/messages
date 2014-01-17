@@ -6,8 +6,8 @@ vat.link.message.accountSummary.viewAccountDetails=View your VAT account details
 vat.link.message.accountSummary.makeAPayment=Make a VAT payment
 vat.link.message.accountSummary.fileAReturn=File your VAT return
 vat.message.accountBalance=Your account currently shows a balance of {0}
-vat.message.summaryUnavailable.1= We are unable to display your account information. This may be because:
-vat.message.summaryUnavailable.2= - the Value Added Tax (VAT) registration number that you have entered is no longer active and there is no information
+vat.message.summaryUnavailable.1= We can't display your VAT information because:
+vat.message.summaryUnavailable.2= - your VAT registration number is no longer active. For assistance contact the helpdesk.
 vat.message.summaryUnavailable.3= - you have only just activated this service and there is a short delay before the information is available
 vat.message.summaryUnavailable.4=For any other problems, contact the <a id="vat.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
 
