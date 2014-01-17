@@ -15,7 +15,6 @@ POST        /fuel-benefit/:year/:employmentSequenceNumber/confirm           @con
 GET         /:kinds/:year/:employmentSequenceNumber/confirmation/:oid       @controllers.paye.RemoveBenefitController.benefitRemoved(kinds: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 
 GET         /                                                               @controllers.paye.PayeHomeController.home
-GET         /home                                                           @controllers.paye.PayeHomeController.redirectToHome
 
 GET         /details                                                        @controllers.paye.CarBenefitHomeController.carBenefitHome
 GET         /car-benefit/error/version-changed                              @controllers.paye.VersionChangedController.versionChanged

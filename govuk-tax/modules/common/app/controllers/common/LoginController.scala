@@ -30,8 +30,9 @@ class LoginController(samlConnector: SamlConnector,
   def samlLogin = WithNewSessionTimeout {
     UnauthorisedAction.async {
       implicit request =>
-        samlConnector.create.map { authRequestFormData =>
-          Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
+        samlConnector.create.map {
+          authRequestFormData =>
+            Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
         }
     }
   }
@@ -54,23 +55,24 @@ class LoginController(samlConnector: SamlConnector,
       form.fold(
         erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
         credentials => {
-          governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response =>
-            val sessionId = s"session-${UUID.randomUUID().toString}"
-            auditConnector.audit(
-              AuditEvent(
-                auditType = "TxSucceeded",
-                tags = Map("transactionName" -> "GG Login", HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
-                detail = Map("authId" -> response.authId)
+          governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map {
+            response =>
+              val sessionId = s"session-${UUID.randomUUID().toString}"
+              auditConnector.audit(
+                AuditEvent(
+                  auditType = "TxSucceeded",
+                  tags = Map("transactionName" -> "GG Login", HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
+                  detail = Map("authId" -> response.authId)
+                )
               )
-            )
-            FrontEndRedirect.toBusinessTax.withSession(
-              SessionKeys.sessionId -> sessionId,
-              SessionKeys.userId -> response.authId,
-              SessionKeys.name -> response.name,
-              SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
-              SessionKeys.affinityGroup -> response.affinityGroup,
-              SessionKeys.authProvider -> GovernmentGateway.id
-            )
+              FrontEndRedirect.toBusinessTax.withSession(
+                SessionKeys.sessionId -> sessionId,
+                SessionKeys.userId -> response.authId,
+                SessionKeys.name -> response.name,
+                SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
+                SessionKeys.affinityGroup -> response.affinityGroup,
+                SessionKeys.authProvider -> GovernmentGateway.id
+              )
 
 
           }.recover {
@@ -138,13 +140,14 @@ class LoginController(samlConnector: SamlConnector,
               detail = Map("hashPid" -> hashPid, "authId" -> authority.uri) ++ authority.accounts.toMap
             )
           )
+          Logger.info("IDA user signed in successfully.")
           FrontEndRedirect.forSession(session).withSession(
             SessionKeys.userId -> authority.uri,
             SessionKeys.sessionId -> updatedHC.sessionId.get,
             SessionKeys.authProvider -> Ida.id
           )
         case LoginFailure(reason, hashPid, originalRequestId) =>
-          Logger.warn(reason)
+          Logger.warn(s"IDA sign in failed because '$reason'")
           auditConnector.audit(
             AuditEvent(
               auditType = "TxFailed",
