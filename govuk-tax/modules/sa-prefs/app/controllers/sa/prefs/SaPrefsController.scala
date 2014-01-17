@@ -28,7 +28,7 @@ class SaPrefsController extends BaseController {
             case true => action(request)
             case false =>
               Logger.debug(s"Return URL '$return_url' was invalid as it was not on the whitelist")
-              Future.successful(InternalServerError)
+              Future.successful(InternalServerError) // FIXME This should be a bad request
           }
       }
   }
@@ -76,7 +76,7 @@ class SaPrefsController extends BaseController {
       case true => Ok(views.html.sa.prefs.sa_printing_preference_confirm(return_url))
       case false =>
         Logger.debug(s"Return URL '$return_url' was invalid as it was not on the whitelist")
-        InternalServerError
+        BadRequest
     }
   }
 
