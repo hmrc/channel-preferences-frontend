@@ -283,7 +283,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe 401
       contentAsString(result) should include("form")
-      contentAsString(result) should include("Invalid username or password. Try again.")
+      contentAsString(result) should include("Invalid user ID or password. Try again.")
 
       session(result).get(SessionKeys.userId) shouldBe None
 

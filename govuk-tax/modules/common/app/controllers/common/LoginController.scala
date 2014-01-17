@@ -87,7 +87,7 @@ class LoginController(samlConnector: SamlConnector,
                   detail = Map("transactionFailureReason" -> "Invalid Credentials")
                 )
               )
-              Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid username or password. Try again.")))
+              Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid user ID or password. Try again.")))
             case _: ForbiddenException => {
               auditConnector.audit(
                 AuditEvent(
