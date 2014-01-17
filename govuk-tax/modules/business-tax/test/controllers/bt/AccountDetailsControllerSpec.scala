@@ -93,7 +93,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       val resendEmailButton = page.getElementById("resend-email-button")
       resendEmailButton should not be null
-      resendEmailButton.text shouldBe "Resend validation email to your current address"
+      resendEmailButton.text shouldBe "Verify your email address"
       val resendForm = page.getElementsByTag("form")
       resendForm.attr("action") shouldBe routes.AccountDetailsController.resendValidationEmail.toString()
 
