@@ -8,7 +8,6 @@
 
 <label for="@elements.field.name" class="@elements.args.get('_divClass) @elements.args.get('_labelClass) @if(elements.hasErrors) {form-field--error}">
 
-
     @elements.errors.map{error => <span class="error-notification">@Messages(error)</span>}
 
     @elements.args.get('_label)
@@ -16,15 +15,17 @@
         @radioOptions.map { case (value, label) =>
 
             @defining(s"${elements.field.name}-${value.toLowerCase.replace(" ","_")}")  { inputId =>
-                <label for="@inputId">
+                <label
+                    for="@inputId"
+                    @elements.args.get('_innerLabelClass).map{labelClass => class="@labelClass"}>
                     @label
-                    <input
-                            type="radio"
-                            id="@inputId"
-                            name="@elements.field.name"
-                            value="@value"
-                            @elements.args.get('_inputClass).map{inputClass => class="@inputClass"}
-                            @field.value.filter( _ == value).map{_ => checked="checked"}/>
+                        <input
+                                type="radio"
+                                id="@inputId"
+                                name="@elements.field.name"
+                                value="@value"
+                                @elements.args.get('_inputClass).map{inputClass => class="@inputClass"}
+                                @field.value.filter( _ == value).map{_ => checked="checked"}/>
                 </label>
             }
         }

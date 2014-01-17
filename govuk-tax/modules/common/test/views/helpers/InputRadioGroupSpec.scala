@@ -31,6 +31,11 @@ class InputRadioGroupSpec extends BaseSpec {
       input.parent().text() shouldBe "myLabel"
     }
 
+    "render label for radio button with the correct class" in {
+      val doc = Jsoup.parse(contentAsString(inputRadioGroup(dummyForm("radioValue"), Seq("myValue" -> "myLabel"),'_innerLabelClass -> "myInnerLabelClass")))
+      doc.getElementsByAttributeValue("for","radioValue-myvalue").attr("class") shouldBe "myInnerLabelClass"
+    }
+
     "render multiple options" in {
       val doc = Jsoup.parse(contentAsString(inputRadioGroup(dummyForm("radioValue"), Seq("myValue1" -> "myLabel1","myValue2" -> "myLabel2"))))
       doc.getElementById("radioValue-myvalue1") should not be null
