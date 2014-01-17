@@ -110,6 +110,6 @@ with EmailControllerHelper {
   }
 
   private[bt] def emailAddressChangeThankYouPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email)(user))))
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated)(user))))
   }
 }
