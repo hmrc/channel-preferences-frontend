@@ -405,7 +405,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller.optOutOfEmailRemindersPage(user, request))
+      val result = controller.optOutOfEmailRemindersPage(user, request)
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -414,13 +414,15 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       page.getElementById("confirm-opt-out").text shouldBe "Opt me out of digital"
       page.getElementById("cancel-opt-out-link") shouldNot be(null)
       page.getElementById("cancel-opt-out-link").text shouldBe "Never mind - I want to stay digital"
+      page.getElementById("email-address").text shouldBe "t**t@test.com"
+      page.text() should not include "test@test.com"
     }
 
     "return bad request if the user has not opted into digital" in new Setup{
       val saPreferences = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller.optOutOfEmailRemindersPage(user, request))
+      val result = controller.optOutOfEmailRemindersPage(user, request)
 
       status(result) shouldBe 400
     }
