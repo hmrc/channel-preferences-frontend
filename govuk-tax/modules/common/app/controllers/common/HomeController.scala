@@ -19,18 +19,18 @@ class HomeController(override val auditConnector: AuditConnector)
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
   def landing = UnauthorisedAction {
-    request => redirectToLoginPage
+    request => redirectToLoginPage(request)
   }
 
-  private[common] def redirectToLoginPage: SimpleResult = {
-    Redirect(routes.LoginController.login()).withNewSession
+  private[common] def redirectToLoginPage(request: Request[AnyContent]): SimpleResult = {
+    AnyAuthenticationProvider.redirectToLogin(request).withNewSession
   }
 
   def home = AuthenticatedBy(AnyAuthenticationProvider) {
     user => implicit request => redirectToHomepage(user, session)
   }
 
-  private[common] def redirectToHomepage(user: User, session: Session): SimpleResult = {
+  private[common] def redirectToHomepage(user: User, session: Session)(implicit request: Request[AnyContent]): SimpleResult = {
     user.regimes match {
       case RegimeRoots(Some(paye), _, _, _, _) => FrontEndRedirect.forSession(session) // TODO: Should this really be doing "forSession" here? or just going 'toPaye'?
       case RegimeRoots(_, Some(sa), _, _, _) => FrontEndRedirect.toBusinessTax
@@ -40,7 +40,7 @@ class HomeController(override val auditConnector: AuditConnector)
       case RegimeRoots(None, None, None, None, None) if user.nameFromGovernmentGateway != None => FrontEndRedirect.toBusinessTax
       case _ =>
         Logger.info(s"User '${user.userId}' not authorised for any regime, regime roots: ${user.regimes}")
-        redirectToLoginPage
+        redirectToLoginPage(request)
     }
   }
 

@@ -3,16 +3,15 @@
 
 GET     /assets/*file                   controllers.common.Assets.at(path="/public", file)
 
-GET     /login                          @controllers.common.LoginController.login
-GET     /logout                         @controllers.common.LoginController.logout
-GET     /loggedout                      @controllers.common.LoginController.loggedout
+GET     /account/logout                         @controllers.common.LoginController.logout
+GET     /account/loggedout                      @controllers.common.LoginController.loggedout
+GET     /account/login                  @controllers.common.LoginController.businessTaxLogin
+POST    /account/login                  @controllers.common.LoginController.governmentGatewayLogin
 
 
 # routes for testing IDA integration
 GET     /samllogin                      @controllers.common.LoginController.samlLogin
 POST    /ida/login                      @controllers.common.LoginController.idaLogin
-GET     /business-tax/login             @controllers.common.LoginController.businessTaxLogin
-POST    /business-tax/login             @controllers.common.LoginController.governmentGatewayLogin
 
 
 POST    /ssoin                          @controllers.common.SsoInController.postIn

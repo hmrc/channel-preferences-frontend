@@ -5,7 +5,7 @@
 ->     /template                    template.Routes
 ->     /                            common.Routes
 ->     /paye                        paye.Routes
-->     /business-tax                business_tax.Routes
+->     /account                business_tax.Routes
 ->     /sa                          sa.Routes
 ->     /                            sa_prefs.Routes
 

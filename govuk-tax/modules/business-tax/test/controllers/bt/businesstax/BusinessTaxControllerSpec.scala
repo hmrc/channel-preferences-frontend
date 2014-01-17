@@ -66,7 +66,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val document = Jsoup.parse(contentAsString(result))
 
       document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home().url
-      document.getElementById("otherServicesNavHref").attr("href") shouldBe "/business-tax" + businessTaxRoutes.OtherServicesController.otherServices().url
+      document.getElementById("otherServicesNavHref").attr("href") shouldBe "/account" + businessTaxRoutes.OtherServicesController.otherServices().url
       document.getElementById("logOutNavHref").attr("href") shouldBe commonRoutes.LoginController.logout().url
 
       verifyZeroInteractions(mockPreferencesConnector)

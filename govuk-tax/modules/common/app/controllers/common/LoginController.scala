@@ -25,11 +25,6 @@ class LoginController(samlConnector: SamlConnector,
   with Actions
   with AllRegimeRoots {
 
-  def login = WithNewSessionTimeout(UnauthorisedAction {
-    implicit request =>
-      Ok(views.html.login())
-  })
-
   def this() = this(Connectors.samlConnector, Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
   def samlLogin = WithNewSessionTimeout {

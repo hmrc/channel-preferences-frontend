@@ -1,11 +1,13 @@
 package controllers.common
 
-import play.api.mvc.{Session, AnyContent, Request, SimpleResult}
+import play.api.mvc._
 import controllers.common.FrontEndRedirect._
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.Logger
 import scala.concurrent._
 import scala._
+import uk.gov.hmrc.common.microservice.domain.User
+import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import play.api.mvc.SimpleResult
@@ -14,6 +16,7 @@ import play.api.mvc.SimpleResult
 trait AuthenticationProvider {
   type FailureResult = SimpleResult
   val id: String
+  val login: Call
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]]
 }
 
@@ -25,9 +28,11 @@ object UserCredentials {
 
 object Ida extends AuthenticationProvider {
   override val id = "IDA"
+  
+  override val login = routes.LoginController.samlLogin
 
   def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
-    toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
+    Redirect(login).withSession(buildSessionForRedirect(request.session, redirectUrl))
 
   private def redirectUrl(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
     if (redirectToOrigin) Some(request.uri) else None
@@ -46,7 +51,9 @@ object Ida extends AuthenticationProvider {
 object GovernmentGateway extends AuthenticationProvider {
   override val id = "GGW"
 
-  def handleRedirect(request: Request[AnyContent]) = Redirect(routes.HomeController.landing())
+  override val login = routes.LoginController.businessTaxLogin()
+  
+  def handleRedirect(request: Request[AnyContent]) = Redirect(login)
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
     case UserCredentials(None, token@_) =>
@@ -61,11 +68,20 @@ object GovernmentGateway extends AuthenticationProvider {
 
 object AnyAuthenticationProvider extends AuthenticationProvider{
 
+  override val login = routes.LoginController.businessTaxLogin()
+
+  def redirectToLogin(request: Request[AnyContent]) = {
+    request.session.get(SessionKeys.authProvider) match {
+      case Some(Ida.id) => Redirect(Ida.login)
+      case _ => Redirect(login)
+    }
+  }
+
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
     request.session.get(SessionKeys.authProvider) match {
       case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(request, redirectToOrigin)
       case Some(Ida.id) => Ida.handleNotAuthenticated(request, redirectToOrigin)
-      case _ => { case _ => Future.successful(Right(Redirect(routes.LoginController.login()).withNewSession)) }
+      case _ => { case _ => Future.successful(Right(Redirect(login).withNewSession)) }
     }
   }
 

@@ -3,12 +3,11 @@ package controllers.common.actions
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
 import play.api.Logger
-import controllers.common.{SessionKeys, UserCredentials, AuthenticationProvider}
+import controllers.common.{AnyAuthenticationProvider, SessionKeys, UserCredentials, AuthenticationProvider}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 
 import scala.Some
 import play.api.mvc.SimpleResult
-import views.html.login
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
@@ -25,7 +24,7 @@ trait UserActionWrapper
                                            (userAction: User => Action[AnyContent]): Action[AnyContent] =
     Action.async { request =>
       implicit val hc = HeaderCarrier(request)
-      val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime)
+      val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime, authenticationProvider)
 
       handle(UserCredentials(request.session)).flatMap {
         case Left(successfullyFoundUser) => userAction(successfullyFoundUser)(request)
@@ -33,7 +32,7 @@ trait UserActionWrapper
       }
     }
 
-  private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
+  private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime], authenticationProvider: AuthenticationProvider): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
     case UserCredentials(Some(userId), tokenOption) =>
       implicit val hc = HeaderCarrier(request)
       val authority = authConnector.authority(userId)
@@ -56,7 +55,7 @@ trait UserActionWrapper
         }
         case _ =>
           Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-          Future.successful(Right(Unauthorized(login()).withNewSession))
+          Future.successful(Right(AnyAuthenticationProvider.redirectToLogin(request).withNewSession))
       }
   }
 
