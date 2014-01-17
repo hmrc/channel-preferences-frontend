@@ -84,7 +84,7 @@ global.error.InternalServerError500.heading=Sorry, we’re experiencing technica
 global.error.InternalServerError500.message=Please try again in a few minutes.
 contact.heading = Contact HMRC
 contact.feedback_thank_you_header=Thank you
-contact.confirmation.message = Your comments will be reviewed by our customer support team.
+contact.confirmation.message = Your comments will be reviewed by our customer support team and we&#39;ll be in touch within 24 hours.
 contact.confirmation.ticket_number = Your support reference number is
 
 
