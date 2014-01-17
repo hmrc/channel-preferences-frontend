@@ -218,6 +218,24 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
     }
   }
 
+  "Viewing the email address change thank you page" should {
+
+    "display the confirmation page with the current email address obscured" in new Setup {
+      val emailAddress = "someone@email.com"
+      val saPreferences = SaPreference(true, Some(SaEmailPreference(emailAddress, SaEmailPreference.Status.verified)))
+
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val page = controller.emailAddressChangeThankYouPage(user, FakeRequest())
+
+      status(page) shouldBe 200
+
+      val doc = Jsoup.parse(contentAsString(page))
+      doc.getElementById("updated-email-address") should have ('text ("s*****e@email.com"))
+      doc.toString should not include emailAddress
+    }
+  }
+
   "A post to update email address with no emailVerifiedFlag" should {
 
     "validate the email address, update the address for SA user and redirect to confirmation page" in new Setup {
