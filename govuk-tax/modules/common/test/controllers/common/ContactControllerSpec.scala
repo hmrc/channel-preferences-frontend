@@ -88,7 +88,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
     }
 
-    "verify that all fields are set" in new WithContactController {
+      "verify that all fields are set" in new WithContactController {
 
       val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "", "contact-email" -> "", "contact-comments" -> ""))
       val page = Jsoup.parse(contentAsString(submit))
@@ -97,7 +97,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
       page.getElementsByClass("error-notification").size() shouldBe 3
       page.getElementsByClass("error-notification").get(0).text() shouldBe "Please provide your name"
-      page.getElementsByClass("error-notification").get(1).text() shouldBe "Please provide a valid email address"
+      page.getElementsByClass("error-notification").get(1).text() shouldBe "Enter a valid email address."
       page.getElementsByClass("error-notification").get(2).text() shouldBe "Please provide details"
     }
 

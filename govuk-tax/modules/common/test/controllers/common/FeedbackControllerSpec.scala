@@ -70,7 +70,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user, request(email = ""))
       status(result) shouldBe 400
-      formContainsError(result, "Valid email required")
+      formContainsError(result, "Enter a valid email address.")
 
     }
 
@@ -86,7 +86,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user, request(email = "this is not an email address"))
       status(result) shouldBe 400
-      formContainsError(result, "Valid email required")
+      formContainsError(result, "Enter a valid email address.")
 
     }
 
