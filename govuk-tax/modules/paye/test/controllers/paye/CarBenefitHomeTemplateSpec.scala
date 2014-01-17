@@ -662,7 +662,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe "Your car and fuel benefits for the 2013-2014 tax year"
+      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe "Company car benefits for the 2013 to 2014 tax year" +
+        ""
     }
 
     "display the correct heading for the previous cars table when user has a single previous car" in new WithApplication(FakeApplication()) with BaseData {

@@ -106,6 +106,7 @@
         @if(activeCarBenefit.isDefined || previousCarBenefits.size > 0) {
             @if(fuelGrossAmount.isDefined) {
                 <h2 id="car-and-fuel-benefits-summary-header">@Messages("paye.car_benefit_home.car_and_fuel_benefits", s"$currentTaxYear", s"${currentTaxYear + 1}")</h2>
+                <p>@Messages("paye.car_benefit_home.car_and_fuel_benefits.info")</p>
             } else {
                 <h2 id="car-and-fuel-benefits-summary-header">@Messages("paye.car_benefit_home.car_benefit", s"$currentTaxYear", s"${currentTaxYear + 1}")</h2>
             }

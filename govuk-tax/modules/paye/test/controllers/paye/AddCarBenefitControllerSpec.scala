@@ -583,7 +583,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#car-benefit-taxable-value") shouldBe empty
       doc.select("#fuel-benefit-taxable-value") shouldBe empty
       doc.text() should (not include "£999" and not include "£444" and not include "20%" and not include "40%" and not include "45%")
-      doc.select("#edit-data").text shouldBe "This information is wrong"
+      doc.select("#edit-data").text shouldBe "Change your answers"
       doc.select("#edit-data").attr("href") shouldBe uri
     }
 
@@ -978,7 +978,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
       doc.select("#start-date") should be(empty)
       doc.select("#end-date") should be(empty)
       doc.select("#epilogue").text should include("HMRC will write to you to confirm your new tax code within 7 days.")
-      doc.select("#home-page-link").text should include("See your updated company car information")
+      doc.select("#home-page-link").text should include("View your updated details and estimated tax on your benefits.")
       doc.select("a#tax-codes").text should be("tax codes")
       doc.select("a#tax-codes").first.attr("href") should be("https://www.gov.uk/tax-codes")
       doc.select("a#tax-codes").first.attr("target") should be("_blank")

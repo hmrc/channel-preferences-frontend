@@ -59,7 +59,8 @@ link.tax_codes.text=Tax codes
 link.tax_codes.url=https://www.gov.uk/tax-codes
 link.company_benefits_tax.text=Tax on company benefits
 link.company_benefits_tax.url=https://www.gov.uk/tax-company-benefits
-link.dvla.url=https://www.taxdisc.direct.gov.uk/EvlPortalApp/app/home/intro
+link.dvla.url=https://www.taxdisc.direct.gov.uk/
+link.vca.url=http://carfueldata.direct.gov.uk/
 
 button.sign_in=Sign in
 
@@ -88,10 +89,9 @@ contact.confirmation.ticket_number = Your support reference number is
 
 login_error.title=There was a problem signing you in
 login_error.reason=Your sign in details have not been recognised by HM Revenue and Customs.
-login_error.tryagain=Please try {0}.
-login_error.linktext=signing in again
-login_error.persistentproblem=Contact the {0} if this problem happens again.
-login_error.contact_help_desk.link.text=help desk
+login_error.link.tryagain.text=Please try signing in again.
+login_error.persistentproblem={0} if this problem happens again.
+login_error.contact_help_desk.link.text=Contact the help desk
 login_error.contact_help_desk.link.url=https://www.gov.uk/hmrc-online-services-helpdesk
 
 common.links.privacy.policy.text=privacy policy

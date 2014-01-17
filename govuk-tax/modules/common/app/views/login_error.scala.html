@@ -1,10 +1,10 @@
 @main(title = Messages("login_error.title")) {
 
-    <h2 id="error-title">@Messages("login_error.title")</h2>
+    <h1 id="error-title">@Messages("login_error.title")</h1>
 
     <p id="error-reason">@Messages("login_error.reason")</p>
 
-    <p>@Html(Messages("login_error.tryagain", helpers.link("login-again-on-error", common.routes.LoginController.samlLogin.url, Messages("login_error.linktext"))))</p>
+    <p>@helpers.link("login-again-on-error", common.routes.LoginController.samlLogin.url, Messages("login_error.link.tryagain.text"))</p>
 
     <p>@Html(Messages("login_error.persistentproblem", helpers.link("", Messages("login_error.contact_help_desk.link.url"), Messages("login_error.contact_help_desk.link.text"))))</p>
 }
