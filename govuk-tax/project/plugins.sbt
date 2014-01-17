@@ -21,3 +21,4 @@ resolvers ++= Seq("hmrc-snapshots" at hmrcRepoHost + "/content/repositories/hmrc
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-git-stamp" % "1.0.1")
 
+addSbtPlugin("com.gu" % "sbt-jasmine-plugin" % "0.8")
