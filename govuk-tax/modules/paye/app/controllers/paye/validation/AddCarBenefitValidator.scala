@@ -156,7 +156,10 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
   }
 
   private def acceptableNumberOfDays(numberOfDays:Int, values:CarBenefitValues, taxYearInterval:Interval):Boolean  = {
-    numberOfDays < daysBetween(getStartDate(values, taxYearInterval), getEndDate(values, taxYearInterval))
+    val startOfTaxYear = taxYearInterval.getStart.toLocalDate
+    val dateCarMadeVailable = values.providedFromVal.getOrElse(startOfTaxYear)
+    val startDate = if (dateCarMadeVailable.isBefore(startOfTaxYear)) startOfTaxYear else dateCarMadeVailable
+    numberOfDays < daysBetween(startDate, getEndDate(values, taxYearInterval))
   }
 
   private[paye] def validateNoCo2Figure(carBenefitValues: CarBenefitValues): Mapping[Option[Boolean]] = optional(boolean

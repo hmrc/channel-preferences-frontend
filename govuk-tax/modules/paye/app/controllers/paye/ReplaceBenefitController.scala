@@ -90,7 +90,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       primaryEmployment <- taxYearData.findPrimaryEmployment
     } yield {
       val rawData = Some(RemoveBenefitValidator.validationlessForm.bindFromRequest().value.get)
-      val removeForm = updateRemoveCarBenefitForm(rawData, activeCarBenefit.startDate, activeCarBenefit.hasActiveFuel, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()
+      val removeForm = updateRemoveCarBenefitForm(rawData, activeCarBenefit.dateMadeAvailable, activeCarBenefit.hasActiveFuel, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()
 
       val dates = getCarBenefitDates(request)
       val addForm = carBenefitForm(dates).bindFromRequest()

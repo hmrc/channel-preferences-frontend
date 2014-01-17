@@ -62,7 +62,9 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
   }
 
   private def acceptableNumberOfDays(numberOfDays: Int, values: Option[RemoveCarBenefitFormDataValues], benefitStartDate: LocalDate, taxYearInterval: Interval): Boolean = {
-    numberOfDays < daysBetween(benefitStartDate, getEndDate(values, taxYearInterval))
+    val startOfTaxYear = taxYearInterval.getStart.toLocalDate
+    val startDate = if (benefitStartDate.isBefore(startOfTaxYear)) startOfTaxYear else benefitStartDate
+    numberOfDays < daysBetween(startDate, getEndDate(values, taxYearInterval))
   }
 
   private def getEndDate(values: Option[RemoveCarBenefitFormDataValues], taxYearInterval: Interval) = values.flatMap(v => v.withdrawDateVal).getOrElse(taxYearInterval.getEnd.toLocalDate)
