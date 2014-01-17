@@ -91,3 +91,22 @@ login_error.linktext=signing in again
 login_error.persistentproblem=Contact the {0} if this problem happens again.
 login_error.contact_help_desk.link.text=help desk
 login_error.contact_help_desk.link.url=https://www.gov.uk/hmrc-online-services-helpdesk
+
+common.links.privacy.policy.text=privacy policy
+#TODO: add correct url for privacy policy
+common.links.privacy.policy.url=privacy
+
+common.terms_and_conditions.title=Terms and conditions
+common.terms_and_conditions.disclaimer.heading=Disclaimer
+common.terms_and_conditions.disclaimer.link.text=disclaimer notice
+common.terms_and_conditions.disclaimer.link.url=#disclaimer
+common.terms_and_conditions.disclaimer.paragraph.1=Our disclaimer should be read in conjunction with our {0}.
+common.terms_and_conditions.disclaimer.paragraph.1=Our disclaimer should be read in conjunction with our {0}.
+common.terms_and_conditions.disclaimer.paragraph.2=The HMRC website and material relating to Government information, products and services (or to third party information, products and services) is provided 'as is' without any representation or endorsement made and without warranty of any kind whether express or implied, including but not limited to the implied warranties of satisfactory quality, fitness for a particular purpose, non-infringement, compatibility, security and accuracy.
+common.terms_and_conditions.disclaimer.paragraph.3=Once materials have been downloaded from the HMRC website, it is your responsibility to keep them safe. HMRC cannot accept any responsibility for any loss, liability, claim, demand or damages arising from the download and subsequent use of these materials.
+common.terms_and_conditions.disclaimer.paragraph.4=We do not warrant that the functions contained in the material on this website will be uninterrupted or error free, that defects will be corrected, or that this site or the servers that make it available are free of viruses or represent the full functionality, accuracy or reliability of the materials. In no event will we be liable for any loss or damage, or any loss or damages whatsoever arising from the use, or loss of use, of data, or profits arising out of or in connection with the use of the HMRC website.
+common.terms_and_conditions.usage.heading=Using HMRC website
+common.terms_and_conditions.usage.paragraph.1=Our website is maintained for your personal use and viewing. Access and use by you of our site constitutes your acceptance of these terms and conditions. They take effect from the date on which you first use this website. We may at any time revise these terms and conditions without notice, and therefore they should be regularly checked. The continued use of the site after a change has been made is your acceptance of the change.
+common.terms_and_conditions.usage.paragraph.2=You agree to use this site only for lawful purposes, and in a manner that does not infringe the rights of, or restrict or inhibit the use and enjoyment of this site by any third party. Such restrictions or inhibitions includes, without limitation, conduct which is unlawful, or which may harass or cause distress or inconvenience to any person, and the transmission of obscene or offensive content or disruption to the normal flow of dialogue within this site.
+common.terms_and_conditions.usage.paragraph.3=Information collected is used for internal review, to improve or customise the content and/or layout of the site, and to provide information services to the site users. It is not shared with other organisations for commercial purposes.
+common.terms_and_conditions.usage.paragraph.4=Our responsibilities and liabilities to you in providing this site and any associated services are limited as set out in our {0}.
