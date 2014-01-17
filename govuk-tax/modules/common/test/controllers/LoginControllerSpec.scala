@@ -104,7 +104,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.idaLogin()(setupValidRequest())
 
       status(result) shouldBe 303
-      redirectLocation(result).get shouldBe FrontEndRedirect.carBenefitStartPage
+      redirectLocation(result).get shouldBe FrontEndRedirect.carBenefit
 
       val sess = session(result)
       sess(SessionKeys.userId) shouldBe id
