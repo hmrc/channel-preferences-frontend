@@ -1,4 +1,4 @@
-error.email=Please provide a valid email address
+error.email=Enter a valid email address.
 error.email_too_long=The email cannot be longer than 320 characters
 
 error.illegal.value=Please select a valid option

@@ -1,15 +1,14 @@
 @(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @main(title = "My Preferences", user = Some(user)) {
+    <header class="page-header">
+        <h1>Account Details</h1>
 
-    <h1>Account Details</h1>
+        <h2>Thank you</h2>
+    </header>
+    <p>You’ll now get your Self Assessment reminders in the post.</p>
 
-    <h2>Your preferences have been updated.</h2>
 
-    <p>We have updated your account and you will now receive paper notifications from HMRC.</p>
-    <p><span id="opt-back-in">Remember, you can opt into email notifications at any time by clicking on the link in the 'My Account' section of the site.</span></p>
-    <hr />
-
-    <p>@helpers.link("return-to-dashboard-button", controllers.bt.routes.BusinessTaxController.home.url, "Return to your tax account", false, false, "button")</p>
+    <p>@helpers.link("return-to-dashboard-button", controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account", false, false, "button")</p>
 
 }

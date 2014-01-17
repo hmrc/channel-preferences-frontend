@@ -3,21 +3,21 @@
 @import uk.gov.hmrc.domain.Email._
 
 @main(title = "Your Self Assessment reminders", nav = true, user= Some(user)) {
+    <header class="page-header">
+        <h1>Your details</h1>
 
-<h1>Account details</h1>
-
-<h2> Self Assessment (SA) email reminders </h2>
-
+        <h2> Self Assessment email reminders </h2>
+    </header>
    @if(saPreferences.isDefined && saPreferences.get.digital) {
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.pending) {
-           <p id="pending-status-message">You are currently opted-in to Digital SA, but you have yet to validate the email address you have entered during opting in. Use the links below to resend the validation email to an new address.</p>
+           <p id="pending-status-message">You signed up for email reminders but you must verify your email address to activate the service.</p>
 
            @helpers.form(action = controllers.bt.routes.AccountDetailsController.resendValidationEmail) {
 
            <div class="form-field">
                <p>
-               <button id="resend-email-button" class="button" type="submit">Resend validation email to your current address</button>
+               <button id="resend-email-button" class="button" type="submit">Verify your email address</button>
                </p>
            </div>
 
@@ -33,7 +33,7 @@
        }
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified ) {
-           <p>You have signed up for email reminders.</p>
+           <p>You’re signed up for email reminders for when tax returns and payments are due and tax statements are online.</p>
            <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email.obfuscated}</span></p>
            <hr>
            <p>
@@ -60,7 +60,7 @@
        @helpers.link(
            "opt-out-of-email-link",
            controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
-           "Opt-out of email reminders"
+           "Stop your email reminders"
        )
        </p>
 

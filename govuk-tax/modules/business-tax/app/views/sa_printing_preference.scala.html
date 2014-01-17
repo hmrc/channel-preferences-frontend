@@ -1,19 +1,21 @@
-@(emailForm: Form[controllers.bt.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
+    @(emailForm: Form[controllers.bt.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import views.helpers.CustomHelpers._
 @import helper._
 
 @main(title = "Sign up for email reminders", user = Some(user)) {
 
-    <h1>Sign up for email reminders</h1>
+    <header class="page-header">
+        <h1>Sign up for Self Assessment email reminders</h1>
+    </header>
 
     <p>You can soon get Self Assessment email reminders when:</p>
     <ul class="bullets">
-        <li>tax returns are due</li>
-        <li>payments are due</li>
+        <li>Self Assessment tax returns are due</li>
+        <li>payments are due for Self Assessment</li>
         <li>new tax statements are online</li>
     </ul>
-    <p>Email reminders will replace letters you currently get about these updates from HM Revenue & Customs.</p>
+    <p>Email reminders will replace letters you currently get about Self Assessment from HMRC.</p>
 
     <h2>What’s in the email</h2>
     <p>The reminders will ask you to log into your online tax account and check for updates.</p>
@@ -26,19 +28,22 @@
 
 	@helpers.input(
 	    emailForm("email.main"),
-        '_label -> "",
+        '_label -> "Email address",
+        '_labelHighlight -> true,
 	    '_divClass -> "form-field",
-	    '_inputClass -> "input--medium",
+	    '_inputClass -> "input--medium input--cleared",
         'parentField -> emailForm("email")
 	)
 
-    <p>Confirm email address</p>
+
     @helpers.input(
         emailForm("email.confirm"),
-        '_label -> "",
+        '_label -> "Confirm email address",
+        '_labelHighlight -> true,
         '_divClass -> "form-field",
-        '_inputClass -> "input--medium"
+        '_inputClass -> "input--medium input--cleared"
     )
+    <p class="inline-block">By signing up to email reminders you accept the <a href ="#"> terms and conditions</a>.</p>
 
 	<div class="form-field">
             <button id="submitEmailButton" class="button" type="submit">Submit</button>

@@ -2,15 +2,19 @@
 
 @main(title = "Sign up for email reminders", user = Some(user)) {
 
-    <h1>Sign up for email reminders</h1>
+   <header class="page-header">
+        <h1>Sign up for email reminders</h1>
 
-    <h2>Thank you</h2>
+        <h2>Thank you</h2>
+   </header>
 
-    <p>We’ve sent you an email to activate the service.</p>
+    <p>You must verify your email address to activate this service.</p>
 
-    <p>Follow the instructions in the email to verify your email address.</p>
+    <p>You’ve been sent an email telling you how to do this.</p>
 
-    <p>HM Revenue & Customs will never put personal information in an email.<br>Always go to GOV.UK to log in to your tax account.</p>
+    <p>HM Revenue & Customs will never put personal information in an email.</p>
+
+    <p>Always go to GOV.UK to sign in to your account.</p>
 
     <p>@helpers.link("sa-home-link", controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account", false, false, "button")</p>
 

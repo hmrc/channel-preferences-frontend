@@ -1721,6 +1721,7 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 30px;
+  display: block;
 }
 
 /**
@@ -1969,6 +1970,7 @@ fieldset {
   line-height: 1.31579;
   font-weight: 400;
   text-transform: none;
+  display: inline-block;
   position: relative;
 }
 @media (max-width: 640px) {
@@ -2056,6 +2058,10 @@ input[type="radio"], input[type="checkbox"], select {
   color: #2e3191;
 }
 
+.input--cleared {
+  display: table;
+}
+
 /**
  * By default form labels will be above inputs
  */
@@ -2118,18 +2124,6 @@ label.indent {
 .label--inlineRadio--expanded .label__text {
   float: left;
   width: 90%;
-}
-
-.label--inlineRadio--overhead, .label--inlineRadio--overhead-wide {
-  float: left;
-  margin-bottom: 0.75em;
-  text-align: center;
-  width: 6em;
-  word-spacing: 6em;
-}
-
-.label--inlineRadio--overhead-wide {
-  width: 6.5em;
 }
 
 .label--full-length {
@@ -2198,10 +2192,6 @@ label.indent {
 }
 .row label.bold {
   font-weight: bold;
-}
-
-.questionnaire legend {
-  margin: 0 0 0.75em;
 }
 
 /**
@@ -2544,6 +2534,10 @@ article table td {
 .hard--sides {
   padding-right: 0 !important;
   padding-left: 0 !important;
+}
+
+.inline-block {
+  display: inline-block !important;
 }
 
 /**

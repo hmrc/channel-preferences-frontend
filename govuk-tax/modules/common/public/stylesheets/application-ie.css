@@ -1724,6 +1724,7 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 30px;
+  display: block;
 }
 
 /**
@@ -2058,6 +2059,10 @@ input[type="radio"], input[type="checkbox"], select {
 }
 .input--link:visited {
   color: #2e3191;
+}
+
+.input--cleared {
+  display: table;
 }
 
 /**
@@ -2532,6 +2537,10 @@ article table td {
 .hard--sides {
   padding-right: 0 !important;
   padding-left: 0 !important;
+}
+
+.inline-block {
+  display: inline-block !important;
 }
 
 /**

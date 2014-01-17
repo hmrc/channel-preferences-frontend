@@ -6,29 +6,27 @@
 
 @main(title = "My preferences - Change your email address", nav = true, user= Some(user)) {
 
-<h1>Account details</h1>
+    <header class="page-header">
+        <h1>Account details</h1>
 
-<h2> Change email address </h2>
-
-   <p>Your current email address is <span id="current-email-address">@{currentEmail}</span></p>
+        <h2> Change  your email address </h2>
+    </header>
+   <p>Your reminders are sent to <span id="current-email-address">@{currentEmail}</span></p>
 
     @helpers.form(action = controllers.bt.routes.AccountDetailsController.submitEmailAddress, 'id -> "form-submit-email-address") {
 
-        <p>Email address</p>
         @helpers.input(
             emailForm("email.main"),
-            '_label -> "",
+            '_label -> "New email address",
             '_divClass -> "form-field",
-            '_inputClass -> "input--medium",
+            '_inputClass -> "input--medium input--cleared",
             'parentField -> emailForm("email")
         )
-
-        <p>Confirm email address</p>
         @helpers.input(
             emailForm("email.confirm"),
-            '_label -> "",
+            '_label -> "Confirm email address",
             '_divClass -> "form-field",
-            '_inputClass -> "input--medium"
+            '_inputClass -> "input--medium input--cleared"
         )
 
 
