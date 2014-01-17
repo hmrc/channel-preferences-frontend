@@ -31,7 +31,9 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
     "feedback-email" -> email.verifying("error.email_too_long", email => email.size < 320),
     "feedback-comments" -> text
       .verifying("error.common.comments_mandatory", comment => !comment.trim.isEmpty)
-      .verifying("error.common.comments_too_long", comment => comment.size < 2000)
+      .verifying("error.common.comments_too_long", comment => comment.size < 2000),
+    "isJavascript" -> boolean,
+    "referer" -> text
   )(FeedbackForm.apply)(FeedbackForm.unapply))
 
   def feedbackForm = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider)({
@@ -53,7 +55,7 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
       },
       data => {
         import data._
-        redirectToConfirmationPage(hmrcDeskproConnector.createFeedback(name, email, experienceRating, "Beta feedback submission", comments, "referrer", true, request, Some(user)))
+        redirectToConfirmationPage(hmrcDeskproConnector.createFeedback(name, email, experienceRating, "Beta feedback submission", comments, referrer, javascriptEnabled, request, Some(user)))
       })
   }
 
@@ -61,13 +63,18 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
     ticketId.map(_ => Redirect(routes.FeedbackController.thanks()))
   }
 
-  private[common] def renderForm(implicit user: User, request: Request[AnyRef]) = Ok(views.html.feedback(form.fill(FeedbackForm("", "", "", ""))))
+  private[common] def renderForm(implicit user: User, request: Request[AnyRef]) = Ok(views.html.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a")))))
 
   private[common] def doThanks(implicit user: User, request: Request[AnyRef]) = Future(Ok(views.html.feedback_confirmation()))
 
 }
 
-case class FeedbackForm(experienceRating: String, name: String, email: String, comments: String)
+case class FeedbackForm(experienceRating: String, name: String, email: String, comments: String, javascriptEnabled: Boolean, referrer: String)
+
+
+object FeedbackForm {
+  def apply(referer: String): FeedbackForm = FeedbackForm("", "", "", "", false, referer)
+}
 
 object FeedbackFormConfig {
   val validExperiences = Seq("Very good", "Good", "Unsure", "Bad", "Very bad")
