@@ -94,7 +94,16 @@ login_error.contact_help_desk.link.url=https://www.gov.uk/hmrc-online-services-h
 
 common.links.privacy.policy.text=privacy policy
 #TODO: add correct url for privacy policy
-common.links.privacy.policy.url=privacy
+common.links.privacy.policy.url=/privacy
+common.links.online_security.text=Online security - making your online experience as secure as possible
+common.links.online_security.url=http://www.hmrc.gov.uk/security/index.htm
+common.links.copyright_notice.text=copyright notice
+common.links.copyright_notice.url=http://www.hmrc.gov.uk/copyright/index.htm
+common.links.logo_permission.text=Ken Brown
+#TODO: link url is wrong find out correct one
+common.links.logo_permission.url=http://www.hmrc.gov.uk/asplib/mailer/mailer_form.asp?dpt=Ken_BROWN
+common.links.agents_as_authorised.text=Agents who advertise as registered or authorised agents of HMRC
+common.links.agents_as_authorised.url=http://www.hmrc.gov.uk/terms/agents.htm
 
 common.terms_and_conditions.title=Terms and conditions
 common.terms_and_conditions.disclaimer.heading=Disclaimer
@@ -110,3 +119,22 @@ common.terms_and_conditions.usage.paragraph.1=Our website is maintained for your
 common.terms_and_conditions.usage.paragraph.2=You agree to use this site only for lawful purposes, and in a manner that does not infringe the rights of, or restrict or inhibit the use and enjoyment of this site by any third party. Such restrictions or inhibitions includes, without limitation, conduct which is unlawful, or which may harass or cause distress or inconvenience to any person, and the transmission of obscene or offensive content or disruption to the normal flow of dialogue within this site.
 common.terms_and_conditions.usage.paragraph.3=Information collected is used for internal review, to improve or customise the content and/or layout of the site, and to provide information services to the site users. It is not shared with other organisations for commercial purposes.
 common.terms_and_conditions.usage.paragraph.4=Our responsibilities and liabilities to you in providing this site and any associated services are limited as set out in our {0}.
+common.terms_and_conditions.online_services.heading=Online services
+common.terms_and_conditions.online_services.paragraph.1=A number of our online services have specific terms and conditions related to their use. You will be asked to confirm acceptance of these when using them for the first time.
+common.terms_and_conditions.online_services.paragraph.2=For detailed guidance regarding online security and protection, please follow the link {0}.
+common.terms_and_conditions.copyright.heading=Copyright and intellectual property rights
+common.terms_and_conditions.copyright.paragraph.1=The material featured on this site is subject to Crown Copyright and/or third party copyright, details of which can be found in our {0}.
+common.terms_and_conditions.copyright.paragraph.2=The names, images and logos identifying HMRC are proprietary marks of HMRC. Copying our logos and/or any other third party logos accessed through this site is not permitted without prior approval from the relevant copyright owner.
+common.terms_and_conditions.copyright.paragraph.3=Requests for permission to use our logo should be emailed to {0}.
+common.terms_and_conditions.copyright.paragraph.4=HMRC does not approve, accredit or endorse tax agents or allow themto use the logo in their advertising.
+common.terms_and_conditions.linking.heading=Linking to HMRC website
+common.terms_and_conditions.linking.paragraph.1=You do not have to ask permission to link directly to pages hosted on this site. We do not object to you linking directly to the information that is hosted on our site. However, we do not permit our pages to be loaded into frames on your site. HMRC pages must load into the user's entire window.
+common.terms_and_conditions.external_links.heading=Links to external websites
+common.terms_and_conditions.external_links.paragraph.1=HMRC is not responsible for the contents or reliability of any other websites to which we provide a link and does not necessarily endorse the views expressed with them. Listing should not be taken as endorsement of any kind. We cannot guarantee that these links will work at all times and have no control over the availability of the linked pages. In particular HMRC is not responsible for any privacy policies on external websites and we recommend you read the relevant statements on any other websites your visit. HMRC is not responsible for the direct or indirect consequences of you linking to any other website from this website.
+common.terms_and_conditions.virus_protection.heading=Virus protection
+common.terms_and_conditions.virus_protection.paragraph.1=We make all reasonable attempts to check and test material at all stages of production, and to exclude viruses from this website. It is always wise for you to run an up to date anti-virus program on all the material downloaded from the Internet. We cannot accept any responsibility for any loss, disruption or damage to your data or your computer system, which may occur whilst using material derived from HMRC website.
+common.terms_and_conditions.privacy_policy.heading=Privacy policy
+common.terms_and_conditions.privacy_policy.paragraph.1=Our {0} explains how we protect and respect the data we collect from you. Your use of this site constitutes acceptance of this policy.
+common.terms_and_conditions.governing_law.heading=Governing law
+common.terms_and_conditions.governing_law.paragraph.1=These terms and conditions shall be governed by and construed in accordance with the laws of England and Wales. Any dispute arising under these terms and conditions shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+common.terms_and_conditions.updated.text=These Terms and Conditions were last updated April 2005.
