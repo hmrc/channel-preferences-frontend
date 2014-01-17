@@ -1,10 +1,10 @@
 package controllers.paye.validation
 
-import controllers.paye.{StubTaxYearSupport, PayeBaseSpec}
+import controllers.paye.{TaxYearSupport, PayeBaseSpec}
 import org.scalatest.mock.MockitoSugar
-import play.api.data.{Mapping, Form}
+import play.api.data.Form
 import play.api.data.Forms._
-import play.api.test.{WithApplication, FakeRequest}
+import play.api.test.{WithApplication, FakeRequest, FakeApplication}
 import AddCarBenefitValidator._
 import play.api.i18n.Messages
 import controllers.paye.CarBenefitFormFields._
@@ -12,10 +12,8 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import play.api.test.FakeApplication
 
-class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with StubTaxYearSupport {
-  override def currentTaxYear = 2013
+class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with TaxYearSupport {
    val now = new LocalDate(currentTaxYear, 10, 2)
    val endOfTaxYear = new LocalDate(currentTaxYear, 4, 5)
 
@@ -99,6 +97,17 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
           employerPayFuel -> validateEmployerPayFuel(values),
           dateFuelWithdrawn -> validateDateFuelWithdrawn(values, taxYearInterval)
         )(DummyModel.apply)(DummyModel.unapply))
+    }
+
+    "give a not in current tax year error when date is not within the current tax year range" in new WithApplication(FakeApplication())  {
+      val withdrawnDateAfterCarProvidedTo = buildDateFormField(dateFuelWithdrawn, Some(("2010", "6", "7")))
+      val form = dummyForm(getValues(
+        employerPayFuelVal = Some("date"),
+        giveBackThisTaxYearVal = Some("false"),
+        providedToVal = Some(new LocalDate(currentTaxYear,5,5)))
+      ).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(withdrawnDateAfterCarProvidedTo: _*))
+
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, s"Enter a date between 6 April $currentTaxYear and 5 April ${currentTaxYear+1}.")
     }
 
     "reject a value that is not one of the options for the employer pay fuel field" in new WithApplication(FakeApplication()) {

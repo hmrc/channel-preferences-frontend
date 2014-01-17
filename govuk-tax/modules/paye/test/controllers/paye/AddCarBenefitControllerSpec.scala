@@ -34,7 +34,7 @@ import controllers.paye.validation.BenefitFlowHelper
 import controllers.common.SessionKeys
 
 
-class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
+class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper with TaxYearSupport {
 
   import CarBenefitDataBuilder._
   import Matchers.{any, eq => is}
@@ -168,7 +168,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper {
     "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore()
 
-      assertFailedDatesSubmit(Some(("2012", "1", "1")), Some("false"), None, Some("false"), None, "error_q_1", "Enter a date between 6 April 2012 and 5 April 2013.")
+      assertFailedDatesSubmit(Some(("2012", "1", "1")), Some("false"), None, Some("false"), None, "error_q_1", s"Enter a date between 6 April $currentTaxYear and 5 April ${currentTaxYear+1}.")
       assertFailedDatesSubmit(Some(localDateToTuple(Some(now.plusDays(8)))), Some("false"), None, Some("false"), None, "error_q_1", "Enter a date that’s no more than 7 days from today - you can’t report a change more than 7 days in advance.")
 
       assertFailedDatesSubmit(Some((s"$taxYear", "5", "")), Some("true"), None, Some("true"), Some((s"$taxYear", "10", "17")), "error_q_1", "You must specify a valid date")

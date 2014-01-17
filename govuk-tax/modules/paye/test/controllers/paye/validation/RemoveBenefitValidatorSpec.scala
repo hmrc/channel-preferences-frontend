@@ -1,6 +1,6 @@
 package controllers.paye.validation
 
-import controllers.paye.{StubTaxYearSupport, PayeBaseSpec}
+import controllers.paye.{TaxYearSupport, PayeBaseSpec}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.utils.DateConverter
 import controllers.DateFieldsHelper
@@ -14,9 +14,8 @@ import org.joda.time.LocalDate
 import models.paye.CarFuelBenefitDates
 import play.api.i18n.Messages
 
-class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with StubTaxYearSupport {
+class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with TaxYearSupport {
 
-  override def currentTaxYear = 2012
   val now = new LocalDate(currentTaxYear, 10, 2)
   val endOfTaxYear = new LocalDate(currentTaxYear, 4, 5)
 
@@ -189,6 +188,13 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
 
       val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBnefitStarted:_*))
       form.hasErrors shouldBe true
+    }
+
+    "reject a fuel withdrawn date that is not in the current tax year" in new WithApplication(FakeApplication()) {
+      val fuelWithdrawnBeforeCarBnefitStarted = buildDateFormField(dateFuelWithdrawn, Some(("2010", "6", "7")))
+      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBnefitStarted:_*))
+      form.hasErrors shouldBe true
+      form.errors(dateFuelWithdrawn).map(err => Messages(err.message)) should contain(s"Enter a date between 6 April $currentTaxYear and 5 April ${currentTaxYear+1}.")
     }
 
     "reject a fuel withdrawn date that is empty" in new WithApplication(FakeApplication()) {

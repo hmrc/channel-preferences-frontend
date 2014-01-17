@@ -12,6 +12,7 @@ import StopOnFirstFail._
 import controllers.paye.TaxYearSupport
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
+import play.api.i18n.Messages
 
 object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
@@ -171,8 +172,8 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
   private def isFuelTypeElectric(fuelType:Option[String]) = fuelType.getOrElse("") == AddCarBenefitConfirmationData.fuelTypeElectric
 
-  private def dateInCurrentTaxYear(taxYearInterval:Interval): Mapping[Option[LocalDate]] = dateTuple.verifying(
-    "error.paye.date_not_in_current_tax_year", data => isInCurrentTaxYear(data, taxYearInterval)
+  private[validation] def dateInCurrentTaxYear(taxYearInterval:Interval): Mapping[Option[LocalDate]] = dateTuple.verifying(
+    Messages("error.paye.date_not_in_current_tax_year", currentTaxYear.toString, (currentTaxYear+1).toString), data => isInCurrentTaxYear(data, taxYearInterval)
   )
 
   private def co2FiguresNotBlank(co2Figure:Option[_], co2NoFigure:Option[_]) = {
@@ -185,7 +186,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
   private[paye] def validateDateFuelWithdrawn(values: CarBenefitValues, taxYearInterval:Interval): Mapping[Option[LocalDate]] = values.employerPayFuel match {
     case Some(employerPayeFuel) if employerPayeFuel == employerPayeFuelDateOption => dateTuple verifying StopOnFirstFail[Option[LocalDate]](
       constraint("error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date", (data) => data.isDefined),
-      constraint("error.paye.date_not_in_current_tax_year", data => isInCurrentTaxYear(data, taxYearInterval)),
+      constraint(Messages("error.paye.date_not_in_current_tax_year", currentTaxYear.toString, (currentTaxYear+1).toString), data => isInCurrentTaxYear(data, taxYearInterval)),
       constraint("error.paye.fuel_withdraw_date_must_be_after_car_start_date", (data) => data.get.isAfter(getStartDate(values, taxYearInterval))),
       constraint("error.paye.fuel_withdraw_date_must_be_before_car_end_date", (data) => isEqualOrAfter(data.get,getEndDate(values, taxYearInterval)))
     )

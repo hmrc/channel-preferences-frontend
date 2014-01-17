@@ -1,6 +1,6 @@
 error.paye.benefit.date.greater.7.days=Enter a date that’s no more than 7 days from today - you can’t report a change more than 7 days in advance.
-error.paye.benefit.date.next.taxyear=Enter a date between 6 April 2013 and 5 April 2014.
-error.paye.benefit.date.previous.taxyear=Enter a date between 6 April 2013 and 5 April 2014.
+error.paye.benefit.date.next.taxyear=Enter a date between 6 April {0} and 5 April {1}.
+error.paye.benefit.date.previous.taxyear=Enter a date between 6 April {0} and 5 April {1}.
 error.paye.benefit.date.previous.startdate=Enter a date that’s on or after the date you got the car.
 error.paye.benefit.date.mandatory=Enter a date.
 error.paye.benefit.choice.mandatory=Confirm when the fuel benefit stopped.
@@ -11,7 +11,7 @@ error.paye.add_car_benefit.missing_employee_contribution=Enter a number between 
 error.paye.add_car_benefit.missing_days_unavailable=Enter the number of days the car was unavailable.
 error.paye.add_car_benefit.missing_car_return_date=Enter the date you gave the car back.
 error.paye.add_car_benefit.car_unavailable_too_long=The car can’t be unavailable for longer than the total number of days you’ve had it. Reduce the number of days unavailable or check the date you got the car.
-error.paye.date_not_in_current_tax_year=Enter a date between 6 April 2012 and 5 April 2013.
+error.paye.date_not_in_current_tax_year=Enter a date between 6 April {0} and 5 April {1}.
 error.paye.date_within_7_days=Enter a date that’s no more than 7 days from today - you can’t report a change more than 7 days in advance.
 error.paye.providedTo_after_providedFrom=Enter a date that’s on or after the date you got the car.
 error.paye.list_price_mandatory=Enter the car’s list price (including VAT and accessories).
