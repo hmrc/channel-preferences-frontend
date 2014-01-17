@@ -10,7 +10,12 @@
 
 @main(title = "Sign in with your Government Gateway account") {
 
-    <h1>Sign in with your Government Gateway account</h1>
+    <h1>Your tax account</h1>
+    <p>Use your online tax account to send tax returns, make payments or check balances for Self Assessment, VAT, Corporation Tax, and Paye As You Earn (PAYE).</p>
+    <h2>Before you start</h2>
+
+    <p>To use this service you must be <a href="#">registered</a> for at least one of the above taxes and enrolled for its online service</p>
+    <h2>Sign in with your Government Gateway account</h2>
 
     <p>Sign in with your Government Gateway account.</p>
     <p>You can @helpers.link("", "https://online.hmrc.gov.uk/registration/options", "register for a Government Gateway account", true) if you do not have one.</p>
@@ -28,7 +33,7 @@
                     <span class="error-notification password">@Messages(error.message)</span>
                 }
                 <div class="form-field">
-                <label class="label--inline" for="userId">Username</label>
+                <label class="label--inline" for="userId">User ID</label>
                 <input type="text" id="userId" name="userId" required />
                 </div>
 
@@ -47,4 +52,12 @@
             </div>
         </fieldset>
     }
+    <h2>Problems signing in</h2>
+
+    <ul class="action-list">
+        <li>@helpers.link("", "https://online.hmrc.gov.uk/user/credentials/userid", "Lost User ID", true)</li>
+        <li>@helpers.link("", "http://www.hmrc.gov.uk/contactus/online-services.htm", "Lost password", true)</li>
+        <li>@helpers.link("", "https://online.hmrc.gov.uk/user/credentials/password", "Lost user ID &amp; password (Self Assessment only)", true)</li>
+        <li>@helpers.link("", "https://online.hmrc.gov.uk/information/faqs?affinitygroup=&amp;faqid=eng.faq.employers.faq.faqcom046", "Lost account activation code", true)</li>
+    </ul>
 }

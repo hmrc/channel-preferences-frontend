@@ -242,7 +242,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       contentType(result).get shouldBe "text/html"
       charset(result).get shouldBe "utf-8"
       contentAsString(result) should include("form")
-      contentAsString(result) should include("Username")
+      contentAsString(result) should include("User ID")
       contentAsString(result) should include("Password")
       contentAsString(result) should include("Sign in")
       contentAsString(result) should not include "Invalid"
