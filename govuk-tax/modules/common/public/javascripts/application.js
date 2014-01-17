@@ -120,7 +120,7 @@ GOVUK.ReportAProblem = function () {
       showErrorMessage = function () {
         var response = "<h2>Sorry, we're unable to receive your message right now.</h2> " +
           			   "<p>We have other ways for you to provide feedback on the " +
-          			   "<a href='/feedback'>support page</a>.</p>";
+          			   "<a href='/beta-feedback'>support page</a>.</p>";
 
         $reportErrorContainer.html(response);
       },
