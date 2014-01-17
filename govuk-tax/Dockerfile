@@ -1,4 +1,4 @@
-FROM nickstenning/java7
+FROM docker.registry/java:7u51
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y unzip
 ADD . /src
