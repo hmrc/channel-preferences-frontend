@@ -1969,7 +1969,6 @@ fieldset {
   line-height: 1.31579;
   font-weight: 400;
   text-transform: none;
-  display: inline-block;
   position: relative;
 }
 @media (max-width: 640px) {
@@ -2121,6 +2120,18 @@ label.indent {
   width: 90%;
 }
 
+.label--inlineRadio--overhead, .label--inlineRadio--overhead-wide {
+  float: left;
+  margin-bottom: 0.75em;
+  text-align: center;
+  width: 6em;
+  word-spacing: 6em;
+}
+
+.label--inlineRadio--overhead-wide {
+  width: 6.5em;
+}
+
 .label--full-length {
   clear: both;
 }
@@ -2187,6 +2198,10 @@ label.indent {
 }
 .row label.bold {
   font-weight: bold;
+}
+
+.questionnaire legend {
+  margin: 0 0 0.75em;
 }
 
 /**

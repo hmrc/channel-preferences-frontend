@@ -319,3 +319,42 @@ paye.version_changed.start_again=Start again
 
 link.hmrc.contact.url=http://search2.hmrc.gov.uk/kb5/hmrc/contactus/view.page?record=hpkspulskxM
 link.hmrc.contact.text=HM Revenue and Customs
+
+paye.questionnaire.heading=Your opinion
+paye.questionnaire.info=Please answer these 7 questions so we can improve the service.
+paye.questionnaire.warning=Please don’t include any personal or financial information, eg your National Insurance or credit card number,
+paye.questionnaire.question_heading.identity_profile=Your identity profile
+paye.questionnaire.question_heading.company_car=Your company car
+paye.questionnaire.questions.easy_register=How easy was it to register?
+paye.questionnaire.questions.secure=How secure did the registration process feel?
+paye.questionnaire.questions.comfortable=How comfortable were you registering with the Post Office, Experian, Digidentity or Verizon?
+paye.questionnaire.questions.easy_update=How easy was it to update your company car details?
+paye.questionnaire.questions.likely=Would you do it online next time?
+paye.questionnaire.questions.satisfaction=Overall, how satisfied were you with the service?
+paye.questionnaire.questions.improve=How could we improve the service?
+
+paye.questionnaire.answers.very_easy=Very easy
+paye.questionnaire.answers.easy=Easy
+paye.questionnaire.answers.neutral=Neutral
+paye.questionnaire.answers.difficult=Difficult
+paye.questionnaire.answers.very_difficult=Very Difficult
+
+paye.questionnaire.answers.very_secure=Very secure
+paye.questionnaire.answers.secure=Secure
+paye.questionnaire.answers.insecure=Insecure
+paye.questionnaire.answers.very_insecure=Very insecure
+
+paye.questionnaire.answers.very_comfortable=Very comfortable
+paye.questionnaire.answers.comfortable=Comfortable
+paye.questionnaire.answers.uncomfortable=Uncomfortable
+paye.questionnaire.answers.very_uncomfortable=Very uncomfortable
+
+paye.questionnaire.answers.very_likely=Very likely
+paye.questionnaire.answers.likely=Likely
+paye.questionnaire.answers.unlikely=Unlikely
+paye.questionnaire.answers.very_unlikely=Very unlikely
+
+paye.questionnaire.answers.very_satisfied=Very satisfied
+paye.questionnaire.answers.satisfied=Satisfied
+paye.questionnaire.answers.dissatisfied=Dissatisfied
+paye.questionnaire.answers.very_dissatisfied=Very dissatisfied

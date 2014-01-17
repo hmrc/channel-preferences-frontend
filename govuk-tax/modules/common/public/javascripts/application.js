@@ -62,6 +62,14 @@
     };
   }();
 
+  GOVUK.questionnaireSubmission = function () {
+      var $questionnaire = $('.questionnaire');
+      $questionnaire.find('input[type=submit]').on("click", function(e) {
+        $(this).parents('.questionnaire').toggleClass('js-hidden');
+        e.preventDefault();
+// TODO: make ajax call
+      });
+  };
   GOVUK.setCookie = function (name, value, duration) {
     var expires = '';
     if (duration) {
@@ -360,5 +368,7 @@ GOVUK.ReportAProblem = function () {
           $form.removeData('electricFlagged');
         }
       });
+
+      GOVUK.questionnaireSubmission();
   });
 })(jQuery, window, document);
