@@ -25,8 +25,6 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
 
   def this() = this(new AccountSummariesFactory(), Connectors.preferencesConnector, Connectors.auditConnector)(Connectors.authConnector)
 
-  def redirectToHome = UnauthorisedAction(request => Redirect(routes.BusinessTaxController.home()))
-
   def home = AuthenticatedBy(GovernmentGateway).async {
     user => request => businessTaxHomepage(user, request)
   }

@@ -1,10 +1,9 @@
 GET         /                                                       @controllers.bt.BusinessTaxController.home
-GET         /home                                                   @controllers.bt.BusinessTaxController.redirectToHome
 GET         /vat/make-a-payment                                     @controllers.bt.PaymentController.makeVatPayment
 GET         /ct/make-a-payment                                      @controllers.bt.PaymentController.makeCtPayment
 GET         /sa/make-a-payment                                      @controllers.bt.PaymentController.makeSaPayment
 GET         /epaye/make-a-payment                                   @controllers.bt.PaymentController.makeEpayePayment
-GET         /other-services                                         @controllers.bt.OtherServicesController.otherServices
+GET         /other-taxes                                         @controllers.bt.OtherServicesController.otherServices
 GET         /merge-accounts                                         @controllers.bt.MergeGGAccountsController.mergeGGAccounts
 
 GET         /account-details                                        @controllers.bt.AccountDetailsController.accountDetails

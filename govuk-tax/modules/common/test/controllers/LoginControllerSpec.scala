@@ -356,7 +356,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling logged out" should {
     "return the logged out view and clear any session data" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
-      val result = loginController.loggedout(FakeRequest().withSession("someKey" -> "someValue"))
+      val result = loginController.signedOut(FakeRequest().withSession("someKey" -> "someValue"))
 
       status(result) shouldBe 200
       contentAsString(result) should include("signed out")

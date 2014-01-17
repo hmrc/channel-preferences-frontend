@@ -3,10 +3,11 @@
 
 GET     /assets/*file                   controllers.common.Assets.at(path="/public", file)
 
-GET     /account/logout                 @controllers.common.LoginController.logout
-GET     /account/login                  @controllers.common.LoginController.businessTaxLogin
-POST    /account/login                  @controllers.common.LoginController.governmentGatewayLogin
-GET     /account/loggedout              @controllers.common.LoginController.loggedout
+# BT login/logout pages
+GET     /account/sign-out                 @controllers.common.LoginController.logout
+GET     /account/sign-in                  @controllers.common.LoginController.businessTaxLogin
+POST    /account/sign-in                  @controllers.common.LoginController.governmentGatewayLogin
+GET     /signed-out                       @controllers.common.LoginController.signedOut
 
 
 # routes for testing IDA integration
@@ -19,19 +20,20 @@ POST    /ssoin                          @controllers.common.SsoInController.post
 GET     /ssoin                          @controllers.common.SsoInController.getIn(payload: String)
 GET     /ssoin/logout                   @controllers.common.SsoInController.out
 GET     /ssoout                         @controllers.common.SsoOutController.encryptPayload
-GET     /loggedout                      @controllers.common.LoginController.redirectToLoggedOut
+GET     /loggedout                      @controllers.common.LoginController.redirectToSignedOut
 
 
+# Admin pages
 GET     /admin/healthcheck              @controllers.common.HealthCheckController.check
 GET     /admin/details                  @controllers.common.HealthCheckController.details
 GET     /admin/detail/:name             @controllers.common.HealthCheckController.detail(name: String)
 GET     /admin/metrics                  com.kenshoo.play.metrics.MetricsController.metrics
 
+# Support pages
 GET     /contact-hmrc                   @controllers.common.ContactController.index
 POST    /contact-hmrc                   @controllers.common.ContactController.submit
 GET     /contact-hmrc/thanks            @controllers.common.ContactController.thanks
 POST    /contact/problem_reports        @controllers.common.ProblemReportsController.report
-
 GET     /beta-feedback                  @controllers.common.FeedbackController.feedbackForm
 POST    /beta-feedback/submit           @controllers.common.FeedbackController.submit
 GET     /beta-feedback/thanks           @controllers.common.FeedbackController.thanks
