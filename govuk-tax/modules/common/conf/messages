@@ -23,7 +23,7 @@ date.fields.month=Month
 date.fields.year=Year
 
 common.firstlogin={0}, this is the first time you have logged in
-common.previousLoginTime={0}, you last signed in to your account on {1}
+common.previousLoginTime={0}, you last accessed your tax account on {1}
 
 
 error.common.feedback.name_mandatory=Please provide your name

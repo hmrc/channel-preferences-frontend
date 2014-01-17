@@ -1,20 +1,4 @@
-@(user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html])
-
-@import views.formatting.Dates._
-
-<div class="service-info">
-    <p class="service-info__organisation-logo">HM Revenue<br />&amp; Customs</p>
-
-    <p id="lastlogin" class="service-info__help">
-	@if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
-	    @Messages("common.previousLoginTime", user.get.displayName.get, formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, ""))
-    } else {
-	    @Messages("common.firstlogin", user.get.displayName.get)
-	}
-    </p>
-
-    <p class="service-info__help"><a href="@common.routes.LoginController.logout">Sign out of your account</a></p>
-</div>
+@(user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html], nav: Boolean)
 
 @if( sidebarLinks.isDefined ) {
     @sidebarLinks.get

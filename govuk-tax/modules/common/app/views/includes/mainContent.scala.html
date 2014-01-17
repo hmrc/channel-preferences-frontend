@@ -1,5 +1,7 @@
-@(content: Html, user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html], supportLinkEnabled: Boolean = true)
+@(content: Html, user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html], supportLinkEnabled: Boolean = true, nav: Boolean = false)
 <section id="content" class="l-constrained--topBordered">
+
+    @includes.loginStatus(user, nav)
     <div class="l-bodyLeftColumn">
         <article>
             @content
@@ -8,10 +10,11 @@
             @includes.error_feedback()
         }
     </div>
-
-    @if( user.isDefined ) {
-    <aside class="l-bodyRightColumn">
-        @includes.sidebar(user, sidebarLinks)
-    </aside>
+    @if( sidebarLinks.isDefined ) {
+        <aside>
+            @sidebarLinks.get
+        </aside>
     }
+
+
 </section>
