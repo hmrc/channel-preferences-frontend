@@ -1,11 +1,10 @@
-@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
-@import uk.gov.hmrc.domain.Email._
+@(emailAddress: uk.gov.hmrc.domain.ObfuscatedEmail)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @main(title = "My Preferences - opt to receive paper notifications", user = Some(user)) {
 
 <h1>Account details</h1>
 
-<h2 id="email-address">@emailAddress.obfuscated</h2>
+<h2 id="email-address">@emailAddress</h2>
 
 <p>
     You have advised HMRC that you wish to receive email notifications at the address above, we send you notifications when there is an action for you to complete.

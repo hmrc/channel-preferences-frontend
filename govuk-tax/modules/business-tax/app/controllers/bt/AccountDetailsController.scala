@@ -14,6 +14,7 @@ import scala.Function._
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.Email._
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
@@ -74,8 +75,7 @@ with EmailControllerHelper {
   }
 
   private[bt] def optOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]) = {
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email)))
-    )
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
   }
 
   private[bt] def accountDetailsPage(implicit user: User, request: Request[AnyRef]) = {
