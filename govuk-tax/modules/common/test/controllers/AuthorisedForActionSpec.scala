@@ -68,7 +68,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
   }
 
   "AuthorisedForIdaAction" should {
-    "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
+    "return redirect to login if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
       when(mockAuthConnector.authority(Matchers.eq("/auth/oid/jdensmore"))(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
@@ -77,7 +77,8 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
         SessionKeys.userId -> "/auth/oid/jdensmore")
       )
 
-      status(result) should equal(401)
+      status(result) should equal(303)
+      redirectLocation(result) shouldBe Some(routes.LoginController.businessTaxLogin().url)
     }
 
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {

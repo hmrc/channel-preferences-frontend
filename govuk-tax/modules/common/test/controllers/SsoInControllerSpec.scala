@@ -23,6 +23,8 @@ import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
+  val loginPage = routes.LoginController.businessTaxLogin().url
+
   "The Single Sign-on input page" should {
     "create a new session when the token is valid, the time not expired and no session exists - POST" in new WithSsoControllerInFakeApplication {
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.encodedToken.encodeBase64, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(john.userId, john.name, john.affinityGroup, john.encodedToken))
@@ -131,7 +133,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
         result =>
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
-          header.headers("Location") shouldBe "/"
+          header.headers("Location") shouldBe loginPage
           header.headers("Set-Cookie") should not include SessionKeys.userId
           header.headers("Set-Cookie") should not include SessionKeys.name
           header.headers("Set-Cookie") should not include SessionKeys.token
@@ -157,7 +159,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
         result =>
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
-          header.headers("Location") shouldBe "/"
+          header.headers("Location") shouldBe loginPage
           header.headers("Set-Cookie") should not include SessionKeys.userId
           header.headers("Set-Cookie") should not include SessionKeys.name
           header.headers("Set-Cookie") should not include SessionKeys.affinityGroup
@@ -183,7 +185,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
         result =>
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
-          header.headers("Location") shouldBe "/"
+          header.headers("Location") shouldBe loginPage
           header.headers("Set-Cookie") should not include SessionKeys.userId
           header.headers("Set-Cookie") should not include SessionKeys.name
           header.headers("Set-Cookie") should not include SessionKeys.affinityGroup

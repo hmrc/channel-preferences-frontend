@@ -35,7 +35,7 @@ class OtherServicesControllerStandardBehaviourSpec extends BaseSpec {
     "redirect if the user is not a business tax user" in new WithApplication(FakeApplication()) with NonBusinessTaxRequest with JohnDensmoreTestFixture {
       val result =  controllerUnderTest.otherServices(request)
       status(result) shouldBe 303
-      header("Location", result) shouldBe Some("/")
+      redirectLocation(result) shouldBe Some(controllers.common.routes.LoginController.businessTaxLogin().url)
     }
   }
 }

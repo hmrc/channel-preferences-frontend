@@ -104,7 +104,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
         detail = Map("token" -> token, "transactionFailureReason" -> reason)
       )
     )
-    Redirect(routes.HomeController.landing()).withNewSession
+    Redirect(GovernmentGateway.login).withNewSession
   }
 
   def out = WithNewSessionTimeout(UnauthorisedAction {

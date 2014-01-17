@@ -160,6 +160,10 @@ class LoginController(samlConnector: SamlConnector,
     Redirect(FrontEndConfig.portalSsoInLogoutUrl)
   }
 
+  def redirectToLoggedOut = UnauthorisedAction {
+    implicit request => Redirect(routes.LoginController.loggedout())
+  }
+
   def loggedout = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
       Ok(views.html.logged_out()).withNewSession

@@ -42,22 +42,18 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
   import SessionTimeoutWrapper._
   import play.api.libs.concurrent.Execution.Implicits._
 
-  val defaultErrorAction: Action[AnyContent] = Action(Results.Redirect(routes.HomeController.landing()))
-
-  def apply(errorResult: Action[AnyContent], action: Action[AnyContent]): Action[AnyContent] = Action.async {
+  def apply(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     request: Request[AnyContent] => {
 
       val result = if (hasValidTimestamp(request.session, now)) {
         action(request)
       } else {
         Logger.debug(s"request refused as the session had timed out in ${request.path}")
-        errorResult(request).map(_.withNewSession)
+        Action(AnyAuthenticationProvider.redirectToLogin(request))(request).map(_.withNewSession)
       }
       addTimestamp(request, result)
     }
   }
-
-  def apply(action: Action[AnyContent]): Action[AnyContent] = apply(defaultErrorAction, action)
 
 }
 

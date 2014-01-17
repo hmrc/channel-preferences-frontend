@@ -27,7 +27,6 @@ import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import org.mockito.Matchers
 
 class AuthorisedForGovernmentGatewayActionSpec
   extends BaseSpec
@@ -86,17 +85,6 @@ class AuthorisedForGovernmentGatewayActionSpec
   }
 
   "AuthorisedForGovernmentGatewayAction" should {
-    "return Unauthorised if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      when(authConnector.authority(Matchers.eq("/auth/oid/gfisher"))(Matchers.any[HeaderCarrier])).thenReturn(None)
-
-      val result = testController.test(FakeRequest().withSession(
-        SessionKeys.sessionId -> s"session-${UUID.randomUUID}",
-        SessionKeys.lastRequestTimestamp -> now().getMillis.toString,
-        SessionKeys.userId -> "/auth/oid/gfisher",
-        SessionKeys.token -> tokenValue))
-
-      status(result) should equal(401)
-    }
 
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
       val result = testController.testThrowsException(FakeRequest().withSession(
@@ -137,7 +125,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     "redirect to the login page when the userId is not found in the session " in new WithApplication(FakeApplication()) {
       val result = testController.testAuthorisation(FakeRequest())
       status(result) should equal(303)
-      redirectLocation(result).get shouldBe "/"
+      redirectLocation(result) shouldBe Some(routes.LoginController.businessTaxLogin().url)
     }
     // MAT: TODO: fix this
     //    "pass a user with properly constructed regime roots to the wrapped action" in new WithApplication(FakeApplication()) {

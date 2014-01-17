@@ -26,7 +26,7 @@ import controllers.bt.accountsummary.AccountSummary
 import play.api.test.FakeApplication
 import controllers.bt.accountsummary.Msg
 import controllers.bt.{routes => businessTaxRoutes}
-import controllers.common.{routes => commonRoutes}
+import controllers.common.{routes => commonRoutes, FrontEndRedirect}
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
 import controllers.common.actions.HeaderCarrier
 
@@ -65,7 +65,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
       val document = Jsoup.parse(contentAsString(result))
 
-      document.getElementById("homeNavHref").attr("href") shouldBe commonRoutes.HomeController.home().url
+      document.getElementById("homeNavHref").attr("href") shouldBe FrontEndRedirect.businessTaxHome
       document.getElementById("otherServicesNavHref").attr("href") shouldBe "/account" + businessTaxRoutes.OtherServicesController.otherServices().url
       document.getElementById("logOutNavHref").attr("href") shouldBe commonRoutes.LoginController.logout().url
 

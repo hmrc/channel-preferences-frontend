@@ -3,10 +3,10 @@
 
 GET     /assets/*file                   controllers.common.Assets.at(path="/public", file)
 
-GET     /account/logout                         @controllers.common.LoginController.logout
-GET     /account/loggedout                      @controllers.common.LoginController.loggedout
+GET     /account/logout                 @controllers.common.LoginController.logout
 GET     /account/login                  @controllers.common.LoginController.businessTaxLogin
 POST    /account/login                  @controllers.common.LoginController.governmentGatewayLogin
+GET     /account/loggedout              @controllers.common.LoginController.loggedout
 
 
 # routes for testing IDA integration
@@ -14,14 +14,13 @@ GET     /samllogin                      @controllers.common.LoginController.saml
 POST    /ida/login                      @controllers.common.LoginController.idaLogin
 
 
+# URLs used for sso, they cannot change without agreement with Aspire
 POST    /ssoin                          @controllers.common.SsoInController.postIn
 GET     /ssoin                          @controllers.common.SsoInController.getIn(payload: String)
 GET     /ssoin/logout                   @controllers.common.SsoInController.out
 GET     /ssoout                         @controllers.common.SsoOutController.encryptPayload
+GET     /loggedout                      @controllers.common.LoginController.redirectToLoggedOut
 
-
-GET     /home                           @controllers.common.HomeController.home
-GET     /                               @controllers.common.HomeController.landing
 
 GET     /admin/healthcheck              @controllers.common.HealthCheckController.check
 GET     /admin/details                  @controllers.common.HealthCheckController.details

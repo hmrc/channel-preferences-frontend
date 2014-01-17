@@ -19,7 +19,7 @@ class SsoOutController(override val auditConnector: AuditConnector)
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
-  def encryptPayload = WithSessionTimeoutValidation(Action(BadRequest("Error")), Action {
+  def encryptPayload = WithSessionTimeoutValidation(Action {
     implicit request =>
 
       if (requestValid(request)) {

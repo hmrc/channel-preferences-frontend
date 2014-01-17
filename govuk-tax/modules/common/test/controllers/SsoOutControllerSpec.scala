@@ -81,7 +81,7 @@ class SsoOutControllerSpec extends BaseSpec with MockitoSugar {
       val validDestinationUrl = PortalConfig.destinationRoot + "/somepath"
 
       val response = controller.encryptPayload(FakeRequest("GET", s"/ssoout?destinationUrl=$validDestinationUrl")
-        .withSession(SessionKeys.lastRequestTimestamp -> dateTime.toString()))
+        .withSession(SessionKeys.lastRequestTimestamp -> sessionTimeout))
       status(response) shouldBe 400
     }
 

@@ -72,16 +72,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
     def notOnBusinessTaxWhitelistPage: String = ""
   }
 
-  "Login controller GET /login" should {
-    "forward to the login page" in new WithSetup {
-      val result = loginController.login()(FakeRequest())
-      val redirectUrl  =  s"""href="${FrontEndRedirect.payeHome}""""
-
-      status(result) should be(200)
-      contentAsString(result) should include(redirectUrl)
-    }
-  }
-
   "Login controller GET /samllogin" should {
     "return a form that contains th§e data from the saml service" in new WithSetup {
       val result = loginController.samlLogin()(FakeRequest())
