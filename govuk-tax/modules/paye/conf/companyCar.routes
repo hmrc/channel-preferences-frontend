@@ -21,6 +21,7 @@ GET         /                                                                @co
 GET         /details                                                         @controllers.paye.CarBenefitHomeController.carBenefitHome
 GET         /car-benefit/error/version-changed                               @controllers.paye.VersionChangedController.versionChanged
 GET         /car-benefit/error/unavailable                                   @controllers.paye.CarBenefitHomeController.cannotPlayInBeta
+GET         /idaTokenRequired                                               @controllers.paye.CarBenefitHomeController.idaTokenRequiredInBeta
 
 GET         /car-benefit/error/version-changed                              @controllers.paye.VersionChangedController.versionChanged
 GET         /car-benefit/error/unavailable                                  @controllers.paye.CarBenefitHomeController.cannotPlayInBeta

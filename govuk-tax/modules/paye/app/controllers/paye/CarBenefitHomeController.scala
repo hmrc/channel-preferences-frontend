@@ -48,6 +48,10 @@ with PayeRegimeRoots {
       Ok(cannot_play_in_beta(user))
   }
 
+  def idaTokenRequiredInBeta = UnauthorisedAction  {
+    request => Ok(ida_token_required_in_beta())
+  }
+
   def carBenefitHomeAction(details: RawTaxData)(implicit user: User): SimpleResult = {
     def betaFilter = details.employments.size != 1 || details.cars.count(_.isActive) > 1
 

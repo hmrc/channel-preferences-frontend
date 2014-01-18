@@ -1,16 +1,16 @@
 package controllers.common
 
-import play.api.mvc._
-import controllers.common.FrontEndRedirect._
-import uk.gov.hmrc.common.microservice.domain.User
-import play.api.Logger
 import scala.concurrent._
 import scala._
-import uk.gov.hmrc.common.microservice.domain.User
-import scala.Some
+
+import play.api.mvc._
+
+
+import controllers.common.FrontEndRedirect._
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.Some
 import play.api.mvc.SimpleResult
+import play.api.Logger
 
 
 trait AuthenticationProvider {
@@ -28,7 +28,7 @@ object UserCredentials {
 
 object Ida extends AuthenticationProvider {
   override val id = "IDA"
-  
+
   override val login = routes.LoginController.samlLogin
 
   def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
@@ -48,11 +48,12 @@ object Ida extends AuthenticationProvider {
 }
 
 
+
 object GovernmentGateway extends AuthenticationProvider {
   override val id = "GGW"
 
   override val login = routes.LoginController.businessTaxLogin()
-  
+
   def handleRedirect(request: Request[AnyContent]) = Redirect(login)
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
