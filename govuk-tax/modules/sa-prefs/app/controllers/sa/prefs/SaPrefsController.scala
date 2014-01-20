@@ -76,9 +76,10 @@ class SaPrefsController extends BaseController {
       WithValidToken(token, return_url) {
         utr => Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(utr).map {
-            case Some(SaPreference(_, Some(SaEmailPreference(email, _, _)))) =>
+            case Some(SaPreference(true, Some(SaEmailPreference(email, _, _)))) =>
               Ok(views.html.sa.prefs.sa_printing_preference_confirm(
                 redirectUrl = URLDecoder.decode(return_url, "UTF-8") + "?emailAddress=" + URLEncoder.encode(SsoPayloadCrypto.encrypt(email), "UTF-8")))
+            case _ => PreconditionFailed
           }
         }
       }

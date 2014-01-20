@@ -378,7 +378,15 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val returnUrl = page.getElementById("sa-home-link").attr("href")
       returnUrl should be (s"$decodedReturnUrl?emailAddress=${urlEncode(encrypt(emailAddress))}")
     }
-    "generate an error if the user does not have an email address set" in pending
+    "generate an error if the user does not have an email address set" in {
+      val controller = createController
+      when(mockRedirectWhiteListService.check(encodedReturnUrl)).thenReturn(true)
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
+        Future.successful(Some(SaPreference(true, None)))
+      )
+      val result = controller.confirm(validToken, encodedReturnUrl)(request)
+      status(result) should be(412)
+    }
     "handle return urls which already have query parameters" in pending
   }
 }
