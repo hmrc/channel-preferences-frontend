@@ -49,11 +49,18 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     confirmFuelBenefitRemovalAction(taxYear, employmentSequenceNumber)(user, request)
   }
 
-  def benefitRemoved(benefitTypes: String, year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]) =
+  def carBenefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]) =
     AuthorisedFor(PayeRegime).async {
       user =>
         implicit request =>
-          benefitRemovedAction(user, request, benefitTypes, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance).removeSessionKey(SessionKeys.npsVersion)
+          benefitRemovedAction(user, request, "car", year, employmentSequenceNumber, oid, newTaxCode, personalAllowance).removeSessionKey(SessionKeys.npsVersion)
+    }
+
+  def fuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]) =
+    AuthorisedFor(PayeRegime).async {
+      user =>
+        implicit request =>
+          benefitRemovedAction(user, request, "fuel", year, employmentSequenceNumber, oid, newTaxCode, personalAllowance).removeSessionKey(SessionKeys.npsVersion)
     }
 
   private[paye] def requestRemoveCarBenefitAction(taxYear: Int, employmentSequenceNumber: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {
@@ -160,7 +167,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       payeConnector.removeBenefits(uri, request).map(_.get).map { removeBenefitResponse =>
         keyStoreService.clearBenefitFormData
 
-        Redirect(routes.RemoveBenefitController.benefitRemoved(activeCarBenefit.benefitCode.toString,
+        Redirect(routes.RemoveBenefitController.carBenefitRemoved(
           activeCarBenefit.taxYear, employmentSequenceNumber, removeBenefitResponse.transaction.oid,
           removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
       }
@@ -208,7 +215,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
           payeConnector.removeBenefits(uri, withdrawRequest).map(_.get).map { removeBenefitResponse =>
             keyStoreService.clearBenefitFormData
 
-            Redirect(routes.RemoveBenefitController.benefitRemoved(fuelBenefit.benefitCode.toString,
+            Redirect(routes.RemoveBenefitController.fuelBenefitRemoved(
               activeCarBenefit.taxYear, employmentSequenceNumber, removeBenefitResponse.transaction.oid,
               removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.personalAllowance))
           }
@@ -224,18 +231,17 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   }
 
 
-  // TODO: Convert this away from using the "kinds" parameter
   private[paye] val benefitRemovedAction: (User, Request[_], String, Int, Int, String, Option[String], Option[Int]) =>
-    Future[SimpleResult] = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) => {
+    Future[SimpleResult] = (user, request, kind, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) => {
     implicit def hc = HeaderCarrier(request)
 
     txQueueConnector.transaction(oid, user.regimes.paye.get).flatMap {
       case None => Future.successful(NotFound)
-      case Some(tx) => {
+      case Some(_) => {
         keyStoreService.clearBenefitFormData
         TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>
           val removalData = BenefitUpdatedConfirmationData(taxCode, newTaxCode, personalAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-          Ok(remove_benefit_confirmation(kinds.split(",").map(_.toInt), removalData)(user))
+          Ok(remove_benefit_confirmation(kind, removalData)(user))
         }
       }
     }

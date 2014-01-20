@@ -57,8 +57,8 @@ recent.change.taxcode.accepted=(a new tax code is being calculated and this may 
 recent.change.taxcode.completed=(This changed on {0})
 
 list.separator.and=and
-benefitType.29.title=fuel
-benefitType.31.title=car
+benefitType.fuel.title=fuel
+benefitType.car.title=car
 
 your.employer=Your employer
 
