@@ -1,4 +1,4 @@
-@(title: Option[String], bodyClasses: Option[String])(head:Html, bodyEnd:Html, insideHeader:Html, afterHeader:Html, footerTop:Html, footerLinks:Html)(content:Html)
+@(title: Option[String], bodyClasses: Option[String])(head:Html, bodyEnd:Html, insideHeader:Html, afterHeader:Html, footerTop:Html, footerLinks:Html, nav: Boolean = false)(content:Html)
 @import template._
 <!DOCTYPE html>
 <!--[if lt IE 9]><html class="lte-ie8" lang="en"><![endif]-->
@@ -67,7 +67,7 @@
     </div>
 
     
-    <header role="banner" id="global-header" class="">
+    <header role="banner" id="global-header" class="@if( nav ){ with-proposition }">
       <div class="header-wrapper">
         <div class="header-global">
           <div class="header-logo">
@@ -75,8 +75,9 @@
               <img src="@routes.Template.at("images/gov.uk_logotype_crown.png")" alt=""> GOV.UK
             </a>
           </div>
-          @insideHeader
+
         </div>
+          @insideHeader
         
       </div>
     </header>

@@ -253,12 +253,7 @@ GOVUK.ReportAProblem = function () {
 
 
     $('.print-link a').attr('target', '_blank');
-    // header search toggle
-    $('.js-header-toggle').on('click', function (e) {
-      e.preventDefault();
-      $($(e.target).attr('href')).toggleClass('js-visible');
-      $(this).toggleClass('js-hidden');
-    });
+
     var $searchFocus = $('.js-search-focus');
     if ($searchFocus.val() !== '') {
       $searchFocus.addClass('focus');
@@ -313,21 +308,7 @@ GOVUK.ReportAProblem = function () {
           $(this).removeClass('button-hover');
         });
     }
-    // fix for printing bug in Windows Safari
-    (function () {
-      var windows_safari = (window.navigator.userAgent.match(/(\(Windows[\s\w\.]+\))[\/\(\s\w\.\,\)]+(Version\/[\d\.]+)\s(Safari\/[\d\.]+)/) !== null),
-        $new_styles;
-      if (windows_safari) {
-        // set the New Transport font to Arial for printing
-        $new_styles = $("<style type='text/css' media='print'>" +
-          "@font-face {" +
-          "font-family: nta !important;" +
-          "src: local('Arial') !important;" +
-          "}" +
-          "</style>");
-        document.getElementsByTagName('head')[0].appendChild($new_styles[0]);
-      }
-    }());
+
     if ($("*[data-contextual-helper]").length) {
       // setup showing/hiding of contextual fields
       GOVUK.toggleContextualFields.setup();
