@@ -58,7 +58,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
               } else {
                 Ok(Json.toJson(
                   Map("status" -> "OK",
-                    "message" -> views.html.support.problem_reports_confirmation_body(ticketId).toString()
+                    "message" -> views.html.support.ticket_created_body(ticketId).toString()
                   )
                 ))
               }

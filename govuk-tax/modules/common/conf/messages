@@ -82,7 +82,7 @@ global.error.InternalServerError500.title=Sorry, we are experiencing technical d
 global.error.InternalServerError500.heading=Sorry, we’re experiencing technical difficulties
 global.error.InternalServerError500.message=Please try again in a few minutes.
 contact.heading=Contact HMRC
-contact.confirmation.ticket_number=Your reference number is {0}.
+contact.confirmation.ticket_number=Your reference number is <span id="ticketId">{0}</span>.
 contact.confirmation.message=You''ll get a response within 24 hours.
 
 login_error.title=There was a problem signing you in
