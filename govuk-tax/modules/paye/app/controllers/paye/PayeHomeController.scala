@@ -13,6 +13,6 @@ class PayeHomeController(override val auditConnector: AuditConnector, override v
   def this() = this(Connectors.auditConnector, Connectors.authConnector)
 
   def home(token:Option[String]) = UnauthorisedAction {
-    request => Ok(paye_home(token))
+    request => Ok(paye_home(token)).withSession(SessionKeys.authProvider -> IdaWithTokenCheckForBeta.id)
   }
 }
