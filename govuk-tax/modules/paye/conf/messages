@@ -128,7 +128,7 @@ paye.add_car_benefit_review.submit_button=Submit
 paye.add_car_benefit_review.none=None
 
 paye.add_car_benefit_confirmation.title=Tell HMRC about a change to your company car - Confirm your details
-paye.add_car_benefit_confirmation.h2=Your company car details have been changed.
+paye.add_car_benefit_confirmation.h2=Thank you
 paye.add_car_benefit_confirmation.tax_code_changed=Your tax code has changed from {0}.
 paye.add_car_benefit_confirmation.new_tax_code=Your new tax code is {0}.
 paye.add_car_benefit_confirmation.confirmation=HMRC will write to you to confirm your new tax code within 7 days.
@@ -220,8 +220,8 @@ paye.remove_fuel_benefit_review.submit_button=Confirm
 
 paye.remove_benefit_confirmation.title=Benefit removed
 paye.remove_benefit_confirmation.header=Tell HMRC about a change to your company {0}
-paye.remove_benefit_confirmation.thanks=Thanks.
-paye.remove_benefit_confirmation.details_changed=Your company car details have been changed.
+paye.remove_benefit_confirmation.thanks=Thank you
+paye.remove_benefit_confirmation.details_changed=Thank you
 paye.remove_benefit_confirmation.tax_code_changed=Your tax code has changed from {0}.
 paye.remove_benefit_confirmation.new_tax_code=Your new tax code is {0}.
 paye.remove_benefit_confirmation.confirmation=HMRC will write to you to confirm your new tax code within 7 days.
@@ -234,8 +234,8 @@ paye.remove_benefit_confirmation.tax_on_company_benefits_link_text=tax on compan
 
 paye.replace_benefit_confirmation.title=Car Benefit replaced
 paye.replace_benefit_confirmation.header=Tell HMRC about a change to your company car
-paye.replace_benefit_confirmation.thanks=Thanks.
-paye.replace_benefit_confirmation.details_changed=Your company car details have been changed.
+paye.replace_benefit_confirmation.thanks=Thank you
+paye.replace_benefit_confirmation.details_changed=Thank you
 paye.replace_benefit_confirmation.tax_code_changed=Your tax code has changed from {0}.
 paye.replace_benefit_confirmation.new_tax_code=Your new tax code is {0}.
 paye.replace_benefit_confirmation.confirmation=HMRC will write to you to confirm your new tax code within 7 days.

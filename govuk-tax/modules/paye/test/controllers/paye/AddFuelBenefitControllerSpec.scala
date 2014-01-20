@@ -362,7 +362,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
         status(result) shouldBe 200
         val doc = Jsoup.parse(contentAsString(result))
-        doc.select("#headline").text should be ("Your company car details have been changed.")
+        doc.select("#headline").text should be ("Thank you")
         doc.select("#old-tax-code").text shouldBe "oldTaxCode"
         doc.select("#new-tax-code").text shouldBe "newTaxCode"
         doc.select("#personal-allowance") should be (empty)
