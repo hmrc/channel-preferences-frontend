@@ -20,8 +20,8 @@ class PreferencesConnector extends Connector {
     httpGetF[SaPreference](s"/preferences/sa/individual/$utr/print-suppression")
   }
 
-  def savePreferencesUnsecured(utr: String, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier) =
-    httpPostF(s"/portal/preferences/sa/individual/$utr/print-suppression", Some(SaPreferenceSimplified(digital, email)))
+  def savePreferencesUnsecured(utr: String, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier): Future[Option[FormattedUri]] =
+    httpPostF[FormattedUri, SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression", Some(SaPreferenceSimplified(digital, email)))
 
   def getPreferencesUnsecured(utr: String)(implicit hc: HeaderCarrier): Future[Option[SaPreference]] =
     httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")

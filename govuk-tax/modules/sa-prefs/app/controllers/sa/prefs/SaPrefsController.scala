@@ -2,16 +2,16 @@ package controllers.sa.prefs
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.mvc.{AnyContent, Request, Action}
+import play.api.mvc.{SimpleResult, AnyContent, Request, Action}
 import play.api.Logger
-import java.net.URLDecoder
+import java.net.{URLEncoder, URLDecoder}
 import concurrent.Future
 import controllers.common.service.FrontEndConfig
 import controllers.sa.prefs.service.{SsoPayloadCrypto, TokenExpiredException, RedirectWhiteListService}
 import controllers.common.BaseController
 import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
+import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, SaPreferenceSimplified, PreferencesConnector}
 
 class SaPrefsController extends BaseController {
 
@@ -71,14 +71,18 @@ class SaPrefsController extends BaseController {
       }
     }
 
-  def confirm(return_url: String) = Action {
-    redirectWhiteListService.check(return_url) match {
-      case true => Ok(views.html.sa.prefs.sa_printing_preference_confirm(return_url))
-      case false =>
-        Logger.debug(s"Return URL '$return_url' was invalid as it was not on the whitelist")
-        BadRequest
+  def confirm(token: String, return_url: String) =
+    WithValidReturnUrl(return_url) {
+      WithValidToken(token, return_url) {
+        utr => Action.async { implicit request =>
+          preferencesConnector.getPreferencesUnsecured(utr).map {
+            case Some(SaPreference(_, Some(SaEmailPreference(email, _, _)))) =>
+              Ok(views.html.sa.prefs.sa_printing_preference_confirm(
+                redirectUrl = URLDecoder.decode(return_url, "UTF-8") + "?emailAddress=" + URLEncoder.encode(SsoPayloadCrypto.encrypt(email), "UTF-8")))
+          }
+        }
+      }
     }
-  }
 
   def noAction(return_url: String, digital: Boolean) = Action {
     redirectWhiteListService.check(return_url) match {
@@ -110,19 +114,19 @@ class SaPrefsController extends BaseController {
               emailForm.bindFromRequest()(request).fold(
                 errors => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(errors, token, return_url))),
                 emailForm => {
-                  val isEmailValid =
+                  val emailIsValid =
                     if (emailForm.isEmailVerified) Future.successful(true)
                     else emailConnector.validateEmailAddress(emailForm.mainEmail)
-                  isEmailValid flatMap {
+                  emailIsValid flatMap {
                     case true => {
-                      preferencesConnector.getPreferencesUnsecured(utr).map {
+                      preferencesConnector.getPreferencesUnsecured(utr).flatMap {
                         case Some(saPreference) =>
-                          Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital))
+                          Future.successful(Redirect(routes.SaPrefsController.noAction(return_url, saPreference.digital)))
                         case None => {
-                          // FIXME this should map over the result
-                          preferencesConnector.savePreferencesUnsecured(utr, true, Some(emailForm.mainEmail))
-                          //                  Play redirect is encoding query params, we need to decode the url to avoid double encoding
-                          Redirect(routes.SaPrefsController.confirm(URLDecoder.decode(return_url, "UTF-8")))
+                          preferencesConnector.savePreferencesUnsecured(utr, true, Some(emailForm.mainEmail)).map ( _ =>
+                            // Play redirect is encoding query params, we need to decode the url to avoid double encoding
+                            Redirect(routes.SaPrefsController.confirm(token, URLDecoder.decode(return_url, "UTF-8")))
+                          )
                         }
                       }
                     }
