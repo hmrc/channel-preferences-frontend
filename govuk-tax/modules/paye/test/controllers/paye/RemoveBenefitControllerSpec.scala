@@ -478,7 +478,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       verify(mockPayeConnector, times(1)).removeBenefits(is("/paye/AB123456C/benefits/2013/1/update"), is(requestBody))(any())
 
-      val expectedUri = routes.RemoveBenefitController.carBenefitRemoved(2013, 2, "someIdForCarAndFuelRemoval", Some("123L"), Some(9999)).url
+      val expectedUri = routes.RemoveBenefitController.carBenefitRemoved(2013, 2, Some("123L"), Some(9999)).url
       redirectLocation(resultF) shouldBe Some(expectedUri)
     }
 
@@ -498,7 +498,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         is("remove_benefit"),
         is(false))(any(), any())).thenReturn(Some(formData))
 
-      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car","fuel"), 2013, 1, "210", Some("newTaxCode"), Some(9988))
+      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car","fuel"), 2013, 1, Some("newTaxCode"), Some(9988))
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -520,7 +520,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         is("remove_benefit"),
         is(false))(any(), any())).thenReturn(Some(formData))
 
-      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car","fuel"), 2013, 1, "210", None, None)
+      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car","fuel"), 2013, 1, None, None)
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -626,28 +626,11 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val result = controller.confirmFuelBenefitRemovalAction(2013, 2)(johnDensmore, requestWithCorrectVersion)
 
       status(result) shouldBe 303
-      val expectedUri = routes.RemoveBenefitController.fuelBenefitRemoved(2013, 2, "someId", Some("123L"), Some(9999)).url
+      val expectedUri = routes.RemoveBenefitController.fuelBenefitRemoved(2013, 2, Some("123L"), Some(9999)).url
       redirectLocation(result) shouldBe Some(expectedUri)
 
       val requestBody = WithdrawnBenefitRequest(22, None, Some(WithdrawnFuelBenefit(withdrawDate)))
       verify(mockPayeConnector, times(1)).removeBenefits(is("/paye/AB123456C/benefits/2013/1/update"), is(requestBody))(any())
-    }
-
-    "in step 3 return 404 if the transaction does not exist" in new WithApplication(FakeApplication()) {
-      setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
-
-      when(mockTxQueueConnector.transaction(is("123"), any[PayeRoot])(any())).thenReturn(None)
-      when(mockKeyStoreService.getEntry[RemoveCarBenefitFormData](
-        is(RemovalUtils.benefitFormDataActionId),
-        is("paye"),
-        is("remove_benefit"),
-        is(false))(any(), any())).thenReturn(Some(RemoveCarBenefitFormData(withdrawDate, Some(false), None, Some(false), None, Some("sameDateFuel"), None)))
-
-      val withdrawDate = new LocalDate(2013, 7, 18)
-      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car"), 2013, 1, "123", Some("newCode"), Some(9998))
-
-      status(result) shouldBe 404
-
     }
 
     "return the updated benefits list page if the user has gone back in the browser and resubmitted and the benefit has already been removed" in new WithApplication(FakeApplication()) {
