@@ -16,7 +16,7 @@ sa_printing_preference.paragraph.6.start=By signing up to email reminders you ac
 sa_printing_preference.paragraph.6.linkText=terms and conditions
 sa_printing_preference.paragraph.6.end=.
 sa_printing_preference.submitButton=Submit
-sa_printing_preference.cancelButton=No thanks, I don?t want to switch to email
+sa_printing_preference.cancelButton=No thanks, I don't want to switch to email
 
 sa_printing_preference_confirm.title="My Preferences"
 sa_printing_preference_confirm.heading=Sign up for email reminders
