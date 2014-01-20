@@ -1,11 +1,15 @@
-@(benefitType: String, removalData: models.paye.BenefitUpdatedConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(benefitTypes: Seq[String], removalData: models.paye.BenefitUpdatedConfirmationData)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
     @import views.formatting.Strings._
     @import views.formatting.Money._
     @import config.RefData._
 
     @main(title = Messages("paye.remove_benefit_confirmation.title"), user = Some(user)) {
-        <h1>@Html(Messages("paye.remove_benefit_confirmation.header", s"""<span id="benefit-type">${Messages(s"benefitType.${benefitType}.title")}</span>"""))</h1>
+
+        @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+            <h1>@Html(Messages("paye.remove_benefit_confirmation.header", s"""<span id="benefit-type">${benefitsTitle}</span>"""))</h1>
+        }
+
         <h2>@Messages("paye.remove_benefit_confirmation.thanks")</h2>
         <p>@Messages("paye.remove_benefit_confirmation.details_changed")</p>
         <p>

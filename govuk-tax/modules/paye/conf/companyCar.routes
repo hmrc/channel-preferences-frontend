@@ -13,6 +13,7 @@ POST        /car-benefit/:year/:employmentSequenceNumber/confirm             @co
 POST        /fuel-benefit/:year/:employmentSequenceNumber/confirm            @controllers.paye.RemoveBenefitController.confirmFuelBenefitRemoval(year: Int, employmentSequenceNumber: Int)
 
 GET         /car-benefit/:year/:employmentSequenceNumber/confirmation/:oid   @controllers.paye.RemoveBenefitController.carBenefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
+GET         /car-fuel-benefit/:year/:employmentSequenceNumber/confirmation/:oid   @controllers.paye.RemoveBenefitController.carAndFuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 GET         /fuel-benefit/:year/:employmentSequenceNumber/confirmation/:oid  @controllers.paye.RemoveBenefitController.fuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int])
 
 GET         /                                                                @controllers.paye.PayeHomeController.home

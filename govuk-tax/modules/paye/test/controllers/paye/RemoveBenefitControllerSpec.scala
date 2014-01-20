@@ -482,8 +482,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       redirectLocation(resultF) shouldBe Some(expectedUri)
     }
 
-    // FIXME: at the moment this scenario is not supported; when you remove a car + fuel we just say that you removed a car. To be amended and fixed
-    "in step 3, display page for confirmation of removal of both fuel and car benefit when both benefits are selected and user confirms" ignore new WithApplication(FakeApplication()) {
+    "in step 3, display page for confirmation of removal of both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
@@ -499,15 +498,14 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         is("remove_benefit"),
         is(false))(any(), any())).thenReturn(Some(formData))
 
-      val result = controller.benefitRemovedAction(johnDensmore, requestWithCorrectVersion, s"$CAR,$FUEL", 2013, 1, "210", Some("newTaxCode"), Some(9988))
+      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car","fuel"), 2013, 1, "210", Some("newTaxCode"), Some(9988))
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#benefit-type").text should include("car and fuel")
     }
 
-    // FIXME: at the moment this scenario is not supported; when you remove a car + fuel we just say that you removed a car. To be amended and fixed
-    "in step 3, do not display information about new tax code nor personal allowance if they are not available" ignore new WithApplication(FakeApplication()) {
+    "in step 3, do not display information about new tax code nor personal allowance if they are not available" in new WithApplication(FakeApplication()) {
 
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
@@ -522,7 +520,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         is("remove_benefit"),
         is(false))(any(), any())).thenReturn(Some(formData))
 
-      val result = controller.benefitRemovedAction(johnDensmore, requestWithCorrectVersion, s"$CAR,$FUEL", 2013, 1, "210", None, None)
+      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car","fuel"), 2013, 1, "210", None, None)
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
@@ -646,7 +644,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
         is(false))(any(), any())).thenReturn(Some(RemoveCarBenefitFormData(withdrawDate, Some(false), None, Some(false), None, Some("sameDateFuel"), None)))
 
       val withdrawDate = new LocalDate(2013, 7, 18)
-      val result = controller.benefitRemovedAction(johnDensmore, requestWithCorrectVersion, s"$CAR", 2013, 1, "123", Some("newCode"), Some(9998))
+      val result = controller.benefitsRemovedAction(johnDensmore, requestWithCorrectVersion, Seq("car"), 2013, 1, "123", Some("newCode"), Some(9998))
 
       status(result) shouldBe 404
 
