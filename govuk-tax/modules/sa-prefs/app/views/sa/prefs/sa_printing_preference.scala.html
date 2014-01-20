@@ -1,26 +1,24 @@
 @(emailForm: Form[controllers.sa.prefs.EmailPreferenceData], token: String, redirectUrl: String)(implicit request: Request[_])
 
-@import views.helpers.CustomHelpers._
-@import helper._
 
-@main(title = "My Preferences") {
+@main(title = Messages("sa_printing_preference.title")) {
 
-    <h1>Sign up for email reminders</h1>
+    <h1>@Messages("sa_printing_preference.heading")</h1>
 
-    <p>You can soon get Self Assessment email reminders when:</p>
+    <p>@Messages("sa_printing_preference.paragraph.1")</p>
     <ul class="bullets">
-        <li>tax returns are due</li>
-        <li>payments are due</li>
-        <li>new tax statements are online</li>
+        <li>@Messages("sa_printing_preference.list.1.item.1")</li>
+        <li>@Messages("sa_printing_preference.list.1.item.2")</li>
+        <li>@Messages("sa_printing_preference.list.1.item.3")</li>
     </ul>
-    <p>Email reminders will replace letters you currently get about these updates from HMRC.</p>
+    <p>@Messages("sa_printing_preference.paragraph.2")</p>
 
-    <h2>What’s in the email</h2>
-    <p>The reminders will ask you to log into your online tax account and check for updates.</p>
+    <h2>@Messages("sa_printing_preference.heading.2")</h2>
+    <p>@Messages("sa_printing_preference.paragraph.3")</p>
 
-    <p>They're secure and will never include any information about your personal tax affairs.</p>
+    <p>@Messages("sa_printing_preference.paragraph.4")</p>
 
-    <p>Enter your email address to sign up for email reminders.</p>
+    <p>@Messages("sa_printing_preference.paragraph.5")</p>
 
     @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token, redirectUrl)) {
 
@@ -40,17 +38,17 @@
         '_inputClass -> "input--medium"
     )
 
-    <p>By signing up to email reminders you accept the <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">terms and conditions</a>.</p>
+    <p>@Messages("sa_printing_preference.paragraph.6.start") <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">@Messages("sa_printing_preference.paragraph.6.linkText")</a>@Messages("sa_printing_preference.paragraph.6.end")</p>
 
     <div class="form-field">
-        <button id="submitEmailButton" class="button" type="submit">Submit</button>
+        <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
     </div>
 
     }
 
     @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl)) {
     <div class="form-field">
-        <input id="keep-paper-link" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" />
+        <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
     </div>
 
     }
