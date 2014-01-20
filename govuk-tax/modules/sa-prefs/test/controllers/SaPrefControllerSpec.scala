@@ -387,6 +387,21 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val result = controller.confirm(validToken, encodedReturnUrl)(request)
       status(result) should be(412)
     }
-    "handle return urls which already have query parameters" in pending
+    "handle return urls which already have query parameters" in {
+      val urlWithQueryParams = decodedReturnUrl + "?something=another"
+      val encodedUrlWithQueryParams = urlEncode(urlWithQueryParams, "UTF-8")
+
+      val controller = createController
+      when(mockRedirectWhiteListService.check(encodedUrlWithQueryParams)).thenReturn(true)
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
+        Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.pending)))))
+      )
+      val result = controller.confirm(validToken, encodedUrlWithQueryParams)(request)
+      status(result) should be(200)
+
+      val page = Jsoup.parse(contentAsString(result))
+      val returnUrl = page.getElementById("sa-home-link").attr("href")
+      returnUrl should be (s"$urlWithQueryParams&emailAddress=${urlEncode(encrypt(emailAddress))}")
+    }
   }
 }

@@ -4,7 +4,7 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc.{SimpleResult, AnyContent, Request, Action}
 import play.api.Logger
-import java.net.{URLEncoder, URLDecoder}
+import java.net.{URI, URL, URLEncoder, URLDecoder}
 import concurrent.Future
 import controllers.common.service.FrontEndConfig
 import controllers.sa.prefs.service.{SsoPayloadCrypto, TokenExpiredException, RedirectWhiteListService}
@@ -12,6 +12,7 @@ import controllers.common.BaseController
 import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, SaPreferenceSimplified, PreferencesConnector}
+import com.netaporter.uri.dsl._
 
 class SaPrefsController extends BaseController {
 
@@ -77,8 +78,7 @@ class SaPrefsController extends BaseController {
         utr => Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(utr).map {
             case Some(SaPreference(true, Some(SaEmailPreference(email, _, _)))) =>
-              Ok(views.html.sa.prefs.sa_printing_preference_confirm(
-                redirectUrl = URLDecoder.decode(return_url, "UTF-8") + "?emailAddress=" + URLEncoder.encode(SsoPayloadCrypto.encrypt(email), "UTF-8")))
+              Ok(views.html.sa.prefs.sa_printing_preference_confirm(URLDecoder.decode(return_url, "UTF-8") ? ("emailAddress" -> SsoPayloadCrypto.encrypt(email))))
             case _ => PreconditionFailed
           }
         }
