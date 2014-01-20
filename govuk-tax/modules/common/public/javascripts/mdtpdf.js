@@ -71,6 +71,7 @@
         }
       }
       keys.timezone = new Date().getTimezoneOffset();
+      keys.clientSideTimestamp = new Date().getTime();
       keys.sessionStorage = this.hasSessionStorage();
       keys.localStorage = this.hasLocalStorage();
       keys.indexedDB = !!window.indexedDB;
