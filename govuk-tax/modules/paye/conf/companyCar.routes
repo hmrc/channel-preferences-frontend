@@ -14,7 +14,7 @@ POST        /fuel-benefit/:year/:employmentSequenceNumber/confirm            @co
 
 GET         /car-benefit/:year/:employmentSequenceNumber/confirmation       @controllers.paye.RemoveBenefitController.carBenefitRemoved(year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String], personalAllowance: Option[Int])
 GET         /car-fuel-benefit/:year/:employmentSequenceNumber/confirmation   @controllers.paye.RemoveBenefitController.carAndFuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String], personalAllowance: Option[Int])
-GET         /fuel-benefit/:year/:employmentSequenceNumber/confirmation  @controllers.paye.RemoveBenefitController.fuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String], personalAllowance: Option[Int])
+GET         /fuel-benefit/:year/:employmentSequenceNumber/confirmation      @controllers.paye.RemoveBenefitController.fuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String], personalAllowance: Option[Int])
 
 GET         /                                                               @controllers.paye.PayeHomeController.home(token:Option[String])
 
@@ -30,3 +30,5 @@ POST        /car-benefit/:year/:employmentSequenceNumber/add/confirmation    @co
 GET         /fuel-benefit/:year/:employmentSequenceNumber/add                @controllers.paye.AddFuelBenefitController.startAddFuelBenefit(year: Int, employmentSequenceNumber: Int)
 POST        /fuel-benefit/:year/:employmentSequenceNumber/add                @controllers.paye.AddFuelBenefitController.reviewAddFuelBenefit(year: Int, employmentSequenceNumber: Int)
 POST        /fuel-benefit/:year/:employmentSequenceNumber/add/confirmation   @controllers.paye.AddFuelBenefitController.confirmAddingBenefit(year: Int, employmentSequenceNumber: Int)
+
+POST        /car-benefit/questionnaire                                       @controllers.paye.PayeQuestionnaireController.submitQuestionnaire
