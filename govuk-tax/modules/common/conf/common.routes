@@ -23,6 +23,8 @@ GET     /ssoin/logout                   @controllers.common.SsoInController.out
 GET     /ssoout                         @controllers.common.SsoOutController.encryptPayload
 GET     /loggedout                      @controllers.common.LoginController.redirectToSignedOut
 
+# Common resources
+GET     /terms-and-conditions           @controllers.common.CommonController.termsAndConditions
 
 # Admin pages
 GET     /admin/healthcheck              @controllers.common.HealthCheckController.check
