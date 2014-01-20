@@ -328,13 +328,26 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling logout" should {
 
-    "remove your existing session cookie and redirect you to the portal logout page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
+    "for a business tax user removes existing session cookie and redirect you to the portal logout page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
 
-      val result = loginController.logout(FakeRequest().withSession("someKey" -> "someValue"))
+      val result = loginController.logout(FakeRequest().withSession(SessionKeys.authProvider -> GovernmentGateway.id))
 
       status(result) shouldBe Status.SEE_OTHER
 
       redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
+
+      val playSessionCookie = cookies(result).get("mdtp")
+
+      playSessionCookie shouldBe None
+    }
+
+    "for a paye user removes existing session cookie and redirect you to the paye sign out page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
+
+      val result = loginController.logout(FakeRequest().withSession(SessionKeys.authProvider -> Ida.id))
+
+      status(result) shouldBe Status.SEE_OTHER
+
+      redirectLocation(result).get shouldBe "/done/your-company-car"
 
       val playSessionCookie = cookies(result).get("mdtp")
 
@@ -359,7 +372,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.signedOut(FakeRequest().withSession("someKey" -> "someValue"))
 
       status(result) shouldBe 200
-      contentAsString(result) should include("signed out")
+      contentAsString(result) should include("To sign in again, use the link sent to you in your invitation email.")
 
       val sess = session(result)
       sess.get("someKey") shouldBe None

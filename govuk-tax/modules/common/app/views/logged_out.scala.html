@@ -1,6 +1,6 @@
 @main(title = "Logged Out") {
 
-    <h2 id="title">You have signed out of your tax account</h2>
+    <h2 id="title">@Messages("logout.heading")</h2>
 
-    <p>@helpers.link("sign-id-again", common.routes.LoginController.businessTaxLogin.url, "Sign in again")</p>
+    <p>@Messages("logout.message")</p>
 }

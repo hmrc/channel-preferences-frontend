@@ -141,3 +141,6 @@ common.terms_and_conditions.privacy_policy.paragraph.1=Our {0} explains how we p
 common.terms_and_conditions.governing_law.heading=Governing law
 common.terms_and_conditions.governing_law.paragraph.1=These terms and conditions shall be governed by and construed in accordance with the laws of England and Wales. Any dispute arising under these terms and conditions shall be subject to the exclusive jurisdiction of the courts of England and Wales.
 common.terms_and_conditions.updated.text=These Terms and Conditions were last updated April 2005.
+
+logout.heading=You''ve signed out of your account
+logout.message=To sign in again, use the link sent to you in your invitation email.

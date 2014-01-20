@@ -8,6 +8,7 @@ GET     /account/sign-out                 @controllers.common.LoginController.lo
 GET     /account/sign-in                  @controllers.common.LoginController.businessTaxLogin
 POST    /account/sign-in                  @controllers.common.LoginController.governmentGatewayLogin
 GET     /signed-out                       @controllers.common.LoginController.signedOut
+GET     /done/your-company-car            @controllers.common.LoginController.payeSignedOut
 
 
 # routes for testing IDA integration

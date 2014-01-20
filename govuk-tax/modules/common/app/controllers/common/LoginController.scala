@@ -160,12 +160,17 @@ class LoginController(samlConnector: SamlConnector,
   })
 
   def logout = Action {
-    Redirect(FrontEndConfig.portalSsoInLogoutUrl)
+    request => request.session.get(SessionKeys.authProvider) match {
+      case Some(Ida.id) => Redirect(routes.LoginController.payeSignedOut())
+      case _ => Redirect(FrontEndConfig.portalSsoInLogoutUrl)
+    }
   }
 
   def redirectToSignedOut = UnauthorisedAction {
     implicit request => Redirect(routes.LoginController.signedOut())
   }
+
+  def payeSignedOut = signedOut
 
   def signedOut = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
