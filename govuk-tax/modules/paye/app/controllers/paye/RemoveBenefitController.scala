@@ -238,8 +238,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   }
 
 
-  private[paye] val benefitsRemovedAction: (User, Request[_], Seq[String], Int, Int, String, Option[String], Option[Int]) =>
-    Future[SimpleResult] = (user, request, kinds, year, employmentSequenceNumber, oid, newTaxCode, personalAllowance) => {
+  private[paye] def benefitsRemovedAction(user: User, request: Request[_], kinds: Seq[String], year: Int, employmentSequenceNumber: Int, oid: String, newTaxCode: Option[String], personalAllowance: Option[Int]): Future[SimpleResult] = {
     implicit def hc = HeaderCarrier(request)
 
     txQueueConnector.transaction(oid, user.regimes.paye.get).flatMap {
