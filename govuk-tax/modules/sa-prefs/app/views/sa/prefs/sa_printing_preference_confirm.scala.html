@@ -1,19 +1,19 @@
 @(redirectUrl: String)
 
-@main(title = "My Preferences") {
+@main(title = Messages("sa_printing_preference_confirm.title")) {
 
-<h1>Sign up for email reminders</h1>
+<h1>@Messages("sa_printing_preference_confirm.heading")</h1>
 
-<h2>Thank you</h2>
+<h2>@Messages("sa_printing_preference_confirm.heading.2")</h2>
 
-<p>We’ve sent you an email to activate the service.</p>
+<p>@Messages("sa_printing_preference_confirm.paragraph.1")</p>
 
-<p>Follow the instructions in the email to verify your email address.</p>
+<p>@Messages("sa_printing_preference_confirm.paragraph.2")</p>
 
-<p>HMRC will never put personal information in an email.<br>Always go to GOV.UK to log in to your tax account.</p>
+<p>@Messages("sa_printing_preference_confirm.paragraph.3.line.1")<br>@Messages("sa_printing_preference_confirm.paragraph.3.line.2")</p>
 
 <p>
-    <a id="sa-home-link" href="@redirectUrl">continue to Self Assessment</a>
+    <a id="sa-home-link" href="@redirectUrl">@Messages("sa_printing_preference_confirm.linkText")</a>
 </p>
 
 

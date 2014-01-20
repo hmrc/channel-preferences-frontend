@@ -17,3 +17,12 @@ sa_printing_preference.paragraph.6.linkText=terms and conditions
 sa_printing_preference.paragraph.6.end=.
 sa_printing_preference.submitButton=Submit
 sa_printing_preference.cancelButton=No thanks, I don?t want to switch to email
+
+sa_printing_preference_confirm.title="My Preferences"
+sa_printing_preference_confirm.heading=Sign up for email reminders
+sa_printing_preference_confirm.heading.2=Thank you
+sa_printing_preference_confirm.paragraph.1=We?ve sent you an email to activate the service.
+sa_printing_preference_confirm.paragraph.2=Follow the instructions in the email to verify your email address.
+sa_printing_preference_confirm.paragraph.3.line.1=HMRC will never put personal information in an email.
+sa_printing_preference_confirm.paragraph.3.line.2=Always go to GOV.UK to log in to your tax account.
+sa_printing_preference_confirm.linkText=continue to Self Assessment
