@@ -1,11 +1,11 @@
-@(feedbackForm: Form[controllers.common.FeedbackForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
+@(feedbackForm: Form[controllers.common.support.FeedbackForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 @import views.helpers._
-@import controllers.common.FeedbackFormConfig._
+@import controllers.common.support.FeedbackFormConfig._
 @main(title = Messages("common.feedback.heading"), nav = true, user = Some(user), feedbackLinkEnabled = false) {
 
     <h1>@Messages("common.feedback.heading")</h1>
 
-    @helpers.form(action = common.routes.FeedbackController.submit, 'id -> "feedback-form", 'class -> "form--feedback") {
+    @helpers.form(action = common.support.routes.FeedbackController.submit, 'id -> "feedback-form", 'class -> "form--feedback") {
         <fieldset>
             @helpers.inputRadioGroup(
             feedbackForm("feedback-rating"),

@@ -1,4 +1,4 @@
-package controllers.common
+package controllers.common.support
 
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.{FakeRequest, WithApplication}
@@ -22,6 +22,7 @@ import play.api.mvc.SimpleResult
 import scala.concurrent.Future
 import org.scalatest.Matchers
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import controllers.common.support.FeedbackController
 
 class FeedbackControllerSpec extends BaseSpec {
 

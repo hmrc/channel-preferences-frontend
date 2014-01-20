@@ -1,4 +1,4 @@
-package controllers.common
+package controllers.common.support
 
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
@@ -11,6 +11,7 @@ import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
 
 class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController
@@ -18,8 +19,7 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   with AllRegimeRoots {
   def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector)(Connectors.authConnector)
 
-
-  import FeedbackFormConfig._
+  import controllers.common.support.FeedbackFormConfig._
 
   val form = Form[FeedbackForm](mapping(
     "feedback-rating" -> text
@@ -51,7 +51,7 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   private[common] def doSubmit(implicit user: User, request: Request[AnyRef]) = {
     form.bindFromRequest()(request).fold(
       error => {
-        Future(BadRequest(views.html.feedback(error)))
+        Future(BadRequest(views.html.support.feedback(error)))
       },
       data => {
         import data._
@@ -63,14 +63,13 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
     ticketId.map(_ => Redirect(routes.FeedbackController.thanks()))
   }
 
-  private[common] def renderForm(implicit user: User, request: Request[AnyRef]) = Ok(views.html.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a")))))
+  private[common] def renderForm(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a")))))
 
-  private[common] def doThanks(implicit user: User, request: Request[AnyRef]) = Future(Ok(views.html.feedback_confirmation()))
+  private[common] def doThanks(implicit user: User, request: Request[AnyRef]) = Future(Ok(views.html.support.feedback_confirmation()))
 
 }
 
 case class FeedbackForm(experienceRating: String, name: String, email: String, comments: String, javascriptEnabled: Boolean, referrer: String)
-
 
 object FeedbackForm {
   def apply(referer: String): FeedbackForm = FeedbackForm("", "", "", "", false, referer)

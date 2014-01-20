@@ -26,13 +26,13 @@ date.fields.year=Year
 common.firstlogin={0}, this is the first time you have logged in
 common.previousLoginTime={0}, you last accessed your tax account on {1}
 
+common.thank.you=Thank you
 
 error.common.feedback.name_mandatory=Please provide your name
 error.common.feedback.name_too_long=Your name cannot be longer than 70 characters
 error.common.feedback.rating_mandatory=Please rate your experience
 error.common.feedback.rating_valid=Please select a valid experience rating
 common.feedback.heading=Send Feedback
-common.feedback.feedback_thank_you_header=Thank you
 common.feedback.confirmation.message = Your feedback will be reviewed by our customer support team.
 
 common.main.banner_no_feedback_link=This is a trial service.
@@ -49,7 +49,6 @@ error.common.comments_too_long=The comment cannot be longer than 2000 characters
 
 problem_report.action=What were you doing?
 problem_report.error=What went wrong?
-common.problem_report.confirmation_nojavascript_title=Thank you
 common.problem_report.error_nojavascript_title=Please try again
 
 info.need_to_register=You need to register to use this service. If you’re already registered just sign in.
@@ -82,11 +81,9 @@ global.error.pageNotFound404.message=Please check that you have entered the corr
 global.error.InternalServerError500.title=Sorry, we are experiencing technical difficulties - 500
 global.error.InternalServerError500.heading=Sorry, we’re experiencing technical difficulties
 global.error.InternalServerError500.message=Please try again in a few minutes.
-contact.heading = Contact HMRC
-contact.feedback_thank_you_header=Thank you
-contact.confirmation.message = Your comments will be reviewed by our customer support team and we&#39;ll be in touch within 24 hours.
-contact.confirmation.ticket_number = Your support reference number is
-
+contact.heading=Contact HMRC
+contact.confirmation.ticket_number=Your reference number is {0}.
+contact.confirmation.message=You''ll get a response within 24 hours.
 
 login_error.title=There was a problem signing you in
 login_error.reason=Your sign in details have not been recognised by HM Revenue and Customs.
@@ -113,8 +110,7 @@ common.terms_and_conditions.disclaimer.heading=Disclaimer
 common.terms_and_conditions.disclaimer.link.text=disclaimer notice
 common.terms_and_conditions.disclaimer.link.url=#disclaimer
 common.terms_and_conditions.disclaimer.paragraph.1=Our disclaimer should be read in conjunction with our {0}.
-common.terms_and_conditions.disclaimer.paragraph.1=Our disclaimer should be read in conjunction with our {0}.
-common.terms_and_conditions.disclaimer.paragraph.2=The HMRC website and material relating to Government information, products and services (or to third party information, products and services) is provided 'as is' without any representation or endorsement made and without warranty of any kind whether express or implied, including but not limited to the implied warranties of satisfactory quality, fitness for a particular purpose, non-infringement, compatibility, security and accuracy.
+common.terms_and_conditions.disclaimer.paragraph.2=The HMRC website and material relating to Government information, products and services (or to third party information, products and services) is provided ''as is'' without any representation or endorsement made and without warranty of any kind whether express or implied, including but not limited to the implied warranties of satisfactory quality, fitness for a particular purpose, non-infringement, compatibility, security and accuracy.
 common.terms_and_conditions.disclaimer.paragraph.3=Once materials have been downloaded from the HMRC website, it is your responsibility to keep them safe. HMRC cannot accept any responsibility for any loss, liability, claim, demand or damages arising from the download and subsequent use of these materials.
 common.terms_and_conditions.disclaimer.paragraph.4=We do not warrant that the functions contained in the material on this website will be uninterrupted or error free, that defects will be corrected, or that this site or the servers that make it available are free of viruses or represent the full functionality, accuracy or reliability of the materials. In no event will we be liable for any loss or damage, or any loss or damages whatsoever arising from the use, or loss of use, of data, or profits arising out of or in connection with the use of the HMRC website.
 common.terms_and_conditions.usage.heading=Using HMRC website
@@ -131,7 +127,7 @@ common.terms_and_conditions.copyright.paragraph.2=The names, images and logos id
 common.terms_and_conditions.copyright.paragraph.3=Requests for permission to use our logo should be emailed to {0}.
 common.terms_and_conditions.copyright.paragraph.4=HMRC does not approve, accredit or endorse tax agents or allow themto use the logo in their advertising.
 common.terms_and_conditions.linking.heading=Linking to HMRC website
-common.terms_and_conditions.linking.paragraph.1=You do not have to ask permission to link directly to pages hosted on this site. We do not object to you linking directly to the information that is hosted on our site. However, we do not permit our pages to be loaded into frames on your site. HMRC pages must load into the user's entire window.
+common.terms_and_conditions.linking.paragraph.1=You do not have to ask permission to link directly to pages hosted on this site. We do not object to you linking directly to the information that is hosted on our site. However, we do not permit our pages to be loaded into frames on your site. HMRC pages must load into the user''s entire window.
 common.terms_and_conditions.external_links.heading=Links to external websites
 common.terms_and_conditions.external_links.paragraph.1=HMRC is not responsible for the contents or reliability of any other websites to which we provide a link and does not necessarily endorse the views expressed with them. Listing should not be taken as endorsement of any kind. We cannot guarantee that these links will work at all times and have no control over the availability of the linked pages. In particular HMRC is not responsible for any privacy policies on external websites and we recommend you read the relevant statements on any other websites your visit. HMRC is not responsible for the direct or indirect consequences of you linking to any other website from this website.
 common.terms_and_conditions.virus_protection.heading=Virus protection

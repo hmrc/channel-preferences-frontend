@@ -1,5 +1,4 @@
-package controllers.common
-
+package controllers.common.support
 
 import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -12,6 +11,7 @@ import play.api.mvc.Request
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
+import controllers.common.{GovernmentGateway, AllRegimeRoots, BaseController}
 
 
 class ContactController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, keyStoreConnector: KeyStoreConnector)(implicit override val authConnector: AuthConnector)
@@ -46,7 +46,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
     user => request => renderIndex(user, request)
   }))
 
-  private[common] def renderIndex(implicit user: User, request: Request[AnyRef]) = Ok(views.html.contact(form.fill(ContactForm(request.headers.get("Referer").getOrElse("n/a")))))
+  private[common] def renderIndex(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.contact(form.fill(ContactForm(request.headers.get("Referer").getOrElse("n/a")))))
 
   def submit = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async( {
     user => request => doSubmit(user, request)
@@ -57,7 +57,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
   private[common] def doSubmit(implicit user: User, request: Request[AnyRef]) = {
     form.bindFromRequest()(request).fold(
       error => {
-        Future.successful(BadRequest(views.html.contact(error)))
+        Future.successful(BadRequest(views.html.support.contact(error)))
       },
       data => {
         import data._
@@ -82,7 +82,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
     keyStoreConnector.getEntry[Map[String, String]](actionId, source, formId).map {
       keyStoreData =>
         val ticketId: String = keyStoreData.flatMap(_.get(ticketKey)).getOrElse("Unknown")
-        Ok(views.html.contact_confirmation(ticketId)(user, request))
+        Ok(views.html.support.contact_confirmation(ticketId)(user, request))
     }
   }
 }

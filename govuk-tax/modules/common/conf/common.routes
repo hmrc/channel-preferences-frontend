@@ -33,10 +33,10 @@ GET     /admin/detail/:name             @controllers.common.HealthCheckControlle
 GET     /admin/metrics                  com.kenshoo.play.metrics.MetricsController.metrics
 
 # Support pages
-GET     /contact-hmrc                   @controllers.common.ContactController.index
-POST    /contact-hmrc                   @controllers.common.ContactController.submit
-GET     /contact-hmrc/thanks            @controllers.common.ContactController.thanks
-POST    /contact/problem_reports        @controllers.common.ProblemReportsController.report
-GET     /beta-feedback                  @controllers.common.FeedbackController.feedbackForm
-POST    /beta-feedback/submit           @controllers.common.FeedbackController.submit
-GET     /beta-feedback/thanks           @controllers.common.FeedbackController.thanks
+GET     /contact-hmrc                   @controllers.common.support.ContactController.index
+POST    /contact-hmrc                   @controllers.common.support.ContactController.submit
+GET     /contact-hmrc/thanks            @controllers.common.support.ContactController.thanks
+POST    /contact/problem_reports        @controllers.common.support.ProblemReportsController.report
+GET     /beta-feedback                  @controllers.common.support.FeedbackController.feedbackForm
+POST    /beta-feedback/submit           @controllers.common.support.FeedbackController.submit
+GET     /beta-feedback/thanks           @controllers.common.support.FeedbackController.thanks

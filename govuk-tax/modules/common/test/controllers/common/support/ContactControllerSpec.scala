@@ -1,4 +1,4 @@
-package controllers.common
+package controllers.common.support
 
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.{FakeRequest, WithApplication}
@@ -27,6 +27,8 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import controllers.common.support.ContactController
+import controllers.common.SessionKeys
 
 class ContactControllerSpec extends BaseSpec with MockitoSugar {
 

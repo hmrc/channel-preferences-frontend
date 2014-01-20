@@ -1,4 +1,4 @@
-package controllers.common
+package controllers.common.support
 
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.{FakeRequest, WithApplication}
@@ -16,7 +16,6 @@ import controllers.common.actions.HeaderCarrier
 import scala.Some
 import play.api.test.FakeApplication
 import play.api.mvc.Request
-import ProblemReportsController._
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 
 class ProblemReportsControllerSpec extends BaseSpec {
@@ -33,19 +32,22 @@ class ProblemReportsControllerSpec extends BaseSpec {
   "Reporting a problem" should {
     "return 200 and a valid json for a valid request and js is enabled" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(true), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(true), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
       val result = controller.report()(generateRequest())
 
       status(result) should be(200)
 
+      val message = contentAsJson(result).\("message").as[String]
       contentAsJson(result).\("status").as[String] shouldBe "OK"
-      contentAsJson(result).\("message").as[String] shouldBe "<h2 id=\"feedback-thank-you-header\">Thank you for your help. Your support reference number is <span id=\"ticketId\">123</span></h2> <p>If you have more extensive feedback, please visit the <a href='/contact'>contact page</a>.</p>"
+      message contains "<h2 id=\"feedback-thank-you-header\">Thank you</h2>"
+      message contains "Your reference number is 123."
+      message contains "You'll get a response within 24 hours."
     }
 
     "return 200 and a valid html page for a valid request and js is not enabled" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
       val result = controller.report()(generateRequest(javascriptEnabled = false))
 

@@ -1,0 +1,9 @@
+@(ticketId: String)
+@pageTitle = @{Messages("common.thank.you")}
+@main(title = pageTitle)  {
+    <h1>@pageTitle</h1>
+    <article id="report-confirmation">
+        @problem_reports_confirmation_body(ticketId)
+    </article>
+
+}

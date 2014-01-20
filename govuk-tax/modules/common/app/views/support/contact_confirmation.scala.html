@@ -1,16 +1,16 @@
 @(ticketId: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 @main(title = Messages("contact.heading"), nav = true, supportLinkEnabled = false, user = Some(user)) {
 
-    <h1>@Html(Messages("contact.heading"))</h1>
+    <h1>Messages("contact.heading")</h1>
 
 <section id="content" class="l-constrained--topBordered">
     <div class="l-bodyLeftColumn">
         <article id="report-confirmation">
-            <h2 id="feedback-thank-you-header">@Html(Messages("contact.feedback_thank_you_header"))</h2>
+            <h2 id="feedback-thank-you-header">Messages("common.thank.you")</h2>
 
             <p>
-                @Html(Messages("contact.confirmation.message"))
-                @Html(Messages("contact.confirmation.ticket_number"))
+                Messages("contact.confirmation.message")
+                Messages("contact.confirmation.ticket_number")
                 <span id="ticketId">@ticketId</span></p>
         </article>
     </div>

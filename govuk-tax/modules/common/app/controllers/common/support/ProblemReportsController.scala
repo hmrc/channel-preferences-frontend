@@ -1,4 +1,4 @@
-package controllers.common
+package controllers.common.support
 
 import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import play.api.i18n.Messages
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import controllers.common.{AllRegimeRoots, BaseController}
 
 
 class ProblemReportsController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
@@ -43,7 +44,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
       form.bindFromRequest.fold(
         error => {
           if (!error.data.getOrElse("isJavascript", "true").toBoolean) {
-            Future.successful(Ok(views.html.problem_reports_error_nonjavascript(referrerFrom(request))))
+            Future.successful(Ok(views.html.support.problem_reports_error_nonjavascript(referrerFrom(request))))
           } else {
             Future.successful(BadRequest(Json.toJson(Map("status" -> "ERROR"))))
           }
@@ -51,13 +52,13 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
         problemReport => {
           createTicket(problemReport, request).map {
             ticketOption =>
+              val ticketId: String = ticketOption.map(_.ticket_id.toString).getOrElse("Unknown")
               if (!problemReport.isJavascript) {
-                Ok(views.html.problem_reports_confirmation_nonjavascript())
+                Ok(views.html.support.problem_reports_confirmation_nonjavascript(ticketId))
               } else {
-                val ticket = ticketOption.map(_.ticket_id).getOrElse("Unknown")
                 Ok(Json.toJson(
                   Map("status" -> "OK",
-                    "message" -> s"""<h2 id="feedback-thank-you-header">Thank you for your help. Your support reference number is <span id="ticketId">$ticket</span></h2> <p>If you have more extensive feedback, please visit the <a href='/contact'>contact page</a>.</p>"""
+                    "message" -> views.html.support.problem_reports_confirmation_body(ticketId).toString()
                   )
                 ))
               }
@@ -67,7 +68,6 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
   })
 
   private def createTicket(problemReport: ProblemReport, request: Request[AnyRef]): Future[Option[TicketId]] = {
-    import ProblemReportsController._
     implicit val hc = HeaderCarrier(request)
     hmrcDeskproConnector.createTicket(
       problemReport.reportName,
@@ -81,14 +81,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
     )
   }
 
-  private def referrerFrom(request: Request[AnyRef]): String = {
-    request.headers.get("referer").getOrElse("/home")
-  }
-}
-
-object ProblemReportsController {
-
-  def problemMessage(action: String, error: String): String = {
+  private[support] def problemMessage(action: String, error: String): String = {
     s"""
     ${Messages("problem_report.action")}:
     $action
@@ -98,6 +91,9 @@ object ProblemReportsController {
     """
   }
 
+  private def referrerFrom(request: Request[AnyRef]): String = {
+    request.headers.get("referer").getOrElse("/home")
+  }
 }
 
 case class ProblemReport(reportName: String, reportEmail: String, reportAction: String, reportError: String, isJavascript: Boolean)
