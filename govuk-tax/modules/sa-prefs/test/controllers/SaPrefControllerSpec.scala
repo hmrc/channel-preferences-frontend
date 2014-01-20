@@ -102,7 +102,8 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
       val page = controller.index(validToken, encodedReturnUrl, None)(request)
-      contentAsString(page) should include("No thanks, I don’t want to switch to email")
+      val html = Jsoup.parse(contentAsString(page))
+      html.getElementById("keep-paper-link") shouldNot be(null)
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))(any())
     }
 
