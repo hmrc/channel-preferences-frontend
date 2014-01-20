@@ -4,26 +4,22 @@
         <p>Please don't include any personal or financial information, for example your National Insurance or credit card numbers.</p>
         @helper.form(action = common.routes.ProblemReportsController.report, 'class -> "form--feedback") {
             <fieldset>
-                <div class="form-field">
-                    <label for="report-name"><strong>Name </strong></label>
-                    <span class="error-notification">@Messages("error.common.problem_report.name_mandatory")</span>
-                    <input id="report-name" class="input--fullwidth" name="report-name" type="text">
-                </div>
-                <div class="form-field">
-                    <label for="report-email"><strong>Email address</strong></label>
-                    <span class="error-notification">@Messages("error.common.problem_report.email_mandatory")</span>
-                    <input id="report-email" class="input--fullwidth" name="report-email" type="text">
-                </div>
-                <div class="form-field">
-                    <label for="report-action"><strong>@Messages("problem_report.action")</strong></label>
-                    <span class="error-notification">@Messages("error.common.problem_report.action_mandatory")</span>
-                    <input id="report-action" class="input--fullwidth" name="report-action" type="text">
-                </div>
-                <div class="form-field">
-                    <label for="report-error"><strong>@Messages("problem_report.error")</strong></label>
-                    <span class="error-notification">@Messages("error.common.problem_report.error_mandatory")</span>
-                    <input id="report-error" class="input--fullwidth" name="report-error"  type="text">
-                </div>
+                <label for="report-name" class="form-field">
+                    <strong>Name </strong>
+                    <input id="report-name" maxlength="70" class="input--fullwidth" name="report-name" type="text"  data-rule-alphanumeric="true" data-rule-required="true" data-msg-required='@Messages("error.common.problem_report.name_mandatory")'>
+                </label>
+                <label for="report-email" class="form-field">
+                    <strong>Email address</strong>
+                    <input id="report-email" class="input--fullwidth" name="report-email" type="text" data-rule-required="true" data-rule-email="true" data-msg-required='@Messages("error.common.problem_report.email_mandatory")'>
+                </label>
+                <label for="report-action" class="form-field">
+                    <strong>@Messages("problem_report.action")</strong>
+                    <input id="report-action" maxlength="1000" class="input--fullwidth" name="report-action" type="text" data-rule-required="true" data-msg-required='@Messages("error.common.problem_report.action_mandatory")' data-rule-alphanumeric="true">
+                </label>
+                <label for="report-error" class="form-field">
+                    <strong>@Messages("problem_report.error")</strong>
+                    <input id="report-error" maxlength="1000" class="input--fullwidth" name="report-error"  type="text" data-rule-required="true" data-msg-required='@Messages("error.common.problem_report.error_mandatory")' data-rule-alphanumeric="true">
+                </label>
                 <input type="hidden" name="isJavascript" value="false"/>
                 <div class="form-field">
                     <button class="button" type="submit">Send</button>

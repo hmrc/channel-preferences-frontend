@@ -124,15 +124,6 @@ GOVUK.ReportAProblem = function () {
 
         $reportErrorContainer.html(response);
       },
-      promptUserToEnterValidData = function ($input) {
-			if (!$input.parent().hasClass('error')) {
-  	        	$input.parent().addClass('error');
-        	}
-      },
-      clearError = function ($input) {
-          $input.removeData("error")
-          	.parent().removeClass('error');
-      },
       disableSubmitButton = function () {
         $submitButton.attr("disabled", true);
       },
@@ -142,41 +133,18 @@ GOVUK.ReportAProblem = function () {
       showConfirmation = function (data) {
 			$reportErrorContainer.html(data.message);
       },
-      submit = function ($form, url) {
+      submit = function (form, url) {
         $.ajax({
           type: "POST",
           url: url,
           datatype: 'json',
-          data: $form.serialize(),
-          beforeSend: function () {
-            var isValid = true;
-            $("input", $form).each(function () {
-              if ($(this).val() === "") {
-
-                if (!$(this).data("error")) {
-                  $(this).data("error", true);
-                  promptUserToEnterValidData($(this));
-                }
-                isValid = false;
-              } else {
-              	// clear errors if any
-                if ($(this).data("error")) {
-                  clearError($(this));
-                }
-              }
-            });
-            return isValid;
-          },
+          data: $(form).serialize(),
           success: function (data) {
 			showConfirmation(data);
           },
           error: function (jqXHR, status) {
             if (status === 'error' || !jqXHR.responseText) {
-              if (jqXHR.status === 422) {
-                promptUserToEnterValidData();
-              } else {
                 showErrorMessage();
-              }
             }
           }
         });
@@ -263,9 +231,24 @@ GOVUK.ReportAProblem = function () {
       //we have javascript enabled so change hidden input to reflect this
       $feedbackForms.find('input[name="isJavascript"]').attr("value", true);
 
-      $errorReportForm.submit(function(e){
-      	GOVUK.ReportAProblem.submitForm($(this), $errorReportForm.attr("action"));
-      	e.preventDefault();
+      //Initialise validation for the feedback form
+      $errorReportForm.validate({
+        errorClass: 'error-notification',
+        errorPlacement: function(error, element) {
+            error.insertBefore(element);
+        },
+        //Highlight invalid input
+        highlight: function (element, errorClass) {
+            $(element).parent().addClass('form-field--error');
+        },
+        //Unhighlight valid input
+        unhighlight: function (element, errorClass) {
+            $(element).parent().removeClass('form-field--error');
+        },
+        //When all fields are valid perform AJAX call
+        submitHandler: function (form) {
+           GOVUK.ReportAProblem.submitForm(form, $errorReportForm.attr("action"));
+        }
       });
 
 
