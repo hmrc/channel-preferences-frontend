@@ -78,46 +78,6 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     val dateFormatter = new SimpleDateFormat("d  yyyy")
   }
 
-  "car and fuel template" should {
-    def documentOf(content: Content) = Jsoup.parse(contentAsString(content))
-
-    "render with all car details for a company car with no fuel" in new WithApplication(FakeApplication()) with BaseData {
-      // given
-      val aCompanyCarWihNoFuel = BenefitFixture.carWithoutFuel
-      val anEmployerName = "MyCompany"
-
-      // when
-      val doc = documentOf(display_car_and_fuel(aCompanyCarWihNoFuel, anEmployerName))
-
-      // then
-      doc.select("#company-name").text should include (anEmployerName)
-      doc.select("#car-benefit-date-available").text should be (BenefitFixture.carBenefitAvailableDateString)
-      doc.select("#car-benefit-date-registered").text should be (BenefitFixture.carBenefitRegisteredDateString)
-      doc.select("#car-benefit-car-value").text should be (BenefitFixture.carValuePounds)
-      doc.select("#car-benefit-employee-capital-contribution").text should be (BenefitFixture.carEmployeeCapitalContributionVauePounds)
-      doc.select("#car-benefit-employee-payments").text should be (BenefitFixture.carEmployeePrivateUseContributionVauePounds)
-      doc.select("#car-co2-emissions").text should be (BenefitFixture.carCo2Emissions + "g CO2/km")
-      doc.select("#car-benefit-engine").text should be (Messages(s"paye.add_car_benefit.engine_capacity.${BenefitFixture.carEngineSize}"))
-      doc.select("#car-benefit-fuel-type").text should be (Messages(s"paye.add_car_benefit.fuel_type.${BenefitFixture.carFuelType}"))
-      doc.select("#no-car-benefit-container") should be (empty)
-      doc.select("#private-fuel").text should be (Messages("paye.add_car_benefit.employer_pay_fuel.false"))
-    }
-
-    "render a car with fuel included for a company car with fuel" in new WithApplication(FakeApplication()) with BaseData {
-      // given
-      val aCompanyCarWithFuel = BenefitFixture.carWithFuel
-      val anEmployerName = "MyCompany"
-
-      // when
-      val doc = documentOf(display_car_and_fuel(aCompanyCarWithFuel, anEmployerName))
-
-      // then
-      doc.select("#company-name").text should include (anEmployerName)
-      doc.select("#private-fuel").text should be (Messages("paye.home.employer_pay_fuel.true"))
-    }
-
-  }
-
   "car benefit home page template" should {
 
     "render car for user with a company car and no fuel" in new WithApplication(FakeApplication()) with BaseData {

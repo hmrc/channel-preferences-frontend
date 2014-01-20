@@ -5,6 +5,8 @@
 
     @id(idString: String) = @{ idSuffix.map(suffix => s"$idString-$suffix").getOrElse(idString) }
 
+
+@defining(carBenefit.fuelType=="electricity") {electricCar =>
 <table>
     <caption id="@id("company-name")">@Messages("paye.display_car_and_fuel.company_car_provided_by", employerNameString)</caption>
     <tbody>
@@ -32,37 +34,42 @@
         </tr>
         <tr>
             <th scope="row">@Messages("paye.display_car_and_fuel.employee_payments")</th>
-            <td id="@id("car-benefit-employee-payments")">@pounds(carBenefit.employeePayments)</td>
+           <td id="@id("car-benefit-employee-payments")">@pounds(carBenefit.employeePayments)</td>
         </tr>
-        <tr>
-            <th scope="row">@Messages("paye.display_car_and_fuel.private_fuel")</th>
-            <td id="@id("private-fuel")">
-            @carBenefit.fuelBenefit.map { fuelBenefit =>
-                @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
-                    @{Messages("paye.home.employer_pay_fuel.date", employerNameString, formatDate(fuelBenefit.dateWithdrawn, ""))}
+        @if(!electricCar) {
+            <tr>
+                <th scope="row">@Messages("paye.display_car_and_fuel.private_fuel")</th>
+                <td id="@id("private-fuel")">
+                @carBenefit.fuelBenefit.map { fuelBenefit =>
+                    @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
+                        @{Messages("paye.home.employer_pay_fuel.date", employerNameString, formatDate(fuelBenefit.dateWithdrawn, ""))}
+                    }.getOrElse {
+                        @Messages("paye.home.employer_pay_fuel.true")
+                    }
                 }.getOrElse {
-                    @Messages("paye.home.employer_pay_fuel.true")
+                    @Messages("paye.home.employer_pay_fuel.false")
                 }
-            }.getOrElse {
-                @Messages("paye.home.employer_pay_fuel.false")
-            }
-            </td>
-        </tr>
+                </td>
+            </tr>
+        }
         <tr>
             <th scope="row">@Messages("paye.display_car_and_fuel.fuel_type")</th>
             <td id="@id("car-benefit-fuel-type")">@Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.fuelType}")</td>
         </tr>
-        @carBenefit.co2Emissions.map { co2Emissions =>
-            <tr>
-                <th scope="row">@Messages("paye.display_car_and_fuel.emissions")</th>
-                <td id="@id("car-co2-emissions")">@Messages("paye.display_car_and_fuel.emissions_unit", co2Emissions)</td>
-            </tr>
-        }
-        @carBenefit.engineSize.map { engineSize =>
-            <tr>
-                <th scope="row">@Messages("paye.display_car_and_fuel.engine_capacity")</th>
-                <td id="@id("car-benefit-engine")">@Messages(s"paye.add_car_benefit.engine_capacity.$engineSize")</td>
-            </tr>
+        @if(!electricCar) {
+            @carBenefit.co2Emissions.map { co2Emissions =>
+                <tr>
+                    <th scope="row">@Messages("paye.display_car_and_fuel.emissions")</th>
+                    <td id="@id("car-co2-emissions")">@Messages("paye.display_car_and_fuel.emissions_unit", co2Emissions)</td>
+                </tr>
+            }
+            @carBenefit.engineSize.map { engineSize =>
+                <tr>
+                    <th scope="row">@Messages("paye.display_car_and_fuel.engine_capacity")</th>
+                    <td id="@id("car-benefit-engine")">@Messages(s"paye.add_car_benefit.engine_capacity.$engineSize")</td>
+                </tr>
+            }
         }
     </tbody>
 </table>
+}

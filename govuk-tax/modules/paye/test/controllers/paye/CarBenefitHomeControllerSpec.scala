@@ -204,7 +204,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
     def employments = johnDensmoresOneEmployment(1)
 
     def rawTaxData = RawTaxData(2013, cars, employments, Seq.empty, Seq.empty)
-
   }
 
   "carBenefitHomeAction" should {
@@ -214,7 +213,6 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
       status(response) shouldBe 200
     }
-
     "return failure view when user has multiple employments" in new WithApplication(FakeApplication()) with BaseData {
       override val employments = johnDensmoresEmployments
 
