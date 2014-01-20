@@ -1,15 +1,11 @@
 package controllers.service
 
 import org.scalatest._
-import java.net.URL
-import java.net.URLEncoder
 import controllers.sa.prefs.service.RedirectWhiteListService
+import com.netaporter.uri.dsl.stringToUri
 
 class RedirectWhiteListServiceSpec extends WordSpec with ShouldMatchers {
   val allowedHost = "localhost"
-  val disallowedHost = "monkey"
-  val allowedUrl = URLEncoder.encode(s"http://$allowedHost:8080/portal", "UTF-8")
-  val disallowedUrl = URLEncoder.encode(s"http://$disallowedHost:8080/portal", "UTF-8")
 
   def createService = {
     new RedirectWhiteListService(Set(allowedHost))
@@ -17,15 +13,15 @@ class RedirectWhiteListServiceSpec extends WordSpec with ShouldMatchers {
 
   "check url" should {
     "return false for a disallowed host" in {
-      val returned = createService.check(disallowedUrl)
-
-      returned shouldBe false
+      createService.check(s"http://monkey:8080/portal") shouldBe false
     }
 
     "return true for an allowed host" in {
-      val returned = createService.check(allowedUrl)
+      createService.check(s"http://$allowedHost:8080/portal") shouldBe true
+    }
 
-      returned shouldBe true
+    "return false for a URL without a host" in {
+      createService.check("/portal") shouldBe false
     }
   }
 }
