@@ -73,7 +73,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
   }
 
   "Login controller GET /samllogin" should {
-    "return a form that contains th§e data from the saml service" in new WithSetup {
+    "return a form that contains the data from the saml service" in new WithSetup {
       val result = loginController.samlLogin()(FakeRequest())
 
       status(result) should be(200)
