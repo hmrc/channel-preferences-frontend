@@ -18,7 +18,8 @@ import controllers.common.actions.HeaderCarrier
 import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.preferences.{SaPreferenceSimplified, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
+import SaEmailPreference.Status
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 
@@ -50,7 +51,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(encodedReturnUrl)).thenReturn(true)
 
       val controller = createController
-      val preferencesAlreadyCreated = SaPreferenceSimplified(true, Some("test@test.com"))
+      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", status = Status.verified)))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
 
       val page = controller.index(validToken, encodedReturnUrl, None)(request)
@@ -218,7 +219,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val controller = createController
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
-      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreferenceSimplified(true, Some(emailAddress)))))
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.verified))))))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
       val action = controller.submitPrefsForm(validToken, encodedReturnUrl)(request)
@@ -238,7 +239,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val controller = createController
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
-      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreferenceSimplified(false, None))))
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(false, None))))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
       val action = controller.submitPrefsForm(validToken, encodedReturnUrl)(request)
@@ -304,7 +305,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val controller = createController
 
-      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreferenceSimplified(true, Some(emailAddress)))))
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.verified))))))
 
       val action = controller.submitKeepPaperForm(validToken, encodedReturnUrl)(request)
 
@@ -322,7 +323,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val controller = createController
 
-      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreferenceSimplified(false, None))))
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(false, None))))
 
       val action = controller.submitKeepPaperForm(validToken, encodedReturnUrl)(request)
 

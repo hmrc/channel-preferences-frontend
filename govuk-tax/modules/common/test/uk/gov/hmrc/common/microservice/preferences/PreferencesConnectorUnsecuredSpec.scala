@@ -14,7 +14,7 @@ import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.preferences.{EmailVerificationLinkResponse, SaPreferenceSimplified, PreferencesConnector, ValidateEmail}
 
-class TestPreferencesConnectorUnsecured extends PreferencesConnector with MockitoSugar {
+class TestPreferencesConnectorUnsecured extends PreferencesConnector with MockitoSugar with OptionValues {
 
   val httpWrapper = mock[HttpWrapper]
 
@@ -77,19 +77,19 @@ class PreferencesConnectorUnsecuredSpec extends WordSpec with MockitoSugar with 
 
     "get preferences for a user who opted for email notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreferenceSimplified(true, Some("someEmail@email.com")))))
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(true, Some(SaEmailPreference("someEmail@email.com", SaEmailPreference.Status.verified))))))
       val result = preferenceConnector.getPreferencesUnsecured(utr).futureValue.get
-      verify(preferenceConnector.httpWrapper).httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital should be (true)
-      result.email should be (Some("someEmail@email.com"))
+      result.email.value.email should be ("someEmail@email.com")
     }
 
     "get preferences for a user who opted for paper notification" in new WithApplication(FakeApplication()) {
 
-      when(preferenceConnector.httpWrapper.httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreferenceSimplified(false))))
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(Some(SaPreference(false))))
       val result = preferenceConnector.getPreferencesUnsecured(utr).futureValue.get
-      verify(preferenceConnector.httpWrapper).httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
       result.digital should be(false)
       result.email should be(None)
@@ -98,9 +98,9 @@ class PreferencesConnectorUnsecuredSpec extends WordSpec with MockitoSugar with 
     "return none for a user who has not set preferences" in new WithApplication(FakeApplication()) {
       val mockPlayResponse = mock[Response]
       when(mockPlayResponse.status).thenReturn(404)
-      when(preferenceConnector.httpWrapper.httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(None))
+      when(preferenceConnector.httpWrapper.httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")).thenReturn(Future.successful(None))
       preferenceConnector.getPreferencesUnsecured(utr).futureValue shouldBe None
-      verify(preferenceConnector.httpWrapper).httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")
+      verify(preferenceConnector.httpWrapper).httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
     }
 
   }

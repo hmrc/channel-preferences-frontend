@@ -23,8 +23,8 @@ class PreferencesConnector extends Connector {
   def savePreferencesUnsecured(utr: String, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier) =
     httpPostF(s"/portal/preferences/sa/individual/$utr/print-suppression", Some(SaPreferenceSimplified(digital, email)))
 
-  def getPreferencesUnsecured(utr: String)(implicit hc: HeaderCarrier): Future[Option[SaPreferenceSimplified]] =
-    httpGetF[SaPreferenceSimplified](s"/portal/preferences/sa/individual/$utr/print-suppression")
+  def getPreferencesUnsecured(utr: String)(implicit hc: HeaderCarrier): Future[Option[SaPreference]] =
+    httpGetF[SaPreference](s"/portal/preferences/sa/individual/$utr/print-suppression")
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     httpPost("/preferences/sa/verify-email", ValidateEmail(token)) {
