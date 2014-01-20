@@ -37,13 +37,13 @@ class SaPrefsController extends BaseController {
       }
   }
 
-  object WithValidToken {
-    def apply(token: String, returnUrl: Uri)(action: String => (Action[AnyContent])) =
+  object ValidateToken {
+    def apply(encryptedToken: String, returnUrl: Uri)(action: String => (Action[AnyContent])) =
       Action.async {
         request: Request[AnyContent] =>
           try {
-            implicit val utr = SsoPayloadCrypto.decryptToken(token, FrontEndConfig.tokenTimeout)
-            action(utr)(request)
+            implicit val token = SsoPayloadCrypto.decryptToken(encryptedToken, FrontEndConfig.tokenTimeout)
+            action(token.utr.value)(request)
           } catch {
             case e: TokenExpiredException =>
               Logger.error("Unable to validate token", e)
@@ -57,7 +57,7 @@ class SaPrefsController extends BaseController {
 
   def index(token: String, encodedReturnUrl: String, emailAddress: Option[String]) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      WithValidToken(token, returnUrl) { utr =>
+      ValidateToken(token, returnUrl) { utr =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(utr) map {
             case Some(saPreference) =>
@@ -75,7 +75,7 @@ class SaPrefsController extends BaseController {
 
   def confirm(token: String, encodedReturnUrl: String) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      WithValidToken(token, returnUrl) { utr =>
+      ValidateToken(token, returnUrl) { utr =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(utr).map {
             case Some(SaPreference(true, Some(SaEmailPreference(email, _, _)))) =>
@@ -107,7 +107,7 @@ class SaPrefsController extends BaseController {
 
   def submitPrefsForm(token: String, encodedReturnUrl: String) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      WithValidToken(token, returnUrl) { utr =>
+      ValidateToken(token, returnUrl) { utr =>
         Action.async { implicit request =>
           emailForm.bindFromRequest()(request).fold(
             errors => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(errors, token, returnUrl))),
@@ -138,7 +138,7 @@ class SaPrefsController extends BaseController {
 
   def submitKeepPaperForm(token: String, encodedReturnUrl: String) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      WithValidToken(token, returnUrl) { utr =>
+      ValidateToken(token, returnUrl) { utr =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(utr) map {
             case Some(saPreference) =>

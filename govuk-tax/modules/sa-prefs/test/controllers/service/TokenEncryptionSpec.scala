@@ -5,6 +5,7 @@ import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URLEncoder }
 import controllers.sa.prefs.service.{TokenExpiredException, TokenEncryption}
 import uk.gov.hmrc.crypto.AesCrypto
+import uk.gov.hmrc.domain.SaUtr
 
 class TokenEncryptionSpec extends WordSpec with ShouldMatchers {
 
@@ -17,14 +18,14 @@ class TokenEncryptionSpec extends WordSpec with ShouldMatchers {
       val validToken = s"utr:${DateTime.now(DateTimeZone.UTC).getMillis}"
       val encryptedToken = URLEncoder.encode(crypto.encrypt(validToken), "UTF-8")
 
-      crypto.decryptToken(encryptedToken, 5) shouldBe "utr"
+      crypto.decryptToken(encryptedToken, 5) should have ('utr (SaUtr("utr")))
     }
 
     "decrypt a valid unencoded token" in {
       val validToken = s"cjsajjdajdas:${DateTime.now(DateTimeZone.UTC).getMillis}"
       val encryptedToken = crypto.encrypt(validToken)
 
-      crypto.decryptToken(encryptedToken, 5) shouldBe "cjsajjdajdas"
+      crypto.decryptToken(encryptedToken, 5) should have ('utr (SaUtr("cjsajjdajdas")))
     }
 
     "decrypt token with slashes and plus chars" in {
