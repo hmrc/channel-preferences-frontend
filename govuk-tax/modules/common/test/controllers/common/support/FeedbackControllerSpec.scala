@@ -18,11 +18,11 @@ import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import org.apache.commons.lang.StringUtils
-import play.api.mvc.SimpleResult
+import play.api.mvc.{Request, SimpleResult}
 import scala.concurrent.Future
 import org.scalatest.Matchers
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
-import controllers.common.support.FeedbackController
+import controllers.common.actions.HeaderCarrier
 
 class FeedbackControllerSpec extends BaseSpec {
 
@@ -61,10 +61,14 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "display error when name is too long" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(name = stringOfLength(70)))
+      val result = controller.doSubmit(user, request(name = stringOfLength(71)))
       status(result) shouldBe 400
       formContainsError(result, "Your name cannot be longer than 70 characters")
+    }
 
+    "submit feedback with maximum name length" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(user, request(name = stringOfLength(70)))
+      status(result) shouldBe 303
     }
 
     "display error when email is empty" in new FeedbackControllerApplication {
@@ -77,10 +81,14 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "display error when email is too long" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(email = s"${stringOfLength(316)}@a.a"))
+      val result = controller.doSubmit(user, request(email = s"${stringOfLength(317)}@a.a"))
       status(result) shouldBe 400
       formContainsError(result, "The email cannot be longer than 320 characters")
+    }
 
+    "submit feedback with maximum email length" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(user, request(email = s"${stringOfLength(316)}@a.a"))
+      status(result) shouldBe 303
     }
 
     "display error when email address is not valid" in new FeedbackControllerApplication {
@@ -101,21 +109,25 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "display error when comments are too verbose" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(comments = stringOfLength(2000)))
+      val result = controller.doSubmit(user, request(comments = stringOfLength(2001)))
       status(result) shouldBe 400
       formContainsError(result, "The comment cannot be longer than 2000 characters")
+    }
 
+    "submit feedback with maximum comments length" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(user, request(comments = stringOfLength(2000)))
+      status(result) shouldBe 303
     }
 
     "submits the feedback" in new FeedbackControllerApplication {
 
-      val result = controller.redirectToConfirmationPage(Future.successful(Some(TicketId(123))))(user,request())
+      val result = controller.redirectToConfirmationPage(Future.successful(Some(TicketId(123))))(user, request())
       status(result) shouldBe 303
       result.header.headers("Location") shouldBe "/beta-feedback/thanks"
     }
 
     "renders confirmation page" in new FeedbackControllerApplication {
-      val result = controller.doThanks(user,request())
+      val result = controller.doThanks(user, request())
       status(result) shouldBe 200
       contentAsString(result) should include("Your feedback will be reviewed by our customer support team")
     }
@@ -129,7 +141,11 @@ class FeedbackControllerSpec extends BaseSpec {
 class FeedbackControllerApplication extends WithApplication(FakeApplication()) with MockitoSugar with Matchers {
   def stringOfLength(length: Int) = StringUtils.repeat("A", length)
 
-  val deskProConnector = mock[HmrcDeskproConnector]
+  val deskProConnector = new HmrcDeskproConnector{
+    override def createFeedback(name: String, email: String, rating: String, subject: String, message: String, referrer: String, isJavascript: Boolean, request: Request[AnyRef], user: Option[User])(implicit hc: HeaderCarrier): Future[Option[TicketId]] = {
+      Future.successful(Some(TicketId(123)))
+    }
+  }
   val controller = new FeedbackController(mock[AuditConnector], deskProConnector)(mock[AuthConnector])
 
   val user = {
@@ -137,20 +153,17 @@ class FeedbackControllerApplication extends WithApplication(FakeApplication()) w
     User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root)))
   }
 
-  val ratingVal: String = "Good"
-
-  val nameVal: String = "Tom Smith"
-
-  val emailVal: String = "tom.smith@gmail.com"
-
-  val commentsVal: String = "I really enjoyed this experience. I do not have better things to do than sending feedback."
-
-  def request(rating: String = ratingVal, name: String = nameVal, email: String = emailVal, comments: String = commentsVal) =
+  def request(rating: String = "Good",
+              name: String = "Tom Smith",
+              email: String = "tom.smith@gmail.com",
+              comments: String = "I really enjoyed this experience. I do not have better things to do than sending feedback.") =
     FakeRequest().withFormUrlEncodedBody(
       "feedback-rating" -> rating,
       "feedback-name" -> name,
       "feedback-email" -> email,
-      "feedback-comments" -> comments)
+      "feedback-comments" -> comments,
+      "referer" -> "referer",
+      "isJavascript" -> "false")
 
 
   def formContainsError(result: Future[SimpleResult], error: String) {

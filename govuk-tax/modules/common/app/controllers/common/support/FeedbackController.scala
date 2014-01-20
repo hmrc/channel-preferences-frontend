@@ -27,11 +27,11 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
       .verifying("error.common.feedback.rating_valid", rating => if (!rating.trim.isEmpty) validExperiences.contains(rating) else true),
     "feedback-name" -> text
       .verifying("error.common.feedback.name_mandatory", name => !name.trim.isEmpty)
-      .verifying("error.common.feedback.name_too_long", name => name.size < 70),
-    "feedback-email" -> email.verifying("error.email_too_long", email => email.size < 320),
+      .verifying("error.common.feedback.name_too_long", name => name.size <= 70),
+    "feedback-email" -> email.verifying("error.email_too_long", email => email.size <= 320),
     "feedback-comments" -> text
       .verifying("error.common.comments_mandatory", comment => !comment.trim.isEmpty)
-      .verifying("error.common.comments_too_long", comment => comment.size < 2000),
+      .verifying("error.common.comments_too_long", comment => comment.size <= 2000),
     "isJavascript" -> boolean,
     "referer" -> text
   )(FeedbackForm.apply)(FeedbackForm.unapply))
