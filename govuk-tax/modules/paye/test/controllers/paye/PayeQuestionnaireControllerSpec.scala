@@ -1,48 +1,76 @@
 package controllers.paye
 
 import uk.gov.hmrc.common.BaseSpec
-import play.api.test.{FakeApplication, WithApplication, FakeRequest}
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 
 class PayeQuestionnaireControllerSpec extends BaseSpec {
 
-  "Mapping the questionnaire form" should {
+  private lazy val controller = new PayeQuestionnaireController
 
-    //val controller = new PayeQuestionnaireController()
+  "buildAuditEvent " should {
 
-    "extract all questionnaire fields when a user answers all questions" in new WithApplication(FakeApplication())  {
+    "create an audit event given a paye questionnaire form data containing every field" in new WithApplication(FakeApplication()) {
+      val formData = PayeQuestionnaireFormData(
+        transactionId = "someTxId",
+        wasItEasy = Some(1),
+        secure = Some(2),
+        comfortable = Some(3),
+        easyCarUpdateDetails = Some(4),
+        onlineNextTime = Some(3),
+        overallSatisfaction = Some(2),
+        commentForImprovements = Some("comment")
+      )
 
-      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("q1", "4"), ("q2", "1"), ("q3", "2"), ("q4", "4"),
-                                                                  ("q5", "3"),("q6", "1"),("q7", "Some Comments"))
+      val actualAuditEvent = controller.buildAuditEvent(formData)
 
-      val actualQuestionnaireForm = payeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
-
-      actualQuestionnaireForm.hasErrors shouldBe false
-      val actualQuestionnaireData = actualQuestionnaireForm.get
-
-      actualQuestionnaireData.wasItEasy shouldBe Some(4)
-
-//      actualQuestionnaireData should have {
-//        'transactionId("someTxId")
-//        'wasItEasy("Some(4)")
-//        'q2("1")
-//        'q3("2")
-//        'q4("4")
-//        'q5("3")
-//        'q6("1")
-//        'q7("Some Comments")
-//      }
+      val detail = Map[String, String]("wasItEasy" -> "1", "secure" -> "2", "comfortable" -> "3",
+          "easyCarUpdateDetails" -> "4", "onlineNextTime" -> "3", "overallSatisfaction" -> "2", "commentForImprovements" -> "comment")
+      actualAuditEvent should have (
+        'auditSource("frontend"),
+        'auditType("questionnaire"),
+        'tags(Map("questionnaire-transactionId" -> "someTxId")),
+        'detail(detail)
+      )
     }
 
-    "extract all questionnaire fields when a user answers some questions" in {
+    "create an audit event given a paye questionnaire form data containing transactionId only" in new WithApplication(FakeApplication()) {
+      val formData = PayeQuestionnaireFormData(
+        transactionId = "someTxId"
+      )
 
-    }
+      val actualAuditEvent = controller.buildAuditEvent(formData)
 
-    "extract all questionnaire fields when a user does not answer any questions" in {
-
-    }
-
-    "extact a transaction id" in {
-
+      val detail = Map[String, String]("wasItEasy" -> "None", "secure" -> "None", "comfortable" -> "None",
+        "easyCarUpdateDetails" -> "None", "onlineNextTime" -> "None", "overallSatisfaction" -> "None", "commentForImprovements" -> "None")
+      actualAuditEvent should have (
+        'auditSource("frontend"),
+        'auditType("questionnaire"),
+        'tags(Map("questionnaire-transactionId" -> "someTxId")),
+        'detail(detail)
+      )
     }
   }
+
+  "submitQuestionnaireAction" should {
+
+    "return 200 if no errors are encountered" in  new WithApplication(FakeApplication()) {
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("q1", "4"), ("q3", "2"), ("q4", "4"),
+        ("q5", "3"),("q7", "Some Comments"))
+
+      val result = controller.submitQuestionnaireAction
+
+      status(result) shouldBe 200
+    }
+
+    "return 400 if the form has no transactionId field" in  new WithApplication(FakeApplication()) {
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("q1", "4"), ("q3", "2"), ("q4", "4"),
+        ("q5", "3"),("q7", "Some Comments"))
+
+      val result = controller.submitQuestionnaireAction
+
+      status(result) shouldBe 400
+    }
+  }
+
 }
