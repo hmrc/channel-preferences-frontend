@@ -33,7 +33,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   lazy val validToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
   lazy val expiredToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
   lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
-  val decodedReturnUrl = "http://localhost:8080/portal"
+  val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
   val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
   private val mockRedirectWhiteListService = mock[RedirectWhiteListService]
 
@@ -62,7 +62,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = controller.index(validToken, encodedReturnUrl, None)(request)
       status(page) shouldBe 303
-      header("Location", page).get should equal(encodedReturnUrl)
+      header("Location", page).get should equal(decodedReturnUrl)
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
     }
 
@@ -83,7 +83,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val page = controller.index(expiredToken, encodedReturnUrl, None)(request)
 
       status(page) shouldBe 303
-      header("Location", page).get should equal(encodedReturnUrl)
+      header("Location", page).get should equal(decodedReturnUrl)
     }
 
     "redirect to portal if the token is not valid on the landing page" in new WithApplication(FakeApplication()) {
@@ -93,7 +93,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val page = controller.index(incorrectToken, encodedReturnUrl, None)(request)
 
       status(page) shouldBe 303
-      header("Location", page).get should equal(encodedReturnUrl)
+      header("Location", page).get should equal(decodedReturnUrl)
     }
 
     "include a link to keep mail preference" in new WithApplication(FakeApplication()) {
@@ -149,7 +149,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
 
-      header("Location", page).get should equal(encodedReturnUrl)
+      header("Location", page).get should equal(decodedReturnUrl)
     }
 
     "return a warning page if the email address could not be verified" in new WithApplication(FakeApplication()) {
@@ -294,7 +294,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val page = controller.submitKeepPaperForm(validToken, encodedReturnUrl)(request)
 
       status(page) shouldBe 303
-      header("Location", page).get should equal(encodedReturnUrl)
+      header("Location", page).get should equal(decodedReturnUrl)
     }
 
     "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
@@ -319,7 +319,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       status(page) shouldBe 303
 
       verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
-      header("Location", page).get should equal(encodedReturnUrl)
+      header("Location", page).get should equal(decodedReturnUrl)
     }
 
     "redirect to no-action page if the preference is already set to digital when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
@@ -377,7 +377,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = Jsoup.parse(contentAsString(result))
       val returnUrl = page.getElementById("sa-home-link").attr("href")
-      returnUrl should be (s"$decodedReturnUrl?emailAddress=${urlEncode(encrypt(emailAddress))}")
+      returnUrl should be (s"$decodedReturnUrl&emailAddress=${urlEncode(encrypt(emailAddress))}")
     }
     "generate an error if the user does not have an email address set" in {
       val controller = createController
@@ -388,8 +388,8 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val result = controller.confirm(validToken, encodedReturnUrl)(request)
       status(result) should be(412)
     }
-    "handle return urls which already have query parameters" in {
-      val urlWithQueryParams = decodedReturnUrl + "?something=another"
+    "handle return urls which do not already have query parameters" in {
+      val urlWithQueryParams = "http://localhost:8080/portal"
       val encodedUrlWithQueryParams = urlEncode(urlWithQueryParams, "UTF-8")
 
       val controller = createController
@@ -402,7 +402,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = Jsoup.parse(contentAsString(result))
       val returnUrl = page.getElementById("sa-home-link").attr("href")
-      returnUrl should be (s"$urlWithQueryParams&emailAddress=${urlEncode(encrypt(emailAddress))}")
+      returnUrl should be (s"$urlWithQueryParams?emailAddress=${urlEncode(encrypt(emailAddress), "UTF-8")}")
     }
   }
 }
