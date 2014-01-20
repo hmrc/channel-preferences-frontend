@@ -1,19 +1,19 @@
 
 vat.regimeName=Value Added Tax (VAT)
-vat.link.message.accountSummary.viewAccountDetails=View your VAT account details
-vat.link.message.accountSummary.makeAPayment=Make a VAT payment
-vat.link.message.accountSummary.fileAReturn=File your VAT return
+vat.link.message.accountSummary.viewAccountDetails=View your VAT account
+vat.link.message.accountSummary.makeAPayment=Make a payment
+vat.link.message.accountSummary.fileAReturn=Submit your VAT return
 vat.message.accountBalance=Your account currently shows a balance of {0}
-vat.message.summaryUnavailable.1= We can''t display your VAT information because:
+vat.message.summaryUnavailable.1= We can't display your VAT information because:
 vat.message.summaryUnavailable.2= - your VAT registration number is no longer active. For assistance contact the helpdesk.
 vat.message.summaryUnavailable.3= - you have only just activated this service and there is a short delay before the information is available
 vat.message.summaryUnavailable.4=For any other problems, contact the <a id="vat.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
 
 
 ct.regimeName=Corporation Tax
-ct.link.message.accountSummary.viewAccountDetails=View your Corporation Tax account details
-ct.link.message.accountSummary.makeAPayment=Make a Corporation Tax payment
-ct.link.message.accountSummary.fileAReturn=File your Corporation Tax return
+ct.link.message.accountSummary.viewAccountDetails=View your Corporation Tax account
+ct.link.message.accountSummary.makeAPayment=Make a payment
+ct.link.message.accountSummary.fileAReturn=Send your Corporation Tax return
 ct.message.amountAsOfDate={0} as of {1}.
 ct.message.summaryUnavailable.1= We are currently unable to display your account information. This may be because:
 ct.message.summaryUnavailable.2=- there is no information to view at this time
@@ -38,9 +38,9 @@ vat.message.importantDates.text.payment-online=If you choose to pay your VAT for
 vat.message.importantDates.link.payment-online=Make a payment
 
 sa.regimeName=Self Assessment
-sa.link.message.accountSummary.viewAccountDetails=View your Self Assessment account details
-sa.link.message.accountSummary.makeAPayment=Make a Self Assessment payment
-sa.link.message.accountSummary.fileAReturn=File your Self Assessment return
+sa.link.message.accountSummary.viewAccountDetails=View your Self Assessment account
+sa.link.message.accountSummary.makeAPayment=Make a payment
+sa.link.message.accountSummary.fileAReturn=Send your tax return
 sa.message.nothingToPay=You have nothing to pay.
 sa.message.amountDueForPayment=Tax you owe: {0}
 sa.message.interestApplicable=HM Revenue & Customs (HMRC) may charge interest on late payments of tax due now.
@@ -93,7 +93,7 @@ otherservices.manageTaxes.link.hmcevatrslorg=VAT Reverse Charge Sales List (RCSL
 
 bt.home.title=Your tax account
 bt.home.otherTaxes=Other taxes
-bt.home.mergeAccounts.1=This account is for Self Assessment, VAT, PAYE and Corporation Tax.
+bt.home.mergeAccounts.1=This account is for Self Assessment, VAT, Pay As You Earn (PAYE) and Corporation Tax.
 bt.home.mergeAccounts.2=If they''re not displayed (and you''ve registered for the tax and enrolled for its online service), you''re using different Government Gateway accounts for them. You have to merge your accounts.
 bt.home.mergeAccountsLink=Merge your Government Gateway accounts
 bt.home.everythingElse.1=Go to
@@ -107,15 +107,15 @@ bt.home.sidebarLinks.youtube.text=HMRC YouTube channel
 
 bt.mergeggaccount.title=Merge your Government Gateway accounts
 bt.mergeggaccount.text.1=You can move all your taxes into one Government Gateway account.
-bt.mergeggaccount.step1=Decide which Government Gateway you want to be your main account.
+bt.mergeggaccount.step1=Decide which Government Gateway account you want to be your main one.
 bt.mergeggaccount.step2=Log in with each of your other accounts. User name and password are the same.
-bt.mergeggaccount.step4=Log back into your main account to
+bt.mergeggaccount.step4=Sign in to your main account to
 bt.mergeggaccount.step4.linkText=add the tax to your main account
-bt.mergeggaccount.step5=HMRC might have to send you an activation code.
+bt.mergeggaccount.step5=An activation code may be sent to you in the post.
 bt.mergeggaccount.lostGgNumbers=If you''ve lost your Government Gateway account numbers
 bt.mergeggaccount.lostGgNumbers.linkText=you can get them back
 bt.mergeggaccount.contact.1=Contact the
-bt.mergeggaccount.contact.2.linkText=online services helpdesk
+bt.mergeggaccount.contact.2.linkText=helpdesk
 bt.mergeggaccount.contact.3= for any other problems.
 
 

@@ -6,46 +6,56 @@
 
 <h1>Pay your VAT</h1>
 
-<p>Pay your Value Added Tax (VAT) bill by Direct Debit, online with a debit or credit card or through your bank.</p>
-<p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on time. Use the
+<p>Options to pay your VAT are shown below.</p>
+<p>It’s your responsibility to make sure payments reach HM Revenue and Customs (HMRC) on time. Use the
     @helpers.link("paymentDeadlineCalculatorHref1", "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", "payment deadline calculator", true)
     to make sure you pay on time - @helpers.link("penaltyHref", "https://www.gov.uk/vat-returns/surcharges-and-penalties", "you may be charged a penalty if your payment is late", true).</p>
 
 <h2>Direct Debit</h2>
 
-<p>Use your VAT online account to @helpers.link("vatOnlineAccountHref", vatOnlineAccountLink.url, "set up a Direct Debit", vatOnlineAccountLink.newWindow,vatOnlineAccountLink.sso) at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday).</p>
+<p>@helpers.link("vatOnlineAccountHref", vatOnlineAccountLink.url, "Set up a Direct Debit", vatOnlineAccountLink.newWindow,vatOnlineAccountLink.sso) at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday). You can't pay by Direct Debit if you make payments on account.</p>
 <p>HMRC will tell you when the Direct Debit has been set up. The
-    @helpers.link("paymentDeadlineCalculatorHref2", "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", "payment deadline calculator", true) tells you when the payment leaves your account. If you need to make changes to your Direct Debit, do this through your bank.</p>
+    @helpers.link("paymentDeadlineCalculatorHref2", "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", "payment deadline calculator", true) tells you when the payment leaves your account. Contact your bank to make changes to your Direct Debit.</p>
 
 <div class="application-notice help-notice">
     <p>You must pay by another method until the Direct Debit is set up.</p>
 </div>
-
 <h2>Annual Accounting Scheme</h2>
 
 <p>If you use the @helpers.link("annualAccountingSchemeHref", "https://www.gov.uk/vat-annual-accounting-scheme", "Annual Accounting Scheme", true),
-    you can only set up automatic Direct Debit online for balancing payments. You can set up a Direct Debit for regular payments using form VAT623.</p>
-<p>@helpers.link("pdfHref", "http://www.hmrc.gov.uk/forms/vat623.pdf", "Download ‘Form VAT623, Direct Debit Instruction’ (PDF, 336KB)", true)</p>
+    you can only set up automatic Direct Debit online for balancing payments. You can set up a Direct Debit for regular payments using form @helpers.link("vat623Href", "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=lQ05egs5kVk&f%0Aormid=1029", "VAT623", true).
+</p>
 
 <h2>Online with a debit or credit card</h2>
 
 <p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online with a card", true) - you’ll need your VAT registration number @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
 
-<p>You must use a card from a UK card issuer - not American Express or Diners Club. Allow 3 working days for payments to reach HMRC.</p>
+<p>You must use a card from a UK card issuer - not American Express or Diners Club.</p>
+
+<p>Allow 3 working days for payments to reach HMRC.</p>
 
 <div class="application-notice help-notice">
     <p>There’s a 1.4% fee if you pay by credit card.</p>
 </div>
 
-<h2>Online or telephone banking, BACS, CHAPS or standing order</h2>
+<h2>Online or telephone banking, Bacs, CHAPS or standing order</h2>
 
 <div class="application-notice help-notice">
     <p>Check your bank’s transaction limits and processing times.</p>
 </div>
+<p>If you make a Faster Payment it will clear the same day if the amount is within your bank’s limits.</p>
 
-<p>You need HMRC’s bank details or you can use the @helpers.link("chapsFormHref", "http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm", "CHAPS form", true) or
-    @helpers.link("standingOrderFormHref", "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028", "standing order form", true).
-    Use your VAT registration number as the payment reference @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
+<p>You need HMRC’s bank details</p>
+
+<p>Use your VAT registration number as the payment reference @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
+
+<p>You can also pay using the @helpers.link("chapsFormHref", "http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm", "CHAPS form", true).</p>
+<p>If you use:</p>
+<ul class="bullets">
+    <li>the Payment on Account scheme you can pay via the @helpers.link("standingOrderFormHref", "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028", "standing order form", true)</li>
+    <li>the Annual Accounting Scheme you can ask to pay by standing order when you join the scheme</li>
+</ul>
+
 
 <table>
     <thead><tr>
@@ -63,6 +73,7 @@
 </table>
 
 <h3>Overseas accounts</h3>
+<p>Use the details below to pay from an overseas account.</p>
 
 <table>
     <thead><tr>

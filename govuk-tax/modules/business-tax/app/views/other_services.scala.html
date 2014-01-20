@@ -4,8 +4,10 @@
 
 <h1>Other taxes </h1>
 <p>
-    To see your other taxes here you must be registered for them and have online access.
-    If both already apply but you can't see them here, then you're using different Government Gateway accounts for them.<br>
+    To see your other taxes here you must be registered for the tax and enrolled for the online service.
+</p>
+<p>
+    If you've done this and your taxes aren't displayed below you may have different Government Gateway accounts for them. You'll need to merge these accounts.<br>
     @helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts").
 </p>
 
@@ -28,13 +30,13 @@
 
 <div>
     <h2 id="enrollmentHeading">Get online access</h2>
-    <p id="enrollmentMessage">You must already be registered for a tax to get online access.<br>
+    <p id="enrollmentMessage">You must already be registered for a tax to get online access to it.<br>
         <span id="onlineServicesEnrolmentLink">@helpers.link("otherServicesEnrolmentHref", enrollLink.url, "Enrol for other services", enrollLink.newWindow, enrollLink.sso)</span>.</p>
 </div>
 <div>
     <h2 id="deEnrollmentHeading">Stop using an online service</h2>
     <p id="deEnrollmentMessage">To stop using one of the online services you can
-        <span id="onlineServicesDeEnrolmentLink">@helpers.link("servicesDeEnrolmentHref", deEnrollLink.url, "de-enrol from it", deEnrollLink.newWindow, deEnrollLink.sso)</span>.</p>
+        <span id="onlineServicesDeEnrolmentLink">@helpers.link("servicesDeEnrolmentHref", deEnrollLink.url, "remove it", deEnrollLink.newWindow, deEnrollLink.sso)</span>.</p>
 
 </div>
 <div>
@@ -50,7 +52,7 @@
             <p id="registrationGenericMessage">
     }
 
-            Find out more about registering for taxes on the <span id="hmrcWebsiteLink">@helpers.link("otherWaysHref", "http://www.hmrc.gov.uk/online/new.htm#2", "HM Revenue & Customs website", true)</span>.
+            Find out about <span id="hmrcWebsiteLink">@helpers.link("otherWaysHref", "http://www.hmrc.gov.uk/online/new.htm#2", "registering for taxes", true)</span>.
         </p>
 
 </div>
