@@ -1,3 +1,5 @@
+@(token: Option[String] = None)
+
 @main(title = Messages("paye.home.title"), sidebarLinks = Some(sidebarLinks)) {
     <h1>@Messages("paye.home.title")</h1>
     <p>@Html(Messages("paye.home.intro", helpers.link("", Messages("paye.home.intro.calculator_link.url"), Messages("paye.home.intro.calculator_link.text"), true)))</p>
@@ -8,22 +10,22 @@
         <li>@Messages("paye.home.instructions.list_item.1")</li>
         <li>@helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("paye.home.instructions.list_item.2"), true)</li>
     </ul>
-    @helpers.link("", common.FrontEndRedirect.carBenefit, Messages("paye.home.start_button.text"), false, false, "button")
+    @helpers.link("", common.FrontEndRedirect.carBenefit(token), Messages("paye.home.start_button.text"), false, false, "button")
 }
 
-@sidebarLinks = {
-<div class="service-info__related-subsection">
-    <h2>@Messages("paye.home.sidebar.paye")</h2>
-    <p>@Messages("info.links_open_new_window")</p>
-    <nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
-        <ul>
-            <li>
-                @helpers.link("", Messages("link.tax_codes.url"), Messages("link.tax_codes.text"), true)
-            </li>
-            <li>
-                @helpers.link("", Messages("link.company_benefits_tax.url"), Messages("link.company_benefits_tax.text"), true)
-            </li>
-        </ul>
-    </nav>
-</div>
-}
+    @sidebarLinks = {
+        <div class="service-info__related-subsection">
+            <h2>@Messages("paye.home.sidebar.paye")</h2>
+            <p>@Messages("info.links_open_new_window")</p>
+            <nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
+                <ul>
+                    <li>
+                    @helpers.link("", Messages("link.tax_codes.url"), Messages("link.tax_codes.text"), true)
+                    </li>
+                    <li>
+                    @helpers.link("", Messages("link.company_benefits_tax.url"), Messages("link.company_benefits_tax.text"), true)
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }

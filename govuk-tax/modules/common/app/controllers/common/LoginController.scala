@@ -144,7 +144,7 @@ class LoginController(samlConnector: SamlConnector,
           FrontEndRedirect.forSession(session).withSession(
             SessionKeys.userId -> authority.uri,
             SessionKeys.sessionId -> updatedHC.sessionId.get,
-            SessionKeys.authProvider -> Ida.id
+            SessionKeys.authProvider -> IdaWithTokenCheckForBeta.id
           )
         case LoginFailure(reason, hashPid, originalRequestId) =>
           Logger.warn(s"IDA sign in failed because '$reason'")

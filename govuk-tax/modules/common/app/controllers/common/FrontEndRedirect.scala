@@ -6,11 +6,16 @@ import play.api.mvc.{Controller, Session}
 object FrontEndRedirect extends Controller {
 
   val businessTaxHome = "/account"
-  val carBenefit = "/paye/company-car/details"
+  def carBenefit(token:Option[String]) = token.map { token =>
+    s"/paye/company-car/details?token=$token"
+  }.getOrElse {
+    "/paye/company-car/details"
+
+  }
   val carBenefitStartPage = "/paye/company-car"
 
   //TODO what is the default destination?
-  private val defaultDestination = carBenefit
+  private val defaultDestination = carBenefit(None)
 
   def forSession(session: Session) =
     Redirect(session.data.get(SessionKeys.redirect).getOrElse(defaultDestination)).withSession(session - SessionKeys.redirect)
@@ -22,6 +27,11 @@ object FrontEndRedirect extends Controller {
   def toBusinessTax = {
     Logger.debug("Redirecting to business...")
     Redirect(businessTaxHome)
+  }
+
+  def toSamlLogin = {
+    Logger.debug("Redirecting to login")
+    Redirect(routes.LoginController.samlLogin)
   }
 
 }

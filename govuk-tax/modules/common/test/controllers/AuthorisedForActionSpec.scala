@@ -178,7 +178,7 @@ sealed class TestController(payeConnector: PayeConnector,
         Ok(userName)
   }
 
-  def testAuthorisationWithRedirectCommand = AuthenticatedBy(authenticationProvider = Ida, redirectToOrigin = true) {
+  def testAuthorisationWithRedirectCommand = AuthenticatedBy(authenticationProvider = IdaWithTokenCheckForBeta, redirectToOrigin = true) {
     implicit user =>
       implicit request =>
         val userPayeRegimeRoot = user.regimes.paye.get

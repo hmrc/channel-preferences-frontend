@@ -16,7 +16,7 @@ GET         /car-benefit/:year/:employmentSequenceNumber/confirmation       @con
 GET         /car-fuel-benefit/:year/:employmentSequenceNumber/confirmation   @controllers.paye.RemoveBenefitController.carAndFuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String], personalAllowance: Option[Int])
 GET         /fuel-benefit/:year/:employmentSequenceNumber/confirmation  @controllers.paye.RemoveBenefitController.fuelBenefitRemoved(year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String], personalAllowance: Option[Int])
 
-GET         /                                                                @controllers.paye.PayeHomeController.home
+GET         /                                                               @controllers.paye.PayeHomeController.home(token:Option[String])
 
 GET         /details                                                         @controllers.paye.CarBenefitHomeController.carBenefitHome
 GET         /car-benefit/error/version-changed                               @controllers.paye.VersionChangedController.versionChanged

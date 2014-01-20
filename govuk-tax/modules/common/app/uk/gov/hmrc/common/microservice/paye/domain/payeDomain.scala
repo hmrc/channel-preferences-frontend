@@ -1,7 +1,7 @@
 package uk.gov.hmrc.common.microservice.paye.domain
 
 import org.joda.time.{DateTimeZone, DateTime, LocalDate}
-import controllers.common.{Ida, routes}
+import controllers.common.IdaWithTokenCheckForBeta
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.domain.{TaxRegime, RegimeRoot}
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
@@ -19,9 +19,9 @@ object PayeRegime extends TaxRegime {
 
   def isAuthorised(accounts: Accounts) = accounts.paye.isDefined
 
-  def unauthorisedLandingPage: String = Ida.login.url
+  def unauthorisedLandingPage: String = IdaWithTokenCheckForBeta.login.url
 
-  def authenticationType = Ida
+  def authenticationType = IdaWithTokenCheckForBeta
 }
 
 case class PayeRoot(nino: String,

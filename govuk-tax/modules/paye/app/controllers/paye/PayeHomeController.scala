@@ -1,6 +1,6 @@
 package controllers.paye
 
-import controllers.common.{FrontEndRedirect, Ida, SessionKeys, BaseController}
+import controllers.common.{IdaWithTokenCheckForBeta, SessionKeys, BaseController}
 import controllers.common.actions.Actions
 import views.html.paye.paye_home
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -12,9 +12,7 @@ class PayeHomeController(override val auditConnector: AuditConnector, override v
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)
 
-  def home = UnauthorisedAction {
-    request => Ok(paye_home()).withSession(
-      SessionKeys.authProvider -> Ida.id,
-      SessionKeys.redirect -> routes.CarBenefitHomeController.carBenefitHome().url)
+  def home(token:Option[String]) = UnauthorisedAction {
+    request => Ok(paye_home(token))
   }
 }
