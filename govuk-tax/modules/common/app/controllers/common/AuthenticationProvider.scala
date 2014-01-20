@@ -119,7 +119,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider{
 
   def redirectToLogin(request: Request[AnyContent]) = {
     request.session.get(SessionKeys.authProvider) match {
-      case Some(IdaWithTokenCheckForBeta.id) => Redirect(IdaWithTokenCheckForBeta.login)
+      case Some(provider) if provider== IdaWithTokenCheckForBeta.id => Redirect(IdaWithTokenCheckForBeta.login)
       case _ => Redirect(login)
     }
   }
