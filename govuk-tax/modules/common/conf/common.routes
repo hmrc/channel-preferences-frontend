@@ -25,6 +25,7 @@ GET     /loggedout                      @controllers.common.LoginController.redi
 
 # Common resources
 GET     /terms-and-conditions           @controllers.common.CommonController.termsAndConditions
+GET     /privacy                        @controllers.common.CommonController.privacyPolicy
 
 # Admin pages
 GET     /admin/healthcheck              @controllers.common.HealthCheckController.check

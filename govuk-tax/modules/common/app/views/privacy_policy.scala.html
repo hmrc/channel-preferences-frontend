@@ -1,0 +1,44 @@
+@import views.helpers._
+
+@main(title = Messages("common.privacy_policy.title"), nav = true) {
+    <h1>@Messages("common.privacy_policy.title")</h1>
+
+<h2>@Messages("common.privacy_policy.personal_info.heading")</h2>
+<p>@Messages("common.privacy_policy.personal_info.paragraph.1")</p>
+<p>@Html(Messages("common.privacy_policy.personal_info.paragraph.2", helpers.link("", Messages("common.links.hmrc_privacy_policy.url"), Messages("common.links.hmrc_privacy_policy.text"),true)))</p>
+<h2>@Messages("common.privacy_policy.personal_info.hmrc_holds.heading")</h2>
+<p>@Messages("common.privacy_policy.personal_info.hmrc_holds.list_info")</p>
+<ul>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_holds.list_item.1")</li>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_holds.list_item.2")</li>
+</ul>
+<h2>@Messages("common.privacy_policy.personal_info.hmrc_protection.heading")</h2>
+<p>@Messages("common.privacy_policy.personal_info.hmrc_protection.text")</p>
+<p>@Messages("common.privacy_policy.personal_info.hmrc_protection.hmrc.list_info")</p>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_protection.hmrc.list_item.1")</li>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_protection.hmrc.list_item.2")</li>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_protection.hmrc.list_item.3")</li>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_protection.hmrc.list_item.4")</li>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_protection.hmrc.list_item.5")</li>
+<p>@Messages("common.privacy_policy.personal_info.hmrc_protection.you.list_info")</p>
+<ul>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_protection.you.list_item.1")</li>
+<li>@Messages("common.privacy_policy.personal_info.hmrc_protection.you.list_item.2")</li>
+</ul>
+<h2>@Messages("common.privacy_policy.personal_info.sharing.heading")</h2>
+<p>@Messages("common.privacy_policy.personal_info.sharing.paragraph.1")</p>
+<p>@Messages("common.privacy_policy.personal_info.sharing.paragraph.2")</p>
+<h2>@Messages("common.privacy_policy.personal_info.staff.heading")</h2>
+<p>@Messages("common.privacy_policy.personal_info.staff.paragraph.1")</p>
+<h2>@Messages("common.privacy_policy.personal_info.asking_to_see.heading")</h2>
+<p>@Messages("common.privacy_policy.personal_info.asking_to_see.paragraph.1")</p>
+<p>@Messages("common.privacy_policy.personal_info.asking_to_see.paragraph.2")</p>
+<p>@Messages("common.privacy_policy.personal_info.asking_to_see.paragraph.3")</p>
+<h2>@Messages("common.privacy_policy.make_a_complaint.heading")</h2>
+<p>@Messages("common.privacy_policy.make_a_complaint.paragraph.1")</p>
+<p>@Messages("common.privacy_policy.make_a_complaint.paragraph.2")</p>
+<p>@Messages("common.privacy_policy.make_a_complaint.paragraph.3")</p>
+<p>@Html(Messages("common.privacy_policy.make_a_complaint.paragraph.4", helpers.link("", Messages("common.links.ico.url"), Messages("common.links.ico.text"),true)))</p>
+<p>@Messages("common.privacy_policy.make_a_complaint.paragraph.5")</p>
+
+}
