@@ -99,9 +99,6 @@ common.links.online_security.text=Online security - making your online experienc
 common.links.online_security.url=http://www.hmrc.gov.uk/security/index.htm
 common.links.copyright_notice.text=copyright notice
 common.links.copyright_notice.url=http://www.hmrc.gov.uk/copyright/index.htm
-common.links.logo_permission.text=Ken Brown
-#TODO: link url is wrong find out correct one
-common.links.logo_permission.url=http://www.hmrc.gov.uk/asplib/mailer/mailer_form.asp?dpt=Ken_BROWN
 common.links.agents_as_authorised.text=Agents who advertise as registered or authorised agents of HMRC
 common.links.agents_as_authorised.url=http://www.hmrc.gov.uk/terms/agents.htm
 
@@ -124,8 +121,7 @@ common.terms_and_conditions.online_services.paragraph.2=For detailed guidance re
 common.terms_and_conditions.copyright.heading=Copyright and intellectual property rights
 common.terms_and_conditions.copyright.paragraph.1=The material featured on this site is subject to Crown Copyright and/or third party copyright, details of which can be found in our {0}.
 common.terms_and_conditions.copyright.paragraph.2=The names, images and logos identifying HMRC are proprietary marks of HMRC. Copying our logos and/or any other third party logos accessed through this site is not permitted without prior approval from the relevant copyright owner.
-common.terms_and_conditions.copyright.paragraph.3=Requests for permission to use our logo should be emailed to {0}.
-common.terms_and_conditions.copyright.paragraph.4=HMRC does not approve, accredit or endorse tax agents or allow themto use the logo in their advertising.
+common.terms_and_conditions.copyright.paragraph.3=HMRC does not approve, accredit or endorse tax agents or allow them to use the logo in their advertising.
 common.terms_and_conditions.linking.heading=Linking to HMRC website
 common.terms_and_conditions.linking.paragraph.1=You do not have to ask permission to link directly to pages hosted on this site. We do not object to you linking directly to the information that is hosted on our site. However, we do not permit our pages to be loaded into frames on your site. HMRC pages must load into the user''s entire window.
 common.terms_and_conditions.external_links.heading=Links to external websites
@@ -137,6 +133,8 @@ common.terms_and_conditions.privacy_policy.paragraph.1=Our {0} explains how we p
 common.terms_and_conditions.governing_law.heading=Governing law
 common.terms_and_conditions.governing_law.paragraph.1=These terms and conditions shall be governed by and construed in accordance with the laws of England and Wales. Any dispute arising under these terms and conditions shall be subject to the exclusive jurisdiction of the courts of England and Wales.
 common.terms_and_conditions.updated.text=These Terms and Conditions were last updated April 2005.
+
+common.privacy_policy.title=Privacy policy
 
 logout.heading=You''ve signed out of your account
 logout.message=To sign in again, use the link sent to you in your invitation email.
