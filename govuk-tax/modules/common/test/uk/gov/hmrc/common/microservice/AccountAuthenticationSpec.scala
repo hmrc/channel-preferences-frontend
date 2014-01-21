@@ -2,7 +2,7 @@ package uk.gov.hmrc.common.microservice
 
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import controllers.common.{IdaWithTokenCheckForBeta, GovernmentGateway, Ida}
+import controllers.common.{IdaWithTokenCheckForBeta, GovernmentGateway}
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRegime
 import uk.gov.hmrc.common.microservice.ct.domain.CtRegime
 import uk.gov.hmrc.common.microservice.vat.domain.VatRegime

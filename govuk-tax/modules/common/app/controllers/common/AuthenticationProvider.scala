@@ -135,14 +135,14 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
 
   override val login = routes.LoginController.businessTaxLogin()
 
-  def redirectToLogin(request: Request[AnyContent]) = {
+  def redirectToLogin(request: Request[AnyContent]) : Future[SimpleResult] = {
     Logger.debug("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
       case Some(IdaWithTokenCheckForBeta.id) => {
         Logger.debug("Provider is IDA - redirecting to IDA login page")
         Redirect(IdaWithTokenCheckForBeta.login)
       }
-      case _ => Redirect(login)
+      case _ => Future.successful(Redirect(login))
     }
   }
 

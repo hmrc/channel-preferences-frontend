@@ -54,9 +54,12 @@ trait UserActionWrapper
                 decryptedToken = tokenOption))
             }
         }
-        case _ =>
+        case _ => {
           Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-          Future.successful(Right(AnyAuthenticationProvider.redirectToLogin(request).withNewSession))
+          AnyAuthenticationProvider.redirectToLogin(request).map { result =>
+            Right(result.withNewSession)
+          }
+        }
       }
   }
 

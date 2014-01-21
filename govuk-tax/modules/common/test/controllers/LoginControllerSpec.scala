@@ -343,7 +343,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
     "for a paye user removes existing session cookie and redirect you to the paye sign out page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
 
-      val result = loginController.logout(FakeRequest().withSession(SessionKeys.authProvider -> Ida.id))
+      val result = loginController.logout(FakeRequest().withSession(SessionKeys.authProvider -> IdaWithTokenCheckForBeta.id))
 
       status(result) shouldBe Status.SEE_OTHER
 

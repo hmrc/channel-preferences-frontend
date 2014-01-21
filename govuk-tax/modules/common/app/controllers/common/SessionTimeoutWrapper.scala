@@ -9,14 +9,17 @@ import controllers.common.actions.HeaderCarrier
 import play.api.mvc.Session
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
+
   object WithSessionTimeoutValidation extends WithSessionTimeoutValidation(now)
+
   object WithNewSessionTimeout extends WithNewSessionTimeout(now)
+
 }
 
 object SessionTimeoutWrapper {
   val timeoutSeconds = 900
 
-  def hasValidTimestamp(session: Session, now: () => DateTime ): Boolean = {
+  def hasValidTimestamp(session: Session, now: () => DateTime): Boolean = {
     val valid: Option[Boolean] = for {
       lastRequestTimestamp: DateTime <- extractTimestamp(session)
       sessionExpiryTimestamp: DateTime <- Some(lastRequestTimestamp.plus(Duration.standardSeconds(timeoutSeconds)))
@@ -48,8 +51,10 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
       val result = if (hasValidTimestamp(request.session, now)) {
         action(request)
       } else {
-        Logger.debug(s"request refused as the session had timed out in ${request.path}")
-        Action(AnyAuthenticationProvider.redirectToLogin(request))(request).map(_.withNewSession)
+        Logger.info(s"request refused as the session had timed out in ${request.path}")
+        AnyAuthenticationProvider.redirectToLogin(request).flatMap { simpleResult =>
+          Action(simpleResult)(request).map(_.withNewSession)
+        }
       }
       addTimestamp(request, result)
     }
@@ -79,7 +84,7 @@ trait SessionTimeout {
   import play.api.http.HeaderNames.SET_COOKIE
   import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 
-  val now : () => DateTime
+  val now: () => DateTime
 
   protected def addTimestamp(request: Request[AnyContent], result: Future[SimpleResult]): Future[SimpleResult] = {
     implicit val headerCarrier = HeaderCarrier(request)
