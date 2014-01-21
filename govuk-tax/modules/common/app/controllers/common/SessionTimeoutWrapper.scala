@@ -41,7 +41,6 @@ object SessionTimeoutWrapper {
 class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeout {
 
   import play.api.mvc._
-  import org.joda.time.{Duration, DateTimeZone, DateTime}
   import SessionTimeoutWrapper._
   import play.api.libs.concurrent.Execution.Implicits._
 
@@ -80,7 +79,6 @@ trait SessionTimeout {
 
   import play.api.mvc._
   import org.joda.time.DateTime
-  import SessionTimeoutWrapper._
   import play.api.http.HeaderNames.SET_COOKIE
   import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 

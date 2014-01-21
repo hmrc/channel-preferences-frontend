@@ -22,10 +22,10 @@ trait UserActionWrapper
                                             taxRegime: Option[TaxRegime],
                                             redirectToOrigin: Boolean)
                                            (userAction: User => Action[AnyContent]): Action[AnyContent] =
-    Action.async { request =>
+    Action.async { implicit request =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"WithUserAuthorisedBy using auth provider ${authenticationProvider.id}")
-      val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime, authenticationProvider)
+      val handle = authenticationProvider.handleNotAuthenticated(redirectToOrigin) orElse handleAuthenticated(request, taxRegime, authenticationProvider)
 
       handle(UserCredentials(request.session)).flatMap {
         case Left(successfullyFoundUser) => userAction(successfullyFoundUser)(request)
