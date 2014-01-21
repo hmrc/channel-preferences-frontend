@@ -98,6 +98,8 @@ common.links.help_page.text=Help
 common.links.help_page.url=/help
 common.links.cookies.text=Cookies
 common.links.cookies.url=/cookies
+common.links.terms_and_conditions.text=Terms and conditions
+common.links.terms_and_conditions.url=/terms-and-conditions
 
 
 common.links.hmrc_privacy_policy.text=HMRC’s Privacy Notice
