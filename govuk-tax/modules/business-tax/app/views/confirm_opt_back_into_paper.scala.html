@@ -2,20 +2,17 @@
 
 @main(title = "My Preferences - opt to receive paper notifications", user = Some(user)) {
 
-<h1>Account details</h1>
+<h1>@Messages("bt.account.yourdetails")</h1>
 
-<h2 id="email-address">@emailAddress</h2>
+<h2>Stop your email reminders </h2>
 
 <p>
-    You have advised HMRC that you wish to receive email notifications at the address above, we send you notifications when there is an action for you to complete.
-</p>
-<p>
-    Please confirm below that you would like to opt out of email notifications and instead, receive paper notifications.
+    Your Self Assessment reminders will be sent in the post if you stop the email reminders.
 </p>
 
 @helpers.form(action = controllers.bt.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
 <div class="form-field">
-    <button id="confirm-opt-out" class="button" type="submit">Opt me out of digital</button>
+    <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
 </div>
 }
 @helper.form(action = controllers.bt.routes.AccountDetailsController.accountDetails) {
