@@ -40,6 +40,18 @@ class FeedbackControllerSpec extends BaseSpec {
       val result = controller.doSubmit(user, request(rating = ""))
       status(result) shouldBe 400
       formContainsError(result, "Please rate your experience")
+    }
+
+    "display error when rating is not selected at all" in new FeedbackControllerApplication {
+
+      val result = controller.doSubmit(user,  FakeRequest().withFormUrlEncodedBody(
+        "feedback-name" -> "name",
+        "feedback-email" -> "email@foo.com",
+        "feedback-comments" -> "unrateable",
+        "referer" -> "referer",
+        "isJavascript" -> "false"))
+      status(result) shouldBe 400
+      formContainsError(result, "Please rate your experience")
 
     }
 

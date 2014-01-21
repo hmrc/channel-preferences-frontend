@@ -22,9 +22,9 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   import controllers.common.support.FeedbackFormConfig._
 
   val form = Form[FeedbackForm](mapping(
-    "feedback-rating" -> text
-      .verifying("error.common.feedback.rating_mandatory", rating => !rating.trim.isEmpty)
-      .verifying("error.common.feedback.rating_valid", rating => if (!rating.trim.isEmpty) validExperiences.contains(rating) else true),
+    "feedback-rating" -> optional(text)
+      .verifying("error.common.feedback.rating_mandatory", rating => rating.isDefined && !rating.get.trim.isEmpty)
+      .verifying("error.common.feedback.rating_valid", rating => rating.map(validExperiences.contains(_)).getOrElse(true)),
     "feedback-name" -> text
       .verifying("error.common.feedback.name_mandatory", name => !name.trim.isEmpty)
       .verifying("error.common.feedback.name_too_long", name => name.size <= 70),
@@ -34,7 +34,10 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
       .verifying("error.common.comments_too_long", comment => comment.size <= 2000),
     "isJavascript" -> boolean,
     "referer" -> text
-  )(FeedbackForm.apply)(FeedbackForm.unapply))
+  )(FeedbackForm.apply)((feedbackForm: FeedbackForm) => {
+    import feedbackForm._
+    Some((Some(experienceRating), name, email, comments, javascriptEnabled, referrer))
+  }))
 
   def feedbackForm = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider)({
     implicit user => implicit request => renderForm
@@ -49,6 +52,7 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   }))
 
   private[common] def doSubmit(implicit user: User, request: Request[AnyRef]) = {
+
     form.bindFromRequest()(request).fold(
       error => {
         Future(BadRequest(views.html.support.feedback(error)))
@@ -73,6 +77,10 @@ case class FeedbackForm(experienceRating: String, name: String, email: String, c
 
 object FeedbackForm {
   def apply(referer: String): FeedbackForm = FeedbackForm("", "", "", "", false, referer)
+
+  def apply(experienceRating: Option[String], name: String, email: String, comments: String, javascriptEnabled: Boolean, referrer: String): FeedbackForm =
+    FeedbackForm(experienceRating.getOrElse(""), name, email, comments, javascriptEnabled, referrer)
+
 }
 
 object FeedbackFormConfig {
