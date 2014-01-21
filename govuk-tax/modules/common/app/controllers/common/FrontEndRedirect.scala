@@ -6,6 +6,7 @@ import play.api.mvc.{Controller, Session}
 object FrontEndRedirect extends Controller {
 
   val businessTaxHome = "/account"
+
   def carBenefit(token:Option[String]) = token.map { token =>
     s"/paye/company-car/details?token=$token"
   }.getOrElse {

@@ -24,6 +24,7 @@ trait UserActionWrapper
                                            (userAction: User => Action[AnyContent]): Action[AnyContent] =
     Action.async { request =>
       implicit val hc = HeaderCarrier(request)
+      Logger.debug(s"WithUserAuthorisedBy using auth provider ${authenticationProvider.id}")
       val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime, authenticationProvider)
 
       handle(UserCredentials(request.session)).flatMap {
