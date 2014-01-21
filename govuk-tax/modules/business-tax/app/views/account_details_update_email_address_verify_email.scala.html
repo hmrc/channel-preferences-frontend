@@ -1,11 +1,11 @@
 @(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @main(title = "Account Details - Please verify email address", user = Some(user)) {
+    <header class="page-header">
+        <h1>Account Details</h1>
 
-    <h1>Account Details</h1>
-
-    <h2 id="emailAddress">@emailAddress</h2>
-
+        <h2 id="emailAddress">@emailAddress</h2>
+    </header>
     <p>We have checked the address you have entered and we can't validate that it is correct - are you sure it is right?</p>
 
     <p>Please confirm below that you are happy to continue.</p>

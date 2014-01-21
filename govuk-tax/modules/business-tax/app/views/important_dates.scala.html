@@ -2,9 +2,11 @@
 
 @main(title = "Important dates", nav = true, user= Some(user)) {
 
-<h1>Your tax account</h1>
+    <header class="page-header">
+        <h1>Your tax account</h1>
 
-<h2 class="heading-36">Important Dates</h2>
+        <h2 class="heading-36">Important Dates</h2>
+    </header>
 
 <ul class="activity-list">
     @for(date <- importantDates) {

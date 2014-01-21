@@ -1,8 +1,9 @@
 @(linksO : Option[List[controllers.bt.OtherServiceLink]], enrollLink: views.helpers.Link, deEnrollLink: views.helpers.Link, registrationLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @main(title = "Other taxes", nav = true, user= Some(user)) {
-
-<h1>Other taxes </h1>
+<header class="page-header">
+    <h1>Other taxes </h1>
+</header>
 <p>
     To see your other taxes here you must be registered for the tax and enrolled for the online service.
 </p>
