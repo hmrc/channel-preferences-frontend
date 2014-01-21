@@ -23,6 +23,7 @@ object GovUkTaxBuild extends Build {
     Dependencies.Compile.secureUtils,
     Dependencies.Compile.taxCore,
     Dependencies.Compile.scalaUri,
+    Dependencies.Compile.scct,
 
     Dependencies.Test.junit,
     Dependencies.Test.scalaTest,

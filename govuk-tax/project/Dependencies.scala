@@ -20,7 +20,8 @@ object Dependencies {
     val metricsGraphite = "com.codahale.metrics" % "metrics-graphite" % "3.0.1"
     val secureUtils = "uk.gov.hmrc" % "secure-utils" % "0.1.0-SNAPSHOT"
     val taxCore = "uk.gov.hmrc" %% "tax-core" % "0.2.1-SNAPSHOT"
-    val scalaUri = "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp")
+    val scalaUri = "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10")
+    val scct = "com.github.scct" %% "scct" % "0.2.1"
   }
 
   sealed abstract class Test(scope: String) {
