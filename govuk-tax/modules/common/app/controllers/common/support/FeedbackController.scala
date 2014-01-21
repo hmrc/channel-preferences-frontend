@@ -3,7 +3,7 @@ package controllers.common.support
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.actions.Actions
+import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.common.service.Connectors
 import play.api.data.Form
 import play.api.data.Forms._
@@ -13,13 +13,15 @@ import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
 
-class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
+class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with AllRegimeRoots {
-  def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector, TicketCache())(Connectors.authConnector)
 
   import controllers.common.support.FeedbackFormConfig._
+
+  val formId = "FeedbackForm"
 
   val form = Form[FeedbackForm](mapping(
     "feedback-rating" -> optional(text)
@@ -63,13 +65,24 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
       })
   }
 
-  private[common] def redirectToConfirmationPage(ticketId: Future[Option[TicketId]])(implicit user: User, request: Request[AnyRef]) = {
-    ticketId.map(_ => Redirect(routes.FeedbackController.thanks()))
-  }
+  private[common] def redirectToConfirmationPage(ticketId: Future[Option[TicketId]])(implicit user: User, request: Request[AnyRef]) =
+
+    ticketId.map {
+      ticketOption => {
+        ticketCache.stashTicket(ticketOption, formId)
+        Redirect(routes.FeedbackController.thanks())
+      }
+    }
+
 
   private[common] def renderForm(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a")))))
 
-  private[common] def doThanks(implicit user: User, request: Request[AnyRef]) = Future(Ok(views.html.support.feedback_confirmation()))
+  private[common] def doThanks(implicit user: User, request: Request[AnyRef]) =   {
+    implicit val hc = HeaderCarrier(request)
+    ticketCache.popTicket(formId).map {
+      ticketId => Ok(views.html.support.feedback_confirmation(ticketId)(user, request))
+    }
+  }
 
 }
 

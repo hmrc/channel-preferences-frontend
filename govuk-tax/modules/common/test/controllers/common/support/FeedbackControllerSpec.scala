@@ -14,7 +14,6 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
-import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import org.apache.commons.lang.StringUtils
@@ -23,6 +22,17 @@ import scala.concurrent.Future
 import org.scalatest.Matchers
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import controllers.common.actions.HeaderCarrier
+import org.mockito.Mockito._
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
+import scala.Some
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.auth.domain.Credentials
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import org.mockito.Matchers.{eq => meq, any}
 
 class FeedbackControllerSpec extends BaseSpec {
 
@@ -44,7 +54,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "display error when rating is not selected at all" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user,  FakeRequest().withFormUrlEncodedBody(
+      val result = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody(
         "feedback-name" -> "name",
         "feedback-email" -> "email@foo.com",
         "feedback-comments" -> "unrateable",
@@ -52,7 +62,6 @@ class FeedbackControllerSpec extends BaseSpec {
         "isJavascript" -> "false"))
       status(result) shouldBe 400
       formContainsError(result, "Please rate your experience")
-
     }
 
     "display error when submitting invalid rating value" in new FeedbackControllerApplication {
@@ -60,7 +69,6 @@ class FeedbackControllerSpec extends BaseSpec {
       val result = controller.doSubmit(user, request(rating = "pants"))
       status(result) shouldBe 400
       formContainsError(result, "Please select a valid experience rating")
-
     }
 
     "display error when name is empty" in new FeedbackControllerApplication {
@@ -68,7 +76,6 @@ class FeedbackControllerSpec extends BaseSpec {
       val result = controller.doSubmit(user, request(name = ""))
       status(result) shouldBe 400
       formContainsError(result, "Please provide your name")
-
     }
 
     "display error when name is too long" in new FeedbackControllerApplication {
@@ -88,7 +95,6 @@ class FeedbackControllerSpec extends BaseSpec {
       val result = controller.doSubmit(user, request(email = ""))
       status(result) shouldBe 400
       formContainsError(result, "Enter a valid email address")
-
     }
 
     "display error when email is too long" in new FeedbackControllerApplication {
@@ -116,7 +122,6 @@ class FeedbackControllerSpec extends BaseSpec {
       val result = controller.doSubmit(user, request(comments = ""))
       status(result) shouldBe 400
       formContainsError(result, "Please provide details")
-
     }
 
     "display error when comments are too verbose" in new FeedbackControllerApplication {
@@ -131,34 +136,41 @@ class FeedbackControllerSpec extends BaseSpec {
       status(result) shouldBe 303
     }
 
-    "submits the feedback" in new FeedbackControllerApplication {
+    "submit the feedback" in new FeedbackControllerApplication {
+      val ticket = Some(TicketId(123))
+      when(ticketCache.stashTicket(meq(ticket), meq("ContactForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
 
-      val result = controller.redirectToConfirmationPage(Future.successful(Some(TicketId(123))))(user, request())
+      val result = controller.redirectToConfirmationPage(Future.successful(ticket))(user, request())
+
       status(result) shouldBe 303
       result.header.headers("Location") shouldBe "/beta-feedback/thanks"
+      verify(ticketCache).stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])
     }
 
-    "renders confirmation page" in new FeedbackControllerApplication {
+    "render confirmation page" in new FeedbackControllerApplication {
+      when(ticketCache.popTicket(meq("FeedbackForm"))(any[HeaderCarrier])).thenReturn(Future.successful("321"))
       val result = controller.doThanks(user, request())
+      val page = Jsoup.parse(contentAsString(result))
+
       status(result) shouldBe 200
       contentAsString(result) should include("Your feedback will be reviewed by our customer support team")
+      page.getElementById("ticketId").attr("value") shouldBe "321"
     }
-
-
   }
-
-
 }
 
-class FeedbackControllerApplication extends WithApplication(FakeApplication()) with MockitoSugar with Matchers {
+class FeedbackControllerApplication extends WithApplication with MockitoSugar with org.scalatest.Matchers {
+  lazy val ticketCache = mock[TicketCache]
+
   def stringOfLength(length: Int) = StringUtils.repeat("A", length)
 
-  val deskProConnector = new HmrcDeskproConnector{
+  val deskProConnector = new HmrcDeskproConnector {
     override def createFeedback(name: String, email: String, rating: String, subject: String, message: String, referrer: String, isJavascript: Boolean, request: Request[AnyRef], user: Option[User])(implicit hc: HeaderCarrier): Future[Option[TicketId]] = {
       Future.successful(Some(TicketId(123)))
     }
   }
-  val controller = new FeedbackController(mock[AuditConnector], deskProConnector)(mock[AuthConnector])
+
+  val controller = new FeedbackController(mock[AuditConnector], deskProConnector, ticketCache)(mock[AuthConnector])
 
   val user = {
     val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
@@ -182,5 +194,4 @@ class FeedbackControllerApplication extends WithApplication(FakeApplication()) w
     val doc = Jsoup.parse(contentAsString(result))
     doc.getElementById("feedback-form").text() should include(error)
   }
-
 }

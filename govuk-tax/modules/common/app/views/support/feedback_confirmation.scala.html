@@ -1,4 +1,4 @@
-@()(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
+@(ticketId:String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 @main(title = Messages("common.feedback.heading"), nav = true, user = Some(user)) {
 
 <h1>@Messages("common.feedback.heading")</h1>
@@ -7,6 +7,7 @@
     <div class="l-bodyLeftColumn">
         <article id="report-confirmation">
             <h2 id="feedback-thank-you-header">@Messages("common.thank.you")</h2>
+             <input id="ticketId" type="hidden" value="@ticketId"/>
             <p>@Messages("common.feedback.confirmation.message")</p>
         </article>
     </div>

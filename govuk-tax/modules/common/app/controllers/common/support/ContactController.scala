@@ -10,23 +10,20 @@ import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import play.api.mvc.Request
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import controllers.common.{GovernmentGateway, AllRegimeRoots, BaseController}
+import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class ContactController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, keyStoreConnector: KeyStoreConnector)(implicit override val authConnector: AuthConnector)
+class ContactController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with AllRegimeRoots {
 
-
   val subject: String = "Contact form submission"
-  val actionId: String = "confirmTicket"
-  val source: String = "tickets"
-  val formId: String = "FeedbackForm"
-  val ticketKey: String = "ticketId"
+  val formId: String = "ContactForm"
 
-  def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector, Connectors.keyStoreConnector)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector,  TicketCache())(Connectors.authConnector)
 
   val form = Form[ContactForm](
     mapping(
@@ -42,16 +39,15 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
     )(ContactForm.apply)(ContactForm.unapply)
   )
 
-  def index = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway)( {
+  def index = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway)({
     user => request => renderIndex(user, request)
   }))
 
   private[common] def renderIndex(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.contact(form.fill(ContactForm(request.headers.get("Referer").getOrElse("n/a")))))
 
-  def submit = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async( {
+  def submit = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async({
     user => request => doSubmit(user, request)
   }))
-
 
 
   private[common] def doSubmit(implicit user: User, request: Request[AnyRef]) = {
@@ -61,16 +57,17 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
       },
       data => {
         import data._
-        hmrcDeskproConnector.createTicket(contactName, contactEmail, subject, contactComments, referer, data.isJavascript, request, Some(user)).flatMap {
-          ticket =>
-            val ticketId = ticket.map(_.ticket_id.toString).getOrElse("Unknown")
-            keyStoreConnector.addKeyStoreEntry[Map[String, String]](actionId, source, formId, Map(ticketKey -> ticketId)).map(
-              _ => Redirect(routes.ContactController.thanks())
-            )
-        }
+        redirectToThanks(hmrcDeskproConnector.createTicket(contactName, contactEmail, subject, contactComments, referer, data.isJavascript, request, Some(user)))
       })
   }
 
+  def redirectToThanks( ticketId: Future[Option[TicketId]])(implicit request:Request[AnyRef] ) = {
+    implicit val hc = HeaderCarrier(request)
+    ticketId.flatMap {
+      ticket =>
+        ticketCache.stashTicket(ticket, formId).map(_ => Redirect(routes.ContactController.thanks()))
+    }
+  }
 
   def thanks = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async({
     implicit user => implicit request => doThanks(user, request)
@@ -79,10 +76,8 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
 
   def doThanks(user: User, request: Request[AnyRef]) = {
     implicit val hc = HeaderCarrier(request)
-    keyStoreConnector.getEntry[Map[String, String]](actionId, source, formId).map {
-      keyStoreData =>
-        val ticketId: String = keyStoreData.flatMap(_.get(ticketKey)).getOrElse("Unknown")
-        Ok(views.html.support.contact_confirmation(ticketId)(user, request))
+    ticketCache.popTicket(formId).map {
+      ticketId => Ok(views.html.support.contact_confirmation(ticketId)(user, request))
     }
   }
 }
