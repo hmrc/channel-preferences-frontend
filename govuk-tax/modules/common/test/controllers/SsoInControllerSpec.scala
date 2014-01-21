@@ -13,7 +13,7 @@ import uk.gov.hmrc.common.microservice.UnauthorizedException
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import play.api.mvc.SimpleResult
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import uk.gov.hmrc.utils.DateTimeUtils
 import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
@@ -21,7 +21,7 @@ import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
 
-class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures with IntegrationPatience {
 
   val loginPage = routes.LoginController.businessTaxLogin().url
 
