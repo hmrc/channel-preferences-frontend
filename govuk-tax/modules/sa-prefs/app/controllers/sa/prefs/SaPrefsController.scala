@@ -12,11 +12,13 @@ import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
 import com.netaporter.uri.dsl._
 
-class SaPrefsController(whiteList: Set[String] = FrontEndConfig.redirectDomainWhiteList) extends BaseController {
+class SaPrefsController(whiteList: Set[String]) extends BaseController {
 
   implicit lazy val preferencesConnector = new PreferencesConnector()
   implicit lazy val emailConnector = new EmailConnector()
   implicit val wl = whiteList
+
+  def this() = this(FrontEndConfig.redirectDomainWhiteList)
 
   def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[String]) =
     DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
