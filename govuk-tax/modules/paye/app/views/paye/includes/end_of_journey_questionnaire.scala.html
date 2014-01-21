@@ -7,7 +7,7 @@
 
     @helpers.form(action = controllers.paye.routes.PayeQuestionnaireController.submitQuestionnaire, 'id -> "form-end-journey-questionnaire") {
     <input type="hidden" name="@transactionId" value="@txId">
-    <input type="hidden" name="@typeOfJourney" value="@journeyType">
+    <input type="hidden" name="@typeOfJourney" value="@{journeyType.toString}">
     <fieldset>
         <legend class="h3-heading">@Messages("paye.questionnaire.question_heading.identity_profile")</legend>
         <fieldset>
