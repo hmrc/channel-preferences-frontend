@@ -140,7 +140,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
     request.session.get(SessionKeys.authProvider) match {
       case Some(IdaWithTokenCheckForBeta.id) => {
         Logger.info("Provider is IDA - redirecting to IDA login page")
-        Future.successful(Redirect(IdaWithTokenCheckForBeta.login))
+        IdaWithTokenCheckForBeta.handleRedirect(request, true)
       }
       case Some(id) => {
         Logger.info("Provider is $id")
