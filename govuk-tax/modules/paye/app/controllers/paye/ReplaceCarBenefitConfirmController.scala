@@ -44,12 +44,12 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
       taxYearData <- taxYeadDataF
       formDataO <- formDataF
       result <- withCarBenefitAndFormData(taxYearData.findActiveCarBenefit(employmentSequenceNumber), formDataO) {
-        buildUpdateFunction(version, taxYear, employmentSequenceNumber, currentTaxCode, user)
+        buildUpdateFunction(version, taxYear, employmentSequenceNumber, currentTaxCode, user, request)
       }.fold(err => Future.successful(InternalServerError(err + s" version=$version, taxYear=$taxYear, employmentSequenceNumber=$employmentSequenceNumber")), r => r)
     } yield result
   }
 
-  private def buildUpdateFunction(version: Int, taxYear: Int, employmentSequenceNumber: Int, currentTaxCode: String, user: User)
+  private def buildUpdateFunction(version: Int, taxYear: Int, employmentSequenceNumber: Int, currentTaxCode: String, user: User, request: Request[_])
                                  (implicit hc: HeaderCarrier): UpdateFunction = {
     (activeCarBenefit, formData) =>
       val url = activeCarBenefit.actions.getOrElse("replace", throw new IllegalArgumentException(s"No replace action uri found for this car benefit."))
@@ -57,7 +57,7 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
       payeConnector.replaceBenefits(url, buildRequest(version, formData, taxYear, employmentSequenceNumber)).map {
         case Some(response) => {
           keyStoreService.clearFormData
-          Ok(replace_benefit_confirmation(currentTaxCode, response.taxCode)(user))
+          Ok(replace_benefit_confirmation(response.transaction.oid, currentTaxCode, response.taxCode)(user, request))
         }
         case None => InternalServerError("Got no response back from microservice call to replace benefits")
       }

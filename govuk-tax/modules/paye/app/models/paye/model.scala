@@ -77,4 +77,15 @@ case class RecentChange(messageCode: String, timeUserRequestedChange: LocalDate,
 
 case class CarFuelBenefitDates(carDate: Option[LocalDate], fuelDateType: Option[String])
 
-case class BenefitUpdatedConfirmationData(oldTaxCode: String, newTaxCode: Option[String])
+case class BenefitUpdatedConfirmationData(transactionId: String, oldTaxCode: String, newTaxCode: Option[String])
+
+sealed trait PayeJourney {
+  override def toString = this.getClass.getSimpleName.split("\\$").last
+}
+
+case object AddCar extends PayeJourney
+case object AddFuel extends PayeJourney
+case object RemoveCar extends PayeJourney
+case object RemoveFuel extends PayeJourney
+case object RemoveCarAndFuel extends PayeJourney
+case object ReplaceCar extends PayeJourney

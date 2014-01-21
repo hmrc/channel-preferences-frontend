@@ -14,13 +14,11 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import uk.gov.hmrc.common.microservice.domain.User
 
-import models.paye.BenefitUpdatedConfirmationData
-import models.paye.CarFuelBenefitDates
 import models.paye._
 import views.html.paye._
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.HeaderCarrier
 import controllers.common.service.Connectors
-import controllers.common.{SessionKeys, BaseController, SessionTimeoutWrapper}
+import controllers.common.{SessionKeys, SessionTimeoutWrapper}
 import controllers.paye.validation.RemoveBenefitValidator._
 
 class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
@@ -153,7 +151,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
       payeConnector.removeBenefits(uri, withdrawRequest).map(_.get).flatMap { removeBenefitResponse =>
         val benefitTypes = Seq("car") ++ activeCarBenefit.fuelBenefit.map(_=> "fuel")
-        renderRemoveBenefitConfirmation(benefitTypes, taxYear, employmentSequenceNumber, removeBenefitResponse.calculatedTaxCode)
+        renderRemoveBenefitConfirmation(benefitTypes, taxYear, employmentSequenceNumber, removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.transaction)
       }
     }
 
@@ -194,7 +192,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         version =>
           val withdrawRequest = WithdrawnBenefitRequest(version, None, Some(withdrawnFuelBenefit))
           payeConnector.removeBenefits(uri, withdrawRequest).map(_.get).flatMap { removeBenefitResponse =>
-              renderRemoveBenefitConfirmation(Seq("fuel"), taxYear, employmentSequenceNumber, removeBenefitResponse.calculatedTaxCode)
+              renderRemoveBenefitConfirmation(Seq("fuel"), taxYear, employmentSequenceNumber, removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.transaction)
           }
       }
     }
@@ -208,12 +206,12 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
   }
 
 
-  private[paye] def renderRemoveBenefitConfirmation(kinds: Seq[String], year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String])
+  private[paye] def renderRemoveBenefitConfirmation(kinds: Seq[String], year: Int, employmentSequenceNumber: Int, newTaxCode: Option[String], transaction: TransactionId)
                                                    (implicit user: User, request: Request[_], hc: HeaderCarrier): Future[SimpleResult] = {
     keyStoreService.clearBenefitFormData
     TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, year).map { taxCode =>
-      val removalData = BenefitUpdatedConfirmationData(taxCode, newTaxCode)
-      Ok(remove_benefit_confirmation(kinds, removalData)(user))
+      val removalData = BenefitUpdatedConfirmationData(transaction.oid, taxCode, newTaxCode)
+      Ok(remove_benefit_confirmation(kinds, removalData))
     }
   }
 

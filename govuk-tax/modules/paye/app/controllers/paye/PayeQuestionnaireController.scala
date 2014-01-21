@@ -5,10 +5,21 @@ import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
+import uk.gov.hmrc.common.microservice.paye.domain.{TransactionId, AddBenefitResponse, PayeRegime}
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import play.api.mvc.{Request, SimpleResult}
+import play.api.mvc.{AnyContent, Request, SimpleResult}
 import PayeQuestionnaireUtils._
+import views.html.paye._
+import models.paye._
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import controllers.paye.PayeQuestionnaireFormData
+import scala.Some
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.common.microservice.domain.User
+import controllers.paye.IllegalJourneyTypeException
+import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
+import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 
 
 class PayeQuestionnaireController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
@@ -42,7 +53,8 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
   }
 
   private def payeQuestionnaireFormDataToMap(formData: PayeQuestionnaireFormData) = {
-    formData.getClass.getDeclaredFields.filter(!_.getName.equals("transactionId")).map {
+    val paramsToFilterOut = Set("transactionId", "journeyType")
+    formData.getClass.getDeclaredFields.filter(field => !paramsToFilterOut.contains(field.getName)).map {
       field =>
         field.setAccessible(true)
         field.getName -> (field.get(formData) match {
@@ -50,6 +62,35 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
           case x => x.toString
         })
     }.toMap[String, String]
+  }
+
+  private[paye] def forwardToConfirmationPage(journeyType: Option[String], transactionId: String, oldTaxCode: Option[String], newTaxCode: Option[String], personalAllowance: Option[Int])(implicit request: Request[AnyContent], user: User): SimpleResult = {
+    import controllers.paye.BenefitUpdateConfirmationBuilder._
+
+    val allParamsAreDefined = Seq(journeyType, oldTaxCode, newTaxCode, personalAllowance).filter(!_.isDefined).isEmpty
+    if (!allParamsAreDefined)
+      Redirect(routes.PayeHomeController.home(None))
+    else {
+      val addBenefitResponse = AddBenefitResponse(TransactionId(transactionId), newTaxCode, personalAllowance)
+      val benefitUpdatedConfirmationData = buildBenefitUpdatedConfirmationData(oldTaxCode.get, addBenefitResponse)
+      try {
+        toJourneyType(journeyType.get) match {
+          case jType@(AddCar | AddFuel) => Ok(add_car_benefit_confirmation(benefitUpdatedConfirmationData, jType))
+          case jType@(RemoveCar | RemoveFuel | RemoveCarAndFuel) => Ok(remove_benefit_confirmation(getBenefitType(jType), benefitUpdatedConfirmationData))
+//          case
+        }
+      }
+      catch {
+        case e: IllegalJourneyTypeException => Redirect(routes.PayeHomeController.home(None))
+      }
+    }
+
+  }
+
+  private def getBenefitType: PartialFunction[PayeJourney, Seq[String]] = {
+    case RemoveCar => Seq("car")
+    case RemoveFuel => Seq("fuel")
+    case RemoveCarAndFuel => Seq("car", "fuel")
   }
 
   private[paye] def audit(auditEvent: AuditEvent)(implicit request: Request[_]): Unit = {

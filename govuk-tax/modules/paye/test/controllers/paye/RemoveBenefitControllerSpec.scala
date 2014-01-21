@@ -489,7 +489,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val transaction = mock[TxQueueTransaction]
       when(mockTxQueueConnector.transaction(is("210"), any[PayeRoot])(any())).thenReturn(Some(transaction))
 
-      val result = controller.renderRemoveBenefitConfirmation(Seq("car","fuel"), 2013, 2, Some("newTaxCode"))(johnDensmore, requestWithCorrectVersion, HeaderCarrier(requestWithCorrectVersion))
+      val result = controller.renderRemoveBenefitConfirmation(Seq("car","fuel"), 2013, 2, Some("newTaxCode"), TransactionId("210"))(johnDensmore, requestWithCorrectVersion, HeaderCarrier(requestWithCorrectVersion))
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
