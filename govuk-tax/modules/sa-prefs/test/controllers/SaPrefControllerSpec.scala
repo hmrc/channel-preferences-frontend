@@ -128,7 +128,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = controller.index(validToken, encodedReturnUrl, None)(request)
 
-      status(page) shouldBe 500
+      status(page) shouldBe 400
     }
 
     "fill the email form if user is coming from the warning page" in new WithApplication(FakeApplication()) {
@@ -298,7 +298,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request)
 
-      status(page) shouldBe 500
+      status(page) shouldBe 400
     }
 
     "keep paper notification and redirect to the portal" in new WithApplication(FakeApplication()) {
@@ -379,7 +379,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(false)
       val controller = createController
       val result = controller.confirm(validToken, encodedReturnUrl)(request)
-      status(result) should be(500) // FIXME change to Bad Request
+      status(result) should be(400)
     }
     "contain a link with the return url" in {
       val controller = createController
