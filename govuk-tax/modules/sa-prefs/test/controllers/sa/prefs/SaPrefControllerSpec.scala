@@ -1,4 +1,4 @@
-package controllers
+package controllers.sa.prefs
 
 import org.scalatest.{OptionValues, BeforeAndAfter, ShouldMatchers, WordSpec}
 import play.api.test.WithApplication
@@ -10,10 +10,9 @@ import org.mockito.Mockito._
 import org.joda.time.{DateTimeZone, DateTime}
 import java.net.URLDecoder.{decode => urlDecode}
 import java.net.URLEncoder.{encode => urlEncode}
-import org.mockito.Mockito
 import org.jsoup.Jsoup
 import scala.concurrent.Future
-import controllers.sa.prefs.service.{SsoPayloadCrypto, RedirectWhiteListService}
+import controllers.sa.prefs.service.SsoPayloadCrypto
 import SsoPayloadCrypto._
 import controllers.sa.prefs.SaPrefsController
 import controllers.common.actions.HeaderCarrier
@@ -23,7 +22,6 @@ import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
 import SaEmailPreference.Status
 import org.scalatest.concurrent.ScalaFutures
-import com.netaporter.uri.dsl.stringToUri
 import uk.gov.hmrc.domain.SaUtr
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
@@ -38,16 +36,11 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
   val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
   lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&emailAddress=${urlEncode(encrypt(emailAddress), "UTF-8")}"
-  private val mockRedirectWhiteListService = mock[RedirectWhiteListService]
+  val encodedUrlNotOnWhitelist = urlEncode("http://notOnWhiteList/something", "UTF-8")
 
-  def createController = new SaPrefsController {
-    override val redirectWhiteListService = mockRedirectWhiteListService
+  def createController = new SaPrefsController(whiteList = Set("localhost")) {
     override lazy val preferencesConnector = mock[PreferencesConnector]
     override lazy val emailConnector = mock[EmailConnector]
-  }
-
-  before {
-    Mockito.reset(mockRedirectWhiteListService)
   }
 
   val request = FakeRequest()
@@ -57,8 +50,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
   "Preferences pages" should {
     "redirect to the portal when preferences already exist for a specific utr" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
-
       val controller = createController
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
@@ -70,8 +61,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to the portal when preferences already exist for a specific utr and an email address was passed in the URL" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
-
       val controller = createController
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
@@ -82,7 +71,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "render an email input field" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))(any())).thenReturn(Future.successful(None))
 
@@ -92,7 +80,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to portal if the token is expired on the landing page" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
 
       val page = controller.index(expiredToken, encodedReturnUrl, None)(request)
@@ -102,7 +89,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to portal if the token is not valid on the landing page" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
 
       val page = controller.index(incorrectToken, encodedReturnUrl, None)(request)
@@ -112,7 +98,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "include a link to keep mail preference" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
@@ -123,11 +108,8 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "return bad request if redirect_url is not in the whitelist" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(false)
       val controller = createController
-
-      val page = controller.index(validToken, encodedReturnUrl, None)(request)
-
+      val page = controller.index(validToken, encodedUrlNotOnWhitelist, None)(request)
       status(page) shouldBe 400
     }
 
@@ -135,7 +117,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val controller = createController
       val previouslyEnteredAddress = "some@mail.com"
 
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
       val page = controller.index(validToken, encodedReturnUrl, Some(previouslyEnteredAddress))(request)
 
@@ -151,7 +132,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
   "A post to set preferences" should {
 
     "redirect to return url if the token is expired when submitting the form" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
 
       val controller = createController
 
@@ -167,7 +147,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
     "return a warning page if the email address could not be verified" in new WithApplication(FakeApplication()) {
       val controller = createController
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
 
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(false))
 
@@ -182,7 +161,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "show an error if the email is invalid" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", "invalid-email"), ("email.confirm", ""))
@@ -194,7 +172,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "show an error if the email is not set" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", ""), ("email.confirm", ""))
@@ -206,7 +183,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "show an error if the confirmed email is not the same as the main" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", "valid@mail.com"), ("email.confirm", "notMatching@mail.com"))
@@ -220,7 +196,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "save the user preferences" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
 
       val controller = createController
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
@@ -238,7 +213,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "generate an error if the preferences could not be saved" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
 
       val controller = createController
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
@@ -252,7 +226,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to no-action page if the preference is already set to digital when submitting the form" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
 
       val controller = createController
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
@@ -272,7 +245,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to no-action page if the preference is already set to paper when submitting the form" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
 
       val controller = createController
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
@@ -293,16 +265,12 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "return bad request if redirect_url is not in the whitelist" in {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(false)
       val controller = createController
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request)
-
+      val page = controller.submitPrefsForm(validToken, encodedUrlNotOnWhitelist)(request)
       status(page) shouldBe 400
     }
 
     "keep paper notification and redirect to the portal" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
@@ -313,7 +281,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
@@ -325,8 +292,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to return url if the token is expired when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
-
       val controller = createController
 
       val page = controller.submitKeepPaperForm(expiredToken, encodedReturnUrl)(request)
@@ -338,8 +303,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to no-action page if the preference is already set to digital when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
-
       val controller = createController
 
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.verified))))))
@@ -356,8 +319,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
 
     "redirect to no-action page if the preference is already set to paper when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
-
       val controller = createController
 
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(false, None))))
@@ -376,14 +337,12 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
   "The confirm preferences set page" should {
     "reject an invalid return url" in {
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(false)
       val controller = createController
-      val result = controller.confirm(validToken, encodedReturnUrl)(request)
+      val result = controller.confirm(validToken, encodedUrlNotOnWhitelist)(request)
       status(result) should be(400)
     }
     "contain a link with the return url" in {
       val controller = createController
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
         Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.pending)))))
       )
@@ -396,7 +355,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     }
     "generate an error if the user does not have an email address set" in {
       val controller = createController
-      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
         Future.successful(Some(SaPreference(true, None)))
       )
@@ -408,7 +366,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val encodedUrlWithQueryParams = urlEncode(urlWithQueryParams, "UTF-8")
 
       val controller = createController
-      when(mockRedirectWhiteListService.check(urlWithQueryParams)).thenReturn(true)
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
         Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.pending)))))
       )

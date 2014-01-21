@@ -5,7 +5,6 @@ import play.api.test.{ FakeRequest, WithApplication }
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import controllers.common._
-import SessionTimeoutWrapper._
 import play.api.test.FakeApplication
 import config.{DateTimeProvider, PortalConfig}
 import uk.gov.hmrc.common.BaseSpec

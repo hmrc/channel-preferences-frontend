@@ -2,62 +2,25 @@ package controllers.sa.prefs
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.mvc.{AnyContent, Request, Action}
-import play.api.Logger
-import java.net.URLDecoder
+import play.api.mvc.Action
 import concurrent.Future
 import controllers.common.service.FrontEndConfig
-import controllers.sa.prefs.service.{Token, SsoPayloadCrypto, TokenExpiredException, RedirectWhiteListService}
+import controllers.sa.prefs.service.SsoPayloadCrypto
 import controllers.common.BaseController
 import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
 import com.netaporter.uri.dsl._
-import com.netaporter.uri.Uri
 
-class SaPrefsController extends BaseController {
+class SaPrefsController(whiteList: Set[String] = FrontEndConfig.redirectDomainWhiteList) extends BaseController {
 
   implicit lazy val preferencesConnector = new PreferencesConnector()
   implicit lazy val emailConnector = new EmailConnector()
-
-  private[controllers] val redirectWhiteListService = new RedirectWhiteListService(FrontEndConfig.redirectDomainWhiteList)
-
-  object ValidateAndDecode {
-    def apply(encodedReturnUrl: String)(action: (Uri => Action[AnyContent])) =
-      Action.async {
-        request: Request[AnyContent] =>
-          val decodedReturnUrl = URLDecoder.decode(encodedReturnUrl, "UTF-8")
-          redirectWhiteListService.check(decodedReturnUrl) match {
-            case true =>
-              action(decodedReturnUrl)(request)
-            case false =>
-              Logger.debug(s"Return URL '$encodedReturnUrl' was invalid as it was not on the whitelist")
-              Future.successful(BadRequest)
-          }
-      }
-  }
-
-  object ValidateToken {
-    def apply(encryptedToken: String, returnUrl: Uri)(action: Token => (Action[AnyContent])) =
-      Action.async {
-        request: Request[AnyContent] =>
-          try {
-            implicit val token = SsoPayloadCrypto.decryptToken(encryptedToken, FrontEndConfig.tokenTimeout)
-            action(token)(request)
-          } catch {
-            case e: TokenExpiredException =>
-              Logger.error("Unable to validate token", e)
-              Future.successful(Redirect(returnUrl))
-            case e: Exception =>
-              Logger.error("Exception happened while decrypting the token", e)
-              Future.successful(Redirect(returnUrl))
-          }
-      }
-  }
+  implicit val wl = whiteList
 
   def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[String]) =
-    ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(encryptedToken, returnUrl) { token =>
+    DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
+      DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(token.utr) map {
             case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
@@ -74,8 +37,8 @@ class SaPrefsController extends BaseController {
     }
 
   def confirm(encryptedToken: String, encodedReturnUrl: String) =
-    ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(encryptedToken, returnUrl) { token =>
+    DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
+      DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(token.utr).map {
             case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
@@ -87,7 +50,7 @@ class SaPrefsController extends BaseController {
     }
 
   def noAction(encodedReturnUrl: String, digital: Boolean) =
-    ValidateAndDecode(encodedReturnUrl) { returnUrl =>
+    DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
       Action {
         Ok(views.html.sa.prefs.sa_printing_preference_no_action(returnUrl, digital))
       }
@@ -106,8 +69,8 @@ class SaPrefsController extends BaseController {
   //  val emailForm: Form[String] = Form[String](single("email" -> email))
 
   def submitPrefsForm(encryptedToken: String, encodedReturnUrl: String) =
-    ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(encryptedToken, returnUrl) { token =>
+    DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
+      DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           emailForm.bindFromRequest()(request).fold(
             errors => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(errors, token, returnUrl))),
@@ -137,8 +100,8 @@ class SaPrefsController extends BaseController {
 
 
   def submitKeepPaperForm(encryptedToken: String, encodedReturnUrl: String) =
-    ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(encryptedToken, returnUrl) { token =>
+    DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
+      DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(token.utr) map {
             case Some(saPreference) =>

@@ -1,4 +1,4 @@
-package controllers.service
+package controllers.sa.prefs.service
 
 import org.scalatest.{ ShouldMatchers, WordSpec }
 import org.joda.time.{ DateTimeZone, DateTime }
