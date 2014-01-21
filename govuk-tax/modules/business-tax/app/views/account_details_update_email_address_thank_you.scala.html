@@ -1,17 +1,21 @@
 @(emailAddress: uk.gov.hmrc.domain.ObfuscatedEmail)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
-@main(title = "Account details - Your email address has been changed", user = Some(user)) {
+@main(title = "Account details - Your email address has been changed", nav = true, user = Some(user)) {
 
-    <h1>Account Details</h1>
+    <h1>@Messages("bt.account.yourdetails")</h1>
 
     <h2>Your email address has been changed</h2>
 
-    <p>Your Self Assessment email reminders will now be sent to <span id="updated-email-address">@emailAddress</span></p>
+    <p>Your reminders will now be sent to <span id="updated-email-address">@emailAddress</span></p>
 
-    <p id="verification-mail-message">A verification email has been sent to this address.</p>
+    <p>You must verify this email address to activate the service. </p>
 
-    <hr />
+    <p id="verification-mail-message">You’ve been sent an email telling you how to do this.</p>
 
-    <p>@helpers.link("return-to-dashboard-button", controllers.bt.routes.BusinessTaxController.home.url, "Return to your tax account")</p>
+        <ul class="action-list">
+            <li>@helpers.link("return-to-dashboard-button", controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account")</li>
+        </ul>
+
+
 
 }
