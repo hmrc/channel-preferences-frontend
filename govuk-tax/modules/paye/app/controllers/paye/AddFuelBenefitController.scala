@@ -171,7 +171,7 @@ with PayeRegimeRoots {
                   newTaxCode <- f1
                   netCodedAllowance <- f2
                 } yield {
-                  val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
+                  val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode)
                   Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData))
                 }
           }
