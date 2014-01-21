@@ -32,7 +32,7 @@ class SaPrefsController extends BaseController {
               action(decodedReturnUrl)(request)
             case false =>
               Logger.debug(s"Return URL '$encodedReturnUrl' was invalid as it was not on the whitelist")
-              Future.successful(InternalServerError) // FIXME This should be a bad request
+              Future.successful(BadRequest)
           }
       }
   }
@@ -55,17 +55,17 @@ class SaPrefsController extends BaseController {
       }
   }
 
-  def index(encryptedToken: String, encodedReturnUrl: String, emailAddress: Option[String]) =
+  def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[String]) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
       ValidateToken(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(token.utr) map {
-            case Some(saPreference) =>
-              Redirect(returnUrl)
+            case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
+              Redirect(returnUrl ? ("emailAddress" -> SsoPayloadCrypto.encrypt(emailAddress)))
             case _ =>
               Ok(
                 views.html.sa.prefs.sa_printing_preference(
-                  emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)),
+                  emailForm.fill(EmailPreferenceData((emailAddressToPrefill.getOrElse(""), emailAddressToPrefill), None)),
                   token,
                   returnUrl))
           }

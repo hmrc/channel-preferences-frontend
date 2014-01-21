@@ -1,6 +1,6 @@
 package controllers
 
-import org.scalatest.{BeforeAndAfter, ShouldMatchers, WordSpec}
+import org.scalatest.{OptionValues, BeforeAndAfter, ShouldMatchers, WordSpec}
 import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
@@ -26,16 +26,18 @@ import org.scalatest.concurrent.ScalaFutures
 import com.netaporter.uri.dsl.stringToUri
 import uk.gov.hmrc.domain.SaUtr
 
-class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures {
+class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
 
   import play.api.test.Helpers._
 
+  val emailAddress = "foo@bar.com"
   val validUtr = SaUtr("1234567")
   lazy val validToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
   lazy val expiredToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
   lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
   val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
   val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
+  lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&emailAddress=${urlEncode(encrypt(emailAddress), "UTF-8")}"
   private val mockRedirectWhiteListService = mock[RedirectWhiteListService]
 
   def createController = new SaPrefsController {
@@ -58,13 +60,25 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
 
       val controller = createController
-      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", status = Status.verified)))
+      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
 
       val page = controller.index(validToken, encodedReturnUrl, None)(request)
       status(page) shouldBe 303
-      header("Location", page).get should equal(decodedReturnUrl)
+      header("Location", page).value should be (decodedReturnUrlWithEmailAddress)
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
+    }
+
+    "redirect to the portal when preferences already exist for a specific utr and an email address was passed in the URL" in new WithApplication(FakeApplication()) {
+      when(mockRedirectWhiteListService.check(decodedReturnUrl)).thenReturn(true)
+
+      val controller = createController
+      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
+
+      val page = controller.index(validToken, encodedReturnUrl, Some("other@me.com"))(request)
+      status(page) shouldBe 303
+      header("Location", page).value should be (decodedReturnUrlWithEmailAddress)
     }
 
     "render an email input field" in new WithApplication(FakeApplication()) {
@@ -133,8 +147,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       html.getElementById("email.confirm").`val` shouldBe previouslyEnteredAddress
     }
   }
-
-  private val emailAddress = "foo@bar.com"
 
   "A post to set preferences" should {
 
@@ -380,7 +392,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = Jsoup.parse(contentAsString(result))
       val returnUrl = page.getElementById("sa-home-link").attr("href")
-      returnUrl should be (s"$decodedReturnUrl&emailAddress=${urlEncode(encrypt(emailAddress), "UTF-8")}")
+      returnUrl should be (decodedReturnUrlWithEmailAddress)
     }
     "generate an error if the user does not have an email address set" in {
       val controller = createController
