@@ -96,7 +96,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
       val document = Jsoup.parse(contentAsString(page))
 
-      document.getElementById("keep-paper-link").attr("value") shouldBe "No thanks, I don’t want to switch to email"
+      document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to receive letters"
     }
   }
 
