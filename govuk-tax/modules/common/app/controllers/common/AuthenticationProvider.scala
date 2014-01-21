@@ -10,6 +10,7 @@ import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import controllers.common.FrontEndRedirect._
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
+import MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.SimpleResult
 import play.api.Logger
@@ -18,7 +19,8 @@ import play.api.Logger
 trait AuthenticationProvider {
   type FailureResult = SimpleResult
   val id: String
-  val login: Call
+
+  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean = false): Future[SimpleResult]
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]]
 }
@@ -32,43 +34,40 @@ object UserCredentials {
   def apply(session: Session): UserCredentials = UserCredentials(session.get(userId), session.get(token))
 }
 
-object Ida extends AuthenticationProvider {
-  override val id = "IDA"
+//object Ida extends AuthenticationProvider {
+//  override val id = "IDA"
+//
+//   val login = routes.LoginController.samlLogin
+//
+//  def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
+//    Redirect(login).withSession(buildSessionForRedirect(request.session, redirectUrl))
+//
+//  private def redirectUrl(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
+//    if (redirectToOrigin) Some(request.uri) else None
+//
+//  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
+//    case UserCredentials(None, token@_) =>
+//      Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
+//      Future.successful(Right(handleRedirect(request, redirectToOrigin)))
+//    case UserCredentials(Some(userId), Some(token)) =>
+//      Logger.info(s"Wrong user type - redirecting to login. user : $userId token : $token")
+//      Future.successful(Right(handleRedirect(request, redirectToOrigin)))
+//  }
+//}
 
-  override val login = routes.LoginController.samlLogin
-
-  def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
-    Redirect(login).withSession(buildSessionForRedirect(request.session, redirectUrl))
-
-  private def redirectUrl(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
-    if (redirectToOrigin) Some(request.uri) else None
-
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-    case UserCredentials(None, token@_) =>
-      Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
-      Future.successful(Right(handleRedirect(request, redirectToOrigin)))
-    case UserCredentials(Some(userId), Some(token)) =>
-      Logger.info(s"Wrong user type - redirecting to login. user : $userId token : $token")
-      Future.successful(Right(handleRedirect(request, redirectToOrigin)))
-  }
-}
 
 object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
   override val id = "IDA"
 
-  override val login = routes.LoginController.samlLogin
-
   lazy val samlConnector = new SamlConnector
-
-  import MdcLoggingExecutionContext.fromLoggingDetails
 
   def toBadIdaToken = {
     Logger.info("Redirecting to bad Ida token page")
     Redirect("/paye/company-car/ida-token-required-in-beta")
   }
 
-  def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean): Future[SimpleResult] = {
+  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
     request.getQueryString("token") match {
       case Some(token) => {
@@ -76,7 +75,7 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
         samlConnector.validateToken(token).map { isValid =>
           if (isValid) {
             Logger.info(s"Token $token was valid - redirecting to IDA login")
-            toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
+            toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true)))
           }
           else {
             Logger.info(s"Token $token was invalid - redirecting to error page")
@@ -92,55 +91,59 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
         }
         else {
           Logger.info("Token is not required - redirecting to IDA login")
-          Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl)))
+          Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
         }
       }
     }
   }
 
-  private def redirectUrl(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
+  private def redirectUrl(request: Request[AnyContent], redirectToOrigin: Boolean) =
     if (redirectToOrigin) Some(request.uri) else None
 
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
     case UserCredentials(None, token@_) =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
-      handleRedirect(request, redirectToOrigin).map(result => Right(result))
+      redirectToLogin(request, redirectToOrigin).map(result => Right(result))
     case UserCredentials(Some(userId), Some(token)) =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"Wrong user type - redirecting to login. user : $userId token : $token")
-      handleRedirect(request, redirectToOrigin).map(result => Right(result))
+      redirectToLogin(request, redirectToOrigin).map(result => Right(result))
   }
 }
 
 object GovernmentGateway extends AuthenticationProvider {
   override val id = "GGW"
 
-  override val login = routes.LoginController.businessTaxLogin()
+  val login = routes.LoginController.businessTaxLogin()
 
-  def handleRedirect(request: Request[AnyContent]) = Redirect(login)
+  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean) = Future.successful(Redirect(login))
 
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-    case UserCredentials(None, token@_) =>
-      Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
-      Future.successful(Right(handleRedirect(request)))
-    case UserCredentials(Some(userId), None) =>
-      Logger.info(s"No gateway token - redirecting to login. user : $userId token : None")
-      Future.successful(Right(handleRedirect(request)))
+  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = {
+    implicit val hc = HeaderCarrier(request)
+
+    {
+      case UserCredentials(None, token@_) =>
+        Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
+        redirectToLogin(request, redirectToOrigin).map(Right(_))
+      case UserCredentials(Some(userId), None) =>
+        Logger.info(s"No gateway token - redirecting to login. user : $userId token : None")
+        redirectToLogin(request, redirectToOrigin).map(Right(_))
+    }
   }
 }
 
 
 object AnyAuthenticationProvider extends AuthenticationProvider {
 
-  override val login = routes.LoginController.businessTaxLogin()
+  val login = routes.LoginController.businessTaxLogin()
 
-  def redirectToLogin(request: Request[AnyContent]): Future[SimpleResult] = {
+  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean = false): Future[SimpleResult] = {
     Logger.info("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
       case Some(IdaWithTokenCheckForBeta.id) => {
         Logger.info("Provider is IDA - redirecting to IDA login page")
-        IdaWithTokenCheckForBeta.handleRedirect(request, true)
+        IdaWithTokenCheckForBeta.redirectToLogin(request, redirectToOrigin)
       }
       case Some(id) => {
         Logger.info("Provider is $id")

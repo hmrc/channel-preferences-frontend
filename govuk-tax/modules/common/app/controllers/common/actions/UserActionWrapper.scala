@@ -43,7 +43,7 @@ trait UserActionWrapper
         case Some(ua) => taxRegime match {
           case Some(regime) if !regime.isAuthorised(ua.accounts) =>
             Logger.info("user not authorised for " + regime.getClass)
-            Future.successful(Right(Redirect(regime.unauthorisedLandingPage)))
+            authenticationProvider.redirectToLogin(request).map(Right(_))
           case _ =>
             regimeRoots(ua).map { regimeRoots =>
               Left(User(

@@ -12,7 +12,7 @@ abstract class TaxRegime {
 
   def isAuthorised(accounts: Accounts): Boolean
 
-  def unauthorisedLandingPage: String
+  //def unauthorisedLandingPage: String
 
   def authenticationType: AuthenticationProvider
 }
