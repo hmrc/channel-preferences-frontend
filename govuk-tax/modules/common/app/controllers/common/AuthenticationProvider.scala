@@ -19,12 +19,16 @@ trait AuthenticationProvider {
   type FailureResult = SimpleResult
   val id: String
   val login: Call
+
   def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]]
 }
 
 case class UserCredentials(userId: Option[String], token: Option[String])
+
 object UserCredentials {
+
   import SessionKeys._
+
   def apply(session: Session): UserCredentials = UserCredentials(session.get(userId), session.get(token))
 }
 
@@ -68,14 +72,28 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
     implicit val hc = HeaderCarrier(request)
     request.getQueryString("token") match {
       case Some(token) => {
+        Logger.debug(s"Validating IDA token $token")
         samlConnector.validateToken(token).map { isValid =>
-          if (isValid) toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
-          else toBadIdaToken
+          if (isValid) {
+            Logger.debug(s"Token $token was valid - redirecting to IDA login")
+            toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
+          }
+          else {
+            Logger.debug(s"Token $token was invalid - redirecting to error page")
+            toBadIdaToken
+          }
         }
       }
       case None => {
-        if (samlConnector.idaTokenRequired) Future.successful(toBadIdaToken)
-        else Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl)))
+        Logger.debug("No token was provided - checking if required")
+        if (samlConnector.idaTokenRequired) {
+          Logger.debug("Token is required - redirecting to error page")
+          Future.successful(toBadIdaToken)
+        }
+        else {
+          Logger.debug("Token is not required - redirecting to IDA login")
+          Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl)))
+        }
       }
     }
   }
@@ -113,13 +131,17 @@ object GovernmentGateway extends AuthenticationProvider {
 }
 
 
-object AnyAuthenticationProvider extends AuthenticationProvider{
+object AnyAuthenticationProvider extends AuthenticationProvider {
 
   override val login = routes.LoginController.businessTaxLogin()
 
   def redirectToLogin(request: Request[AnyContent]) = {
+    Logger.debug("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
-      case Some(provider) if provider== IdaWithTokenCheckForBeta.id => Redirect(IdaWithTokenCheckForBeta.login)
+      case Some(IdaWithTokenCheckForBeta.id) => {
+        Logger.debug("Provider is IDA - redirecting to IDA login page")
+        Redirect(IdaWithTokenCheckForBeta.login)
+      }
       case _ => Redirect(login)
     }
   }
@@ -128,7 +150,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider{
     request.session.get(SessionKeys.authProvider) match {
       case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(request, redirectToOrigin)
       case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.handleNotAuthenticated(request, redirectToOrigin)
-      case _ => { case _ => Future.successful(Right(Redirect(login).withNewSession)) }
+      case _ => {case _ => Future.successful(Right(Redirect(login).withNewSession))}
     }
   }
 
