@@ -64,7 +64,7 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
   import MdcLoggingExecutionContext.fromLoggingDetails
 
   def toBadIdaToken = {
-    Logger.debug("Redirecting to bad Ida token page")
+    Logger.info("Redirecting to bad Ida token page")
     Redirect("/paye/company-car/ida-token-required-in-beta")
   }
 
@@ -75,23 +75,23 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
         Logger.debug(s"Validating IDA token $token")
         samlConnector.validateToken(token).map { isValid =>
           if (isValid) {
-            Logger.debug(s"Token $token was valid - redirecting to IDA login")
+            Logger.info(s"Token $token was valid - redirecting to IDA login")
             toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl))
           }
           else {
-            Logger.debug(s"Token $token was invalid - redirecting to error page")
+            Logger.info(s"Token $token was invalid - redirecting to error page")
             toBadIdaToken
           }
         }
       }
       case None => {
-        Logger.debug("No token was provided - checking if required")
+        Logger.info("No token was provided - checking if required")
         if (samlConnector.idaTokenRequired) {
-          Logger.debug("Token is required - redirecting to error page")
+          Logger.info("Token is required - redirecting to error page")
           Future.successful(toBadIdaToken)
         }
         else {
-          Logger.debug("Token is not required - redirecting to IDA login")
+          Logger.info("Token is not required - redirecting to IDA login")
           Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl)))
         }
       }
