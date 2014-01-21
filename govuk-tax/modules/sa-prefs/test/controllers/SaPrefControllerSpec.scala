@@ -24,12 +24,13 @@ import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPrefere
 import SaEmailPreference.Status
 import org.scalatest.concurrent.ScalaFutures
 import com.netaporter.uri.dsl.stringToUri
+import uk.gov.hmrc.domain.SaUtr
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures {
 
   import play.api.test.Helpers._
 
-  val validUtr = "1234567"
+  val validUtr = SaUtr("1234567")
   lazy val validToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
   lazy val expiredToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
   lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
@@ -147,7 +148,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(page) shouldBe 303
 
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
 
       header("Location", page).get should equal(decodedReturnUrl)
     }
@@ -189,7 +190,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(page) shouldBe 400
       contentAsString(page) should include("Enter a valid email address")
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
     }
 
     "show an error if the confirmed email is not the same as the main" in new WithApplication(FakeApplication()) {
@@ -201,7 +202,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(page) shouldBe 400
       contentAsString(page) should include("Check your email addresses - they don&#x27;t match.")
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
     }
 
     "save the user preferences" in new WithApplication(FakeApplication()) {
@@ -250,7 +251,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
 
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=true")
@@ -271,7 +272,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
 
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=false")
@@ -318,7 +319,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(page) shouldBe 303
 
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
       header("Location", page).get should equal(decodedReturnUrl)
     }
 
@@ -334,7 +335,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       status(action) shouldBe 303
 
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
 
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=true")
@@ -352,7 +353,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       status(action) shouldBe 303
 
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[String], any[Boolean], any[Option[String]])
+      verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
 
       header("Location", action).get should include("/sa/print-preferences-no-action")
       header("Location", action).get should include("digital=false")
@@ -377,7 +378,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       val page = Jsoup.parse(contentAsString(result))
       val returnUrl = page.getElementById("sa-home-link").attr("href")
-      returnUrl should be (s"$decodedReturnUrl&emailAddress=${urlEncode(encrypt(emailAddress))}")
+      returnUrl should be (s"$decodedReturnUrl&emailAddress=${urlEncode(encrypt(emailAddress), "UTF-8")}")
     }
     "generate an error if the user does not have an email address set" in {
       val controller = createController

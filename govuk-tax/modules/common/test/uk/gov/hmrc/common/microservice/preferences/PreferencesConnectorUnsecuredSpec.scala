@@ -13,6 +13,7 @@ import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.preferences.{EmailVerificationLinkResponse, SaPreferenceSimplified, PreferencesConnector, ValidateEmail}
+import uk.gov.hmrc.domain.SaUtr
 
 class TestPreferencesConnectorUnsecured extends PreferencesConnector with MockitoSugar with OptionValues {
 
@@ -44,7 +45,7 @@ class PreferencesConnectorUnsecuredSpec extends WordSpec with MockitoSugar with 
 
   override def afterEach = reset(preferenceConnector.httpWrapper)
 
-  val utr = "2134567"
+  val utr = SaUtr("2134567")
 
   val email = "someEmail@email.com"
 

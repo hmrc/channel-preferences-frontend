@@ -7,7 +7,7 @@ import play.api.Logger
 import java.net.URLDecoder
 import concurrent.Future
 import controllers.common.service.FrontEndConfig
-import controllers.sa.prefs.service.{SsoPayloadCrypto, TokenExpiredException, RedirectWhiteListService}
+import controllers.sa.prefs.service.{Token, SsoPayloadCrypto, TokenExpiredException, RedirectWhiteListService}
 import controllers.common.BaseController
 import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
@@ -38,12 +38,12 @@ class SaPrefsController extends BaseController {
   }
 
   object ValidateToken {
-    def apply(encryptedToken: String, returnUrl: Uri)(action: String => (Action[AnyContent])) =
+    def apply(encryptedToken: String, returnUrl: Uri)(action: Token => (Action[AnyContent])) =
       Action.async {
         request: Request[AnyContent] =>
           try {
             implicit val token = SsoPayloadCrypto.decryptToken(encryptedToken, FrontEndConfig.tokenTimeout)
-            action(token.utr.value)(request)
+            action(token)(request)
           } catch {
             case e: TokenExpiredException =>
               Logger.error("Unable to validate token", e)
@@ -55,11 +55,11 @@ class SaPrefsController extends BaseController {
       }
   }
 
-  def index(token: String, encodedReturnUrl: String, emailAddress: Option[String]) =
+  def index(encryptedToken: String, encodedReturnUrl: String, emailAddress: Option[String]) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(token, returnUrl) { utr =>
+      ValidateToken(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
-          preferencesConnector.getPreferencesUnsecured(utr) map {
+          preferencesConnector.getPreferencesUnsecured(token.utr) map {
             case Some(saPreference) =>
               Redirect(returnUrl)
             case _ =>
@@ -73,13 +73,13 @@ class SaPrefsController extends BaseController {
       }
     }
 
-  def confirm(token: String, encodedReturnUrl: String) =
+  def confirm(encryptedToken: String, encodedReturnUrl: String) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(token, returnUrl) { utr =>
+      ValidateToken(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
-          preferencesConnector.getPreferencesUnsecured(utr).map {
-            case Some(SaPreference(true, Some(SaEmailPreference(email, _, _)))) =>
-              Ok(views.html.sa.prefs.sa_printing_preference_confirm(returnUrl ? ("emailAddress" -> SsoPayloadCrypto.encrypt(email))))
+          preferencesConnector.getPreferencesUnsecured(token.utr).map {
+            case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
+              Ok(views.html.sa.prefs.sa_printing_preference_confirm(returnUrl ? ("emailAddress" -> SsoPayloadCrypto.encrypt(emailAddress))))
             case _ => PreconditionFailed
           }
         }
@@ -105,9 +105,9 @@ class SaPrefsController extends BaseController {
 
   //  val emailForm: Form[String] = Form[String](single("email" -> email))
 
-  def submitPrefsForm(token: String, encodedReturnUrl: String) =
+  def submitPrefsForm(encryptedToken: String, encodedReturnUrl: String) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(token, returnUrl) { utr =>
+      ValidateToken(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           emailForm.bindFromRequest()(request).fold(
             errors => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(errors, token, returnUrl))),
@@ -117,12 +117,12 @@ class SaPrefsController extends BaseController {
                 else emailConnector.validateEmailAddress(emailForm.mainEmail)
               emailIsValid flatMap {
                 case true => {
-                  preferencesConnector.getPreferencesUnsecured(utr).flatMap {
+                  preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
                     case Some(saPreference) =>
                       Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
                     case None => {
-                      preferencesConnector.savePreferencesUnsecured(utr, true, Some(emailForm.mainEmail)).map ( _ =>
-                        Redirect(routes.SaPrefsController.confirm(token, returnUrl))
+                      preferencesConnector.savePreferencesUnsecured(token.utr, true, Some(emailForm.mainEmail)).map ( _ =>
+                        Redirect(routes.SaPrefsController.confirm(token.encryptedToken, returnUrl))
                       )
                     }
                   }
@@ -136,15 +136,15 @@ class SaPrefsController extends BaseController {
     }
 
 
-  def submitKeepPaperForm(token: String, encodedReturnUrl: String) =
+  def submitKeepPaperForm(encryptedToken: String, encodedReturnUrl: String) =
     ValidateAndDecode(encodedReturnUrl) { returnUrl =>
-      ValidateToken(token, returnUrl) { utr =>
+      ValidateToken(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
-          preferencesConnector.getPreferencesUnsecured(utr) map {
+          preferencesConnector.getPreferencesUnsecured(token.utr) map {
             case Some(saPreference) =>
               Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital))
             case None =>
-              preferencesConnector.savePreferencesUnsecured(utr, false)
+              preferencesConnector.savePreferencesUnsecured(token.utr, false)
               Redirect(returnUrl)
           }
         }

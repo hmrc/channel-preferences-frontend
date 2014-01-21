@@ -1,4 +1,4 @@
-@(emailForm: Form[controllers.sa.prefs.EmailPreferenceData], token: String, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
+@(emailForm: Form[controllers.sa.prefs.EmailPreferenceData], token: controllers.sa.prefs.service.Token, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
 
 
 @main(title = Messages("sa_printing_preference.title")) {
@@ -20,7 +20,7 @@
 
     <p>@Messages("sa_printing_preference.paragraph.5")</p>
 
-    @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token, redirectUrl.toString)) {
+    @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, redirectUrl.toString)) {
 
 	@helpers.input(
 	    emailForm("email.main"),
@@ -46,7 +46,7 @@
 
     }
 
-    @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitKeepPaperForm(token, redirectUrl.toString)) {
+    @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitKeepPaperForm(token.encryptedToken, redirectUrl.toString)) {
     <div class="form-field">
         <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
     </div>

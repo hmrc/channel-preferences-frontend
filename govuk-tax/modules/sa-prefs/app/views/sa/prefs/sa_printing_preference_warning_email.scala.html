@@ -1,4 +1,4 @@
-@(emailAddress: String, token: String, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
+@(emailAddress: String, token: controllers.sa.prefs.service.Token, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
 
 @main(title = "My Preferences") {
 
@@ -10,7 +10,7 @@
 
     <p>Please confirm below that you are happy to continue.</p>
 
-    @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token, redirectUrl.toString)) {
+    @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, redirectUrl.toString)) {
         <div class="form-field">
             <button id="email-is-correct-link" class="button" type="submit">My email is correct</button>
         </div>
@@ -19,6 +19,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    <a id="email-is-not-correct-link" href="@controllers.sa.prefs.routes.SaPrefsController.index(token, redirectUrl.toString, Some(emailAddress))">No, my email address is not correct</a>
+    <a id="email-is-not-correct-link" href="@controllers.sa.prefs.routes.SaPrefsController.index(token.encryptedToken, redirectUrl.toString, Some(emailAddress))">No, my email address is not correct</a>
 
 }
