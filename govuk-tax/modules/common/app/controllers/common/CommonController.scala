@@ -10,10 +10,16 @@ class CommonController(override val auditConnector: AuditConnector) (implicit ov
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
+  def cookies = UnauthorisedAction {
+    implicit request =>
+      Ok(views.html.cookies())
+  }
+
   def termsAndConditions = UnauthorisedAction {
     implicit request =>
       Ok(views.html.t_and_c())
   }
+
   def privacyPolicy = UnauthorisedAction {
     implicit request =>
       Ok(views.html.privacy_policy())
