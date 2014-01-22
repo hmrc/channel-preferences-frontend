@@ -22,8 +22,6 @@ object GovUkTaxBuild extends Build {
     Dependencies.Compile.metricsGraphite,
     Dependencies.Compile.secureUtils,
     Dependencies.Compile.taxCore,
-    Dependencies.Compile.scalaUri,
-    Dependencies.Compile.scct,
 
     Dependencies.Test.junit,
     Dependencies.Test.scalaTest,
@@ -94,7 +92,9 @@ object GovUkTaxBuild extends Build {
     .settings(javaOptions in Test += configPath)
 
   val saPrefs = play.Project(
-    appName + "-sa-prefs", Version.thisApp, appDependencies, path = file("modules/sa-prefs"), settings = Common.commonSettings
+    appName + "-sa-prefs", Version.thisApp,
+      appDependencies ++ Seq(Dependencies.Compile.scalaUri, Dependencies.Compile.scct),
+      path = file("modules/sa-prefs"), settings = Common.commonSettings
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases)
     .configs(TemplateTest)
