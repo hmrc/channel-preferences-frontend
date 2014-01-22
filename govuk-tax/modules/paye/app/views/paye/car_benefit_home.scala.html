@@ -27,8 +27,9 @@
     }
     
     @main(title = Messages("paye.car_benefit_home.title"), user = Some(user)) {
-        <h1>@Messages("paye.car_benefit_home.h1")</h1>
-
+        <header class="page-header">
+            <h1>@Messages("paye.car_benefit_home.h1")</h1>
+        </header>
         @defining(optionalValue(employerName, "your.employer", false)) { employerNameString =>
             @if(employmentViews.flatMap(e => e.recentChanges).size > 0) {
                 <div class="overview__actions">

@@ -7,7 +7,9 @@
     @main(title = Messages("paye.remove_benefit_confirmation.title"), user = Some(user)) {
 
         @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
-            <h1>@Html(Messages("paye.remove_benefit_confirmation.header", s"""<span id="benefit-type">${benefitsTitle}</span>"""))</h1>
+            <header class="page-header">
+                <h1>@Html(Messages("paye.remove_benefit_confirmation.header", s"""<span id="benefit-type">${benefitsTitle}</span>"""))</h1>
+            </header>
         }
 
         <h2>@Messages("paye.remove_benefit_confirmation.thanks")</h2>

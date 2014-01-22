@@ -9,7 +9,9 @@
     @import controllers.paye.routes._
 
     @main(title = Messages("paye.remove_fuel_benefit.title"), user = Some(user)) {
-        <h1>@Messages("paye.remove_fuel_benefit.header")</h1>
+        <header class="page-header">
+            <h1>@Messages("paye.remove_fuel_benefit.header")</h1>
+        </header>
 
         <h2>@Html(Messages("paye.remove_fuel_benefit.company_name", s"""<span class="employer-name">${employment.employerName.getOrElse(Messages("your.employer"))}</span>"""))</h2>
 

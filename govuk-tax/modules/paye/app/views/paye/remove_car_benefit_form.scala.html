@@ -8,7 +8,9 @@
     @import uk.gov.hmrc.utils.TaxYearResolver
 
 @main(title = Messages("paye.remove_car_benefit.title"), user = Some(user)) {
-    <h1>@Messages("paye.remove_car_benefit.h1")</h1>
+    <header class="page-header">
+        <h1>@Messages("paye.remove_car_benefit.h1")</h1>
+    </header>
     <h2><span class="employer-name">@primaryEmployment.employerName</span>@Messages("paye.remove_car_benefit.h2.company_info")</h2>
 
     @helpers.form(action = controllers.paye.routes.RemoveBenefitController.requestRemoveCarBenefit(activeCarBenefit.taxYear, primaryEmployment.sequenceNumber), 'id -> "form-remove-car-benefit") {

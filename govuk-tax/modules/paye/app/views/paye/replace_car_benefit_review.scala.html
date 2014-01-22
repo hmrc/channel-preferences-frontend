@@ -8,8 +8,9 @@
     @import views.helpers._
 
     @main(title = Messages("paye.replace_car_benefit.title"), user = Some(user)) {
-
-        <h1>@Messages("paye.replace_car_benefit.h1")</h1>
+        <header class="page-header">
+            <h1>@Messages("paye.replace_car_benefit.h1")</h1>
+        </header>
         <h2>@Messages("paye.replace_car_benefit_review.subheading")</h2>
         <h2 class="benefit-type">@Messages("paye.replace_car_benefit.benefit_type")</h2>
         @remove_car_benefit_confirmation_table(oldCarRemovalData, employment, activeCarBenefit.hasActiveFuel, activeCarBenefit.taxYear)

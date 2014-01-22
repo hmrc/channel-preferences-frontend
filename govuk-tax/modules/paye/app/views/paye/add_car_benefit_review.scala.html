@@ -1,7 +1,9 @@
 @(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData, user: uk.gov.hmrc.common.microservice.domain.User, currentUri: String, taxYear: Int, employmentSequenceNumber: Int)(implicit request: Request[_])
 
 @main(title = Messages("paye.add_car_benefit_review.title"), user = Some(user)) {
-    <h1 id="main-heading">@Messages("paye.add_car_benefit_review.h1")</h1>
+    <header class="page-header">
+        <h1 id="main-heading">@Messages("paye.add_car_benefit_review.h1")</h1>
+    </header>
     <h2>@Messages("paye.add_car_benefit_review.h2")</h2>
     @add_car_benefit_confirmation_table(data)
     @helpers.link("edit-data", currentUri, Messages("paye.benefit_review.wrong_information"))

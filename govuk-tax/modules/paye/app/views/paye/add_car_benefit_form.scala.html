@@ -7,9 +7,9 @@
 @import views.helpers._
 
 @main(title = Messages("paye.add_car_benefit.title"), user = Some(user)) {
-
-    <h1>@Messages("paye.add_car_benefit.h1")</h1>
-
+    <header class="page-header">
+        <h1>@Messages("paye.add_car_benefit.h1")</h1>
+    </header>
     @defining(optionalValue(employerName, "your.employer", true)) { employerNameLowercaseString =>
 
         @helpers.form(action = controllers.paye.routes.AddCarBenefitController.reviewAddCarBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-car-benefit") {

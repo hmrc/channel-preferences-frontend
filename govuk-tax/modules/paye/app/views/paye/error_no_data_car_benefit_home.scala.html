@@ -2,7 +2,8 @@
 
 @main(title = Messages("paye.error_page.title"), user = Some(user)) {
 
-    <h1>@Messages("paye.error_page.header")</h1>
-
+    <header class="page-header">
+        <h1>@Messages("paye.error_page.header")</h1>
+    </header>
     <p id="error-message">@errorMessage</p>
 }

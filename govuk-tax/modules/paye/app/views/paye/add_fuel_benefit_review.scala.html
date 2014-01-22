@@ -5,7 +5,9 @@
 @import views.formatting.Dates._
 
 @main(title = Messages("paye.add_fuel_benefit_review.title"), user = Some(user)) {
-    <h1>@Messages("paye.add_fuel_benefit_review.h1")</h1>
+    <header class="page-header">
+        <h1>@Messages("paye.add_fuel_benefit_review.h1")</h1>
+    </header>
     <h2 id="second-heading">@Messages("paye.add_fuel_benefit_review.h2")</h2>
 
     @defining(optionalValue(data.employerName, "your.employer", false)) { employerNameString =>

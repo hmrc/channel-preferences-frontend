@@ -5,9 +5,9 @@
 @import controllers.paye.FuelBenefitFormFields._
 
 @main(title = Messages("paye.add_fuel_benefit.title"), user = Some(user)) {
-
-<h1>@Messages("paye.add_fuel_benefit.h1")</h1>
-
+    <header class="page-header">
+        <h1>@Messages("paye.add_fuel_benefit.h1")</h1>
+    </header>
 @defining(optionalValue(employerName, "your.employer", true)) { employerNameString =>
 
     @helpers.form(action = controllers.paye.routes.AddFuelBenefitController.reviewAddFuelBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit") {

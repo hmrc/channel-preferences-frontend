@@ -1,7 +1,9 @@
 @(token: Option[String] = None)
 
 @main(title = Messages("paye.home.title"), sidebarLinks = Some(sidebarLinks), feedbackLinkEnabled = false) {
-    <h1>@Messages("paye.home.title")</h1>
+    <header class="page-header">
+        <h1>@Messages("paye.home.title")</h1>
+    </header>
     <p>@Html(Messages("paye.home.intro", helpers.link("", Messages("paye.home.intro.calculator_link.url"), Messages("paye.home.intro.calculator_link.text"), true)))</p>
     <strong>@Messages("paye.home.intro.warning")</strong>
     <h2>@Messages("paye.home.instructions.heading")</h2>
