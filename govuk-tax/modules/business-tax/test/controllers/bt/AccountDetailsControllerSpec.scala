@@ -16,6 +16,7 @@ import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import play.api.test.Helpers._
 import org.mockito.Matchers
+import controllers.common.SessionKeys
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -321,6 +322,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 200
+      session(page).get(SessionKeys.unconfirmedEmailAddress) should contain (emailAddress)
 
       val document = Jsoup.parse(contentAsString(page))
       document.select("#emailIsNotCorrectLink") shouldNot be(null)

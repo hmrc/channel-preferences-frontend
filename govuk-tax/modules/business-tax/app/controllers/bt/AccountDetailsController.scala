@@ -92,22 +92,21 @@ with EmailControllerHelper {
   }
 
 
-  private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+  private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
     preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).flatMap {
-        case Some(SaPreference(true, Some(email))) => func(email.email)
-        case _ => Future.successful(BadRequest("Could not find existing preferences."))
+      case Some(SaPreference(true, Some(email))) => func(email.email)
+      case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
-  }
 
-  private[bt] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+  private[bt] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
     lookupCurrentEmail(
-      email => submitPreferencesForm((errors) => views.html.account_details_update_email_address(email, errors),
-        (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
-        () => routes.AccountDetailsController.emailAddressChangeThankYou(),
+      email => submitPreferencesForm(
+        errorsView = views.html.account_details_update_email_address(email, _),
+        emailWarningView = views.html.account_details_update_email_address_verify_email(_),
+        successRedirect = routes.AccountDetailsController.emailAddressChangeThankYou,
         emailConnector,
         preferencesConnector)
     )
-  }
 
   private[bt] def emailAddressChangeThankYouPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated)(user))))
