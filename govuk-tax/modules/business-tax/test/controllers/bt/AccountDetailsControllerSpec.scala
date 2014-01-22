@@ -411,10 +411,9 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val page = Jsoup.parse(contentAsString(result))
 
       page.getElementById("confirm-opt-out") shouldNot be(null)
-      page.getElementById("confirm-opt-out").text shouldBe "Opt me out of digital"
+      page.getElementById("confirm-opt-out").text shouldBe "Stop your email reminders"
       page.getElementById("cancel-opt-out-link") shouldNot be(null)
       page.getElementById("cancel-opt-out-link").text shouldBe "Never mind - I want to stay digital"
-      page.getElementById("email-address").text shouldBe "t**t@test.com"
       page.text() should not include "test@test.com"
     }
 

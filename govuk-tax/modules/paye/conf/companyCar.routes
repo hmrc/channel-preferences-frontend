@@ -8,21 +8,21 @@ GET         /ida-token-required-in-beta                                        @
 POST        /car-benefit/questionnaire                                         @controllers.paye.PayeQuestionnaireController.submitQuestionnaire
 
 GET         /car-benefit/:year/:employmentSequenceNumber/add                   @controllers.paye.AddCarBenefitController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/add                   @controllers.paye.AddCarBenefitController.reviewAddCarBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/add/confirmation      @controllers.paye.AddCarBenefitController.confirmAddingBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/add/confirm           @controllers.paye.AddCarBenefitController.reviewAddCarBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/add/thank-you         @controllers.paye.AddCarBenefitController.confirmAddingBenefit(year: Int, employmentSequenceNumber: Int)
 
 GET         /fuel-benefit/:year/:employmentSequenceNumber/add                  @controllers.paye.AddFuelBenefitController.startAddFuelBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /fuel-benefit/:year/:employmentSequenceNumber/add                  @controllers.paye.AddFuelBenefitController.reviewAddFuelBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /fuel-benefit/:year/:employmentSequenceNumber/add/confirmation     @controllers.paye.AddFuelBenefitController.confirmAddingBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /fuel-benefit/:year/:employmentSequenceNumber/add/confirm          @controllers.paye.AddFuelBenefitController.reviewAddFuelBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /fuel-benefit/:year/:employmentSequenceNumber/add/thank-you        @controllers.paye.AddFuelBenefitController.confirmAddingBenefit(year: Int, employmentSequenceNumber: Int)
 
 GET         /car-benefit/:year/:employmentSequenceNumber/remove                @controllers.paye.ShowRemoveBenefitFormController.showRemoveCarBenefitForm(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/remove                @controllers.paye.RemoveBenefitController.requestRemoveCarBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/remove/confirmation   @controllers.paye.RemoveBenefitController.confirmCarBenefitRemoval(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/remove/confirm        @controllers.paye.RemoveBenefitController.requestRemoveCarBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/remove/thank-you      @controllers.paye.RemoveBenefitController.confirmCarBenefitRemoval(year: Int, employmentSequenceNumber: Int)
 
 GET         /fuel-benefit/:year/:employmentSequenceNumber/remove               @controllers.paye.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(year: Int, employmentSequenceNumber: Int)
-POST        /fuel-benefit/:year/:employmentSequenceNumber/remove               @controllers.paye.RemoveBenefitController.requestRemoveFuelBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /fuel-benefit/:year/:employmentSequenceNumber/remove/confirmation  @controllers.paye.RemoveBenefitController.confirmFuelBenefitRemoval(year: Int, employmentSequenceNumber: Int)
+POST        /fuel-benefit/:year/:employmentSequenceNumber/remove/confirm       @controllers.paye.RemoveBenefitController.requestRemoveFuelBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /fuel-benefit/:year/:employmentSequenceNumber/remove/thank-you     @controllers.paye.RemoveBenefitController.confirmFuelBenefitRemoval(year: Int, employmentSequenceNumber: Int)
 
 GET         /car-benefit/:year/:employmentSequenceNumber/replace               @controllers.paye.ReplaceBenefitController.showReplaceCarBenefitForm(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/replace               @controllers.paye.ReplaceBenefitController.requestReplaceCarBenefit(year: Int, employmentSequenceNumber: Int)
-POST        /car-benefit/:year/:employmentSequenceNumber/replace/confirmation  @controllers.paye.ReplaceCarBenefitConfirmController.confirmCarBenefitReplacement(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/replace/confirm       @controllers.paye.ReplaceBenefitController.requestReplaceCarBenefit(year: Int, employmentSequenceNumber: Int)
+POST        /car-benefit/:year/:employmentSequenceNumber/replace/thank-you     @controllers.paye.ReplaceCarBenefitConfirmController.confirmCarBenefitReplacement(year: Int, employmentSequenceNumber: Int)

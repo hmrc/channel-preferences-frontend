@@ -47,14 +47,14 @@
     <p>By signing up to email reminders you accept the <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">terms and conditions</a>.</p>
 
 	<div class="form-field">
-            <button id="submitEmailButton" class="button" type="submit">Submit</button>
+            <button id="submitEmailButton" class="button" type="submit">Switch to Self Assessment email reminders</button>
 	</div>
 
     }
 
     @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm, 'id -> "form-submit-keep-paper") {
 	<div class="form-field">
-        <input id="keep-paper-link" class="input--link" type="submit" value="No thanks, I don’t want to switch to email" />
+        <input id="keep-paper-link" class="input--link" type="submit" value="Continue to receive letters" />
     </div>
     }
 
