@@ -169,10 +169,16 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
 
-      val response = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
+      val response = Future.successful(controller.submitPrefsFormAction(user,
+        FakeRequest()
+          .withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))
+          .withSession("otherName" -> "otherValue")))
 
       status(response) shouldBe 200
-      session(response).get(SessionKeys.unconfirmedEmailAddress) should contain (emailAddress)
+      session(response).data should (
+        contain (SessionKeys.unconfirmedEmailAddress ->emailAddress) and
+        contain ("otherName" -> "otherValue")
+      )
 
       val document = Jsoup.parse(contentAsString(response))
       document.select("#emailIsNotCorrectLink") shouldNot be(null)

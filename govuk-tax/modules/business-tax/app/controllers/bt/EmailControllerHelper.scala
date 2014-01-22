@@ -10,7 +10,6 @@ import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
-import Function.const
 import controllers.common.SessionKeys
 
 trait EmailControllerHelper {
@@ -47,7 +46,7 @@ trait EmailControllerHelper {
              preferencesConnector.savePreferences(user.getSa.utr, true, Some(mainEmail))
                .map(_ => Redirect(successRedirect()).withSession(request.session - SessionKeys.unconfirmedEmailAddress))
            case false =>
-             Future.successful(Ok(emailWarningView(mainEmail)).withSession(SessionKeys.unconfirmedEmailAddress -> mainEmail))
+             Future.successful(Ok(emailWarningView(mainEmail)).withSession(request.session + (SessionKeys.unconfirmedEmailAddress -> mainEmail)))
         }
       }
     )
