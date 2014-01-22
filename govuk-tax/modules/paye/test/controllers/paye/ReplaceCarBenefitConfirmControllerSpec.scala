@@ -14,14 +14,15 @@ class ReplaceCarBenefitConfirmControllerSpec extends BaseSpec with ScalaFutures 
     import controllers.paye.ReplaceCarBenefitConfirmController.buildRequest
     import testData._
 
-    val request = buildRequest(version, formData, taxYear, employmentSequenceNumber)
+    val requestWithoutFuel = buildRequest(version, formData, taxYear, employmentSequenceNumber, false)
+    val requestWithFuel = buildRequest(version, formData, taxYear, employmentSequenceNumber, true)
 
     "populate the WithdrawnBenefitRequest version correctly" in {
-      request.withdrawBenefitRequest.version shouldBe version
+      requestWithoutFuel.withdrawBenefitRequest.version shouldBe version
     }
 
     {
-      val car = request.withdrawBenefitRequest.car
+      val car = requestWithoutFuel.withdrawBenefitRequest.car
 
       "car should be present" in {
         car shouldNot be(None)
@@ -41,7 +42,7 @@ class ReplaceCarBenefitConfirmControllerSpec extends BaseSpec with ScalaFutures 
     }
 
     {
-      val fuel = request.withdrawBenefitRequest.fuel
+      val fuel = requestWithFuel.withdrawBenefitRequest.fuel
 
       "fuel should be present" in {
         fuel shouldNot be(None)
@@ -53,7 +54,7 @@ class ReplaceCarBenefitConfirmControllerSpec extends BaseSpec with ScalaFutures 
     }
 
     {
-      val addBenefit = request.addBenefit
+      val addBenefit = requestWithoutFuel.addBenefit
 
       "populate the addBenefit version correctly" in {
         addBenefit.version shouldBe version

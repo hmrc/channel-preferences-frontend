@@ -28,8 +28,9 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
 
   import RemovalUtils.ReplaceBenefitKeyStore
 
-  def confirmCarBenefitReplacement(taxYear: Int, employmentSequenceNumber: Int) = benefitController { (user: User, request: Request[_], version: Int) =>
-    confirmCarBenefitReplacementAction(taxYear, employmentSequenceNumber, version)(user, request)
+  def confirmCarBenefitReplacement(taxYear: Int, employmentSequenceNumber: Int) = benefitController {
+    (user: User, request: Request[_], version: Int) =>
+      confirmCarBenefitReplacementAction(taxYear, employmentSequenceNumber, version)(user, request)
   }
 
   import ReplaceCarBenefitConfirmController._
@@ -53,8 +54,9 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
                                  (implicit hc: HeaderCarrier): UpdateFunction = {
     (activeCarBenefit, formData) =>
       val url = activeCarBenefit.actions.getOrElse("replace", throw new IllegalArgumentException(s"No replace action uri found for this car benefit."))
+      val hasFuel = activeCarBenefit.activeFuelBenefit.isDefined
 
-      payeConnector.replaceBenefits(url, buildRequest(version, formData, taxYear, employmentSequenceNumber)).map {
+      payeConnector.replaceBenefits(url, buildRequest(version, formData, taxYear, employmentSequenceNumber, hasFuel)).map {
         case Some(response) => {
           keyStoreService.clearFormData
           Ok(replace_benefit_confirmation(response.transaction.oid, currentTaxCode, response.taxCode)(user, request))
@@ -77,12 +79,10 @@ object ReplaceCarBenefitConfirmController {
     }
   }
 
-  def buildRequest(version: Int, formData: ReplaceCarBenefitFormData, taxYear: Int, employmentSequenceNumber: Int) = {
-    val wbr = WithdrawnBenefitRequest(version,
-      Some(WithdrawnCarBenefit(formData.removedCar.withdrawDate,
-        formData.removedCar.numberOfDaysUnavailable,
-        formData.removedCar.removeEmployeeContribution)),
-      Some(WithdrawnFuelBenefit(formData.removedCar.withdrawDate)))
+  def buildRequest(version: Int, formData: ReplaceCarBenefitFormData, taxYear: Int, employmentSequenceNumber: Int, hasFuel: Boolean) = {
+    val fuelWithdrawnRequest = if (hasFuel) Some(WithdrawnFuelBenefit(formData.removedCar.fuelWithdrawDate.getOrElse(formData.removedCar.withdrawDate))) else None
+    val carWithdrawnRequest = Some(WithdrawnCarBenefit(formData.removedCar.withdrawDate, formData.removedCar.numberOfDaysUnavailable, formData.removedCar.removeEmployeeContribution))
+    val wbr = WithdrawnBenefitRequest(version, carWithdrawnRequest, fuelWithdrawnRequest)
 
     val addBenefits = CarBenefitBuilder(formData.newCar, taxYear, employmentSequenceNumber).toBenefits
     val addBenefit = AddBenefit(version, employmentSequenceNumber, addBenefits)
