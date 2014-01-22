@@ -20,7 +20,7 @@
 @includes.footer()
 }
 @footerLinks = {
-
+    @includes.footer_links()
 }
 
 @layouts.govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, footerLinks, nav)(content)
