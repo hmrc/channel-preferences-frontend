@@ -24,6 +24,7 @@ GET     /ssoout                         @controllers.common.SsoOutController.enc
 GET     /loggedout                      @controllers.common.LoginController.redirectToSignedOut
 
 # Common resources
+GET     /cookies                        @controllers.common.CommonController.cookies
 GET     /terms-and-conditions           @controllers.common.CommonController.termsAndConditions
 GET     /privacy                        @controllers.common.CommonController.privacyPolicy
 GET     /help                           @controllers.common.CommonController.helpPage

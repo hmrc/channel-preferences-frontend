@@ -16,13 +16,15 @@ import play.api.mvc.SimpleResult
 import play.api.Logger
 
 
-trait AuthenticationProvider {
+sealed trait AuthenticationProvider {
   type FailureResult = SimpleResult
   val id: String
 
-  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean = false): Future[SimpleResult]
+  def redirectToLogin(redirectToOrigin: Boolean = false)(implicit request: Request[AnyContent]): Future[SimpleResult] = ???
 
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]]
+  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = ???
+
+  implicit def hc(implicit request: Request[_]) = HeaderCarrier(request)
 }
 
 case class UserCredentials(userId: Option[String], token: Option[String])
@@ -34,81 +36,70 @@ object UserCredentials {
   def apply(session: Session): UserCredentials = UserCredentials(session.get(userId), session.get(token))
 }
 
-//object Ida extends AuthenticationProvider {
-//  override val id = "IDA"
-//
-//   val login = routes.LoginController.samlLogin
-//
-//  def handleRedirect(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
-//    Redirect(login).withSession(buildSessionForRedirect(request.session, redirectUrl))
-//
-//  private def redirectUrl(implicit request: Request[AnyContent], redirectToOrigin: Boolean) =
-//    if (redirectToOrigin) Some(request.uri) else None
-//
-//  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
-//    case UserCredentials(None, token@_) =>
-//      Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
-//      Future.successful(Right(handleRedirect(request, redirectToOrigin)))
-//    case UserCredentials(Some(userId), Some(token)) =>
-//      Logger.info(s"Wrong user type - redirecting to login. user : $userId token : $token")
-//      Future.successful(Right(handleRedirect(request, redirectToOrigin)))
-//  }
-//}
+object Ida extends AuthenticationProvider {
+  override val id = "IDA"
 
+  val login = routes.LoginController.samlLogin
 
+  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] =
+    Future.successful(Redirect(login).withSession(buildSessionForRedirect(request.session, redirectUrl(redirectToOrigin))))
+
+  private def redirectUrl(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) =
+    if (redirectToOrigin) Some(request.uri) else None
+
+  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
+    case UserCredentials(None, token@_) =>
+      Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
+      redirectToLogin(redirectToOrigin).map(Right(_))
+    case UserCredentials(Some(userId), Some(token)) =>
+      Logger.info(s"Wrong user type - redirecting to login. user : $userId token : $token")
+      redirectToLogin(redirectToOrigin).map(Right(_))
+  }
+}
+
+/**
+ * BETA: We're using this provider in beta to handle the IDA token. After beta we will
+ * revert to the implementation above.
+ */
 object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
   override val id = "IDA"
 
   lazy val samlConnector = new SamlConnector
 
-  def toBadIdaToken = {
-    Logger.info("Redirecting to bad Ida token page")
-    Redirect("/paye/company-car/ida-token-required-in-beta")
-  }
-
-  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean): Future[SimpleResult] = {
+  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
     request.getQueryString("token") match {
       case Some(token) => {
-        Logger.debug(s"Validating IDA token $token")
         samlConnector.validateToken(token).map { isValid =>
-          if (isValid) {
-            Logger.info(s"Token $token was valid - redirecting to IDA login")
-            toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true)))
-          }
-          else {
-            Logger.info(s"Token $token was invalid - redirecting to error page")
-            toBadIdaToken
-          }
+          if (isValid) toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true)))
+          else toBadIdaToken
         }
       }
       case None => {
-        Logger.info("No token was provided - checking if required")
-        if (samlConnector.idaTokenRequired) {
-          Logger.info("Token is required - redirecting to error page")
-          Future.successful(toBadIdaToken)
-        }
-        else {
-          Logger.info("Token is not required - redirecting to IDA login")
-          Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
-        }
+        if (samlConnector.idaTokenRequired) Future.successful(toBadIdaToken)
+        else Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
       }
     }
+  }
+
+  private def toBadIdaToken = {
+    Logger.info("Redirecting to bad Ida token page")
+    Redirect("/paye/company-car/ida-token-required-in-beta")
   }
 
   private def redirectUrl(request: Request[AnyContent], redirectToOrigin: Boolean) =
     if (redirectToOrigin) Some(request.uri) else None
 
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
+  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
     case UserCredentials(None, token@_) =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
-      redirectToLogin(request, redirectToOrigin).map(result => Right(result))
+      redirectToLogin(redirectToOrigin).map(result => Right(result))
     case UserCredentials(Some(userId), Some(token)) =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"Wrong user type - redirecting to login. user : $userId token : $token")
-      redirectToLogin(request, redirectToOrigin).map(result => Right(result))
+      redirectToLogin(redirectToOrigin).map(result => Right(result))
   }
 }
 
@@ -117,49 +108,34 @@ object GovernmentGateway extends AuthenticationProvider {
 
   val login = routes.LoginController.businessTaxLogin()
 
-  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean) = Future.successful(Redirect(login))
+  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Redirect(login))
 
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = {
-    implicit val hc = HeaderCarrier(request)
-
-    {
-      case UserCredentials(None, token@_) =>
-        Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
-        redirectToLogin(request, redirectToOrigin).map(Right(_))
-      case UserCredentials(Some(userId), None) =>
-        Logger.info(s"No gateway token - redirecting to login. user : $userId token : None")
-        redirectToLogin(request, redirectToOrigin).map(Right(_))
-    }
+  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = {
+    case UserCredentials(None, token@_) =>
+      Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
+      redirectToLogin(redirectToOrigin).map(Right(_))
+    case UserCredentials(Some(userId), None) =>
+      Logger.info(s"No gateway token - redirecting to login. user : $userId token : None")
+      redirectToLogin(redirectToOrigin).map(Right(_))
   }
 }
 
-
 object AnyAuthenticationProvider extends AuthenticationProvider {
 
-  val login = routes.LoginController.businessTaxLogin()
+  private val login = routes.LoginController.businessTaxLogin()
 
-  def redirectToLogin(request: Request[AnyContent], redirectToOrigin: Boolean = false): Future[SimpleResult] = {
+  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     Logger.info("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
-      case Some(IdaWithTokenCheckForBeta.id) => {
-        Logger.info("Provider is IDA - redirecting to IDA login page")
-        IdaWithTokenCheckForBeta.redirectToLogin(request, redirectToOrigin)
-      }
-      case Some(id) => {
-        Logger.info("Provider is $id")
-        Future.successful(Redirect(login))
-      }
-      case None => {
-        Logger.info("No login provider")
-        Future.successful(Redirect(login))
-      }
+      case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin( redirectToOrigin)
+      case _ => Future.successful(Redirect(login))
     }
   }
 
-  def handleNotAuthenticated(request: Request[AnyContent], redirectToOrigin: Boolean) = {
+  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
     request.session.get(SessionKeys.authProvider) match {
-      case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(request, redirectToOrigin)
-      case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.handleNotAuthenticated(request, redirectToOrigin)
+      case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(redirectToOrigin)
+      case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.handleNotAuthenticated(redirectToOrigin)
       case _ => {case _ => Future.successful(Right(Redirect(login).withNewSession))}
     }
   }

@@ -22,10 +22,10 @@ trait UserActionWrapper
                                             taxRegime: Option[TaxRegime],
                                             redirectToOrigin: Boolean)
                                            (userAction: User => Action[AnyContent]): Action[AnyContent] =
-    Action.async { request =>
+    Action.async { implicit request =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"WithUserAuthorisedBy using auth provider ${authenticationProvider.id}")
-      val handle = authenticationProvider.handleNotAuthenticated(request, redirectToOrigin) orElse handleAuthenticated(request, taxRegime, authenticationProvider)
+      val handle = authenticationProvider.handleNotAuthenticated(redirectToOrigin) orElse handleAuthenticated(taxRegime, authenticationProvider)
 
       handle(UserCredentials(request.session)).flatMap {
         case Left(successfullyFoundUser) => userAction(successfullyFoundUser)(request)
@@ -33,7 +33,9 @@ trait UserActionWrapper
       }
     }
 
-  private def handleAuthenticated(request: Request[AnyContent], taxRegime: Option[TaxRegime], authenticationProvider: AuthenticationProvider): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
+  private def handleAuthenticated(taxRegime: Option[TaxRegime], authenticationProvider: AuthenticationProvider)
+                                 (implicit request: Request[AnyContent]):
+  PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
     case UserCredentials(Some(userId), tokenOption) =>
       implicit val hc = HeaderCarrier(request)
       val authority = authConnector.authority(userId)
@@ -43,7 +45,7 @@ trait UserActionWrapper
         case Some(ua) => taxRegime match {
           case Some(regime) if !regime.isAuthorised(ua.accounts) =>
             Logger.info("user not authorised for " + regime.getClass)
-            authenticationProvider.redirectToLogin(request).map(Right(_))
+            authenticationProvider.redirectToLogin(false).map(Right(_))
           case _ =>
             regimeRoots(ua).map { regimeRoots =>
               Left(User(
@@ -56,7 +58,7 @@ trait UserActionWrapper
         }
         case _ => {
           Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-          AnyAuthenticationProvider.redirectToLogin(request).map { result =>
+          AnyAuthenticationProvider.redirectToLogin(false).map { result =>
             Right(result.withNewSession)
           }
         }

@@ -41,18 +41,17 @@ object SessionTimeoutWrapper {
 class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeout {
 
   import play.api.mvc._
-  import org.joda.time.{Duration, DateTimeZone, DateTime}
   import SessionTimeoutWrapper._
   import play.api.libs.concurrent.Execution.Implicits._
 
   def apply(action: Action[AnyContent]): Action[AnyContent] = Action.async {
-    request: Request[AnyContent] => {
+    implicit request: Request[AnyContent] => {
 
       val result = if (hasValidTimestamp(request.session, now)) {
         action(request)
       } else {
         Logger.info(s"request refused as the session had timed out in ${request.path}")
-        AnyAuthenticationProvider.redirectToLogin(request).flatMap { simpleResult =>
+        AnyAuthenticationProvider.redirectToLogin(false).flatMap { simpleResult =>
           Action(simpleResult)(request).map(_.withNewSession)
         }
       }
@@ -80,7 +79,6 @@ trait SessionTimeout {
 
   import play.api.mvc._
   import org.joda.time.DateTime
-  import SessionTimeoutWrapper._
   import play.api.http.HeaderNames.SET_COOKIE
   import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 

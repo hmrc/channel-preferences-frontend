@@ -2,6 +2,7 @@ package controllers.paye
 
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
+import models.paye.AddCar
 
 class PayeQuestionnaireUtilsSpec extends BaseSpec {
 
@@ -9,7 +10,8 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
 
     "succeed to extract all questionnaire fields when a user answers all questions" in new WithApplication(FakeApplication())  {
 
-      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("q1", "4"), ("q2", "1"), ("q3", "2"), ("q4", "4"),
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("journeyType", "AddCar"), ("oldTaxCode", "someOldCode"),("newTaxCode", "someNewCode"),
+                                                                  ("q1", "4"), ("q2", "1"), ("q3", "2"), ("q4", "4"),
                                                                   ("q5", "3"),("q6", "1"),("q7", "Some Comments"))
 
       val actualQuestionnaireForm = PayeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
@@ -19,6 +21,9 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
 
       actualQuestionnaireData should have (
         'transactionId("someTxId"),
+        'journeyType(Some("AddCar")),
+        'newTaxCode(Some("someNewCode")),
+        'oldTaxCode(Some("someOldCode")),
         'wasItEasy(Some(4)),
         'secure(Some(1)),
         'comfortable(Some(2)),
@@ -30,7 +35,7 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
     }
 
     "succeed to extract all questionnaire fields when a user answers some questions" in {
-      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("q1", "4"), ("q3", "2"), ("q4", "4"),
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("journeyType", "AddCar"), ("q1", "4"), ("q3", "2"), ("q4", "4"),
         ("q5", "3"),("q7", "Some Comments"))
 
       val actualQuestionnaireForm = PayeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
@@ -40,6 +45,7 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
 
       actualQuestionnaireData should have (
         'transactionId("someTxId"),
+        'journeyType(Some("AddCar")),
         'wasItEasy(Some(4)),
         'secure(None),
         'comfortable(Some(2)),
@@ -51,7 +57,7 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
     }
 
     "succeed to extract all questionnaire fields when a user does not answer any questions" in {
-      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"))
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("journeyType", "AddCar"))
 
       val actualQuestionnaireForm = PayeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
 
@@ -60,6 +66,7 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
 
       actualQuestionnaireData should have (
         'transactionId("someTxId"),
+        'journeyType(Some("AddCar")),
         'wasItEasy(None),
         'secure(None),
         'comfortable(None),
@@ -95,6 +102,17 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
       val actualQuestionnaireForm = PayeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
 
       actualQuestionnaireForm.hasErrors shouldBe true
+    }
+  }
+
+  "toJourneyType" should {
+
+    "return a valid PayeJourney object if the given string represents one" in {
+      PayeQuestionnaireUtils.toJourneyType("AddCar") shouldBe AddCar
+    }
+
+    "throw an exception if the given string does not represent a valid PayeJourney" in {
+      evaluating(PayeQuestionnaireUtils.toJourneyType("wongType")) should produce [IllegalJourneyTypeException]
     }
   }
 }

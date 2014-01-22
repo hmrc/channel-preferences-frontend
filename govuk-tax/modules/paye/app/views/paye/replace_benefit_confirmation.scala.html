@@ -1,5 +1,6 @@
-@(oldTaxCode: String, newTaxCode: Option[String])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(transactionId: String, oldTaxCode: String, newTaxCode: Option[String], showQuestionnaire: Boolean = true)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
+@import models.paye._
 
 @main(title = Messages("paye.replace_benefit_confirmation.title"), user = Some(user)) {
     <h1>@Messages("paye.replace_benefit_confirmation.header")</h1>
@@ -24,5 +25,7 @@
             Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_url"),
             Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_text"), true)))</p>
 
-    @includes.end_of_journey_questionnaire()
+     @if(showQuestionnaire) {
+        @includes.end_of_journey_questionnaire(transactionId, ReplaceCar, oldTaxCode, newTaxCode)
+     }
 }
