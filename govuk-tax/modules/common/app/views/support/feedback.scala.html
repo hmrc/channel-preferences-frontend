@@ -1,47 +1,51 @@
-@(feedbackForm: Form[controllers.common.support.FeedbackForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
+@(feedbackForm: Form[controllers.common.support.FeedbackForm], user: Option[uk.gov.hmrc.common.microservice.domain.User])(implicit request : Request[_])
 @import views.helpers._
 @import controllers.common.support.FeedbackFormConfig._
-@main(title = Messages("common.feedback.heading"), nav = true, user = Some(user), feedbackLinkEnabled = false) {
+@main(title = Messages("common.feedback.heading"), nav = user.isDefined, user = user) {
 <header class="page-header">
     <h1>@Messages("common.feedback.heading")</h1>
 </header>
-    @helpers.form(action = common.support.routes.FeedbackController.submit, 'id -> "feedback-form", 'class -> "form--feedback") {
-        <fieldset>
-            @helpers.inputRadioGroup(
-            feedbackForm("feedback-rating"),
-            feedbackRatings,
-            '_label -> "Rate your experience of using Tax Platform",
-            '_divClass -> "form-field",
-            '_labelClass -> "label--inlineRadio",
-            '_inputClass -> "input--fullwidth"
-            )
-            @helpers.input(
-            feedbackForm("feedback-name"),
-            '_label -> "Your name",
-            '_divClass -> "form-field",
-            '_inputClass -> "input--fullwidth"
-            )
-            @helpers.input(
-            feedbackForm("feedback-email"),
-            '_label -> "Email address",
-            '_divClass -> "form-field",
-            '_inputClass -> "input--fullwidth"
-            )
-            @helpers.textArea(
-            feedbackForm("feedback-comments"),
-            '_label -> "Your comments",
-            '_divClass -> "form-field",
-            '_inputClass -> "input--fullwidth",
-            '_help -> "2000 Characters max"
-            )
-            <input type="hidden" name="isJavascript" id="isJavascript" value="@feedbackForm.data.get("isJavascript")">
-            <input type="hidden" name="referer" id="referer" value="@feedbackForm.data.get("referer")">
 
-            <div class="form-field">
-                <button class="button" type="submit">Send</button>
-            </div>
+    @defining(user.map{_ => common.support.routes.FeedbackController.submit}.getOrElse(common.support.routes.FeedbackController.submitUnauthenticated))  { call =>
 
-        </fieldset>
+        @helpers.form(action = call, 'id -> "feedback-form", 'class -> "form--feedback") {
+            <fieldset>
+                @helpers.inputRadioGroup(
+                feedbackForm("feedback-rating"),
+                feedbackRatings,
+                '_label -> "Rate your experience of using Tax Platform",
+                '_divClass -> "form-field",
+                '_labelClass -> "label--inlineRadio",
+                '_inputClass -> "input--fullwidth"
+                )
+                @helpers.input(
+                feedbackForm("feedback-name"),
+                '_label -> "Your name",
+                '_divClass -> "form-field",
+                '_inputClass -> "input--fullwidth"
+                )
+                @helpers.input(
+                feedbackForm("feedback-email"),
+                '_label -> "Email address",
+                '_divClass -> "form-field",
+                '_inputClass -> "input--fullwidth"
+                )
+                @helpers.textArea(
+                feedbackForm("feedback-comments"),
+                '_label -> "Your comments",
+                '_divClass -> "form-field",
+                '_inputClass -> "input--fullwidth",
+                '_help -> "2000 Characters max"
+                )
+                <input type="hidden" name="isJavascript" id="isJavascript" value="@feedbackForm.data.get("isJavascript")">
+                <input type="hidden" name="referer" id="referer" value="@feedbackForm.data.get("referer")">
+
+                <div class="form-field">
+                    <button class="button" type="submit">Send</button>
+                </div>
+
+            </fieldset>
+        }
     }
 
 }

@@ -38,23 +38,32 @@ class FeedbackControllerSpec extends BaseSpec {
 
   "Feedback controller" should {
 
-    "render feedback form" in new FeedbackControllerApplication {
+    "render feedback form for authenticated user" in new FeedbackControllerApplication {
 
-      val result = controller.renderForm(user, FakeRequest())
+      val result = controller.authenticatedFeedback(user.get, FakeRequest())
       status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit"
+    }
 
+    "render feedback form for unauthenticated user" in new FeedbackControllerApplication {
+
+      val result = controller.unauthenticatedFeedback(FakeRequest())
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit-unauthenticated"
     }
 
     "display error when rating is not selected" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(rating = ""))
+      val result = controller.doSubmit(user)(request(rating = ""))
       status(result) shouldBe 400
       formContainsError(result, "Please rate your experience")
     }
 
     "display error when rating is not selected at all" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody(
+      val result = controller.doSubmit(user)(FakeRequest().withFormUrlEncodedBody(
         "feedback-name" -> "name",
         "feedback-email" -> "email@foo.com",
         "feedback-comments" -> "unrateable",
@@ -66,52 +75,52 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "display error when submitting invalid rating value" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(rating = "pants"))
+      val result = controller.doSubmit(user)(request(rating = "pants"))
       status(result) shouldBe 400
       formContainsError(result, "Please select a valid experience rating")
     }
 
     "display error when name is empty" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(name = ""))
+      val result = controller.doSubmit(user)(request(name = ""))
       status(result) shouldBe 400
       formContainsError(result, "Please provide your name")
     }
 
     "display error when name is too long" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(name = stringOfLength(71)))
+      val result = controller.doSubmit(user)(request(name = stringOfLength(71)))
       status(result) shouldBe 400
       formContainsError(result, "Your name cannot be longer than 70 characters")
     }
 
     "submit feedback with maximum name length" in new FeedbackControllerApplication {
-      val result = controller.doSubmit(user, request(name = stringOfLength(70)))
+      val result = controller.doSubmit(user)(request(name = stringOfLength(70)))
       status(result) shouldBe 303
     }
 
     "display error when email is empty" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(email = ""))
+      val result = controller.doSubmit(user)(request(email = ""))
       status(result) shouldBe 400
       formContainsError(result, "Enter a valid email address")
     }
 
     "display error when email is too long" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(email = s"${stringOfLength(317)}@a.a"))
+      val result = controller.doSubmit(user)(request(email = s"${stringOfLength(317)}@a.a"))
       status(result) shouldBe 400
       formContainsError(result, "The email cannot be longer than 320 characters")
     }
 
     "submit feedback with maximum email length" in new FeedbackControllerApplication {
-      val result = controller.doSubmit(user, request(email = s"${stringOfLength(316)}@a.a"))
+      val result = controller.doSubmit(user)(request(email = s"${stringOfLength(316)}@a.a"))
       status(result) shouldBe 303
     }
 
     "display error when email address is not valid" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(email = "this is not an email address"))
+      val result = controller.doSubmit(user)(request(email = "this is not an email address"))
       status(result) shouldBe 400
       formContainsError(result, "Enter a valid email address")
 
@@ -119,28 +128,28 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "display error when comments are empty" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(comments = ""))
+      val result = controller.doSubmit(user)(request(comments = ""))
       status(result) shouldBe 400
       formContainsError(result, "Please provide details")
     }
 
     "display error when comments are too verbose" in new FeedbackControllerApplication {
 
-      val result = controller.doSubmit(user, request(comments = stringOfLength(2001)))
+      val result = controller.doSubmit(user)(request(comments = stringOfLength(2001)))
       status(result) shouldBe 400
       formContainsError(result, "The comment cannot be longer than 2000 characters")
     }
 
     "submit feedback with maximum comments length" in new FeedbackControllerApplication {
-      val result = controller.doSubmit(user, request(comments = stringOfLength(2000)))
+      val result = controller.doSubmit(user)(request(comments = stringOfLength(2000)))
       status(result) shouldBe 303
     }
 
-    "submit the feedback" in new FeedbackControllerApplication {
+    "submit the authenticated feedback" in new FeedbackControllerApplication {
       val ticket = Some(TicketId(123))
       when(ticketCache.stashTicket(meq(ticket), meq("ContactForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
 
-      val result = controller.redirectToConfirmationPage(Future.successful(ticket))(user, request())
+      val result = controller.redirectToConfirmationPage(Future.successful(ticket), user)(request())
 
       status(result) shouldBe 303
       result.header.headers("Location") shouldBe "/beta-feedback/thanks"
@@ -155,6 +164,17 @@ class FeedbackControllerSpec extends BaseSpec {
       status(result) shouldBe 200
       contentAsString(result) should include("Your feedback will be reviewed by our customer support team")
       page.getElementById("ticketId").attr("value") shouldBe "321"
+    }
+
+    "submit the unauthenticated feedback" in new FeedbackControllerApplication {
+      val ticket = Some(TicketId(123))
+      when(ticketCache.stashTicket(meq(ticket), meq("ContactForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
+
+      val result = controller.redirectToConfirmationPage(Future.successful(ticket), None)(request())
+
+      status(result) shouldBe 303
+      result.header.headers("Location") shouldBe "/beta-feedback/thanks-unauthenticated"
+      verify(ticketCache).stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])
     }
   }
 }
@@ -174,7 +194,7 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
 
   val user = {
     val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
-    User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root)))
+    Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root))))
   }
 
   def request(rating: String = "Good",

@@ -238,8 +238,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       content should include("Password")
       content should include("Sign in")
       content should not include "Invalid"
-      val doc = Jsoup.parse(content)
-      doc.getElementById("feedback-link") shouldBe null
     }
 
     "not be able to log in and should return to the login form with an error message if he submits an empty Government Gateway user id" in new WithSetup {
@@ -378,8 +376,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 200
       private val content = contentAsString(result)
       content should include("To sign in again, use the link sent to you in your invitation email.")
-      val doc = Jsoup.parse(content)
-      doc.getElementById("feedback-link") shouldBe null
 
       val sess = session(result)
       sess.get("someKey") shouldBe None

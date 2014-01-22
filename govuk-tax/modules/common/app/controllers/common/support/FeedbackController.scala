@@ -9,9 +9,10 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.domain.User
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
+import ExecutionContext.Implicits.global
 
 class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)(implicit override val authConnector: AuthConnector)
   extends BaseController
@@ -42,45 +43,57 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   }))
 
   def feedbackForm = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider)({
-    implicit user => implicit request => renderForm
+    implicit user => implicit request => authenticatedFeedback
   }))
+
+  def unauthenticatedFeedbackForm = UnauthorisedAction {
+    implicit request => unauthenticatedFeedback
+  }
 
   def submit = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async({
-    implicit user => implicit request => doSubmit
+    implicit user => implicit request => doSubmit(Some(user))
   }))
+
+  def submitUnauthenticated = UnauthorisedAction.async {
+    implicit request => doSubmit(None)
+  }
 
   def thanks = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async({
-    implicit user => implicit request => doThanks
+    implicit user => implicit request => doThanks(Some(user), request)
   }))
 
-  private[common] def doSubmit(implicit user: User, request: Request[AnyRef]) = {
+  def unauthenticatedThanks = UnauthorisedAction.async({
+    implicit request => doThanks(None, request)
+  })
 
+  private[common] def doSubmit(user: Option[User])(implicit request: Request[AnyRef]) = {
     form.bindFromRequest()(request).fold(
       error => {
-        Future(BadRequest(views.html.support.feedback(error)))
+        Future(BadRequest(views.html.support.feedback(error, user)(request)))
       },
       data => {
         import data._
-        redirectToConfirmationPage(hmrcDeskproConnector.createFeedback(name, email, experienceRating, "Beta feedback submission", comments, referrer, javascriptEnabled, request, Some(user)))
+        redirectToConfirmationPage(hmrcDeskproConnector.createFeedback(name, email, experienceRating, "Beta feedback submission", comments, referrer, javascriptEnabled, request, user), user)
       })
   }
 
-  private[common] def redirectToConfirmationPage(ticketId: Future[Option[TicketId]])(implicit user: User, request: Request[AnyRef]) =
-
+  private[common] def redirectToConfirmationPage(ticketId: Future[Option[TicketId]], user: Option[User])(implicit request: Request[AnyRef]) =
     ticketId.map {
       ticketOption => {
         ticketCache.stashTicket(ticketOption, formId)
-        Redirect(routes.FeedbackController.thanks())
+        Redirect(user.map(_ => routes.FeedbackController.thanks()).getOrElse(routes.FeedbackController.unauthenticatedThanks()))
       }
     }
 
 
-  private[common] def renderForm(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a")))))
+  private[common] def authenticatedFeedback(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a"))), Some(user)))
 
-  private[common] def doThanks(implicit user: User, request: Request[AnyRef]) =   {
+  private[common] def unauthenticatedFeedback(implicit request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a"))), None))
+
+  private[common] def doThanks(implicit user: Option[User], request: Request[AnyRef]) = {
     implicit val hc = HeaderCarrier(request)
     ticketCache.popTicket(formId).map {
-      ticketId => Ok(views.html.support.feedback_confirmation(ticketId)(user, request))
+      ticketId => Ok(views.html.support.feedback_confirmation(ticketId, user)(request))
     }
   }
 
