@@ -26,6 +26,7 @@ import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import uk.gov.hmrc.common.microservice.governmentgateway.GatewayToken
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
+import org.jsoup.Jsoup
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -231,11 +232,14 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe OK
       contentType(result).get shouldBe "text/html"
       charset(result).get shouldBe "utf-8"
-      contentAsString(result) should include("form")
-      contentAsString(result) should include("User ID")
-      contentAsString(result) should include("Password")
-      contentAsString(result) should include("Sign in")
-      contentAsString(result) should not include "Invalid"
+      val content = contentAsString(result)
+      content should include("form")
+      content should include("User ID")
+      content should include("Password")
+      content should include("Sign in")
+      content should not include "Invalid"
+      val doc = Jsoup.parse(content)
+      doc.getElementById("feedback-link") shouldBe null
     }
 
     "not be able to log in and should return to the login form with an error message if he submits an empty Government Gateway user id" in new WithSetup {
@@ -372,7 +376,10 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.signedOut(FakeRequest().withSession("someKey" -> "someValue"))
 
       status(result) shouldBe 200
-      contentAsString(result) should include("To sign in again, use the link sent to you in your invitation email.")
+      private val content = contentAsString(result)
+      content should include("To sign in again, use the link sent to you in your invitation email.")
+      val doc = Jsoup.parse(content)
+      doc.getElementById("feedback-link") shouldBe null
 
       val sess = session(result)
       sess.get("someKey") shouldBe None
