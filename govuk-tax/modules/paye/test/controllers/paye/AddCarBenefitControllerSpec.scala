@@ -561,7 +561,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       val co2Emission = 50
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = controller.currentTaxYear
-      val uri = s"paye/car-benefit/$taxYear/$employmentSeqNumberOne/add"
+      val uri = s"/car-benefit/$taxYear/$employmentSeqNumberOne/add"
       val updatedCar = car.copy(dateCarRegistered = Some(carRegistrationDate), fuelType = Some("diesel"), co2Emissions = Some(50), engineSize = Some(1400))
       val updatedCarAndFuel = carAndFuel.copy(carBenefit = carBenefit.copy(car = Some(updatedCar)))
 

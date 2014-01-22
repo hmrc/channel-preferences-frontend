@@ -20,7 +20,6 @@ import controllers.paye.validation.AddBenefitFlow
 import models.paye.CarBenefitData
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
-import models.paye.BenefitUpdatedConfirmationData
 import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
@@ -112,21 +111,16 @@ with PayeRegimeRoots {
 
               val payeAddBenefitUri = payeRoot.addBenefitLink(taxYear).getOrElse(throw new IllegalStateException(s"No link was available for adding a benefit for user with oid ${user.oid}"))
               val carBenefit = CarBenefitBuilder(carBenefitDataAndCalculation, taxYear, employmentSequenceNumber)
-              val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, version, employmentSequenceNumber, carBenefit.toBenefits)
               keyStoreService.deleteKeyStore(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source)
 
-              TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap {
-                currentTaxYearCode =>
-                  val f1 = addBenefitsResponse.map(_.get.newTaxCode)
-                  val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
-
-                  for {
-                    newTaxCode <- f1
-                    netCodedAllowance <- f2
-                  } yield {
-                    val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-                    Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData))
-                  }
+              for {
+                currentTaxYearCode <- TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear)
+                addBenefitsResponseOption <- payeConnector.addBenefits(payeAddBenefitUri, version, employmentSequenceNumber, carBenefit.toBenefits)
+              }
+              yield {
+                val addBenefitsResponse = addBenefitsResponseOption.getOrElse(throw new IllegalStateException("No add benefits response was returned from the addBenefits call to paye"))
+                val benefitUpdateConfirmationData = BenefitUpdateConfirmationBuilder.buildBenefitUpdatedConfirmationData(currentTaxYearCode, addBenefitsResponse)
+                Ok(views.html.paye.add_car_benefit_confirmation(benefitUpdateConfirmationData, AddCar)(request))
               }
           }
       }
@@ -161,7 +155,7 @@ with PayeRegimeRoots {
                       addCarBenefitData.carRegistrationDate,
                       addCarBenefitData.privateUsePaymentAmount)
 
-                  Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber)(request))
+                  Ok(add_car_benefit_review(confirmationData, user, taxYear, employmentSequenceNumber)(request))
                 }
               }
             }

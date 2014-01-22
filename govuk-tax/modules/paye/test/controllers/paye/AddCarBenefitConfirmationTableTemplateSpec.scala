@@ -27,7 +27,7 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with TaxYe
 
       // when
       val doc = documentOf(add_car_benefit_review(
-        confirmationData, johnDensmore, "", 0, 0)(FakeRequest()))
+        confirmationData, johnDensmore, 0, 0)(FakeRequest()))
 
       // then
       withClue("row with id=employee_contributions") {
@@ -43,7 +43,7 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with TaxYe
 
       // when
       val doc = documentOf(add_car_benefit_review(
-        confirmationData, johnDensmore, "", 0, 0)(FakeRequest()))
+        confirmationData, johnDensmore, 0, 0)(FakeRequest()))
 
       // then
       withClue("row with id=employee_contributions") {

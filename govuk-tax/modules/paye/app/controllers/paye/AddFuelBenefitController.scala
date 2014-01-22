@@ -23,7 +23,7 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.paye.validation.AddCarBenefitValidator.CarBenefitValues
-import models.paye.{TaxCodeResolver, BenefitUpdatedConfirmationData}
+import models.paye.{AddFuel, TaxCodeResolver}
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
@@ -125,7 +125,7 @@ with PayeRegimeRoots {
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, addFuelBenefitData).map {
                 _ =>
                   val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get)
-                  Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, taxYear, employmentSequenceNumber, user)(request))
+                  Ok(views.html.paye.add_fuel_benefit_review(fuelData, taxYear, employmentSequenceNumber, user)(request))
               }
             })
         }
@@ -158,23 +158,16 @@ with PayeRegimeRoots {
 
         payeRoot.version.flatMap{
           version =>
-            val addBenefitsResponse = payeConnector.addBenefits(payeAddBenefitUri, version, employmentSequenceNumber, updatedCarBenefit.toBenefits)
-
             keyStoreService.deleteKeyStore(keystoreId, KeystoreUtils.source)
 
-            TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear).flatMap {
-              currentTaxYearCode =>
-                val f1 = addBenefitsResponse.map(_.get.newTaxCode)
-                val f2 = addBenefitsResponse.map(_.get.netCodedAllowance)
-
-                for {
-                  newTaxCode <- f1
-                  netCodedAllowance <- f2
-                } yield {
-                  val benefitUpdateConfirmationData = BenefitUpdatedConfirmationData(currentTaxYearCode, newTaxCode, netCodedAllowance, startOfCurrentTaxYear, endOfCurrentTaxYear)
-                  Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData))
-                }
-          }
+            for {
+              addBenefitsResponseOption <- payeConnector.addBenefits(payeAddBenefitUri, version, employmentSequenceNumber, updatedCarBenefit.toBenefits)
+              currentTaxYearCode <- TaxCodeResolver.currentTaxCode(payeRoot, employmentSequenceNumber, taxYear)
+            } yield {
+              val addBenefitsResponse = addBenefitsResponseOption.getOrElse(throw new IllegalStateException("No add benefits response was returned from the addBenefits call to paye"))
+              val benefitUpdateConfirmationData = BenefitUpdateConfirmationBuilder.buildBenefitUpdatedConfirmationData(currentTaxYearCode, addBenefitsResponse)
+              Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData, AddFuel)(request))
+            }
         }
       }
     }
@@ -185,10 +178,6 @@ with PayeRegimeRoots {
       case Some(carBenefit) => carBenefit
       case _ => throw new StaleHodDataException("No Car benefit found!") //TODO: Refine this error scenario
     }
-  }
-
-  private def missingActiveCarBenefit(taxYearData: TaxYearData, employmentSequenceNumber: Int): Boolean = {
-    taxYearData.findActiveCarBenefit(employmentSequenceNumber).filter(!_.hasActiveFuel).isEmpty
   }
 
   private def getDateInTaxYear(benefitDate: Option[LocalDate]): LocalDate = {

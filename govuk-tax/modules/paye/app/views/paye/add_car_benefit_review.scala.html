@@ -1,4 +1,6 @@
-@(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData, user: uk.gov.hmrc.common.microservice.domain.User, currentUri: String, taxYear: Int, employmentSequenceNumber: Int)(implicit request: Request[_])
+@(data: uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData, user: uk.gov.hmrc.common.microservice.domain.User, taxYear: Int, employmentSequenceNumber: Int)(implicit request: Request[_])
+
+@import controllers.paye.routes._
 
 @main(title = Messages("paye.add_car_benefit_review.title"), user = Some(user)) {
     <header class="page-header">
@@ -6,9 +8,9 @@
     </header>
     <h2>@Messages("paye.add_car_benefit_review.h2")</h2>
     @add_car_benefit_confirmation_table(data)
-    @helpers.link("edit-data", currentUri, Messages("paye.benefit_review.wrong_information"))
+    @helpers.link("edit-data", AddCarBenefitController.startAddCarBenefit(taxYear, employmentSequenceNumber).toString, Messages("paye.benefit_review.wrong_information"))
 
-  @helpers.form(action = controllers.paye.routes.AddCarBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
+  @helpers.form(action = AddCarBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
     <div class="form-field">
         <input type="submit" class="button" value="@Messages("paye.add_car_benefit_review.submit_button")">
     </div>
