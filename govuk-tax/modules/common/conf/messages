@@ -92,12 +92,15 @@ login_error.persistentproblem={0} if this problem happens again.
 login_error.contact_help_desk.link.text=Contact the help desk
 login_error.contact_help_desk.link.url=https://www.gov.uk/hmrc-online-services-helpdesk
 
-common.links.privacy_policy.text=privacy policy
-common.links.privacy_policy.url=/privacy
 common.links.help_page.text=Help
 common.links.help_page.url=/help
 common.links.cookies.text=Cookies
 common.links.cookies.url=/cookies
+common.links.contact_hmrc.text=Contact HRMC
+common.links.contact_hmrc.url=/contact-hmrc
+common.links.privacy_policy.text=Privacy policy
+common.links.privacy_policy.text.lower_case=privacy policy
+common.links.privacy_policy.url=/privacy
 common.links.terms_and_conditions.text=Terms and conditions
 common.links.terms_and_conditions.url=/terms-and-conditions
 
