@@ -8,7 +8,7 @@ import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, Formatted
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.FrontEndRedirect
+import controllers.common.{SessionKeys, FrontEndRedirect}
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.jsoup.Jsoup
@@ -41,7 +41,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
   val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
   val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
 
-  "Preferences pages" should {
+  "The preferences action on login" should {
 
     "redirect to the homepage when preferences already exist for a specific utr" in new Setup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
@@ -89,14 +89,40 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "include a link to keep paper preference" in new Setup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
-
       val page = Future.successful(controller.displayPrefsOnLoginFormAction(None)(user, request))
+      status(page) shouldBe 200
+      val document = Jsoup.parse(contentAsString(page))
+      document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to receive letters"
+    }
+  }
+
+  "The preferences form" should {
+
+    "render an email input field with no value if no email address is supplied" in new Setup {
+      val page = Future.successful(controller.displayPrefsFormAction(user, request))
 
       status(page) shouldBe 200
 
       val document = Jsoup.parse(contentAsString(page))
 
-      document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to receive letters"
+      document.getElementById("email.main").attr("value") shouldBe ""
+      document.getElementById("email.confirm").attr("value") shouldBe ""
+    }
+
+    "render an email input field populated with the supplied email address" in new Setup {
+      val emailAddress = "bob@bob.com"
+
+      val page = Future.successful(controller.displayPrefsFormAction(user, request.withSession(SessionKeys.unconfirmedEmailAddress -> emailAddress)))
+
+      status(page) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("email.main") shouldNot be(null)
+      document.getElementById("email.main").attr("value") shouldBe emailAddress
+      document.getElementById("email.confirm") shouldNot be(null)
+      document.getElementById("email.confirm").attr("value") shouldBe emailAddress
+
     }
   }
 

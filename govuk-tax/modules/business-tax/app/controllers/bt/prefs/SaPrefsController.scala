@@ -2,7 +2,7 @@ package controllers.bt.prefs
 
 import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
-import controllers.common.{FrontEndRedirect, BaseController}
+import controllers.common.{SessionKeys, FrontEndRedirect, BaseController}
 import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -27,9 +27,10 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
       displayPrefsOnLoginFormAction(emailAddress)(user, request)
   }
 
-  def displayPrefsForm(emailAddress: Option[String]) = AuthorisedFor(account = SaRegime).async {
+  // FIXME - Need to capture emailAddress from session
+  def displayPrefsForm() = AuthorisedFor(account = SaRegime).async {
     user => request =>
-      displayPrefsFormAction(emailAddress)(user, request)
+      displayPrefsFormAction(user, request)
   }
 
   def submitPrefsForm() = AuthorisedFor(account = SaRegime).async {
@@ -54,7 +55,8 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[String])(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def displayPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
+    val emailAddress = request.session.get(SessionKeys.unconfirmedEmailAddress)
     Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)))))
   }
 
