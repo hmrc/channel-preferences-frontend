@@ -14,6 +14,7 @@ import MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.SimpleResult
 import play.api.Logger
+import uk.gov.hmrc.common.microservice.idatokenapi.IdaTokenApiConnector
 
 
 sealed trait AuthenticationProvider {
@@ -65,19 +66,19 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
   override val id = "IDA"
 
-  lazy val samlConnector = new SamlConnector
+  lazy val idaTokenApiConnector = new IdaTokenApiConnector
 
   override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
     request.getQueryString("token") match {
       case Some(token) => {
-        samlConnector.validateToken(token).map { isValid =>
+        idaTokenApiConnector.validateToken(token).map { isValid =>
           if (isValid) toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true)))
           else toBadIdaToken
         }
       }
       case None => {
-        if (samlConnector.idaTokenRequired) Future.successful(toBadIdaToken)
+        if (idaTokenApiConnector.idaTokenRequired) Future.successful(toBadIdaToken)
         else Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
       }
     }
@@ -127,7 +128,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
   override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     Logger.info("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
-      case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin( redirectToOrigin)
+      case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin(redirectToOrigin)
       case _ => Future.successful(Redirect(login))
     }
   }
