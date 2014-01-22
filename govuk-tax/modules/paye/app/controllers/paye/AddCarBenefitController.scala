@@ -161,7 +161,7 @@ with PayeRegimeRoots {
                       addCarBenefitData.carRegistrationDate,
                       addCarBenefitData.privateUsePaymentAmount)
 
-                  Ok(add_car_benefit_review(confirmationData, user, request.uri, taxYear, employmentSequenceNumber)(request))
+                  Ok(add_car_benefit_review(confirmationData, user, taxYear, employmentSequenceNumber)(request))
                 }
               }
             }

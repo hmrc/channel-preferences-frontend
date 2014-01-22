@@ -125,7 +125,7 @@ with PayeRegimeRoots {
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, addFuelBenefitData).map {
                 _ =>
                   val fuelData = AddFuelBenefitConfirmationData(employment.employerName, Some(carBenefitStartDate), addFuelBenefitData.employerPayFuel.get)
-                  Ok(views.html.paye.add_fuel_benefit_review(fuelData, request.uri, taxYear, employmentSequenceNumber, user)(request))
+                  Ok(views.html.paye.add_fuel_benefit_review(fuelData, taxYear, employmentSequenceNumber, user)(request))
               }
             })
         }
