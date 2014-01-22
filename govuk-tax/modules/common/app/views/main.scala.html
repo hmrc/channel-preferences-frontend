@@ -1,4 +1,4 @@
-@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true, feedbackLinkEnabled:Boolean = true)(mainContent: Html)
+@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true, feedbackLinkEnabled:Boolean = true, header:Option[Html] = None)(mainContent: Html)
 
 
 @head = {
@@ -11,7 +11,7 @@
 @includes.betaBanner(feedbackLinkEnabled)
 }
 @content = {
-@includes.main_content(mainContent, user, sidebarLinks, supportLinkEnabled, nav)
+@includes.main_content(mainContent, user, sidebarLinks, supportLinkEnabled, nav, header)
 }
 @footerTop = {
 

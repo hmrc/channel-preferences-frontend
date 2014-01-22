@@ -1,20 +1,24 @@
-@(content: Html, user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html], supportLinkEnabled: Boolean = true, nav: Boolean = false)
-<section id="content" class="l-constrained--topBordered">
+@(content: Html, user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html], supportLinkEnabled: Boolean = true, nav: Boolean = false, header: Option[Html] = None)
+<main id="content" class="l-constrained--topBordered">
 
     @includes.loginStatus(user, nav)
-    <div class="l-bodyLeftColumn">
+    @if( header.isDefined ) {
+         <header class="page-header">
+             <h1>@header.get</h1>
+         </header>
+    }
         <article>
             @content
         </article>
-        @if(supportLinkEnabled && user.isDefined) {
-            @includes.error_feedback()
-        }
-    </div>
+
     @if( sidebarLinks.isDefined ) {
         <aside>
             @sidebarLinks.get
         </aside>
     }
+    @if(supportLinkEnabled && user.isDefined) {
+        @includes.error_feedback()
+    }
 
 
-</section>
+</main>
