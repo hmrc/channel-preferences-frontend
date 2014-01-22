@@ -5,7 +5,6 @@ import uk.gov.hmrc.microservice.saml.domain.{AuthResponseValidationResult, AuthR
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import org.json4s.JObject
-import play.api.Logger
 import scala.util.Try
 import uk.gov.hmrc.crypto.AesCrypto
 import org.apache.commons.codec.binary.Base64
@@ -23,14 +22,14 @@ class SamlConnector extends Connector with AesCrypto {
 
   def validate(authResponse: String)(implicit hc: HeaderCarrier) = {
     httpPostF[AuthResponseValidationResult, Map[String, String]](
-    uri = "/saml/validate",
-    body = Some(Map("samlResponse" -> authResponse))
+      uri = "/saml/validate",
+      body = Some(Map("samlResponse" -> authResponse))
     ).map(_.getOrElse(throw new IllegalStateException("Expected SAML validation response but none returned")))
   }
 
-  val idaTokenRequired = MicroServiceConfig.idaTokenRequired
-  val idaTokenApiUser = MicroServiceConfig.idaTokenApiUser.map(decrypt)
-  val idaTokenApiPass = MicroServiceConfig.idaTokenApiPass.map(decrypt)
+  lazy val idaTokenRequired = MicroServiceConfig.idaTokenRequired
+  lazy val idaTokenApiUser = MicroServiceConfig.idaTokenApiUser.flatMap { encryptedUser => Try {decrypt(encryptedUser)}.toOption}
+  lazy val idaTokenApiPass = MicroServiceConfig.idaTokenApiPass.flatMap { encryptedPass => Try {decrypt(encryptedPass)}.toOption}
 
   val idaApiBasicAuthHeaders = for {
     idaUser <- idaTokenApiUser
@@ -50,4 +49,12 @@ class SamlConnector extends Connector with AesCrypto {
       }.getOrElse(false)
     }
   }
+}
+
+
+object Main extends App with AesCrypto {
+  val encryptionKey = "s7fkwn2sc52fggkfslv29g"
+
+  println(encrypt("HMRC"))
+  println(encrypt("Y6XJM8c$?9WR"))
 }
