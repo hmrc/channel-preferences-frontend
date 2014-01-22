@@ -28,6 +28,7 @@ object PayeQuestionnaireUtils {
       AddFuel.toString -> AddFuel,
       RemoveCar.toString -> RemoveCar,
       RemoveFuel.toString -> RemoveFuel,
+      RemoveCarAndFuel.toString -> RemoveCarAndFuel,
       ReplaceCar.toString -> ReplaceCar
     )
     acceptedTypes.getOrElse(journeyType, throw IllegalJourneyTypeException(s"The string: $journeyType does not represent a valid PAYE journey type"))

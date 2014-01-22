@@ -7,7 +7,7 @@ import models.paye.AddCar
 import org.jsoup.Jsoup
 import play.api.i18n.Messages
 
-class PayeQuestionnaireControllerSpec extends BaseSpec {
+class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
 
   private lazy val controller = new PayeQuestionnaireController
 
@@ -82,8 +82,9 @@ class PayeQuestionnaireControllerSpec extends BaseSpec {
   "forwardToConfirmationPage" should {
 
     implicit val request = FakeRequest()
+    implicit val user = johnDensmore
 
-    "forward to the add car confirmation page if the journey type is AddCar" in new WithApplication(FakeApplication())  {
+    "forward to the add car benefit confirmation page if the journey type is AddCar" in new WithApplication(FakeApplication())  {
       val result = controller.forwardToConfirmationPage(
         journeyType = Some("AddCar"),
         transactionId = "txId",
@@ -95,6 +96,76 @@ class PayeQuestionnaireControllerSpec extends BaseSpec {
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.title() shouldBe Messages("paye.add_car_benefit_confirmation.title")
+    }
+
+    "forward to the add car benefit confirmation page if the journey type is AddFuel" in new WithApplication(FakeApplication())  {
+      val result = controller.forwardToConfirmationPage(
+        journeyType = Some("AddFuel"),
+        transactionId = "txId",
+        oldTaxCode = Some("oldtaxcode"),
+        newTaxCode = Some("newTaxCode"),
+        personalAllowance = Some(456)
+      )
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.title() shouldBe Messages("paye.add_car_benefit_confirmation.title")
+    }
+
+    "forward to the remove benefit confirmation page if the journey type is RemoveCar" in new WithApplication(FakeApplication())  {
+      val result = controller.forwardToConfirmationPage(
+        journeyType = Some("RemoveCar"),
+        transactionId = "txId",
+        oldTaxCode = Some("oldtaxcode"),
+        newTaxCode = Some("newTaxCode"),
+        personalAllowance = Some(456)
+      )
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.title() shouldBe Messages("paye.remove_benefit_confirmation.title")
+    }
+
+    "forward to the remove benefit confirmation page if the journey type is RemoveFuel" in new WithApplication(FakeApplication())  {
+      val result = controller.forwardToConfirmationPage(
+        journeyType = Some("RemoveFuel"),
+        transactionId = "txId",
+        oldTaxCode = Some("oldtaxcode"),
+        newTaxCode = Some("newTaxCode"),
+        personalAllowance = Some(456)
+      )
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.title() shouldBe Messages("paye.remove_benefit_confirmation.title")
+    }
+
+    "forward to the remove benefit confirmation page if the journey type is RemoveCarAndFuel" in new WithApplication(FakeApplication())  {
+      val result = controller.forwardToConfirmationPage(
+        journeyType = Some("RemoveCarAndFuel"),
+        transactionId = "txId",
+        oldTaxCode = Some("oldtaxcode"),
+        newTaxCode = Some("newTaxCode"),
+        personalAllowance = Some(456)
+      )
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.title() shouldBe Messages("paye.remove_benefit_confirmation.title")
+    }
+
+    "forward to the replace benefit confirmation page if the journey type is ReplaceCar" in new WithApplication(FakeApplication())  {
+      val result = controller.forwardToConfirmationPage(
+        journeyType = Some("ReplaceCar"),
+        transactionId = "txId",
+        oldTaxCode = Some("oldtaxcode"),
+        newTaxCode = Some("newTaxCode"),
+        personalAllowance = Some(456)
+      )
+
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.title() shouldBe Messages("paye.replace_benefit_confirmation.title")
     }
 
     "forward to the paye home page if the journey type is invalid" in new WithApplication(FakeApplication()) {

@@ -5,19 +5,15 @@ import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
-import uk.gov.hmrc.common.microservice.paye.domain.{TransactionId, AddBenefitResponse, PayeRegime}
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import play.api.mvc.{AnyContent, Request, SimpleResult}
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
+import play.api.mvc.{AnyContent, Request}
 import PayeQuestionnaireUtils._
 import views.html.paye._
 import models.paye._
-import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import controllers.paye.PayeQuestionnaireFormData
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.paye.IllegalJourneyTypeException
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 
@@ -66,18 +62,19 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
 
   private[paye] def forwardToConfirmationPage(journeyType: Option[String], transactionId: String, oldTaxCode: Option[String], newTaxCode: Option[String], personalAllowance: Option[Int])(implicit request: Request[AnyContent], user: User): SimpleResult = {
     import controllers.paye.BenefitUpdateConfirmationBuilder._
+    import uk.gov.hmrc.utils.TaxYearResolver._
 
     val allParamsAreDefined = Seq(journeyType, oldTaxCode, newTaxCode, personalAllowance).filter(!_.isDefined).isEmpty
     if (!allParamsAreDefined)
       Redirect(routes.PayeHomeController.home(None))
     else {
       val addBenefitResponse = AddBenefitResponse(TransactionId(transactionId), newTaxCode, personalAllowance)
-      val benefitUpdatedConfirmationData = buildBenefitUpdatedConfirmationData(oldTaxCode.get, addBenefitResponse)
+      val benefitUpdatedConfirmationData = buildBenefitUpdatedConfirmationData(oldTaxCode.get, addBenefitResponse, startOfCurrentTaxYear, endOfCurrentTaxYear)
       try {
         toJourneyType(journeyType.get) match {
           case jType@(AddCar | AddFuel) => Ok(add_car_benefit_confirmation(benefitUpdatedConfirmationData, jType))
           case jType@(RemoveCar | RemoveFuel | RemoveCarAndFuel) => Ok(remove_benefit_confirmation(getBenefitType(jType), benefitUpdatedConfirmationData))
-//          case
+          case ReplaceCar => Ok(replace_benefit_confirmation(transactionId, oldTaxCode.get, newTaxCode))
         }
       }
       catch {
