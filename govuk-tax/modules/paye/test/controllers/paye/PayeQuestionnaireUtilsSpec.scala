@@ -10,7 +10,8 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
 
     "succeed to extract all questionnaire fields when a user answers all questions" in new WithApplication(FakeApplication())  {
 
-      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("journeyType", "AddCar"), ("q1", "4"), ("q2", "1"), ("q3", "2"), ("q4", "4"),
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("journeyType", "AddCar"), ("oldTaxCode", "someOldCode"),("newTaxCode", "someNewCode"),
+                                                                  ("q1", "4"), ("q2", "1"), ("q3", "2"), ("q4", "4"),
                                                                   ("q5", "3"),("q6", "1"),("q7", "Some Comments"))
 
       val actualQuestionnaireForm = PayeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
@@ -21,6 +22,8 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
       actualQuestionnaireData should have (
         'transactionId("someTxId"),
         'journeyType(Some("AddCar")),
+        'newTaxCode(Some("someNewCode")),
+        'oldTaxCode(Some("someOldCode")),
         'wasItEasy(Some(4)),
         'secure(Some(1)),
         'comfortable(Some(2)),

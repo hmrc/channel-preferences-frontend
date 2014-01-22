@@ -24,17 +24,17 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
   def this() = this(Connectors.auditConnector, Connectors.authConnector)
 
   def submitQuestionnaire = AuthorisedFor(PayeRegime) {
-    user =>
+    implicit user =>
       implicit request =>
         submitQuestionnaireAction
   }
 
-  private[paye] def submitQuestionnaireAction(implicit request: Request[_]): SimpleResult = {
+  private[paye] def submitQuestionnaireAction(implicit request: Request[_], user: User): SimpleResult = {
     payeQuestionnaireForm.bindFromRequest().fold(
       errors => BadRequest,
       (formData: PayeQuestionnaireFormData) => {
         audit(buildAuditEvent(formData))
-        Ok
+        forwardToConfirmationPage(formData.journeyType, formData.transactionId, formData.oldTaxCode, formData.newTaxCode)
       }
     )
   }
@@ -49,7 +49,7 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
   }
 
   private def payeQuestionnaireFormDataToMap(formData: PayeQuestionnaireFormData) = {
-    val paramsToFilterOut = Set("transactionId", "journeyType")
+    val paramsToFilterOut = Set("transactionId", "journeyType", "oldTaxCode", "newTaxCode")
     formData.getClass.getDeclaredFields.filter(field => !paramsToFilterOut.contains(field.getName)).map {
       field =>
         field.setAccessible(true)
@@ -60,21 +60,20 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
     }.toMap[String, String]
   }
 
-  private[paye] def forwardToConfirmationPage(journeyType: Option[String], transactionId: String, oldTaxCode: Option[String], newTaxCode: Option[String], personalAllowance: Option[Int])(implicit request: Request[AnyContent], user: User): SimpleResult = {
+  private[paye] def forwardToConfirmationPage(journeyType: Option[String], transactionId: String, oldTaxCode: Option[String], newTaxCode: Option[String])(implicit request: Request[_], user: User): SimpleResult = {
     import controllers.paye.BenefitUpdateConfirmationBuilder._
-    import uk.gov.hmrc.utils.TaxYearResolver._
 
-    val allParamsAreDefined = Seq(journeyType, oldTaxCode, newTaxCode, personalAllowance).filter(!_.isDefined).isEmpty
+    val allParamsAreDefined = Seq(journeyType, oldTaxCode, newTaxCode).filter(!_.isDefined).isEmpty
     if (!allParamsAreDefined)
       Redirect(routes.PayeHomeController.home(None))
     else {
-      val addBenefitResponse = AddBenefitResponse(TransactionId(transactionId), newTaxCode, personalAllowance)
-      val benefitUpdatedConfirmationData = buildBenefitUpdatedConfirmationData(oldTaxCode.get, addBenefitResponse, startOfCurrentTaxYear, endOfCurrentTaxYear)
+      val addBenefitResponse = AddBenefitResponse(TransactionId(transactionId), newTaxCode, None)
+      val benefitUpdatedConfirmationData = buildBenefitUpdatedConfirmationData(oldTaxCode.get, addBenefitResponse)
       try {
         toJourneyType(journeyType.get) match {
-          case jType@(AddCar | AddFuel) => Ok(add_car_benefit_confirmation(benefitUpdatedConfirmationData, jType))
-          case jType@(RemoveCar | RemoveFuel | RemoveCarAndFuel) => Ok(remove_benefit_confirmation(getBenefitType(jType), benefitUpdatedConfirmationData))
-          case ReplaceCar => Ok(replace_benefit_confirmation(transactionId, oldTaxCode.get, newTaxCode))
+          case jType@(AddCar | AddFuel) => Ok(add_car_benefit_confirmation(benefitUpdatedConfirmationData, jType, showQuestionnaire = false))
+          case jType@(RemoveCar | RemoveFuel | RemoveCarAndFuel) => Ok(remove_benefit_confirmation(getBenefitType(jType), benefitUpdatedConfirmationData, showQuestionnaire = false))
+          case ReplaceCar => Ok(replace_benefit_confirmation(transactionId, oldTaxCode.get, newTaxCode, showQuestionnaire = false))
         }
       }
       catch {
@@ -82,12 +81,6 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
       }
     }
 
-  }
-
-  private def getBenefitType: PartialFunction[PayeJourney, Seq[String]] = {
-    case RemoveCar => Seq("car")
-    case RemoveFuel => Seq("fuel")
-    case RemoveCarAndFuel => Seq("car", "fuel")
   }
 
   private[paye] def audit(auditEvent: AuditEvent)(implicit request: Request[_]): Unit = {

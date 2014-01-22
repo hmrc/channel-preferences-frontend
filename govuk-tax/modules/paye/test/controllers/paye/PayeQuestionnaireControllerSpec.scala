@@ -1,6 +1,5 @@
 package controllers.paye
 
-import uk.gov.hmrc.common.BaseSpec
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import models.paye.AddCar
@@ -16,6 +15,8 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
     "create an audit event given a paye questionnaire form data containing every field" in new WithApplication(FakeApplication()) {
       val formData = PayeQuestionnaireFormData(
         transactionId = "someTxId",
+        oldTaxCode = Some("oldTaxCode"),
+        newTaxCode = Some("newTaxCode"),
         journeyType = Some(AddCar.toString),
         wasItEasy = Some(1),
         secure = Some(2),
@@ -58,10 +59,12 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
   }
 
   "submitQuestionnaireAction" should {
+    implicit val user = johnDensmore
 
     "return 200 if no errors are encountered" in new WithApplication(FakeApplication()) {
-      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("q1", "4"), ("q3", "2"), ("q4", "4"),
-        ("q5", "3"), ("q7", "Some Comments"))
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("journeyType", "RemoveCarAndFuel"), ("oldTaxCode", "someOldCode"),("newTaxCode", "someNewCode"),
+                ("q1", "4"), ("q3", "2"), ("q4", "4"),
+                ("q5", "3"), ("q7", "Some Comments"))
 
       val result = controller.submitQuestionnaireAction
 
@@ -77,6 +80,16 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
       status(result) shouldBe 400
     }
 
+    "return 303 if the appropriate confirmation tempalte cannot be rendred" in new WithApplication(FakeApplication()) {
+      implicit val request = FakeRequest().withFormUrlEncodedBody(("transactionId", "someTxId"), ("q1", "4"), ("q3", "2"), ("q4", "4"),
+        ("q5", "3"), ("q7", "Some Comments"))
+
+      val result = controller.submitQuestionnaireAction
+
+      status(result) shouldBe 303
+      result.header.headers("Location") shouldBe routes.PayeHomeController.home(None).url
+    }
+
   }
 
   "forwardToConfirmationPage" should {
@@ -89,8 +102,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("AddCar"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 200
@@ -103,8 +115,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("AddFuel"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 200
@@ -117,8 +128,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("RemoveCar"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 200
@@ -131,8 +141,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("RemoveFuel"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 200
@@ -145,8 +154,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("RemoveCarAndFuel"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 200
@@ -159,8 +167,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("ReplaceCar"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 200
@@ -173,8 +180,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("Car"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 303
@@ -186,8 +192,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = None,
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 303
@@ -199,8 +204,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("AddCar"),
         transactionId = "txId",
         oldTaxCode = None,
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = Some(456)
+        newTaxCode = Some("newTaxCode")
       )
 
       status(result) shouldBe 303
@@ -212,25 +216,24 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         journeyType = Some("AddCar"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = None,
-        personalAllowance = Some(456)
+        newTaxCode = None
       )
 
       status(result) shouldBe 303
       result.header.headers("Location") shouldBe routes.PayeHomeController.home(None).url
     }
 
-    "forward to the paye home page if the personalAllowance is missing" in new WithApplication(FakeApplication()) {
+    "not display the questionnaire when rendering a confirmation template" in new WithApplication(FakeApplication()) {
       val result = controller.forwardToConfirmationPage(
-        journeyType = Some("AddCar"),
+        journeyType = Some("ReplaceCar"),
         transactionId = "txId",
         oldTaxCode = Some("oldtaxcode"),
-        newTaxCode = Some("newTaxCode"),
-        personalAllowance = None
+        newTaxCode = Some("newTaxCode")
       )
 
-      status(result) shouldBe 303
-      result.header.headers("Location") shouldBe routes.PayeHomeController.home(None).url
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementsByClass("questionnaire") should have size 0
     }
   }
 

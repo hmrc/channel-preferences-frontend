@@ -21,10 +21,8 @@ import org.joda.time.chrono.ISOChronology
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
-import BenefitTypes._
 import controllers.common.actions.HeaderCarrier
 import org.scalatest.concurrent.ScalaFutures
-import controllers.paye.validation.BenefitFlowHelper
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import scala.Some
 import uk.gov.hmrc.common.microservice.paye.domain.Car
