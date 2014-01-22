@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import play.api.i18n.Messages
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
-import controllers.common.{AllRegimeRoots, BaseController}
+import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
 
 
 class ProblemReportsController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
@@ -39,33 +39,37 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
   )
 
 
-  def report = WithNewSessionTimeout(UnauthorisedAction.async {
-    implicit request => {
-      form.bindFromRequest.fold(
-        error => {
-          if (!error.data.getOrElse("isJavascript", "true").toBoolean) {
-            Future.successful(Ok(views.html.support.problem_reports_error_nonjavascript(referrerFrom(request))))
-          } else {
-            Future.successful(BadRequest(Json.toJson(Map("status" -> "ERROR"))))
-          }
-        },
-        problemReport => {
-          createTicket(problemReport, request).map {
-            ticketOption =>
-              val ticketId: String = ticketOption.map(_.ticket_id.toString).getOrElse("Unknown")
-              if (!problemReport.isJavascript) {
-                Ok(views.html.support.problem_reports_confirmation_nonjavascript(ticketId))
-              } else {
-                Ok(Json.toJson(
-                  Map("status" -> "OK",
-                    "message" -> views.html.support.ticket_created_body(ticketId).toString()
-                  )
-                ))
-              }
-          }
-        })
-    }
-  })
+  def report = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async({
+    implicit user => implicit request => doReport(request)
+
+  }))
+
+
+  def doReport(implicit request: Request[AnyRef]) = {
+    form.bindFromRequest.fold(
+      error => {
+        if (!error.data.getOrElse("isJavascript", "true").toBoolean) {
+          Future.successful(Ok(views.html.support.problem_reports_error_nonjavascript(referrerFrom(request))))
+        } else {
+          Future.successful(BadRequest(Json.toJson(Map("status" -> "ERROR"))))
+        }
+      },
+      problemReport => {
+        createTicket(problemReport, request).map {
+          ticketOption =>
+            val ticketId: String = ticketOption.map(_.ticket_id.toString).getOrElse("Unknown")
+            if (!problemReport.isJavascript) {
+              Ok(views.html.support.problem_reports_confirmation_nonjavascript(ticketId))
+            } else {
+              Ok(Json.toJson(
+                Map("status" -> "OK",
+                  "message" -> views.html.support.ticket_created_body(ticketId).toString()
+                )
+              ))
+            }
+        }
+      })
+  }
 
   private def createTicket(problemReport: ProblemReport, request: Request[AnyRef]): Future[Option[TicketId]] = {
     implicit val hc = HeaderCarrier(request)

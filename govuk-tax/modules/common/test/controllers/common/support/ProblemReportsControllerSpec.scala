@@ -34,7 +34,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
       when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(true), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
-      val result = controller.report()(generateRequest())
+      val result = controller.doReport(generateRequest())
 
       status(result) should be(200)
 
@@ -49,7 +49,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
       when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
-      val result = controller.report()(generateRequest(javascriptEnabled = false))
+      val result = controller.doReport(generateRequest(javascriptEnabled = false))
 
       status(result) should be(200)
 
@@ -59,7 +59,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
     "return 200 and a valid html page for invalid input and js is not enabled" in new ProblemReportsControllerApplication {
 
-      val result = controller.report()(generateInvalidRequest( javascriptEnabled = false))
+      val result = controller.doReport(generateInvalidRequest( javascriptEnabled = false))
 
       status(result) should be(200)
       verifyZeroInteractions(hmrcDeskproConnector)
@@ -70,7 +70,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
     "return 400 and a valid json for invalid input and js is enabled" in new ProblemReportsControllerApplication {
 
-      val result = controller.report()(generateInvalidRequest())
+      val result = controller.doReport(generateInvalidRequest())
 
       status(result) should be(400)
       verifyZeroInteractions(hmrcDeskproConnector)
