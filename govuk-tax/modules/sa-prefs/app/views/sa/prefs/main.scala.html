@@ -1,28 +1,26 @@
-@(title: String)(content: Html)
-<!DOCTYPE html>
-<!--[if lte IE 8]>     <html class="no-js lte-ie8"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-	@includes.head(title)
-    </head>
+@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true, feedbackLinkEnabled:Boolean = true, header:Option[Html] = None)(mainContent: Html)
 
-    <body>
-	<a href="#content" class="visuallyhidden">Skip to main content</a>
 
-	@includes.header()
+@head = {
+@_root_.views.html.includes.head()
+}
+@insideHeader = {
+@_root_.views.html.includes.header(nav)
+}
+@afterHeader = {
+@_root_.views.html.includes.betaBanner(feedbackLinkEnabled)
+}
+@content = {
+@_root_.views.html.includes.main_content(mainContent, user, sidebarLinks, supportLinkEnabled, nav, header)
+}
+@footerTop = {
 
-	<section class="l-constrained--topBordered">
-	    <div class="l-bodyLeftColumn">
-		@content
-	    </div>
+}
+@bodyEnd = {
+@_root_.views.html.includes.footer()
+}
+@footerLinks = {
 
-	<aside class="l-bodyRightColumn">
-	    <div class="service-info">
-		<p class="service-info__organisation-logo">HM Revenue<br>&amp; Customs</p>
-            </div>
-	</aside>
-	</section>
+}
 
-	@includes.footer()
-    </body>
-</html>
+@layouts.govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, footerLinks, nav)(content)

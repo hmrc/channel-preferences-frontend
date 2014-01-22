@@ -1,9 +1,11 @@
 @(emailForm: Form[controllers.sa.prefs.EmailPreferenceData], token: controllers.sa.prefs.service.Token, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
 
-
 @main(title = Messages("sa_printing_preference.title")) {
 
-    <h1>@Messages("sa_printing_preference.heading")</h1>
+   <header class="page-header">
+       <h1>@Messages("sa_printing_preference.heading")</h1>
+   </header>
+
 
     <p>@Messages("sa_printing_preference.paragraph.1")</p>
     <ul class="bullets">
@@ -22,23 +24,25 @@
 
     @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, redirectUrl.toString)) {
 
-	@helpers.input(
-	    emailForm("email.main"),
-        '_label -> "",
-	    '_divClass -> "form-field",
-	    '_inputClass -> "input--medium",
-        'parentField -> emailForm("email")
-	)
 
-    <p>Confirm email address</p>
-    @helpers.input(
-        emailForm("email.confirm"),
-        '_label -> "",
+    @_root_.views.html.helpers.input(
+        emailForm("email.main"),
+        '_label -> "Email address",
+        '_labelHighlight -> true,
         '_divClass -> "form-field",
-        '_inputClass -> "input--medium"
+        '_inputClass -> "input--medium input--cleared",
+        'parentField -> emailForm("email")
     )
 
-    <p>@Messages("sa_printing_preference.paragraph.6.start") <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">@Messages("sa_printing_preference.paragraph.6.linkText")</a>@Messages("sa_printing_preference.paragraph.6.end")</p>
+    @_root_.views.html.helpers.input(
+        emailForm("email.confirm"),
+        '_label -> "Confirm email address",
+        '_labelHighlight -> true,
+        '_divClass -> "form-field",
+        '_inputClass -> "input--medium input--cleared"
+    )
+
+    <p class="form-field">@Messages("sa_printing_preference.paragraph.6.start") <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">@Messages("sa_printing_preference.paragraph.6.linkText")</a>@Messages("sa_printing_preference.paragraph.6.end")</p>
 
     <div class="form-field">
         <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
@@ -46,7 +50,7 @@
 
     }
 
-    @_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitKeepPaperForm(token.encryptedToken, redirectUrl.toString)) {
+@_root_.views.html.helpers.form(action = controllers.sa.prefs.routes.SaPrefsController.submitKeepPaperForm(token.encryptedToken, redirectUrl.toString)) {
     <div class="form-field">
         <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
     </div>
