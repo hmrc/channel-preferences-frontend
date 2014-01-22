@@ -341,7 +341,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val result = controller.confirm(validToken, encodedUrlNotOnWhitelist)(request)
       status(result) should be(400)
     }
-    "contain a link with the return url" in {
+    "contain a link with the return url" in new WithApplication(FakeApplication()) {
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
         Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.pending)))))
@@ -361,7 +361,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       val result = controller.confirm(validToken, encodedReturnUrl)(request)
       status(result) should be(412)
     }
-    "handle return urls which do not already have query parameters" in {
+    "handle return urls which do not already have query parameters" in new WithApplication(FakeApplication()) {
       val urlWithQueryParams = "http://localhost:8080/portal"
       val encodedUrlWithQueryParams = urlEncode(urlWithQueryParams, "UTF-8")
 

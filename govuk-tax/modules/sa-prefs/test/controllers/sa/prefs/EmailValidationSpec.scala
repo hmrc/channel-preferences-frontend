@@ -68,7 +68,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       verify(controller.preferencesMicroService).updateEmailValidationStatusUnsecured(meq(token))
     }
 
-    "display an error if the token is not in a valid uuid format without calling the service" in {
+    "display an error if the token is not in a valid uuid format without calling the service" in new WithApplication(FakeApplication()) {
       val controller = createController
       val token = "badToken"
       when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ERROR))
@@ -78,7 +78,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       verify(controller.preferencesMicroService, never()).updateEmailValidationStatusUnsecured(meq(token))
     }
 
-    "display an error if the token is not in a valid uuid format (extra characters) without calling the service" in {
+    "display an error if the token is not in a valid uuid format (extra characters) without calling the service" in new WithApplication(FakeApplication()) {
       val controller = createController
       val token = tokenWithSomeExtraStuff
       when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ERROR))
