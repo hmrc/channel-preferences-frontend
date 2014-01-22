@@ -6,7 +6,7 @@
 @main(title = "Sign up for email reminders", user = Some(user)) {
 
     <header class="page-header">
-        <h1>Sign up for Self Assessment email reminders</h1>
+        <h1>@Messages("sa.heading.signup.emailreminders")</h1>
     </header>
 
     <p>You can soon get Self Assessment email reminders when:</p>
@@ -44,7 +44,7 @@
         '_inputClass -> "input--medium input--cleared"
     )
 
-    <p>By signing up to email reminders you accept the <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">terms and conditions</a>.</p>
+    <p class="form-field">By signing up to email reminders you accept the <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">terms and conditions</a>.</p>
 
 	<div class="form-field">
             <button id="submitEmailButton" class="button" type="submit">Switch to Self Assessment email reminders</button>
