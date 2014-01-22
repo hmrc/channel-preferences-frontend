@@ -21,10 +21,10 @@ trait ConnectionLogging {
 
   def logResult[A](hc: HeaderCarrier, method: String, uri: String, startAge: Long)(result: Try[A]) = result match {
     case Success(ground) => {
-      Logger.info(formatMessage(hc, method, uri, startAge, "ok"))
+      connectionLogger.info(formatMessage(hc, method, uri, startAge, "ok"))
     }
     case Failure(ex) => {
-      Logger.info(formatMessage(hc, method, uri, startAge, s"failed ${ex.getMessage}"))
+      connectionLogger.info(formatMessage(hc, method, uri, startAge, s"failed ${ex.getMessage}"))
     }
   }
 
