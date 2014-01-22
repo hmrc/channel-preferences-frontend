@@ -8,7 +8,7 @@ import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, Formatted
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.{SessionKeys, FrontEndRedirect}
+import controllers.common.{CookieNames, SessionKeys, FrontEndRedirect}
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.jsoup.Jsoup
@@ -22,6 +22,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import java.net.URI
 import org.mockito.Matchers
+import play.api.mvc.Session
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -191,6 +192,26 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(emailConnector).validateEmailAddress(is(emailAddress))(any())
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
+    }
+
+    "remove the unconfirmedEmailAddress from the session when saving a valid preference" in new Setup {
+      val emailAddress = "someone@email.com"
+      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(true)
+      when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
+
+
+      val requestWithSession = FakeRequest()
+        .withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
+        .withSession(SessionKeys.unconfirmedEmailAddress -> emailAddress, "otherName" -> "otherValue")
+      val page = Future.successful(controller.submitPrefsFormAction(user, requestWithSession))
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(routes.SaPrefsController.thankYou().toString())
+
+      session(page).data should (
+        not be (empty) and
+        not contain key (SessionKeys.unconfirmedEmailAddress)
+      )
     }
   }
 

@@ -27,7 +27,6 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
       displayPrefsOnLoginFormAction(emailAddress)(user, request)
   }
 
-  // FIXME - Need to capture emailAddress from session
   def displayPrefsForm() = AuthorisedFor(account = SaRegime).async {
     user => request =>
       displayPrefsFormAction(user, request)
@@ -60,10 +59,14 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)))))
   }
 
-  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
-    submitPreferencesForm((errors) => views.html.sa_printing_preference(errors), (email) => views.html.sa_printing_preference_verify_email(email), () => routes.SaPrefsController.thankYou(),
-    emailConnector, preferencesConnector)
-  }
+  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) =
+    submitPreferencesForm(
+      errorsView = views.html.sa_printing_preference(_),
+      emailWarningView = views.html.sa_printing_preference_verify_email(_),
+      successRedirect = routes.SaPrefsController.thankYou,
+      emailConnector,
+      preferencesConnector
+    )
 
   private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     preferencesConnector.savePreferences(user.getSa.utr, false, None)(HeaderCarrier(request)).map(

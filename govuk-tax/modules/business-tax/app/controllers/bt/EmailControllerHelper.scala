@@ -44,7 +44,8 @@ trait EmailControllerHelper {
 
         isEmailValid.flatMap {
            case true =>
-             preferencesConnector.savePreferences(user.getSa.utr, true, Some(mainEmail)).map(const(Redirect(successRedirect())))
+             preferencesConnector.savePreferences(user.getSa.utr, true, Some(mainEmail))
+               .map(_ => Redirect(successRedirect()).withSession(request.session - SessionKeys.unconfirmedEmailAddress))
            case false =>
              Future.successful(Ok(emailWarningView(mainEmail)).withSession(SessionKeys.unconfirmedEmailAddress -> mainEmail))
         }
