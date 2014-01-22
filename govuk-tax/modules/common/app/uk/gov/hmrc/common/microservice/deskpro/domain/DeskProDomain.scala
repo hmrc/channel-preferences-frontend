@@ -52,8 +52,8 @@ object Feedback extends FieldTransformer {
     Feedback(
       name.trim,
       email,
-      rating,
       subject,
+      rating,
       message.trim,
       referrer,
       ynValueOf(isJavascript),
