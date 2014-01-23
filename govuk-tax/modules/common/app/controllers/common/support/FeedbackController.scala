@@ -78,12 +78,10 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   }
 
   private[common] def redirectToConfirmationPage(ticketId: Future[Option[TicketId]], user: Option[User])(implicit request: Request[AnyRef]) =
-    ticketId.map {
-      ticketOption => {
-        ticketCache.stashTicket(ticketOption, formId)
-        Redirect(user.map(_ => routes.FeedbackController.thanks()).getOrElse(routes.FeedbackController.unauthenticatedThanks()))
-      }
-    }
+    ticketId.map(ticketCache.stashTicket(_, formId)).map(_=> thanksFor(user))
+
+
+  private def thanksFor(user: Option[User]) = Redirect(user.map(_ => routes.FeedbackController.thanks()).getOrElse(routes.FeedbackController.unauthenticatedThanks()))
 
 
   private[common] def authenticatedFeedback(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a"))), Some(user)))

@@ -147,7 +147,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "submit the authenticated feedback" in new FeedbackControllerApplication {
       val ticket = Some(TicketId(123))
-      when(ticketCache.stashTicket(meq(ticket), meq("ContactForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
+      when(ticketCache.stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
 
       val result = controller.redirectToConfirmationPage(Future.successful(ticket), user)(request())
 
@@ -168,7 +168,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
     "submit the unauthenticated feedback" in new FeedbackControllerApplication {
       val ticket = Some(TicketId(123))
-      when(ticketCache.stashTicket(meq(ticket), meq("ContactForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
+      when(ticketCache.stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
 
       val result = controller.redirectToConfirmationPage(Future.successful(ticket), None)(request())
 

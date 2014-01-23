@@ -23,7 +23,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
   val subject: String = "Contact form submission"
   val formId: String = "ContactForm"
 
-  def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector,  TicketCache())(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector, TicketCache())(Connectors.authConnector)
 
   val form = Form[ContactForm](
     mapping(
@@ -61,7 +61,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
       })
   }
 
-  def redirectToThanks( ticketId: Future[Option[TicketId]])(implicit request:Request[AnyRef] ) = {
+  def redirectToThanks(ticketId: Future[Option[TicketId]])(implicit request: Request[AnyRef]) = {
     implicit val hc = HeaderCarrier(request)
     ticketId.flatMap {
       ticket =>
@@ -72,7 +72,6 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
   def thanks = WithNewSessionTimeout(AuthenticatedBy(GovernmentGateway).async({
     implicit user => implicit request => doThanks(user, request)
   }))
-
 
   def doThanks(user: User, request: Request[AnyRef]) = {
     implicit val hc = HeaderCarrier(request)

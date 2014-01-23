@@ -58,15 +58,8 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
         createTicket(problemReport, request).map {
           ticketOption =>
             val ticketId: String = ticketOption.map(_.ticket_id.toString).getOrElse("Unknown")
-            if (!problemReport.isJavascript) {
-              Ok(views.html.support.problem_reports_confirmation_nonjavascript(ticketId))
-            } else {
-              Ok(Json.toJson(
-                Map("status" -> "OK",
-                  "message" -> views.html.support.ticket_created_body(ticketId).toString()
-                )
-              ))
-            }
+            if (!problemReport.isJavascript) Ok(views.html.support.problem_reports_confirmation_nonjavascript(ticketId))
+            else Ok(Json.toJson(Map("status" -> "OK", "message" -> views.html.support.ticket_created_body(ticketId).toString())))
         }
       })
   }
