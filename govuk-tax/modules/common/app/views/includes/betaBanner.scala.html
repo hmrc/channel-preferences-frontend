@@ -4,7 +4,7 @@
 
         @defining(user.map{_ => controllers.common.support.routes.FeedbackController.feedbackForm().url}.getOrElse(controllers.common.support.routes.FeedbackController.unauthenticatedFeedbackForm().url))  { link =>
             - your
-            @helpers.link("feedback-link", link, "feedback")
+            @helpers.link("feedback-link", link, "feedback", true)
             will help us to improve it
         }
         .
