@@ -12,6 +12,7 @@
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.pending) {
            <p id="pending-status-message">You signed up for email reminders but you must verify your email address to activate the service.</p>
+           <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
 
            @helpers.form(action = controllers.bt.routes.AccountDetailsController.resendValidationEmail) {
 
@@ -47,6 +48,7 @@
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.bounced) {
            <p id="bouncing-status-message">You are currently opted-in to Digital SA, but the last email we sent you was not deliverable, we received the following error:</p>
            <p id="bounce-reason">@{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
+           <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
            <p>
            @helpers.link(
                "revalidate-email-link",
