@@ -50,10 +50,10 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
     }
 
     "construct an AccountSummaries model using the AccountSummary regimes factories that return models" in {
-      val saAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
-      val vatAccountSummary = AccountSummary("VAT", Seq.empty, Seq.empty, SummaryStatus.success)
-      val ctAccountSummary = AccountSummary("CT", Seq.empty, Seq.empty, SummaryStatus.success)
-      val epayeAccountSummary = AccountSummary("EPAYE", Seq.empty, Seq.empty, SummaryStatus.success)
+      val saAccountSummary = AccountSummary("SA", "", Seq.empty, Seq.empty, SummaryStatus.success)
+      val vatAccountSummary = AccountSummary("VAT", "", Seq.empty, Seq.empty, SummaryStatus.success)
+      val ctAccountSummary = AccountSummary("CT", "", Seq.empty, Seq.empty, SummaryStatus.success)
+      val epayeAccountSummary = AccountSummary("EPAYE", "", Seq.empty, Seq.empty, SummaryStatus.success)
 
       val factoryUnderTest = factory()
       val userUnderTest = mockUser
@@ -70,10 +70,10 @@ class AccountSummariesFactorySpec extends BaseSpec with MockitoSugar {
 
     "keeps the AccountSummaries in the right order" in {
 
-      val saAccountSummary = AccountSummary("SA", Seq.empty, Seq.empty, SummaryStatus.success)
-      val vatAccountSummary = AccountSummary("VAT", Seq.empty, Seq.empty, SummaryStatus.success)
-      val ctAccountSummary = AccountSummary("CT", Seq.empty, Seq.empty, SummaryStatus.success)
-      val epayeAccountSummary = AccountSummary("EPAYE", Seq.empty, Seq.empty, SummaryStatus.success)
+      val saAccountSummary = AccountSummary("SA", "", Seq.empty, Seq.empty, SummaryStatus.success)
+      val vatAccountSummary = AccountSummary("VAT", "", Seq.empty, Seq.empty, SummaryStatus.success)
+      val ctAccountSummary = AccountSummary("CT", "", Seq.empty, Seq.empty, SummaryStatus.success)
+      val epayeAccountSummary = AccountSummary("EPAYE", "", Seq.empty, Seq.empty, SummaryStatus.success)
 
       val factoryUnderTest = factory()
       val userUnderTest = mockUser

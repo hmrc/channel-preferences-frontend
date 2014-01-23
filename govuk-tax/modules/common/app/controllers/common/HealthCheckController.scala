@@ -21,10 +21,10 @@ class HealthCheckController extends Controller {
   private lazy val serviceConfig = Play.current.configuration.getConfig(s"govuk-tax.$env.services")
 
   private lazy val services = serviceConfig.get.underlying.root flatMap {
-    case (k, v) => {
+    case (serviceName, v) => {
       v.valueType() match {
         case ConfigValueType.OBJECT => {
-          Some((k, v.unwrapped))
+          Some((serviceName, v.unwrapped))
         }
         case _ => None
       }

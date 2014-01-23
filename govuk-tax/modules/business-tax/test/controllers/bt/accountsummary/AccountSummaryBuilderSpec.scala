@@ -46,6 +46,7 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       }
 
       override def defaultRegimeNameMessageKey = regimeNameKey
+
       override def defaultManageRegimeMessageKey = manageRegimeKey
 
       override def rootForRegime(user: User): Option[SaRoot] = regimeRoot
@@ -67,7 +68,7 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     //    }
 
     "return the accountSummary from buildAccountSummary when it completes successfully" in new Builder {
-      val accountSummary = AccountSummary("Some Regime", Seq.empty, Seq.empty, SummaryStatus.success)
+      val accountSummary = AccountSummary("Some Regime", "", Seq.empty, Seq.empty, SummaryStatus.success)
       when(mockBuilder.buildAccountSummary(saRoot, buildPortalUrl)).thenReturn(accountSummary)
       builder.build(buildPortalUrl, user).map(f => await(f)) shouldBe Some(accountSummary)
     }
