@@ -47,7 +47,7 @@ with PayeRegimeRoots {
   private val keystoreKey = "AddFuelBenefitForm"
 
   def startAddFuelBenefit(taxYear: Int, employmentSequenceNumber: Int) =
-    AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
+    AuthorisedFor(regime = PayeRegime, redirectToOrigin = true).async {
       user => request => startAddFuelBenefitAction(user, request, taxYear, employmentSequenceNumber)
     }
 

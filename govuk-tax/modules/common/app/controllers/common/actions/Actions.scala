@@ -33,10 +33,10 @@ trait Actions
   }
 
 
-  def AuthorisedFor(account: TaxRegime,
+  def AuthorisedFor(regime: TaxRegime,
                     redirectToOrigin: Boolean = false,
                     pageVisibility: PageVisibilityPredicate = DefaultPageVisibilityPredicate)
-  = new AuthenticatedBy(account.authenticationType, Some(account), redirectToOrigin, pageVisibility)
+  = new AuthenticatedBy(regime.authenticationType, Some(regime), redirectToOrigin, pageVisibility)
 
   def AuthenticatedBy(authenticationProvider: AuthenticationProvider,
                       redirectToOrigin: Boolean = false,

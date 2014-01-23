@@ -2,7 +2,7 @@ package uk.gov.hmrc.common.microservice
 
 import scala.util.{Failure, Success, Try}
 import play.api.Logger
-import controllers.common.actions.HeaderCarrier
+import controllers.common.actions.{LoggingDetails, HeaderCarrier}
 import scala.concurrent._
 
 trait ConnectionLogging {
@@ -12,25 +12,25 @@ trait ConnectionLogging {
 
   import ConnectionLogging.formatNs
 
-  def withLogging[T](method: String, uri: String)(body: => Future[T])(implicit hc: HeaderCarrier): Future[T] = {
-    val startAge = hc.age
+  def withLogging[T](method: String, uri: String)(body: => Future[T])(implicit ld: LoggingDetails): Future[T] = {
+    val startAge = ld.age
     val f = body
-    f.onComplete {logResult(hc, method, uri, startAge)}
+    f.onComplete {logResult(ld, method, uri, startAge)}
     f
   }
 
-  def logResult[A](hc: HeaderCarrier, method: String, uri: String, startAge: Long)(result: Try[A]) = result match {
+  def logResult[A](ld: LoggingDetails, method: String, uri: String, startAge: Long)(result: Try[A]) = result match {
     case Success(ground) => {
-      connectionLogger.info(formatMessage(hc, method, uri, startAge, "ok"))
+      connectionLogger.info(formatMessage(ld, method, uri, startAge, "ok"))
     }
     case Failure(ex) => {
-      connectionLogger.info(formatMessage(hc, method, uri, startAge, s"failed ${ex.getMessage}"))
+      connectionLogger.info(formatMessage(ld, method, uri, startAge, s"failed ${ex.getMessage}"))
     }
   }
 
-  def formatMessage(hc: HeaderCarrier, method: String, uri: String, startAge: Long, message: String) = {
-    val requestId = hc.requestId.getOrElse("")
-    val durationNs = hc.age - startAge
+  def formatMessage(ld: LoggingDetails, method: String, uri: String, startAge: Long, message: String) = {
+    val requestId = ld.requestId.getOrElse("")
+    val durationNs = ld.age - startAge
     s"$requestId:$method:${startAge}:${formatNs(startAge)}:${durationNs}:${formatNs(durationNs)}:$uri:$message"
   }
 }

@@ -22,29 +22,34 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 
-  def displayPrefsOnLoginForm = AuthorisedFor(account = SaRegime).async {
-    user => request =>
-      displayPrefsOnLoginFormAction(user, request)
+  def displayPrefsOnLoginForm = AuthorisedFor(SaRegime).async {
+    user =>
+      request =>
+        displayPrefsOnLoginFormAction(user, request)
   }
 
-  def displayPrefsForm() = AuthorisedFor(account = SaRegime).async {
-    user => request =>
-      displayPrefsFormAction(user, request)
+  def displayPrefsForm() = AuthorisedFor(SaRegime).async {
+    user =>
+      request =>
+        displayPrefsFormAction(user, request)
   }
 
-  def submitPrefsForm() = AuthorisedFor(account = SaRegime).async {
-    user => request =>
-      submitPrefsFormAction(user, request)
+  def submitPrefsForm() = AuthorisedFor(SaRegime).async {
+    user =>
+      request =>
+        submitPrefsFormAction(user, request)
   }
 
-  def submitKeepPaperForm() = AuthorisedFor(account = SaRegime).async {
-    user => request =>
-      submitKeepPaperFormAction(user, request)
+  def submitKeepPaperForm() = AuthorisedFor(SaRegime).async {
+    user =>
+      request =>
+        submitKeepPaperFormAction(user, request)
   }
 
-  def thankYou() = AuthorisedFor(account = SaRegime) {
-    user => request =>
-      Ok(views.html.sa_printing_preference_thank_you(user))
+  def thankYou() = AuthorisedFor(SaRegime) {
+    user =>
+      request =>
+        Ok(views.html.sa_printing_preference_thank_you(user))
   }
 
   private[prefs] def displayPrefsOnLoginFormAction(implicit user: User, request: Request[AnyRef]) = {

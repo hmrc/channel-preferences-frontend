@@ -31,7 +31,7 @@ with PayeRegimeRoots {
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
-  def carBenefitHome = AuthorisedFor(account = PayeRegime, redirectToOrigin = true).async {
+  def carBenefitHome = AuthorisedFor(regime = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
       implicit request =>
         assembleCarBenefitData(user.getPaye, currentTaxYear).flatMap {
@@ -43,7 +43,7 @@ with PayeRegimeRoots {
         }
   }
 
-  def cannotPlayInBeta = AuthorisedFor(account = PayeRegime, redirectToOrigin = true) {
+  def cannotPlayInBeta = AuthorisedFor(regime = PayeRegime, redirectToOrigin = true) {
     user => request =>
       Ok(cannot_play_in_beta(user))
   }

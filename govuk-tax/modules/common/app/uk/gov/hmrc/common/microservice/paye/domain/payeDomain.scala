@@ -19,8 +19,6 @@ object PayeRegime extends TaxRegime {
 
   def isAuthorised(accounts: Accounts) = accounts.paye.isDefined
 
-  //def unauthorisedLandingPage: String = IdaWithTokenCheckForBeta.login.url
-
   def authenticationType = IdaWithTokenCheckForBeta
 }
 

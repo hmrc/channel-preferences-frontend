@@ -29,32 +29,32 @@ with EmailControllerHelper {
     user => request => accountDetailsPage(user, request)
   }
 
-  def changeEmailAddress(emailAddress: Option[String]) = AuthorisedFor(account = SaRegime).async {
+  def changeEmailAddress(emailAddress: Option[String]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)
   }
 
-  def submitEmailAddress = AuthorisedFor(account = SaRegime).async {
+  def submitEmailAddress = AuthorisedFor(regime = SaRegime).async {
     user => request => submitEmailAddressPage(user, request)
   }
 
 
-  def emailAddressChangeThankYou() = AuthorisedFor(account = SaRegime).async {
+  def emailAddressChangeThankYou() = AuthorisedFor(regime = SaRegime).async {
     user => request => emailAddressChangeThankYouPage(user, request)
   }
 
-  def optOutOfEmailReminders = AuthorisedFor(account = SaRegime).async {
+  def optOutOfEmailReminders = AuthorisedFor(regime = SaRegime).async {
     user => request => optOutOfEmailRemindersPage(user, request)
   }
 
-  def confirmOptOutOfEmailReminders = AuthorisedFor(account = SaRegime).async {
+  def confirmOptOutOfEmailReminders = AuthorisedFor(regime = SaRegime).async {
     user => request => confirmOptOutOfEmailRemindersPage(user, request)
   }
 
-  def optedBackIntoPaperThankYou() = AuthorisedFor(account = SaRegime).async {
+  def optedBackIntoPaperThankYou() = AuthorisedFor(regime = SaRegime).async {
     user => implicit request => Future(Ok(views.html.opted_back_into_paper_thank_you(user)))
   }
 
-  def resendValidationEmail() = AuthorisedFor(account = SaRegime).async {
+  def resendValidationEmail() = AuthorisedFor(regime = SaRegime).async {
     user => request => resendValidationEmailAction(user, request)
   }
 

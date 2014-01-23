@@ -128,7 +128,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
   override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     Logger.info("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
-      case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin(redirectToOrigin)
+        case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin(redirectToOrigin)
       case _ => Future.successful(Redirect(login))
     }
   }

@@ -20,24 +20,25 @@ class PaymentController(override val auditConnector: AuditConnector)
   extends BaseController
   with Actions
   with PortalUrlBuilder
-  with BusinessTaxRegimeRoots{
+  with BusinessTaxRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 
-  def makeEpayePayment = AuthorisedFor(account = EpayeRegime, pageVisibility = EpayePaymentPredicate) {
-    user => request =>
-      makeEpayePaymentPage(user, request)
+  def makeEpayePayment = AuthorisedFor(EpayeRegime, pageVisibility = EpayePaymentPredicate) {
+    user =>
+      request =>
+        makeEpayePaymentPage(user, request)
   }
 
-  def makeSaPayment = AuthorisedFor(account = SaRegime, pageVisibility = SaPaymentPredicate) {
+  def makeSaPayment = AuthorisedFor(SaRegime, pageVisibility = SaPaymentPredicate) {
     user => request => makeSaPaymentPage(user, request)
   }
 
-  def makeCtPayment = AuthorisedFor(account = CtRegime, pageVisibility = CtPaymentPredicate) {
+  def makeCtPayment = AuthorisedFor(CtRegime, pageVisibility = CtPaymentPredicate) {
     user => request => makeCtPaymentPage(user, request)
   }
 
-  def makeVatPayment = AuthorisedFor(account = VatRegime, pageVisibility = VatPaymentPredicate) {
+  def makeVatPayment = AuthorisedFor(VatRegime, pageVisibility = VatPaymentPredicate) {
     user => request => makeVatPaymentPage(user, request)
   }
 

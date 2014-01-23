@@ -7,7 +7,7 @@ import play.api.{Logger, Play}
 import scala.concurrent._
 import uk.gov.hmrc.common.microservice.domain.RegimeRoot
 import controllers.common.HeaderNames
-import controllers.common.actions.HeaderCarrier
+import controllers.common.actions.{LoggingDetails, HeaderCarrier}
 import play.api.libs.json.{JsNull, JsValue}
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
 
@@ -23,7 +23,7 @@ trait Connector extends Status with ConnectionLogging {
   import play.api.libs.json.Json
   import controllers.common.domain.Transform._
 
-  protected implicit def fromLoggingDetails(implicit headerCarrier:HeaderCarrier) = MdcLoggingExecutionContext.fromLoggingDetails
+  protected implicit def fromLoggingDetails(implicit loggingDetails: LoggingDetails) = MdcLoggingExecutionContext.fromLoggingDetails
 
   protected val serviceUrl: String
 
@@ -31,6 +31,7 @@ trait Connector extends Status with ConnectionLogging {
     Logger.info(s"Accessing backend service: $serviceUrl$uri")
     WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
   }
+
   protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = withLogging("GetF", uri) {
     response[A](httpResource(uri).get(), uri)(extractJSONResponse[A])
   }
@@ -121,10 +122,10 @@ object MicroServiceConfig {
   lazy val businessServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.business.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.business.port").getOrElse(8510)}"
   lazy val matchingServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.matching.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.matching.port").getOrElse(8510)}"
 
-  lazy val idaTokenApiUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.ida.tokenapi.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.ida.tokenapi.port").getOrElse(8080)}"
-  lazy val idaTokenRequired = Play.configuration.getBoolean(s"govuk-tax.$env.ida.tokenapi.tokenRequired").getOrElse(false)
-  lazy val idaTokenApiUser = Play.configuration.getString(s"govuk-tax.$env.ida.tokenapi.username")
-  lazy val idaTokenApiPass = Play.configuration.getString(s"govuk-tax.$env.ida.tokenapi.password")
+  lazy val idaTokenApiPathBase = Play.configuration.getString(s"govuk-tax.$env.services.ida.tokenapi.pathBase").getOrElse("http://localhost:8080/ida")
+  lazy val idaTokenRequired = Play.configuration.getBoolean(s"govuk-tax.$env.services.ida.tokenapi.tokenRequired").getOrElse(false)
+  lazy val idaTokenApiUser = Play.configuration.getString(s"govuk-tax.$env.services.ida.tokenapi.username")
+  lazy val idaTokenApiPass = Play.configuration.getString(s"govuk-tax.$env.services.ida.tokenapi.password")
 
   lazy val samlServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.saml.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.saml.port").getOrElse(8540)}"
   lazy val governmentGatewayServiceUrl = s"$protocol://${Play.configuration.getString(s"govuk-tax.$env.services.government-gateway.host").getOrElse("localhost")}:${Play.configuration.getInt(s"govuk-tax.$env.services.government-gateway.port").getOrElse(8570)}"

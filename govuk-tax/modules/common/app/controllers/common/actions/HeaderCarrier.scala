@@ -10,11 +10,13 @@ trait LoggingDetails {
 
   def requestId: Option[String]
 
+  def age: Long
+
   lazy val data = Map(
     (HeaderNames.xRequestId, requestId),
     (HeaderNames.xSessionId, sessionId))
 
-  def mdcData: Map[String, String]= for {
+  def mdcData: Map[String, String] = for {
     d <- data
     v <- d._2
   } yield (d._1, v)
