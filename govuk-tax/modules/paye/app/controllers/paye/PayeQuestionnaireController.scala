@@ -6,7 +6,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.Request
 import PayeQuestionnaireUtils._
 import views.html.paye._
 import models.paye._
@@ -16,29 +16,36 @@ import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
+import scala.concurrent.Future
 
-
-class PayeQuestionnaireController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
+class PayeQuestionnaireController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector, questionnaireAuditor: QuestionnaireAuditor)
   extends BaseController with Actions with PayeRegimeRoots {
 
-  def this() = this(Connectors.auditConnector, Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, Connectors.authConnector, new QuestionnaireAuditor(Connectors.auditConnector, Connectors.keyStoreConnector))
 
-  def submitQuestionnaire = AuthorisedFor(PayeRegime) {
+  def submitQuestionnaire = AuthorisedFor(PayeRegime).async {
     implicit user =>
       implicit request =>
         submitQuestionnaireAction
   }
 
-  private[paye] def submitQuestionnaireAction(implicit request: Request[_], user: User): SimpleResult = {
+  private[paye] def submitQuestionnaireAction(implicit request: Request[_], user: User): Future[SimpleResult] = {
+    getFormData.map {
+      formData =>
+          val auditEvent = buildAuditEvent(formData)
+          questionnaireAuditor.auditOnce(auditEvent, formData.transactionId)
+          Future.successful(forwardToConfirmationPage(formData.journeyType, formData.transactionId, formData.oldTaxCode, formData.newTaxCode))
+    }.getOrElse(Future.successful(BadRequest))
+  }
+
+  private[paye] def getFormData(implicit request: Request[_]) = {
     payeQuestionnaireForm.bindFromRequest().fold(
-      errors => BadRequest,
+      errors => None,
       (formData: PayeQuestionnaireFormData) => {
-        audit(buildAuditEvent(formData))
-        forwardToConfirmationPage(formData.journeyType, formData.transactionId, formData.oldTaxCode, formData.newTaxCode)
+        Some(formData)
       }
     )
   }
-
 
   private[paye] def buildAuditEvent(formData: PayeQuestionnaireFormData): AuditEvent = {
     AuditEvent(
@@ -81,10 +88,5 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
       }
     }
 
-  }
-
-  private[paye] def audit(auditEvent: AuditEvent)(implicit request: Request[_]): Unit = {
-    implicit val hc = HeaderCarrier(request)
-    auditConnector.audit(auditEvent)
   }
 }

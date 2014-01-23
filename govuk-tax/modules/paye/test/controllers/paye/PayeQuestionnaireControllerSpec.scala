@@ -5,10 +5,16 @@ import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import models.paye.AddCar
 import org.jsoup.Jsoup
 import play.api.i18n.Messages
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import play.api.mvc.Request
 
 class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
 
-  private lazy val controller = new PayeQuestionnaireController
+  private val questionnaireAuditor = new QuestionnaireAuditor(null, null) {
+    override def auditOnce(auditEvent: AuditEvent, transactionId: String)(implicit request: Request[_]): Unit = {}
+  }
+
+  private lazy val controller = new PayeQuestionnaireController(null ,null, questionnaireAuditor)
 
   "buildAuditEvent " should {
 
@@ -236,5 +242,4 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
       doc.getElementsByClass("questionnaire") should have size 0
     }
   }
-
 }
