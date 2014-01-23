@@ -36,6 +36,8 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     val regimeNameKey = "test.regime.name"
 
+    val manageRegimeKey = "test.manage.regime"
+
 
     val builder = new AccountSummaryBuilder[SaUtr, SaRoot] {
 
@@ -44,6 +46,7 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       }
 
       override def defaultRegimeNameMessageKey = regimeNameKey
+      override def defaultManageRegimeMessageKey = manageRegimeKey
 
       override def rootForRegime(user: User): Option[SaRoot] = regimeRoot
     }

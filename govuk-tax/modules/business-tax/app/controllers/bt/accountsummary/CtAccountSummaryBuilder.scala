@@ -34,6 +34,8 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
 
   override protected def defaultRegimeNameMessageKey = ctRegimeNameMessage
 
+  override protected def defaultManageRegimeMessageKey = ctManageHeading
+
   override protected def rootForRegime(user: User): Option[CtRoot] = user.regimes.ct
 
   private def defaultAccountSummary(ctRoot: CtRoot): AccountSummary = {
@@ -41,10 +43,12 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
       Msg(ctSummaryUnavailableErrorMessage1),
       Msg(ctSummaryUnavailableErrorMessage2),
       Msg(ctSummaryUnavailableErrorMessage3),
-      Msg(ctSummaryUnavailableErrorMessage4))
+      Msg(ctSummaryUnavailableErrorMessage4),
+      Msg(ctManageHeading))
 
     AccountSummary(
       regimeName = ctRegimeNameMessage,
+      manageRegimeMessage = ctManageHeading,
       messages = messages,
       addenda = Seq.empty,
       status = SummaryStatus.default)
@@ -64,7 +68,7 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
 
     val messages = Seq(Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(accountValue), DateConverter.parseToLocalDate(dateOfBalance))))
 
-    AccountSummary(ctRegimeNameMessage, messages, links, SummaryStatus.success)
+    AccountSummary(ctRegimeNameMessage, ctManageHeading, messages, links, SummaryStatus.success)
   }
 
   private def accountValueIfPresent(accountSummary: Option[CtAccountSummary]): Option[BigDecimal] = {
@@ -91,6 +95,7 @@ object CtMessageKeys {
   val ctSummaryUnavailableErrorMessage3 = "ct.message.summaryUnavailable.3"
   val ctSummaryUnavailableErrorMessage4 = "ct.message.summaryUnavailable.4"
   val ctAmountAsOfDateMessage = "ct.message.amountAsOfDate"
+  val ctManageHeading = "ct.manage.heading"
   val ctViewAccountDetailsLinkMessage = "ct.link.message.accountSummary.viewAccountDetails"
   val ctMakeAPaymentLinkMessage = "ct.link.message.accountSummary.makeAPayment"
   val ctFileAReturnLinkMessage = "ct.link.message.accountSummary.fileAReturn"

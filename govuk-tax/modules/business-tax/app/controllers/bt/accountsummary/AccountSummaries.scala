@@ -10,7 +10,7 @@ object SummaryStatus extends Enumeration {
 
 case class AccountSummaries(regimes: Seq[AccountSummary])
 
-case class AccountSummary(regimeName: String, messages: Seq[Msg], addenda: Seq[AccountSummaryLink], status: SummaryStatus)
+case class AccountSummary(regimeName: String, manageRegimeMessage:String,  messages: Seq[Msg], addenda: Seq[AccountSummaryLink], status: SummaryStatus)
 
 case class Msg(messageKey: String, params: Seq[RenderableMessage] = Seq.empty)
 

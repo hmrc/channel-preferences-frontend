@@ -19,6 +19,8 @@ class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector)
 
   override protected val defaultRegimeNameMessageKey = saRegimeName
 
+  override protected val defaultManageRegimeMessageKey = saManageHeading
+
   def buildAccountSummary(saRoot: SaRoot, bpu: String => String)(implicit hc: HeaderCarrier): Future[AccountSummary] = {
     val builder = new SaASBuild {
       val saPaymentUrl = routes.PaymentController.makeSaPayment().url
@@ -40,6 +42,7 @@ trait SaASBuild {
 
   def makeSummary(saSummary: SaAccountSummary, utr: SaUtr) = AccountSummary(
     regimeName = saRegimeName,
+    manageRegimeMessage= saManageHeading,
     messages = buildMessages(saSummary),
     addenda = Seq(
       AccountSummaryLink("sa-account-details-href", buildPortalUrl(saAccountDetailsPortalUrl), saViewAccountDetailsLinkMessage, sso = true),
@@ -51,6 +54,7 @@ trait SaASBuild {
 
   def unavailable(utr: SaUtr) =
     AccountSummary(regimeName = saRegimeName,
+      manageRegimeMessage= saManageHeading,
       messages = Seq(
         Msg(saSummaryUnavailableErrorMessage1),
         Msg(saSummaryUnavailableErrorMessage2),
@@ -152,6 +156,7 @@ object SaMessageKeys {
   val saSummaryUnavailableErrorMessage2 = "sa.message.summaryUnavailable.2"
   val saSummaryUnavailableErrorMessage3 = "sa.message.summaryUnavailable.3"
   val saSummaryUnavailableErrorMessage4 = "sa.message.summaryUnavailable.4"
+  val saManageHeading = "sa.manage.heading"
   val saViewAccountDetailsLinkMessage = "sa.link.message.accountSummary.viewAccountDetails"
   val saMakeAPaymentLinkMessage = "sa.link.message.accountSummary.makeAPayment"
   val saFileAReturnLinkMessage = "sa.link.message.accountSummary.fileAReturn"

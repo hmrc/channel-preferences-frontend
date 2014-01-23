@@ -31,14 +31,14 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
         case Some(accountValue) => {
           val links = successLinks(buildPortalUrl)
           val messages = Seq(Msg(vatAccountBalanceMessage, Seq(MoneyPounds(accountValue))))
-          AccountSummary(vatRegimeNameMessage, messages, links, SummaryStatus.success)
+          AccountSummary(vatRegimeNameMessage, vatManageHeading, messages, links, SummaryStatus.success)
         }
         case _ => {
           val messages = Seq(Msg(vatSummaryUnavailableErrorMessage1), Msg(vatSummaryUnavailableErrorMessage2),
             Msg(vatSummaryUnavailableErrorMessage3),
             //TODO: To be updated once the customer support model has been finalised (see: HMTB-1914)
             Msg(vatSummaryUnavailableErrorMessage4))
-          AccountSummary(vatRegimeNameMessage, messages, Seq.empty, SummaryStatus.default)
+          AccountSummary(vatRegimeNameMessage, vatManageHeading, messages, Seq.empty, SummaryStatus.default)
         }
       }
     }
@@ -54,6 +54,7 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
   }
 
   override protected val defaultRegimeNameMessageKey = vatRegimeNameMessage
+  override protected val defaultManageRegimeMessageKey = vatManageHeading
 }
 
 object VatPortalUrls {
@@ -72,6 +73,7 @@ object VatMessageKeys {
   val vatSummaryUnavailableErrorMessage2 = "vat.message.summaryUnavailable.2"
   val vatSummaryUnavailableErrorMessage3 = "vat.message.summaryUnavailable.3"
   val vatSummaryUnavailableErrorMessage4 = "vat.message.summaryUnavailable.4"
+  val vatManageHeading = "vat.manage.heading"
   val vatViewAccountDetailsLinkMessage = "vat.link.message.accountSummary.viewAccountDetails"
   val vatMakeAPaymentLinkMessage = "vat.link.message.accountSummary.makeAPayment"
   val vatFileAReturnLinkMessage = "vat.link.message.accountSummary.fileAReturn"

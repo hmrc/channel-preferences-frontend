@@ -23,6 +23,7 @@ abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
   private def oops(user: User): Future[AccountSummary] = {
     Future.successful(AccountSummary(
       regimeName = defaultRegimeNameMessageKey,
+      manageRegimeMessage= defaultManageRegimeMessageKey,
       messages = Seq(Msg(CommonBusinessMessageKeys.oopsMessage)),
       addenda = Seq.empty,
       status = SummaryStatus.oops))
@@ -31,6 +32,8 @@ abstract class AccountSummaryBuilder[I <: TaxIdentifier, R <: RegimeRoot[I]] {
   protected def buildAccountSummary(regimeRoot: R, buildPortalUrl: String => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary]
 
   protected def defaultRegimeNameMessageKey: String
+
+  protected def defaultManageRegimeMessageKey: String
 
   protected def rootForRegime(user: User): Option[R]
 }

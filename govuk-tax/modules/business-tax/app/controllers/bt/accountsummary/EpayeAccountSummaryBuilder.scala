@@ -18,7 +18,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
     val accountSummaryOF = epayeRoot.accountSummary(epayeConnector, headerCarrier)
     accountSummaryOF map { accountSummary =>
       val links = createLinks(buildPortalUrl, accountSummary)
-      AccountSummary(epayeRegimeNameMessage, messageStrategy(accountSummary)(), links, SummaryStatus.success)
+      AccountSummary(epayeRegimeNameMessage, epayeManageHeading, messageStrategy(accountSummary)(), links, SummaryStatus.success)
     }
   }
 
@@ -78,6 +78,8 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   }
 
   override protected val defaultRegimeNameMessageKey = epayeUnknownRegimeName
+
+  override protected val defaultManageRegimeMessageKey = epayeManageHeading
 }
 
 object EpayePortalUrlKeys {
@@ -99,6 +101,7 @@ object EpayeMessageKeys {
   val epayeSummaryUnavailableErrorMessage2 = "epaye.message.summaryUnavailable.2"
   val epayeSummaryUnavailableErrorMessage3 = "epaye.message.summaryUnavailable.3"
   val epayeSummaryUnavailableErrorMessage4 = "epaye.message.summaryUnavailable.4"
+  val epayeManageHeading = "epaye.manage.heading"
   val epayeViewAccountDetailsLinkMessage = "epaye.link.message.accountSummary.viewAccountDetails"
   val epayeMakeAPaymentLinkMessage = "epaye.link.message.accountSummary.makeAPayment"
 }
