@@ -78,6 +78,7 @@ object GovUkTaxBuild extends Build {
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases)
     .configs(TemplateTest)
+    .settings(routesImport += "uk.gov.hmrc.common.QueryBinders._")
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)

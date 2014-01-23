@@ -12,6 +12,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import controllers.bt.{EmailControllerHelper, EmailPreferenceData, BusinessTaxRegimeRoots}
 import scala.concurrent.Future
+import uk.gov.hmrc.domain.Email
 
 class SaPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
@@ -28,10 +29,10 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
         displayPrefsOnLoginFormAction(user, request)
   }
 
-  def displayPrefsForm(emailAddress: Option[String])() = AuthorisedFor(SaRegime).async {
+  def displayPrefsForm(emailAddress: Option[Email])() = AuthorisedFor(SaRegime).async {
     user =>
       request =>
-        displayPrefsFormAction(emailAddress)(user, request)
+        displayPrefsFormAction(emailAddress.map(_.value))(user, request)
   }
 
   def submitPrefsForm() = AuthorisedFor(SaRegime).async {
@@ -59,8 +60,14 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[String])(implicit user: User, request: Request[AnyRef]) = {
-    Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData((emailAddress.getOrElse(""), emailAddress), None)))))
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]) = {
+
+    val emailPreferenceData = emailAddress match  {
+      case Some(theEmail) => EmailPreferenceData((theEmail.value, Some(theEmail.value)), None)
+      case _ => EmailPreferenceData(("", None), None)
+    }
+
+    Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(emailPreferenceData))))
   }
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) =
