@@ -28,10 +28,10 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
         displayPrefsOnLoginFormAction(user, request)
   }
 
-  def displayPrefsForm() = AuthorisedFor(SaRegime).async {
+  def displayPrefsForm(emailAddress: Option[String])() = AuthorisedFor(SaRegime).async {
     user =>
       request =>
-        displayPrefsFormAction(user, request)
+        displayPrefsFormAction(emailAddress)(user, request)
   }
 
   def submitPrefsForm() = AuthorisedFor(SaRegime).async {
