@@ -118,7 +118,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-car-value").text shouldBe "£12,343"
       doc.select("#car-benefit-employee-capital-contribution").text shouldBe "£0"
       doc.select("#car-benefit-employee-payments").text shouldBe "£120"
-      doc.select("#private-fuel").text shouldBe "Yes, private fuel is available when you use the car"
+      doc.select("#private-fuel").text shouldBe "Yes"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#no-car-benefit-container").text shouldBe ""
@@ -135,7 +135,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
       doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
       doc.select("#no-car-benefit-container").text shouldBe ""
-      doc.select("#private-fuel").text shouldBe "Weyland-Yutani Corp did pay for fuel for private travel, but stopped paying on 6 June 2013"
+      doc.select("#private-fuel").text shouldBe "Stopped 6 June 2013"
     }
 
     "not display the remove fuel benefit link when the car has an inactive fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
@@ -378,7 +378,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val doc = Jsoup.parse(contentAsString(result))
       withClue("Tax you'll pay table should be displayed with all values") {
         doc.getElementById("tax-liability-summary-table-fuel-row") should not be null
-        doc.getElementById("tax-liability-summary-table-fuel-header").text shouldBe "Private fuel"
+        doc.getElementById("tax-liability-summary-table-fuel-header").text shouldBe "Fuel"
         doc.getElementById("tax-liability-summary-table-fuel-taxable-value").text shouldBe "£22"
 
         doc.getElementById("tax-liability-summary-table-car-row") should not be null
@@ -413,7 +413,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById(addCarLinkId) should not be null
-      doc.getElementById(addCarLinkId).text should include("add a company car")
+      doc.getElementById(addCarLinkId).text should include("Add a car (including any fuel benefit)")
       doc.getElementById(addFuelLinkId) shouldBe null
     }
 
@@ -632,7 +632,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#previous-cars-header").text shouldBe "Your previous company car"
+      doc.select("#previous-cars-header").text shouldBe "Your previous car"
     }
 
     "display the correct heading for the previous cars table when user has multiple previous cars" in new WithApplication(FakeApplication()) with BaseData {
@@ -642,7 +642,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#previous-cars-header").text shouldBe "Your previous company cars"
+      doc.select("#previous-cars-header").text shouldBe "Your previous cars"
     }
   }
 }

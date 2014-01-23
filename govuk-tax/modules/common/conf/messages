@@ -64,7 +64,7 @@ link.vca.url=http://carfueldata.direct.gov.uk/
 
 button.sign_in=Sign in
 
-info.links_open_new_window=These links will open in a new window
+info.links_open_new_window=These links will open in a new window.
 
 global.error.badRequest400.title=Bad request - 400
 global.error.badRequest400.heading=Bad request

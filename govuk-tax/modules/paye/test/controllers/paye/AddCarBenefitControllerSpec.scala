@@ -977,7 +977,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#personal-allowance") should be(empty)
       doc.select("#start-date") should be(empty)
       doc.select("#end-date") should be(empty)
-      doc.select("#epilogue").text should include("HMRC will write to you to confirm your new tax code within 7 days.")
+      doc.select("#epilogue").text should include("HM Revenue and Customs will write to you to confirm your new tax code within 7 days.")
       doc.select("#home-page-link").text should include("View your updated details and estimated tax on your benefits.")
       doc.select("a#tax-codes").text should be("tax codes")
       doc.select("a#tax-codes").first.attr("href") should be("https://www.gov.uk/tax-codes")

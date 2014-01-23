@@ -28,7 +28,7 @@ class RemoveCarBenefitTemplateSpec extends PayeBaseSpec with StubTaxYearSupport 
         remove_fuel_benefit_form(fuelBenefit, johnDensmoresOneEmployment(1).head, 2013, form, currentTaxYearYearsRange)(johnDensmore, requestWithCorrectVersion)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".benefit-type").text shouldBe "Your old company fuel benefit"
+      doc.select(".benefit-type").text shouldBe "Remove your fuel benefit"
     }
   }
 

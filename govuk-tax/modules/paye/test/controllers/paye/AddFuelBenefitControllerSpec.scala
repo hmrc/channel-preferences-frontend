@@ -193,7 +193,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       fuelBenefitData.employerPayFuel shouldBe Some(employerPayFuelFormData)
     }
 
-    "return 200 for employerpayefuel of type true with correct data  in the table" in new TestCaseIn2012 {
+    "return 200 for employerpayefuel of type true with correct data in the table" in new TestCaseIn2012 {
       val carBenefitStartedThisYear = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
         Some(Car(Some(new LocalDate(testTaxYear, 5, 12)), None, Some(new LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map.empty)
 
@@ -207,8 +207,8 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#second-heading").text should include("Check your private fuel details")
-      doc.select("#private-fuel").text should include("Yes, private fuel is available when you use the car")
+      doc.select("#second-heading").text should include("Check your updated details before submitting them")
+      doc.select("#private-fuel").text should include("Yes")
     }
 
     "return 200 and show start date as beginning of the tax year if carMadeAvailable is earlier" in new TestCaseIn2012 {
@@ -224,8 +224,8 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#second-heading").text should include("Check your private fuel details")
-      doc.select("#private-fuel").text should include(s"Yes, private fuel is available when you use the car")
+      doc.select("#second-heading").text should include("Check your updated details before submitting them")
+      doc.select("#private-fuel").text should include("Yes")
     }
 
     "not show the users recalculated tax code" in new TestCaseIn2012 {
@@ -368,7 +368,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         doc.select("#personal-allowance") should be (empty)
         doc.select("#start-date") should be (empty)
         doc.select("#end-date") should be (empty)
-        doc.select("#epilogue").text should include ("HMRC will write to you to confirm your new tax code within 7 days.")
+        doc.select("#epilogue").text should include ("HM Revenue and Customs will write to you to confirm your new tax code within 7 days.")
         doc.select("#home-page-link").text should include ("View your updated details and estimated tax on your benefits.")
         doc.select("a#tax-codes").text should be ("tax codes")
         doc.select("a#tax-codes").first.attr("href") should be ("https://www.gov.uk/tax-codes")

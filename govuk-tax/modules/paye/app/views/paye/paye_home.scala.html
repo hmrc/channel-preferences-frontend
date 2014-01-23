@@ -5,13 +5,14 @@
         <h1>@Messages("paye.home.title")</h1>
     </header>
     <p>@Html(Messages("paye.home.intro", helpers.link("", Messages("paye.home.intro.calculator_link.url"), Messages("paye.home.intro.calculator_link.text"), true)))</p>
-    <strong>@Messages("paye.home.intro.warning")</strong>
+    <p>@Messages("paye.home.intro.warning")</p>
     <h2>@Messages("paye.home.instructions.heading")</h2>
     <p>@Messages("paye.home.instructions.need")</p>
     <ul class="bullets">
         <li>@Messages("paye.home.instructions.list_item.1")</li>
         <li>@helpers.link("", Messages("link.vehicle_certification_agency.url"), Messages("paye.home.instructions.list_item.2"), true)</li>
     </ul>
+        <p>The manufacturer or your employer may have this information.</p>
     @helpers.link("", common.FrontEndRedirect.carBenefit(token), Messages("paye.home.start_button.text"), false, false, "button")
 }
 

@@ -13,8 +13,6 @@
             <h1>@Messages("paye.remove_fuel_benefit.header")</h1>
         </header>
 
-        <h2>@Html(Messages("paye.remove_fuel_benefit.company_name", s"""<span class="employer-name">${employment.employerName.getOrElse(Messages("your.employer"))}</span>"""))</h2>
-
         <h2 class="benefit-type">@Messages("paye.remove_fuel_benefit.old_benefit")</h2>
 
         @helpers.form(action = RemoveBenefitController.requestRemoveFuelBenefit(taxYear, employment.sequenceNumber), 'id -> "form-remove-fuel-benefit") {

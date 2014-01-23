@@ -13,12 +13,12 @@
     </tr>
     <tr>
         <th scope="row">@Messages("paye.remove_car_benefit_review.days_unavailable", taxYear.toString)</th>
-        <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("none")</td>
+        <td id="car-benefit-num-days-unavailable">@formData.numberOfDaysUnavailable.map(n => formatDays(n)).getOrElse("None")</td>
     </tr>
 
     <tr>
         <th scope="row">@Messages("paye.remove_car_benefit_review.employee_contributions")</th>
-        <td id="car-benefit-employee-payments">@formData.removeEmployeeContribution.map(x => pounds(x)).getOrElse("none")</td>
+        <td id="car-benefit-employee-payments">@formData.removeEmployeeContribution.map(x => pounds(x)).getOrElse("None")</td>
     </tr>
     @if(hasFuelBenefit) {
         <tr>
