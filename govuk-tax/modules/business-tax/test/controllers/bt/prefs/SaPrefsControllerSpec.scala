@@ -8,7 +8,7 @@ import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, Formatted
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.{SessionKeys, FrontEndRedirect}
+import controllers.common.FrontEndRedirect
 import concurrent.Future
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.jsoup.Jsoup
@@ -80,7 +80,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
   "The preferences form" should {
 
     "render an email input field with no value if no email address is supplied" in new Setup {
-      val page = Future.successful(controller.displayPrefsFormAction(user, request))
+      val page = Future.successful(controller.displayPrefsFormAction(None)(user, request))
 
       status(page) shouldBe 200
 
@@ -93,7 +93,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "render an email input field populated with the supplied email address" in new Setup {
       val emailAddress = "bob@bob.com"
 
-      val page = Future.successful(controller.displayPrefsFormAction(user, request.withSession(SessionKeys.unconfirmedEmailAddress -> emailAddress)))
+      val page = Future.successful(controller.displayPrefsFormAction(Some(emailAddress))(user, request))
 
       status(page) shouldBe 200
 

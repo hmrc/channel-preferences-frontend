@@ -19,6 +19,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    @helpers.link("email-is-not-correct-link", controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm().url, "Change this email address")
+    @helpers.link("email-is-not-correct-link", controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(Some(emailAddress)).url, "Change this email address")
 
 }

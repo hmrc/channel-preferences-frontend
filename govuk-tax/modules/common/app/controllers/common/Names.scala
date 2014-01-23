@@ -24,5 +24,4 @@ object SessionKeys {
   val lastRequestTimestamp = "ts"
   val redirect = "login_redirect"
   val npsVersion = "nps-version"
-  val unconfirmedEmailAddress = "unconfirmedEmailAddress"
 }

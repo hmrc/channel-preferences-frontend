@@ -17,7 +17,7 @@ POST        /account-details/sa/resend-validation-email             @controllers
 POST        /account-details/sa/resend-validation-email             @controllers.bt.AccountDetailsController.resendValidationEmail
 
 GET         /account-details/sa/login-opt-in-email-reminders        @controllers.bt.prefs.SaPrefsController.displayPrefsOnLoginForm
-GET         /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.displayPrefsForm
+GET         /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[String])
 POST        /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.submitPrefsForm
 POST        /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
 GET         /account-details/sa/opt-in-email-reminders-thank-you    @controllers.bt.prefs.SaPrefsController.thankYou
