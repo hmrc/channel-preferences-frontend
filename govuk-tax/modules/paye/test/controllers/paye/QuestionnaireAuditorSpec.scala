@@ -15,9 +15,7 @@ import play.api.test.FakeRequest
 
 class QuestionnaireAuditorSpec extends BaseSpec with MockitoSugar {
 
-  val mockAuditConnector = mock[AuditConnector]
-  val mockKeyStoreConnector = mock[KeyStoreConnector]
-  val questionnaireAuditor = new QuestionnaireAuditor(mockAuditConnector, mockKeyStoreConnector)
+
   val auditEvent = new AuditEvent(auditType = "some audit type")
   val transactionId = "someTxId"
 
@@ -26,25 +24,31 @@ class QuestionnaireAuditorSpec extends BaseSpec with MockitoSugar {
     implicit val request = FakeRequest()
 
     //TODO: Figure out why verify is failing on CI and not locally
-    "perform the audit and update the keystore if the questionnaire has not been submitted yet" ignore {
-      reset(mockAuditConnector, mockKeyStoreConnector)
+    "perform the audit and update the keystore if the questionnaire has not been submitted yet" in {
+      val mockAuditConnector = mock[AuditConnector]
+      val mockKeyStoreConnector = mock[KeyStoreConnector]
+      val questionnaireAuditor = new QuestionnaireAuditor(mockAuditConnector, mockKeyStoreConnector)
+
       when(mockKeyStoreConnector.getEntry(Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), any())(any(), any())).thenReturn(Future.successful(None))
 
       questionnaireAuditor.auditOnce(auditEvent, transactionId)
 
-//      verify(mockAuditConnector).audit(any())(any())
-      //verify(mockKeyStoreConnector).addKeyStoreEntry[String](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), Matchers.eq("HasBeenSubmitted"), Matchers.eq(false))(any(), any())
+      verify(mockAuditConnector).audit(any())(any())
+      verify(mockKeyStoreConnector).addKeyStoreEntry[String](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), Matchers.eq("HasBeenSubmitted"), Matchers.eq(false))(any(), any())
     }
 
     //TODO: Figure out why verify is failing on CI and not locally
-    "not perform the audit when the questionnaire has already been submitted" ignore {
-      reset(mockAuditConnector, mockKeyStoreConnector)
+    "not perform the audit when the questionnaire has already been submitted" in {
+      val mockAuditConnector = mock[AuditConnector]
+      val mockKeyStoreConnector = mock[KeyStoreConnector]
+      val questionnaireAuditor = new QuestionnaireAuditor(mockAuditConnector, mockKeyStoreConnector)
+
       when(mockKeyStoreConnector.getEntry[String](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), any())(any(), any())).thenReturn(Future.successful(Some("populated!")))
 
       questionnaireAuditor.auditOnce(auditEvent, transactionId)
 
-      //verifyZeroInteractions(mockAuditConnector)
-      //verify(mockKeyStoreConnector, never()).addKeyStoreEntry[String](any(), any(), any(), any(), any())(any(), any())
+      verifyZeroInteractions(mockAuditConnector)
+      verify(mockKeyStoreConnector, never()).addKeyStoreEntry[String](any(), any(), any(), any(), any())(any(), any())
     }
   }
 

@@ -6,12 +6,12 @@ import models.paye.AddCar
 import org.jsoup.Jsoup
 import play.api.i18n.Messages
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import play.api.mvc.Request
+import controllers.common.actions.HeaderCarrier
 
 class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
 
   private val questionnaireAuditor = new QuestionnaireAuditor(null, null) {
-    override def auditOnce(auditEvent: AuditEvent, transactionId: String)(implicit request: Request[_]): Unit = {}
+    override def auditOnce(auditEvent: AuditEvent, transactionId: String)(implicit hc: HeaderCarrier): Unit = {}
   }
 
   private lazy val controller = new PayeQuestionnaireController(null ,null, questionnaireAuditor)
