@@ -13,7 +13,7 @@
                 @helpers.inputRadioGroup(
                 feedbackForm("feedback-rating"),
                 feedbackRatings,
-                '_label -> "Rate your experience of using Tax Platform",
+                '_label -> "What do you think of Tax Platform service?",
                 '_divClass -> "form-field",
                 '_labelClass -> "label--inlineRadio",
                 '_inputClass -> "input--fullwidth"
@@ -26,7 +26,7 @@
                 )
                 @helpers.input(
                 feedbackForm("feedback-email"),
-                '_label -> "Email address",
+                '_label -> "Your email address",
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth"
                 )
@@ -35,7 +35,7 @@
                 '_label -> "Your comments",
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth",
-                '_help -> "2000 Characters max"
+                '_help -> "2000 characters max"
                 )
                 <input type="hidden" name="isJavascript" id="isJavascript" value="@feedbackForm.data.get("isJavascript")">
                 <input type="hidden" name="referer" id="referer" value="@feedbackForm.data.get("referer")">

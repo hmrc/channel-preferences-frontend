@@ -32,7 +32,7 @@ error.common.feedback.name_mandatory=Please provide your name
 error.common.feedback.name_too_long=Your name cannot be longer than 70 characters
 error.common.feedback.rating_mandatory=Please rate your experience
 error.common.feedback.rating_valid=Please select a valid experience rating
-common.feedback.heading=Send Feedback
+common.feedback.heading=Send your comments
 common.feedback.confirmation.message = Your feedback will be reviewed by our customer support team.
 
 common.main.banner_no_feedback_link=This is a trial service.
