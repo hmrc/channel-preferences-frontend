@@ -5,25 +5,21 @@
 @import config.PortalConfig
 @import uk.gov.hmrc.common.PortalUrlBuilder
 
-@main(title = "Your tax account", nav = true, sidebarLinks = Some(sidebarLinks), user= Some(user)) {
-
-    <header class="page-header">
-        <h1>@Messages("bt.home.title")</h1>
-    </header>
+@main(title = "Your tax account", nav = true, sidebarLinks = Some(sidebarLinks), user= Some(user), header = Some(header)) {
 
     @for(ac <- accountSummaries.regimes) {
         <div id="@ac.regimeName" class="account-summary">
-            <h2>@Messages(ac.regimeName)</h2>
+            <h2 class="heading-36 push--top">@Messages(ac.regimeName)</h2>
 
             @for(message <- ac.messages) {
                 <p class="@message.messageKey">@Html(Messages(message.messageKey, message.params.map(_.render):_*))</p>
             }
-                <p>
+            <ul class="action-list">
                 @for(addendum <- ac.addenda) {
-                 @helpers.link(addendum.id, addendum.url, addendum.text, addendum.newWindow, addendum.sso)
-                 <br />
+                 <li>@helpers.link(addendum.id, addendum.url, addendum.text, addendum.newWindow, addendum.sso)</li>
+
                 }
-            </p>
+            </ul>
         </div>
     }
 
@@ -62,4 +58,7 @@
 	    </ul>
 	</nav>
     </div>
+}
+@header =  {
+    @Messages("bt.home.title")
 }

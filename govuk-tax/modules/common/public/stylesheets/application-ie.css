@@ -3080,6 +3080,10 @@ article table td {
   border: none;
 }
 
+.account-summary {
+  margin-bottom: 3em;
+}
+
 .page-header h1, .page-header .h1-heading {
   margin-top: 0;
 }
