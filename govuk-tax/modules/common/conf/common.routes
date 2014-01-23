@@ -40,6 +40,7 @@ GET     /contact-hmrc                                   @controllers.common.supp
 POST    /contact-hmrc                                   @controllers.common.support.ContactController.submit
 GET     /contact-hmrc/thanks                            @controllers.common.support.ContactController.thanks
 POST    /contact/problem_reports                        @controllers.common.support.ProblemReportsController.report
+POST    /contact/problem_reports-unauthenticated        @controllers.common.support.ProblemReportsController.reportUnauthenticated
 GET     /beta-feedback                                  @controllers.common.support.FeedbackController.feedbackForm
 GET     /beta-feedback-unauthenticated                  @controllers.common.support.FeedbackController.unauthenticatedFeedbackForm
 POST    /beta-feedback/submit                           @controllers.common.support.FeedbackController.submit
