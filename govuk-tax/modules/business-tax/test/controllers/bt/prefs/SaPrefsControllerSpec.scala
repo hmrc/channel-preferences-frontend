@@ -48,7 +48,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = Future.successful(controller.displayPrefsOnLoginFormAction(None)(user, request))
+      val page = Future.successful(controller.displayPrefsOnLoginFormAction(user, request))
 
       status(page) shouldBe 303
       header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
@@ -57,7 +57,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "render an email input field with no value if no email address is supplied" in new Setup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
-      val page = Future.successful(controller.displayPrefsOnLoginFormAction(None)(user, request))
+      val page = Future.successful(controller.displayPrefsOnLoginFormAction(user, request))
 
       status(page) shouldBe 200
 
@@ -69,28 +69,9 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("email.confirm").attr("value") shouldBe ""
     }
 
-    "render an email input field populated with the supplied email address" in new Setup {
-
-      val emailAddress = "bob@bob.com"
-
-      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
-
-      val page = Future.successful(controller.displayPrefsOnLoginFormAction(Some(emailAddress))(user, request))
-
-      status(page) shouldBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-
-      document.getElementById("email.main") shouldNot be(null)
-      document.getElementById("email.main").attr("value") shouldBe emailAddress
-      document.getElementById("email.confirm") shouldNot be(null)
-      document.getElementById("email.confirm").attr("value") shouldBe emailAddress
-
-    }
-
     "include a link to keep paper preference" in new Setup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
-      val page = Future.successful(controller.displayPrefsOnLoginFormAction(None)(user, request))
+      val page = Future.successful(controller.displayPrefsOnLoginFormAction(user, request))
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to receive letters"
