@@ -11,7 +11,6 @@ import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import Function.const
-import controllers.common.SessionKeys
 
 trait EmailControllerHelper {
 
@@ -37,16 +36,14 @@ trait EmailControllerHelper {
     emailForm.bindFromRequest()(request).fold(
       errors => Future.successful(BadRequest(errorsView(errors))),
       emailForm => {
-        val mainEmail = emailForm.mainEmail
-        val isEmailValid = 
-          if (emailForm.isEmailVerified) Future.successful(true)
-          else emailConnector.validateEmailAddress(mainEmail)
+        val isEmailValid = if (emailForm.isEmailVerified)
+          Future.successful(true)
+        else
+          emailConnector.validateEmailAddress(emailForm.mainEmail)
 
         isEmailValid.flatMap {
-           case true =>
-             preferencesConnector.savePreferences(user.getSa.utr, true, Some(mainEmail)).map(const(Redirect(successRedirect())))
-           case false =>
-             Future.successful(Ok(emailWarningView(mainEmail)).withSession(SessionKeys.unconfirmedEmailAddress -> mainEmail))
+           case true => preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.mainEmail)).map(const(Redirect(successRedirect())))
+           case false => Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }
       }
     )
