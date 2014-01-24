@@ -336,7 +336,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "The car can’t be unavailable for longer than the total number of days you’ve had it. Reduce the number of days unavailable or check the date you got the car."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe s"The car can’t be unavailable for longer than the total number of days you’ve had it from 6 April $testTaxYear. Reduce the number of days unavailable or check the date you got the car."
 
     }
 

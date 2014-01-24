@@ -54,7 +54,7 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
     case Some(true) => {
       optional(number
         .verifying("error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0", n => n > 0)
-        .verifying("error.paye.remove_car_benefit.question2.car_unavailable_too_long", unavailableDays => acceptableNumberOfDays(unavailableDays, values, benefitStartDate, taxYearInterval))
+        .verifying(Messages("error.paye.remove_car_benefit.question2.car_unavailable_too_long", currentTaxYear.toString), unavailableDays => acceptableNumberOfDays(unavailableDays, values, benefitStartDate, taxYearInterval))
       ).verifying("error.paye.remove_car_benefit.question2.missing_days_unavailable", data => data.isDefined)
     }
     case _ => ignored(None)

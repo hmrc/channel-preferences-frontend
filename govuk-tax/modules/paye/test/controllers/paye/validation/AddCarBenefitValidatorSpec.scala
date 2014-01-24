@@ -82,7 +82,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val fromDate = Some(new LocalDate(2012, 5, 30))
       val toDate = Some(new LocalDate(2012, 5, 31))
       val form = bindFormWithValue(dummyForm(getValues(providedFromVal = fromDate, providedToVal = toDate, carUnavailableVal=Some("true"), giveBackThisTaxYearVal = Some("true"))), numberOfDaysUnavailable, "3")
-      assertHasThisErrorMessage(form, numberOfDaysUnavailable, "The car can’t be unavailable for longer than the total number of days you’ve had it. Reduce the number of days unavailable or check the date you got the car.")
+      assertHasThisErrorMessage(form, numberOfDaysUnavailable, s"The car can’t be unavailable for longer than the total number of days you’ve had it from 6 April $testTaxYear. Reduce the number of days unavailable or check the date you got the car.")
     }
   }
 

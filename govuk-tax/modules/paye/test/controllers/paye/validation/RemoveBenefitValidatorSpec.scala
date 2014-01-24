@@ -95,7 +95,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       val toDate = Some(new LocalDate(2012, 5, 31))
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"), withdrawDateVal = toDate), fromDate), "daysUnavailable", "3")
       form.hasErrors shouldBe true
-      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("The car can’t be unavailable for longer than the total number of days you’ve had it. Reduce the number of days unavailable or check the date you got the car.")
+      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("The car can’t be unavailable for longer than the total number of days you’ve had it from 6 April 2013. Reduce the number of days unavailable or check the date you got the car.")
     }
   }
 

@@ -149,7 +149,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
       optional(number
         .verifying("error.paye.number_of_days_unavailable_less_than_0", n => n > 0)
         .verifying("error.paye.number_max_3_chars", n => n <= 999 )
-        .verifying("error.paye.add_car_benefit.car_unavailable_too_long", unavailableDays => acceptableNumberOfDays(unavailableDays, values, taxYearInterval))
+        .verifying(Messages("error.paye.add_car_benefit.car_unavailable_too_long", currentTaxYear.toString), unavailableDays => acceptableNumberOfDays(unavailableDays, values, taxYearInterval))
       ).verifying("error.paye.add_car_benefit.missing_days_unavailable", data => data.isDefined)
     }
     case _ => ignored(None)
