@@ -8,7 +8,7 @@
 @main(title = "Your tax account", nav = true, sidebarLinks = Some(sidebarLinks), user= Some(user), header = Some(header)) {
 
     @for(ac <- accountSummaries.regimes) {
-        <div id="@ac.regimeName" class="account-summary">
+        <article id="@ac.regimeName" class="account-summary">
             <h2 class="heading-36 push--top">@Messages(ac.regimeName)</h2>
 
             @for(message <- ac.messages) {
@@ -21,21 +21,22 @@
 
                 }
             </ul>
-        </div>
+        </article>
     }
+    <article>
+        <h2 class="heading-36">@Messages("bt.home.otherTaxes")</h2>
+        <p>@Messages("bt.home.mergeAccounts.1")</p>
 
-    <h2 class="heading-36">@Messages("bt.home.otherTaxes")</h2>
-    <p>@Messages("bt.home.mergeAccounts.1")</p>
-
-    @if(accountSummaries.regimes.size != 4) {
-        <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
-        <p>@helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts")</p>
-    }
-    <p>
-        @Messages("bt.home.everythingElse.1")
-        @helpers.link("otherServicesHref", controllers.bt.routes.OtherServicesController.otherServices.url, "bt.home.everythingElse.linkText")
-        @Messages("bt.home.everythingElse.2")
-    </p>
+        @if(accountSummaries.regimes.size != 4) {
+            <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
+            <p>@helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts")</p>
+        }
+        <p>
+            @Messages("bt.home.everythingElse.1")
+            @helpers.link("otherServicesHref", controllers.bt.routes.OtherServicesController.otherServices.url, "bt.home.everythingElse.linkText")
+            @Messages("bt.home.everythingElse.2")
+        </p>
+    </article>
 }
 
 @sidebarLinks = {
