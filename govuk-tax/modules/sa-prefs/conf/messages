@@ -1,4 +1,4 @@
-error.email=Enter a valid email address.
+error.email=Enter a valid email address
 email.confirmation.emails.unequal=Check your email addresses - they don't match.
 
 sa_printing_preference.title=My Preferences

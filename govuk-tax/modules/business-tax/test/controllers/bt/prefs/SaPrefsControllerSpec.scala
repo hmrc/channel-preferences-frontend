@@ -117,7 +117,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-preferences-email .error-notification").text shouldBe "Enter a valid email address."
+      document.select("#form-submit-preferences-email .error-notification").text shouldBe "Enter a valid email address"
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
@@ -128,7 +128,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-preferences-email .error-notification").text shouldBe "Enter a valid email address."
+      document.select("#form-submit-preferences-email .error-notification").text shouldBe "Enter a valid email address"
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
