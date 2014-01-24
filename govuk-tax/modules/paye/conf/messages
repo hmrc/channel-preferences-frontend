@@ -172,14 +172,14 @@ paye.replace_car_benefit.next_button=Next
 
 paye.remove_car_benefit.withdraw_date=When did you give back the car?
 paye.remove_car_benefit.car_unavailable=Was the car unavailable for 30 days or more in a row?
-paye.remove_car_benefit.car_unavailable.hint=Only enter the days after 5 April 2013. Unavailable means you didn’t have access, eg because of repairs.
+paye.remove_car_benefit.car_unavailable.hint=Only enter the days after 5 April {0}. Unavailable means you didn’t have access, eg because of repairs.
 paye.remove_car_benefit.car_unavailable.no=No
 paye.remove_car_benefit.car_unavailable.yes=Yes:
 paye.remove_car_benefit.car_unavailable.days=days
 paye.remove_car_benefit.fuel_benefit=When did the fuel benefit for this car stop?
 paye.remove_car_benefit.fuel_benefit.same_time=It stopped when you gave the car back
 paye.remove_car_benefit.fuel_benefit.different_time=It stopped:
-paye.remove_car_benefit.employee_contributes=Did you pay anything to your employer for private use of the car after 6 April 2013?
+paye.remove_car_benefit.employee_contributes=Did you pay anything to your employer for private use of the car after 6 April {0}?
 paye.remove_car_benefit.employee_contributes.no=No
 paye.remove_car_benefit.employee_contributes.yes=Yes: £
 paye.remove_car_benefit.submit_button=Next

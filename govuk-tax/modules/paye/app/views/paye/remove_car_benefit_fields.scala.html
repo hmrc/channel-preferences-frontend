@@ -5,6 +5,7 @@
 @import views.helpers._
 @import views.formatting.Dates._
 @import uk.gov.hmrc.utils.TaxYearResolver
+@import uk.gov.hmrc.utils.TaxYearResolver.currentTaxYear
 
 <fieldset id="remove-car-benefit-fields" class="list--numbered">
     <legend class="benefit-type h2-heading">@Messages("paye.remove_car_benefit.benefit_type")</legend>
@@ -26,7 +27,7 @@
             '_label -> Messages("paye.remove_car_benefit.car_unavailable"),
             '_groupClass -> "form-field-group  js-includes-contextual numbered",
             '_valueAfter -> true,
-            '_hintText -> Messages("paye.remove_car_benefit.car_unavailable.hint"))
+            '_hintText -> Messages("paye.remove_car_benefit.car_unavailable.hint", currentTaxYear.toString))
 
             @helpers.fieldGroup(updateForm,
             Seq(
@@ -37,7 +38,7 @@
 
             FormField(updateForm("removeEmployeeContribution"), Seq(InputType("text", "", "",Some("form-field--inline-text-input js-input--contextual"), Some(""), Some("input--xsmall"))))
             ),
-            '_label -> Messages("paye.remove_car_benefit.employee_contributes"),
+            '_label -> Messages("paye.remove_car_benefit.employee_contributes", currentTaxYear.toString),
             '_groupClass -> "form-field js-includes-contextual numbered",
             '_valueAfter -> true)
 
