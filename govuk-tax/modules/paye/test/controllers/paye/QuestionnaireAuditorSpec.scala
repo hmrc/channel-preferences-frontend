@@ -32,7 +32,7 @@ class QuestionnaireAuditorSpec extends BaseSpec with MockitoSugar {
 
       questionnaireAuditor.auditOnce(auditEvent, transactionId)
 
-      verify(mockAuditConnector).audit(any())(any())
+      verify(mockAuditConnector).audit(Matchers.eq(auditEvent))(any())
       verify(mockKeyStoreConnector).addKeyStoreEntry[QuestionnaireData](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), Matchers.eq(QuestionnaireData("HasBeenSubmitted")), Matchers.eq(false))(any(), any())
     }
 
