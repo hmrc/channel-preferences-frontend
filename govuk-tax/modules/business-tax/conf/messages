@@ -7,7 +7,7 @@ vat.message.accountBalance=Your account currently shows a balance of <br/> <span
 vat.message.summaryUnavailable.1= We can&#39;t display your VAT information because:
 vat.message.summaryUnavailable.2= - your VAT registration number is no longer active. For assistance contact the helpdesk.
 vat.message.summaryUnavailable.3= - you have only just activated this service and there is a short delay before the information is available
-vat.message.summaryUnavailable.4=For any other problems, contact the <a id="vat.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
+vat.message.summaryUnavailable.4=For any other problems, contact the <a id="vat.onlineServicesHelpdesk" href="/contact-hmrc/" target="_blank">helpdesk</a>.
 vat.manage.heading=Manage your VAT
 
 
@@ -19,7 +19,7 @@ ct.message.amountAsOfDate=<span class="h1-heading">{0}</span><br/> as of {1}.
 ct.message.summaryUnavailable.1= We are currently unable to display your account information. This may be because:
 ct.message.summaryUnavailable.2=- there is no information to view at this time
 ct.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available
-ct.message.summaryUnavailable.4=For any other problems, contact the <a id="ct.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
+ct.message.summaryUnavailable.4=For any other problems, contact the <a id="ct.onlineServicesHelpdesk" href="/contact-hmrc/" target="_blank">helpdesk</a>.
 
 ct.message.importantDates.additionalText.filing=' - already received so no action needed, thank you
 ct.message.importantDates.text.filing=Your Company Tax return for the accounting period {0} to {1} is due
@@ -53,7 +53,7 @@ sa.message.smallAmountToPay=If you don''t pay this amount now it will stay unpai
 sa.message.summaryUnavailable.1=We are currently unable to display your account information. This may be because:
 sa.message.summaryUnavailable.2=- there is no information to view at this time
 sa.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available
-sa.message.summaryUnavailable.4=For any other problems, contact the <a id="sa.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
+sa.message.summaryUnavailable.4=For any other problems, contact the <a id="sa.onlineServicesHelpdesk" href="/contact-hmrc/" target="_blank">Online Services Helpdesk</a>.
 sa.heading.signup.emailreminders=Sign up for Self Assessment email reminders
 sa.manage.heading=Manage your Self Assessment
 epaye.regimeName=Employers Pay As You Earn (PAYE)
@@ -66,7 +66,7 @@ epaye.message.dueForPayment=You now have to pay <br/> <span class="h1-heading">{
 epaye.message.summaryUnavailable.1=HM Revenue and Customs are currently unable to display your account information. This may be because:
 epaye.message.summaryUnavailable.2=- there is no information to view at this time
 epaye.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available
-epaye.message.summaryUnavailable.4=For any other problems, contact the <a id="epaye.onlineServicesHelpdesk" href="http://hmrc.gov.uk/online/problem-resolution.htm" target="_blank">Online Services Helpdesk</a>.
+epaye.message.summaryUnavailable.4=For any other problems, contact the <a id="epaye.onlineServicesHelpdesk" href="/contact-hmrc/" target="_blank">helpdesk</a>.
 epaye.message.paidToDateForPeriod=You have paid <br/> <span class="h1-heading">{0}</span> <br/> to date for period {1}.
 epaye.manage.heading=Manage your Employers PAYE
 
