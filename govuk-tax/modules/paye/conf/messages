@@ -194,7 +194,7 @@ error.paye.remove_car_benefit.question3.missing_employee_contribution=You must s
 error.paye.add_fuel_benefit.question1.employer_pay_fuel_cannot_be_false=You can’t add a fuel benefit if your employer doesn’t pay for fuel for private use.
 
 paye.remove_car_benefit_review.title=Tell HMRC about a change to your company car - Confirm your benefit details
-paye.remove_car_benefit_review.header=Tell HMRC about a change to your company car benefit
+paye.remove_car_benefit_review.header=Tell HMRC about a change to your company car
 paye.remove_car_benefit_review.check_changes=Check your updated details before submitting them
 paye.remove_car_benefit_review.car_provided_by=Company car provided by {0}
 paye.remove_car_benefit_review.date_given_back=Date given back
