@@ -19,7 +19,7 @@ object Dependencies {
     val playMetrics = "com.kenshoo" %% "metrics-play" % "0.1.3"
     val metricsGraphite = "com.codahale.metrics" % "metrics-graphite" % "3.0.1"
     val secureUtils = "uk.gov.hmrc" % "secure-utils" % "0.1.0"
-    val taxCore = "uk.gov.hmrc" %% "tax-core" % "0.2.3-SNAPSHOT"
+    val taxCore = "uk.gov.hmrc" %% "tax-core" % "0.2.3"
     val scalaUri = "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10")
     val scct = "com.github.scct" %% "scct" % "0.2.1"
   }
