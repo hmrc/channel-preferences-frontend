@@ -1,4 +1,4 @@
-GET     /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[Email])
+GET     /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[uk.gov.hmrc.domain.Email])
 GET     /sa/print-preferences-saved                             @controllers.sa.prefs.SaPrefsController.confirm(token: String, return_url: String)
 GET     /sa/print-preferences-no-action                         @controllers.sa.prefs.SaPrefsController.noAction(return_url: String, digital: Boolean)
 POST    /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.submitPrefsForm(token: String, return_url: String)
