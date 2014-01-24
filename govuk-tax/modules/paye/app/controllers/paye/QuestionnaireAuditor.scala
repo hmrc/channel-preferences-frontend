@@ -11,10 +11,10 @@ class QuestionnaireAuditor(val auditConnector: AuditConnector, val keystore: Key
   val keystoreFormName = "QuestionnaireFormDataSubmission"
 
   def auditOnce(auditEvent: AuditEvent, transactionId: String)(implicit hc: HeaderCarrier): Unit = {
-    val keystoreResponse = keystore.getEntry[QuestionanaireData](keystoreFormName, KeystoreUtils.source, transactionId)
+    val keystoreResponse = keystore.getEntry[QuestionnaireData](keystoreFormName, KeystoreUtils.source, transactionId)
     keystoreResponse.map {
       _.getOrElse {
-        keystore.addKeyStoreEntry[QuestionanaireData](keystoreFormName, KeystoreUtils.source, transactionId, QuestionanaireData("HasBeenSubmitted"))
+        keystore.addKeyStoreEntry[QuestionnaireData](keystoreFormName, KeystoreUtils.source, transactionId, QuestionnaireData("HasBeenSubmitted"))
         audit(auditEvent)
       }
     }
@@ -25,4 +25,4 @@ class QuestionnaireAuditor(val auditConnector: AuditConnector, val keystore: Key
   }
 }
 
-private[paye] case class QuestionanaireData(value: String)
+private[paye] case class QuestionnaireData(value: String)
