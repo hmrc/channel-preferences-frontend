@@ -37,7 +37,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
   val benefitsCaptor = ArgumentCaptor.forClass(classOf[Seq[Benefit]])
 
   "calling start add fuel benefit" should {
-    "return 200 and show the fuel page with the employer s name" in new TestCaseIn2012 {
+    "return 200 and show the fuel page" in new TestCaseIn2012 {
 
       setupMocksForJohnDensmore(cars = Seq(CarBenefit(carBenefitEmployer1)))
 
@@ -47,8 +47,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
 
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "Weyland-Yutani Corp"
-      doc.select(".h2-heading").text should include("company fuel")
+      doc.select(".h2-heading").text should include("fuel benefit")
     }
 
     "return 200 and show the fuel page with the employer s name and previously populated data. EmployerPayFuelTrue and no dateWithdrawn specified" in new TestCaseIn2012 {
@@ -60,7 +59,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         is(generateKeystoreActionId(testTaxYear, employmentSeqNumberOne)),
         is("paye"),
         is("AddFuelBenefitForm"),
-        is(false))(any(), any())).thenReturn(Some((fuelBenefitData)))
+        is(false))(any(), any())).thenReturn(Some(fuelBenefitData))
 
       val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
 
@@ -85,7 +84,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       doc.select("#employerPayFuel-true").attr("checked") shouldBe empty
     }
 
-    "return 200 and show the page for the fuel form with default employer name message if employer name does not exist " in new TestCaseIn2012 {
+    "return 200 if employer name does not exist " in new TestCaseIn2012 {
 
       val johnDensmoresNamelessEmployments = Seq(
         Employment(sequenceNumber = employmentSeqNumberOne, startDate = new LocalDate(testTaxYear, 7, 2), endDate = Some(new LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, Employment.primaryEmploymentType))
@@ -96,8 +95,6 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
       val result = controller.startAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
 
       status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#company-name").text shouldBe "your employer"
     }
 
     "return 400 when employer for sequence number does not exist" in new TestCaseIn2012 {

@@ -12,7 +12,7 @@
 
     @helpers.form(action = controllers.paye.routes.AddFuelBenefitController.reviewAddFuelBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit") {
     <fieldset class="list--numbered">
-        <legend class="h2-heading">@Html(Messages("paye.add_fuel_benefit.h2", s"""<span id="company-name">$employerNameString</span>"""))</legend>
+        <legend class="h2-heading">@Messages("paye.add_fuel_benefit.h2")</legend>
 
         @helpers.fieldGroup(
             fuelBenefitForm,
