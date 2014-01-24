@@ -40,7 +40,7 @@ object GovUkTaxBuild extends Build {
   val uiDirectory = SettingKey[File]("ui-directory")
 
   val govukTemplate = play.Project(
-    appName + "-template", Version.thisApp, appDependencies, path = file("modules/govuk-template"), settings = Common.commonSettings
+    appName + "-template", Version.thisApp, appDependencies, path = file("modules/govuk-template"), settings = Common.baseSettings
   ).settings(Keys.fork in Test := false)
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
@@ -50,7 +50,7 @@ object GovUkTaxBuild extends Build {
 
   val common = play.Project(
     appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
-    settings = Common.commonSettings ++ SassPlugin.sassSettings
+    settings = Common.baseSettings ++ SassPlugin.sassSettings
   ).settings(Keys.fork in Test := false)
     .dependsOn(govukTemplate % allPhases)
     .configs(TemplateTest)
@@ -64,7 +64,7 @@ object GovUkTaxBuild extends Build {
     )
 
   val paye = play.Project(
-    appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.commonSettings
+    appName + "-paye", Version.thisApp, appDependencies, path = file("modules/paye"), settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases)
     .configs(TemplateTest)
@@ -74,17 +74,16 @@ object GovUkTaxBuild extends Build {
     .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "paye" })
 
   val bt = play.Project(
-    appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.commonSettings
+    appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases)
     .configs(TemplateTest)
-    .settings(routesImport += "uk.gov.hmrc.common.QueryBinders._")
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
 
   val sa = play.Project(
-    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.commonSettings
+    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases, bt)
     .configs(TemplateTest)
@@ -95,7 +94,7 @@ object GovUkTaxBuild extends Build {
   val saPrefs = play.Project(
     appName + "-sa-prefs", Version.thisApp,
       appDependencies ++ Seq(Dependencies.Compile.scalaUri, Dependencies.Compile.scct),
-      path = file("modules/sa-prefs"), settings = Common.commonSettings
+      path = file("modules/sa-prefs"), settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases)
     .configs(TemplateTest)
@@ -106,7 +105,7 @@ object GovUkTaxBuild extends Build {
   lazy val govukTax = play.Project(
     appName,
     Version.thisApp, appDependencies,
-    settings = Common.commonSettings ++ SassPlugin.sassSettings
+    settings = Common.baseSettings ++ SassPlugin.sassSettings
   ).settings(publishArtifact := true,
     Keys.fork in Test := false)
     .dependsOn(paye, sa, bt, saPrefs)
@@ -115,7 +114,7 @@ object GovUkTaxBuild extends Build {
 }
 
 object Common {
-  val commonSettings = Defaults.defaultSettings  ++
+  private val scalaSettings =
     Seq(
       organization := "uk.gov.hmrc",
       version := Version.thisApp,
@@ -124,7 +123,7 @@ object Common {
         "-unchecked",
         "-deprecation",
         "-Xlint",
-	      "-Xmax-classfile-name", "100",
+        "-Xmax-classfile-name", "100",
         "-language:_",
         "-target:jvm-1.7",
         "-encoding", "UTF-8"
@@ -133,13 +132,19 @@ object Common {
       retrieveManaged := true,
       testOptions in Test += Tests.Argument("-u", "target/test-reports", "-h", "target/test-reports/html-report"),
       testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
-    ) ++
-    jasmineSettings ++
-    Seq(
+    )
+
+  private val jasmineTestSettings =
+    jasmineSettings ++ Seq(
       appJsDir <+= baseDirectory { _ / ".." / "common" / "public" / "javascripts"},
       appJsLibDir <+= baseDirectory { _ / ".." / "common" / "public" / "javascripts" / "vendor"},
       jasmineConfFile <+= baseDirectory { _ / ".." / "common" / "public" / "javascripts" / "test" /  "test.dependencies.js"},
-      (test in Test) <<= (test in Test) dependsOn (jasmine)
-    ) ++ playScalaSettings ++ Repositories.publishingSettings
+      (test in Test) <<= (test in Test) dependsOn jasmine
+    )
+
+  val baseSettings =
+    Defaults.defaultSettings ++ scalaSettings ++ jasmineTestSettings ++ playScalaSettings ++ Repositories.publishingSettings
+
+  val routesImports = routesImport += "uk.gov.hmrc.common.QueryBinders._"
 }
 
