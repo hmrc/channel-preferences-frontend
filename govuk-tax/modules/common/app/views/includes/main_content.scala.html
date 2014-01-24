@@ -16,8 +16,8 @@
             @sidebarLinks.get
         </aside>
     }
-    @if(supportLinkEnabled && user.isDefined) {
-        @includes.error_feedback()
+    @if(supportLinkEnabled) {
+        @includes.error_feedback(user)
     }
 
 

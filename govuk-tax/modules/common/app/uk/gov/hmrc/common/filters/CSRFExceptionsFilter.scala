@@ -10,7 +10,7 @@ import SessionTimeoutWrapper._
 
 object CSRFExceptionsFilter extends Filter {
 
-  val whitelist = List("/ida/login", "/ssoin", "/contact/problem_reports")
+  val whitelist = List("/ida/login", "/ssoin", "/contact/problem_reports","/contact/problem_reports-unauthenticated")
 
   def apply(f: (RequestHeader) => Future[SimpleResult])(rh: RequestHeader): Future[SimpleResult] = {
      f(filteredHeaders(rh))
