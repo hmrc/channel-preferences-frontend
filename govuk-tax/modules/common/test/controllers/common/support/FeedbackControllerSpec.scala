@@ -9,18 +9,9 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.auth.domain.CreationAndLastModifiedDetail
 import play.api.test.Helpers._
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.auth.domain.Credentials
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.auth.domain.Accounts
-import uk.gov.hmrc.common.microservice.auth.domain.Authority
-import scala.Some
 import org.apache.commons.lang.StringUtils
-import play.api.mvc.{Request, SimpleResult}
+import play.api.mvc.Request
 import scala.concurrent.Future
-import org.scalatest.Matchers
-import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import controllers.common.actions.HeaderCarrier
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
@@ -197,7 +188,7 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
     Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root))))
   }
 
-  def request(rating: String = "Good",
+  def request(rating: String = "3",
               name: String = "Tom Smith",
               email: String = "tom.smith@gmail.com",
               comments: String = "I really enjoyed this experience. I do not have better things to do than sending feedback.") =

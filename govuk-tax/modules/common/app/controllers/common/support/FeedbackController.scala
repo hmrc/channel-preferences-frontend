@@ -78,7 +78,7 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   }
 
   private[common] def redirectToConfirmationPage(ticketId: Future[Option[TicketId]], user: Option[User])(implicit request: Request[AnyRef]) =
-    ticketId.map(ticketCache.stashTicket(_, formId)).map(_=> thanksFor(user))
+    ticketId.map(ticketCache.stashTicket(_, formId)).map(_ => thanksFor(user))
 
 
   private def thanksFor(user: Option[User]) = Redirect(user.map(_ => routes.FeedbackController.thanks()).getOrElse(routes.FeedbackController.unauthenticatedThanks()))
@@ -108,6 +108,6 @@ object FeedbackForm {
 }
 
 object FeedbackFormConfig {
-  val validExperiences = Seq("Very good", "Good", "Unsure", "Bad", "Very bad")
-  val feedbackRatings = validExperiences.map(v => (v, v))
+  val validExperiences = (5 to 1 by -1) map (_.toString)
+  val feedbackRatings = validExperiences zip Seq("Very good", "Good", "Unsure", "Bad", "Very bad")
 }
