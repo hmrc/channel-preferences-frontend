@@ -88,13 +88,9 @@ with EmailControllerHelper {
 
   }
 
-  private[bt] def changeEmailAddressPage(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    val emailPreferenceData = emailAddress match  {
-      case Some(theEmail) => EmailPreferenceData((theEmail.value, Some(theEmail.value)), None)
-      case _ => EmailPreferenceData(("", None), None)
-    }
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(emailPreferenceData)))))
-  }
+  private[bt] def changeEmailAddressPage(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailPreferenceData(emailAddress))))))
+
 
 
   private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {

@@ -60,15 +60,9 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]) =
+    Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress)))))
 
-    val emailPreferenceData = emailAddress match  {
-      case Some(theEmail) => EmailPreferenceData((theEmail.value, Some(theEmail.value)), None)
-      case _ => EmailPreferenceData(("", None), None)
-    }
-
-    Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(emailPreferenceData))))
-  }
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) =
     submitPreferencesForm(

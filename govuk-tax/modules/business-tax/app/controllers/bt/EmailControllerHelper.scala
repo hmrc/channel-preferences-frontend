@@ -11,15 +11,17 @@ import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import Function.const
+import uk.gov.hmrc.domain.Email
 
 trait EmailControllerHelper {
 
 
   protected val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(
-    "email" -> tuple(
-      "main" -> email.verifying("error.email_too_long", email => email.size < 320),
-      "confirm" -> optional(text)
-    ).verifying(
+    "email" ->
+      tuple(
+        "main" -> email.verifying("error.email_too_long", email => email.size < 320),
+        "confirm" -> optional(text)
+      ).verifying(
         "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")
       ),
     "emailVerified" -> optional(text)
@@ -55,4 +57,9 @@ case class EmailPreferenceData(email: (String, Option[String]), emailVerified: O
   lazy val isEmailVerified = emailVerified == Some("true")
 
   def mainEmail = email._1
+}
+object EmailPreferenceData {
+  def apply(emailAddress: Option[Email]): EmailPreferenceData = {
+    EmailPreferenceData(emailAddress.map(e => (e.value, Some(e.value))).getOrElse(("", None)), None)
+  }
 }
