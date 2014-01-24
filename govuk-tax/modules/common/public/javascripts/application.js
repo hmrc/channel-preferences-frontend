@@ -67,7 +67,12 @@
       $questionnaire.find('input[type=submit]').on("click", function(e) {
         $(this).parents('.questionnaire').toggleClass('js-hidden');
         e.preventDefault();
-// TODO: make ajax call
+          var form = $("#form-end-journey-questionnaire");
+          $.ajax({
+                  type: "POST",
+                  url: $(form).attr("action"),
+                  data: $(form).serialize()
+          });
       });
   };
   GOVUK.setCookie = function (name, value, duration) {
