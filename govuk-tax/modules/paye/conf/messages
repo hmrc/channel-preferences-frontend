@@ -299,6 +299,7 @@ paye.display_car_and_fuel.company_car_provided_by=Company car provided by {0}
 paye.display_car_and_fuel.date_made_available=Date you got the car
 paye.display_car_and_fuel.date_withdrawn=Date you gave back the car
 paye.display_car_and_fuel.date_registered=Date registered with DVLA
+paye.display_car_and_fuel.days_unavailable=Number of days the car was unavailable
 paye.display_car_and_fuel.list_price=List price including VAT and accessories
 paye.display_car_and_fuel.employee_contribution=Your contribution to the price
 paye.display_car_and_fuel.employee_payments=Your contribution to private use

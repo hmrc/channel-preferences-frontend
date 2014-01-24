@@ -24,6 +24,14 @@
             <th scope="row">@Messages("paye.display_car_and_fuel.date_registered")</th>
             <td id="@id("car-benefit-date-registered")">@formatDate(carBenefit.dateCarRegistered)</td>
         </tr>
+        @carBenefit.daysUnavailable.map { daysUnavailable =>
+            @if(daysUnavailable > 0) {
+                <tr>
+                    <th scope="row">@Messages("paye.display_car_and_fuel.days_unavailable")</th>
+                    <td id="@id("car-benefit-days-unavailable")">@daysUnavailable</td>
+                </tr>
+            }
+        }
         <tr>
             <th scope="row">@Messages("paye.display_car_and_fuel.list_price")</th>
             <td id="@id("car-benefit-car-value")">@pounds(carBenefit.carValue)</td>

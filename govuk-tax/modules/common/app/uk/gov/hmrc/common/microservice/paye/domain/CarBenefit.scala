@@ -18,7 +18,8 @@ case class CarBenefit(taxYear: Int,
                       dateCarRegistered: LocalDate,
                       dateWithdrawn: Option[LocalDate] = None,
                       actions: Map[String, String] = Map.empty,
-                      fuelBenefit: Option[FuelBenefit] = None) {
+                      fuelBenefit: Option[FuelBenefit] = None,
+                      daysUnavailable: Option[Int] = None) {
   def isActive = dateWithdrawn.isEmpty
 
   lazy val hasActiveFuel = fuelBenefit.exists(_.isActive)
@@ -35,8 +36,9 @@ case class CarBenefit(taxYear: Int,
     val carLegacyBenefit = new Benefit(benefitCode, taxYear, grossAmount, employmentSequenceNumber, None, None, None, None, None, None, dateWithdrawn,
       Some(legacyCar), actions, Map.empty, Some(benefitAmount), None)
 
-    val fuelLegacyBenefit = fuelBenefit.map { fb =>
-      new Benefit(fb.benefitCode, taxYear, fb.grossAmount, employmentSequenceNumber, None, None, None, None, None, None, fb.dateWithdrawn, Some(legacyCar), fb.actions, Map.empty, Some(fb.benefitAmount), None)
+    val fuelLegacyBenefit = fuelBenefit.map {
+      fb =>
+        new Benefit(fb.benefitCode, taxYear, fb.grossAmount, employmentSequenceNumber, None, None, None, None, None, None, fb.dateWithdrawn, Some(legacyCar), fb.actions, Map.empty, Some(fb.benefitAmount), None)
     }
 
     Seq(carLegacyBenefit) ++ fuelLegacyBenefit
@@ -50,7 +52,7 @@ object CarBenefit {
     CarBenefit(carAndFuel.carBenefit, carAndFuel.fuelBenefit)
   }
 
-  def apply(benefit:Benefit) : CarBenefit = {
+  def apply(benefit: Benefit): CarBenefit = {
     apply(benefit, None)
   }
 
@@ -67,7 +69,7 @@ object CarBenefit {
     // making sure the business model is expressed correctly
     CarBenefit(benefit.taxYear,
       benefit.employmentSequenceNumber,
-      benefit.getStartDate(TaxYearResolver.startOfCurrentTaxYear),          // TODO: Some tests may need a different TYR.
+      benefit.getStartDate(TaxYearResolver.startOfCurrentTaxYear), // TODO: Some tests may need a different TYR.
       car.dateCarMadeAvailable.getOrElse(TaxYearResolver.startOfCurrentTaxYear),
       benefit.benefitAmount.getOrElse(0),
       benefit.grossAmount,
@@ -80,7 +82,8 @@ object CarBenefit {
       car.dateCarRegistered.get,
       car.dateCarWithdrawn,
       benefit.actions,
-      fb)
+      fb,
+      car.daysUnavailable)
   }
 }
 
