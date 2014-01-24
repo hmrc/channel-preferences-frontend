@@ -5,7 +5,7 @@ GET         /car-benefit/error/version-changed                                 @
 GET         /car-benefit/error/unavailable                                     @controllers.paye.CarBenefitHomeController.cannotPlayInBeta
 GET         /ida-token-required-in-beta                                        @controllers.paye.CarBenefitHomeController.idaTokenRequiredInBeta
 
-POST        /car-benefit/questionnaire                                         @controllers.paye.PayeQuestionnaireController.submitQuestionnaire
+POST        /questionnaire                                                     @controllers.paye.PayeQuestionnaireController.submitQuestionnaire
 
 GET         /car-benefit/:year/:employmentSequenceNumber/add                   @controllers.paye.AddCarBenefitController.startAddCarBenefit(year: Int, employmentSequenceNumber: Int)
 POST        /car-benefit/:year/:employmentSequenceNumber/add/confirm           @controllers.paye.AddCarBenefitController.reviewAddCarBenefit(year: Int, employmentSequenceNumber: Int)
