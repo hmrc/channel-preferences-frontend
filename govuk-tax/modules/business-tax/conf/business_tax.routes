@@ -7,7 +7,7 @@ GET         /other-taxes                                            @controllers
 GET         /merge-accounts                                         @controllers.bt.MergeGGAccountsController.mergeGGAccounts
 
 GET         /account-details                                        @controllers.bt.AccountDetailsController.accountDetails
-GET         /account-details/sa/update-email-address                @controllers.bt.AccountDetailsController.changeEmailAddress(email: Option[uk.gov.hmrc.domain.Email])
+GET         /account-details/sa/update-email-address                @controllers.bt.AccountDetailsController.changeEmailAddress(email: Option[Email])
 POST        /account-details/sa/update-email-address                @controllers.bt.AccountDetailsController.submitEmailAddress
 GET         /account-details/sa/update-email-address-thank-you      @controllers.bt.AccountDetailsController.emailAddressChangeThankYou
 GET         /account-details/sa/opt-out-email-reminders             @controllers.bt.AccountDetailsController.optOutOfEmailReminders
@@ -17,7 +17,7 @@ POST        /account-details/sa/resend-validation-email             @controllers
 POST        /account-details/sa/resend-validation-email             @controllers.bt.AccountDetailsController.resendValidationEmail
 
 GET         /account-details/sa/login-opt-in-email-reminders        @controllers.bt.prefs.SaPrefsController.displayPrefsOnLoginForm
-GET         /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.Email])
+GET         /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[Email])
 POST        /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.submitPrefsForm
 POST        /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
 GET         /account-details/sa/opt-in-email-reminders-thank-you    @controllers.bt.prefs.SaPrefsController.thankYou

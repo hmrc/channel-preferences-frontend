@@ -11,7 +11,7 @@ import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import Function.const
-import uk.gov.hmrc.domain.Email
+import controllers.common.domain.EmailPreferenceData
 
 trait EmailControllerHelper {
 
@@ -51,15 +51,4 @@ trait EmailControllerHelper {
     )
   }
 
-}
-
-case class EmailPreferenceData(email: (String, Option[String]), emailVerified: Option[String]) {
-  lazy val isEmailVerified = emailVerified == Some("true")
-
-  def mainEmail = email._1
-}
-object EmailPreferenceData {
-  def apply(emailAddress: Option[Email]): EmailPreferenceData = {
-    EmailPreferenceData(emailAddress.map(e => (e.value, Some(e.value))).getOrElse(("", None)), None)
-  }
 }

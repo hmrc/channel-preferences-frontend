@@ -1,6 +1,6 @@
 package controllers.bt
 
-import controllers.common.{FrontEndRedirect, GovernmentGateway, BaseController}
+import controllers.common.{GovernmentGateway, BaseController}
 import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -10,12 +10,12 @@ import play.api.mvc.Request
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
-import scala.Function._
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.Email._
 import uk.gov.hmrc.domain.Email
+import controllers.common.domain.EmailPreferenceData
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController

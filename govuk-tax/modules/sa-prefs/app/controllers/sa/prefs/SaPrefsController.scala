@@ -11,6 +11,8 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
 import com.netaporter.uri.dsl._
+import uk.gov.hmrc.domain.Email
+import controllers.common.domain.EmailPreferenceData
 
 class SaPrefsController(whiteList: Set[String]) extends BaseController {
 
@@ -20,7 +22,7 @@ class SaPrefsController(whiteList: Set[String]) extends BaseController {
 
   def this() = this(FrontEndConfig.redirectDomainWhiteList)
 
-  def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[String]) =
+  def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Email]) =
     DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
       DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
@@ -30,7 +32,7 @@ class SaPrefsController(whiteList: Set[String]) extends BaseController {
             case _ =>
               Ok(
                 views.html.sa.prefs.sa_printing_preference(
-                  emailForm.fill(EmailPreferenceData((emailAddressToPrefill.getOrElse(""), emailAddressToPrefill), None)),
+                  emailForm.fill(EmailPreferenceData(emailAddressToPrefill)),
                   token,
                   returnUrl))
           }
@@ -115,10 +117,4 @@ class SaPrefsController(whiteList: Set[String]) extends BaseController {
         }
       }
     }
-}
-
-case class EmailPreferenceData(email: (String, Option[String]), emailVerified: Option[String]) {
-  lazy val isEmailVerified = emailVerified == Some("true")
-
-  def mainEmail = email._1
 }

@@ -145,6 +145,6 @@ object Common {
   val baseSettings =
     Defaults.defaultSettings ++ scalaSettings ++ jasmineTestSettings ++ playScalaSettings ++ Repositories.publishingSettings
 
-  val routesImports = routesImport += "uk.gov.hmrc.common.QueryBinders._"
+  val routesImports = routesImport ++= Seq("uk.gov.hmrc.common.QueryBinders._", "uk.gov.hmrc.domain._")
 }
 

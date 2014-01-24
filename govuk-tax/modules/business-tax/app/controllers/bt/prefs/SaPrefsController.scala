@@ -10,9 +10,10 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import controllers.bt.{EmailControllerHelper, EmailPreferenceData, BusinessTaxRegimeRoots}
+import controllers.bt.{EmailControllerHelper, BusinessTaxRegimeRoots}
 import scala.concurrent.Future
 import uk.gov.hmrc.domain.Email
+import controllers.common.domain.EmailPreferenceData
 
 class SaPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
