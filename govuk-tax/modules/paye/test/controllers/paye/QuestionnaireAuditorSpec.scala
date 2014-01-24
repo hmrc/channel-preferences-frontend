@@ -11,6 +11,8 @@ import scala.concurrent.Future
 import scala.Predef._
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import play.api.test.FakeRequest
+import controllers.paye.QuestionanaireData
+import controllers.paye.QuestionanaireData
 
 
 class QuestionnaireAuditorSpec extends BaseSpec with MockitoSugar {
@@ -34,7 +36,7 @@ class QuestionnaireAuditorSpec extends BaseSpec with MockitoSugar {
       questionnaireAuditor.auditOnce(auditEvent, transactionId)
 
       verify(mockAuditConnector).audit(any())(any())
-      verify(mockKeyStoreConnector).addKeyStoreEntry[String](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), Matchers.eq("HasBeenSubmitted"), Matchers.eq(false))(any(), any())
+      verify(mockKeyStoreConnector).addKeyStoreEntry[QuestionanaireData](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), Matchers.eq(QuestionanaireData("HasBeenSubmitted")), Matchers.eq(false))(any(), any())
     }
 
     //TODO: Figure out why verify is failing on CI and not locally
@@ -43,12 +45,12 @@ class QuestionnaireAuditorSpec extends BaseSpec with MockitoSugar {
       val mockKeyStoreConnector = mock[KeyStoreConnector]
       val questionnaireAuditor = new QuestionnaireAuditor(mockAuditConnector, mockKeyStoreConnector)
 
-      when(mockKeyStoreConnector.getEntry[String](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), any())(any(), any())).thenReturn(Future.successful(Some("populated!")))
+      when(mockKeyStoreConnector.getEntry[QuestionanaireData](Matchers.eq("QuestionnaireFormDataSubmission"), Matchers.eq(KeystoreUtils.source), Matchers.eq(transactionId), any())(any(), any())).thenReturn(Future.successful(Some(QuestionanaireData("populated!"))))
 
       questionnaireAuditor.auditOnce(auditEvent, transactionId)
 
       verifyZeroInteractions(mockAuditConnector)
-      verify(mockKeyStoreConnector, never()).addKeyStoreEntry[String](any(), any(), any(), any(), any())(any(), any())
+      verify(mockKeyStoreConnector, never()).addKeyStoreEntry[QuestionanaireData](any(), any(), any(), any(), any())(any(), any())
     }
   }
 
