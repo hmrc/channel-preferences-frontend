@@ -18,7 +18,8 @@
 </div>
 }
 @helper.form(action = controllers.bt.routes.AccountDetailsController.accountDetails) {
-
-    @helpers.link("cancel-opt-out-link", controllers.bt.routes.AccountDetailsController.accountDetails.url, "Never mind - I want to stay digital")
+    <div class="form-field">
+        @helpers.link("cancel-opt-out-link", controllers.bt.routes.AccountDetailsController.accountDetails.url, "Never mind - I want to stay digital")
+    </div>
 }
 }
