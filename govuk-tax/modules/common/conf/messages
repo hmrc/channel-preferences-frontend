@@ -95,14 +95,14 @@ login_error.contact_help_desk.link.url=https://www.gov.uk/hmrc-online-services-h
 common.links.help_page.text=Help
 common.links.help_page.url=/help
 common.links.cookies.text=Cookies
-common.links.cookies.url=/cookies
+common.links.cookies.url=/help/cookies
 common.links.contact_hmrc.text=Contact HMRC
 common.links.contact_hmrc.url=/contact-hmrc
 common.links.privacy_policy.text=Privacy policy
 common.links.privacy_policy.text.lower_case=privacy policy
-common.links.privacy_policy.url=/privacy
+common.links.privacy_policy.url=/help/privacy
 common.links.terms_and_conditions.text=Terms and conditions
-common.links.terms_and_conditions.url=/terms-and-conditions
+common.links.terms_and_conditions.url=/help/terms-and-conditions
 
 
 common.links.hmrc_privacy_policy.text=HMRC’s Privacy Notice
