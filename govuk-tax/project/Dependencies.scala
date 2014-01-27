@@ -10,24 +10,17 @@ object Version {
 object Dependencies {
 
   object Compile {
-    val nscalaTime = "com.github.nscala-time" %% "nscala-time" % "0.6.0"
-    val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.4"
     val json4sExt = "org.json4s" %% "json4s-ext" % "3.2.4"
     val commonsLang = "commons-lang" % "commons-lang" % "2.6"
     val commonsIo = "commons-io" % "commons-io" % "2.4"
     val guava = "com.google.guava" % "guava" % "14.0.1"
     val playMetrics = "com.kenshoo" %% "metrics-play" % "0.1.3"
     val metricsGraphite = "com.codahale.metrics" % "metrics-graphite" % "3.0.1"
-    val secureUtils = "uk.gov.hmrc" % "secure-utils" % "0.1.0"
-    val taxCore = "uk.gov.hmrc" %% "tax-core" % "0.2.3"
     val scalaUri = "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10")
     val scct = "com.github.scct" %% "scct" % "0.2.1"
   }
 
   sealed abstract class Test(scope: String) {
-    val junit = "junit" % "junit" % "4.11" % scope
-    val scalaTest = "org.scalatest" %% "scalatest" % "2.0" % scope
-    val mockito = "org.mockito" % "mockito-all" % "1.9.5" % scope
     val jsoup = "org.jsoup" % "jsoup" % "1.7.2"% scope
     val pegdown = "org.pegdown" % "pegdown" % "1.1.0" % scope
   }

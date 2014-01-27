@@ -4,6 +4,7 @@ import play.Project._
 import net.litola.SassPlugin
 import scala._
 import com.gu.SbtJasminePlugin._
+import uk.gov.hmrc.{OptionalDependencies, MicroserviceDependencies}
 
 object GovUkTaxBuild extends Build {
 
@@ -12,20 +13,20 @@ object GovUkTaxBuild extends Build {
   val appDependencies = Seq(
     filters,
     anorm,
-    Dependencies.Compile.nscalaTime,
+    MicroserviceDependencies.Compile.nscalaTime,
+    MicroserviceDependencies.Compile.json4sJackson,
+    MicroserviceDependencies.Compile.hmrc.taxCore,
+    OptionalDependencies.Compile.hmrc.secureUtils,
     Dependencies.Compile.json4sExt,
-    Dependencies.Compile.json4sJackson,
     Dependencies.Compile.guava,
     Dependencies.Compile.commonsLang,
     Dependencies.Compile.commonsIo,
     Dependencies.Compile.playMetrics,
     Dependencies.Compile.metricsGraphite,
-    Dependencies.Compile.secureUtils,
-    Dependencies.Compile.taxCore,
 
-    Dependencies.Test.junit,
-    Dependencies.Test.scalaTest,
-    Dependencies.Test.mockito,
+    MicroserviceDependencies.Test.junit,
+    MicroserviceDependencies.Test.scalaTest,
+    MicroserviceDependencies.Test.mockito,
     Dependencies.Test.jsoup,
     Dependencies.Test.pegdown
   )
