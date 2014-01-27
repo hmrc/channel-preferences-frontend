@@ -35,7 +35,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
   val fuelBenefitName = "fuel"
   val carAndFuelBenefitName = "car and fuel"
   val todaysDate = "2 December 2012"
-  val currentTaxYear = TaxYearResolver.currentTaxYear
+
 
   val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
@@ -195,7 +195,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "show benefits details for the tax year including gross amount for a user with an active car and multiple previous cars" in new WithApplication(FakeApplication()) with BaseData {
-      val currentTaxYear = TaxYearResolver.currentTaxYear
+      val currentTaxYear = testTaxYear
       override val fuelBenefit = Some(fuelBenefitEmployer1)
 
       val fuelBenefit2 = Some(fuelBenefitEmployer1.copy(benefitAmount = Some(7)))
@@ -234,7 +234,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "show benefits details with a value on the active car fuel and hyphen on the inactive car fuel cell for the tax year for a user with multiple cars, one without fuel" in new WithApplication(FakeApplication()) with BaseData {
-      val currentTaxYear = TaxYearResolver.currentTaxYear
+      val currentTaxYear = testTaxYear
 
       val currentCarWithFuel = CarBenefit(BenefitFixture.carBenefit, Some(BenefitFixture.fuelBenefit))
       val previousCarWithoutFuel = CarBenefit(BenefitFixture.carBenefit.copy(dateWithdrawn = Some(new LocalDate(2013, 5, 5))))

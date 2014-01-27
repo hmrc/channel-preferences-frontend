@@ -33,7 +33,8 @@ import controllers.common.service.Connectors
 class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                               (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
   extends BenefitController
-  with SessionTimeoutWrapper {
+  with SessionTimeoutWrapper
+  with TaxYearSupport {
 
   import RemovalUtils._
 
@@ -61,7 +62,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
 
   private[paye] def showReplaceCarBenefitFormAction(taxYear: Int, employmentSequenceNumber: Int)
                                                    (implicit user: User, request: Request[_]): Future[SimpleResult] = {
-    val f1 = user.getPaye.fetchTaxYearData(TaxYearResolver.currentTaxYear)
+    val f1 = user.getPaye.fetchTaxYearData(currentTaxYear)
     val f2 = keyStoreService.loadFormData
     for {
       taxYearData <- f1

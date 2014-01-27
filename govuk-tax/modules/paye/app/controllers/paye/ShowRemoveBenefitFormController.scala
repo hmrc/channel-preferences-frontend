@@ -63,7 +63,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
   private[paye] def showRemoveCarBenefitFormAction(user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
 
-    val f1 = user.getPaye.fetchTaxYearData(TaxYearResolver.currentTaxYear)
+    val f1 = user.getPaye.fetchTaxYearData(currentTaxYear)
     val f2 = keyStoreService.loadCarBenefitFormData
 
     for {
@@ -92,7 +92,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
 
   private[paye] def showRemoveFuelBenefitFormAction(user: User, request: Request[_], taxYear: Int, employmentSequenceNumber: Int): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
-    val f1 = user.getPaye.fetchTaxYearData(TaxYearResolver.currentTaxYear)
+    val f1 = user.getPaye.fetchTaxYearData(currentTaxYear)
     val f2 = keyStoreService.loadFuelBenefitFormData
 
     for {

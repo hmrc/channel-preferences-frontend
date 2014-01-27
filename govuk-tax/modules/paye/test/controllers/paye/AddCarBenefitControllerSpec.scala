@@ -32,6 +32,7 @@ import controllers.paye.CarBenefitFormFields._
 import controllers.common.actions.HeaderCarrier
 import controllers.paye.validation.BenefitFlowHelper
 import controllers.common.SessionKeys
+import uk.gov.hmrc.utils.TaxYearResolver
 
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper with TaxYearSupport {
@@ -45,7 +46,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
   val mockAuthConnector = mock[AuthConnector]
   val mockAuditConnector = mock[AuditConnector]
 
-  private lazy val controller = new AddCarBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport {
+  private lazy val controller = new AddCarBenefitController(mockKeyStoreService, mockAuditConnector, mockAuthConnector)(mockPayeConnector, mockTxQueueConnector){
     override def timeSource() = CarBenefitDataBuilder.now
   }
 
@@ -560,7 +561,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       val engineCapacity = 1400
       val co2Emission = 50
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
-      val taxYear = controller.currentTaxYear
+      val taxYear = testTaxYear
       val uri = s"/car-benefit/$taxYear/$employmentSeqNumberOne/add"
       val updatedCar = car.copy(dateCarRegistered = Some(carRegistrationDate), fuelType = Some("diesel"), co2Emissions = Some(50), engineSize = Some(1400))
       val updatedCarAndFuel = carAndFuel.copy(carBenefit = carBenefit.copy(car = Some(updatedCar)))
@@ -621,7 +622,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       setupMocksForJohnDensmore()
 
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
-      val taxYear = controller.currentTaxYear
+      val taxYear = testTaxYear
       val carBenefitData = johnDensmoresCarBenefitData.copy (
         employeeContributes = Some(false),
         employeeContribution = None,
@@ -666,7 +667,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       setupMocksForJohnDensmore()
 
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
-      val taxYear = controller.currentTaxYear
+      val taxYear = testTaxYear
 
       when(mockKeyStoreService.getEntry[CarBenefitData](
         is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)),
@@ -806,7 +807,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         benefitAmount = Some(0))
 
       verify(mockPayeConnector).addBenefits(
-        is(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013"),
+        is(s"/paye/${johnDensmore.getPaye.nino}/benefits/$testTaxYear"),
         is(johnDensmoreVersionNumber),
         is(employmentSeqNumberOne),
         is(Seq(benefit)))(any())
@@ -863,7 +864,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         benefitAmount = Some(0))
 
       verify(mockPayeConnector).addBenefits(
-        is(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013"),
+        is(s"/paye/${johnDensmore.getPaye.nino}/benefits/$testTaxYear"),
         is(johnDensmoreVersionNumber),
         is(employmentSeqNumberOne),
         is(Seq(benefit)))(any())
@@ -939,7 +940,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       )
 
       verify(mockPayeConnector).addBenefits(
-        is(s"/paye/${johnDensmore.getPaye.nino}/benefits/2013"),
+        is(s"/paye/${johnDensmore.getPaye.nino}/benefits/$testTaxYear"),
         is(johnDensmoreVersionNumber),
         is(employmentSeqNumberOne),
         is(Seq(carBenefit, fuelBenefit)))(any())
@@ -1044,13 +1045,13 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 }
 
 
-private trait WithCarAndFuelBenefit {
+private trait WithCarAndFuelBenefit extends TaxYearSupport {
   val car = Car(dateCarMadeAvailable = None, dateCarWithdrawn = None, dateCarRegistered = Some(localDate(2011, 10, 3)),
     employeeCapitalContribution = Some(100), fuelType = Some("electricity"),
     co2Emissions = None, engineSize = None, mileageBand = None,
     carValue = Some(9999), employeePayments = None, daysUnavailable = None)
 
-  val carBenefit = Benefit(benefitType = BenefitTypes.CAR, taxYear = 2013,
+  val carBenefit = Benefit(benefitType = BenefitTypes.CAR, taxYear = currentTaxYear,
     grossAmount = 0, employmentSequenceNumber = 1, costAmount = None,
     amountMadeGood = None, cashEquivalent = None, expensesIncurred = None,
     amountOfRelief = None, paymentOrBenefitDescription = None,

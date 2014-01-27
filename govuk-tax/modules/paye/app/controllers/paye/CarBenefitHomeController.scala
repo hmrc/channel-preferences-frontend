@@ -23,11 +23,10 @@ class CarBenefitHomeController(override val auditConnector: AuditConnector, over
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
 with Actions
 with Validators
-with PayeRegimeRoots {
+with PayeRegimeRoots
+with TaxYearSupport {
 
   private val carAndFuelBenefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
-
-  private[paye] def currentTaxYear = TaxYearResolver.currentTaxYear
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 

@@ -23,7 +23,7 @@ import controllers.common.service.Connectors
 
 class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                                         (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
-  extends BenefitController {
+  extends BenefitController with TaxYearSupport {
   def this() = this(Connectors.keyStoreConnector, Connectors.authConnector, Connectors.auditConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
   import RemovalUtils.ReplaceBenefitKeyStore
@@ -36,7 +36,7 @@ class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, ove
   import ReplaceCarBenefitConfirmController._
 
   private[paye] def confirmCarBenefitReplacementAction(taxYear: Int, employmentSequenceNumber: Int, version: Int)(implicit user: User, request: Request[_]): Future[SimpleResult] = {
-    val taxYeadDataF = user.getPaye.fetchTaxYearData(TaxYearResolver.currentTaxYear)
+    val taxYeadDataF = user.getPaye.fetchTaxYearData(currentTaxYear)
     val taxCodeF = TaxCodeResolver.currentTaxCode(user.regimes.paye.get, employmentSequenceNumber, taxYear)
     val formDataF = keyStoreService.loadFormData
 
