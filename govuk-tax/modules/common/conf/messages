@@ -35,7 +35,7 @@ error.common.feedback.rating_valid=Please select a valid experience rating
 common.feedback.heading=Send your feedback
 common.feedback.confirmation.heading=Your feedback
 common.feedback.confirmation.message=Your feedback has been received.
-
+common.feedback.information.warning=Don’t include any personal or financial information, e.g. your National Insurance or credit card numbers.
 common.main.banner_no_feedback_link=This is a trial service.
 common.main.banner_with_feedback_link=This is a trial service &mdash; your {0} will help us to improve it.
 
