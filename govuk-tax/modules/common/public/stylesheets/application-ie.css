@@ -2065,7 +2065,7 @@ input[type="radio"], input[type="checkbox"], select {
 }
 
 .input--cleared {
-  display: table;
+  display: block;
 }
 
 /**
