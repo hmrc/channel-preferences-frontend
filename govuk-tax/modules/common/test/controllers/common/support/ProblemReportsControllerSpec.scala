@@ -110,7 +110,6 @@ class ProblemReportsControllerSpec extends BaseSpec {
     }
   }
 
-
 }
 
 class ProblemReportsControllerApplication extends WithApplication(FakeApplication()) with MockitoSugar {
