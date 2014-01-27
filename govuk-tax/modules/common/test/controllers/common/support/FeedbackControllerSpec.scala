@@ -153,7 +153,7 @@ class FeedbackControllerSpec extends BaseSpec {
       val page = Jsoup.parse(contentAsString(result))
 
       status(result) shouldBe 200
-      contentAsString(result) should include("Your feedback will be reviewed by our customer support team")
+      contentAsString(result) should include("Your feedback has been received")
       page.getElementById("ticketId").attr("value") shouldBe "321"
     }
 
