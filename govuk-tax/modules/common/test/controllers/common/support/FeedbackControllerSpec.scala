@@ -14,35 +14,49 @@ import play.api.mvc.Request
 import scala.concurrent.Future
 import controllers.common.actions.HeaderCarrier
 import org.mockito.Mockito._
+import org.mockito.Matchers.{eq => meq, any}
+import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
+import controllers.domain.AuthorityUtils._
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import play.api.mvc.SimpleResult
+import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.auth.domain.Credentials
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
-import org.mockito.Matchers.{eq => meq, any}
 
 class FeedbackControllerSpec extends BaseSpec {
 
   "Feedback controller" should {
 
-    "render feedback form for authenticated user" in new FeedbackControllerApplication {
+    "render feedback form with navigation for authenticated biztax user" in new FeedbackControllerApplication {
 
       val result = controller.authenticatedFeedback(user.get, FakeRequest())
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit"
+      doc.getElementById("proposition-menu").attr("role") shouldBe "navigation"
     }
 
-    "render feedback form for unauthenticated user" in new FeedbackControllerApplication {
+    "render feedback form without navigation for unauthenticated user" in new FeedbackControllerApplication {
 
       val result = controller.unauthenticatedFeedback(FakeRequest())
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit-unauthenticated"
+      doc.getElementById("proposition-menu") shouldBe null
+    }
+
+    "render feedback form without navigation for paye user" in new FeedbackControllerApplication {
+
+      val result = controller.authenticatedFeedback(userPaye.get, FakeRequest())
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit"
+      doc.getElementById("proposition-menu") shouldBe null
     }
 
     "display error when rating is not selected" in new FeedbackControllerApplication {
@@ -183,10 +197,14 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
 
   val controller = new FeedbackController(mock[AuditConnector], deskProConnector, ticketCache)(mock[AuthConnector])
 
-  val user = {
+  val userPaye = {
     val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
     Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root))))
   }
+
+  val ctRoot = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))
+  val user = Some(User(userId = "userId", userAuthority = ctAuthority("userId", "ct-utr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None))
+
 
   def request(rating: String = "3",
               name: String = "Tom Smith",
