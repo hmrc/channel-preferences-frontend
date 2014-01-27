@@ -31,7 +31,7 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
     "feedback-name" -> text
       .verifying("error.common.feedback.name_mandatory", name => !name.trim.isEmpty)
       .verifying("error.common.feedback.name_too_long", name => name.size <= 70),
-    "feedback-email" -> email.verifying("error.email_too_long", email => email.size <= 255),
+    "feedback-email" -> email.verifying("deskpro.email_too_long", email => email.size <= 255),
     "feedback-comments" -> text
       .verifying("error.common.comments_mandatory", comment => !comment.trim.isEmpty)
       .verifying("error.common.comments_too_long", comment => comment.size <= 2000),

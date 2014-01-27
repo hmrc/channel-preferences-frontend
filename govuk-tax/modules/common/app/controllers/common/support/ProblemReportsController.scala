@@ -28,7 +28,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
       "report-name" -> text
         .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
         .verifying("error.common.problem_report.name_too_long", name => name.size <= 70),
-      "report-email" -> email.verifying("error.email_too_long", email => email.size <= 255),
+      "report-email" -> email.verifying("deskpro.email_too_long", email => email.size <= 255),
       "report-action" -> text
         .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
         .verifying("error.common.comments_too_long", action => action.size <= 1000),

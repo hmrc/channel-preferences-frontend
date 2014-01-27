@@ -115,7 +115,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(email = s"${stringOfLength(256)}@a.a"))
       status(result) shouldBe 400
-      formContainsError(result, "The email cannot be longer than 320 characters")
+      formContainsError(result, "The email cannot be longer than 255 characters")
     }
 
     "submit feedback with maximum email length" in new FeedbackControllerApplication {

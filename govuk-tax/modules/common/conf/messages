@@ -1,6 +1,7 @@
 error.email=Enter a valid email address
 email.confirmation.emails.unequal=Check your email addresses - they don’t match.
 error.email_too_long=The email cannot be longer than 320 characters
+deskpro.email_too_long=The email cannot be longer than 255 characters
 
 error.illegal.value=Please select a valid option
 error.prefs.printsuppression=Please select a Print Suppression Option

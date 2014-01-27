@@ -104,7 +104,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
       status(submit) shouldBe 400
 
       page.getElementsByClass("error-notification").size() shouldBe 1
-      page.getElementsByClass("error-notification").first().text() shouldBe "The email cannot be longer than 320 characters"
+      page.getElementsByClass("error-notification").first().text() shouldBe "The email cannot be longer than 255 characters"
     }
 
   }
