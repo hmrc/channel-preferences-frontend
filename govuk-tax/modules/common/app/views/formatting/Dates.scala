@@ -21,7 +21,7 @@ object Dates {
 
   def formatEasyReadingTimestamp(date: Option[DateTime], default: String) = date match {
     case Some(d) => {
-      s"${easyReadingDateFormat.print(d)} at ${easyReadingTimestampFormat.print(d).toLowerCase}"
+      s"${easyReadingTimestampFormat.print(d).toLowerCase}, ${easyReadingDateFormat.print(d)}"
     }
     case None => default
   }
