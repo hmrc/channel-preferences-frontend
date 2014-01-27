@@ -1,13 +1,15 @@
 package controllers.common
 
+import scala.concurrent.Future
+import com.typesafe.config.ConfigValueType
+
 import play.api.mvc.{Action, Controller}
 import play.api.Play
-import com.typesafe.config.ConfigValueType
 import play.api.libs.ws.WS
 import play.api.libs.json.Json
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.collection.mutable.ListBuffer
+
+import uk.gov.hmrc.common.MdcLoggingExecutionContext._
+import controllers.common.actions.{LoggingDetails, HeaderCarrier}
 
 class HealthCheckController extends Controller {
 
@@ -20,51 +22,54 @@ class HealthCheckController extends Controller {
 
   private lazy val serviceConfig = Play.current.configuration.getConfig(s"govuk-tax.$env.services")
 
-  private lazy val services = serviceConfig.get.underlying.root flatMap {
-    case (serviceName, v) => {
-      v.valueType() match {
-        case ConfigValueType.OBJECT => {
-          Some((serviceName, v.unwrapped))
+  private lazy val services: Map[String, Map[String, AnyRef]] = {
+    val config = serviceConfig.get.underlying.root.flatMap {
+      case (serviceName, v) => {
+        v.valueType() match {
+          case ConfigValueType.OBJECT => {
+            Some((serviceName, v.unwrapped.asInstanceOf[java.util.HashMap[String, AnyRef]].asScala.toMap))
+          }
+          case _ => None
         }
-        case _ => None
+      }
+    }
+    // The .toMap converts from mutable to immutable
+    config.toMap
+  }
+
+  def check() = Action.async { implicit request =>
+    implicit val loggingDetails = HeaderCarrier(request)
+
+    val healthFutures = services.flatMap { service =>
+      val (serviceName, serviceDef) = service
+
+      for {
+        host <- serviceDef.get("host")
+        port <- serviceDef.get("port")
+      } yield {
+        pingService(serviceName, s"http://$host:$port/ping/ping")
+      }
+    }
+
+    Future.sequence(healthFutures).map { errors =>
+      errors.flatten match {
+        case Nil => Ok("")
+        case errors => InternalServerError(errors.mkString("\n"))
       }
     }
   }
 
-  def check() = Action {
-    val errors = services.foldLeft(ListBuffer.empty[String]) {
-      (errors, entry) => {
-        val serviceName = entry._1
-        val serviceDef = entry._2.asInstanceOf[java.util.HashMap[String,AnyRef]].asScala
-
-        val host = serviceDef("host").asInstanceOf[String]
-        val port = serviceDef("port").asInstanceOf[Int]
-
-        pingService(serviceName, s"http://$host:$port/ping/ping") foreach { errors += _ }
-
-        errors
-      }
-    }.toList
-
-    if (errors.isEmpty) {
-      Ok("")
-    } else {
-      InternalServerError(errors.mkString("\n"))
-    }
-  }
-
-  def pingService(name: String, url: String): Option[String] = {
-    try {
-      val futureResponse = WS.url(url).withHeaders(("Accept", "text/plain")).get()
-      val result = Await.result(futureResponse, Duration("30 seconds"))
-      result.status match {
+  def pingService(name: String, url: String)(implicit ld: LoggingDetails): Future[Option[String]] = {
+    val futureResponse = WS.url(url).withHeaders(("Accept", "text/plain")).get()
+    futureResponse.map {
+      _.status match {
         case 200 => None
         case s => Some(s"$name:$url:${s.toString}")
       }
-    } catch {
-      case e: Exception => Some(s"$name:${e.getClass.getSimpleName}:${e.getMessage}")
+    }.recover {
+      case t: Throwable => Some(s"$name:${t.getClass.getSimpleName}:${t.getMessage}")
     }
-   }
+  }
 
   def details() = Action {
     Ok(Json.toJson(manifest))
