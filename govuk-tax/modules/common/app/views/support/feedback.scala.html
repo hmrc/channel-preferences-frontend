@@ -20,19 +20,22 @@
                 )
                 @helpers.input(
                 feedbackForm("feedback-name"),
-                '_label -> "Your name",
+                '_label -> "Name",
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth"
                 )
                 @helpers.input(
                 feedbackForm("feedback-email"),
-                '_label -> "Your email address",
+                '_label -> "Email address",
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth"
                 )
+                <p class="form-field">
+                    Please don't include any personal or financial information, for example your National Insurance or credit card numbers.
+                </p>
                 @helpers.textArea(
                 feedbackForm("feedback-comments"),
-                '_label -> "Your comments",
+                '_label -> "Comments",
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth",
                 '_help -> "2000 characters max"

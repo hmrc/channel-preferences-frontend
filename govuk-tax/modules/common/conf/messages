@@ -30,9 +30,9 @@ common.thank.you=Thank you
 
 error.common.feedback.name_mandatory=Please provide your name
 error.common.feedback.name_too_long=Your name cannot be longer than 70 characters
-error.common.feedback.rating_mandatory=Please rate your experience
+error.common.feedback.rating_mandatory=Tell us what you think of the service.
 error.common.feedback.rating_valid=Please select a valid experience rating
-common.feedback.heading=Send your comments
+common.feedback.heading=Send your feedback
 common.feedback.confirmation.message = Your feedback will be reviewed by our customer support team.
 
 common.main.banner_no_feedback_link=This is a trial service.
@@ -44,7 +44,7 @@ error.common.problem_report.telephone_mandatory=Please provide your telephone nu
 error.common.problem_report.email_mandatory=Please provide your email address
 error.common.problem_report.error_mandatory=Please enter details of what went wrong
 error.common.problem_report.action_mandatory=Please enter details of what you were doing
-error.common.comments_mandatory=Please provide details
+error.common.comments_mandatory=Enter your comments.
 error.common.comments_too_long=The comment cannot be longer than 2000 characters
 
 problem_report.action=What were you doing?
