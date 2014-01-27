@@ -1,13 +1,11 @@
 @(user: Option[uk.gov.hmrc.common.microservice.domain.User])
 <div class="beta-banner">
-    <p><b>BETA:</b> This is a trial service
+    <p><b>BETA:</b> This is a @helpers.link("", "https://www.gov.uk/help/beta", "trial service", true). Help us improve it - send your
 
         @defining(user.map{_ => controllers.common.support.routes.FeedbackController.feedbackForm().url}.getOrElse(controllers.common.support.routes.FeedbackController.unauthenticatedFeedbackForm().url))  { link =>
-            - your
             @helpers.link("feedback-link", link, "feedback", true)
-            will help us to improve it
         }
         .
-        @helpers.link("", "https://www.gov.uk/help/beta", "Find out more", true).
+
     </p>
 </div>
