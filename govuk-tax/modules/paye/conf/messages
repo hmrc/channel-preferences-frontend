@@ -203,7 +203,7 @@ paye.remove_car_benefit_review.employee_contributions=Your contribution to priva
 paye.remove_car_benefit_review.fuel_withdrawn=Date fuel benefit stopped
 paye.remove_car_benefit_review.submit_button=Submit
 
-paye.remove_fuel_benefit.title=Remove your company benefit
+paye.remove_fuel_benefit.title=Tell HMRC about a change to your company car - Remove your company benefit
 paye.remove_fuel_benefit.header=Tell HMRC about a change to your company car
 paye.remove_fuel_benefit.old_benefit=Remove your fuel benefit
 paye.remove_fuel_benefit.date_withdrawn=When did the fuel benefit for this car stop?
