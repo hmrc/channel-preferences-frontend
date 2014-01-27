@@ -64,7 +64,7 @@ trait Actions
                          body: UserAction) =
     logRequest {
       storeHeaders{
-        WithSessionTimeoutValidation {
+        WithSessionTimeoutValidation(authenticationProvider) {
           WithUserAuthorisedBy(authenticationProvider, account, redirectToOrigin) {
             user =>
               WithPageVisibility(pageVisibility, user) {

@@ -1,22 +1,26 @@
 package controllers.common.support
 
-import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.actions.{HeaderCarrier, Actions}
-import controllers.common.service.Connectors
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Request
+
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.User
-import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+
 import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
+import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.service.Connectors
+
 import ExecutionContext.Implicits.global
 import controllers.common.validators.Validators._
 
-
-class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)(implicit override val authConnector: AuthConnector)
+class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)
+                        (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with AllRegimeRoots {
@@ -44,29 +48,35 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
     Some((Some(experienceRating), name, email, comments, javascriptEnabled, referrer))
   }))
 
-  def feedbackForm = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider)({
-    implicit user => implicit request => authenticatedFeedback
-  }))
+  def feedbackForm = WithNewSessionTimeout {
+    AuthenticatedBy(AnyAuthenticationProvider) {
+      implicit user => implicit request => authenticatedFeedback
+    }
+  }
 
   def unauthenticatedFeedbackForm = UnauthorisedAction {
     implicit request => unauthenticatedFeedback
   }
 
-  def submit = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async({
-    implicit user => implicit request => doSubmit(Some(user))
-  }))
+  def submit = WithNewSessionTimeout {
+    AuthenticatedBy(AnyAuthenticationProvider).async {
+      implicit user => implicit request => doSubmit(Some(user))
+    }
+  }
 
   def submitUnauthenticated = UnauthorisedAction.async {
     implicit request => doSubmit(None)
   }
 
-  def thanks = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async({
-    implicit user => implicit request => doThanks(Some(user), request)
-  }))
+  def thanks = WithNewSessionTimeout {
+    AuthenticatedBy(AnyAuthenticationProvider).async {
+      implicit user => implicit request => doThanks(Some(user), request)
+    }
+  }
 
-  def unauthenticatedThanks = UnauthorisedAction.async({
+  def unauthenticatedThanks = UnauthorisedAction.async {
     implicit request => doThanks(None, request)
-  })
+  }
 
   private[common] def doSubmit(user: Option[User])(implicit request: Request[AnyRef]) = {
     form.bindFromRequest()(request).fold(
@@ -86,9 +96,11 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
   private def thanksFor(user: Option[User]) = Redirect(user.map(_ => routes.FeedbackController.thanks()).getOrElse(routes.FeedbackController.unauthenticatedThanks()))
 
 
-  private[common] def authenticatedFeedback(implicit user: User, request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a"))), Some(user)))
+  private[common] def authenticatedFeedback(implicit user: User, request: Request[AnyRef]) =
+    Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a"))), Some(user)))
 
-  private[common] def unauthenticatedFeedback(implicit request: Request[AnyRef]) = Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a"))), None))
+  private[common] def unauthenticatedFeedback(implicit request: Request[AnyRef]) =
+    Ok(views.html.support.feedback(form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a"))), None))
 
   private[common] def doThanks(implicit user: Option[User], request: Request[AnyRef]) = {
     implicit val hc = HeaderCarrier(request)

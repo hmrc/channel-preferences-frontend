@@ -38,7 +38,7 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
         Ok("").withSession(SessionKeys.userId -> "Jim")
     })
 
-    def testWithSessionTimeoutValidation = WithSessionTimeoutValidation(Action {
+    def testWithSessionTimeoutValidation = WithSessionTimeoutValidation(AnyAuthenticationProvider)(Action {
       request =>
         Ok("").withSession(SessionKeys.userId -> "Tim")
     })

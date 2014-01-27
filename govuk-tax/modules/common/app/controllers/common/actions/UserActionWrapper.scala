@@ -1,17 +1,18 @@
 package controllers.common.actions
 
-import play.api.mvc._
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, TaxRegime, User}
-import play.api.Logger
-import controllers.common.{AnyAuthenticationProvider, SessionKeys, UserCredentials, AuthenticationProvider}
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-
-import scala.Some
-import play.api.mvc.SimpleResult
 import scala.concurrent._
+import play.api.mvc._
+import play.api.Logger
+import play.api.mvc.SimpleResult
+
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.domain.TaxRegime
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
+import controllers.common._
 
 trait UserActionWrapper
   extends Results {
@@ -58,7 +59,7 @@ trait UserActionWrapper
         }
         case _ => {
           Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-          AnyAuthenticationProvider.redirectToLogin(false).map { result =>
+          authenticationProvider.redirectToLogin(false).map { result =>
             Right(result.withNewSession)
           }
         }

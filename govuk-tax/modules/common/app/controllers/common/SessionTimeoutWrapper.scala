@@ -1,12 +1,12 @@
 package controllers.common
 
-import config.DateTimeProvider
-import scala.Some
+import scala.concurrent._
 import org.joda.time.{DateTimeZone, Duration, DateTime}
+import play.api.mvc._
 import play.api.Logger
-import concurrent.Future
+
+import config.DateTimeProvider
 import controllers.common.actions.HeaderCarrier
-import play.api.mvc.Session
 
 trait SessionTimeoutWrapper extends DateTimeProvider {
 
@@ -22,9 +22,8 @@ object SessionTimeoutWrapper {
   def hasValidTimestamp(session: Session, now: () => DateTime): Boolean = {
     val valid: Option[Boolean] = for {
       lastRequestTimestamp: DateTime <- extractTimestamp(session)
-      sessionExpiryTimestamp: DateTime <- Some(lastRequestTimestamp.plus(Duration.standardSeconds(timeoutSeconds)))
-      if now().isBefore(sessionExpiryTimestamp)
-    } yield true
+      sessionExpiryTimestamp: DateTime = lastRequestTimestamp.plus(Duration.standardSeconds(timeoutSeconds))
+    } yield now().isBefore(sessionExpiryTimestamp)
 
     valid.isDefined
   }
@@ -40,18 +39,17 @@ object SessionTimeoutWrapper {
 
 class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeout {
 
-  import play.api.mvc._
   import SessionTimeoutWrapper._
-  import play.api.libs.concurrent.Execution.Implicits._
+  import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 
-  def apply(action: Action[AnyContent]): Action[AnyContent] = Action.async {
+  def apply(authenticationProvider: AuthenticationProvider)(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] => {
-
+      implicit val loggingDetails = HeaderCarrier(request)
       val result = if (hasValidTimestamp(request.session, now)) {
         action(request)
       } else {
         Logger.info(s"request refused as the session had timed out in ${request.path}")
-        AnyAuthenticationProvider.redirectToLogin(false).flatMap { simpleResult =>
+        authenticationProvider.redirectToLogin(false).flatMap { simpleResult =>
           Action(simpleResult)(request).map(_.withNewSession)
         }
       }
@@ -62,22 +60,15 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
 }
 
 class WithNewSessionTimeout(val now: () => DateTime) extends SessionTimeout {
-
-  import play.api.mvc._
-
   def apply(action: Action[AnyContent]) = Action.async {
     request: Request[AnyContent] => {
-
-      val result = action(request)
-      addTimestamp(request, result)
+      addTimestamp(request, action(request))
     }
   }
-
 }
 
 trait SessionTimeout {
 
-  import play.api.mvc._
   import org.joda.time.DateTime
   import play.api.http.HeaderNames.SET_COOKIE
   import uk.gov.hmrc.common.MdcLoggingExecutionContext._

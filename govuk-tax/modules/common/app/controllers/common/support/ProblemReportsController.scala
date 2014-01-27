@@ -1,24 +1,27 @@
 package controllers.common.support
 
-import controllers.common.actions.{HeaderCarrier, Actions}
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import controllers.common.service.Connectors
+import scala.concurrent.Future
+
 import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.mvc.Request
-import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import play.api.i18n.Messages
-import scala.concurrent.Future
+
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+
 import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
+import controllers.common.service.Connectors
+import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.validators.Validators._
 
 
-
-class ProblemReportsController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
+class ProblemReportsController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)
+                              (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with AllRegimeRoots {
