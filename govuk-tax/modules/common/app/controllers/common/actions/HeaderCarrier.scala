@@ -32,6 +32,7 @@ trait LoggingDetails {
  */
 case class HeaderCarrier(userId: Option[String] = None,
                          token: Option[String] = None,
+                         authToken: Option[String] = None,
                          forwarded: Option[String] = None,
                          sessionId: Option[String] = None,
                          requestId: Option[String] = None,
@@ -44,7 +45,7 @@ case class HeaderCarrier(userId: Option[String] = None,
 
   val names = HeaderNames
   lazy val headers: Seq[(String, String)] = {
-    List(userId.map(u => names.authorisation -> s"Bearer $u"),
+    List(authToken.map(t => names.authorisation -> t),
       token.map(t => SessionKeys.token -> t),
       requestId.map(rid => names.xRequestId -> rid),
       forwarded.map(fo => names.xForwardedFor -> fo),
@@ -58,6 +59,7 @@ object HeaderCarrier {
   def apply(request: RequestHeader) = {
     val userId = request.session.get(SessionKeys.userId)
     val token = request.session.get(SessionKeys.token)
+    val authToken = request.session.get(SessionKeys.authToken)
     val forwardedFor = request.headers.get(names.xForwardedFor)
     val sessionId = request.session.get(SessionKeys.sessionId)
 
@@ -66,6 +68,6 @@ object HeaderCarrier {
     }
     val requestIdString = request.headers.get(names.xRequestId)
 
-    new HeaderCarrier(userId, token, forwardedFor, sessionId, requestIdString, requestTimestamp.toOption.getOrElse(System.nanoTime()))
+    new HeaderCarrier(userId, token, authToken, forwardedFor, sessionId, requestIdString, requestTimestamp.toOption.getOrElse(System.nanoTime()))
   }
 }

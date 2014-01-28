@@ -56,17 +56,20 @@ class LoginController(samlConnector: SamlConnector,
         erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
         credentials => {
           governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response: GovernmentGatewayLoginResponse =>
+              val authToken = "TODO:InsertBearerHere" // TODO: Get auth token
               val sessionId = s"session-${UUID.randomUUID}"
               auditConnector.audit(
                 AuditEvent(
                   auditType = "TxSucceeded",
-                  tags = Map("transactionName" -> "GG Login", HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
+                  tags = Map("transactionName" -> "GG Login",
+                    HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
                   detail = Map("authId" -> response.authId)
                 )
               )
               FrontEndRedirect.toBusinessTax.withSession(
                 SessionKeys.sessionId -> sessionId,
-                SessionKeys.userId -> response.authId,
+                SessionKeys.userId -> response.authId, //TODO: Replace this with Bearer
+                SessionKeys.authToken -> authToken,
                 SessionKeys.name -> response.name,
                 SessionKeys.token -> response.encodedGovernmentGatewayToken,
                 SessionKeys.affinityGroup -> response.affinityGroup,

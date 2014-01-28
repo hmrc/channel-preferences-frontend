@@ -19,6 +19,7 @@ object SessionKeys {
   val userId = "userId"
   val name = "name"
   val token = "token"
+  val authToken = "authToken"
   val affinityGroup = "affinityGroup"
   val authProvider = "ap"
   val lastRequestTimestamp = "ts"

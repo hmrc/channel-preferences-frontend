@@ -64,7 +64,8 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
       val response = controller.test(None)(FakeRequest("GET", "/foo").withSession(
         SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        SessionKeys.userId -> "/auth/oid/123123123")
+        SessionKeys.userId -> "/auth/oid/123123123",
+        SessionKeys.authToken -> "Bearer 345384tuhi34t3nt")
         .withHeaders((HeaderNames.xForwardedFor, "192.168.1.1"), (HeaderNames.xRequestId, "govuk-tax-"))
       )
 
@@ -79,7 +80,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Request")
-              tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
+              tags should contain(HeaderNames.authorisation -> "Bearer 345384tuhi34t3nt")
               tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
@@ -101,7 +102,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Response")
-              tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
+              tags should contain(HeaderNames.authorisation -> "Bearer 345384tuhi34t3nt")
               tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
@@ -198,7 +199,8 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
       val response = controller.test(Some(user))(FakeRequest("GET", "/foo").withSession(
         SessionKeys.sessionId -> sessionId,
         SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-        SessionKeys.userId -> "/auth/oid/123123123")
+        SessionKeys.userId -> "/auth/oid/123123123",
+        SessionKeys.authToken -> "Bearer 345384tuhi34t3nt")
         .withHeaders((HeaderNames.xForwardedFor, "192.168.1.1"), (HeaderNames.xRequestId, "govuk-tax-")))
 
       whenReady(response) {
@@ -211,7 +213,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Request")
-              tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
+              tags should contain(HeaderNames.authorisation -> "Bearer 345384tuhi34t3nt")
               tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("path" -> "/foo")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
@@ -235,7 +237,7 @@ class AuditActionWrapperSpec extends BaseSpec with ScalaFutures with Inside with
             case AuditEvent(auditSource, auditType, tags, detail, generatedAt) =>
               auditSource should be("frontend")
               auditType should be("Response")
-              tags should contain(HeaderNames.authorisation -> "Bearer /auth/oid/123123123")
+              tags should contain(HeaderNames.authorisation -> "Bearer 345384tuhi34t3nt")
               tags should contain(HeaderNames.xForwardedFor -> "192.168.1.1")
               tags should contain("statusCode" -> "200")
               tags(HeaderNames.xRequestId) should (include ("govuk-tax-"))
