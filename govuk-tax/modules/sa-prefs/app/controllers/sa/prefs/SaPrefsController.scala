@@ -111,12 +111,13 @@ class SaPrefsController(whiteList: Set[String]) extends BaseController {
     DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
       DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
-          preferencesConnector.getPreferencesUnsecured(token.utr) map {
+          preferencesConnector.getPreferencesUnsecured(token.utr) flatMap {
             case Some(saPreference) =>
-              Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital))
+              Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
             case None =>
-              preferencesConnector.savePreferencesUnsecured(token.utr, false)
-              Redirect(returnUrl)
+              preferencesConnector.savePreferencesUnsecured(token.utr, false).map( _ =>
+                Redirect(returnUrl)
+              )
           }
         }
       }

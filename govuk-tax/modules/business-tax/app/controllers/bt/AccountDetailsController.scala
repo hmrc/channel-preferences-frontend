@@ -62,16 +62,18 @@ with EmailControllerHelper {
   private[bt] def confirmOptOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.getSa.utr, false, None)
-        Future.successful(Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou()))
+        preferencesConnector.savePreferences(user.getSa.utr, false, None).map(_ =>
+          Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou())
+        )
     }
   }
 
   private[bt] def resendValidationEmailAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.getSa.utr, true, Some(email))
-        Future.successful(Ok(views.html.account_details_verification_email_resent_confirmation(user)))
+        preferencesConnector.savePreferences(user.getSa.utr, true, Some(email)).map(_ =>
+          Ok(views.html.account_details_verification_email_resent_confirmation(user))
+        )
     }
   }
 
