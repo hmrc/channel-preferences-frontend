@@ -23,7 +23,6 @@ import uk.gov.hmrc.utils.DateTimeUtils
 import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
-import uk.gov.hmrc.common.microservice.governmentgateway.GatewayToken
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import org.jsoup.Jsoup
@@ -223,7 +222,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val nameFromGovernmentGateway = "Geoff G.G.W. Nott-Fisher"
       val credId = "credidforgeoff"
       val userId = "/auth/oid/notGeoff"
-      val encodedGovernmentGatewayToken = GatewayToken("someencodedtoken", DateTimeUtils.now, DateTimeUtils.now)
+      val encodedGovernmentGatewayToken = "someencodedtoken"
     }
 
     "see the login form asking for his Government Gateway user id and password" in new WithSetup {
