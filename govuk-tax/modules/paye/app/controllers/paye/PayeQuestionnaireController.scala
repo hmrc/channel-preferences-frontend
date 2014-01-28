@@ -45,13 +45,13 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
     )
   }
 
-  private[paye] def buildAuditEvent(formData: PayeQuestionnaireFormData): AuditEvent = {
+  private[paye] def buildAuditEvent(formData: PayeQuestionnaireFormData)(implicit hc: HeaderCarrier): AuditEvent =
     AuditEvent(
-      auditType = "questionnaire",
-      tags = Map("questionnaire-transactionId" -> formData.transactionId),
+      auditType = "Questionnaire",
+      tags = Map("questionnaire-transactionId" -> formData.transactionId)
+                  ++ hc.headers,
       detail = payeQuestionnaireFormDataToMap(formData)
     )
-  }
 
   private def payeQuestionnaireFormDataToMap(formData: PayeQuestionnaireFormData) = {
     val paramsToFilterOut = Set("transactionId", "journeyType", "oldTaxCode", "newTaxCode")

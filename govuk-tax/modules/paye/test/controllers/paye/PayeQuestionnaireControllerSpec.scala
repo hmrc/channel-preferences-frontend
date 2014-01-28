@@ -39,7 +39,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         "easyCarUpdateDetails" -> "4", "onlineNextTime" -> "3", "overallSatisfaction" -> "2", "commentForImprovements" -> "comment")
       actualAuditEvent should have(
         'auditSource("frontend"),
-        'auditType("questionnaire"),
+        'auditType("Questionnaire"),
         'tags(Map("questionnaire-transactionId" -> "someTxId")),
         'detail(detail)
       )
@@ -57,7 +57,7 @@ class PayeQuestionnaireControllerSpec extends PayeBaseSpec {
         "easyCarUpdateDetails" -> "None", "onlineNextTime" -> "None", "overallSatisfaction" -> "None", "commentForImprovements" -> "None")
       actualAuditEvent should have(
         'auditSource("frontend"),
-        'auditType("questionnaire"),
+        'auditType("Questionnaire"),
         'tags(Map("questionnaire-transactionId" -> "someTxId")),
         'detail(detail)
       )
