@@ -63,7 +63,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(rating = ""))
       status(result) shouldBe 400
-      formContainsError(result, "Tell us what you think of the service.")
+      formContainsError(result, "Tell us what you think of the service")
     }
 
     "display error when rating is not selected at all" in new FeedbackControllerApplication {
@@ -75,7 +75,7 @@ class FeedbackControllerSpec extends BaseSpec {
         "referer" -> "referer",
         "isJavascript" -> "false"))
       status(result) shouldBe 400
-      formContainsError(result, "Tell us what you think of the service.")
+      formContainsError(result, "Tell us what you think of the service")
     }
 
     "display error when submitting invalid rating value" in new FeedbackControllerApplication {

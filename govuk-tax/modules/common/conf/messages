@@ -31,7 +31,7 @@ common.thank.you=Thank you
 
 error.common.feedback.name_mandatory=Please provide your name
 error.common.feedback.name_too_long=Your name cannot be longer than 70 characters
-error.common.feedback.rating_mandatory=Tell us what you think of the service.
+error.common.feedback.rating_mandatory=Tell us what you think of the service
 error.common.feedback.rating_valid=Please select a valid experience rating
 common.feedback.heading=Send your feedback
 common.feedback.confirmation.heading=Your feedback
