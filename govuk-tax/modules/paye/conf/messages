@@ -210,7 +210,7 @@ paye.remove_fuel_benefit.old_benefit=Remove your fuel benefit
 paye.remove_fuel_benefit.date_withdrawn=When did the fuel benefit for this car stop?
 paye.remove_fuel_benefit.submit_button=Next
 
-paye.remove_fuel_benefit_review.title=Confirm your benefit details
+paye.remove_fuel_benefit_review.title=Tell HMRC about a change to your company car - Confirm your benefit details
 paye.remove_fuel_benefit_review.header=Tell HMRC about a change to your company fuel benefit
 paye.remove_fuel_benefit_review.check_changes=Check your updated details before submitting them
 paye.remove_fuel_benefit_review.provided_by=Company fuel provided by {0}
