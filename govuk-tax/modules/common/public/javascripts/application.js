@@ -21,7 +21,7 @@
     var $DOM = $("#content"),
       setup = function () {
         //select 'yes' option when user selects a contextual input
-        $DOM.on('focus', '.js-includes-contextual .js-input--contextual input, .js-includes-contextual .js-input--contextual select', function(e) {
+        $DOM.on('change', '.js-includes-contextual .js-input--contextual input, .js-includes-contextual .js-input--contextual select', function(e) {
             preselect($(e.currentTarget));
         });
         // if we select 'no' the contextual input values should be cleared
