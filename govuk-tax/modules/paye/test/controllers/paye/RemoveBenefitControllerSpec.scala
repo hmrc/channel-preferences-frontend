@@ -134,7 +134,6 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       val fuelWithdrawDate = LocalDate(testTaxYear, 12, 8)
 
       val result = controller.requestRemoveFuelBenefitAction(testTaxYear, 2)(johnDensmore, requestBenefitRemovalFormSubmission(Some(fuelWithdrawDate)))
-      println(contentAsString(result))
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))
@@ -173,12 +172,12 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "in step 1, display error message if user chooses different date but dont select a fuel date" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val withdrawDate = new LocalDate()
+      val withdrawDate = new LocalDate(testTaxYear, 12, 8)
       val result = controller.requestRemoveCarBenefitAction(testTaxYear, 2)(johnDensmore, requestBenefitRemovalFormSubmission(Some(withdrawDate), true, Some("differentDateFuel")))
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text should include("Enter a date that’s no more than 7 days from today")
+      doc.select(".error-notification").text should include("Enter a date that’s on or before the date you returned the car")
     }
 
     "in step 1, display error message if user chooses a fuel date that is greater than the car return date" in new WithApplication(FakeApplication()) {
@@ -530,9 +529,8 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "in step 1 display an error message when return date of car greater than 7 days" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val invalidWithdrawDate = dateToday.toLocalDate.plusDays(36)
-      val result = Future.successful(controller.requestRemoveCarBenefitAction(testTaxYear, 2)(johnDensmore,
-        requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true)))
+      val invalidWithdrawDate = DateTimeUtils.now.toLocalDate.plusDays(36)
+      val result = Future.successful(controller.requestRemoveCarBenefitAction(testTaxYear, 2)(johnDensmore, requestBenefitRemovalFormSubmission(Some(invalidWithdrawDate), true)))
 
       status(result) shouldBe 400
 

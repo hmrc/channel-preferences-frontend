@@ -17,7 +17,7 @@ import play.api.test.FakeRequest
 import models.paye.{ReplaceCarBenefitFormData, CarBenefitData, RemoveCarBenefitFormData}
 import controllers.common.SessionKeys
 
-trait PayeBaseSpec extends BaseSpec  with TaxYearSupport{
+trait PayeBaseSpec extends BaseSpec  with TaxYearSupport {
 
   import controllers.domain.AuthorityUtils._
 

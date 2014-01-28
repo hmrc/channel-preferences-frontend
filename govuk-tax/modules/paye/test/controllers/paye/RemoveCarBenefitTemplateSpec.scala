@@ -15,7 +15,7 @@ import views.html.paye.remove_car_benefit_form
 import views.html.paye.remove_fuel_benefit_form
 import controllers.paye.RemovalUtils._
 
-class RemoveCarBenefitTemplateSpec extends PayeBaseSpec with StubTaxYearSupport {
+class RemoveCarBenefitTemplateSpec extends PayeBaseSpec {
   private lazy val dateToday: DateTime = new DateTime(currentTaxYear, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
 
   "Removing FUEL benefit only" should {
