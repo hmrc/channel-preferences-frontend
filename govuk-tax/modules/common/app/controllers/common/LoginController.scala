@@ -4,7 +4,7 @@ import play.api.mvc.{AnyContent, Action}
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayConnector, Credentials}
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayLoginResponse, GovernmentGatewayConnector, Credentials}
 import uk.gov.hmrc.common.microservice.{ForbiddenException, UnauthorizedException}
 import controllers.common.service.{FrontEndConfig, Connectors}
 import java.util.UUID
@@ -55,9 +55,8 @@ class LoginController(samlConnector: SamlConnector,
       form.fold(
         erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
         credentials => {
-          governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map {
-            response =>
-              val sessionId = s"session-${UUID.randomUUID().toString}"
+          governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response: GovernmentGatewayLoginResponse =>
+              val sessionId = s"session-${UUID.randomUUID}"
               auditConnector.audit(
                 AuditEvent(
                   auditType = "TxSucceeded",
@@ -69,7 +68,7 @@ class LoginController(samlConnector: SamlConnector,
                 SessionKeys.sessionId -> sessionId,
                 SessionKeys.userId -> response.authId,
                 SessionKeys.name -> response.name,
-                SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64,
+                SessionKeys.token -> response.encodedGovernmentGatewayToken,
                 SessionKeys.affinityGroup -> response.affinityGroup,
                 SessionKeys.authProvider -> GovernmentGateway.id
               )

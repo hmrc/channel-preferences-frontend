@@ -11,7 +11,7 @@ import controllers.common._
 import uk.gov.hmrc.common.BaseSpec
 import controllers.domain.AuthorityUtils._
 import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
-import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayResponse
+import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayLoginResponse
 import uk.gov.hmrc.common.microservice.UnauthorizedException
 import play.api.libs.ws.Response
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
@@ -221,6 +221,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val governmentGatewayUserId = "805933359724"
       val password = "passw0rd"
       val nameFromGovernmentGateway = "Geoff G.G.W. Nott-Fisher"
+      val credId = "credidforgeoff"
       val userId = "/auth/oid/notGeoff"
       val encodedGovernmentGatewayToken = GatewayToken("someencodedtoken", DateTimeUtils.now, DateTimeUtils.now)
     }
@@ -300,7 +301,8 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
     "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name and generate an audit event" in new WithSetup {
 
-      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayResponse(geoff.userId, geoff.nameFromGovernmentGateway, "affinityGroup", geoff.encodedGovernmentGatewayToken))
+      when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).
+        thenReturn(GovernmentGatewayLoginResponse(geoff.userId, geoff.credId, geoff.nameFromGovernmentGateway, "affinityGroup", geoff.encodedGovernmentGatewayToken))
 
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
@@ -310,7 +312,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val sess = session(result)
       sess(SessionKeys.name) shouldBe geoff.nameFromGovernmentGateway
       sess(SessionKeys.userId) shouldBe geoff.userId
-      sess(SessionKeys.token) shouldBe geoff.encodedGovernmentGatewayToken.encodeBase64
+      sess(SessionKeys.token) shouldBe geoff.encodedGovernmentGatewayToken
 
       val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
       verify(mockAuditConnector).audit(captor.capture())(Matchers.any())

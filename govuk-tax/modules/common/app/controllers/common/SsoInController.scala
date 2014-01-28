@@ -2,7 +2,7 @@ package controllers.common
 
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayResponse, GovernmentGatewayConnector, SsoLoginRequest}
+import uk.gov.hmrc.common.microservice.governmentgateway.{GovernmentGatewayLoginResponse, GovernmentGatewayConnector, SsoLoginRequest}
 import service.{FrontEndConfig, SsoWhiteListService, Connectors}
 import play.api.Logger
 import play.api.libs.json.Json
@@ -61,7 +61,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
               case e: Exception => LoginFailure(s"Unknown - ${e.getMessage}")
             }
             .map {
-              case response: GovernmentGatewayResponse => handleSuccessfulLogin(response, d)
+              case response: GovernmentGatewayLoginResponse => handleSuccessfulLogin(response, d)
               case LoginFailure(reason) => handleFailedLogin(reason, token)
             }
         }
@@ -78,7 +78,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
         }
   }
 
-  private def handleSuccessfulLogin(response: GovernmentGatewayResponse, destination: String)(implicit request: Request[_]) = {
+  private def handleSuccessfulLogin(response: GovernmentGatewayLoginResponse, destination: String)(implicit request: Request[_]) = {
     Logger.debug(s"successfully authenticated: ${response.name}")
     auditConnector.audit(
       AuditEvent(
@@ -91,7 +91,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       SessionKeys.userId -> response.authId,
       SessionKeys.name -> response.name,
       SessionKeys.affinityGroup -> response.affinityGroup,
-      SessionKeys.token -> response.encodedGovernmentGatewayToken.encodeBase64
+      SessionKeys.token -> response.encodedGovernmentGatewayToken
     )
   }
 

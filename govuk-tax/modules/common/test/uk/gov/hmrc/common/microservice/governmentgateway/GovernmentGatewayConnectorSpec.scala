@@ -38,7 +38,7 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
     "throw an exception when no details are found in Government Gateway on login" in new WithApplication(FakeApplication()) {
 
       val credentials = Credentials("user", "incorrectPw")
-      when(service.httpWrapper.postF[GovernmentGatewayResponse, Credentials]("/login", credentials, Map.empty)).thenReturn(Future.successful(None))
+      when(service.httpWrapper.postF[GovernmentGatewayLoginResponse, Credentials]("/login", credentials, Map.empty)).thenReturn(Future.successful(None))
 
       service.login(credentials).failed.futureValue shouldBe an[IllegalStateException]
     }
@@ -46,7 +46,7 @@ class GovernmentGatewayConnectorSpec extends BaseSpec with MockitoSugar with Sca
     "throw an exception when no details are found in Government Gateway on sso login" in new WithApplication(FakeApplication()) {
 
       val ssoLoginRequest = SsoLoginRequest("3jeih3g3gg3ljkdlh3", 3837636)
-      when(service.httpWrapper.postF[GovernmentGatewayResponse, SsoLoginRequest]("/sso-login", ssoLoginRequest, Map.empty)).thenReturn(Future.successful(None))
+      when(service.httpWrapper.postF[GovernmentGatewayLoginResponse, SsoLoginRequest]("/sso-login", ssoLoginRequest, Map.empty)).thenReturn(Future.successful(None))
 
       service.ssoLogin(ssoLoginRequest).failed.futureValue shouldBe an[IllegalStateException]
     }
