@@ -8,15 +8,13 @@
     </div>
     @if( user.isDefined ) {
         <div id="lastlogin" class="service-info__help">
-            <p>
-                @if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
+            <p>@if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
                 @Messages("common.previousLoginTime", user.get.displayName.get, formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, ""))
                 } else {
-                @Messages("common.firstlogin", user.get.displayName.get)
-
+                    @Messages("common.firstlogin", user.get.displayName.get)
                 }
                 @if(!nav) {
-                <br /> <a href="@common.routes.LoginController.logout">Sign out of your account</a>
+                <br><a href="@common.routes.LoginController.logout">Sign out</a>
                 }
             </p>
         </div>
