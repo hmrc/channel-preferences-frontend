@@ -1667,6 +1667,20 @@ h4, .h4-heading {
   color: #6f777b;
 }
 
+small {
+  font-family: "nta", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 300;
+  text-transform: none;
+}
+@media (max-width: 640px) {
+  small {
+    font-size: 14px;
+    line-height: 1.14286;
+  }
+}
+
 /**
 * @desc         layout classes.
 * @name         layouts
@@ -2014,6 +2028,27 @@ select {
   width: auto;
 }
 
+textarea {
+  font-family: "nta", Arial, sans-serif;
+  font-size: 19px;
+  line-height: 1.31579;
+  font-weight: 400;
+  text-transform: none;
+  background-color: #f9f9f9;
+  border: 1px inset #e2e2e2;
+  margin: 0;
+  padding: 0.1em 0 0.1em 0.4em;
+}
+@media (max-width: 640px) {
+  textarea {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+}
+textarea:focus {
+  outline: 3px solid #ffbf47;
+}
+
 input[type="radio"], input[type="checkbox"], select {
   width: auto;
   position: relative;
@@ -2063,6 +2098,10 @@ input[type="radio"], input[type="checkbox"], select {
 
 .input--cleared {
   display: block;
+}
+
+.input--radio-inline {
+  margin-right: 5px;
 }
 
 /**
@@ -3242,7 +3281,7 @@ article table td {
   padding: 3px 0 2px 0;
   text-decoration: none;
   padding: 3px 0 2px 30px;
-  background-image: url("/assets/images/hmrc_crest_13px.png");
+  background-image: url("/assets/toolkit/images/crests/hmrc_crest_13px.png");
   background-position: 5px center;
   background-size: auto 20px;
   background-repeat: no-repeat;
@@ -3261,7 +3300,7 @@ a.organisation-logo:hover, a.organisation-logo-stacked:hover, a.organisation-log
 
 .organisation-logo-stacked {
   padding: 20px 0 0 6px;
-  background-image: url("/assets/images/hmrc_crest_13px.png");
+  background-image: url("/assets/toolkit/images/crests/hmrc_crest_13px.png");
   background-position: 5px top;
   background-size: auto 20px;
 }
@@ -3275,7 +3314,7 @@ a.organisation-logo:hover, a.organisation-logo-stacked:hover, a.organisation-log
 @media all and (-webkit-min-device-pixel-ratio: 2) {
   .organisation-logo, .organisation-logo-stacked,
   .organisation-logo-stacked {
-    background-image: url("/assets/images/hmrc_crest_13px.png");
+    background-image: url("/assets/toolkit/images/crests/hmrc_crest_13px.png");
   }
 }
 @media (min-width: 641px) {
@@ -3283,7 +3322,7 @@ a.organisation-logo:hover, a.organisation-logo-stacked:hover, a.organisation-log
     font-size: 18px;
     line-height: 20px;
     padding: 3px 0 2px 38px;
-    background-image: url("/assets/images/hmrc_crest_18px.png");
+    background-image: url("/assets/toolkit/images/crests/hmrc_crest_27px.png");
     background-position: 6px center;
     background-size: auto 25px;
     border-left: 2px solid #009390;
@@ -3293,7 +3332,7 @@ a.organisation-logo:hover, a.organisation-logo-stacked:hover, a.organisation-log
 @media (min-width: 641px) {
   .organisation-logo-stacked-medium {
     padding: 25px 0 0 7px;
-    background-image: url("/assets/images/hmrc_crest_18px.png");
+    background-image: url("/assets/toolkit/images/crests/hmrc_crest_27px.png");
     background-position: 6px top;
     background-size: auto 25px;
   }
@@ -3309,7 +3348,7 @@ a.organisation-logo:hover, a.organisation-logo-stacked:hover, a.organisation-log
 @media all and (min-width: 641px) and (-webkit-min-device-pixel-ratio: 2) {
   .organisation-logo-medium, .organisation-logo-stacked-medium,
   .organisation-logo-stacked-medium {
-    background-image: url("/assets/images/hmrc_crest_18px_x2.png");
+    background-image: url("/assets/toolkit/images/crests/hmrc_crest_27px_x2.png");
   }
 }
 .footer-meta ul li {
