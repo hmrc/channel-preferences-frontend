@@ -8,11 +8,9 @@ import org.mockito.{Matchers, ArgumentCaptor}
 import Matchers.any
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
-import scala.Some
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.common.microservice.preferences.{EmailVerificationLinkResponse, SaPreferenceSimplified, PreferencesConnector, ValidateEmail}
 import uk.gov.hmrc.domain.SaUtr
 
 class TestPreferencesConnectorUnsecured extends PreferencesConnector with MockitoSugar with OptionValues {

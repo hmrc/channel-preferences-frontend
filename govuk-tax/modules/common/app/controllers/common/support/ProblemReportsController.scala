@@ -14,6 +14,8 @@ import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
 import uk.gov.hmrc.common.microservice.domain.User
+import controllers.common.validators.Validators._
+
 
 
 class ProblemReportsController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector)(implicit override val authConnector: AuthConnector)
@@ -28,7 +30,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
       "report-name" -> text
         .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
         .verifying("error.common.problem_report.name_too_long", name => name.size <= 70),
-      "report-email" -> email.verifying("deskpro.email_too_long", email => email.size <= 255),
+      "report-email" -> emailWithDomain.verifying("deskpro.email_too_long", email => email.size <= 255),
       "report-action" -> text
         .verifying("error.common.problem_report.action_mandatory", action => !action.isEmpty)
         .verifying("error.common.comments_too_long", action => action.size <= 1000),

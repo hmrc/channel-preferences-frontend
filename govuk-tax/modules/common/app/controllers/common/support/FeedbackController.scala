@@ -13,6 +13,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
 import ExecutionContext.Implicits.global
+import controllers.common.validators.Validators._
+
 
 class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)(implicit override val authConnector: AuthConnector)
   extends BaseController
@@ -31,7 +33,7 @@ class FeedbackController(override val auditConnector: AuditConnector, hmrcDeskpr
     "feedback-name" -> text
       .verifying("error.common.feedback.name_mandatory", name => !name.trim.isEmpty)
       .verifying("error.common.feedback.name_too_long", name => name.size <= 70),
-    "feedback-email" -> email.verifying("deskpro.email_too_long", email => email.size <= 255),
+    "feedback-email" -> emailWithDomain.verifying("deskpro.email_too_long", email => email.size <= 255),
     "feedback-comments" -> text
       .verifying("error.common.comments_mandatory", comment => !comment.trim.isEmpty)
       .verifying("error.common.comments_too_long", comment => comment.size <= 2000),

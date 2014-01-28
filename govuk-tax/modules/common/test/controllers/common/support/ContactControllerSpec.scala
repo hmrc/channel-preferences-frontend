@@ -98,13 +98,24 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "fail if the email is longer than 255 chars" in new WithContactController {
-      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Name", "contact-email" -> s"${Random.alphanumeric.take(250).mkString}@b.com", "contact-comments" -> "A comment"))
+      val email = s"${Random.alphanumeric.take(250).mkString}@b.com"
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Name", "contact-email" -> email, "contact-comments" -> "A comment"))
       val page = Jsoup.parse(contentAsString(submit))
 
       status(submit) shouldBe 400
 
       page.getElementsByClass("error-notification").size() shouldBe 1
       page.getElementsByClass("error-notification").first().text() shouldBe "The email cannot be longer than 255 characters"
+    }
+
+    "fail if the email has invalid syntax (for DeskPRO)" in new WithContactController {
+      val submit = controller.doSubmit(user, FakeRequest().withFormUrlEncodedBody("contact-name" -> "Name", "contact-email" -> "a@b", "contact-comments" -> "A comment"))
+      val page = Jsoup.parse(contentAsString(submit))
+
+      status(submit) shouldBe 400
+
+      page.getElementsByClass("error-notification").size() shouldBe 1
+      page.getElementsByClass("error-notification").first().text() shouldBe "Enter a valid email address"
     }
 
   }

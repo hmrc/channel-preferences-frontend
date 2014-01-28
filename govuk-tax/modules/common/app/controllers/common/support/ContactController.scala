@@ -13,6 +13,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.{GovernmentGateway, AllRegimeRoots, BaseController}
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import scala.concurrent.ExecutionContext.Implicits.global
+import controllers.common.validators.Validators._
 
 
 class ContactController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)(implicit override val authConnector: AuthConnector)
@@ -30,7 +31,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
       "contact-name" -> text
         .verifying("error.common.problem_report.name_mandatory", name => !name.trim.isEmpty)
         .verifying("error.common.problem_report.name_too_long", name => name.size <= 70),
-      "contact-email" -> email.verifying("deskpro.email_too_long", email => email.size <= 255),
+      "contact-email" -> emailWithDomain.verifying("deskpro.email_too_long", email => email.size <= 255),
       "contact-comments" -> text
         .verifying("error.common.comments_mandatory", comment => !comment.trim.isEmpty)
         .verifying("error.common.comments_too_long", comment => comment.size <= 2000),

@@ -89,6 +89,12 @@ trait Validators {
 
   def positiveInteger = number.verifying("error.positive.number", e => e >= 0)
 
+  //Play email enables 'a@a', this requires 'a@a.com'
+  val emailWithDomain: Mapping[String] = text verifying Constraints.pattern(
+    """(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?""".r,
+    "constraint.email",
+    "error.email")
+
   def validateMandatoryPhoneNumber = {
     s: String => s.matches("\\+?\\d+")
   }

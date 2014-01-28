@@ -131,6 +131,14 @@ class FeedbackControllerSpec extends BaseSpec {
 
     }
 
+    "display error when email address is not valid for DeskPRO" in new FeedbackControllerApplication {
+
+      val result = controller.doSubmit(user)(request(email = "a@a"))
+      status(result) shouldBe 400
+      formContainsError(result, "Enter a valid email address")
+
+    }
+
     "display error when comments are empty" in new FeedbackControllerApplication {
 
       val result = controller.doSubmit(user)(request(comments = ""))

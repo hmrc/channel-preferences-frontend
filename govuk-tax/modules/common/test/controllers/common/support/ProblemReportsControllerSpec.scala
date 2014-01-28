@@ -30,6 +30,15 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import play.api.mvc.AnyContentAsFormUrlEncoded
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
+import uk.gov.hmrc.common.microservice.auth.domain.Accounts
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
+import scala.Some
+import uk.gov.hmrc.common.microservice.auth.domain.Credentials
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.domain.RegimeRoots
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 
 class ProblemReportsControllerSpec extends BaseSpec {
 
@@ -108,6 +117,17 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
       contentAsJson(result).\("status").as[String] shouldBe "ERROR"
     }
+
+    "fail if the email has invalid syntax (for DeskPRO)" in new ProblemReportsControllerApplication {
+      val submit = controller.doReport(generateRequest(javascriptEnabled = false, email = "a@a"))
+      val page = Jsoup.parse(contentAsString(submit))
+
+      status(submit) shouldBe 200
+      verifyZeroInteractions(hmrcDeskproConnector)
+
+      page.getElementById("report-confirmation-no-data") should not be null
+    }
+
   }
 
 }
@@ -123,9 +143,9 @@ class ProblemReportsControllerApplication extends WithApplication(FakeApplicatio
     Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root))))
   }
 
-  def generateRequest(javascriptEnabled: Boolean = true) = FakeRequest()
+  def generateRequest(javascriptEnabled: Boolean = true, email: String = "name@mail.com") = FakeRequest()
     .withHeaders(("referer", "/contact/problem_reports"), ("User-Agent", "iAmAUserAgent"))
-    .withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> "name@mail.com", "report-telephone" -> "012345678",
+    .withFormUrlEncodedBody("report-name" -> "John Densmore", "report-email" -> email, "report-telephone" -> "012345678",
       "report-action" -> "Some Action", "report-error" -> "Some Error", "isJavascript" -> javascriptEnabled.toString)
 
   def generateInvalidRequest(javascriptEnabled: Boolean = true) = FakeRequest()
