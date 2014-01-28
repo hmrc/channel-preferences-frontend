@@ -14,17 +14,14 @@ import org.joda.time.chrono.ISOChronology
 import uk.gov.hmrc.common.microservice.txqueue.domain.{Status, TxQueueTransaction}
 import BenefitTypes._
 import play.api.test.FakeRequest
-import controllers.paye.validation.BenefitFlowHelper
 import models.paye.{ReplaceCarBenefitFormData, CarBenefitData, RemoveCarBenefitFormData}
 import controllers.common.SessionKeys
-import org.specs2.reporter.Fixed
-import org.specs2.specification.so
 
-trait PayeBaseSpec extends BaseSpec {
+trait PayeBaseSpec extends BaseSpec  with TaxYearSupport {
 
   import controllers.domain.AuthorityUtils._
 
-  lazy val testTaxYear = 2013
+  lazy val testTaxYear = currentTaxYear
 
   val currentTestDate = new DateTime(testTaxYear - 1, 12, 2, 12, 1, ISOChronology.getInstanceUTC)
 
@@ -137,10 +134,10 @@ trait PayeBaseSpec extends BaseSpec {
 
   val johnDensmoresBenefits = Seq(CarBenefit(carBenefit, Some(fuelBenefit)))
 
-  val johnDensmoresRemovedCarBenefitFormData = new RemoveCarBenefitFormData(LocalDate(2014, 1, 8), Some(true), Some(10), Some(true), Some(2000), Some("differentDateFuel"), Some(LocalDate(2013, 2, 8)))
+  val johnDensmoresRemovedCarBenefitFormData = new RemoveCarBenefitFormData(LocalDate(testTaxYear+1, 1, 8), Some(true), Some(10), Some(true), Some(2000), Some("differentDateFuel"), Some(LocalDate(testTaxYear, 2, 8)))
 
   val johnDensmoresReplaceCarBenefitData = ReplaceCarBenefitFormData(johnDensmoresRemovedCarBenefitFormData, johnDensmoresCarBenefitData)
-  val johnDensmoresNewCarData = AddCarBenefitConfirmationData("employerName", LocalDate(2014, 1, 8), 1234, "diesel", Some(222), Some("2000"),
+  val johnDensmoresNewCarData = AddCarBenefitConfirmationData("employerName", LocalDate(testTaxYear+1, 1, 8), 1234, "diesel", Some(222), Some("2000"),
     Some(true), Some(50), Some(LocalDate(2000, 1, 1)), Some(300))
 
 

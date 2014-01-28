@@ -2,6 +2,10 @@ package controllers.paye
 
 import org.joda.time.{DateTimeZone, Interval, LocalDate}
 
+
+//TODO:Remove this trait if the tests keep using the real tax year support (i.e. they always use the current valid tax year).
+//At the moment the TaxYearSupport cannot be totally overridden in tests with this stub as some components use TaxYearResolver, and other are objects
+//(see AddCarBenefitValidator) which are required in controllers tests
 trait StubTaxYearSupport extends TaxYearSupport {
 
   override def currentTaxYear = 2013

@@ -10,7 +10,7 @@ import models.paye.CarFuelBenefitDates
 import scala.Some
 import org.joda.time.chrono.ISOChronology
 
-class ShowRemoveBenefitFormControllerSpec extends PayeBaseSpec with StubTaxYearSupport {
+class ShowRemoveBenefitFormControllerSpec extends PayeBaseSpec {
   private lazy val dateToday: DateTime = new DateTime(currentTaxYear, 12, 8, 12, 30, ISOChronology.getInstanceUTC)
   "Removing FUEL benefit only" should {
 

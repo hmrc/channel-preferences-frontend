@@ -57,7 +57,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       val addTable = doc.select("#add-car-benefit-fields")
       addTable.select("[id~=providedFrom]").select("[id~=day-29]").attr("selected") shouldBe "selected"
       addTable.select("[id~=providedFrom]").select("[id~=month-7]").attr("selected") shouldBe "selected"
-      addTable.select("[id~=providedFrom]").select(s"[id~=year-$testTaxYear]").attr("selected") shouldBe "selected"
+      addTable.select("[id~=providedFrom]").select(s"[id~=year-${johnDensmoresCarBenefitData.providedFrom.get.getYear}]").attr("selected") shouldBe "selected"
       addTable.select("#listPrice").attr("value") shouldBe "1000"
       addTable.select("#privateUsePayment-true").attr("checked") shouldBe "checked"
       addTable.select("#privateUsePaymentAmount").attr("value") shouldBe "999"
@@ -83,7 +83,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       val removeTable = doc.select("#remove-car-benefit-fields")
       removeTable.select("[id~=withdrawDate]").select("[id~=day-8]").attr("selected") shouldBe "selected"
       removeTable.select("[id~=withdrawDate]").select("[id~=month-1]").attr("selected") shouldBe "selected"
-      removeTable.select("[id~=withdrawDate]").select(s"[id~=year-2014]").attr("selected") shouldBe "selected"
+      removeTable.select("[id~=withdrawDate]").select(s"[id~=year-${johnDensmoresReplaceCarBenefitData.removedCar.withdrawDate.getYear}]").attr("selected") shouldBe "selected"
       removeTable.select("#carUnavailable-true").attr("checked") shouldBe "checked"
       removeTable.select("#numberOfDaysUnavailable").attr("value") shouldBe "10"
       removeTable.select("#removeEmployeeContributes-true").attr("checked") shouldBe "checked"
@@ -104,9 +104,8 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
 
       status(result) shouldBe 200
 
-      verify(mockKeyStoreService).addKeyStoreEntry(is("ReplaceCarBenefitFormData"), is("paye"), is("replace_benefit"), is(ReplaceCarBenefitFormData(RemoveCarBenefitFormData(LocalDate(2013, 5, 1), Some(false), None, Some(true), Some(200), Some("sameDateFuel"), None),
+      verify(mockKeyStoreService).addKeyStoreEntry(is("ReplaceCarBenefitFormData"), is("paye"), is("replace_benefit"), is(ReplaceCarBenefitFormData(RemoveCarBenefitFormData(LocalDate(testTaxYear, 5, 1), Some(false), None, Some(true), Some(200), Some("sameDateFuel"), None),
         CarBenefitDataBuilder(employeeContributes = Some(true), employeeContribution = Some(500)))), any())(any(), any())
-
     }
   }
 
@@ -141,7 +140,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
     val mockPayeConnector = mock[PayeConnector]
     val mockTxQueueConnector = mock[TxQueueConnector]
 
-    lazy val controller = new ReplaceBenefitController(mockKeyStoreService, mock[AuthConnector], mock[AuditConnector])(mockPayeConnector, mockTxQueueConnector) with StubTaxYearSupport
+    lazy val controller = new ReplaceBenefitController(mockKeyStoreService, mock[AuthConnector], mock[AuditConnector])(mockPayeConnector, mockTxQueueConnector)
 
     def setupMocksForJohnDensmore(employments: Seq[Employment] = johnDensmoresEmployments, benefits: Seq[CarBenefit] = johnDensmoresBenefits, taxCodes: Seq[TaxCode] = johnDensmoresTaxCodes) {
       when(mockPayeConnector.linkedResource[Seq[TaxCode]](Matchers.eq(s"/paye/AB123456C/tax-codes/$testTaxYear"))(any(), any())).thenReturn(Some(taxCodes))

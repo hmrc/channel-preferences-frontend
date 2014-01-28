@@ -8,7 +8,7 @@ import play.api.test.FakeApplication
 import org.scalatest.LoneElement
 
 
-class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with StubTaxYearSupport with LoneElement {
+class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with LoneElement {
 
   "add car benefit confirmation table template" should {
 
