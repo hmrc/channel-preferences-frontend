@@ -3,7 +3,7 @@ import scala.Some
 import uk.gov.hmrc.GitStampPlugin._
 
 object Version {
-  val thisApp = "1.0.1"
+  val thisApp = "1.0.2-SNAPSHOT"
   val scala = "2.10.3"
 }
 
