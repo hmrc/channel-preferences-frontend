@@ -63,8 +63,9 @@ benefitType.car.title=car
 your.employer=Your employer
 
 paye.ida_token_required_in_beta.title=IDA Token Required
-paye.ida_token_required_in_beta.text.p1=Your beta token is incorrect or has expired.
-paye.ida_token_required_in_beta.text.p2=Please contact the person who originally sent you the email with the link to access the service and ask them for an updated link.
+paye.ida_token_required_in_beta.heading=Sorry
+paye.ida_token_required_in_beta.text.p1=There was a problem with the link you just used.
+paye.ida_token_required_in_beta.text.p2=Try copying and pasting the link into your browser’s address bar.
 
 paye.remove_car_benefit.old_company_car_heading=Your old car
 
