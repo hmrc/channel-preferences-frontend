@@ -131,10 +131,10 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "allow the user to remove fuel first without showing error" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      val fuelWithdrawDate = new LocalDate(testTaxYear, 12, 8)
+      val fuelWithdrawDate = LocalDate(testTaxYear, 12, 8)
 
       val result = controller.requestRemoveFuelBenefitAction(testTaxYear, 2)(johnDensmore, requestBenefitRemovalFormSubmission(Some(fuelWithdrawDate)))
-
+      println(contentAsString(result))
       status(result) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(result))

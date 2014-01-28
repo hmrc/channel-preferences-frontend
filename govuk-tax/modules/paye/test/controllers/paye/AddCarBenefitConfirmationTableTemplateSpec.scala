@@ -82,7 +82,7 @@ class AddCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with TaxYe
 
       val tableData = doc.getElementsByTag("td").toList.map(_.text)
       tableData should have size 9
-      tableData should contain("8 January 2014")
+      tableData should contain(s"8 January ${testTaxYear+1}")
       tableData should contain("£1,234")
       tableData should contain("Diesel")
       tableData should contain("222 g/km")

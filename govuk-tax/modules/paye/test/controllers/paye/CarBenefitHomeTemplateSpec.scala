@@ -85,13 +85,13 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
+      doc.select("#car-benefit-date-available").text shouldBe s"12 December $testTaxYear"
       doc.select("#private-fuel").text shouldBe "No"
     }
 
     "render previous cars in the tax year" in new WithApplication(FakeApplication()) with BaseData {
-      val previousCar = Benefit(31, 2013, 1234, 1, car = Some(Car(dateCarMadeAvailable = Some(new LocalDate(testTaxYear, 6,4)), fuelType = Some("diesel"), carValue = Some(5432), dateCarRegistered = Some(new LocalDate(2000, 4, 3)))))
-      val previousCar2 = Benefit(31, 2013, 5678, 1, car = Some(Car(dateCarMadeAvailable = Some(new LocalDate(testTaxYear, 6,4)), fuelType = Some("diesel"), carValue = Some(5432), dateCarRegistered = Some(new LocalDate(2000, 4, 3)), dateCarWithdrawn = Some(new LocalDate(2011, 3, 5)))))
+      val previousCar = Benefit(31, testTaxYear, 1234, 1, car = Some(Car(dateCarMadeAvailable = Some(new LocalDate(testTaxYear, 6,4)), fuelType = Some("diesel"), carValue = Some(5432), dateCarRegistered = Some(new LocalDate(2000, 4, 3)))))
+      val previousCar2 = Benefit(31, testTaxYear, 5678, 1, car = Some(Car(dateCarMadeAvailable = Some(new LocalDate(testTaxYear, 6,4)), fuelType = Some("diesel"), carValue = Some(5432), dateCarRegistered = Some(new LocalDate(2000, 4, 3)), dateCarWithdrawn = Some(new LocalDate(2011, 3, 5)))))
       val previousCarAndFuel1 = CarBenefit(previousCar)
       val previousCarAndFuel2 = CarBenefit(previousCar2)
 
@@ -113,8 +113,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
-      doc.select("#car-benefit-date-registered").text shouldBe "12 December 2012"
+      doc.select("#car-benefit-date-available").text shouldBe s"12 December $testTaxYear"
+      doc.select("#car-benefit-date-registered").text shouldBe s"12 December $testTaxYear"
       doc.select("#car-benefit-car-value").text shouldBe "£12,343"
       doc.select("#car-benefit-employee-capital-contribution").text shouldBe "£0"
       doc.select("#car-benefit-employee-payments").text shouldBe "£120"
@@ -125,7 +125,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "show car details for a user with a company car and a fuel benefit that has been withdrawn" in new WithApplication(FakeApplication()) with BaseData {
-      override val fuelBenefit = Some(fuelBenefitEmployer1.copy(dateWithdrawn = Some(new LocalDate(2013, 6, 6))))
+      override val fuelBenefit = Some(fuelBenefitEmployer1.copy(dateWithdrawn = Some(LocalDate(testTaxYear, 6, 6))))
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -133,13 +133,13 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
-      doc.select("#car-benefit-date-available").text shouldBe "12 December 2012"
+      doc.select("#car-benefit-date-available").text shouldBe s"12 December $testTaxYear"
       doc.select("#no-car-benefit-container").text shouldBe ""
-      doc.select("#private-fuel").text shouldBe "Stopped 6 June 2013"
+      doc.select("#private-fuel").text shouldBe s"Stopped 6 June ${testTaxYear+1}"
     }
 
     "not display the remove fuel benefit link when the car has an inactive fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
-      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, 2013, 0.0, 1, dateWithdrawn = Some(new LocalDate)))
+      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, testTaxYear, 0.0, 1, dateWithdrawn = Some(new LocalDate)))
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -148,7 +148,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "display the remove fuel benefit link when the car has an active fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
-      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, 2013, 0.0, 1))
+      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, testTaxYear, 0.0, 1))
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -157,7 +157,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "display the add fuel benefit link when the car has an inactive fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
-      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, 2013, 0.0, 1, dateWithdrawn = Some(new LocalDate)))
+      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, testTaxYear, 0.0, 1, dateWithdrawn = Some(new LocalDate)))
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -166,7 +166,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
     }
 
     "not display the add fuel benefit link when the car has an active fuel benefit" in new WithApplication(FakeApplication()) with BaseData {
-      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, 2013, 0.0, 1))
+      override val fuelBenefit = Some(Benefit(BenefitTypes.FUEL, testTaxYear, 0.0, 1))
 
       val result = car_benefit_home(params)(johnDensmore)
 
@@ -180,8 +180,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       override val companyName = None
 
       override val employments = Seq(
-        Employment(sequenceNumber = 1, startDate = new LocalDate(2013, 7, 2), endDate = Some(new LocalDate(2013, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, employmentType = Employment.primaryEmploymentType),
-        Employment(sequenceNumber = 2, startDate = new LocalDate(2013, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 1))
+        Employment(sequenceNumber = 1, startDate = LocalDate(testTaxYear, 7, 2), endDate = Some(LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = None, employmentType = Employment.primaryEmploymentType),
+        Employment(sequenceNumber = 2, startDate =  LocalDate(testTaxYear, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 1))
 
 
       val result = car_benefit_home(params)(johnDensmore)
@@ -201,8 +201,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val fuelBenefit2 = Some(fuelBenefitEmployer1.copy(benefitAmount = Some(7)))
       val fuelBenefit3 = Some(fuelBenefitEmployer1.copy(benefitAmount = Some(10)))
 
-      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11)))))
-      val carBenefit3 = carBenefit.copy(benefitAmount = Some(44), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 11, 11)), dateCarWithdrawn = Some(new LocalDate(2012, 11, 12)))))
+      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(LocalDate(testTaxYear-1, 10, 10)), dateCarWithdrawn = Some(LocalDate(testTaxYear-1, 10, 11)))))
+      val carBenefit3 = carBenefit.copy(benefitAmount = Some(44), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(LocalDate(testTaxYear-1, 11, 11)), dateCarWithdrawn = Some(LocalDate(testTaxYear-1, 11, 12)))))
 
       val previousCarAndFuel1 = CarBenefit(carBenefit2, fuelBenefit2)
       val previousCarAndFuel2 = CarBenefit(carBenefit3, fuelBenefit3)
@@ -268,7 +268,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
     "show benefit summary details for the tax year excluding the total row for a user with no active car and only one previous car" in new WithApplication(FakeApplication()) with BaseData {
       override val activeCar = None
-      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11)))))
+      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(LocalDate(testTaxYear-1, 10, 10)), dateCarWithdrawn = Some(LocalDate(testTaxYear-1, 10, 11)))))
       val previousCarAndFuel1 = CarBenefit(carBenefit2, None)
       override val previousCars = Seq(previousCarAndFuel1)
 
@@ -285,8 +285,8 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val fuelBenefit2 = Some(fuelBenefitEmployer1.copy(benefitAmount = Some(7)))
       val fuelBenefit3 = Some(fuelBenefitEmployer1.copy(benefitAmount = Some(10)))
 
-      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(new LocalDate(2012, 10, 11)))))
-      val carBenefit3 = carBenefit.copy(benefitAmount = Some(44), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(new LocalDate(2012, 11, 11)), dateCarWithdrawn = Some(new LocalDate(2012, 11, 12)))))
+      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(LocalDate(2012, 10, 10)), dateCarWithdrawn = Some(LocalDate(2012, 10, 11)))))
+      val carBenefit3 = carBenefit.copy(benefitAmount = Some(44), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = Some(LocalDate(2012, 11, 11)), dateCarWithdrawn = Some(LocalDate(2012, 11, 12)))))
 
       val previousCarAndFuel1 = CarBenefit(carBenefit2, fuelBenefit2)
       val previousCarAndFuel2 = CarBenefit(carBenefit3, fuelBenefit3)
@@ -613,7 +613,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe "Your car benefit for the 2013-2014 tax year"
+      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe s"Your car benefit for the $testTaxYear-${testTaxYear+1} tax year"
     }
 
     "display the correct heading for the totals table when user has fuel on any car" in new WithApplication(FakeApplication()) with BaseData {
@@ -622,7 +622,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val result = car_benefit_home(params)(johnDensmore)
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe "Company car benefits for the 2013 to 2014 tax year" +
+      doc.select("#car-and-fuel-benefits-summary-header").text shouldBe s"Company car benefits for the $testTaxYear to ${testTaxYear+1} tax year" +
         ""
     }
 
