@@ -1,6 +1,7 @@
 #!/bin/sh
 
-exec /src/govuk-tax-1.0.1-SNAPSHOT/bin/govuk-tax \
+SCRIPT=$(find . -type f -name govuk-tax)
+exec $SCRIPT \
   -Dhttp.port=8080 \
   -Dapplication.log=INFO \
   -Dlogger.resource=/govuk-tax-logger.xml \
