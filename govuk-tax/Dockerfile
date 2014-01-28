@@ -2,7 +2,7 @@ FROM docker.registry/java:7u51
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y unzip
 ADD . /src
-RUN unzip -d /src /src/govuk-tax/target/universal/govuk-tax-0.0.1-SNAPSHOT.zip
+RUN unzip -d /src /src/govuk-tax/target/universal/govuk-tax-1.0.1-SNAPSHOT.zip
 RUN rm -rf /src/govuk-tax
 
 EXPOSE 8080
