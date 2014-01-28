@@ -38,12 +38,11 @@ trait EmailControllerHelper {
     emailForm.bindFromRequest()(request).fold(
       errors => Future.successful(BadRequest(errorsView(errors))),
       emailForm => {
-        val isEmailValid = if (emailForm.isEmailVerified)
-          Future.successful(true)
-        else
-          emailConnector.validateEmailAddress(emailForm.mainEmail)
+        val emailVerificationStatus =
+          if (emailForm.isEmailVerified) Future.successful(true)
+          else emailConnector.validateEmailAddress(emailForm.mainEmail)
 
-        isEmailValid.flatMap {
+        emailVerificationStatus.flatMap {
            case true => preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.mainEmail)).map(const(Redirect(successRedirect())))
            case false => Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }

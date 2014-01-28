@@ -27,8 +27,12 @@ class SaPrefsController(whiteList: Set[String]) extends BaseController {
       DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           preferencesConnector.getPreferencesUnsecured(token.utr) map {
-            case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
+            case Some(SaPreference(_, Some(SaEmailPreference(emailAddress, _, _)))) =>
               Redirect(returnUrl ? ("emailAddress" -> SsoPayloadCrypto.encrypt(emailAddress)))
+
+            case Some(SaPreference(_, None)) =>
+              Redirect(returnUrl)
+
             case _ =>
               Ok(
                 views.html.sa.prefs.sa_printing_preference(

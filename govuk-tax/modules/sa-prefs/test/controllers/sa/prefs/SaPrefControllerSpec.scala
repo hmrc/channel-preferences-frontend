@@ -49,7 +49,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
 
   "Preferences pages" should {
-    "redirect to the portal when preferences already exist for a specific utr" in new WithApplication(FakeApplication()) {
+    "redirect to the portal when a preference for email already exists for a specific utr" in new WithApplication(FakeApplication()) {
       val controller = createController
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
@@ -60,7 +60,18 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
     }
 
-    "redirect to the portal when preferences already exist for a specific utr and an email address was passed in the URL" in new WithApplication(FakeApplication()) {
+    "redirect to the portal when a preference for paper already exists for a specific utr" in new WithApplication(FakeApplication()) {
+      val controller = createController
+      val preferencesAlreadyCreated = SaPreference(false, None)
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
+
+      val page = controller.index(validToken, encodedReturnUrl, None)(request)
+      status(page) shouldBe 303
+      header("Location", page).value should be (decodedReturnUrl)
+      verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
+    }
+
+    "redirect to the portal when preferences already exist for a specific utr and an email address was passed to the platform" in new WithApplication(FakeApplication()) {
       val controller = createController
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))

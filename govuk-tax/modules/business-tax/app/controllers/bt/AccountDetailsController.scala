@@ -100,15 +100,17 @@ with EmailControllerHelper {
     }
   }
 
-  private[bt] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+  private[bt] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
     lookupCurrentEmail(
-      email => submitPreferencesForm((errors) => views.html.account_details_update_email_address(email, errors),
-        (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
-        () => routes.AccountDetailsController.emailAddressChangeThankYou(),
-        emailConnector,
-        preferencesConnector)
+      email =>
+        submitPreferencesForm(
+          (errors) => views.html.account_details_update_email_address(email, errors),
+          (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
+          () => routes.AccountDetailsController.emailAddressChangeThankYou(),
+          emailConnector,
+          preferencesConnector
+        )
     )
-  }
 
   private[bt] def emailAddressChangeThankYouPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated)(user))))
