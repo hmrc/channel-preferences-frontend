@@ -123,9 +123,13 @@ GOVUK.ReportAProblem = function () {
     var $reportErrorContainer = $('.report-error__content'),
       $submitButton = $reportErrorContainer.find('.button'),
       showErrorMessage = function () {
-        var response = "<h2>Sorry, we're unable to receive your message right now.</h2> " +
-          			   "<p>We have other ways for you to provide feedback on the " +
-          			   "<a href='/beta-feedback'>support page</a>.</p>";
+      var link = '/beta-feedback-unauthenticated'
+      if( $('#feedback-link').attr('href').length) {
+        link = $('#feedback-link').attr('href')
+      }
+      var response = "<h2>Sorry, we're unable to receive your message right now.</h2> " +
+                      "<p>We have other ways for you to provide feedback on the "  +
+                      "<a href='"+ link + "'>support page</a>.</p>";
 
         $reportErrorContainer.html(response);
       },
