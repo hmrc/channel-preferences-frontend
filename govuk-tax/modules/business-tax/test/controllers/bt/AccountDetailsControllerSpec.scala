@@ -10,12 +10,13 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import scala.concurrent.Future
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, SaEmailPreference, SaPreference, PreferencesConnector}
 import org.mockito.Mockito._
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import play.api.test.Helpers._
 import org.mockito.Matchers
+import java.net.URI
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -433,6 +434,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
 
       val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request))
 

@@ -5,7 +5,7 @@ import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Matchers
-import Matchers.{eq => meq, any}
+import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.joda.time.{DateTimeZone, DateTime}
 import java.net.URLDecoder.{decode => urlDecode}
@@ -19,10 +19,18 @@ import controllers.common.actions.HeaderCarrier
 import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences._
 import SaEmailPreference.Status
 import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.domain.SaUtr
+import scala.Some
+import uk.gov.hmrc.domain.SaUtr
+import play.api.test.FakeApplication
+import uk.gov.hmrc.common.microservice.preferences.SaPreference
+import scala.Some
+import uk.gov.hmrc.domain.SaUtr
+import play.api.test.FakeApplication
+import java.net.URI
 
 class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
 
@@ -284,6 +292,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "keep paper notification and redirect to the portal" in new WithApplication(FakeApplication()) {
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
+      when(controller.preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(null))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
 
       val page = controller.submitKeepPaperForm(validToken, encodedReturnUrl)(request)
 
@@ -294,6 +303,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
+      when(controller.preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(null))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
 
       val result = controller.submitKeepPaperForm(validToken, encodedReturnUrl)(request)
 
