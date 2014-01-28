@@ -77,7 +77,6 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](
         Matchers.eq("ReplaceCarBenefitFormData"), Matchers.eq("paye"), Matchers.eq("replace_benefit"), Matchers.eq(false))(any(), any())).thenReturn(Some(johnDensmoresReplaceCarBenefitData))
       val result = controller.showReplaceCarBenefitFormAction(testTaxYear, 2)(johnDensmore, requestWithCorrectVersion)
-
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       val removeTable = doc.select("#remove-car-benefit-fields")
@@ -91,7 +90,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       removeTable.select("#fuelRadio-differentDateFuel").attr("checked") shouldBe "checked"
       removeTable.select("[id~=fuelWithdrawDate]").select("[id~=day-8]").attr("selected") shouldBe "selected"
       removeTable.select("[id~=fuelWithdrawDate]").select("[id~=month-2]").attr("selected") shouldBe "selected"
-      removeTable.select("[id~=fuelWithdrawDate]").select("[id~=year-2013]").attr("selected") shouldBe "selected"
+      removeTable.select("[id~=fuelWithdrawDate]").select(s"[id~=year-${johnDensmoresReplaceCarBenefitData.removedCar.fuelWithdrawDate.get.getYear}]").attr("selected") shouldBe "selected"
     }
 
     "Save the form values to the keystore when the next button is pressed." in new WithApplication(FakeApplication()) with TestCase {

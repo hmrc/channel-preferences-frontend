@@ -6,7 +6,7 @@ import org.jsoup.Jsoup
 import play.api.test.Helpers._
 import play.api.test.FakeApplication
 import org.scalatest.LoneElement
-
+import views.formatting.Dates._
 
 class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with LoneElement {
 
@@ -31,10 +31,10 @@ class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with Lo
       doc.getElementsByTag("th") should have size 4
       doc.getElementsByTag("td") should have size 4
 
-      doc.getElementById("car-benefit-date-car-withdrawn").text shouldBe "8 January 2014"
+      doc.getElementById("car-benefit-date-car-withdrawn").text shouldBe formatDate(formData.withdrawDate)
       doc.getElementById("car-benefit-num-days-unavailable").text shouldBe "10 days"
       doc.getElementById("car-benefit-employee-payments").text shouldBe "£2,000"
-      doc.getElementById("car-benefit-date-fuel-withdrawn").text shouldBe "8 February 2013"
+      doc.getElementById("car-benefit-date-fuel-withdrawn").text shouldBe formatDate(formData.fuelWithdrawDate.get)
     }
 
     "not render the date fuel withdrawn date if there no fuel benefit" in new WithApplication(FakeApplication()) {
@@ -49,7 +49,7 @@ class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with Lo
       doc.getElementsByTag("th") should have size 3
       doc.getElementsByTag("td") should have size 3
 
-      doc.getElementById("car-benefit-date-car-withdrawn").text shouldBe "8 January 2014"
+      doc.getElementById("car-benefit-date-car-withdrawn").text shouldBe formatDate(formData.withdrawDate)
       doc.getElementById("car-benefit-num-days-unavailable").text shouldBe "10 days"
       doc.getElementById("car-benefit-employee-payments").text shouldBe "£2,000"
       doc.getElementById("car-benefit-date-fuel-withdrawn") shouldBe null
@@ -59,7 +59,7 @@ class RemoveCarBenefitConfirmationTableTemplateSpec extends PayeBaseSpec with Lo
       val doc = Jsoup.parse(contentAsString(remove_car_benefit_confirmation_table(formData, employment, false, testTaxYear)))
 
       val daysUnavailableHeading = doc.getElementById("car-benefit-num-days-unavailable").parents().first().select("th").text()
-      daysUnavailableHeading should include("2013")
+      daysUnavailableHeading should include(currentTaxYear.toString)
       daysUnavailableHeading should not include "2,013"
     }
   }
