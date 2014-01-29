@@ -63,7 +63,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(rating = ""))
       status(result) shouldBe 400
-      formContainsError(result, "Tell us what you think of the service")
+      formContainsError(result, "Tell us what you think of the service.")
     }
 
     "display error when rating is not selected at all" in new FeedbackControllerApplication {
@@ -75,7 +75,7 @@ class FeedbackControllerSpec extends BaseSpec {
         "referer" -> "referer",
         "isJavascript" -> "false"))
       status(result) shouldBe 400
-      formContainsError(result, "Tell us what you think of the service")
+      formContainsError(result, "Tell us what you think of the service.")
     }
 
     "display error when submitting invalid rating value" in new FeedbackControllerApplication {
@@ -108,7 +108,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(email = ""))
       status(result) shouldBe 400
-      formContainsError(result, "Enter a valid email address")
+      formContainsError(result, "Enter a valid email address.")
     }
 
     "display error when email is too long" in new FeedbackControllerApplication {
@@ -127,7 +127,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(email = "this is not an email address"))
       status(result) shouldBe 400
-      formContainsError(result, "Enter a valid email address")
+      formContainsError(result, "Enter a valid email address.")
 
     }
 
@@ -135,7 +135,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(email = "a@a"))
       status(result) shouldBe 400
-      formContainsError(result, "Enter a valid email address")
+      formContainsError(result, "Enter a valid email address.")
 
     }
 
@@ -143,7 +143,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(comments = ""))
       status(result) shouldBe 400
-      formContainsError(result, "Enter your comments")
+      formContainsError(result, "Enter your comments.")
     }
 
     "display error when comments are too verbose" in new FeedbackControllerApplication {

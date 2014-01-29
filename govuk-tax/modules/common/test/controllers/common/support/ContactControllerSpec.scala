@@ -73,7 +73,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
       page.getElementsByClass("error-notification").size() shouldBe 3
       page.getElementsByClass("error-notification").get(0).text() shouldBe "Please provide your name"
-      page.getElementsByClass("error-notification").get(1).text() shouldBe "Enter a valid email address"
+      page.getElementsByClass("error-notification").get(1).text() shouldBe "Enter a valid email address."
       page.getElementsByClass("error-notification").get(2).text() shouldBe "Enter your comments."
     }
 
@@ -115,7 +115,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
       status(submit) shouldBe 400
 
       page.getElementsByClass("error-notification").size() shouldBe 1
-      page.getElementsByClass("error-notification").first().text() shouldBe "Enter a valid email address"
+      page.getElementsByClass("error-notification").first().text() shouldBe "Enter a valid email address."
     }
 
   }

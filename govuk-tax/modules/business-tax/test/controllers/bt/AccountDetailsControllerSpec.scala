@@ -281,7 +281,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address"
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address."
     }
 
     "show error if the email field is empty" in new Setup {
@@ -294,7 +294,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address"
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address."
     }
 
     "show error if the two email fields are not equal" in new Setup {
