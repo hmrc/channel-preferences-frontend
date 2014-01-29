@@ -292,7 +292,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "keep paper notification and redirect to the portal" in new WithApplication(FakeApplication()) {
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(controller.preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(null))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
+      when(controller.preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
 
       val page = controller.submitKeepPaperForm(validToken, encodedReturnUrl)(request)
 
@@ -303,13 +303,13 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "save the user preference to keep the paper notification" in new WithApplication(FakeApplication()) {
       val controller = createController
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(controller.preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(null))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
+      when(controller.preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
 
       val result = controller.submitKeepPaperForm(validToken, encodedReturnUrl)(request)
 
       status(result) shouldBe 303
 
-      verify(controller.preferencesConnector, times(1)).savePreferencesUnsecured(meq(validUtr), meq(false), meq(null))
+      verify(controller.preferencesConnector, times(1)).savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))
     }
 
     "redirect to return url if the token is expired when the keep paper notification form is used" in new WithApplication(FakeApplication()) {
