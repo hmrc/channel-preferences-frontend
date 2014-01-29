@@ -14,7 +14,7 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
   import play.api.test.Helpers._
 
   val accountLoginPage = routes.LoginController.businessTaxLogin().url
-  val hypotheticalCurrentTime: DateTime = new DateTime(2012, 7, 7, 4, 6, 20, DateTimeZone.UTC)
+  val hypotheticalCurrentTime = new DateTime(2012, 7, 7, 4, 6, 20, DateTimeZone.UTC)
   val invalidTime = hypotheticalCurrentTime.minusDays(1).getMillis.toString
   val justInvalidTime = hypotheticalCurrentTime.minusSeconds(timeoutSeconds + 1).getMillis.toString
   val justValidTime = hypotheticalCurrentTime.minusSeconds(timeoutSeconds - 1).getMillis.toString
@@ -62,7 +62,6 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
       val result = TestController.testWithNewSessionTimeoutAddingData(FakeRequest().withSession(SessionKeys.userId -> sessionId))
       session(result) shouldBe Session(Map(SessionKeys.lastRequestTimestamp -> now().getMillis.toString, SessionKeys.userId -> "Jim"))
     }
-
   }
 
   "WithSessionTimeoutValidation" should {
@@ -82,6 +81,7 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
       session(result) shouldBe Session(Map(SessionKeys.lastRequestTimestamp -> now().getMillis.toString))
       redirectLocation(result) shouldBe Some(accountLoginPage)
     }
+
 
 
     "perform the wrapped action successfully and update the timestamp if the incoming timestamp is just valid when a custom error path is given" in new WithApplication(FakeApplication()) {

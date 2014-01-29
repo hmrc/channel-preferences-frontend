@@ -25,7 +25,7 @@ object SessionTimeoutWrapper {
       sessionExpiryTimestamp: DateTime = lastRequestTimestamp.plus(Duration.standardSeconds(timeoutSeconds))
     } yield now().isBefore(sessionExpiryTimestamp)
 
-    valid.isDefined
+    valid.getOrElse(false)
   }
 
   private def extractTimestamp(session: Session): Option[DateTime] = {
@@ -49,7 +49,7 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
         action(request)
       } else {
         Logger.info(s"request refused as the session had timed out in ${request.path}")
-        authenticationProvider.redirectToLogin(false).flatMap { simpleResult =>
+        authenticationProvider.handleSessionTimeout().flatMap { simpleResult =>
           Action(simpleResult)(request).map(_.withNewSession)
         }
       }

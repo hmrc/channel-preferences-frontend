@@ -5,8 +5,6 @@ import scala._
 
 import play.api.mvc._
 
-import uk.gov.hmrc.common.microservice.saml.SamlConnector
-
 import controllers.common.FrontEndRedirect._
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
@@ -21,9 +19,11 @@ sealed trait AuthenticationProvider {
   type FailureResult = SimpleResult
   val id: String
 
-  def redirectToLogin(redirectToOrigin: Boolean = false)(implicit request: Request[AnyContent]): Future[SimpleResult] = ???
+  def redirectToLogin(redirectToOrigin: Boolean = false)(implicit request: Request[AnyContent]): Future[SimpleResult]
 
-  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = ???
+  def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] = redirectToLogin(false)
+
+  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]]
 
   implicit def hc(implicit request: Request[_]) = HeaderCarrier(request)
 }
@@ -38,17 +38,20 @@ object UserCredentials {
 }
 
 object Ida extends AuthenticationProvider {
-  override val id = "IDA"
+  val id = "IDA"
 
   val login = routes.LoginController.samlLogin
 
-  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] =
+  override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
+      Future.successful(Redirect(routes.LoginController.payeSignedOut()))
+
+  def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] =
     Future.successful(Redirect(login).withSession(buildSessionForRedirect(request.session, redirectUrl(redirectToOrigin))))
 
   private def redirectUrl(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) =
     if (redirectToOrigin) Some(request.uri) else None
 
-  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
+  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
     case UserCredentials(None, token@_) =>
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
       redirectToLogin(redirectToOrigin).map(Right(_))
@@ -64,11 +67,11 @@ object Ida extends AuthenticationProvider {
  */
 object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
-  override val id = "IDA"
+   val id = "IDA"
 
   lazy val idaTokenApiConnector = new IdaTokenApiConnector
 
-  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
+   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
     request.getQueryString("token") match {
       case Some(token) => {
@@ -92,7 +95,7 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
   private def redirectUrl(request: Request[AnyContent], redirectToOrigin: Boolean) =
     if (redirectToOrigin) Some(request.uri) else None
 
-  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
+   def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
     case UserCredentials(None, token@_) =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
@@ -105,13 +108,13 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 }
 
 object GovernmentGateway extends AuthenticationProvider {
-  override val id = "GGW"
+   val id = "GGW"
 
   val login = routes.LoginController.businessTaxLogin()
 
-  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Redirect(login))
+   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Redirect(login))
 
-  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = {
+   def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = {
     case UserCredentials(None, token@_) =>
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
       redirectToLogin(redirectToOrigin).map(Right(_))
@@ -125,7 +128,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
 
   private val login = routes.LoginController.businessTaxLogin()
 
-  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
+   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     Logger.info("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
         case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin(redirectToOrigin)
@@ -133,7 +136,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
     }
   }
 
-  override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
+   def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
     request.session.get(SessionKeys.authProvider) match {
       case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(redirectToOrigin)
       case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.handleNotAuthenticated(redirectToOrigin)
@@ -141,7 +144,7 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
     }
   }
 
-  override val id: String = "IDAorGGW"
+   val id = "IDAorGGW"
 }
 
 
