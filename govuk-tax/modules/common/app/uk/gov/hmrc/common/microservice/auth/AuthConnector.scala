@@ -4,6 +4,7 @@ import uk.gov.hmrc.common.microservice.{MicroServiceException, Connector, MicroS
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
+import controllers.common.BearerToken
 
 class AuthConnector(override val serviceUrl: String = MicroServiceConfig.authServiceUrl) extends Connector {
 
@@ -13,8 +14,8 @@ class AuthConnector(override val serviceUrl: String = MicroServiceConfig.authSer
 
 //  def exchangePid(pid: String)(implicit hc: HeaderCarrier): Future[Option[String]] = httpPostF[String, Nothing](s"/auth/pid/$pid/exchange", None)
 
-  def exchangeCredIdForBearerToken(credId: String)(implicit hc: HeaderCarrier): Future[String] = {
-    httpPostF[String, Nothing](s"/auth/cred-id/$credId/exchange", None).map {
+  def exchangeCredIdForBearerToken(credId: String)(implicit hc: HeaderCarrier): Future[BearerToken] = {
+    httpPostF[BearerToken, Nothing](s"/auth/cred-id/$credId/exchange", None).map {
       case Some(bearerToken) => bearerToken
       case None => throw new RuntimeException(s"No Content or Not Found response when exchanging credId for bearer token")
     }

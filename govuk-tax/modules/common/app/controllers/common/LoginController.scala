@@ -44,7 +44,7 @@ class LoginController(samlConnector: SamlConnector,
       Ok(views.html.ggw_login_form())
   })
 
-  def redirectToBizTax(response: GovernmentGatewayLoginResponse, authToken: String)(implicit request: Request[AnyContent]): SimpleResult = {
+  private def redirectToBizTax(response: GovernmentGatewayLoginResponse, authToken: BearerToken)(implicit request: Request[AnyContent]): SimpleResult = {
     val sessionId = s"session-${UUID.randomUUID}"
     auditConnector.audit(
       AuditEvent(
@@ -57,7 +57,7 @@ class LoginController(samlConnector: SamlConnector,
     FrontEndRedirect.toBusinessTax.withSession(
       SessionKeys.sessionId -> sessionId,
       SessionKeys.userId -> response.authId, //TODO: Replace this with Bearer
-      SessionKeys.authToken -> authToken,
+      SessionKeys.authToken -> authToken.toString,
       SessionKeys.name -> response.name,
       SessionKeys.token -> response.encodedGovernmentGatewayToken,
       SessionKeys.affinityGroup -> response.affinityGroup,
@@ -186,4 +186,8 @@ class LoginController(samlConnector: SamlConnector,
     implicit request =>
       Ok(views.html.logged_out()).withNewSession
   })
+}
+
+case class BearerToken(bearerToken: String) {
+  override val toString = bearerToken
 }

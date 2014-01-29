@@ -301,7 +301,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).
         thenReturn(GovernmentGatewayLoginResponse(geoff.userId, geoff.credId, geoff.nameFromGovernmentGateway, "affinityGroup", geoff.encodedGovernmentGatewayToken))
 
-      private val bearerToken: String = "Bearer dfshjkdfshjkdfshjkdfs"
+      private val bearerToken: BearerToken = BearerToken("Bearer dfshjkdfshjkdfshjkdfs")
 
       when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.eq(geoff.credId))(Matchers.any[HeaderCarrier])).thenReturn(bearerToken)
 
@@ -314,7 +314,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       sess(SessionKeys.name) shouldBe geoff.nameFromGovernmentGateway
       sess(SessionKeys.userId) shouldBe geoff.userId
       sess(SessionKeys.token) shouldBe geoff.encodedGovernmentGatewayToken
-      sess(SessionKeys.authToken) shouldBe bearerToken
+      sess(SessionKeys.authToken) shouldBe bearerToken.toString
 
       val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
       verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
