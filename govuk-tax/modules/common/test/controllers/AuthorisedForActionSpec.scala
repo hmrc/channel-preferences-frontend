@@ -78,7 +78,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
       )
 
       status(result) should equal(303)
-      redirectLocation(result) shouldBe Some(routes.LoginController.businessTaxLogin().url)
+      redirectLocation(result) shouldBe Some(routes.LoginController.samlLogin().url)
     }
 
     "return internal server error page if the Action throws an exception" ignore new WithApplication(FakeApplication()) {
