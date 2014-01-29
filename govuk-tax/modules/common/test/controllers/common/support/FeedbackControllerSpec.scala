@@ -89,7 +89,7 @@ class FeedbackControllerSpec extends BaseSpec {
 
       val result = controller.doSubmit(user)(request(name = ""))
       status(result) shouldBe 400
-      formContainsError(result, "Please provide your name")
+      formContainsError(result, "Please provide your name.")
     }
 
     "display error when name is too long" in new FeedbackControllerApplication {
