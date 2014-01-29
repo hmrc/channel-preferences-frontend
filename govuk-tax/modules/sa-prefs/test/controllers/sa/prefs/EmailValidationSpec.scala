@@ -8,7 +8,6 @@ import play.api.test.Helpers._
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import org.jsoup.Jsoup
 import scala.concurrent.Future
-import controllers.sa.prefs.EmailValidationController
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.preferences.{PreferencesConnector, EmailVerificationLinkResponse}
 

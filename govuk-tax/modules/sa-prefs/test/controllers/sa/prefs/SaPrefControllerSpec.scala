@@ -14,9 +14,7 @@ import org.jsoup.Jsoup
 import scala.concurrent.Future
 import controllers.sa.prefs.service.SsoPayloadCrypto
 import SsoPayloadCrypto._
-import controllers.sa.prefs.SaPrefsController
 import controllers.common.actions.HeaderCarrier
-import scala.Some
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences._

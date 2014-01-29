@@ -3,7 +3,6 @@ package controllers.sa.prefs.service
 import org.scalatest.{ ShouldMatchers, WordSpec }
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URLEncoder }
-import controllers.sa.prefs.service.{TokenExpiredException, TokenEncryption}
 import uk.gov.hmrc.crypto.AesCrypto
 import uk.gov.hmrc.domain.SaUtr
 

@@ -46,9 +46,9 @@ trait Connector extends Status with ConnectionLogging {
     response[TResult](httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[TBody](body)), uri)(extractJSONResponse[TResult])
   }
 
-  protected def httpPost[A, B](uri: String, body: A, headers: Map[String, String] = Map.empty)(responseProcessor: (Response => B))
-                              (implicit a: Manifest[A], b: Manifest[B], headerCarrier: HeaderCarrier): Future[B] = {
-    httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[A](Some(body))).map(responseProcessor)
+  protected def httpPost[TBody, TResult](uri: String, body: TBody, headers: Map[String, String] = Map.empty)(responseProcessor: (Response => TResult))
+                              (implicit bodyManifest: Manifest[TBody], b: Manifest[TResult], headerCarrier: HeaderCarrier): Future[TResult] = {
+    httpResource(uri).withHeaders(headers.toSeq: _*).post(transform[TBody](Some(body))).map(responseProcessor)
   }
 
   protected def httpPostResponse[A](uri: String, body: A, headers: Map[String, String] = Map.empty)(implicit m: Manifest[A], hc: HeaderCarrier): Future[Response] = {

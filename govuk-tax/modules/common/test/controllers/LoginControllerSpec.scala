@@ -19,13 +19,11 @@ import uk.gov.hmrc.common.microservice.governmentgateway.Credentials
 import uk.gov.hmrc.common.microservice.ForbiddenException
 import play.api.test.FakeApplication
 import play.api.templates.Html
-import uk.gov.hmrc.utils.DateTimeUtils
 import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
-import org.jsoup.Jsoup
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -95,7 +93,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       def setupValidRequest() = {
         when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
 
-        when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Some(emptyAuthority(oid)))
+        when(mockAuthConnector.loginWithPid(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Some(emptyAuthority(oid)))
         FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse))
       }
     }
@@ -201,7 +199,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
       when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId))))
 
-      when(mockAuthConnector.authorityByPidAndUpdateLoginTime(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(None))
+      when(mockAuthConnector.loginWithPid(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(None))
 
       val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
 
@@ -303,6 +301,10 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       when(mockGovernmentGatewayConnector.login(Matchers.eq(Credentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).
         thenReturn(GovernmentGatewayLoginResponse(geoff.userId, geoff.credId, geoff.nameFromGovernmentGateway, "affinityGroup", geoff.encodedGovernmentGatewayToken))
 
+      private val bearerToken: String = "Bearer dfshjkdfshjkdfshjkdfs"
+
+      when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.eq(geoff.credId))(Matchers.any[HeaderCarrier])).thenReturn(bearerToken)
+
       val result = loginController.governmentGatewayLogin(FakeRequest().withFormUrlEncodedBody("userId" -> geoff.governmentGatewayUserId, "password" -> geoff.password))
 
       status(result) shouldBe Status.SEE_OTHER
@@ -312,6 +314,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       sess(SessionKeys.name) shouldBe geoff.nameFromGovernmentGateway
       sess(SessionKeys.userId) shouldBe geoff.userId
       sess(SessionKeys.token) shouldBe geoff.encodedGovernmentGatewayToken
+      sess(SessionKeys.authToken) shouldBe bearerToken
 
       val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
       verify(mockAuditConnector).audit(captor.capture())(Matchers.any())

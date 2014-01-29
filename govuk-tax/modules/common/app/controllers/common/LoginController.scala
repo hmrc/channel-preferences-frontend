@@ -1,6 +1,6 @@
 package controllers.common
 
-import play.api.mvc.{AnyContent, Action}
+import play.api.mvc.{Request, SimpleResult, AnyContent, Action}
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
@@ -15,6 +15,8 @@ import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
 import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class LoginController(samlConnector: SamlConnector,
@@ -42,6 +44,55 @@ class LoginController(samlConnector: SamlConnector,
       Ok(views.html.ggw_login_form())
   })
 
+  def redirectToBizTax(response: GovernmentGatewayLoginResponse, authToken: String)(implicit request: Request[AnyContent]): SimpleResult = {
+    val sessionId = s"session-${UUID.randomUUID}"
+    auditConnector.audit(
+      AuditEvent(
+        auditType = "TxSucceeded",
+        tags = Map("transactionName" -> "GG Login",
+          HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
+        detail = Map("authId" -> response.authId)
+      )
+    )
+    FrontEndRedirect.toBusinessTax.withSession(
+      SessionKeys.sessionId -> sessionId,
+      SessionKeys.userId -> response.authId, //TODO: Replace this with Bearer
+      SessionKeys.authToken -> authToken,
+      SessionKeys.name -> response.name,
+      SessionKeys.token -> response.encodedGovernmentGatewayToken,
+      SessionKeys.affinityGroup -> response.affinityGroup,
+      SessionKeys.authProvider -> GovernmentGateway.id
+    )
+  }
+
+  private def processGovernmentGatewayLogin(credentials: Credentials, form: Form[Credentials])(implicit request: Request[AnyContent]): Future[SimpleResult] = {
+    val result: Future[SimpleResult] = governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).flatMap { ggResponse: GovernmentGatewayLoginResponse =>
+      authConnector.exchangeCredIdForBearerToken(ggResponse.credId).map(bearerToken => redirectToBizTax(ggResponse, bearerToken))
+    }
+
+    result.recover {
+      case _: UnauthorizedException =>
+        auditConnector.audit(
+          AuditEvent(
+            auditType = "TxFailed",
+            tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
+            detail = Map("transactionFailureReason" -> "Invalid Credentials")
+          )
+        )
+        Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid user ID or password. Try again.")))
+      case _: ForbiddenException => {
+        auditConnector.audit(
+          AuditEvent(
+            auditType = "TxFailed",
+            tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
+            detail = Map("transactionFailureReason" -> "Not on the whitelist")
+          )
+        )
+        Forbidden(notOnBusinessTaxWhitelistPage)
+      }
+    }
+  }
+
   def governmentGatewayLogin: Action[AnyContent] = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request =>
 
@@ -52,53 +103,10 @@ class LoginController(samlConnector: SamlConnector,
         )(Credentials.apply)(Credentials.unapply)
       )
       val form = loginForm.bindFromRequest()
+
       form.fold(
         erroredForm => Future.successful(Ok(views.html.ggw_login_form(erroredForm))),
-        credentials => {
-          governmentGatewayConnector.login(credentials)(HeaderCarrier(request)).map { response: GovernmentGatewayLoginResponse =>
-              val authToken = "TODO:InsertBearerHere" // TODO: Get auth token
-              val sessionId = s"session-${UUID.randomUUID}"
-              auditConnector.audit(
-                AuditEvent(
-                  auditType = "TxSucceeded",
-                  tags = Map("transactionName" -> "GG Login",
-                    HeaderNames.xSessionId -> sessionId) ++ hc.headers.toMap,
-                  detail = Map("authId" -> response.authId)
-                )
-              )
-              FrontEndRedirect.toBusinessTax.withSession(
-                SessionKeys.sessionId -> sessionId,
-                SessionKeys.userId -> response.authId, //TODO: Replace this with Bearer
-                SessionKeys.authToken -> authToken,
-                SessionKeys.name -> response.name,
-                SessionKeys.token -> response.encodedGovernmentGatewayToken,
-                SessionKeys.affinityGroup -> response.affinityGroup,
-                SessionKeys.authProvider -> GovernmentGateway.id
-              )
-
-
-          }.recover {
-            case _: UnauthorizedException =>
-              auditConnector.audit(
-                AuditEvent(
-                  auditType = "TxFailed",
-                  tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
-                  detail = Map("transactionFailureReason" -> "Invalid Credentials")
-                )
-              )
-              Unauthorized(views.html.ggw_login_form(form.withGlobalError("Invalid user ID or password. Try again.")))
-            case _: ForbiddenException => {
-              auditConnector.audit(
-                AuditEvent(
-                  auditType = "TxFailed",
-                  tags = Map("transactionName" -> "GG Login") ++ hc.headers.toMap,
-                  detail = Map("transactionFailureReason" -> "Not on the whitelist")
-                )
-              )
-              Forbidden(notOnBusinessTaxWhitelistPage)
-            }
-          }
-        })
+        credentials => processGovernmentGatewayLogin(credentials, form))
   })
 
   def notOnBusinessTaxWhitelistPage = views.html.whitelist_notice()
@@ -126,7 +134,7 @@ class LoginController(samlConnector: SamlConnector,
             case AuthResponseValidationResult(true, Some(hashPid), originalRequestId) =>
               val hcWithOriginalRequestIdAndNewSession = hc.copy(requestId = originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
 
-              authConnector.authorityByPidAndUpdateLoginTime(hashPid)(hcWithOriginalRequestIdAndNewSession).map {
+              authConnector.loginWithPid(hashPid)(hcWithOriginalRequestIdAndNewSession).map {
                 case Some(authority) => LoginSuccess(hashPid, authority, hcWithOriginalRequestIdAndNewSession)
                 case _ => LoginFailure(s"No record found in Auth for the PID", Some(hashPid), originalRequestId)
               }
