@@ -13,6 +13,7 @@ import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPrefere
 import com.netaporter.uri.dsl._
 import uk.gov.hmrc.domain.Email
 import controllers.common.domain.EmailPreferenceData
+import play.Logger
 
 class SaPrefsController(whiteList: Set[String]) extends BaseController {
 
@@ -26,14 +27,18 @@ class SaPrefsController(whiteList: Set[String]) extends BaseController {
     DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
       DecryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
-          preferencesConnector.getPreferencesUnsecured(token.utr) map {
+          val utr = token.utr
+          preferencesConnector.getPreferencesUnsecured(utr) map {
             case Some(SaPreference(_, Some(SaEmailPreference(emailAddress, _, _)))) =>
+              Logger.debug(s"Redirecting ${utr} back to $returnUrl as they have opted-in")
               Redirect(returnUrl ? ("emailAddress" -> SsoPayloadCrypto.encrypt(emailAddress)))
 
             case Some(SaPreference(_, None)) =>
+              Logger.debug(s"Redirecting ${utr} back to $returnUrl as they have opted-out")
               Redirect(returnUrl)
 
-            case _ =>
+            case None =>
+              Logger.debug(s"Requesting preferences from ${utr} as they have none set")
               Ok(
                 views.html.sa.prefs.sa_printing_preference(
                   emailForm.fill(EmailPreferenceData(emailAddressToPrefill)),
@@ -115,7 +120,7 @@ class SaPrefsController(whiteList: Set[String]) extends BaseController {
             case Some(saPreference) =>
               Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
             case None =>
-              preferencesConnector.savePreferencesUnsecured(token.utr, false).map( _ =>
+              preferencesConnector.savePreferencesUnsecured(token.utr, false, None).map( _ =>
                 Redirect(returnUrl)
               )
           }
