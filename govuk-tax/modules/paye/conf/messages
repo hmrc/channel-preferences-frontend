@@ -69,7 +69,7 @@ paye.ida_token_required_in_beta.text.p2=Try copying and pasting the link into yo
 
 paye.remove_car_benefit.old_company_car_heading=Your old car
 
-paye.add_car_benefit.title=Tell HMRC about a change to your company car
+paye.add_car_benefit.title=Tell HMRC about a change to your company car - Your new car
 paye.add_car_benefit.h1=Tell HMRC about a change to your company car
 paye.add_car_benefit.new_company_car_heading=Your new car
 paye.add_car_benefit.dates_heading=Dates
@@ -112,7 +112,7 @@ paye.add_car_benefit.private_use_payment.false=No
 paye.add_car_benefit.private_use_payment.true=Yes: £
 paye.add_car_benefit.submit_button=Next
 
-paye.add_car_benefit_review.title=Tell HMRC about a change to your company car - Review your company car details
+paye.add_car_benefit_review.title=Tell HMRC about a change to your company car - Check your updated details
 paye.add_car_benefit_review.h1=Tell HMRC about a change to your company car
 paye.add_car_benefit_review.h2=Check your updated details before submitting them
 paye.add_car_benefit_review.date_provided=Date provided
@@ -128,7 +128,7 @@ paye.add_car_benefit_review.employer_pay_fuel.true=Yes
 paye.add_car_benefit_review.submit_button=Submit
 paye.add_car_benefit_review.none=None
 
-paye.add_car_benefit_confirmation.title=Tell HMRC about a change to your company car - Confirm your details
+paye.add_car_benefit_confirmation.title=Tell HMRC about a change to your company car - Thank you
 paye.add_car_benefit_confirmation.h2=Thank you
 paye.add_car_benefit_confirmation.details_changed=Your company car details have been updated.
 paye.add_car_benefit_confirmation.tax_code_changed=Your tax code has changed from {0}.
@@ -158,12 +158,13 @@ paye.add_fuel_benefit_review.employer_pay_fuel.false=No
 paye.add_fuel_benefit_review.employer_pay_fuel.true=Yes
 paye.add_fuel_benefit_review.submit_button=Submit
 
-paye.remove_car_benefit.title=Tell HMRC about a change to your company car - Remove your company benefit
+paye.remove_car_benefit.title=Tell HMRC about a change to your company car - Remove your company car
 paye.remove_car_benefit.h1=Tell HMRC about a change to your company car
 paye.remove_car_benefit.h2.company_info=Remove your company car
 paye.remove_car_benefit.benefit_type=Your old car
 
 paye.replace_car_benefit.title=Tell HMRC about a change to your company car - Replace your company car
+paye.replace_car_benefit_review.title=Tell HMRC about a change to your company car - Check your updated details
 paye.replace_car_benefit_review.subheading=Check your updated details before submitting them
 paye.replace_car_benefit.h1=Tell HMRC about a change to your company car
 paye.replace_car_benefit.subheading=Replace your company car
@@ -194,7 +195,7 @@ error.paye.remove_car_benefit.question3.number_less_than_0=Employee payment must
 error.paye.remove_car_benefit.question3.missing_employee_contribution=You must specify how much you paid your employer for private use of the company car.
 error.paye.add_fuel_benefit.question1.employer_pay_fuel_cannot_be_false=You can’t add a fuel benefit if your employer doesn’t pay for fuel for private use.
 
-paye.remove_car_benefit_review.title=Tell HMRC about a change to your company car - Confirm your benefit details
+paye.remove_car_benefit_review.title=Tell HMRC about a change to your company car - Check your updated details
 paye.remove_car_benefit_review.header=Tell HMRC about a change to your company car
 paye.remove_car_benefit_review.check_changes=Check your updated details before submitting them
 paye.remove_car_benefit_review.car_provided_by=Company car provided by {0}
@@ -204,20 +205,20 @@ paye.remove_car_benefit_review.employee_contributions=Your contribution to priva
 paye.remove_car_benefit_review.fuel_withdrawn=Date fuel benefit stopped
 paye.remove_car_benefit_review.submit_button=Submit
 
-paye.remove_fuel_benefit.title=Tell HMRC about a change to your company car - Remove your company benefit
+paye.remove_fuel_benefit.title=Tell HMRC about a change to your company car - Remove your fuel benefit
 paye.remove_fuel_benefit.header=Tell HMRC about a change to your company car
 paye.remove_fuel_benefit.old_benefit=Remove your fuel benefit
 paye.remove_fuel_benefit.date_withdrawn=When did the fuel benefit for this car stop?
 paye.remove_fuel_benefit.submit_button=Next
 
-paye.remove_fuel_benefit_review.title=Tell HMRC about a change to your company car - Confirm your benefit details
+paye.remove_fuel_benefit_review.title=Tell HMRC about a change to your company car - Check your updated details
 paye.remove_fuel_benefit_review.header=Tell HMRC about a change to your company fuel benefit
 paye.remove_fuel_benefit_review.check_changes=Check your updated details before submitting them
 paye.remove_fuel_benefit_review.provided_by=Company fuel provided by {0}
 paye.remove_fuel_benefit_review.fuel_withdrawn=Date fuel benefit stopped
 paye.remove_fuel_benefit_review.submit_button=Submit
 
-paye.remove_benefit_confirmation.title=Benefit removed
+paye.remove_benefit_confirmation.title=Tell HMRC about a change to your company car - Thank you
 paye.remove_benefit_confirmation.header=Tell HMRC about a change to your company {0}
 paye.remove_benefit_confirmation.thanks=Thank you
 paye.remove_benefit_confirmation.details_changed=Your company car details have been updated.
@@ -231,7 +232,7 @@ paye.remove_benefit_confirmation.tax_codes_link_text=tax codes
 paye.remove_benefit_confirmation.tax_on_company_benefits_link_url=https://www.gov.uk/tax-company-benefits
 paye.remove_benefit_confirmation.tax_on_company_benefits_link_text=tax on company benefits
 
-paye.replace_benefit_confirmation.title=Car Benefit replaced
+paye.replace_benefit_confirmation.title=Tell HMRC about a change to your company car - Thank you
 paye.replace_benefit_confirmation.header=Tell HMRC about a change to your company car
 paye.replace_benefit_confirmation.thanks=Thank you
 paye.replace_benefit_confirmation.details_changed=Your company car details have been updated.
