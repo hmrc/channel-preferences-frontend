@@ -3,9 +3,8 @@
     <p><b>BETA:</b> This is a @helpers.link("", "https://www.gov.uk/help/beta", "trial service", true). Help us improve it - send your
 
         @defining(user.map{_ => controllers.common.support.routes.FeedbackController.feedbackForm().url}.getOrElse(controllers.common.support.routes.FeedbackController.unauthenticatedFeedbackForm().url))  { link =>
-            @helpers.link("feedback-link", link, "feedback", true)
+            @helpers.link("feedback-link", link, "feedback", true).
         }
-        .
 
     </p>
 </div>
