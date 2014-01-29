@@ -17,6 +17,7 @@
     }
 
     @if(!labelAfter && elements.args.contains('_label)) { @elements.label }
+    @if( elements.args.get('_info) ) { <p>@elements.args.get('_info)</p> }
     <textarea type="text"
     @if( elements.args.get('_inputClass) ){ class="@elements.args.get('_inputClass)" }
     name="@elements.field.name"

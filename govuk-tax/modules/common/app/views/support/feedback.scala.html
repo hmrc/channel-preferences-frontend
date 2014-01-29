@@ -10,35 +10,39 @@
 
         @helpers.form(action = call, 'id -> "feedback-form", 'class -> "form--feedback") {
             <fieldset>
-                @helpers.inputRadioGroup(
-                feedbackForm("feedback-rating"),
-                feedbackRatings,
-                '_label -> "What do you think of Tax Platform service?",
-                '_divClass -> "form-field",
-                '_labelClass -> "label--inlineRadio",
-                '_inputClass -> "input--fullwidth"
-                )
+                <legend>
+                    What do you think of this online service?
+                </legend>
+                <fieldset>
+                    @helpers.inputRadioGroup(
+                    feedbackForm("feedback-rating"),
+                    feedbackRatings,
+                    '_divClass -> "form-field",
+                    '_labelClass -> "label--inlineRadio",
+                    '_inputClass -> "input--fullwidth",
+                    '_innerLabelClass -> "label--inlineRadio--overhead"
+                    )
+                </fieldset>
                 @helpers.input(
                 feedbackForm("feedback-name"),
-                '_label -> "Name",
+                '_label -> "Name (optional)",
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth"
                 )
                 @helpers.input(
                 feedbackForm("feedback-email"),
-                '_label -> "Email address",
+                '_label -> "Email address (optional)",
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth"
                 )
-                <p class="form-field">
-                    @Messages("common.feedback.information.warning")
-                </p>
+
                 @helpers.textArea(
                 feedbackForm("feedback-comments"),
                 '_label -> "Comments",
+                '_info -> Messages("common.feedback.information.warning") ,
                 '_divClass -> "form-field",
                 '_inputClass -> "input--fullwidth",
-                '_help -> "2000 characters max"
+                '_help -> "Limit is 2000 characters"
                 )
                 <input type="hidden" name="isJavascript" id="isJavascript" value="@feedbackForm.data.get("isJavascript")">
                 <input type="hidden" name="referer" id="referer" value="@feedbackForm.data.get("referer")">
