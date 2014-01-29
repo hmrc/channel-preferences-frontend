@@ -2175,12 +2175,12 @@ label.indent {
   float: left;
   margin-bottom: 0.75em;
   text-align: center;
-  width: 6em;
-  word-spacing: 6em;
+  width: 5.8em;
+  word-spacing: 5.8em;
 }
 
 .label--inlineRadio--overhead-wide {
-  width: 6.5em;
+  width: 6.8em;
 }
 
 .label--full-length {
