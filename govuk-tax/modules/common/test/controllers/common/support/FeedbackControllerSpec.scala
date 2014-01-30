@@ -22,164 +22,77 @@ import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import play.api.mvc.SimpleResult
-import uk.gov.hmrc.domain.CtUtr
+import uk.gov.hmrc.domain.{SaUtr, CtUtr}
 import uk.gov.hmrc.common.microservice.auth.domain.Credentials
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
+import org.jsoup.nodes.Document
 
 class FeedbackControllerSpec extends BaseSpec {
 
-  "Feedback controller" should {
+  "Rendering the feedback form" should {
 
-    "render feedback form with navigation for authenticated biztax user" in new FeedbackControllerApplication {
-
-      val result = controller.authenticatedFeedback(user.get, FakeRequest())
+    "show navigation for authenticated non-sa biztax user" in new FeedbackControllerApplication {
+      val result = controller.authenticatedFeedback(nonSaUser, FakeRequest())
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit"
-      doc.getElementById("proposition-menu").attr("role") shouldBe "navigation"
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldBeVisibleIn(doc)
     }
 
-    "render feedback form without navigation for unauthenticated user" in new FeedbackControllerApplication {
+    "show navigation for authenticated sa biztax user with prefs" in new FeedbackControllerApplication {
+      whenUserPrefsAre(Some(mock[SaPreference]))
 
+      val result = controller.authenticatedFeedback(saUser, FakeRequest())
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldBeVisibleIn(doc)
+    }
+    
+    "not show navigation for authenticated sa biztax user without prefs" in new FeedbackControllerApplication {
+      whenUserPrefsAre(None)
+      val result = controller.authenticatedFeedback(saUser, FakeRequest())
+      status(result) shouldBe 200
+      val doc = Jsoup.parse(contentAsString(result))
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldNotBeVisibleIn(doc)
+    }
+
+    "not show navigation for unauthenticated user" in new FeedbackControllerApplication {
       val result = controller.unauthenticatedFeedback(FakeRequest())
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit-unauthenticated"
-      doc.getElementById("proposition-menu") shouldBe null
+      formActionIn(doc) shouldBe unauthenticatedSubmitUri
+      navigationShouldNotBeVisibleIn(doc)
     }
 
-    "render feedback form without navigation for paye user" in new FeedbackControllerApplication {
-
-      val result = controller.authenticatedFeedback(userPaye.get, FakeRequest())
+    "not show navigation for paye user" in new FeedbackControllerApplication {
+      val result = controller.authenticatedFeedback(payeUser.get, FakeRequest())
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementById("feedback-form").attr("action") shouldBe "/beta-feedback/submit"
-      doc.getElementById("proposition-menu") shouldBe null
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldNotBeVisibleIn(doc)
     }
+  }
 
-    "display error when rating is not selected" in new FeedbackControllerApplication {
+  "Submitting correct data in the feedback form" should {
 
-      val result = controller.doSubmit(user)(request(rating = ""))
-      status(result) shouldBe 400
-      formContainsError(result, "Tell us what you think of the service.")
-    }
-
-    "display error when rating is not selected at all" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(FakeRequest().withFormUrlEncodedBody(
-        "feedback-name" -> "name",
-        "feedback-email" -> "email@foo.com",
-        "feedback-comments" -> "unrateable",
-        "referer" -> "referer",
-        "isJavascript" -> "false"))
-      status(result) shouldBe 400
-      formContainsError(result, "Tell us what you think of the service.")
-    }
-
-    "display error when submitting invalid rating value" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(rating = "pants"))
-      status(result) shouldBe 400
-      formContainsError(result, "Please select a valid experience rating")
-    }
-
-    "display error when name is empty" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(name = ""))
-      status(result) shouldBe 400
-      formContainsError(result, "Please provide your name.")
-    }
-
-    "display error when name is too long" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(name = stringOfLength(71)))
-      status(result) shouldBe 400
-      formContainsError(result, "Your name cannot be longer than 70 characters")
-    }
-
-    "submit feedback with maximum name length" in new FeedbackControllerApplication {
-      val result = controller.doSubmit(user)(request(name = stringOfLength(70)))
-      status(result) shouldBe 303
-    }
-
-    "display error when email is empty" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(email = ""))
-      status(result) shouldBe 400
-      formContainsError(result, "Enter a valid email address.")
-    }
-
-    "display error when email is too long" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(email = s"${stringOfLength(256)}@a.a"))
-      status(result) shouldBe 400
-      formContainsError(result, "The email cannot be longer than 255 characters")
-    }
-
-    "submit feedback with maximum email length" in new FeedbackControllerApplication {
-      val result = controller.doSubmit(user)(request(email = s"${stringOfLength(251)}@a.a"))
-      status(result) shouldBe 303
-    }
-
-    "display error when email address is not valid" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(email = "this is not an email address"))
-      status(result) shouldBe 400
-      formContainsError(result, "Enter a valid email address.")
-
-    }
-
-    "display error when email address is not valid for DeskPRO" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(email = "a@a"))
-      status(result) shouldBe 400
-      formContainsError(result, "Enter a valid email address.")
-
-    }
-
-    "display error when comments are empty" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(comments = ""))
-      status(result) shouldBe 400
-      formContainsError(result, "Enter your comments.")
-    }
-
-    "display error when comments are too verbose" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(user)(request(comments = stringOfLength(2001)))
-      status(result) shouldBe 400
-      formContainsError(result, "The comment cannot be longer than 2000 characters")
-    }
-
-    "submit feedback with maximum comments length" in new FeedbackControllerApplication {
-      val result = controller.doSubmit(user)(request(comments = stringOfLength(2000)))
-      status(result) shouldBe 303
-    }
-
-    "submit the authenticated feedback" in new FeedbackControllerApplication {
+    "work for authenticated feedback" in new FeedbackControllerApplication {
       val ticket = Some(TicketId(123))
       when(ticketCache.stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
 
-      val result = controller.redirectToConfirmationPage(Future.successful(ticket), user)(request())
+      val result = controller.redirectToConfirmationPage(Future.successful(ticket), someUser)(request())
 
       status(result) shouldBe 303
       result.header.headers("Location") shouldBe "/beta-feedback/thanks"
       verify(ticketCache).stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])
     }
 
-    "render confirmation page" in new FeedbackControllerApplication {
-      when(ticketCache.popTicket(meq("FeedbackForm"))(any[HeaderCarrier])).thenReturn(Future.successful("321"))
-      val result = controller.doThanks(user, request())
-      val page = Jsoup.parse(contentAsString(result))
-
-      status(result) shouldBe 200
-      contentAsString(result) should include("Your feedback has been received")
-      page.getElementById("ticketId").attr("value") shouldBe "321"
-    }
-
-    "submit the unauthenticated feedback" in new FeedbackControllerApplication {
+    "work for unauthenticated feedback" in new FeedbackControllerApplication {
       val ticket = Some(TicketId(123))
       when(ticketCache.stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])).thenReturn(Future.successful("stored"))
 
@@ -188,6 +101,137 @@ class FeedbackControllerSpec extends BaseSpec {
       status(result) shouldBe 303
       result.header.headers("Location") shouldBe "/beta-feedback/thanks-unauthenticated"
       verify(ticketCache).stashTicket(meq(ticket), meq("FeedbackForm"))(any[HeaderCarrier])
+    }
+
+    "allow feedback with comments of max length" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(someUser)(request(comments = stringOfLength(2000)))
+      status(result) shouldBe 303
+    }
+
+    "allow feedback with maximum email length" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(someUser)(request(email = s"${stringOfLength(251)}@a.a"))
+      status(result) shouldBe 303
+    }
+
+    "allow feedback with maximum name length" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(someUser)(request(name = stringOfLength(70)))
+      status(result) shouldBe 303
+    }
+  }
+
+  "Rendering of feedback form when incorrect data is submitted" should {
+
+    "show navigation for authenticated non-sa biztax user" in new FeedbackControllerApplication {
+
+      val result = controller.doSubmit(Some(nonSaUser))(FakeRequest())
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldBeVisibleIn(doc)
+    }
+
+    "show navigation for authenticated sa biztax user with prefs" in new FeedbackControllerApplication {
+      whenUserPrefsAre(Some(mock[SaPreference]))
+
+      val result = controller.doSubmit(Some(saUser))(FakeRequest())
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldBeVisibleIn(doc)
+    }
+
+    "not show navigation for authenticated sa biztax user without prefs" in new FeedbackControllerApplication {
+      whenUserPrefsAre(None)
+      val result = controller.doSubmit(Some(saUser))(FakeRequest())
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldNotBeVisibleIn(doc)
+    }
+
+    "not show navigation for unauthenticated user" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(None)(FakeRequest())
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      formActionIn(doc) shouldBe unauthenticatedSubmitUri
+      navigationShouldNotBeVisibleIn(doc)
+    }
+
+    "not show navigation for paye user" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(payeUser)(FakeRequest())
+      status(result) shouldBe 400
+      val doc = Jsoup.parse(contentAsString(result))
+      formActionIn(doc) shouldBe authenticatedSubmitUri
+      navigationShouldNotBeVisibleIn(doc)
+    }
+
+  }
+
+  "Errors on the feedback form" should {
+
+    "show when rating is not selected" in new FeedbackControllerApplication {
+      expectErrorFor(request(rating = ""), message = "Tell us what you think of the service.")
+    }
+
+    "show when rating is not selected at all" in new FeedbackControllerApplication {
+      expectErrorFor(
+        FakeRequest().withFormUrlEncodedBody(
+          "feedback-name" -> "name",
+          "feedback-email" -> "email@foo.com",
+          "feedback-comments" -> "unrateable",
+          "referer" -> "referer",
+          "isJavascript" -> "false"),
+        message = "Tell us what you think of the service."
+      )
+    }
+
+    "show when submitting invalid rating value" in new FeedbackControllerApplication {
+      expectErrorFor(request(rating = "dude, you suck."), message = "Please select a valid experience rating")
+    }
+
+    "show when name is empty" in new FeedbackControllerApplication {
+      expectErrorFor(request(name = ""), message = "Please provide your name.")
+    }
+
+    "show when name is too long" in new FeedbackControllerApplication {
+      expectErrorFor(request(name = stringOfLength(71)), message = "Your name cannot be longer than 70 characters")
+    }
+
+    "show when email is empty" in new FeedbackControllerApplication {
+      expectErrorFor(request(email = ""), message = "Enter a valid email address.")
+    }
+
+    "show when email is too long" in new FeedbackControllerApplication {
+      expectErrorFor(request(email = s"${stringOfLength(256)}@a.a"), message = "The email cannot be longer than 255 characters")
+    }
+
+    "show when email address is not valid" in new FeedbackControllerApplication {
+      expectErrorFor(request(email = "this is not an email address"), message = "Enter a valid email address.")
+    }
+
+    "show when email address is not valid for DeskPRO" in new FeedbackControllerApplication {
+      expectErrorFor(request(email = "a@a"), message = "Enter a valid email address.")
+    }
+
+    "show when comments are empty" in new FeedbackControllerApplication {
+      expectErrorFor(request(comments = ""), message = "Enter your comments.")
+    }
+
+    "show when comments are too verbose" in new FeedbackControllerApplication {
+      expectErrorFor(request(comments = stringOfLength(2001)), message = "The comment cannot be longer than 2000 characters")
+    }
+  }
+
+
+  "The confirmation page" should {
+    "render" in new FeedbackControllerApplication {
+      when(ticketCache.popTicket(meq("FeedbackForm"))(any[HeaderCarrier])).thenReturn(Future.successful("321"))
+      val result = controller.doThanks(someUser, request())
+      val page = Jsoup.parse(contentAsString(result))
+
+      status(result) shouldBe 200
+      contentAsString(result) should include("Your feedback has been received")
+      page.getElementById("ticketId").attr("value") shouldBe "321"
     }
   }
 }
@@ -203,16 +247,30 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
     }
   }
 
-  val controller = new FeedbackController(mock[AuditConnector], deskProConnector, ticketCache)(mock[AuthConnector])
+  val prefsConnector = mock[PreferencesConnector]
 
-  val userPaye = {
+  val controller = new FeedbackController(mock[AuditConnector], deskProConnector, ticketCache, prefsConnector)(mock[AuthConnector])
+
+  val payeUser = {
     val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
     Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root))))
   }
 
-  val ctRoot = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))
-  val user = Some(User(userId = "userId", userAuthority = ctAuthority("userId", "ct-utr"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(ct = ctRoot), decryptedToken = None))
+  val user = User(
+    userId = "userId", 
+    userAuthority = ctAuthority("userId", "ct-utr"), 
+    nameFromGovernmentGateway = Some("Ciccio"),
+    regimes = RegimeRoots(ct = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))),
+    decryptedToken = None)
+  val someUser = Some(user)
 
+  val nonSaUser = user
+  val saUser = User(
+    userId = "userId",
+    userAuthority = saAuthority("userId", "sa-utr"),
+    nameFromGovernmentGateway = Some("Ciccio"),
+    regimes = RegimeRoots(sa = Some(SaRoot(SaUtr("sa-utr"), Map.empty[String, String]))),
+    decryptedToken = None)
 
   def request(rating: String = "3",
               name: String = "Tom Smith",
@@ -230,5 +288,26 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
   def formContainsError(result: Future[SimpleResult], error: String) {
     val doc = Jsoup.parse(contentAsString(result))
     doc.getElementById("feedback-form").text() should include(error)
+  }
+
+  val authenticatedSubmitUri = "/beta-feedback/submit"
+  val unauthenticatedSubmitUri = "/beta-feedback/submit-unauthenticated"
+
+  def whenUserPrefsAre(prefs: Option[SaPreference]) = when(prefsConnector.getPreferences(meq(saUser.getSa.utr))(any())).thenReturn(Future.successful(prefs))
+
+  def formActionIn(doc: Document): String = doc.getElementById("feedback-form").attr("action")
+  
+  def navigationShouldBeVisibleIn(doc: Document) {
+    doc.getElementById("proposition-menu").attr("role") shouldBe "navigation"
+  }
+
+  def navigationShouldNotBeVisibleIn(doc: Document) {
+    doc.getElementById("proposition-menu") shouldBe null
+  }
+
+  def expectErrorFor(request: Request[AnyRef], message: String) {
+    val result = controller.doSubmit(someUser)(request)
+    status(result) shouldBe 400
+    formContainsError(result, message)
   }
 }

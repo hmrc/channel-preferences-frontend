@@ -30,7 +30,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   }
 
   private[bt] def businessTaxHomepage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    user.regimes.sa.map(_ => capturePrintPreferences(user.getSa.utr)).getOrElse(renderHomePage)
+    user.regimes.sa.map(sa => capturePrintPreferences(sa.utr)).getOrElse(renderHomePage)
   }
 
   private[bt] def renderHomePage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {

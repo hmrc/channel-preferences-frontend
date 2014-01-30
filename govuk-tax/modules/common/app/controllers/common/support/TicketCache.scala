@@ -14,19 +14,17 @@ class TicketCache(keyStoreConnector: KeyStoreConnector = Connectors.keyStoreConn
   val source: String = "tickets"
   val ticketKey: String = "ticketId"
 
-  def stashTicket(ticket: Option[TicketId], formId: String)(implicit hc: HeaderCarrier) = {
-    ticket.map{ t =>
-      keyStoreConnector.addKeyStoreEntry[Map[String, String]](actionId, source, formId, Map(ticketKey -> t.ticket_id.toString)).map(_ => "stored")
+  def stashTicket(ticket: Option[TicketId], formId: String)(implicit hc: HeaderCarrier) =
+    ticket.map {
+      t =>
+        keyStoreConnector.addKeyStoreEntry[Map[String, String]](actionId, source, formId, Map(ticketKey -> t.ticket_id.toString)).map(_ => "stored")
     }.getOrElse(Future.successful("ignored"))
-  }
 
-  def popTicket(formId: String)(implicit hc: HeaderCarrier) = {
+  def popTicket(formId: String)(implicit hc: HeaderCarrier) =
     keyStoreConnector.getEntry[Map[String, String]](actionId, source, formId).map {
       keyStoreData =>
         keyStoreData.flatMap(_.get(ticketKey)).getOrElse("Unknown")
-
     }
-  }
 }
 
 object TicketCache {
