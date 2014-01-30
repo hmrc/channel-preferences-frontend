@@ -14,9 +14,13 @@
             @Html(Messages("paye.replace_benefit_confirmation.new_tax_code", s"""<span id="new-tax-code">${newTaxCode.get}</span>"""))
         }
     </p>
-
     <p>@Messages("paye.replace_benefit_confirmation.confirmation")</p>
 
+     @if(showQuestionnaire) {
+        @includes.end_of_journey_questionnaire(transactionId, ReplaceCar, oldTaxCode, newTaxCode)
+     }
+
+    <h2>@Messages("paye.replace_benefit_confirmation.more_info")</h2>
     <p>@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}",
         Messages("paye.replace_benefit_confirmation.updated_info"))</p>
     <p>@Html(Messages("paye.replace_benefit_confirmation.tax_codes_info",
@@ -27,7 +31,4 @@
             Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_url"),
             Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_text"), true)))</p>
 
-     @if(showQuestionnaire) {
-        @includes.end_of_journey_questionnaire(transactionId, ReplaceCar, oldTaxCode, newTaxCode)
-     }
 }
