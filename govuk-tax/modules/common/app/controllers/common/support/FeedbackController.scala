@@ -3,7 +3,7 @@ package controllers.common.support
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.mvc.Request
+import play.api.mvc.{SimpleResult, Request}
 
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
@@ -102,22 +102,26 @@ class FeedbackController(override val auditConnector: AuditConnector,
   private[common] def unauthenticatedFeedback(implicit request: Request[AnyRef]) = feedbackView(user = None, emptyForm).map(Ok(_))
 
   private def feedbackView(user: Option[User], form: Form[FeedbackForm])(implicit request: Request[AnyRef]) = {
-    val prefs = user.map(_.regimes) match {
+    checkPreferencesAvailable(user,request).map { hasPreferences => views.html.support.feedback(form, user, hasPreferences)}
+  }
+
+  private[common] def doThanks(implicit user: Option[User], request: Request[AnyRef]) : Future[SimpleResult] = {
+    ticketCache.popTicket(formId).flatMap {
+      ticketId =>
+        checkPreferencesAvailable.map { hasPreferences => views.html.support.feedback_confirmation(ticketId, user, hasPreferences)}
+    }.map(Ok(_))
+  }
+
+  private def checkPreferencesAvailable(implicit user: Option[User], request: Request[AnyRef]) : Future[Boolean] = {
+    implicit val hc = HeaderCarrier(request)
+
+    user.map(_.regimes) match {
       case Some(RegimeRoots(_, Some(sa: SaRoot), _, _, _)) =>
         preferencesConnector.getPreferences(sa.utr).map(_.isDefined)
       case Some(regimeRoots) if regimeRoots.hasBusinessTaxRegime =>
         Future.successful(true)
       case _ =>
         Future.successful(false)
-    }
-
-    prefs.map { hasPreferences => views.html.support.feedback(form, user, hasPreferences)}
-  }
-
-  private[common] def doThanks(implicit user: Option[User], request: Request[AnyRef]) = {
-    implicit val hc = HeaderCarrier(request)
-    ticketCache.popTicket(formId).map {
-      ticketId => Ok(views.html.support.feedback_confirmation(ticketId, user)(request))
     }
   }
 
