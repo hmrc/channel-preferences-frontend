@@ -1,7 +1,7 @@
 package controllers.common.actions
 
 import controllers.common.{SessionKeys, HeaderNames}
-import play.api.mvc.Request
+import play.api.mvc.RequestHeader
 import scala.util.Try
 
 trait LoggingDetails {
@@ -55,7 +55,7 @@ case class HeaderCarrier(userId: Option[String] = None,
 object HeaderCarrier {
   val names = HeaderNames
 
-  def apply(request: Request[_]) = {
+  def apply(request: RequestHeader) = {
     val userId = request.session.get(SessionKeys.userId)
     val token = request.session.get(SessionKeys.token)
     val forwardedFor = request.headers.get(names.xForwardedFor)

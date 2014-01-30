@@ -14,8 +14,13 @@ import scala.Some
 import play.api.i18n.Messages
 import uk.gov.hmrc.common.filters.{CacheControlFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter}
 import uk.gov.hmrc.common.crypto.ApplicationCrypto
+import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import org.json4s.ext._Interval
 
 object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter, CSRFFilter(), CacheControlFilter) {
+
+  import controllers.common.service.Connectors._
 
   override def onStart(app: Application) {
     val env = app.mode
@@ -53,26 +58,62 @@ object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRF
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
-    Future.successful(InternalServerError(
-      views.html.global_error(Messages("global.error.InternalServerError500.title"),
+    implicit val hc = HeaderCarrier(request)
+    Future.successful {
+      auditConnector.audit(createAuditEvent("ServerInternalError", "Unexpected error", request, hc, Option(ex.getMessage)))
+      InternalServerError(views.html.global_error(Messages("global.error.InternalServerError500.title"),
         Messages("global.error.InternalServerError500.heading"),
         Messages("global.error.InternalServerError500.message"))
-    ))
+      )
+    }
   }
 
   override def onHandlerNotFound(request: RequestHeader) = {
-    Future.successful(NotFound(
-      views.html.global_error(Messages("global.error.pageNotFound404.title"),
+    implicit val hc = HeaderCarrier(request)
+    Future.successful {
+      auditConnector.audit(createAuditEvent("ServerValidationError", "Resource Endpoint Not Found", request, hc))
+      NotFound(views.html.global_error(Messages("global.error.pageNotFound404.title"),
         Messages("global.error.pageNotFound404.heading"),
         Messages("global.error.pageNotFound404.message"))
-    ))
+      )
+    }
   }
 
   override def onBadRequest(request: RequestHeader, error: String) = {
-    Future.successful(BadRequest(
-      views.html.global_error(Messages("global.error.badRequest400.title"),
-        Messages("global.error.badRequest400.heading"),
-        Messages("global.error.badRequest400.message"))
-    ))
+    implicit val hc = HeaderCarrier(request)
+    Future.successful {
+      auditConnector.audit(createAuditEvent("ServerValidationError", "Request bad format exception", request, hc))
+      BadRequest(
+        views.html.global_error(Messages("global.error.badRequest400.title"),
+          Messages("global.error.badRequest400.heading"),
+          Messages("global.error.badRequest400.message"))
+      )
+    }
+  }
+
+  private def createAuditEvent(eventType: String, transactionName: String, request: RequestHeader, hc: HeaderCarrier, errorMessage: Option[String] = None) = {
+    val (details, tags) = buildAuditData(request: RequestHeader, hc: HeaderCarrier, transactionName: String)
+    val errorMap = errorMessage.map(message =>  Map("transactionFailureReason" -> message)).getOrElse(Map())
+    AuditEvent(auditType = eventType,
+      detail = details ++ errorMap,
+      tags = tags)
+  }
+
+  private def buildAuditData(request: RequestHeader, hc: HeaderCarrier, transactionName: String) = {
+    val details = Map[String, String](
+      "input" -> s"Request to ${request.path}",
+      "ipAddress" -> hc.forwarded.getOrElse("-"),
+      "method" -> request.method.toUpperCase,
+      "userAgentString" -> request.headers.get("User-Agent").getOrElse("-"),
+      "referrer" -> request.headers.get("Referer").getOrElse("-"))
+
+    val tags = Map[String, String](
+      "X-Request-ID" -> hc.requestId.getOrElse("-"),
+      "X-Session-ID" -> hc.sessionId.getOrElse("-"),
+      "transactionName" -> transactionName,
+      "path" -> request.path
+    )
+
+    (details, tags)
   }
 }

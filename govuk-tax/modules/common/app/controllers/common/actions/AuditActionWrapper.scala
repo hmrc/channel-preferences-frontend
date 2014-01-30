@@ -44,7 +44,6 @@ class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConn
               case _ => result
             }
           },
-          // FIXME - we need to audit failed actions
           throwable => throwable
         )
       }
