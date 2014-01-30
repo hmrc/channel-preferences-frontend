@@ -57,7 +57,7 @@ class AuthorisedForGovernmentGatewayActionSpec
       SaJsonRoot(Map("link1" -> "http://somelink/1"))
     )
 
-    when(authConnector.authority("/auth/oid/gfisher")).thenReturn(Some(saAuthority("gfisher", "3333333333")))
+    when(authConnector.currentAuthority).thenReturn(Some(saAuthority("gfisher", "3333333333")))
 //
 //    when(authConnector.authority("/auth/oid/lottyRegimes")).thenReturn(
 //      Some(UserAuthority("/auth/oid/lottyRegimes",
@@ -98,7 +98,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     }
 
     "return internal server error page if the AuthConnector throws an exception" ignore new WithApplication(FakeApplication()) {
-      when(authConnector.authority("/auth/oid/gfisher")).thenThrow(new RuntimeException("TEST"))
+      when(authConnector.currentAuthority).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.test(FakeRequest().withSession(
         SessionKeys.sessionId -> s"session-${UUID.randomUUID}",
@@ -111,7 +111,7 @@ class AuthorisedForGovernmentGatewayActionSpec
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
-      when(authConnector.authority("/auth/oid/bob")).thenReturn(Some(payeAuthority("bob","12345678")))
+      when(authConnector.currentAuthority).thenReturn(Some(payeAuthority("bob","12345678")))
       val result = testController.testAuthorisation(FakeRequest().withSession(
         SessionKeys.sessionId -> s"session-${UUID.randomUUID}",
         SessionKeys.lastRequestTimestamp -> now().getMillis.toString,

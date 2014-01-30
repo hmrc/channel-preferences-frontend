@@ -39,7 +39,7 @@ trait UserActionWrapper
   PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
     case UserCredentials(Some(userId), tokenOption) =>
       implicit val hc = HeaderCarrier(request)
-      val authority = authConnector.authority(userId)
+      val authority = authConnector.currentAuthority
       Logger.debug(s"Received user authority: $authority")
 
       authority.flatMap {

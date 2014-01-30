@@ -29,7 +29,7 @@ trait NonBusinessTaxRequest extends NonBusinessUserFixture with MockitoSugar {
 
   val mockAuthConnector = mock[AuthConnector]
 
-  when(mockAuthConnector.authority(userId)(HeaderCarrier())).thenReturn(Future.successful(Some(userAuthority)))
+  when(mockAuthConnector.currentAuthority(HeaderCarrier())).thenReturn(Future.successful(Some(userAuthority)))
 
   def request = {
 

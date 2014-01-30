@@ -4,21 +4,38 @@ import uk.gov.hmrc.common.microservice.{MicroServiceException, Connector, MicroS
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
-import controllers.common.BearerToken
+import controllers.common.{AuthExchangeResponse, AuthToken}
 
 class AuthConnector(override val serviceUrl: String = MicroServiceConfig.authServiceUrl) extends Connector {
 
-  def authority(path: String)(implicit hc: HeaderCarrier) = httpGetF[Authority](path)
+  def currentAuthority(implicit hc: HeaderCarrier) = httpGetF[Authority](s"/auth/authority")
 
-  def loginWithPid(pid: String)(implicit hc: HeaderCarrier): Future[Option[Authority]] = httpPostF[Authority, Nothing](s"/auth/pid/$pid", None)
+  //def loginWithPid(pid: String)(implicit hc: HeaderCarrier): Future[Option[Authority]] = httpPostF[Authority, Nothing](s"/auth/pid/$pid", None)
 
 //  def exchangePid(pid: String)(implicit hc: HeaderCarrier): Future[Option[String]] = httpPostF[String, Nothing](s"/auth/pid/$pid/exchange", None)
 
-  def exchangeCredIdForBearerToken(credId: String)(implicit hc: HeaderCarrier): Future[BearerToken] = {
-    httpPostF[BearerToken, Nothing](s"/auth/cred-id/$credId/exchange", None).map {
-      case Some(bearerToken) => bearerToken
-      case None => throw new RuntimeException(s"No Content or Not Found response when exchanging credId for bearer token")
+  /**
+   * This does not update login time (it was already updated
+   * (both in the Tax Platform and the Portal) in the Government Gateway Microservice)
+   */
+  def exchangeCredIdForBearerToken(credId: String)(implicit hc: HeaderCarrier): Future[AuthExchangeResponse] = {
+    httpPostF[AuthExchangeResponse, Nothing](s"/auth/cred-id/$credId/exchange", None).map {
+      case Some(authExchangeResponse) => authExchangeResponse
+      case None => throw AuthTokenExchangeException("credId")
+    }
+  }
+
+  /**
+   * This does not update login time (it was already updated
+   * (both in the Tax Platform and the Portal) in the Government Gateway Microservice)
+   */
+  def exchangePidForBearerToken(pid: String)(implicit hc: HeaderCarrier): Future[AuthExchangeResponse] = {
+    httpPostF[AuthExchangeResponse, Nothing](s"/auth/pid/$pid/exchange", None).map {
+      case Some(authExchangeResponse) => authExchangeResponse
+      case None => throw AuthTokenExchangeException("pid")
     }
   }
 
 }
+
+case class AuthTokenExchangeException(idType: String) extends RuntimeException(s"Unable to exchange $idType for an AuthToken")

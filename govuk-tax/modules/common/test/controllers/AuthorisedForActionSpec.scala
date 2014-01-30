@@ -51,7 +51,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
         actions = Map("calculateBenefitValue" -> "/calculation/paye/benefit/new/value-calculation")
       )
     )
-    when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenReturn(Some(payeAuthority("jdensmore", "AB123456C")))
+    when(mockAuthConnector.currentAuthority).thenReturn(Some(payeAuthority("jdensmore", "AB123456C")))
   }
 
   "basic homepage test" should {
@@ -69,7 +69,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
 
   "AuthorisedForIdaAction" should {
     "return redirect to login if no Authority is returned from the Auth service" in new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority(Matchers.eq("/auth/oid/jdensmore"))(Matchers.any[HeaderCarrier])).thenReturn(None)
+      when(mockAuthConnector.currentAuthority(Matchers.any[HeaderCarrier])).thenReturn(None)
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         SessionKeys.sessionId -> s"session-${UUID.randomUUID().toString}",
@@ -93,7 +93,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
     }
 
     "return internal server error page if the AuthConnector throws an exception" ignore new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/jdensmore")).thenThrow(new RuntimeException("TEST"))
+      when(mockAuthConnector.currentAuthority).thenThrow(new RuntimeException("TEST"))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         SessionKeys.sessionId -> s"session-${UUID.randomUUID().toString}",
@@ -106,7 +106,7 @@ class AuthorisedForActionSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to the Tax Regime landing page if the user is logged in but not authorised for the requested Tax Regime" ignore new WithApplication(FakeApplication()) {
-      when(mockAuthConnector.authority("/auth/oid/john")).thenReturn(Some(saAuthority("john", "12345678")))
+      when(mockAuthConnector.currentAuthority).thenReturn(Some(saAuthority("john", "12345678")))
 
       val result = testController.testPayeAuthorisation(FakeRequest().withSession(
         SessionKeys.sessionId -> s"session-${UUID.randomUUID}",

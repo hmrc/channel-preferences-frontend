@@ -50,7 +50,7 @@ trait BusinessTaxRequest extends BusinessUserFixture with MockitoSugar {
 
   implicit val hc = HeaderCarrier()
 
-  when(mockAuthConnector.authority(userId)).thenReturn(Future.successful(Some(authority)))
+  when(mockAuthConnector.currentAuthority).thenReturn(Future.successful(Some(authority)))
 
   saRootLink.map(link => when(mockSaConnector.root(link.toString)).thenReturn(Future.successful(saJsonRoot.get)))
   vatRootLink.map(link => when(mockVatConnector.root(link.toString)).thenReturn(Future.successful(vatJsonRoot.get)))
