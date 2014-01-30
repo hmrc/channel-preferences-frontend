@@ -732,7 +732,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         is("paye"),
         is("AddCarBenefitForm"),
         is(false))(any(), any())).thenReturn(Some(carBenefitData))
-      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
+      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(WriteBenefitResponse(transaction = TransactionId("aTransactionId"), taxCode = Some("bla2"), allowance = Some(123))))
 
       val result = controller.confirmAddingBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
@@ -747,7 +747,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         is("paye"),
         is("AddCarBenefitForm"),
         is(false))(any(), any())).thenReturn(Some(carBenefitData))
-      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
+      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(WriteBenefitResponse(transaction = TransactionId("aTransactionId"), taxCode = Some("bla2"), allowance = Some(123))))
       val result = controller.confirmAddingBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
 
@@ -768,7 +768,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       )
       val fuelBenefitGrossAmount = None
 
-      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
+      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(WriteBenefitResponse(transaction = TransactionId("aTransactionId"), taxCode = Some("bla2"), allowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitData](
         is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)),
         is("paye"),
@@ -825,7 +825,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       )
       val fuelBenefitGrossAmount = None
 
-      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
+      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(WriteBenefitResponse(transaction = TransactionId("aTransactionId"), taxCode = Some("bla2"), allowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitData](
         is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)),
         is("paye"),
@@ -883,7 +883,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))
       )
 
-      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("bla2"), netCodedAllowance = Some(123))))
+      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(WriteBenefitResponse(transaction = TransactionId("aTransactionId"), taxCode = Some("bla2"), allowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitData](
         is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)),
         is("paye"),
@@ -958,7 +958,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))
       )
 
-      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(AddBenefitResponse(transaction = TransactionId("aTransactionId"), newTaxCode = Some("aNewTaxCoe"), netCodedAllowance = Some(123))))
+      when(mockPayeConnector.addBenefits(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Some(WriteBenefitResponse(transaction = TransactionId("aTransactionId"), taxCode = Some("aNewTaxCoe"), allowance = Some(123))))
       when(mockKeyStoreService.getEntry[CarBenefitData](
         is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)),
         is("paye"),

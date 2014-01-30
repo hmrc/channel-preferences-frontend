@@ -30,7 +30,6 @@ import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
-import uk.gov.hmrc.common.microservice.paye.domain.RemoveBenefitResponse
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.common.microservice.paye.domain.WithdrawnBenefitRequest
@@ -453,7 +452,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "in step 2, request removal for both fuel and car benefit when both benefits are selected and user confirms" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      when(mockPayeConnector.removeBenefits(any[String], any[WithdrawnBenefitRequest])(any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), Some("123L"), Some(9999))))
+      when(mockPayeConnector.removeBenefits(any[String], any[WithdrawnBenefitRequest])(any())).thenReturn(Some(WriteBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), Some("123L"), Some(9999))))
 
       val withdrawDate = new LocalDate(testTaxYear, 7, 18)
       val revisedAmounts = Map(carBenefit.benefitType.toString -> BigDecimal(210.17), fuelBenefit.benefitType.toString -> BigDecimal(14.1))
@@ -493,7 +492,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "in step 3, do not display information about new tax code nor personal allowance if they are not available" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits.map(_.copy(employmentSequenceNumber = 2)))
 
-      when(mockPayeConnector.removeBenefits(any[String], any[WithdrawnBenefitRequest])(any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), None, Some(9999))))
+      when(mockPayeConnector.removeBenefits(any[String], any[WithdrawnBenefitRequest])(any())).thenReturn(Some(WriteBenefitResponse(TransactionId("someIdForCarAndFuelRemoval"), None, Some(9999))))
       
       val transaction = mock[TxQueueTransaction]
       when(mockTxQueueConnector.transaction(is("210"), any[PayeRoot])(any())).thenReturn(Some(transaction))
@@ -606,7 +605,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
     "in step 2 call the paye service to remove the benefit and render the success page" in new WithApplication(FakeApplication()) {
       setupMocksForJohnDensmore(johnDensmoresTaxCodes, johnDensmoresEmployments, johnDensmoresBenefits)
 
-      when(mockPayeConnector.removeBenefits(any[String], any[WithdrawnBenefitRequest])(any())).thenReturn(Some(RemoveBenefitResponse(TransactionId("someId"), Some("123L"), Some(9999))))
+      when(mockPayeConnector.removeBenefits(any[String], any[WithdrawnBenefitRequest])(any())).thenReturn(Some(WriteBenefitResponse(TransactionId("someId"), Some("123L"), Some(9999))))
 
       val withdrawDate = new LocalDate(testTaxYear, 7, 18)
       when(mockKeyStoreService.getEntry[RemoveFuelBenefitFormData](

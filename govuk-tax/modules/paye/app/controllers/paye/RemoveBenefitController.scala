@@ -151,7 +151,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
 
       payeConnector.removeBenefits(uri, withdrawRequest).map(_.get).flatMap { removeBenefitResponse =>
         val benefitTypes = Seq("car") ++ activeCarBenefit.fuelBenefit.map(_=> "fuel")
-        renderRemoveBenefitConfirmation(benefitTypes, taxYear, employmentSequenceNumber, removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.transaction)
+        renderRemoveBenefitConfirmation(benefitTypes, taxYear, employmentSequenceNumber, removeBenefitResponse.taxCode, removeBenefitResponse.transaction)
       }
     }
 
@@ -192,7 +192,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
         version =>
           val withdrawRequest = WithdrawnBenefitRequest(version, None, Some(withdrawnFuelBenefit))
           payeConnector.removeBenefits(uri, withdrawRequest).map(_.get).flatMap { removeBenefitResponse =>
-            renderRemoveBenefitConfirmation(Seq("fuel"), taxYear, employmentSequenceNumber, removeBenefitResponse.calculatedTaxCode, removeBenefitResponse.transaction)
+            renderRemoveBenefitConfirmation(Seq("fuel"), taxYear, employmentSequenceNumber, removeBenefitResponse.taxCode, removeBenefitResponse.transaction)
           }
       }
     }

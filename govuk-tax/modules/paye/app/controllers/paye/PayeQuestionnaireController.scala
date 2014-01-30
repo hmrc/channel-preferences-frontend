@@ -14,7 +14,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
+import uk.gov.hmrc.common.microservice.paye.domain.WriteBenefitResponse
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
 import scala.concurrent.Future
 
@@ -72,8 +72,8 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
     if (!allParamsAreDefined)
       Redirect(routes.PayeHomeController.home(None))
     else {
-      val addBenefitResponse = AddBenefitResponse(TransactionId(transactionId), newTaxCode, None)
-      val benefitUpdatedConfirmationData = buildBenefitUpdatedConfirmationData(oldTaxCode.get, addBenefitResponse)
+      val writeBenefitResponse = WriteBenefitResponse(TransactionId(transactionId), newTaxCode, None)
+      val benefitUpdatedConfirmationData = buildBenefitUpdatedConfirmationData(oldTaxCode.get, writeBenefitResponse)
       try {
         toJourneyType(journeyType.get) match {
           case jType@(AddCar | AddFuel) => Ok(add_car_benefit_confirmation(benefitUpdatedConfirmationData, jType, showQuestionnaire = false))

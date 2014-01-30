@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
+import uk.gov.hmrc.common.microservice.paye.domain.WriteBenefitResponse
 import org.joda.time.chrono.ISOChronology
 import controllers.common.actions.HeaderCarrier
 import org.scalatest.concurrent.ScalaFutures
@@ -35,13 +35,13 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
 
       val capturedBody = ArgumentCaptor.forClass(classOf[AddBenefit])
 
-      when(service.httpWrapper.postF[AddBenefitResponse, AddBenefit](Matchers.eq(uri), capturedBody.capture, Matchers.any())).
-        thenReturn(Some(AddBenefitResponse(TransactionId("24242t"), Some("456TR"), Some(12345))))
+      when(service.httpWrapper.postF[WriteBenefitResponse, AddBenefit](Matchers.eq(uri), capturedBody.capture, Matchers.any())).
+        thenReturn(Some(WriteBenefitResponse(TransactionId("24242t"), Some("456TR"), Some(12345))))
 
       val response = service.addBenefits(uri, version, employmentSeqNumber, carBenefit.toBenefits)
 
-      response.get.newTaxCode shouldBe Some("456TR")
-      response.get.netCodedAllowance shouldBe Some(12345)
+      response.get.taxCode shouldBe Some("456TR")
+      response.get.allowance shouldBe Some(12345)
 
       val capturedAddBenefit: AddBenefit = capturedBody.getValue
       capturedAddBenefit shouldBe AddBenefit(version, employmentSeqNumber, carBenefit.toBenefits)

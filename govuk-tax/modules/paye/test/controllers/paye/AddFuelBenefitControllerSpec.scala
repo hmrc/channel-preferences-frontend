@@ -21,7 +21,6 @@ import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
 import uk.gov.hmrc.common.microservice.paye.domain.TransactionId
-import uk.gov.hmrc.common.microservice.paye.domain.AddBenefitResponse
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
 import org.scalatest.concurrent.ScalaFutures
 import controllers.common.SessionKeys
@@ -338,8 +337,8 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         is("AddFuelBenefitForm"),
         is(false))(any(), any())).thenReturn(Some((fuelBenefitData)))
       val benefitsCapture = ArgumentCaptor.forClass(classOf[Seq[Benefit]])
-      val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
-      when(mockPayeConnector.addBenefits(Matchers.eq(s"/paye/AB123456C/benefits/$testTaxYear"), Matchers.eq(johnDensmoreVersionNumber), Matchers.eq(employmentSeqNumberOne), benefitsCaptor.capture())(Matchers.any())).thenReturn(Some(addBenefitResponse))
+      val writeBenefitResponse = WriteBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
+      when(mockPayeConnector.addBenefits(Matchers.eq(s"/paye/AB123456C/benefits/$testTaxYear"), Matchers.eq(johnDensmoreVersionNumber), Matchers.eq(employmentSeqNumberOne), benefitsCaptor.capture())(Matchers.any())).thenReturn(Some(writeBenefitResponse))
 
       val resultF = controller.confirmAddFuelBenefitAction(johnDensmore, requestWithCorrectVersion, testTaxYear, employmentSeqNumberOne)
 
@@ -393,7 +392,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         is("AddFuelBenefitForm"),
         is(false))(any(), any())).thenReturn(Some((fuelBenefitData)))
 
-      val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
+      val addBenefitResponse = WriteBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
       when(mockPayeConnector.addBenefits(Matchers.eq("/paye/AB123456C/benefits/2012"), Matchers.eq(johnDensmoreVersionNumber), Matchers.eq(employmentSeqNumberOne), Matchers.any(classOf[Seq[Benefit]]))(Matchers.any())).thenReturn(Some(addBenefitResponse))
 
       val actualMessage = (evaluating {
@@ -416,7 +415,7 @@ class AddFuelBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wi
         is("AddFuelBenefitForm"),
         is(false))(any(), any())).thenReturn(Some((fuelBenefitData)))
 
-      val addBenefitResponse = AddBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
+      val writeBenefitResponse = WriteBenefitResponse(TransactionId("anOid"), Some("newTaxCode"), Some(5))
 
       when(mockPayeConnector.addBenefits(Matchers.eq(s"/paye/AB123456C/benefits/$testTaxYear"), Matchers.eq(johnDensmoreVersionNumber), Matchers.eq(employmentSeqNumberOne), Matchers.any(classOf[Seq[Benefit]]))(Matchers.any())).thenThrow(new RuntimeException("Timeout!"))
 
