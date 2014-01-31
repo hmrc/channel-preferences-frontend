@@ -3,13 +3,13 @@
 @import views.helpers.CustomHelpers._
 @import helper._
 
-@main(title = "Sign up for email reminders", user = Some(user)) {
+@main(title = "Sign up for Self Assessment email reminders", user = Some(user)) {
 
     <header class="page-header">
         <h1>@Messages("sa.heading.signup.emailreminders")</h1>
     </header>
 
-    <p>You can soon get Self Assessment email reminders when:</p>
+    <p>@Messages("sa_printing_preference.paragraph.1")</p>
     <ul class="bullets">
         <li>@Messages("sa_printing_preference.list.1.item.1")</li>
         <li>@Messages("sa_printing_preference.list.1.item.2")</li>
@@ -44,17 +44,17 @@
         '_inputClass -> "input--medium input--cleared"
     )
 
-    <p class="form-field">By signing up to email reminders you accept the <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">terms and conditions</a>.</p>
+    <p class="form-field">@Messages("sa_printing_preference.paragraph.6.start")&nbsp;<a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">@Messages("sa_printing_preference.paragraph.6.linkText")</a>.</p>
 
 	<div class="form-field">
-            <button id="submitEmailButton" class="button" type="submit">Switch to Self Assessment email reminders</button>
+            <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
 	</div>
 
     }
 
     @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm, 'id -> "form-submit-keep-paper") {
 	<div class="form-field">
-        <input id="keep-paper-link" class="input--link" type="submit" value="Continue to receive letters" />
+        <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
     </div>
     }
 
