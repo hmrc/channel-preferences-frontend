@@ -8,14 +8,15 @@
         <h2>Thank you</h2>
    </header>
 
-    <p>You must verify your email address to activate this service.</p>
+    <p>@Messages("sa_printing_preference_confirm.paragraph.1")</p>
 
-    <p>You’ve been sent an email telling you how to do this.</p>
+    <p>@Messages("sa_printing_preference_confirm.paragraph.2")</p>
 
-    <p>HM Revenue & Customs will never put personal information in an email.</p>
+    <p>@Messages("sa_printing_preference_confirm.paragraph.3.line.1")</p>
 
-    <p>Always go to GOV.UK to sign in to your account.</p>
+    <p>@Messages("sa_printing_preference_confirm.paragraph.3.line.2")</p>
 
-    <p>@helpers.link(Some("sa-home-link"), controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account", false, false, Some("button"))</p>
+    <p>@helpers.link(Some("sa-home-link"), controllers.bt.routes.BusinessTaxController.home.url, Messages("sa_printing_preference_confirm.linkText"), false, false, Some("button"))</p>
+
 
 }

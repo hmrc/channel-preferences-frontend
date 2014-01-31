@@ -3,26 +3,26 @@
 @import views.helpers.CustomHelpers._
 @import helper._
 
-@main(title = "Sign up for email reminders", user = Some(user)) {
+@main(title = "Sign up for Self Assessment email reminders", user = Some(user)) {
 
     <header class="page-header">
         <h1>@Messages("sa.heading.signup.emailreminders")</h1>
     </header>
 
-    <p>You can soon get Self Assessment email reminders when:</p>
+    <p>@Messages("sa_printing_preference.paragraph.1")</p>
     <ul class="bullets">
-        <li>Self Assessment tax returns are due</li>
-        <li>payments are due for Self Assessment</li>
-        <li>new tax statements are online</li>
+        <li>@Messages("sa_printing_preference.list.1.item.1")</li>
+        <li>@Messages("sa_printing_preference.list.1.item.2")</li>
+        <li>@Messages("sa_printing_preference.list.1.item.3")</li>
     </ul>
-    <p>Email reminders will replace letters you currently get about Self Assessment from HMRC.</p>
+    <p>@Messages("sa_printing_preference.paragraph.2")</p>
 
     <h2>What’s in the email</h2>
-    <p>The reminders will ask you to log into your online tax account and check for updates.</p>
+    <p>@Messages("sa_printing_preference.paragraph.3")</p>
 
-    <p>They’re secure and will never include any information about your personal tax affairs.</p>
+    <p>@Messages("sa_printing_preference.paragraph.4")</p>
 
-    <p>Enter your email address to sign up for email reminders.</p>
+    <p>@Messages("sa_printing_preference.paragraph.5")</p>
 
     @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm, 'id -> "form-submit-preferences-email") {
 
@@ -44,17 +44,17 @@
         '_inputClass -> "input--medium input--cleared"
     )
 
-    <p class="form-field">By signing up to email reminders you accept the <a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">terms and conditions</a>.</p>
+    <p class="form-field">@Messages("sa_printing_preference.paragraph.6.start")&nbsp;<a href="@controllers.common.routes.CommonController.termsAndConditions()" target="_blank">@Messages("sa_printing_preference.paragraph.6.linkText")</a>.</p>
 
 	<div class="form-field">
-            <button id="submitEmailButton" class="button" type="submit">Switch to Self Assessment email reminders</button>
+            <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
 	</div>
 
     }
 
     @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm, 'id -> "form-submit-keep-paper") {
 	<div class="form-field">
-        <input id="keep-paper-link" class="input--link" type="submit" value="Continue to receive letters" />
+        <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
     </div>
     }
 

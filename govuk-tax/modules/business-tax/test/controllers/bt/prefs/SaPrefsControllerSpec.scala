@@ -73,7 +73,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val page = Future.successful(controller.displayPrefsOnLoginFormAction(user, request))
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to receive letters"
+      document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to get letters"
     }
   }
 
