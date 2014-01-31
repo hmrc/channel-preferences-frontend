@@ -19,8 +19,5 @@
 @bodyEnd = {
 @_root_.views.html.includes.footer()
 }
-@footerLinks = {
 
-}
-
-@layouts.govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, footerLinks, nav)(content)
+@layouts.govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, None, nav)(content)

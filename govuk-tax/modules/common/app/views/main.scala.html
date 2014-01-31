@@ -1,4 +1,11 @@
-@(title: String, nav: Boolean = false, sidebarLinks: Option[Html] = None, user: Option[uk.gov.hmrc.common.microservice.domain.User] = None, supportLinkEnabled: Boolean = true, header:Option[Html] = None)(mainContent: Html)
+@(title: String,
+  nav: Boolean = false,
+  sidebarLinks: Option[Html] = None,
+  user: Option[uk.gov.hmrc.common.microservice.domain.User] = None,
+  supportLinkEnabled: Boolean = true,
+  header: Option[Html] = None,
+  footerLinks: Option[Html] = Some(includes.footer_links()))(
+ mainContent: Html)
 
 
 @head = {
@@ -18,9 +25,6 @@
 }
 @bodyEnd = {
 @includes.footer()
-}
-@footerLinks = {
-    @includes.footer_links()
 }
 
 @layouts.govuk_template(Some(title), None)(head, bodyEnd, insideHeader, afterHeader, footerTop, footerLinks, nav)(content)

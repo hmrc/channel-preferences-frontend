@@ -1,4 +1,13 @@
-@(title: Option[String], bodyClasses: Option[String])(head:Html, bodyEnd:Html, insideHeader:Html, afterHeader:Html, footerTop:Html, footerLinks:Html, nav: Boolean = false)(content:Html)
+@(title: Option[String], 
+  bodyClasses: Option[String])(
+ head: Html, 
+  bodyEnd: Html, 
+  insideHeader: Html, 
+  afterHeader: Html, 
+  footerTop: Html, 
+  footerLinks: Option[Html],
+  nav: Boolean = false)(
+ content: Html)
 @import template._
 <!DOCTYPE html>
 <!--[if lt IE 9]><html class="lte-ie8" lang="en"><![endif]-->
@@ -101,7 +110,7 @@
 
         <div class="footer-meta">
           <div class="footer-meta-inner">
-            @footerLinks
+            @footerLinks.getOrElse("")
 
             <div class="open-government-licence">
               <h2><a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2"><img src="@routes.Template.at("images/open-government-licence_2x.png")" alt="OGL"></a></h2>
