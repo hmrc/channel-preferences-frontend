@@ -46,14 +46,14 @@
            </p>
        }
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.bounced) {
-           <p id="bouncing-status-message">You are currently opted-in to Digital SA, but the last email we sent you was not deliverable, we received the following error:</p>
-           <p id="bounce-reason">@{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
-           <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
+
+           <p id="bouncing-status-message">You’ve signed up for email reminders but we need to verify your email address - <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
+           <p id="bounce-reason">We can’t do this because @{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
            <p>
            @helpers.link(
                Some("revalidate-email-link"),
                controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
-               "Change / re-validate your email address"
+               "Change your email address"
            )
            </p>
        }
