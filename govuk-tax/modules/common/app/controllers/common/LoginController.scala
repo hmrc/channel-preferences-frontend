@@ -136,12 +136,10 @@ class LoginController(samlConnector: SamlConnector,
 
     val updatedHC = hc.copy(requestId = originalRequestId, sessionId = Some(s"session-${UUID.randomUUID().toString}"))
 
-    val result = authConnector.exchangePidForBearerToken(hashPid)(updatedHC).map { authToken =>
+    authConnector.exchangePidForBearerToken(hashPid)(updatedHC).map { authToken =>
       redirectToPaye(hashPid, authToken, updatedHC)
-    }
-
-    result.recover {
-      case _: AuthTokenExchangeException => handleIdaLoginFailure(Some(hashPid), "Unknown IDA pid", originalRequestId)
+    } recover {
+      case _ : AuthTokenExchangeException => handleIdaLoginFailure(Some(hashPid), "No record found in Auth for the PID", originalRequestId)
     }
   }
   
