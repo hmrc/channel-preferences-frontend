@@ -414,7 +414,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       page.getElementById("confirm-opt-out") shouldNot be(null)
       page.getElementById("confirm-opt-out").text shouldBe "Stop your email reminders"
       page.getElementById("cancel-opt-out-link") shouldNot be(null)
-      page.getElementById("cancel-opt-out-link").text shouldBe "Never mind - I want to stay digital"
+      page.getElementById("cancel-opt-out-link").text shouldBe "Don’t stop your email reminders"
       page.text() should not include "test@test.com"
     }
 

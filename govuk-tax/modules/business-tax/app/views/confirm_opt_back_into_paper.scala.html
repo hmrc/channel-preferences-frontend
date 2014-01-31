@@ -9,7 +9,7 @@
     </header>
 
 <p>
-    Your Self Assessment reminders will be sent in the post if you stop the email reminders.
+    Your Self Assessment reminders will be sent in the post.
 </p>
 
 @helpers.form(action = controllers.bt.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
@@ -19,7 +19,7 @@
 }
 @helper.form(action = controllers.bt.routes.AccountDetailsController.accountDetails) {
     <div class="form-field">
-        @helpers.link(Some("cancel-opt-out-link"), controllers.bt.routes.AccountDetailsController.accountDetails.url, "Never mind - I want to stay digital")
+        @helpers.link(Some("cancel-opt-out-link"), controllers.bt.routes.AccountDetailsController.accountDetails.url, "Don’t stop your email reminders")
     </div>
 }
 }
