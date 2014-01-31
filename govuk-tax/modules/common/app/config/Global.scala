@@ -92,7 +92,7 @@ object Global extends WithFilters(MetricsFilter, SessionCookieCryptoFilter, CSRF
   }
 
   private def createAuditEvent(eventType: String, transactionName: String, request: RequestHeader, hc: HeaderCarrier, errorMessage: Option[String] = None) = {
-    val (details, tags) = buildAuditData(request: RequestHeader, hc: HeaderCarrier, transactionName: String)
+    val (details, tags) = buildAuditData(request, hc, transactionName)
     val errorMap = errorMessage.map(message =>  Map("transactionFailureReason" -> message)).getOrElse(Map())
     AuditEvent(auditType = eventType,
       detail = details ++ errorMap,
