@@ -3,17 +3,5 @@
 @import views.html.helper._
 @import views.helpers._
 @import play.api.templates.HtmlFormat
-@{
-    val link = CustomLink(id=id, url=url, newWindow=newWindow, sso=sso, cssClasses=cssClasses)
 
-    def escape(str: String) = HtmlFormat.escape(str).toString
-    def tag(name: String, value: String) = " " + name + "=\"" + escape(value) + "\""
-
-    val hrefTag = tag("href", url)
-    val idTag = id.map(tag("id", _)).getOrElse("")
-    val targetTag = if (newWindow) tag("target", "_blank") else tag("target", "_self")
-    val ssoTag = tag("data-sso", String.valueOf(sso))
-    val text = escape(Messages(value))
-    val cssTag = cssClasses.map(tag("class", _)).getOrElse("")
-    Html("<a" + idTag + hrefTag + targetTag + ssoTag + cssTag + ">" + text + "</a>")
-}
+@{ Link(id=id, url=url, value=Some(value), newWindow=newWindow, sso=sso, cssClasses=cssClasses).toHtml }
