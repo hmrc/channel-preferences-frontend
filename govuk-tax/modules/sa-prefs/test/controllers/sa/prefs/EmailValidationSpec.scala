@@ -63,7 +63,6 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       html shouldNot include("portalHomeLink/home")
       val page = Jsoup.parse(html)
       page.getElementsByTag("h2").first.text shouldBe "This verification link has expired"
-      page.getElementsByTag("p").text should include("out of date")
       verify(controller.preferencesMicroService).updateEmailValidationStatusUnsecured(meq(token))
     }
 
