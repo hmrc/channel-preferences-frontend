@@ -35,46 +35,19 @@ class FeedbackControllerSpec extends BaseSpec {
 
   "Rendering the feedback form" should {
 
-    "show navigation for authenticated non-sa biztax user" in new FeedbackControllerApplication {
-      val result = controller.authenticatedFeedback(nonSaUser, FakeRequest())
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      formActionIn(doc) shouldBe authenticatedSubmitUri
-      navigationShouldBeVisibleIn(doc)
-    }
-
-    "show navigation for authenticated sa biztax user with prefs" in new FeedbackControllerApplication {
-      whenUserPrefsAre(Some(mock[SaPreference]))
-
-      val result = controller.authenticatedFeedback(saUser, FakeRequest())
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      formActionIn(doc) shouldBe authenticatedSubmitUri
-      navigationShouldBeVisibleIn(doc)
-    }
-    
-    "not show navigation for authenticated sa biztax user without prefs" in new FeedbackControllerApplication {
-      whenUserPrefsAre(None)
-      val result = controller.authenticatedFeedback(saUser, FakeRequest())
+    "work for an authenticated user" in new FeedbackControllerApplication {
+      val result = controller.authenticatedFeedback(user, FakeRequest())
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       formActionIn(doc) shouldBe authenticatedSubmitUri
       navigationShouldNotBeVisibleIn(doc)
     }
 
-    "not show navigation for unauthenticated user" in new FeedbackControllerApplication {
+    "work for an unauthenticated user" in new FeedbackControllerApplication {
       val result = controller.unauthenticatedFeedback(FakeRequest())
       status(result) shouldBe 200
       val doc = Jsoup.parse(contentAsString(result))
       formActionIn(doc) shouldBe unauthenticatedSubmitUri
-      navigationShouldNotBeVisibleIn(doc)
-    }
-
-    "not show navigation for paye user" in new FeedbackControllerApplication {
-      val result = controller.authenticatedFeedback(payeUser.get, FakeRequest())
-      status(result) shouldBe 200
-      val doc = Jsoup.parse(contentAsString(result))
-      formActionIn(doc) shouldBe authenticatedSubmitUri
       navigationShouldNotBeVisibleIn(doc)
     }
   }
@@ -121,50 +94,21 @@ class FeedbackControllerSpec extends BaseSpec {
 
   "Rendering of feedback form when incorrect data is submitted" should {
 
-    "show navigation for authenticated non-sa biztax user" in new FeedbackControllerApplication {
-
-      val result = controller.doSubmit(Some(nonSaUser))(FakeRequest())
-      status(result) shouldBe 400
-      val doc = Jsoup.parse(contentAsString(result))
-      formActionIn(doc) shouldBe authenticatedSubmitUri
-      navigationShouldBeVisibleIn(doc)
-    }
-
-    "show navigation for authenticated sa biztax user with prefs" in new FeedbackControllerApplication {
-      whenUserPrefsAre(Some(mock[SaPreference]))
-
-      val result = controller.doSubmit(Some(saUser))(FakeRequest())
-      status(result) shouldBe 400
-      val doc = Jsoup.parse(contentAsString(result))
-      formActionIn(doc) shouldBe authenticatedSubmitUri
-      navigationShouldBeVisibleIn(doc)
-    }
-
-    "not show navigation for authenticated sa biztax user without prefs" in new FeedbackControllerApplication {
-      whenUserPrefsAre(None)
-      val result = controller.doSubmit(Some(saUser))(FakeRequest())
+    "work for an authenticated user" in new FeedbackControllerApplication {
+      val result = controller.doSubmit(Some(user))(FakeRequest())
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       formActionIn(doc) shouldBe authenticatedSubmitUri
       navigationShouldNotBeVisibleIn(doc)
     }
 
-    "not show navigation for unauthenticated user" in new FeedbackControllerApplication {
+    "work navigation for unauthenticated user" in new FeedbackControllerApplication {
       val result = controller.doSubmit(None)(FakeRequest())
       status(result) shouldBe 400
       val doc = Jsoup.parse(contentAsString(result))
       formActionIn(doc) shouldBe unauthenticatedSubmitUri
       navigationShouldNotBeVisibleIn(doc)
     }
-
-    "not show navigation for paye user" in new FeedbackControllerApplication {
-      val result = controller.doSubmit(payeUser)(FakeRequest())
-      status(result) shouldBe 400
-      val doc = Jsoup.parse(contentAsString(result))
-      formActionIn(doc) shouldBe authenticatedSubmitUri
-      navigationShouldNotBeVisibleIn(doc)
-    }
-
   }
 
   "Errors on the feedback form" should {
@@ -297,10 +241,6 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
 
   def formActionIn(doc: Document): String = doc.getElementById("feedback-form").attr("action")
   
-  def navigationShouldBeVisibleIn(doc: Document) {
-    doc.getElementById("proposition-menu").attr("role") shouldBe "navigation"
-  }
-
   def navigationShouldNotBeVisibleIn(doc: Document) {
     doc.getElementById("proposition-menu") shouldBe null
   }
