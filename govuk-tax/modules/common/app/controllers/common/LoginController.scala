@@ -167,7 +167,8 @@ class LoginController(samlConnector: SamlConnector,
     FrontEndRedirect.forSession(session).withSession(
       SessionKeys.userId -> authExchangeResponse.authority.uri,
       SessionKeys.sessionId -> updatedHC.sessionId.get,
-      SessionKeys.authProvider -> IdaWithTokenCheckForBeta.id
+      SessionKeys.authProvider -> IdaWithTokenCheckForBeta.id,
+      SessionKeys.authToken -> authExchangeResponse.authToken.toString
     )
   }
   
