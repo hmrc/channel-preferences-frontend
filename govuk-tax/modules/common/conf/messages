@@ -37,6 +37,8 @@ common.feedback.heading=Send your feedback
 common.feedback.confirmation.heading=Your feedback
 common.feedback.confirmation.message=Your feedback has been received.
 common.feedback.information.warning=Don’t include any personal or financial information, eg your National Insurance or credit card numbers.
+common.feedback.get.help = Get Help with this page.
+common.feedback.title = Help us improve tax platform
 common.main.banner_no_feedback_link=This is a trial service.
 common.main.banner_with_feedback_link=This is a trial service &mdash; your {0} will help us to improve it.
 
@@ -50,7 +52,7 @@ error.common.comments_mandatory=Enter your comments.
 error.common.comments_too_long=The comment cannot be longer than 2000 characters
 
 problem_report.action=What were you doing?
-problem_report.error=What went wrong?
+problem_report.error=What do you need help with?
 common.problem_report.error_nojavascript_title=Please try again
 
 info.need_to_register=You need to register to use this service. If you’re already registered just sign in.
@@ -85,7 +87,7 @@ global.error.InternalServerError500.heading=Sorry, we’re experiencing technica
 global.error.InternalServerError500.message=Please try again in a few minutes.
 contact.heading=Contact HMRC
 contact.confirmation.ticket_number=Your reference number is <span id="ticketId">{0}</span>.
-contact.confirmation.message=You’ll get a response within 24 hours.
+contact.confirmation.message=Your message has been sent, and the team will get back to you within 2 working days.
 
 login_error.title=There was a problem signing you in
 login_error.reason=Your sign in details have not been recognised by HM Revenue and Customs.
