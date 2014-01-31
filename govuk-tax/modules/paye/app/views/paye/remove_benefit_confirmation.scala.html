@@ -30,13 +30,13 @@
         }
 
         <h2>@Messages("paye.remove_benefit_confirmation.more_info")</h2>
-        <p>@helpers.link("", s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}",
+        <p>@helpers.link(None, s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}",
             Messages("paye.remove_benefit_confirmation.updated_info"))</p>
         <p>@Html(Messages("paye.remove_benefit_confirmation.tax_codes_info",
-            helpers.link("tax-codes",
+            helpers.link(Some("tax-codes"),
                 Messages("paye.remove_benefit_confirmation.tax_codes_link_url"),
                 Messages("paye.remove_benefit_confirmation.tax_codes_link_text"), true),
-            helpers.link("tax-on-company-benefits",
+            helpers.link(Some("tax-on-company-benefits"),
                 Messages("paye.remove_benefit_confirmation.tax_on_company_benefits_link_url"),
                 Messages("paye.remove_benefit_confirmation.tax_on_company_benefits_link_text"), true)))</p>
 

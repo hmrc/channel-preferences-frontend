@@ -13,23 +13,23 @@
 
     <ol>
         <li>@Messages("bt.mergeggaccount.step1")</li>
-        <li>@helpers.link("deEnrolHref", deEnrolLink.url, "Remove the tax from the account(s) you don't want to use anymore", deEnrolLink.newWindow, deEnrolLink.sso).</li>
+        <li>@helpers.link(Some("deEnrolHref"), deEnrolLink.url, "Remove the tax from the account(s) you don't want to use anymore", deEnrolLink.newWindow, deEnrolLink.sso).</li>
         <li>@Messages("bt.mergeggaccount.step2")</li>
         <li>
             @Messages("bt.mergeggaccount.step4")
-            @helpers.link("enrolHref", enrolLink.url, "bt.mergeggaccount.step4.linkText", enrolLink.newWindow, enrolLink.sso).
+            @helpers.link(Some("enrolHref"), enrolLink.url, "bt.mergeggaccount.step4.linkText", enrolLink.newWindow, enrolLink.sso).
         </li>
         <li>@Messages("bt.mergeggaccount.step5")</li>
     </ol>
 
     <p>
         @{Html(Messages("bt.mergeggaccount.lostGgNumbers"))}
-        @helpers.link("getGGBackHref", "https://online.hmrc.gov.uk/user/credentials/userid", "bt.mergeggaccount.lostGgNumbers.linkText", true).
+        @helpers.link(Some("getGGBackHref"), "https://online.hmrc.gov.uk/user/credentials/userid", "bt.mergeggaccount.lostGgNumbers.linkText", true).
     </p>
 
     <p>
         @Messages("bt.mergeggaccount.contact.1")
-        @helpers.link("onlineHelpHref", "/contact-hmrc/", "bt.mergeggaccount.contact.2.linkText", true)
+        @helpers.link(Some("onlineHelpHref"), "/contact-hmrc/", "bt.mergeggaccount.contact.2.linkText", true)
         @Messages("bt.mergeggaccount.contact.3")
     </p>
 

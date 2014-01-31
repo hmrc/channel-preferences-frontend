@@ -59,32 +59,32 @@
                 <ul>
                 @if(actions.canReplaceCar) {
                     <li>
-                        @helpers.link("replace-car-link", s"${controllers.paye.routes.ReplaceBenefitController.showReplaceCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
+                        @helpers.link(Some("replace-car-link"), s"${controllers.paye.routes.ReplaceBenefitController.showReplaceCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
                             Messages("paye.car_benefit_home.replace_car_link_text"))
                     </li>
                  }
                  @if(actions.canRemoveCar) {
                     <li>
-                        @helpers.link("rm-car-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
+                        @helpers.link(Some("rm-car-link"), s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
                             Messages("paye.car_benefit_home.remove_car_link_text"))
                     </li>
                  }
                  @if(actions.canRemoveFuel) {
                     <li>
-                        @helpers.link("rm-fuel-link", s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
+                        @helpers.link(Some("rm-fuel-link"), s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
                             Messages("paye.car_benefit_home.remove_fuel_link_text"))
                     </li>
                  }
                  @if(actions.canAddFuel) {
                     <li>
-                        @helpers.link("add-fuel-link", s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
+                        @helpers.link(Some("add-fuel-link"), s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
                             Messages("paye.car_benefit_home.add_car_link_text"))
                     </li>
                  }
                  @if(actions.canAddCar) {
                     <div id="no-car-benefit-container">
                         <li>
-                        @helpers.link("add-car-link", s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
+                        @helpers.link(Some("add-car-link"), s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
                           Messages("paye.car_benefit_home.add_car_and_fuel_link_text"))
                         </li>
                     </div>

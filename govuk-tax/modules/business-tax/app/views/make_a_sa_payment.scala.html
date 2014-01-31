@@ -11,8 +11,8 @@
 <div>
     <p>Options to pay your tax bill are shown below.</p>
 
-    <p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) by the @helpers.link("deadlineHref", "http://www.gov.uk/self-assessment-tax-return-deadlines", "Self Assessment deadline", true).
-        You may have to pay @helpers.link("penaltiesAndInterestHref", "http://www.gov.uk/self-assessment-tax-returns/penalties", "penalties and interest", true) if they're late.</p>
+    <p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) by the @helpers.link(Some("deadlineHref"), "http://www.gov.uk/self-assessment-tax-return-deadlines", "Self Assessment deadline", true).
+        You may have to pay @helpers.link(Some("penaltiesAndInterestHref"), "http://www.gov.uk/self-assessment-tax-returns/penalties", "penalties and interest", true) if they're late.</p>
 
     <p>You need your Self Assessment reference number, known as Unique Taxpayer Reference number (UTR) <span class="utr">@utr</span>.</p>
 </div>
@@ -20,13 +20,13 @@
 <div>
     <h2>Direct Debit</h2>
 
-    <p>@helpers.link("btDirectDebitsHref1", ddLink.url, "Set up a Direct Debit", ddLink.newWindow, ddLink.sso).</p>
+    <p>@helpers.link(Some("btDirectDebitsHref1"), ddLink.url, "Set up a Direct Debit", ddLink.newWindow, ddLink.sso).</p>
 
     <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it’s 3 working days.</p>
 
     <p>Payments will appear on your bank statements as “HMRC NDDS”.</p>
 
-    <p>You can also @helpers.link("btDirectDebitsHref2", ddLink.url, "change or arrange a new Direct Debit", ddLink.newWindow, ddLink.sso) online.</p>
+    <p>You can also @helpers.link(Some("btDirectDebitsHref2"), ddLink.url, "change or arrange a new Direct Debit", ddLink.newWindow, ddLink.sso) online.</p>
 
     <h3>Flexible payments</h3>
 
@@ -36,7 +36,7 @@
         <li>stop paying for up to 6 months</li>
     </ul>
 
-    <p>@helpers.link("btDirectDebitsHref3", ddLink.url, "Set up a budget payment plan", ddLink.newWindow, ddLink.sso) - you must be up to date with your payments and pay by Direct Debit.</p>
+    <p>@helpers.link(Some("btDirectDebitsHref3"), ddLink.url, "Set up a budget payment plan", ddLink.newWindow, ddLink.sso) - you must be up to date with your payments and pay by Direct Debit.</p>
 
     <p>If the total you’ve paid during the year doesn’t cover your bill in full, you’ll have to pay the difference.</p>
 </div>
@@ -45,7 +45,7 @@
 <div>
     <h2>Online with a debit or credit card</h2>
 
-    <p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online by card", true). You need your UTR <span class="utr">@utr</span></p>
+    <p>You can @helpers.link(Some("payOnlineHref"), "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online by card", true). You need your UTR <span class="utr">@utr</span></p>
 
     <p>You must use a card from a UK card issuer - not American Express or Diners Club.  Allow 3 working days for payments to reach HMRC.</p>
 
@@ -119,7 +119,7 @@
 
 <div>
     <h2>Your PAYE tax code</h2>
-    <p>You may be able to @helpers.link("payeTaxCodeHref", "http://www.hmrc.gov.uk/payinghmrc/taxcode.htm", "pay through your PAYE tax code", true)
+    <p>You may be able to @helpers.link(Some("payeTaxCodeHref"), "http://www.hmrc.gov.uk/payinghmrc/taxcode.htm", "pay through your PAYE tax code", true)
         if you owe less than £3,000. The tax you owe is deducted from your salary or pension.</p>
 </div>
 

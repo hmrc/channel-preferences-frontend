@@ -11,6 +11,6 @@
     <P>
         @if(grayedoutText.isDefined) {<SPAN class="faded-text">@Messages(grayedoutText.get,args: _*)</SPAN>}
         <SPAN>@Messages(text, args: _*).</SPAN>
-        @{linkO.map { link => Html("<br>" + helpers.link(linkId.getOrElse(""), link.url, s"$service.message.importantDates.link.$eventType", link.newWindow, link.sso))}}
+        @{linkO.map { link => Html("<br>" + helpers.link(linkId, link.url, s"$service.message.importantDates.link.$eventType", link.newWindow, link.sso))}}
     </P>
 </DIV>

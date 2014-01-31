@@ -11,8 +11,8 @@
 
     <p>Options to pay your Employers PAYE are shown below. </p>
     <p>Companies with 250 or more employees must pay electronically.</p>
-    <p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on time – @helpers.link("contactHmrcHref", "http://www.hmrc.gov.uk/payerti/end-of-year/payepenalties/late-payments.htm", "you may have to pay a penalty", true) and be charged interest if they don’t.</p>
-    <p>Payments will be delayed if you don’t use the correct 13 character accounts office reference. You may need to include the tax year and PAYE month if you pay early or late. Use the @helpers.link("referenceCheckerHref", "http://www.hmrc.gov.uk/payinghmrc/paye.htm#2", "reference checker", true) to make sure you get it right. </p>
+    <p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on time – @helpers.link(Some("referenceCheckerHref"), "http://www.hmrc.gov.uk/payerti/end-of-year/payepenalties/late-payments.htm", "you may have to pay a penalty", true) and be charged interest if they don’t.</p>
+    <p>Payments will be delayed if you don’t use the correct 13 character accounts office reference. You may need to include the tax year and PAYE month if you pay early or late. Use the @helpers.link(Some("referenceCheckerHref"), "http://www.hmrc.gov.uk/payinghmrc/paye.htm#2", "reference checker", true) to make sure you get it right. </p>
     <h2>Paying Pay As You Earn (PAYE) and Class 1 National Insurance</h2>
     <p>You need your accounts office reference number to make a payments. You can find this on:</p>
 
@@ -28,13 +28,13 @@
 <div>
     <h2>Direct Debit</h2>
 
-    <p>@helpers.link("ePayeOnlineAccountHref1", ePayeOnlineAccountLink.url, "Set up a Direct Debit", ePayeOnlineAccountLink.newWindow, ePayeOnlineAccountLink.sso).</p>
+    <p>@helpers.link(Some("ePayeOnlineAccountHref1"), ePayeOnlineAccountLink.url, "Set up a Direct Debit", ePayeOnlineAccountLink.newWindow, ePayeOnlineAccountLink.sso).</p>
     <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it’s 3 working days.</p>
     <p>They’ll show on your statements as 'HMRC NDDS'.</p>
-    <p>You can also @helpers.link("ePayeOnlineAccountHref2", ePayeOnlineAccountLink.url, "change your Direct Debit", ePayeOnlineAccountLink.newWindow, ePayeOnlineAccountLink.sso) online.</p>
+    <p>You can also @helpers.link(Some("ePayeOnlineAccountHref2"), ePayeOnlineAccountLink.url, "change your Direct Debit", ePayeOnlineAccountLink.newWindow, ePayeOnlineAccountLink.sso) online.</p>
 <div>
     <h2>Online with a debit or credit card</h2>
-    <p>You can @helpers.link("payOnlineHref", "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online by card", true) from a UK issuer - not American Express or Diners Club.</p>
+    <p>You can @helpers.link(Some("payOnlineHref"), "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online by card", true) from a UK issuer - not American Express or Diners Club.</p>
     <p>Allow 3 working days for payments to reach HMRC.</p>
     <p>There’s a 1.4% fee if you pay by credit card.</p>
 </div>
@@ -43,9 +43,9 @@
     <h2>Online or telephone banking, Bacs or CHAPS</h2>
     <p>Check your bank’s transaction limits and processing times.</p>
     <p>If you make a Faster Payment it will clear the same day if the amount is within your bank’s limits.</p>
-    <p>You need HMRC’s bank details.  Check which @helpers.link("hmrcBankAccountHref", "http://www.hmrc.gov.uk/tools/bankaccounts/p/", "HMRC bank account to use for payments", true).</p>
+    <p>You need HMRC’s bank details.  Check which @helpers.link(Some("hmrcBankAccountHref"), "http://www.hmrc.gov.uk/tools/bankaccounts/p/", "HMRC bank account to use for payments", true).</p>
     <p>Very large employers who want to pay by CHAPS should
-        @helpers.link("contactHmrcHref", "http://www.hmrc.gov.uk/payinghmrc/cumbernauld.htm", "contact HMRC about multiple and composite payments", true).</p>
+        @helpers.link(Some("contactHmrcHref"), "http://www.hmrc.gov.uk/payinghmrc/cumbernauld.htm", "contact HMRC about multiple and composite payments", true).</p>
 </div>
 
 }

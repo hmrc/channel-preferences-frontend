@@ -8,7 +8,7 @@
     </header>
     <h2>@Messages("paye.add_car_benefit_review.h2")</h2>
     @add_car_benefit_confirmation_table(data)
-    @helpers.link("edit-data", AddCarBenefitController.startAddCarBenefit(taxYear, employmentSequenceNumber).toString, Messages("paye.benefit_review.wrong_information"))
+    @helpers.link(Some("edit-data"), AddCarBenefitController.startAddCarBenefit(taxYear, employmentSequenceNumber).toString, Messages("paye.benefit_review.wrong_information"))
 
   @helpers.form(action = AddCarBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber)) {
     <div class="form-field">

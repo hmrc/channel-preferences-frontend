@@ -26,7 +26,7 @@
 
            <p>
            @helpers.link(
-               "change-email-address-link",
+               Some("change-email-address-link"),
                controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
                "Change your email address"
            )
@@ -39,7 +39,7 @@
            <hr>
            <p>
            @helpers.link(
-                    "change-email-address-link",
+                    Some("change-email-address-link"),
                      controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
                      "Change your email address"
                 )
@@ -51,7 +51,7 @@
            <p>Email address: <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
            <p>
            @helpers.link(
-               "revalidate-email-link",
+               Some("revalidate-email-link"),
                controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
                "Change / re-validate your email address"
            )
@@ -60,7 +60,7 @@
 
        <p>
        @helpers.link(
-           "opt-out-of-email-link",
+           Some("opt-out-of-email-link"),
            controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
            "Stop your email reminders"
        )
@@ -73,7 +73,7 @@
 
         <p>
         @helpers.link(
-            "opt-in-to-digital-email-link",
+            Some("opt-in-to-digital-email-link"),
             controllers.bt.prefs.routes.SaPrefsController.displayPrefsForm(None).url,
             "Opt-in to email reminders"
         )

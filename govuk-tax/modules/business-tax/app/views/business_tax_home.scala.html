@@ -17,7 +17,7 @@
             <h3>@Messages(ac.manageRegimeMessage)</h3>
             <ul class="action-list">
                 @for(addendum <- ac.addenda) {
-                 <li>@helpers.link(addendum.id, addendum.url, addendum.text, addendum.newWindow, addendum.sso)</li>
+                 <li>@helpers.link(Some(addendum.id), addendum.url, addendum.text, addendum.newWindow, addendum.sso)</li>
 
                 }
             </ul>
@@ -29,11 +29,11 @@
 
         @if(accountSummaries.regimes.size != 4) {
             <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
-            <p>@helpers.link("mergeGGHref", controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts")</p>
+            <p>@helpers.link(Some("mergeGGHref"), controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts")</p>
         }
         <p>
             @Messages("bt.home.everythingElse.1")
-            @helpers.link("otherServicesHref", controllers.bt.routes.OtherServicesController.otherServices.url, "bt.home.everythingElse.linkText")
+            @helpers.link(Some("otherServicesHref"), controllers.bt.routes.OtherServicesController.otherServices.url, "bt.home.everythingElse.linkText")
             @Messages("bt.home.everythingElse.2")
         </p>
     </article>
@@ -49,13 +49,13 @@
 	<nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
 	    <ul>
             <li>
-                @helpers.link("browseTax", "https://www.gov.uk/browse/tax", "bt.home.sidebarLinks.money.text", true)
+                @helpers.link(Some("browseTax"), "https://www.gov.uk/browse/tax", "bt.home.sidebarLinks.money.text", true)
             </li>
             <li>
-                @helpers.link("webminars", "http://www.hmrc.gov.uk/webinars/", "bt.home.sidebarLinks.webinars.text", true)
+                @helpers.link(Some("webminars"), "http://www.hmrc.gov.uk/webinars/", "bt.home.sidebarLinks.webinars.text", true)
             </li>
             <li>
-                @helpers.link("youtube", "http://www.youtube.com/hmrcgovuk", "bt.home.sidebarLinks.youtube.text", true)
+                @helpers.link(Some("youtube"), "http://www.youtube.com/hmrcgovuk", "bt.home.sidebarLinks.youtube.text", true)
             </li>
 	    </ul>
 	</nav>

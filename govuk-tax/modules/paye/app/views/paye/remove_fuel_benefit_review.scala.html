@@ -23,7 +23,7 @@
                 </tr>
             </tbody>
         </table>
-        @helpers.link("go-back",
+        @helpers.link(Some("go-back"),
             s"${ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(taxYear, employment.sequenceNumber)}",
             Messages("paye.benefit_review.wrong_information"))
 

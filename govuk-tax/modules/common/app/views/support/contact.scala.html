@@ -4,7 +4,7 @@
     <header class="page-header">
         <h1>@Messages("contact.heading")</h1>
     </header>
-    <p>If you need to ask a specific tax query then you can find the appropriate contacts on @helpers.link("", "http://search2.hmrc.gov.uk/kb5/hmrc/contactus/home.page", "the HM Revenue & Customs (HMRC) website", true).</p>
+    <p>If you need to ask a specific tax query then you can find the appropriate contacts on @helpers.link(None, "http://search2.hmrc.gov.uk/kb5/hmrc/contactus/home.page", "the HM Revenue & Customs (HMRC) website", true).</p>
     <p>If you have a question about the transaction you have been trying to complete on the Multichannel Digital Tax Platform then please fill in this form.</p>
     @helpers.form(action = common.support.routes.ContactController.submit, 'class -> "form--feedback") {
         <fieldset>

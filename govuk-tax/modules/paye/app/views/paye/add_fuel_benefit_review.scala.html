@@ -22,7 +22,7 @@
     </table>
         }
 
-    @helpers.link("edit-data", AddFuelBenefitController.startAddFuelBenefit(taxYear, employmentSequenceNumber).toString, Messages("paye.benefit_review.wrong_information"))
+    @helpers.link(Some("edit-data"), AddFuelBenefitController.startAddFuelBenefit(taxYear, employmentSequenceNumber).toString, Messages("paye.benefit_review.wrong_information"))
     @helpers.form(action = controllers.paye.routes.AddFuelBenefitController.confirmAddingBenefit(taxYear, employmentSequenceNumber), 'id -> "form-add-fuel-benefit-review") {
         <div class="form-field">
             <input type="submit" class="button" value="@Messages("paye.add_fuel_benefit_review.submit_button")">

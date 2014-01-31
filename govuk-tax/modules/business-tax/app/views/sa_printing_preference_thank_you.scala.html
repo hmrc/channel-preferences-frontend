@@ -16,6 +16,6 @@
 
     <p>Always go to GOV.UK to sign in to your account.</p>
 
-    <p>@helpers.link("sa-home-link", controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account", false, false, "button")</p>
+    <p>@helpers.link(Some("sa-home-link"), controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account", false, false, Some("button"))</p>
 
 }
