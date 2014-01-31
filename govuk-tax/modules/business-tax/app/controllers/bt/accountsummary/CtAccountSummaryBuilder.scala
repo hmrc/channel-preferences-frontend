@@ -10,8 +10,9 @@ import uk.gov.hmrc.domain.CtUtr
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
+import uk.gov.hmrc.common.microservice.auth.domain.CtAccount
 
-case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot] {
+case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) extends AccountSummaryBuilder[CtUtr, CtRoot, CtAccount] {
 
   import CtMessageKeys._
   import CtPortalUrlKeys._
@@ -37,6 +38,9 @@ case class CtAccountSummaryBuilder(ctConnector: CtConnector = new CtConnector) e
   override protected def defaultManageRegimeMessageKey = ctManageHeading
 
   override protected def rootForRegime(user: User): Option[CtRoot] = user.regimes.ct
+
+  override protected def accountForRegime(user: User): Option[CtAccount] = user.userAuthority.accounts.ct
+
 
   private def defaultAccountSummary(ctRoot: CtRoot): AccountSummary = {
     val messages = Seq(

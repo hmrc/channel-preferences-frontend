@@ -1,20 +1,26 @@
 package controllers.bt.businesstax
 
 import uk.gov.hmrc.common.BaseSpec
-import play.api.test.{WithApplication, FakeApplication}
+import play.api.test.WithApplication
 import play.api.test.Helpers._
 import controllers.bt.testframework.request.{NonBusinessTaxRequest, BusinessTaxRequest, EmptySessionRequest, NoSessionRequest}
 import controllers.bt.testframework.fixtures.{JohnDensmoreTestFixture, GeoffFisherTestFixture}
 import controllers.bt.BusinessTaxController
 import controllers.bt.accountsummary.AccountSummariesFactory
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.audit.AuditConnector
+import play.api.test.FakeApplication
+import scala.Some
 
 
 class BusinessTaxControllerStandardBehaviourSpec extends BaseSpec {
 
   val mockAccountSummariesFactory = mock[AccountSummariesFactory]
   val mockPreferencesConnector = mock[PreferencesConnector]
-  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, mockPreferencesConnector, null)(null)
+  val mockAuthConnector = mock[AuthConnector]
+  val mockAuditConnector = mock[AuditConnector]
+  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, mockPreferencesConnector, mockAuditConnector)(mockAuthConnector)
 
   "Calling home" should {
     "redirect if there is no session" in new WithApplication(FakeApplication()) with NoSessionRequest {

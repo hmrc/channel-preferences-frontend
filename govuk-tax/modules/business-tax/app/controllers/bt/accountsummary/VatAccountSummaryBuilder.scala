@@ -9,13 +9,16 @@ import uk.gov.hmrc.common.microservice.vat.domain.{VatAccountSummary, VatRoot}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
+import uk.gov.hmrc.common.microservice.auth.domain.VatAccount
 
-case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot] {
+case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot, VatAccount] {
 
   import VatMessageKeys._
   import VatPortalUrls._
 
   def rootForRegime(user: User): Option[VatRoot] = user.regimes.vat
+
+  def accountForRegime(user: User): Option[VatAccount] = user.userAuthority.accounts.vat
 
   def buildAccountSummary(vatRoot: VatRoot, buildPortalUrl: String => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary] = {
     val accountSummaryF: Future[Option[VatAccountSummary]] = vatRoot.accountSummary(vatConnector, headerCarrier)

@@ -14,13 +14,15 @@
             @for(message <- ac.messages) {
                 <p class="@message.messageKey">@Html(Messages(message.messageKey, message.params.map(_.render):_*))</p>
             }
-            <h3>@Messages(ac.manageRegimeMessage)</h3>
-            <ul class="action-list">
-                @for(addendum <- ac.addenda) {
-                 <li>@helpers.link(Some(addendum.id), addendum.url, addendum.text, addendum.newWindow, addendum.sso)</li>
+            @if(!ac.addenda.isEmpty) {
+                <h3>@Messages(ac.manageRegimeMessage)</h3>
+                <ul class="action-list">
+                    @for(addendum <- ac.addenda) {
+                     <li>@helpers.link(Some(addendum.id), addendum.url, addendum.text, addendum.newWindow, addendum.sso)</li>
 
-                }
-            </ul>
+                    }
+                </ul>
+            }
         </article>
     }
     <article>

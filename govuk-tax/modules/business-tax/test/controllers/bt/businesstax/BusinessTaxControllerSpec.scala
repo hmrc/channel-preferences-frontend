@@ -8,7 +8,7 @@ import org.mockito.Matchers
 import play.api.test.{FakeRequest, WithApplication}
 import controllers.bt.testframework.mocks.PortalUrlBuilderMock
 import org.scalatest.mock.MockitoSugar
-import controllers.bt.BusinessTaxController
+import controllers.bt.{routes => businessTaxRoutes, BusinessTaxController}
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.common.microservice.ct.domain.CtRoot
@@ -25,10 +25,10 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import controllers.bt.accountsummary.AccountSummary
 import play.api.test.FakeApplication
 import controllers.bt.accountsummary.Msg
-import controllers.bt.{routes => businessTaxRoutes}
 import controllers.common.{routes => commonRoutes, FrontEndRedirect}
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
 import controllers.common.actions.HeaderCarrier
+import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -40,6 +40,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
   val ctRegime = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))
   val vatRegime = Some(VatRoot(Vrn("vrn"), Map.empty[String, String]))
   val epayeRegime = Some(EpayeRoot(EmpRef("emp/ref"), EpayeLinks(Some("link"))))
+
   val saAccountSummary = AccountSummary("sa.regimeName", "", List(), Seq.empty, SummaryStatus.success)
 
   def createUser(saRegime: Option[SaRoot] = None, ctRegime: Option[CtRoot] = None, vatRegime: Option[VatRoot] = None, epayeRegime: Option[EpayeRoot] = None) = {
@@ -56,9 +57,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = createUser(saRegime = saRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(Seq.empty)))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       val result = Future.successful(controllerUnderTest.renderHomePage(user, request))
 
@@ -78,9 +76,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = createUser(saRegime = saRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       val homepage = Future.successful(controllerUnderTest.renderHomePage(user, request))
 
@@ -103,10 +98,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(accountSummary))))
 
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
-
       val homepage = Future.successful(controllerUnderTest.renderHomePage(user, request))
 
       status(homepage) shouldBe 200
@@ -125,9 +116,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = createUser(ctRegime = ctRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(accountSummary))))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       val homepage = Future.successful(controllerUnderTest.renderHomePage(user, request))
 
@@ -147,9 +135,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = createUser(vatRegime = vatRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(accountSummary))))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       val homepage = Future.successful(controllerUnderTest.renderHomePage(user, request))
 
@@ -171,9 +156,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = createUser(saRegime, ctRegime, vatRegime, epayeRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAcountSummary))))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       val homepage = Future.successful(controllerUnderTest.renderHomePage(user, request))
 
@@ -201,9 +183,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = createUser(epayeRegime = epayeRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(accountSummary))))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       val homepage = Future.successful(controllerUnderTest.renderHomePage(user, request))
 
@@ -221,9 +200,6 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       val user = createUser(saRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       val preference = SaPreference(true, Some(SaEmailPreference("bob@somewhere.stuff", SaEmailPreference.Status.verified)))
 
@@ -237,14 +213,40 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
       document.select("h1").text should include("Your tax account")
     }
 
+    "render all the widgets even if the services are down" in new BusinessTaxControllerTestSetup {
+      val user = createUser(None, None, None, None)
+
+      val ctAccountSummary = AccountSummary("ct.regimeName", "", List(), Seq.empty, SummaryStatus.success)
+      val vatAccountSummary = AccountSummary("vat.regimeName", "", List(Msg(VatMessageKeys.vatRegimeNameMessage)), Seq.empty, SummaryStatus.success)
+      val epayeAcountSummary = AccountSummary("epaye.regimeName", "", List(), Seq.empty, SummaryStatus.success)
+
+      when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(saAccountSummary, ctAccountSummary, vatAccountSummary, epayeAcountSummary))))
+
+
+      val preference = SaPreference(true, Some(SaEmailPreference("bob@somewhere.stuff", SaEmailPreference.Status.verified)))
+
+      when(mockPreferencesConnector.getPreferences(is(utr))(any())).thenReturn(Some(preference))
+
+      val homepage = Future.successful(controllerUnderTest.businessTaxHomepage(user, request))
+
+      status(homepage) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(homepage))
+      document.select("h1").text should include("Your tax account")
+
+      val elements = document.getElementsByClass("account-summary")
+      elements.size shouldBe 4
+      elements.get(0).attr("id") shouldBe "sa.regimeName"
+      elements.get(1).attr("id") shouldBe "ct.regimeName"
+      elements.get(2).attr("id") shouldBe "vat.regimeName"
+      elements.get(3).attr("id") shouldBe "epaye.regimeName"
+    }
+
     "redirect to SA print preferences capture page for SA user without existing print preferences" in new BusinessTaxControllerTestSetup {
 
       val user = createUser(saRegime)
 
       when(mockAccountSummariesFactory.create(anyOfType[String => String])(Matchers.eq(user), any())).thenReturn(Future(AccountSummaries(List(saAccountSummary))))
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
-      when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 
       when(mockPreferencesConnector.getPreferences(is(utr))(any())).thenReturn(None)
 
@@ -265,6 +267,11 @@ abstract class BusinessTaxControllerTestSetup extends WithApplication(FakeApplic
 
   val mockPreferencesConnector = mock[PreferencesConnector]
 
-  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, mockPreferencesConnector, null)(null) with MockedPortalUrlBuilder
+  val controllerUnderTest = new BusinessTaxController(mockAccountSummariesFactory, mockPreferencesConnector, null)(null) with MockedPortalUrlBuilder {
+    override def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier) = Future.successful(RegimeRoots())
+  }
 
+  when(mockPortalUrlBuilder.buildPortalUrl("otherServices")).thenReturn("otherServicesUrl")
+  when(mockPortalUrlBuilder.buildPortalUrl("otherServicesEnrolment")).thenReturn("otherServicesEnrolmentUrl")
+  when(mockPortalUrlBuilder.buildPortalUrl("servicesDeEnrolment")).thenReturn("servicesDeEnrolmentUrl")
 }

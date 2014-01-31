@@ -11,7 +11,7 @@ import views.helpers.MoneyPounds
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.EmpRef
-import uk.gov.hmrc.common.microservice.auth.domain.Authority
+import uk.gov.hmrc.common.microservice.auth.domain.{EpayeAccount, Accounts, Authority}
 import scala.util.{Failure, Try, Success}
 import CommonBusinessMessageKeys._
 import uk.gov.hmrc.common.microservice.epaye.domain.{EpayeRoot, NonRTI, EpayeAccountSummary, RTI}
@@ -155,11 +155,14 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     "return the oops summary if there is an exception when requesting the account summary" in {
       val expectedMessages = Seq(Msg(oopsMessage, Seq.empty))
-      testEpayeAccountSummaryBuilder(epayeUnknownRegimeName, Failure(new NumberFormatException), expectedMessages, Seq.empty)
+      testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Failure(new NumberFormatException), expectedMessages, Seq.empty)
     }
   }
 
   private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Try[Option[EpayeAccountSummary]], expectedMessages: Seq[Msg], expectedLinks: Seq[AccountSummaryLink]) {
+
+    val accounts = Accounts(epaye = Some(EpayeAccount("link", dummyEmpRef)))
+
     val mockUser = mock[User]
     val mockUserAuthority = mock[Authority]
     val mockEpayeConnector = mock[EpayeConnector]
@@ -172,6 +175,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
     when(mockUser.regimes).thenReturn(mockRegimeRoots)
     when(mockUser.userAuthority).thenReturn(mockUserAuthority)
+    when(mockUserAuthority.accounts).thenReturn(accounts)
     when(mockRegimeRoots.epaye).thenReturn(Some(mockEpayeRoot))
     when(mockEpayeRoot.identifier).thenReturn(dummyEmpRef)
     accountSummary match {

@@ -11,6 +11,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import scala.Some
+import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
 
 class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
@@ -39,7 +40,7 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     val manageRegimeKey = "test.manage.regime"
 
 
-    val builder = new AccountSummaryBuilder[SaUtr, SaRoot] {
+    val builder = new AccountSummaryBuilder[SaUtr, SaRoot, SaAccount] {
 
       override def buildAccountSummary(regimeRoot: SaRoot, buildPortalUrl: (String) => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary] = {
         mockBuilder.buildAccountSummary(regimeRoot, buildPortalUrl)
@@ -50,6 +51,8 @@ class AccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       override def defaultManageRegimeMessageKey = manageRegimeKey
 
       override def rootForRegime(user: User): Option[SaRoot] = regimeRoot
+
+      override def accountForRegime(user: User): Option[SaAccount] = Some(SaAccount("link", saUtr))
     }
   }
 

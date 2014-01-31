@@ -1,6 +1,6 @@
 package controllers.common
 
-import controllers.common.service.Connectors._
+import controllers.common.service.{ConnectorsApi, Connectors}
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.common.microservice.epaye.domain.EpayeRoot
@@ -16,6 +16,8 @@ trait RegimeRootBase {
 
   import MdcLoggingExecutionContext._
 
+  val connectors : ConnectorsApi = Connectors
+  import connectors._
   /**
    * Turns an Option of a Future into a Future of an Option:
    * Some(Future[T]) becomes Future(Some[T])

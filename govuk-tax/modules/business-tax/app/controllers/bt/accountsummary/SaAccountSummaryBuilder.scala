@@ -11,11 +11,14 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import controllers.bt.routes
+import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
 
 
 class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector)
-  extends AccountSummaryBuilder[SaUtr, SaRoot] {
+  extends AccountSummaryBuilder[SaUtr, SaRoot, SaAccount] {
   def rootForRegime(user: User): Option[SaRoot] = user.regimes.sa
+
+  def accountForRegime(user: User): Option[SaAccount] = user.userAuthority.accounts.sa
 
   override protected val defaultRegimeNameMessageKey = saRegimeName
 

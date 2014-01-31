@@ -11,8 +11,9 @@ import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSu
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
+import uk.gov.hmrc.common.microservice.auth.domain.EpayeAccount
 
-case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot] {
+case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot, EpayeAccount] {
 
   override def buildAccountSummary(epayeRoot: EpayeRoot, buildPortalUrl: String => String)(implicit headerCarrier: HeaderCarrier): Future[AccountSummary] = {
     val accountSummaryOF = epayeRoot.accountSummary(epayeConnector, headerCarrier)
@@ -23,6 +24,8 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   }
 
   override def rootForRegime(user: User): Option[EpayeRoot] = user.regimes.epaye
+
+  override def accountForRegime(user: User): Option[EpayeAccount] = user.userAuthority.accounts.epaye
 
   private def messageStrategy(accountSummary: Option[EpayeAccountSummary]): () => Seq[Msg] = {
     accountSummary match {
@@ -77,7 +80,7 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
     s"%d - %s".format(currentTaxYear, nextTaxYear)
   }
 
-  override protected val defaultRegimeNameMessageKey = epayeUnknownRegimeName
+  override protected val defaultRegimeNameMessageKey = epayeRegimeNameMessage
 
   override protected val defaultManageRegimeMessageKey = epayeManageHeading
 }
@@ -90,7 +93,6 @@ object EpayePortalUrlKeys {
 object EpayeMessageKeys {
 
   val epayeRegimeNameMessage = "epaye.regimeName"
-  val epayeUnknownRegimeName = "epaye.regimeName.unknown"
 
   val epayeNothingToPayMessage = "epaye.message.nothingToPay"
   val epayeYouHaveOverpaidMessage = "epaye.message.youHaveOverPaid"
