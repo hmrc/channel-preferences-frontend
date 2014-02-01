@@ -1,9 +1,11 @@
 import sbt._
 import scala.Some
+import scala.Some
+import scala.util.Properties._
 import uk.gov.hmrc.GitStampPlugin._
 
 object Version {
-  val thisApp = "1.0.2-SNAPSHOT"
+  val thisApp = envOrElse("FRONTEND_VERSION", "999-SNAPSHOT")
   val scala = "2.10.3"
 }
 
