@@ -71,6 +71,11 @@ class CacheControlFilterSpec extends BaseSpec with MockitoSugar with ScalaFuture
       CacheControlFilter(excludedContentTypes: _*)(action)(FakeRequest()).futureValue should be(resultFromAction)
     }
 
+    "not add a cache-control header if there is no content type but the status is NOT MODIFIED" in new WithApplication(FakeApplication()) with Setup {
+      override val resultFromAction: SimpleResult = NotModified
+      CacheControlFilter(excludedContentTypes: _*)(action)(FakeRequest()).futureValue should be(resultFromAction)
+    }
+
     "replace any existing cache-control header" in new WithApplication(FakeApplication()) with Setup {
       override val resultFromAction = Ok.withHeaders(HeaderNames.CACHE_CONTROL -> "someOtherValue")
       CacheControlFilter()(action)(FakeRequest()).futureValue should be(resultFromAction.withHeaders(expectedCacheControlHeader))
