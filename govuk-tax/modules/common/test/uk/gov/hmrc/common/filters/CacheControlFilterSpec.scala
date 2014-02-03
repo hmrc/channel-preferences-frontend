@@ -21,6 +21,8 @@ class CacheControlFilterSpec extends BaseSpec with MockitoSugar with ScalaFuture
 
     val resultFromAction: SimpleResult = Ok
 
+    val excludedContentTypes: Seq[String] = Seq("image/", "text/css", "application/javascript")
+
     lazy val action = {
       val mockAction = mock[(RequestHeader) => Future[SimpleResult]]
       val outgoingResponse = Future.successful(resultFromAction)
@@ -38,20 +40,40 @@ class CacheControlFilterSpec extends BaseSpec with MockitoSugar with ScalaFuture
   "During request pre-processing, the filter" should {
 
     "do nothing, just pass on the request" in new WithApplication(FakeApplication()) with Setup {
-      CacheControlFilter(action)(FakeRequest())
+      CacheControlFilter()(action)(FakeRequest())
       requestPassedToAction should === (FakeRequest())
     }
   }
 
   "During result post-processing, the filter" should {
 
-    "add a cache-control header if there isn't one" in new WithApplication(FakeApplication()) with Setup {
-      CacheControlFilter(action)(FakeRequest()).futureValue should be(Ok.withHeaders(expectedCacheControlHeader))
+    "add a cache-control header if there isn't one and the response has no content type" in new WithApplication(FakeApplication()) with Setup {
+      CacheControlFilter(excludedContentTypes: _*)(action)(FakeRequest()).futureValue should be(resultFromAction.withHeaders(expectedCacheControlHeader))
+    }
+
+    "add a cache-control header if there isn't one and the response does not have an excluded content type" in new WithApplication(FakeApplication()) with Setup {
+      override val resultFromAction: SimpleResult = Ok.as("text/html")
+      CacheControlFilter(excludedContentTypes: _*)(action)(FakeRequest()).futureValue should be(resultFromAction.withHeaders(expectedCacheControlHeader))
+    }
+
+    "not add a cache-control header if there isn't one but the response is an exact match for an excluded content type" in new WithApplication(FakeApplication()) with Setup {
+      override val resultFromAction: SimpleResult = Ok.as("text/css")
+      CacheControlFilter(excludedContentTypes: _*)(action)(FakeRequest()).futureValue should be(resultFromAction)
+    }
+
+    "not add a cache-control header if there isn't one but the response is an exact match for an mime part of an excluded content type" in new WithApplication(FakeApplication()) with Setup {
+      override val resultFromAction: SimpleResult = Ok.as("text/css; charset=utf-8")
+      CacheControlFilter(excludedContentTypes: _*)(action)(FakeRequest()).futureValue should be(resultFromAction)
+    }
+
+    "not add a cache-control header if there isn't one but the response is an exact match for an category of the mime part of an excluded content type" in new WithApplication(FakeApplication()) with Setup {
+      override val resultFromAction: SimpleResult = Ok.as("image/png")
+      CacheControlFilter(excludedContentTypes: _*)(action)(FakeRequest()).futureValue should be(resultFromAction)
     }
 
     "replace any existing cache-control header" in new WithApplication(FakeApplication()) with Setup {
       override val resultFromAction = Ok.withHeaders(HeaderNames.CACHE_CONTROL -> "someOtherValue")
-      CacheControlFilter(action)(FakeRequest()).futureValue should be(Ok.withHeaders(expectedCacheControlHeader))
+      CacheControlFilter()(action)(FakeRequest()).futureValue should be(resultFromAction.withHeaders(expectedCacheControlHeader))
     }
 
     "leave any other headers alone" in new WithApplication(FakeApplication()) with Setup {
@@ -60,10 +82,7 @@ class CacheControlFilterSpec extends BaseSpec with MockitoSugar with ScalaFuture
         HeaderNames.CACHE_CONTROL -> "someOtherValue",
         "header2" -> "value2")
 
-      CacheControlFilter(action)(FakeRequest()).futureValue should be(Ok.withHeaders(
-        "header1" -> "value1",
-        expectedCacheControlHeader,
-        "header2" -> "value2"))
+      CacheControlFilter()(action)(FakeRequest()).futureValue should be(resultFromAction.withHeaders(expectedCacheControlHeader))
     }
   }
 }
