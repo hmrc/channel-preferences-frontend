@@ -54,7 +54,7 @@ sa.message.summaryUnavailable.1=We are currently unable to display your account 
 sa.message.summaryUnavailable.2=- there is no information to view at this time
 sa.message.summaryUnavailable.3=- you have only just activated this service and there is a short delay before the information is available
 sa.message.summaryUnavailable.4=For any other problems, contact the <a id="sa.onlineServicesHelpdesk" href="/contact-hmrc/" target="_blank">helpdesk</a>.
-sa.heading.signup.emailreminders=Sign up for Self Assessment email reminders
+sa.heading.signup.emailreminders=Self Assessment email reminders
 sa.manage.heading=Manage your Self Assessment
 epaye.regimeName=Employers Pay As You Earn (PAYE)
 epaye.link.message.accountSummary.viewAccountDetails=View your Employers PAYE account details
