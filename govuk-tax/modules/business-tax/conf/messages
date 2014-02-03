@@ -48,7 +48,7 @@ sa.message.amountDueForPayment=Tax you owe:<br/> <span class="h1-heading">{0}</s
 sa.message.interestApplicable=HM Revenue & Customs (HMRC) may charge interest on late payments of tax due now.
 sa.message.willBecomeDue=Tax you owe: <br/> <span class="h1-heading">{0}</span> <br/> on {1}.
 sa.message.youHaveOverpaid=You have overpaid.
-sa.message.amountDueForRepayment=You get a repayment of<br/> <span class="h1-heading">{0}</span>.
+sa.message.amountDueForRepayment=You get a repayment of<br/> <span class="h1-heading">{0}</span>
 sa.message.smallAmountToPay=If you don''t pay this amount now it will stay unpaid in your account. HMRC may charge you interest if you pay late.
 sa.message.summaryUnavailable.1=We are currently unable to display your account information. This may be because:
 sa.message.summaryUnavailable.2=- there is no information to view at this time
