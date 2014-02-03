@@ -12,7 +12,7 @@
         <li>@Messages("paye.home.instructions.list_item.1")</li>
         <li>@helpers.link(None, Messages("link.vehicle_certification_agency.url"), Messages("paye.home.instructions.list_item.2"), true)</li>
     </ul>
-        <p>The manufacturer or your employer may have this information.</p>
+        <p>@Messages("paye.home.instructions.manufacturer_information")</p>
     @helpers.link(None, common.FrontEndRedirect.carBenefit(token), Messages("paye.home.start_button.text"), false, false, Some("button"))
 }
 

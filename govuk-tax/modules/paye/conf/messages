@@ -260,6 +260,7 @@ paye.home.instructions.heading=Before you start
 paye.home.instructions.need=You need:
 paye.home.instructions.list_item.1=the price when the car was new (list price), including VAT and accessories
 paye.home.instructions.list_item.2=CO2 emissions for the car
+paye.home.instructions.manufacturer_information=The manufacturer or your employer may have this information.
 paye.home.employer_pay_fuel.false=No
 paye.home.employer_pay_fuel.true=Yes
 paye.home.employer_pay_fuel.date=Stopped {0}
