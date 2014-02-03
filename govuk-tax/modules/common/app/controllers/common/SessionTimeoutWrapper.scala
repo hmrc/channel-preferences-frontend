@@ -20,12 +20,11 @@ object SessionTimeoutWrapper {
   val timeoutSeconds = 900
 
   def hasValidTimestamp(session: Session, now: () => DateTime): Boolean = {
-    val valid: Option[Boolean] = for {
-      lastRequestTimestamp: DateTime <- extractTimestamp(session)
-      sessionExpiryTimestamp: DateTime = lastRequestTimestamp.plus(Duration.standardSeconds(timeoutSeconds))
-    } yield now().isBefore(sessionExpiryTimestamp)
-
-    valid.getOrElse(false)
+   def isTimestampValid(timestamp: DateTime): Boolean = {
+     val timeOfExpiry = timestamp plus Duration.standardSeconds(timeoutSeconds)
+     now() isBefore timeOfExpiry
+   }
+    extractTimestamp(session) map isTimestampValid getOrElse true
   }
 
   private def extractTimestamp(session: Session): Option[DateTime] = {
