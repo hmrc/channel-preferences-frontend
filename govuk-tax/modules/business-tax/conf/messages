@@ -46,7 +46,7 @@ sa.link.message.accountSummary.fileAReturn=Send your tax return
 sa.message.nothingToPay=You have nothing to pay.
 sa.message.amountDueForPayment=Tax you owe:<br/> <span class="h1-heading">{0}</span>
 sa.message.interestApplicable=HM Revenue & Customs (HMRC) may charge interest on late payments of tax due now.
-sa.message.willBecomeDue=You have to pay <br/> <span class="h1-heading">{0}</span> <br/> on {1}.
+sa.message.willBecomeDue=Tax you owe: <br/> <span class="h1-heading">{0}</span> <br/> on {1}.
 sa.message.youHaveOverpaid=You have overpaid.
 sa.message.amountDueForRepayment=You get a repayment of<br/> <span class="h1-heading">{0}</span>.
 sa.message.smallAmountToPay=If you don''t pay this amount now it will stay unpaid in your account. HMRC may charge you interest if you pay late.
