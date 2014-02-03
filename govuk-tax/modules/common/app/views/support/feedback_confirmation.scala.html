@@ -1,5 +1,5 @@
 @(ticketId:String, user: Option[uk.gov.hmrc.common.microservice.domain.User], hasPreferences: Boolean)(implicit request : Request[_])
-@main(title = Messages("common.feedback.heading"), nav = user.isDefined && !user.get.regimes.paye.isDefined && hasPreferences, user = user) {
+@main(title = Messages("common.feedback.heading"), user = user) {
 <header class="page-header">
     <h1>@Messages("common.feedback.confirmation.heading")</h1>
 </header>
