@@ -2,14 +2,17 @@
 
 @main(title = "Account Details - Thanks", user = Some(user)) {
     <header class="page-header">
-        <h1>Account Details</h1>
+        <h1>@Messages("bt.account.yourdetails")</h1>
 
-        <h2>Thanks.</h2>
+        <h2>Thanks</h2>
     </header>
-    <p id="verification-mail-message">We have re-sent the verification link to the email address you supplied, please ensure that you check your email.</p>
+    <p id="verification-mail-message">You’ve been sent a verification email.</p>
+    <p>Check your inbox and verify your email to activate the service.</p>
 
-    <hr />
+    <ul class="action-list">
+        <li>@helpers.link(Some("return-to-dashboard-button"), controllers.bt.routes.BusinessTaxController.home.url, "Return to your tax account")</li>
+    </ul>
 
-    <p>@helpers.link(Some("return-to-dashboard-button"), controllers.bt.routes.BusinessTaxController.home.url, "Return to your tax account")</p>
+
 
 }
