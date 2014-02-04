@@ -16,14 +16,13 @@ import uk.gov.hmrc.common.filters.{CacheControlFilter, SessionCookieCryptoFilter
 import uk.gov.hmrc.common.crypto.ApplicationCrypto
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
-import org.json4s.ext._Interval
 
 object Global
   extends WithFilters(MetricsFilter,
                       SessionCookieCryptoFilter,
                       CSRFExceptionsFilter,
                       CSRFFilter(),
-                      CacheControlFilter("image/", "text/css", "application/javascript")) {
+                      CacheControlFilter.fromConfig("caching.allowedContentTypes")) {
 
   import controllers.common.service.Connectors._
 
