@@ -17,7 +17,7 @@ object CSRFExceptionsFilter extends Filter {
   }
 
   private[filters] def filteredHeaders(rh: RequestHeader, now: () => DateTime = () => DateTimeUtils.now) =
-    if (rh.method == "POST" && (!hasValidTimestamp(rh.session, now) || whitelist.contains(rh.path)))
+    if (rh.method == "POST" && (userNeedsNewSession(rh.session, now) || whitelist.contains(rh.path)))
       rh.copy(headers = new CustomHeaders(rh))
     else rh
 

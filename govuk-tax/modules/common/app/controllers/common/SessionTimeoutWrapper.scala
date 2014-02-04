@@ -19,12 +19,16 @@ trait SessionTimeoutWrapper extends DateTimeProvider {
 object SessionTimeoutWrapper {
   val timeoutSeconds = 900
 
-  def hasValidTimestamp(session: Session, now: () => DateTime): Boolean = {
-   def isTimestampValid(timestamp: DateTime): Boolean = {
-     val timeOfExpiry = timestamp plus Duration.standardSeconds(timeoutSeconds)
-     now() isBefore timeOfExpiry
-   }
-    extractTimestamp(session) map isTimestampValid getOrElse true
+  def userNeedsNewSession(session: Session, now: () => DateTime): Boolean = {
+    extractTimestamp(session) match {
+      case Some(time) => !isTimestampValid(time, now)
+      case _ => false
+    }
+  }
+
+  private def isTimestampValid(timestamp: DateTime, now: () => DateTime): Boolean = {
+    val timeOfExpiry = timestamp plus Duration.standardSeconds(timeoutSeconds)
+    now() isBefore timeOfExpiry
   }
 
   private def extractTimestamp(session: Session): Option[DateTime] = {
@@ -44,13 +48,14 @@ class WithSessionTimeoutValidation(val now: () => DateTime) extends SessionTimeo
   def apply(authenticationProvider: AuthenticationProvider)(action: Action[AnyContent]): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] => {
       implicit val loggingDetails = HeaderCarrier(request)
-      val result = if (hasValidTimestamp(request.session, now)) {
-        action(request)
-      } else {
+      val result = if (userNeedsNewSession(request.session, now)) {
         Logger.info(s"request refused as the session had timed out in ${request.path}")
-        authenticationProvider.handleSessionTimeout().flatMap { simpleResult =>
-          Action(simpleResult)(request).map(_.withNewSession)
+        authenticationProvider.handleSessionTimeout().flatMap {
+          simpleResult =>
+            Action(simpleResult)(request).map(_.withNewSession)
         }
+      } else {
+        action(request)
       }
       addTimestamp(request, result)
     }

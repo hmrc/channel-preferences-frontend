@@ -65,11 +65,6 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
   }
 
   "WithSessionTimeoutValidation" should {
-    "redirect to the login page with a new session containing only a timestamp if the incoming session is empty" in new WithApplication(FakeApplication()) {
-      val result = TestController.testWithSessionTimeoutValidation(FakeRequest())
-      session(result) shouldBe Session(Map(SessionKeys.lastRequestTimestamp -> now().getMillis.toString))
-      redirectLocation(result) shouldBe Some(accountLoginPage)
-    }
     "redirect to the login page with a new session containing only a timestamp if the incoming timestamp is invalid" in new WithApplication(FakeApplication()) {
       val result = TestController.testWithSessionTimeoutValidation(FakeRequest().withSession(SessionKeys.lastRequestTimestamp -> invalidTime))
       session(result) shouldBe Session(Map(SessionKeys.lastRequestTimestamp -> now().getMillis.toString))
@@ -82,7 +77,11 @@ class SessionTimeoutWrapperSpec extends BaseSpec {
       redirectLocation(result) shouldBe Some(accountLoginPage)
     }
 
-
+    "perform the wrapped action successfully if the incoming session is empty" in new WithApplication(FakeApplication()) {
+      val result = TestController.testWithSessionTimeoutValidation(FakeRequest())
+      session(result) shouldBe Session(Map(SessionKeys.lastRequestTimestamp -> now().getMillis.toString, SessionKeys.userId -> "Tim"))
+      status(result) shouldBe 200
+    }
 
     "perform the wrapped action successfully and update the timestamp if the incoming timestamp is just valid when a custom error path is given" in new WithApplication(FakeApplication()) {
       val result = TestController.testWithSessionTimeoutValidation()(FakeRequest().withSession(SessionKeys.lastRequestTimestamp -> justValidTime))
