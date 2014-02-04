@@ -92,4 +92,13 @@ class CacheControlFilterSpec extends BaseSpec with MockitoSugar with ScalaFuture
       cacheControlFilter(action)(FakeRequest()).futureValue should be(resultFromAction.withHeaders(expectedCacheControlHeader))
     }
   }
+
+  "Creating the filter from config" should {
+    "load the correct values" in new WithApplication(FakeApplication(additionalConfiguration = Map("caching" -> List("image/", "text/")))) {
+      CacheControlFilter.fromConfig("caching").cachableContentTypes should be (List("image/", "text/"))
+    }
+    "throw an exception on missing config" in new WithApplication(FakeApplication()) {
+      evaluating { CacheControlFilter.fromConfig("caching").cachableContentTypes } should produce [RuntimeException]
+    }
+  }
 }
