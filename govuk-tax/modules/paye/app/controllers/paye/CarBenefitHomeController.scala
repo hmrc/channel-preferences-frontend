@@ -4,7 +4,6 @@ import controllers.common.{SessionKeys, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain._
 import models.paye.{ EmploymentView, EmploymentViews}
 import play.api.Logger
-import uk.gov.hmrc.utils.TaxYearResolver
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -13,11 +12,10 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.{Session, SimpleResult}
+import play.api.mvc.{Action, Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
-import controllers.paye.validation.BenefitFlowHelper
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
@@ -29,6 +27,10 @@ with TaxYearSupport {
   private val carAndFuelBenefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
+
+  def landingRedirect  = Action {
+    Redirect(routes.CarBenefitHomeController.carBenefitHome())
+  }
 
   def carBenefitHome = AuthorisedFor(regime = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
