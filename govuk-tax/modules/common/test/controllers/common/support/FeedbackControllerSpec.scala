@@ -237,7 +237,7 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
   val authenticatedSubmitUri = "/beta-feedback/submit"
   val unauthenticatedSubmitUri = "/beta-feedback/submit-unauthenticated"
 
-  def whenUserPrefsAre(prefs: Option[SaPreference]) = when(prefsConnector.getPreferences(meq(saUser.getSa.utr))(any())).thenReturn(Future.successful(prefs))
+  def whenUserPrefsAre(prefs: Option[SaPreference]) = when(prefsConnector.getPreferences(meq(saUser.getSaUtr))(any())).thenReturn(Future.successful(prefs))
 
   def formActionIn(doc: Document): String = doc.getElementById("feedback-form").attr("action")
   

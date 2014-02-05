@@ -48,7 +48,7 @@ class PaymentController(override val auditConnector: AuditConnector)
 
   private[bt] def makeSaPaymentPage(implicit user: User, request: Request[AnyRef]) = {
     val portalLink = PortalLink(buildPortalUrl("btDirectDebits"))
-    val utr = user.getSa.utr.utr
+    val utr = user.getSaUtr.utr
     Ok(views.html.make_a_sa_payment(portalLink, utr))
   }
 
