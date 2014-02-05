@@ -32,7 +32,7 @@ object FrontEndRedirect extends Controller {
 
   def toSamlLogin = {
     Logger.debug("Redirecting to login")
-    Redirect(routes.LoginController.samlLogin)
+    Redirect(routes.IdaLoginController.samlLogin)
   }
 
 }

@@ -40,7 +40,7 @@ object UserCredentials {
 object Ida extends AuthenticationProvider {
   val id = "IDA"
 
-  val login = routes.LoginController.samlLogin
+  val login = routes.IdaLoginController.samlLogin
 
   override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
       Future.successful(Redirect(routes.LoginController.payeSignedOut()))

@@ -3,10 +3,9 @@ package controllers
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.saml.SamlConnector
 import org.mockito.Mockito._
-import play.api.test.{ WithApplication, FakeRequest }
-import uk.gov.hmrc.common.microservice.auth.{AuthTokenExchangeException, AuthConnector}
+import play.api.test.{WithApplication, FakeRequest}
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayConnector
-import play.api.http._
 import controllers.common._
 import uk.gov.hmrc.common.BaseSpec
 import play.api.templates.Html
@@ -14,27 +13,21 @@ import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import scala.concurrent.Future
-import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.common.microservice.auth.domain._
-import uk.gov.hmrc.domain.{SaUtr, Nino}
+import uk.gov.hmrc.common.microservice.governmentgateway.{Credentials => GovernmentGatewayCredentials}
 import uk.gov.hmrc.microservice.saml.domain.AuthRequestFormData
-import uk.gov.hmrc.common.microservice.UnauthorizedException
-import play.api.libs.ws.Response
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import controllers.common.AuthExchangeResponse
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import controllers.common.AuthToken
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayLoginResponse
-import uk.gov.hmrc.microservice.saml.domain.AuthResponseValidationResult
-import uk.gov.hmrc.common.microservice.auth.domain.PayeAccount
-import uk.gov.hmrc.common.microservice.governmentgateway.{Credentials => GovernmentGatewayCredentials}
-import uk.gov.hmrc.common.microservice.auth.domain.{Credentials => AuthCredentials}
-import uk.gov.hmrc.common.microservice.ForbiddenException
 import play.api.test.FakeApplication
 import org.joda.time.{DateTime, DateTimeZone}
-import org.scalatest.concurrent.PatienceConfiguration._
-import org.scalatest.time.{Seconds, Span}
+import uk.gov.hmrc.common.microservice.{ForbiddenException, UnauthorizedException}
+import play.api.http.Status
+import uk.gov.hmrc.domain.SaUtr
+import play.api.libs.ws.Response
 
 class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -55,7 +48,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
     lazy val mockGovernmentGatewayConnector = mock[GovernmentGatewayConnector]
     lazy val mockBusinessTaxPages = mock[BusinessTaxPages]
     lazy val mockAuditConnector = mock[AuditConnector]
-    lazy val loginController = new LoginController(mockSamlConnector, mockGovernmentGatewayConnector, mockAuditConnector)(mockAuthConnector){
+    lazy val loginController = new LoginController(mockGovernmentGatewayConnector, mockAuditConnector)(mockAuthConnector) {
 
       override def notOnBusinessTaxWhitelistPage = {
         Html(mockBusinessTaxPages.notOnBusinessTaxWhitelistPage)
@@ -64,169 +57,120 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
     lazy val originalRequestId = "govuk-tax-325-235235-23523"
 
-
     def expectALoginFailedAuditEventFor(trasnsationName: String, reason: String) = {
       val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
       verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
 
       val event = captor.getValue
 
-      event.auditType should be ("TxFailed")
-      event.tags should contain ("transactionName" -> trasnsationName)
-      event.detail should contain ("transactionFailureReason" -> reason)
+      event.auditType should be("TxFailed")
+      event.tags should contain("transactionName" -> trasnsationName)
+      event.detail should contain("transactionFailureReason" -> reason)
     }
+
   }
 
   trait BusinessTaxPages {
     def notOnBusinessTaxWhitelistPage: String = ""
   }
 
-//  "Login controller GET /samllogin" should {
-//    "return a form that contains the data from the saml service" in new WithSetup {
-//      val result = loginController.samlLogin()(FakeRequest())
-//
-//      status(result) should be(200)
-//      contentAsString(result) should include("action=\"http://www.ida.gov.uk/saml\"")
-//      contentAsString(result) should include("value=\"0987654321\"")
-//    }
-//  }
+  //    "redirect to the home page if the response is valid" in new IdaTestCase {
+  //      val result = loginController.idaLogin()(setupValidRequest())
+  //
+  //      status(result) shouldBe 303
+  //      redirectLocation(result).get shouldBe FrontEndRedirect.carBenefit(None)
+  //
+  //      val sess = session(result)
+  //      sess(SessionKeys.userId) shouldBe userId
+  //
+  //      verify(mockAuditConnector).audit(Matchers.any())(Matchers.any())
+  //    }
+  //
+  //    "generate an audit event for successful login if the response is valid" in new IdaTestCase with ScalaFutures{
+  //      whenReady( loginController.idaLogin(setupValidRequest()) ) { _=>
+  //
+  //        val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
+  //        verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
+  //
+  //        val event = captor.getValue
+  //
+  //        event.auditSource should be ("frontend")
+  //        event.auditType should be ("TxSucceeded")
+  //        event.tags should (
+  //          contain ("transactionName" -> "IDA Login") and
+  //          contain ("X-Request-ID" -> originalRequestId) and
+  //          contain key "X-Request-ID-Original" and
+  //          contain key "X-Session-ID"
+  //        )
+  //        event.detail should (
+  //          contain ("hashPid" -> hashPid) and
+  //          contain ("authId" -> userId)
+  //        )
+  //      }
+  //    }
+  //
+  //    "generate an audit event for failed login if the AuthResponseValidationResult is not valid" in new IdaTestCase {
+  //        when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = false, Some(hashPid), Some(originalRequestId)))
+  //
+  //        val request = FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse))
+  //
+  //       whenReady( loginController.idaLogin()(request)) { _=>
+  //
+  //        val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
+  //        verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
+  //
+  //        val event = captor.getValue
+  //
+  //        event.auditSource should be ("frontend")
+  //        event.auditType should be ("TxFailed")
+  //        event.tags should (
+  //          contain ("transactionName" -> "IDA Login") and
+  //            contain ("X-Request-ID" -> originalRequestId) and
+  //            contain key "X-Request-ID-Original"
+  //          )
+  //        event.detail should contain ("transactionFailureReason" -> "SAMLResponse failed validation")
+  //      }
+  //    }
+  //
+  //    "return Unauthorised if the post does not contain a saml response" in new IdaTestCase {
+  //
+  //      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("Noddy", "BigEars")))
+  //
+  //      status(result) shouldBe 401
+  //      contentAsString(result) should include("There was a problem signing you in")
+  //
+  //      whenReady (result) { _=>
+  //        expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
+  //      }
+  //    }
+  //
+  //
+  //    "return Unauthorised if the post contains an empty saml response" in new IdaTestCase {
+  //
+  //      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", "")))
+  //
+  //      status(result) shouldBe 401
+  //      contentAsString(result) should include("There was a problem signing you in")
+  //
+  //      whenReady (result) { _=>
+  //        expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
+  //      }
+  //    }
+  //
+  //    "return Unauthorised if the saml response fails validation" in new IdaTestCase {
+  //
+  //      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = false, None, Some(originalRequestId)))
+  //
+  //      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
+  //
+  //      status(result) shouldBe 401
+  //      contentAsString(result) should include("There was a problem signing you in")
+  //
+  //      whenReady (result) { _=>
+  //        expectALoginFailedAuditEventFor("IDA Login", "SAMLResponse failed validation")
+  //      }
+  //    }
 
-  "Login controller POST /ida/login" should {
-
-    val samlResponse = "98ewgiher9t8ho4fh4hfgo48whfkw4h8o"
-
-    val hashPid = "09weu03t8e4gfo8"
-
-    val oid = "0943809346039"
-    val userId = s"/auth/oid/$oid"
-
-    abstract class IdaTestCase extends WithSetup with ScalaFutures {
-      val loginTime = new DateTime(2014, 1, 22, 11, 33, 55, 555, DateTimeZone.UTC)
-      val idaAuthority = Authority("/auth/oid/0943809346039", AuthCredentials(idaPids = Set(IdaPid(hashPid, loginTime, loginTime))), Accounts(paye = Some(PayeAccount("/paye/blah", Nino("AB112233C")))), Some(loginTime), None, CreationAndLastModifiedDetail(loginTime, loginTime))
-
-      def setupValidRequest() = {
-        when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId)))
-
-
-        when(mockAuthConnector.exchangePidForBearerToken(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(AuthExchangeResponse(AuthToken("Bearer JHBRGKJNERGKJNEGTJKN"), idaAuthority))
-        FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse))
-      }
-    }
-
-    "redirect to the home page if the response is valid" in new IdaTestCase {
-      val result = loginController.idaLogin()(setupValidRequest())
-
-      status(result) shouldBe 303
-      redirectLocation(result).get shouldBe FrontEndRedirect.carBenefit(None)
-
-      val sess = session(result)
-      sess(SessionKeys.userId) shouldBe userId
-
-      verify(mockAuditConnector).audit(Matchers.any())(Matchers.any())
-    }
-
-    "generate an audit event for successful login if the response is valid" in new IdaTestCase with ScalaFutures {
-      whenReady(loginController.idaLogin(setupValidRequest())) { _=>
-
-        val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
-        verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
-
-        val event = captor.getValue
-
-        event.auditSource should be ("frontend")
-        event.auditType should be ("TxSucceeded")
-        event.tags should (
-          contain ("transactionName" -> "IDA Login") and
-          contain ("X-Request-ID" -> originalRequestId) and
-          contain key "X-Request-ID-Original" and
-          contain key "X-Session-ID"
-        )
-        event.detail should (
-          contain ("hashPid" -> hashPid) and
-          contain ("authId" -> userId)
-        )
-      }
-    }
-
-    "generate an audit event for failed login if the AuthResponseValidationResult is not valid" in new IdaTestCase {
-
-      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = false, Some(hashPid), Some(originalRequestId)))
-
-      val request = FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse))
-
-      whenReady(loginController.idaLogin()(request), Timeout(Span(60L, Seconds))) { _ =>
-
-          val captor = ArgumentCaptor.forClass(classOf[AuditEvent])
-          verify(mockAuditConnector).audit(captor.capture())(Matchers.any())
-
-          val event = captor.getValue
-
-          event.auditSource should be("frontend")
-          event.auditType should be("TxFailed")
-          event.tags should (
-            contain("transactionName" -> "IDA Login") and
-              contain("X-Request-ID" -> originalRequestId) and
-              contain key "X-Request-ID-Original"
-            )
-          event.detail should contain("transactionFailureReason" -> "SAMLResponse failed validation")
-      }
-    }
-
-    "return Unauthorised if the post does not contain a saml response" in new IdaTestCase {
-
-      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("Noddy", "BigEars")))
-
-      status(result) shouldBe 401
-      contentAsString(result) should include("There was a problem signing you in")
-
-      whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
-      }
-    }
-
-
-    "return Unauthorised if the post contains an empty saml response" in new IdaTestCase {
-
-      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", "")))
-
-      status(result) shouldBe 401
-      contentAsString(result) should include("There was a problem signing you in")
-
-      whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("IDA Login", "SAML authentication response received without SAMLResponse data")
-      }
-    }
-
-    "return Unauthorised if the saml response fails validation" in new IdaTestCase {
-
-      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(AuthResponseValidationResult(valid = false, None, Some(originalRequestId)))
-
-      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
-
-      status(result) shouldBe 401
-      contentAsString(result) should include("There was a problem signing you in")
-
-      whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("IDA Login", "SAMLResponse failed validation")
-      }
-    }
-
-    "return Unauthorised if there is no Authority record matching the hash pid" in new IdaTestCase {
-
-      when(mockSamlConnector.validate(Matchers.eq(samlResponse))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthResponseValidationResult(valid = true, Some(hashPid), Some(originalRequestId))))
-
-      when(mockAuthConnector.exchangePidForBearerToken(Matchers.eq(hashPid))(Matchers.any[HeaderCarrier])).thenReturn(Future.failed(AuthTokenExchangeException("pid")))
-
-      val result = loginController.idaLogin()(FakeRequest(POST, "/ida/login").withFormUrlEncodedBody(("SAMLResponse", samlResponse)))
-
-      status(result) shouldBe 401
-      contentAsString(result) should include("There was a problem signing you in")
-
-      whenReady (result) { _=>
-        expectALoginFailedAuditEventFor("IDA Login", "No record found in Auth for the PID")
-      }
-    }
-  }
 
   "Attempting to log in to SA via Government Gateway Geoff Fisher" should {
 
@@ -340,14 +284,14 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
       val event = captor.getValue
 
-      event.auditSource should be ("frontend")
-      event.auditType should be ("TxSucceeded")
+      event.auditSource should be("frontend")
+      event.auditType should be("TxSucceeded")
       event.tags should (
-        contain ("transactionName" -> "GG Login") and
-        contain key "X-Request-ID" and
-        contain key "X-Session-ID"
-      )
-      event.detail should contain ("authId" -> geoff.userId)
+        contain("transactionName" -> "GG Login") and
+          contain key "X-Request-ID" and
+          contain key "X-Session-ID"
+        )
+      event.detail should contain("authId" -> geoff.userId)
     }
   }
 

@@ -12,8 +12,8 @@ GET     /done/your-company-car                          @controllers.common.Logi
 
 
 # routes for testing IDA integration
-GET     /samllogin                                      @controllers.common.LoginController.samlLogin
-POST    /ida/login                                      @controllers.common.LoginController.idaLogin
+GET     /samllogin                                      @controllers.common.IdaLoginController.samlLogin
+POST    /ida/login                                      @controllers.common.IdaLoginController.idaLogin
 
 
 # URLs used for sso, they cannot change without agreement with Aspire
