@@ -37,6 +37,9 @@ class LoginController(samlConnector: SamlConnector,
     }
   }
 
+
+  def redirectToAccountHome = UnauthorisedAction(request => FrontEndRedirect.toBusinessTax)
+
   def businessTaxLogin = WithNewSessionTimeout(UnauthorisedAction {
     implicit request =>
       Ok(views.html.ggw_login_form())

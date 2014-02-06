@@ -23,6 +23,8 @@ GET     /ssoin/logout                                   @controllers.common.SsoI
 GET     /ssoout                                         @controllers.common.SsoOutController.encryptPayload
 GET     /loggedout                                      @controllers.common.LoginController.redirectToSignedOut
 
+GET    /business-tax/home                               @controllers.common.LoginController.redirectToAccountHome
+
 # Common resources
 GET     /help/cookies                                   @controllers.common.CommonController.cookies
 GET     /help/terms-and-conditions                      @controllers.common.CommonController.termsAndConditions
