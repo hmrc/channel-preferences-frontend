@@ -13,23 +13,8 @@ import scala.concurrent.Future
 import org.mockito.Matchers
 import org.mockito.Matchers.{eq => meq, _}
 import controllers.common.actions.HeaderCarrier
-import scala.Some
-import play.api.test.FakeApplication
-import play.api.mvc.{AnyContentAsFormUrlEncoded, Request}
-import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
-import uk.gov.hmrc.common.microservice.auth.domain.{CreationAndLastModifiedDetail, Accounts, Credentials, Authority}
-import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
-import uk.gov.hmrc.common.microservice.auth.domain.Accounts
-import uk.gov.hmrc.common.microservice.auth.domain.Authority
-import scala.Some
-import uk.gov.hmrc.common.microservice.auth.domain.Credentials
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import play.api.test.FakeApplication
-import play.api.mvc.AnyContentAsFormUrlEncoded
-import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
+import play.api.mvc.Request
+import uk.gov.hmrc.common.microservice.auth.domain.CreationAndLastModifiedDetail
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.auth.domain.Authority
@@ -72,9 +57,9 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
     "return 200 and a valid html page for a valid request and js is not enabled for an authenticated user" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]](), meq(user))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]]())(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
-      val result = controller.doReport(request, user)
+      val result = controller.doReport(request)
 
       status(result) should be(200)
 
@@ -84,7 +69,7 @@ class ProblemReportsControllerSpec extends BaseSpec {
 
     "return 200 and a valid json for a valid request and js is enabled" in new ProblemReportsControllerApplication {
 
-      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(true), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+      when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(true), any[Request[AnyRef]]())(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
 
       val result = controller.doReport(generateRequest())
 
@@ -155,6 +140,6 @@ class ProblemReportsControllerApplication extends WithApplication(FakeApplicatio
   val request = generateRequest(javascriptEnabled = false)
 
   def hrmcConnectorWillReturnTheTicketId = {
-    when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]](), meq(None))(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
+    when(hmrcDeskproConnector.createTicket(meq("John Densmore"), meq("name@mail.com"), meq("Support Request"), meq(controller.problemMessage("Some Action", "Some Error")), meq("/contact/problem_reports"), meq(false), any[Request[AnyRef]]())(Matchers.any(classOf[HeaderCarrier]))).thenReturn(Future.successful(Some(TicketId(123))))
   }
 }

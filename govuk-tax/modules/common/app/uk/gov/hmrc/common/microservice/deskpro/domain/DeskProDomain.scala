@@ -1,8 +1,8 @@
 package uk.gov.hmrc.common.microservice.deskpro.domain
 
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.Request
+import controllers.common.{GovernmentGateway, Ida, SessionKeys}
 
 case class Ticket private(name: String,
                           email: String,
@@ -17,7 +17,7 @@ case class Ticket private(name: String,
 
 
 object Ticket extends FieldTransformer {
-  def apply(name: String, email: String, subject: String, message: String, referrer: String, isJavascript: Boolean, hc: HeaderCarrier, request: Request[AnyRef], user: Option[User]): Ticket =
+  def apply(name: String, email: String, subject: String, message: String, referrer: String, isJavascript: Boolean, hc: HeaderCarrier, request: Request[AnyRef]): Ticket =
     Ticket(
       name.trim,
       email,
@@ -27,7 +27,7 @@ object Ticket extends FieldTransformer {
       ynValueOf(isJavascript),
       userAgentOf(request),
       userIdFrom(hc),
-      areaOfTaxOf(user),
+      areaOfTaxOf(request),
       sessionIdFrom(hc))
 
 }
@@ -48,7 +48,7 @@ case class Feedback(name: String,
 
 
 object Feedback extends FieldTransformer {
-  def apply(name: String, email: String, rating: String, subject: String, message: String, referrer: String, isJavascript: Boolean, hc: HeaderCarrier, request: Request[AnyRef], user: Option[User]): Feedback =
+  def apply(name: String, email: String, rating: String, subject: String, message: String, referrer: String, isJavascript: Boolean, hc: HeaderCarrier, request: Request[AnyRef]): Feedback =
     Feedback(
       name.trim,
       email,
@@ -59,7 +59,7 @@ object Feedback extends FieldTransformer {
       ynValueOf(isJavascript),
       userAgentOf(request),
       userIdFrom(hc),
-      areaOfTaxOf(user),
+      areaOfTaxOf(request),
       sessionIdFrom(hc))
 }
 
@@ -67,7 +67,10 @@ object Feedback extends FieldTransformer {
 trait FieldTransformer {
   def sessionIdFrom(hc: HeaderCarrier) = hc.sessionId.getOrElse("n/a")
 
-  def areaOfTaxOf(option: Option[User]) = option.map(user => user.regimes.paye.map(_ => "paye").getOrElse("biztax")).getOrElse("n/a")
+  def areaOfTaxOf(request: Request[AnyRef]) = request.session.get(SessionKeys.authProvider) match {
+                                                                case Some(Ida.id) =>  "biztax"
+                                                                case Some(GovernmentGateway.id) => "paye"
+                                                                case _ => "n/a" }
 
   def userIdFrom(hc: HeaderCarrier) = hc.userId.getOrElse("n/a")
 

@@ -9,13 +9,11 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.TaxRegime
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
-import uk.gov.hmrc.common.microservice.auth.domain.Authority
 
 import controllers.common._
 
 trait UserActionWrapper
-  extends Results {
+  extends Results with RegimeRootsProvider {
 
   protected implicit val authConnector: AuthConnector
 
@@ -23,15 +21,16 @@ trait UserActionWrapper
                                             taxRegime: Option[TaxRegime],
                                             redirectToOrigin: Boolean)
                                            (userAction: User => Action[AnyContent]): Action[AnyContent] =
-    Action.async { implicit request =>
-      implicit val hc = HeaderCarrier(request)
-      Logger.info(s"WithUserAuthorisedBy using auth provider ${authenticationProvider.id}")
-      val handle = authenticationProvider.handleNotAuthenticated(redirectToOrigin) orElse handleAuthenticated(taxRegime, authenticationProvider)
+    Action.async {
+      implicit request =>
+        implicit val hc = HeaderCarrier(request)
+        Logger.info(s"WithUserAuthorisedBy using auth provider ${authenticationProvider.id}")
+        val handle = authenticationProvider.handleNotAuthenticated(redirectToOrigin) orElse handleAuthenticated(taxRegime, authenticationProvider)
 
-      handle(UserCredentials(request.session)).flatMap {
-        case Left(successfullyFoundUser) => userAction(successfullyFoundUser)(request)
-        case Right(resultOfFailure) => Action(resultOfFailure)(request)
-      }
+        handle(UserCredentials(request.session)).flatMap {
+          case Left(successfullyFoundUser) => userAction(successfullyFoundUser)(request)
+          case Right(resultOfFailure) => Action(resultOfFailure)(request)
+        }
     }
 
   private def handleAuthenticated(taxRegime: Option[TaxRegime], authenticationProvider: AuthenticationProvider)
@@ -48,23 +47,22 @@ trait UserActionWrapper
             Logger.info("user not authorised for " + regime.getClass)
             authenticationProvider.redirectToLogin(false).map(Right(_))
           case _ =>
-            regimeRoots(ua).map { regimeRoots =>
-              Left(User(
-                userId = userId,
-                userAuthority = ua,
-                regimes = regimeRoots,
-                nameFromGovernmentGateway = request.session.get(SessionKeys.name),
-                decryptedToken = tokenOption))
+            regimeRoots(ua).map {
+              regimeRoots =>
+                Left(User(
+                  userId = userId,
+                  userAuthority = ua,
+                  regimes = regimeRoots,
+                  nameFromGovernmentGateway = request.session.get(SessionKeys.name),
+                  decryptedToken = tokenOption))
             }
         }
-        case _ => {
+        case _ =>
           Logger.warn(s"No authority found for user id '$userId' from '${request.remoteAddress}'")
-          authenticationProvider.redirectToLogin(false).map { result =>
-            Right(result.withNewSession)
+          authenticationProvider.redirectToLogin(false).map {
+            result =>
+              Right(result.withNewSession)
           }
-        }
       }
   }
-
-  def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots]
 }

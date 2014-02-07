@@ -1,14 +1,15 @@
 package uk.gov.hmrc.common.microservice.deskpro
 
 import uk.gov.hmrc.common.BaseSpec
-import uk.gov.hmrc.common.microservice.deskpro.domain.{FieldTransformer, Ticket}
-import play.api.test.FakeRequest
+import uk.gov.hmrc.common.microservice.deskpro.domain.FieldTransformer
+import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRoot
 import uk.gov.hmrc.common.microservice.vat.domain.VatRoot
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import uk.gov.hmrc.common.microservice.auth.domain.{CreationAndLastModifiedDetail, Accounts, Credentials, Authority}
 import controllers.common.actions.HeaderCarrier
+import controllers.common.{GovernmentGateway, Ida, SessionKeys}
 
 class FieldTransformerSpec extends BaseSpec {
 
@@ -23,15 +24,15 @@ class FieldTransformerSpec extends BaseSpec {
     }
 
     "transforms user to area of tax equals Business Tax" in new FieldTransformerScope {
-      transformer.areaOfTaxOf(Some(bizTaxUser)) shouldBe "biztax"
+      transformer.areaOfTaxOf(requestAuthenticatedByIda) shouldBe "biztax"
     }
 
     "transforms user to area of tax equals PAYE" in new FieldTransformerScope {
-      transformer.areaOfTaxOf(Some(user)) shouldBe "paye"
+      transformer.areaOfTaxOf(requestAuthenticatedByGG) shouldBe "paye"
     }
 
     "transforms no user to an unknown area of tax" in new FieldTransformerScope {
-      transformer.areaOfTaxOf(None) shouldBe "n/a"
+      transformer.areaOfTaxOf(request) shouldBe "n/a"
     }
 
     "transforms userId in the header carrier to user id" in new FieldTransformerScope {
@@ -61,7 +62,7 @@ class FieldTransformerSpec extends BaseSpec {
 
 }
 
-class FieldTransformerScope {
+class FieldTransformerScope extends WithApplication(FakeApplication()){
   val transformer = new FieldTransformer {}
 
 
@@ -79,5 +80,8 @@ class FieldTransformerScope {
   val message: String = "message"
   val referrer: String = "referer"
   val request = FakeRequest().withHeaders(("User-Agent", userAgent))
+  val requestAuthenticatedByIda = FakeRequest().withHeaders(("User-Agent", userAgent)).withSession((SessionKeys.authProvider, Ida.id))
+  val requestAuthenticatedByGG = FakeRequest().withHeaders(("User-Agent", userAgent)).withSession((SessionKeys.authProvider, GovernmentGateway.id))
+
 }
 
