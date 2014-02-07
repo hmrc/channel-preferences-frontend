@@ -18,8 +18,8 @@
 </div>
 }
 @helper.form(action = controllers.bt.routes.AccountDetailsController.accountDetails) {
-    <div class="form-field">
+    <p class="form-field">
         @helpers.link(Some("cancel-opt-out-link"), controllers.bt.routes.AccountDetailsController.accountDetails.url, "Don’t stop your email reminders")
-    </div>
+    </p>
 }
 }
