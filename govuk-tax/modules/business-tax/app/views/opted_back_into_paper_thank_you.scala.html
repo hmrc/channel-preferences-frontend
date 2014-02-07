@@ -8,7 +8,8 @@
     </header>
     <p>You’ll now get your Self Assessment reminders in the post.</p>
     <p>You can sign up for email reminders again at any time.</p>
-
-    <p>@helpers.link(Some("return-to-dashboard-button"), controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account", false, false)</p>
+    <ul class="action-list">
+        <li>@helpers.link(Some("return-to-dashboard-button"), controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account", false, false)</li>
+    </ul>
 
 }
