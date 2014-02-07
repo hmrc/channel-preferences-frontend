@@ -38,9 +38,14 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
     }
   })
 
+  val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
   def getIn(payload:String) = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request => {
-      in(URLDecoder.decode(payload, "UTF-8"))
+      if (payload.matches(base64)) {
+        in(payload)
+      } else {
+        in(URLDecoder.decode(payload, "UTF-8"))
+      }
     }
   })
 
