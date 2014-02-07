@@ -16,19 +16,19 @@ class FieldTransformerSpec extends BaseSpec {
   "Field Transformer" should {
 
     "transforms javascript not enabled" in new FieldTransformerScope {
-      transformer.ynValueOf(false) shouldBe "N"
+      transformer.ynValueOf(javascript = false) shouldBe "N"
     }
 
     "transforms javascript  enabled" in new FieldTransformerScope {
-      transformer.ynValueOf(true) shouldBe "Y"
+      transformer.ynValueOf(javascript = true) shouldBe "Y"
     }
 
-    "transforms user to area of tax equals Business Tax" in new FieldTransformerScope {
-      transformer.areaOfTaxOf(requestAuthenticatedByIda) shouldBe "biztax"
+    "transforms session authenticated by Ida to paye" in new FieldTransformerScope {
+      transformer.areaOfTaxOf(requestAuthenticatedByIda) shouldBe "paye"
     }
 
-    "transforms user to area of tax equals PAYE" in new FieldTransformerScope {
-      transformer.areaOfTaxOf(requestAuthenticatedByGG) shouldBe "paye"
+    "transforms session authenticated by GGW to Business Tax" in new FieldTransformerScope {
+      transformer.areaOfTaxOf(requestAuthenticatedByGG) shouldBe "biztax"
     }
 
     "transforms no user to an unknown area of tax" in new FieldTransformerScope {

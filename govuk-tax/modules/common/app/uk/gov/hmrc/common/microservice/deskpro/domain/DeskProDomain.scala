@@ -68,8 +68,8 @@ trait FieldTransformer {
   def sessionIdFrom(hc: HeaderCarrier) = hc.sessionId.getOrElse("n/a")
 
   def areaOfTaxOf(request: Request[AnyRef]) = request.session.get(SessionKeys.authProvider) match {
-                                                                case Some(Ida.id) =>  "biztax"
-                                                                case Some(GovernmentGateway.id) => "paye"
+                                                                case Some(Ida.id) =>  "paye"
+                                                                case Some(GovernmentGateway.id) => "biztax"
                                                                 case _ => "n/a" }
 
   def userIdFrom(hc: HeaderCarrier) = hc.userId.getOrElse("n/a")
