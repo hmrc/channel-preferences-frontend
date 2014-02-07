@@ -17,5 +17,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    @helpers.link(Some("emailIsNotCorrectLink"), controllers.bt.routes.AccountDetailsController.changeEmailAddress(Some(emailAddress)).url, "Change this email address")
+    <p>@helpers.link(Some("emailIsNotCorrectLink"), controllers.bt.routes.AccountDetailsController.changeEmailAddress(Some(emailAddress)).url, "Change this email address")</p>
 }
