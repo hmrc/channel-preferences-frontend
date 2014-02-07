@@ -80,9 +80,8 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
   }
 
   def removeCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveCarBenefitFormData], user: User, request: Request[_]) = {
-    val hasUnremovedFuel = activeCarBenefit.hasActiveFuel
     val benefitValues: Option[RemoveCarBenefitFormDataValues] = defaults.map(RemoveCarBenefitFormDataValues(_))
-    val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, hasUnremovedFuel, dates, now(), taxYearInterval)
+    val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, activeCarBenefit.fuelBenefit, dates, now(), taxYearInterval)
     val filledForm = defaults.map {
       preFill => benefitForm.fill(preFill)
     }.getOrElse(benefitForm)

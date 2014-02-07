@@ -8,7 +8,7 @@ import org.jsoup.Jsoup
 import org.joda.time.{LocalDate, DateTime}
 import org.joda.time.chrono.ISOChronology
 
-import uk.gov.hmrc.common.microservice.paye.domain.CarBenefit
+import uk.gov.hmrc.common.microservice.paye.domain.{FuelBenefit, CarBenefit}
 
 import models.paye.CarFuelBenefitDates
 import views.html.paye.remove_car_benefit_form
@@ -33,7 +33,7 @@ class RemoveCarBenefitTemplateSpec extends PayeBaseSpec {
   }
 
   "the remove car benefit form" should {
-    val form = updateRemoveCarBenefitForm(None, new LocalDate(), false, Some(CarFuelBenefitDates(None, None)), dateToday, taxYearInterval)
+    val form = updateRemoveCarBenefitForm(None, new LocalDate(), None, Some(CarFuelBenefitDates(None, None)), dateToday, taxYearInterval)
     val activeCarBenefit = CarBenefit(carBenefit, Some(withdrawnFuelBenefit))
 
     "not display the remove fuel benefit fields if the fuel benefit is present but already withdrawn" in new WithApplication(FakeApplication()) {
@@ -50,7 +50,7 @@ class RemoveCarBenefitTemplateSpec extends PayeBaseSpec {
 
   "Given a user who has car and fuel benefits, removing car benefit " should {
     val activeCarBenefit = johnDensmoresBenefits.head
-    val form = updateRemoveCarBenefitForm(None, new LocalDate(), false, Some(CarFuelBenefitDates(None, None)), dateToday, taxYearInterval)
+    val form = updateRemoveCarBenefitForm(None, new LocalDate(), Some(FuelBenefit(new LocalDate(), 0, 0, Some(new LocalDate()))), Some(CarFuelBenefitDates(None, None)), dateToday, taxYearInterval)
 
     "In step 1, give the user the option to remove fuel benefit on the same (or different) date as the car" in new WithApplication(FakeApplication()) {
       val result = remove_car_benefit_form(activeCarBenefit, johnDensmoresOneEmployment(1).head, form, currentTaxYearYearsRange)(johnDensmore, FakeRequest())

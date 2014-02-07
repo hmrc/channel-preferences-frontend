@@ -5,6 +5,7 @@ error.paye.benefit.date.previous.startdate=Enter a date that’s on or after the
 error.paye.benefit.date.mandatory=Enter a date.
 error.paye.benefit.choice.mandatory=Confirm when the fuel benefit stopped.
 error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate=Enter a date that’s on or before the date you returned the car.
+error.paye.benefit.carwithdrawdate.before.fuelwithdrawdate=Enter a date that’s on or after {0} (the date you stopped claiming a fuel benefit for this car).
 error.paye.remove.benefit.accept.agreement=Please confirm that you are no longer provided with this benefit
 error.paye.add_car_benefit.missing_employer_contribution=Confirm how much you paid towards the car.
 error.paye.add_car_benefit.missing_employee_contribution=Enter a number between £1 and £5,000.

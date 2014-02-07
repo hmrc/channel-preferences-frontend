@@ -9,6 +9,7 @@ import play.api.data.Form
 import play.api.test.Helpers._
 import controllers.paye.RemovalUtils._
 import uk.gov.hmrc.utils.DateTimeUtils
+import uk.gov.hmrc.common.microservice.paye.domain.FuelBenefit
 
 class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHelper {
 
@@ -18,7 +19,7 @@ class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHel
     "render the form with all the fields to remove a car benefit" in new WithApplication(FakeApplication()) {
       val form: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(values = None,
         benefitStartDate = currentTestDate.toLocalDate,
-        carBenefitWithUnremovedFuelBenefit = true,
+        fuelBenefit = Some(FuelBenefit(currentTestDate.toLocalDate, 0, 0, None)),
         dates = Some(CarFuelBenefitDates(None, None)),
         DateTimeUtils.now,
         taxYearInterval)
@@ -57,7 +58,7 @@ class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHel
     "render any errors in the form data" in new WithApplication(FakeApplication()) {
       val form: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(values = None,
         benefitStartDate = currentTestDate.toLocalDate,
-        carBenefitWithUnremovedFuelBenefit = true,
+        fuelBenefit = Some(FuelBenefit(currentTestDate.toLocalDate, 0, 0, None)),
         dates = Some(CarFuelBenefitDates(None, None)),
         DateTimeUtils.now,
         taxYearInterval).bindFromRequest()(FakeRequest())
