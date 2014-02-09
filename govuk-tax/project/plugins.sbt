@@ -4,7 +4,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
 
 addSbtPlugin("net.litola" % "play-sass" % "0.3.0")
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
 
