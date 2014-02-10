@@ -2990,6 +2990,7 @@ article table td {
   list-style: none;
   margin: 0;
   padding: 0;
+  clear: both;
 }
 .action-list li {
   border-top: 1px solid #bfc1c3;
