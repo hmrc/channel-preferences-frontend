@@ -1,7 +1,7 @@
 error.paye.benefit.date.greater.7.days=Enter a date that’s no more than 7 days from today - you can’t report a change more than 7 days in advance.
 error.paye.benefit.date.next.taxyear=Enter a date between 6 April {0} and 5 April {1}.
 error.paye.benefit.date.previous.taxyear=Enter a date between 6 April {0} and 5 April {1}.
-error.paye.benefit.date.previous.startdate=Enter a date that’s on or after the date you got the car.
+error.paye.benefit.date.previous.startdate=Enter a date that’s after the date you got the car.
 error.paye.benefit.date.mandatory=Enter a date.
 error.paye.benefit.choice.mandatory=Confirm when the fuel benefit stopped.
 error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate=Enter a date that’s on or before the date you returned the car.
@@ -34,7 +34,7 @@ error.paye.engine_capacity_must_not_be_blank_for_fuel_type_not_electricity=Selec
 error.paye.co2_figures_not_blank=Confirm the car’s CO2 emissions.
 error.paye.engine_capacity_must_not_be_blank_for_registered_before_98=Select an engine size.
 error.paye.employer_pay_fuel_date_option_mandatory_withdrawn_date=Enter the date your fuel benefit stopped.
-error.paye.fuel_withdraw_date_must_be_after_car_start_date=Enter a date that’s on or after the date you got the car.
+error.paye.fuel_withdraw_date_must_be_after_car_start_date=Enter a date that’s after the date you got the car.
 error.paye.fuel_withdraw_date_must_be_before_car_end_date=Enter a date that’s on or before the date you returned the car.
 error.paye.employer_cannot_pay_fuel_on_electric_cars=You can’t claim fuel benefit for electric cars or cars with zero C02 emissions.
 error.paye.non_valid_option=Value not accepted. Please select one of the options.

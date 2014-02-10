@@ -215,7 +215,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     def dummyForm(fuelDateWithdrawn : Option[LocalDate]) = {
       Form(
         mapping(
-          withdrawDate -> localDateMapping(Option(carBenefitStartDate), new LocalDate(), taxYearInterval, fuelDateWithdrawn)
+          withdrawDate -> localDateMapping(new LocalDate(), taxYearInterval, fuelDateWithdrawn, fuelBenefitMapping(Option(carBenefitStartDate)))
         )(DummyModel.apply)(DummyModel.unapply))
     }
 

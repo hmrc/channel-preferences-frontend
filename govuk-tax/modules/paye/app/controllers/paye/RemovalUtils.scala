@@ -27,7 +27,7 @@ object RemovalUtils {
                                  dates: Option[CarFuelBenefitDates],
                                  now: DateTime, taxYearInterval: Interval) = Form[RemoveCarBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval, fuelBenefit.flatMap(_.dateWithdrawn)),
+      "withdrawDate" -> localDateMapping(now.toLocalDate, taxYearInterval, fuelBenefit.flatMap(_.dateWithdrawn), carBenefitMapping(Some(benefitStartDate))),
       "carUnavailable" -> validateMandatoryBoolean,
       "numberOfDaysUnavailable" -> validateNumberOfDaysUnavailable(values, benefitStartDate, taxYearInterval),
       "removeEmployeeContributes" -> validateMandatoryBoolean,
@@ -39,7 +39,7 @@ object RemovalUtils {
 
   def updateRemoveFuelBenefitForm(benefitStartDate: LocalDate, now: DateTime, taxYearInterval: Interval) = Form[RemoveFuelBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval)
+      "withdrawDate" -> localDateMapping(now.toLocalDate, taxYearInterval, None, fuelBenefitMapping(Some(benefitStartDate)))
     )(RemoveFuelBenefitFormData.apply)(RemoveFuelBenefitFormData.unapply)
   )
 

@@ -160,7 +160,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
         providedToVal = carStopDate,
         giveBackThisTaxYearVal = Some("true"))
       val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date that’s on or after the date you got the car.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date that’s after the date you got the car.")
     }
 
     "reject fuel withdrawn date if it is after the date when the car benefit was removed"  in new WithApplication(FakeApplication()) {
@@ -197,7 +197,7 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       val valuesWithCarProvidedDates = getValues(employerPayFuelVal = Some("date"), providedFromVal = carStartDate, providedToVal = carStopDate)
       val form = dummyForm(valuesWithCarProvidedDates).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawn: _*))
 
-      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date that’s on or after the date you got the car.")
+      assertHasThisErrorMessage(form, dateFuelWithdrawn, "Enter a date that’s after the date you got the car.")
     }
 
     "reject fuel benefit if fuel type is electricity" in new WithApplication(FakeApplication()) {
