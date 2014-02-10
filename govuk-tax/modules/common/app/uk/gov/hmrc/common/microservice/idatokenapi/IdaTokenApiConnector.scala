@@ -14,8 +14,26 @@ import play.api.Logger
 import play.api.data.validation.ValidationError
 import controllers.common.actions.LoggingDetails
 
-class IdaTokenApiConnector extends Connector with AesCrypto {
+
+object IdaTokenAuth extends AesCrypto {
   val encryptionKey = "s7fkwn2sc52fggkfslv29g"
+
+  def main(args:Array[String]):Unit = {
+    args match {
+      case Array(username, password) => {
+        println(s"Encrypted username: ${encrypt(username)}")
+        println(s"Encrypted password: ${encrypt(password)}")
+      }
+      case _ => {
+        println("Usage: IdaTokenAuth <username> <password>")
+        println("will output the encrypted, base64 encoded strings.")
+      }
+    }
+  }
+}
+
+class IdaTokenApiConnector extends Connector with AesCrypto {
+  val encryptionKey = IdaTokenAuth.encryptionKey
 
   override val serviceUrl = ""
 
