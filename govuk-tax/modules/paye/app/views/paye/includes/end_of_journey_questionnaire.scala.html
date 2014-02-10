@@ -125,7 +125,7 @@
         </fieldset>
 
         <label for="q6">@Messages("paye.questionnaire.questions.improve")</label>
-        <textarea id="q6" name="@{FormFields.commentForImprovements}" cols="40" rows="6"></textarea>
+        <textarea id="q6" maxlength="1000" name="@{FormFields.commentForImprovements}" cols="40" rows="6"></textarea>
     </fieldset>
     <p>@Messages("paye.questionnaire.warning")</p>
     <input type="submit" class="button" value="Send"/>

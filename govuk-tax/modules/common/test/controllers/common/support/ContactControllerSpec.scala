@@ -129,7 +129,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe 200
 
-      page.getElementById("ticketId").text() shouldBe "321"
+      page.getElementById("ticketId").attr("value") shouldBe "321"
     }
   }
 }

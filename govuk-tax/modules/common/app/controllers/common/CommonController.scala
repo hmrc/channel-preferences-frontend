@@ -6,7 +6,7 @@ import controllers.common.actions.Actions
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 
 
-class CommonController(override val auditConnector: AuditConnector) (implicit override val authConnector: AuthConnector) extends BaseController with Actions with AllRegimeRoots {
+class CommonController(override val auditConnector: AuditConnector) (implicit override val authConnector: AuthConnector) extends BaseController with Actions with NoRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 

@@ -9,11 +9,12 @@ GET     /account/sign-in                                @controllers.common.Logi
 POST    /account/sign-in                                @controllers.common.LoginController.governmentGatewayLogin
 GET     /signed-out                                     @controllers.common.LoginController.signedOut
 GET     /done/your-company-car                          @controllers.common.LoginController.payeSignedOut
+GET     /account/sso-sign-out                           @controllers.common.LoginController.redirectToRemoteSsoLogout
 
 
 # routes for testing IDA integration
-GET     /samllogin                                      @controllers.common.LoginController.samlLogin
-POST    /ida/login                                      @controllers.common.LoginController.idaLogin
+GET     /samllogin                                      @controllers.common.IdaLoginController.samlLogin
+POST    /ida/login                                      @controllers.common.IdaLoginController.idaLogin
 
 
 # URLs used for sso, they cannot change without agreement with Aspire
