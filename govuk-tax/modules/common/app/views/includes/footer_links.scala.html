@@ -1,6 +1,7 @@
+@import views.helpers.Link
 <ul class="platform-help-links">
-    <li>@helpers.link(None, Messages("common.links.help_page.url"), Messages("common.links.help_page.text"), newWindow=true)</li>
-    <li>@helpers.link(None, Messages("common.links.cookies.url"), Messages("common.links.cookies.text"), newWindow=true)</li>
-    <li>@helpers.link(None, Messages("common.links.privacy_policy.url"), Messages("common.links.privacy_policy.text"), newWindow=true)</li>
-    <li>@helpers.link(None, Messages("common.links.terms_and_conditions.url"), Messages("common.links.terms_and_conditions.text"), newWindow=true)</li>
+    <li>@Link.toExternalPage(url = Messages("common.links.help_page.url"), value = Some(Messages("common.links.help_page.text"))).toHtml</li>
+    <li>@Link.toExternalPage(url = Messages("common.links.cookies.url"), value = Some(Messages("common.links.cookies.text"))).toHtml</li>
+    <li>@Link.toExternalPage(url = Messages("common.links.privacy_policy.url"), value = Some(Messages("common.links.privacy_policy.text"))).toHtml</li>
+    <li>@Link.toExternalPage(url = Messages("common.links.terms_and_conditions.url"), value = Some(Messages("common.links.terms_and_conditions.text"))).toHtml</li>
 </ul>

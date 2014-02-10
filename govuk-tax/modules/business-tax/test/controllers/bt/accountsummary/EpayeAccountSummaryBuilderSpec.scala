@@ -7,7 +7,7 @@ import controllers.bt.accountsummary.EpayeMessageKeys._
 import controllers.bt.accountsummary.EpayePortalUrlKeys._
 import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
-import views.helpers.MoneyPounds
+import views.helpers.{Link, MoneyPounds}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import uk.gov.hmrc.domain.EmpRef
@@ -30,13 +30,13 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
   private val makeAPaymentUrl = routes.PaymentController.makeEpayePayment().url
 
   private val expectedRtiLinks = Seq(
-    AccountSummaryLink("epaye-account-details-href", homeUrl, epayeViewAccountDetailsLinkMessage, sso = true),
-    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, epayeMakeAPaymentLinkMessage, sso = false)
+    Link.toPortalPage(id = Some("epaye-account-details-href"), url = homeUrl, value = Some(epayeViewAccountDetailsLinkMessage)),
+    Link.toInternalPage(id = Some("epaye-make-payment-href"), url = makeAPaymentUrl, value = Some(epayeMakeAPaymentLinkMessage))
   )
 
   private val expectedNonRtiLinks = Seq(
-    AccountSummaryLink("epaye-account-details-href", homeUrl, epayeViewAccountDetailsLinkMessage, sso = true),
-    AccountSummaryLink("epaye-make-payment-href", makeAPaymentUrl, epayeMakeAPaymentLinkMessage, sso = false)
+    Link.toPortalPage(id = Some("epaye-account-details-href"), url = homeUrl, value = Some(epayeViewAccountDetailsLinkMessage)),
+    Link.toInternalPage(id = Some("epaye-make-payment-href"), url = makeAPaymentUrl, value = Some(epayeMakeAPaymentLinkMessage))
   )
 
   "EpayeAccountSummaryViewBuilder with RTI" should {
@@ -159,7 +159,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Try[Option[EpayeAccountSummary]], expectedMessages: Seq[Msg], expectedLinks: Seq[AccountSummaryLink]) {
+  private def testEpayeAccountSummaryBuilder(expectedRegimeName: String, accountSummary: Try[Option[EpayeAccountSummary]], expectedMessages: Seq[Msg], expectedLinks: Seq[Link]) {
 
     val accounts = Accounts(epaye = Some(EpayeAccount("link", dummyEmpRef)))
 

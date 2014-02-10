@@ -59,3 +59,4 @@ trait PortalUrlBuilder {
   }
 }
 
+object PortalUrlBuilder extends PortalUrlBuilder

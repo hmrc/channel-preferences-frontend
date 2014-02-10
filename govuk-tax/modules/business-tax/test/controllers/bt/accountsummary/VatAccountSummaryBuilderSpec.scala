@@ -14,7 +14,7 @@ import uk.gov.hmrc.common.microservice.vat.domain.VatAccountSummary
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.common.microservice.vat.domain.VatAccountBalance
-import views.helpers.MoneyPounds
+import views.helpers.{Link, MoneyPounds}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 
@@ -38,10 +38,10 @@ class VatAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummaryView = accountSummaryViewOption.get
       accountSummaryView.regimeName shouldBe vatRegimeNameMessage
       accountSummaryView.messages shouldBe Seq[Msg](Msg(vatAccountBalanceMessage,Seq(MoneyPounds(BigDecimal(6.1)))) )
-      accountSummaryView.addenda shouldBe Seq[AccountSummaryLink](
-        AccountSummaryLink("vat-account-details-href", vatAccountDetailsPortalUrl, vatViewAccountDetailsLinkMessage, sso = true),
-        AccountSummaryLink("vat-make-payment-href", "/vat/make-a-payment", vatMakeAPaymentLinkMessage, sso = false),
-        AccountSummaryLink("vat-file-return-href", vatFileAReturnPortalUrl, vatFileAReturnLinkMessage, sso = true)
+      accountSummaryView.addenda shouldBe Seq[Link](
+        Link.toPortalPage(id = Some("vat-account-details-href"), url = vatAccountDetailsPortalUrl, value = Some(vatViewAccountDetailsLinkMessage)),
+        Link.toInternalPage(id = Some("vat-make-payment-href"), url = "/vat/make-a-payment", value = Some(vatMakeAPaymentLinkMessage)),
+        Link.toPortalPage(id = Some("vat-file-return-href"), url = vatFileAReturnPortalUrl, value = Some(vatFileAReturnLinkMessage))
       )
       accountSummaryView.status shouldBe SummaryStatus.success
     }

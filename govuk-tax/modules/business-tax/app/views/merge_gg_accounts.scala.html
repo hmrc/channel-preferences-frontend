@@ -1,6 +1,7 @@
 @(deEnrolLink: views.helpers.Link, enrolLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
 @import views.helpers.RenderableMessageProperty.Link._
+@import views.helpers.Link
 @import views.formatting.Dates._
 @import config.PortalConfig
 @import uk.gov.hmrc.common.PortalUrlBuilder
@@ -14,22 +15,22 @@
     <ol>
         <li>@Messages("bt.mergeggaccount.step1")</li>
         <li>@Messages("bt.mergeggaccount.step2")</li>
-        <li>@helpers.link(Some("deEnrolHref"), deEnrolLink.url, "Remove the tax from the account(s) you don't want to use anymore", deEnrolLink.newWindow, deEnrolLink.sso).</li>
+        <li>@deEnrolLink.toHtml.</li>
         <li>
             @Messages("bt.mergeggaccount.step4")
-            @helpers.link(Some("enrolHref"), enrolLink.url, "bt.mergeggaccount.step4.linkText", enrolLink.newWindow, enrolLink.sso).
+            @enrolLink.toHtml.
         </li>
         <li>@Messages("bt.mergeggaccount.step5")</li>
     </ol>
 
     <p>
         @{Html(Messages("bt.mergeggaccount.lostGgNumbers"))}
-        @helpers.link(Some("getGGBackHref"), "https://online.hmrc.gov.uk/user/credentials/userid", "bt.mergeggaccount.lostGgNumbers.linkText", true).
+        @Link.toExternalPage(id = Some("getGGBackHref"), url = "https://online.hmrc.gov.uk/user/credentials/userid", value = Some(Messages("bt.mergeggaccount.lostGgNumbers.linkText"))).toHtml.
     </p>
 
     <p>
         @Messages("bt.mergeggaccount.contact.1")
-        @helpers.link(Some("onlineHelpHref"), "/contact-hmrc/", "bt.mergeggaccount.contact.2.linkText", true)
+        @Link.toExternalPage(id = Some("onlineHelpHref"), url = "/contact-hmrc/", value = Some(Messages("bt.mergeggaccount.contact.2.linkText"))).toHtml
         @Messages("bt.mergeggaccount.contact.3")
     </p>
 

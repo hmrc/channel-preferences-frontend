@@ -3,22 +3,9 @@ package views.helpers
 import play.api.templates.{Html, HtmlFormat}
 import play.api.i18n.Messages
 
-
-object PortalLink {
-  def apply(url: String) = Link(url, None, sso = HasSso)
-}
-
-object InternalLink {
-  def apply(url: String) = Link(url, None)
-}
-
-object ExternalLink {
-  def apply(url: String) = Link(url, None, target = NewWindow)
-}
-
 trait Target {
   protected val targetName: String
-  val toAttr = Link.attr("target", targetName)
+  def toAttr = Link.attr("target", targetName)
 }
 case object SameWindow extends Target {
   override val targetName = "_self"
@@ -29,7 +16,7 @@ case object NewWindow extends Target {
 
 trait PossibleSso {
   protected val value: String
-  val toAttr = Link.attr("data-sso", value)
+  def toAttr = Link.attr("data-sso", value)
 }
 case object NoSso extends PossibleSso {
   override val value = "false"
@@ -56,7 +43,20 @@ case class Link(url: String,
 }
 
 object Link {
+
   private def escape(str: String) = HtmlFormat.escape(str).toString()
 
   def attr(name: String, value: String) = s""" $name="${escape(value)}""""
+
+  case class PreconfiguredLink(sso: PossibleSso, target: Target) {
+    def apply(url: String, value: Option[String], id: Option[String] = None, cssClasses: Option[String] = None) =
+      Link(url, value, id, target, sso, cssClasses)
+  }
+
+  def toInternalPage = PreconfiguredLink(NoSso, SameWindow)
+
+  def toExternalPage = PreconfiguredLink(NoSso, NewWindow)
+
+  def toPortalPage = PreconfiguredLink(HasSso, SameWindow)
+
 }

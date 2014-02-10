@@ -1,4 +1,4 @@
-@(service: String, eventType: String, date : org.joda.time.LocalDate, grayedoutText: Option[String], text: String, args: Seq[String], linkO: Option[views.helpers.Link], linkId: Option[String])(implicit lang: play.api.i18n.Lang)
+@(service: String, eventType: String, date : org.joda.time.LocalDate, grayedoutText: Option[String], text: String, args: Seq[String], linkO: Option[views.helpers.Link])(implicit lang: play.api.i18n.Lang)
 
 @import play.api.i18n._
 @import views.html.helper._
@@ -11,6 +11,6 @@
     <P>
         @if(grayedoutText.isDefined) {<SPAN class="faded-text">@Messages(grayedoutText.get,args: _*)</SPAN>}
         <SPAN>@Messages(text, args: _*).</SPAN>
-        @{linkO.map { link => Html("<br>" + link.copy(id=linkId, value=Some(s"$service.message.importantDates.link.$eventType")).toHtml)}}
+        @{linkO.map { link => Html("<br>" + link.toHtml)}}
     </P>
 </DIV>

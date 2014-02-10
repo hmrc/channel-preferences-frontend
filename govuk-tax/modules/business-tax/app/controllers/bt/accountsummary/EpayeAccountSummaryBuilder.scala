@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.microservice.epaye.EpayeConnector
 import controllers.bt.routes
 import EpayeMessageKeys._
 import EpayePortalUrlKeys._
-import views.helpers.MoneyPounds
+import views.helpers.{Link, MoneyPounds}
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.EmpRef
 import uk.gov.hmrc.common.microservice.epaye.domain.{RTI, NonRTI, EpayeAccountSummary, EpayeRoot}
@@ -12,6 +12,7 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.auth.domain.EpayeAccount
+import play.api.i18n.Messages
 
 case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new EpayeConnector) extends AccountSummaryBuilder[EmpRef, EpayeRoot, EpayeAccount] {
 
@@ -35,11 +36,11 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
     }
   }
 
-  private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[AccountSummaryLink] = {
+  private def createLinks(buildPortalUrl: String => String, accountSummary: Option[EpayeAccountSummary]): Seq[Link] = {
 
-    def links = Seq[AccountSummaryLink](
-      AccountSummaryLink("epaye-account-details-href", buildPortalUrl(epayeAccountDetailsPortalUrl), epayeViewAccountDetailsLinkMessage, sso = true),
-      AccountSummaryLink("epaye-make-payment-href", routes.PaymentController.makeEpayePayment().url, epayeMakeAPaymentLinkMessage, sso = false)
+    def links = Seq[Link](
+      Link.toPortalPage(id = Some("epaye-account-details-href"), url = buildPortalUrl(epayeAccountDetailsPortalUrl), value = Some(Messages(epayeViewAccountDetailsLinkMessage))),
+      Link.toInternalPage(id = Some("epaye-make-payment-href"), url = routes.PaymentController.makeEpayePayment().url, value = Some(Messages(epayeMakeAPaymentLinkMessage)))
     )
 
     accountSummary match {

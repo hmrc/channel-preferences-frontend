@@ -16,7 +16,7 @@ import scala.concurrent.Future
 import controllers.domain.AuthorityUtils._
 import scala.Some
 import uk.gov.hmrc.domain.Vrn
-import views.helpers.MoneyPounds
+import views.helpers.{Link, MoneyPounds}
 import uk.gov.hmrc.domain.CtUtr
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
@@ -48,10 +48,10 @@ class CtAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val accountSummary = await(accountSummaryOption.get)
       accountSummary.regimeName shouldBe ctRegimeNameMessage
       accountSummary.messages shouldBe Seq[Msg](Msg(ctAmountAsOfDateMessage, Seq(MoneyPounds(BigDecimal(4.2)), new LocalDate(2012, 12, 2, ISOChronology.getInstanceUTC))))
-      accountSummary.addenda shouldBe Seq[AccountSummaryLink](
-        AccountSummaryLink("ct-account-details-href", ctAccountDetailsPortalUrl, ctViewAccountDetailsLinkMessage, sso = true),
-        AccountSummaryLink("ct-make-payment-href", "/ct/make-a-payment", ctMakeAPaymentLinkMessage, sso = false),
-        AccountSummaryLink("ct-file-return-href", ctFileAReturnPortalUrl, ctFileAReturnLinkMessage, sso = true)
+      accountSummary.addenda shouldBe Seq[Link](
+       Link.toPortalPage(id = Some("ct-account-details-href"), url = ctAccountDetailsPortalUrl, value = Some(ctViewAccountDetailsLinkMessage)),
+       Link.toInternalPage(id = Some("ct-make-payment-href"), url = "/ct/make-a-payment", value = Some(ctMakeAPaymentLinkMessage)),
+       Link.toPortalPage(id = Some("ct-file-return-href"), url = ctFileAReturnPortalUrl, value = Some(ctFileAReturnLinkMessage))
       )
       accountSummary.status shouldBe success
 

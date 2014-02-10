@@ -1,5 +1,7 @@
 @(addedData: models.paye.BenefitUpdatedConfirmationData, journeyType: models.paye.PayeJourney, showQuestionnaire: Boolean = true)(implicit request: Request[_])
 
+@import views.helpers.Link
+
     @main(title = Messages("paye.add_car_benefit_confirmation.title")) {
         <header class="page-header">
             <h1>@Messages("paye.add_car_benefit.h1")</h1>
@@ -22,15 +24,22 @@
 
         <h2>@Messages("paye.add_car_benefit_confirmation.more_info")</h2>
 
-        <p id="home-page-link">@helpers.link(None, s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}", Messages("paye.add_car_benefit_confirmation.updated_info"))</p>
+        <p id="home-page-link">@Link.toInternalPage(url = s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}", value = Some(Messages("paye.add_car_benefit_confirmation.updated_info"))).toHtml</p>
 
-        <p>@Html(Messages("paye.add_car_benefit_confirmation.tax_codes_info",
-            helpers.link(Some("tax-codes"),
-                Messages("paye.add_car_benefit_confirmation.tax_codes_link_url"),
-                Messages("paye.add_car_benefit_confirmation.tax_codes_link_text"), true),
-            helpers.link(Some("tax-on-company-benefits"),
-                Messages("paye.add_car_benefit_confirmation.tax_on_company_benefits_link_url"),
-                Messages("paye.add_car_benefit_confirmation.tax_on_company_benefits_link_text"), true)))</p>
+        <p>@Html(
+            Messages(
+                "paye.add_car_benefit_confirmation.tax_codes_info",
+                Link.toExternalPage(
+                    id = Some("tax-codes"),
+                    url = Messages("paye.add_car_benefit_confirmation.tax_codes_link_url"),
+                    value = Some(Messages("paye.add_car_benefit_confirmation.tax_codes_link_text"))
+                ).toHtml,
+                Link.toExternalPage(
+                    id = Some("tax-on-company-benefits"),
+                    url = Messages("paye.add_car_benefit_confirmation.tax_on_company_benefits_link_url"),
+                    value = Some(Messages("paye.add_car_benefit_confirmation.tax_on_company_benefits_link_text"))
+                ).toHtml
+            ))</p>
 
 }
 

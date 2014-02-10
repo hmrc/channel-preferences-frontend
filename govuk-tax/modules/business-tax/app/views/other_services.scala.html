@@ -1,4 +1,8 @@
-@(linksO : Option[List[controllers.bt.OtherServiceLink]], enrollLink: views.helpers.Link, deEnrollLink: views.helpers.Link, registrationLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@(linksO : Option[List[views.helpers.Link]])(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.helpers.Link
+@import views.helpers.NoSso
+@import config.PortalConfig
 
 @main(title = "Other taxes", nav = true, user= Some(user)) {
 <header class="page-header">
@@ -9,7 +13,11 @@
 </p>
 <p>
     If you've done this and your taxes aren't displayed below you may have different Government Gateway accounts for them. You'll need to merge these accounts.<br>
-    @helpers.link(Some("mergeGGHref"), controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, "Merge your Government Gateway accounts").
+    @Link.toInternalPage(
+        id = Some("mergeGGHref"),
+        url = controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url,
+        value = Some("Merge your Government Gateway accounts"
+    )).toHtml.
 </p>
 
 @linksO.map { links =>
@@ -20,8 +28,8 @@
     }else{
     <p id="availableServices">
         @for(link <- links){
-            @helpers.link(Some(link.id), link.url, link.text, link.newWindow, link.sso)
-            @if(!link.sso) { @Messages("otherservices.manageTaxes.postLink.additionalLoginRequired") }
+            @link.toHtml
+            @if(link.sso == NoSso) { @Messages("otherservices.manageTaxes.postLink.additionalLoginRequired") }
             <br>
         }
     </p>
@@ -32,12 +40,26 @@
 <div>
     <h2 id="enrollmentHeading">Get online access</h2>
     <p id="enrollmentMessage">You must already be registered for a tax to get online access to it.<br>
-        <span id="onlineServicesEnrolmentLink">@helpers.link(Some("otherServicesEnrolmentHref"), enrollLink.url, "Enrol for other services", enrollLink.newWindow, enrollLink.sso)</span>.</p>
+        <span id="onlineServicesEnrolmentLink">
+            @Link.toPortalPage(
+                url = PortalConfig.getDestinationUrl("otherServicesEnrolment"),
+                id = Some("otherServicesEnrolmentHref"),
+                value = Some("Enrol for other services")
+            ).toHtml
+        </span>.
+    </p>
 </div>
 <div>
     <h2 id="deEnrollmentHeading">Stop using an online service</h2>
     <p id="deEnrollmentMessage">To stop using one of the online services you can
-        <span id="onlineServicesDeEnrolmentLink">@helpers.link(Some("servicesDeEnrolmentHref"), deEnrollLink.url, "remove it", deEnrollLink.newWindow, deEnrollLink.sso)</span>.</p>
+        <span id="onlineServicesDeEnrolmentLink">
+            @Link.toPortalPage(
+                url = PortalConfig.getDestinationUrl("servicesDeEnrolment"),
+                id = Some("servicesDeEnrolmentHref"),
+                value = Some("remove it")
+            ).toHtml
+        </span>.
+    </p>
 
 </div>
 <div>
@@ -45,7 +67,13 @@
 
     @controllers.bt.otherservices.OtherServicesFactory.createRegistrationText(user).map { registrationText =>
 
-            <p id="businessTaxesRegistrationLink">@helpers.link(Some("businessRegistrationHref"), registrationLink.url, registrationText, registrationLink.newWindow, registrationLink.sso)</p>
+            <p id="businessTaxesRegistrationLink">
+                @Link.toPortalPage(
+                    id = Some("businessRegistrationHref"),
+                    url = PortalConfig.getDestinationUrl("businessRegistration"),
+                    value = Some(registrationText)
+                ).toHtml
+            </p>
             <p id="registrationMessage">
                 You can’t use this service if you’re setting up a limited liability partnership or you’re not the 'nominated partner'
                 in a self-employed business partnership. There are also a few other situations when you’ll need to register a different way.
@@ -53,7 +81,7 @@
             <p id="registrationGenericMessage">
     }
 
-            Find out about <span id="hmrcWebsiteLink">@helpers.link(Some("otherWaysHref"), "http://www.hmrc.gov.uk/online/new.htm#2", "registering for taxes", true)</span>.
+            Find out about <span id="hmrcWebsiteLink">@Link.toExternalPage(id = Some("otherWaysHref"), url = "http://www.hmrc.gov.uk/online/new.htm#2", value = Some("registering for taxes")).toHtml</span>.
         </p>
 
 </div>

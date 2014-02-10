@@ -1,6 +1,7 @@
 @(transactionId: String, oldTaxCode: String, newTaxCode: Option[String], showQuestionnaire: Boolean = true)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
 @import models.paye._
+@import views.helpers.Link
 
 @main(title = Messages("paye.replace_benefit_confirmation.title"), user = Some(user)) {
     <header class="page-header">
@@ -21,14 +22,23 @@
      }
 
     <h2>@Messages("paye.replace_benefit_confirmation.more_info")</h2>
-    <p>@helpers.link(None, s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}",
-        Messages("paye.replace_benefit_confirmation.updated_info"))</p>
-    <p>@Html(Messages("paye.replace_benefit_confirmation.tax_codes_info",
-        helpers.link(Some("tax-codes"),
-            Messages("paye.replace_benefit_confirmation.tax_codes_link_url"),
-            Messages("paye.replace_benefit_confirmation.tax_codes_link_text"), true),
-        helpers.link(Some("tax-on-company-benefits"),
-            Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_url"),
-            Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_text"), true)))</p>
+    <p>
+        @Link.toInternalPage(
+            url = s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}",
+            value = Some(Messages("paye.replace_benefit_confirmation.updated_info"))).toHtml
+    </p>
+    <p>
+        @Html(Messages(
+            "paye.replace_benefit_confirmation.tax_codes_info",
+            Link.toExternalPage(
+                id = Some("tax-codes"),
+                url = Messages("paye.replace_benefit_confirmation.tax_codes_link_url"),
+                value = Some(Messages("paye.replace_benefit_confirmation.tax_codes_link_text"))).toHtml,
+            Link.toExternalPage(
+                id = Some("tax-on-company-benefits"),
+                url = Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_url"),
+                value = Some(Messages("paye.replace_benefit_confirmation.tax_on_company_benefits_link_text"))).toHtml
+            ))
+    </p>
 
 }

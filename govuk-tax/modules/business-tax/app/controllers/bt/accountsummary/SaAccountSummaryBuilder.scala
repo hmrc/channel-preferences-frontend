@@ -4,7 +4,7 @@ import uk.gov.hmrc.common.microservice.sa.SaConnector
 import SaMessageKeys._
 import SaPortalUrlKeys._
 import uk.gov.hmrc.common.microservice.domain.User
-import views.helpers.{MoneyPounds, RenderableMessage}
+import views.helpers.{Link, MoneyPounds, RenderableMessage}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.{Liability, SaAccountSummary, SaRoot}
 import controllers.common.actions.HeaderCarrier
@@ -12,6 +12,7 @@ import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
+import play.api.i18n.Messages
 
 
 class SaAccountSummaryBuilder(saConnector: SaConnector = new SaConnector)
@@ -48,9 +49,9 @@ trait SaASBuild {
     manageRegimeMessage= saManageHeading,
     messages = buildMessages(saSummary),
     addenda = Seq(
-      AccountSummaryLink("sa-account-details-href", buildPortalUrl(saAccountDetailsPortalUrl), saViewAccountDetailsLinkMessage, sso = true),
-      AccountSummaryLink("sa-make-payment-href", saPaymentUrl, saMakeAPaymentLinkMessage, sso = false),
-      AccountSummaryLink("sa-file-return-href", buildPortalUrl(saFileAReturnPortalUrl), saFileAReturnLinkMessage, sso = true)
+      Link.toPortalPage(id = Some("sa-account-details-href"), url = buildPortalUrl(saAccountDetailsPortalUrl), value = Some(Messages(saViewAccountDetailsLinkMessage))),
+      Link.toInternalPage(id = Some("sa-make-payment-href"), url = saPaymentUrl, value = Some(Messages(saMakeAPaymentLinkMessage))),
+      Link.toPortalPage(id = Some("sa-file-return-href"), url = buildPortalUrl(saFileAReturnPortalUrl), value = Some(Messages(saFileAReturnLinkMessage)))
     ),
     status = SummaryStatus.success
   )

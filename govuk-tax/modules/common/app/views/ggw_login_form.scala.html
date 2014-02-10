@@ -7,6 +7,7 @@
 )(implicit request: Request[_])
 
 @import play.api.data.format.Formats._
+@import views.helpers.Link
 
 @main(title = "Sign in with your Government Gateway account") {
 
@@ -16,10 +17,10 @@
     <p>Use your online tax account to send tax returns, make payments or check balances for Self Assessment, VAT, Corporation Tax, and Pay As You Earn (PAYE).</p>
     <h2>Before you start</h2>
 
-    <p>To use this service @helpers.link(None, "https://www.gov.uk/new-business-register-for-tax", "you must be registered", true) for at least one of the above taxes and enrolled for its online service.</p>
+    <p>To use this service @Link.toExternalPage(url = "https://www.gov.uk/new-business-register-for-tax", value = Some("you must be registered")).toHtml for at least one of the above taxes and enrolled for its online service.</p>
     <h2>Sign in with your Government Gateway account</h2>
 
-    <p>You can @helpers.link(None, "https://online.hmrc.gov.uk/registration/newbusiness", "register for a Government Gateway account", true) if you don't have one.</p>
+    <p>You can @Link.toExternalPage(url = "https://online.hmrc.gov.uk/registration/newbusiness", value = Some("register for a Government Gateway account")).toHtml if you don't have one.</p>
 
     @helpers.form(action = controllers.common.routes.LoginController.governmentGatewayLogin) {
         <fieldset>
@@ -56,9 +57,9 @@
     <h2>Problems signing in</h2>
 
     <ul class="action-list">
-        <li>@helpers.link(None, "https://online.hmrc.gov.uk/user/credentials/userid", "Lost user ID", true)</li>
-        <li>@helpers.link(None, "https://online.hmrc.gov.uk/user/credentials/password", "Lost password", true)</li>
-        <li>@helpers.link(None, "http://www.hmrc.gov.uk/contactus/online-services.htm", "Lost user ID and password (Self Assessment only)", true)</li>
-        <li>@helpers.link(None, "https://online.hmrc.gov.uk/information/faqs?affinitygroup=&faqid=eng.faq.employers.faq.faqcom046", "Lost account activation code", true)</li>
+        <li>@Link.toExternalPage(url = "https://online.hmrc.gov.uk/user/credentials/userid", value = Some("Lost user ID")).toHtml</li>
+        <li>@Link.toExternalPage(url = "https://online.hmrc.gov.uk/user/credentials/password", value = Some("Lost password")).toHtml</li>
+        <li>@Link.toExternalPage(url = "http://www.hmrc.gov.uk/contactus/online-services.htm", value = Some("Lost user ID and password (Self Assessment only)")).toHtml</li>
+        <li>@Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/faqs?affinitygroup=&faqid=eng.faq.employers.faq.faqcom046", value = Some("Lost account activation code")).toHtml</li>
     </ul>
 }

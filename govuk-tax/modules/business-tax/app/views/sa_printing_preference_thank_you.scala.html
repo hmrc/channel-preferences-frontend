@@ -1,5 +1,7 @@
 @(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
+@import views.helpers.Link
+
 @main(title = "Sign up for email reminders", user = Some(user)) {
 
    <header class="page-header">
@@ -16,7 +18,7 @@
 
     <p>@Messages("sa_printing_preference_confirm.paragraph.3.line.2")</p>
 
-    <p>@helpers.link(Some("sa-home-link"), controllers.bt.routes.BusinessTaxController.home.url, Messages("sa_printing_preference_confirm.linkText"), false, false, Some("button"))</p>
+    <p>@Link.toInternalPage(id = Some("sa-home-link"), url = controllers.bt.routes.BusinessTaxController.home.url, value = Some(Messages("sa_printing_preference_confirm.linkText")), cssClasses = Some("button")).toHtml</p>
 
 
 }
