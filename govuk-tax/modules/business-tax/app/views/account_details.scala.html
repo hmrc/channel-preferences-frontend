@@ -23,48 +23,51 @@
            </div>
 
            }
-
-           <p>
+          <ul class="action-list">
+           <li>
            @helpers.link(
                Some("change-email-address-link"),
                controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
                "Change your email address"
            )
-           </p>
+           </li>
        }
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified ) {
            <p>You’re signed up for email reminders for when tax returns and payments are due and tax statements are online.</p>
            <p>They’re sent to: <span id="email-address">@{saPreferences.get.email.get.email.obfuscated}</span></p>
-           <hr>
-           <p>
-           @helpers.link(
-                    Some("change-email-address-link"),
-                     controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
-                     "Change your email address"
-                )
-           </p>
+
+           <ul class="action-list">
+               <li>
+               @helpers.link(
+                        Some("change-email-address-link"),
+                         controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+                         "Change your email address"
+                    )
+               </li>
        }
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.bounced) {
 
            <p id="bouncing-status-message">You’ve signed up for email reminders but we need to verify your email address - <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
            <p id="bounce-reason">We can’t do this because @{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
-           <p>
-           @helpers.link(
-               Some("revalidate-email-link"),
-               controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
-               "Change your email address"
-           )
-           </p>
+           <ul class="action-list">
+               <li>
+               @helpers.link(
+                   Some("revalidate-email-link"),
+                   controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+                   "Change your email address"
+               )
+               </li>
        }
 
-       <p>
-       @helpers.link(
-           Some("opt-out-of-email-link"),
-           controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
-           "Stop your email reminders"
-       )
-       </p>
+               <li>
+               @helpers.link(
+                   Some("opt-out-of-email-link"),
+                   controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
+                   "Stop your email reminders"
+               )
+               </li>
+            </ul>
 
 
    }
