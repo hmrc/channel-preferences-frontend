@@ -45,7 +45,7 @@ class PaymentController(override val auditConnector: AuditConnector)
   }
 
   private[bt] def makeSaPaymentPage(implicit user: User, request: Request[AnyRef]) = {
-    Ok(views.html.make_a_sa_payment(user.getSa.utr.utr))
+    Ok(views.html.make_a_sa_payment(user.getSaUtr.utr))
   }
 
   private[bt] def makeEpayePaymentPage(implicit user: User, request: Request[AnyRef]) = {
