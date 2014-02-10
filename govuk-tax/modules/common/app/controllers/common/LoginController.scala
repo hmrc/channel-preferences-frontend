@@ -13,11 +13,9 @@ import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.UnauthorizedException
 import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import uk.gov.hmrc.common.microservice.governmentgateway.GovernmentGatewayLoginResponse
-import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.governmentgateway.Credentials
 import uk.gov.hmrc.common.microservice.ForbiddenException
-
 
 class LoginController(governmentGatewayConnector: GovernmentGatewayConnector,
                       override val auditConnector: AuditConnector)
@@ -132,8 +130,12 @@ class LoginController(governmentGatewayConnector: GovernmentGatewayConnector,
   def logout = Action {
     request => request.session.get(SessionKeys.authProvider) match {
       case Some(IdaWithTokenCheckForBeta.id) => Redirect(routes.LoginController.payeSignedOut())
-      case _ => Redirect(FrontEndConfig.portalSsoInLogoutUrl)
+      case _ => Redirect(routes.LoginController.redirectToRemoteSsoLogout()).withNewSession
     }
+  }
+
+  def redirectToRemoteSsoLogout = UnauthorisedAction {
+    implicit request => Redirect(FrontEndConfig.portalSsoInLogoutUrl)
   }
 
   def redirectToSignedOut = UnauthorisedAction {

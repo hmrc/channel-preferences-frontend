@@ -297,20 +297,29 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling logout" should {
 
-    "for a business tax user removes existing session cookie and redirect you to the portal logout page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
+    "for a business tax user removes existing session cookie and prepares redirect to the portal logout page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
 
       val result = loginController.logout(FakeRequest().withSession(SessionKeys.authProvider -> GovernmentGateway.id))
 
       status(result) shouldBe Status.SEE_OTHER
 
-      redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
+      redirectLocation(result).get shouldBe "/account/sso-sign-out"
 
       val playSessionCookie = cookies(result).get("mdtp")
 
-      playSessionCookie shouldBe None
+      playSessionCookie.get.value shouldBe ""
     }
 
-    "for a paye user removes existing session cookie and redirect you to the paye sign out page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
+    "for a business tax user, after locally logged out, redirect you to the portal logout page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
+
+      val result = loginController.redirectToRemoteSsoLogout(FakeRequest())
+
+      status(result) shouldBe Status.SEE_OTHER
+
+      redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
+    }
+
+    "for a paye user redirect you to the car-flow done page" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
 
       val result = loginController.logout(FakeRequest().withSession(SessionKeys.authProvider -> IdaWithTokenCheckForBeta.id))
 
@@ -318,9 +327,6 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
 
       redirectLocation(result).get shouldBe "/done/your-company-car"
 
-      val playSessionCookie = cookies(result).get("mdtp")
-
-      playSessionCookie shouldBe None
     }
 
     "just redirect you to the portal logout page if you do not have a session cookie" in new WithSetup(additionalConfiguration = Map("application.secret" -> "secret")) {
@@ -328,11 +334,11 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
       val result = loginController.logout(FakeRequest())
 
       status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result).get shouldBe "http://localhost:8080/ssoin/logout"
+      redirectLocation(result).get shouldBe "/account/sso-sign-out"
 
       val playSessionCookie = cookies(result).get("mdtp")
 
-      playSessionCookie shouldBe None
+      playSessionCookie.get.value shouldBe ""
     }
   }
 
