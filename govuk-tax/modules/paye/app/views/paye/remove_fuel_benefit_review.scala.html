@@ -5,6 +5,7 @@
 
     @import controllers.paye.routes._
     @import views.formatting.Dates._
+    @import views.helpers.Link
 
     @main(title = Messages("paye.remove_fuel_benefit_review.title"), user = Some(user)) {
         <header class="page-header">
@@ -23,9 +24,10 @@
                 </tr>
             </tbody>
         </table>
-        @helpers.link(Some("go-back"),
-            s"${ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(taxYear, employment.sequenceNumber)}",
-            Messages("paye.benefit_review.wrong_information"))
+        @Link.toInternalPage(
+            id = Some("go-back"),
+            url = s"${ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(taxYear, employment.sequenceNumber)}",
+            value = Some(Messages("paye.benefit_review.wrong_information"))).toHtml
 
         @helpers.form(action = controllers.paye.routes.RemoveBenefitController.confirmFuelBenefitRemoval(taxYear, employment.sequenceNumber)) {
             <div class="form-field">

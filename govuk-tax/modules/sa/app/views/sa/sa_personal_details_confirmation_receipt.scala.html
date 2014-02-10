@@ -1,5 +1,7 @@
 @(transactionId: uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
+@import views.helpers.Link
+
 @main(title = "My Details - Update main address confirmation receipt", nav = true, user = Some(user)) {
 
     <h1>Change your address with HMRC</h1>
@@ -9,6 +11,6 @@
 
     <p>Transaction ID: <b>@transactionId.oid</b></p>
 
-    <p>@helpers.link(None, controllers.sa.routes.SaController.details.url, "Back to your tax account homepage")</p>
+    <p>@Link.toInternalPage(url = controllers.sa.routes.SaController.details.url, value = Some("Back to your tax account homepage")).toHtml</p>
 
 }

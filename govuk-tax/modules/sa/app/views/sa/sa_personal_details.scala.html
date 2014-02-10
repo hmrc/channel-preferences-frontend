@@ -1,5 +1,7 @@
 @(utr: String, personalDetails: uk.gov.hmrc.common.microservice.sa.domain.SaPerson, nameFromGovernmentGateway: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
+@import views.helpers.Link
+
 @main(title = "My Details", nav = true, user = Some(user)) {
 
     <h1>Your tax account</h1>
@@ -33,7 +35,7 @@
 
 	    <p>This is your main address and communication address for Corporation Tax and PAYE.</p>
 
-	    <p>@helpers.link(None, controllers.sa.routes.SaController.changeAddress.url, "Change this address")</p>
+	    <p>@Link.toInternalPage(url = controllers.sa.routes.SaController.changeAddress.url, value = Some("Change this address")).toHtml</p>
 	</li>
     </ol>
 
