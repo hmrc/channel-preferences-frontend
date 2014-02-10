@@ -23,7 +23,7 @@ class LoginController(samlConnector: SamlConnector,
                      (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with AllRegimeRoots {
+  with NoRegimeRoots {
 
   def this() = this(Connectors.samlConnector, Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 

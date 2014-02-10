@@ -24,7 +24,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
   extends BaseController
   with Actions
   with SessionTimeoutWrapper
-  with AllRegimeRoots {
+  with NoRegimeRoots {
 
   def this() = this(new SsoWhiteListService(FrontEndConfig.domainWhiteList), Connectors.governmentGatewayConnector, Connectors.auditConnector)(Connectors.authConnector)
 
