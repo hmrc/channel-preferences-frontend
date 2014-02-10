@@ -19,6 +19,8 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
 import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import controllers.domain.AuthorityUtils._
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures with IntegrationPatience {
 
@@ -28,6 +30,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
     "create a new session when the token is valid, the time not expired and no session exists - POST" in new WithSsoControllerInFakeApplication {
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.encodedToken, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayLoginResponse(john.userId, john.credId, john.name, john.affinityGroup, john.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+      when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.any[String])(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthExchangeResponse(AuthToken("someAuthToken"), saAuthority(john.userId, "utr"))))
 
       val encryptedPayload = SsoPayloadCrypto.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}""")
       val response = controller.postIn(FakeRequest("POST", s"www.governmentgateway.com").withFormUrlEncodedBody("payload" -> encryptedPayload))
@@ -36,10 +39,11 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, john.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, s"/auth/oid/${john.userId}"))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, john.name))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, john.affinityGroup))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, john.encodedToken))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.authToken, "someAuthToken"))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(john)
@@ -48,6 +52,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
     "create a new session when the token is valid, the time not expired and no session exists - GET" in new WithSsoControllerInFakeApplication {
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.encodedToken, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayLoginResponse(john.userId, john.credId, john.name, john.affinityGroup, john.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+      when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.any[String])(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthExchangeResponse(AuthToken("someAuthToken"), saAuthority(john.userId, "utr"))))
 
       val encryptedPayload = URLEncoder.encode(SsoPayloadCrypto.encrypt( s"""{"gw": "${john.encodedToken}", "time": ${john.loginTimestamp}, "dest": "$redirectUrl"}"""), "UTF-8")
       val response = controller.getIn(encryptedPayload)(FakeRequest())
@@ -56,13 +61,34 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, john.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, s"/auth/oid/${john.userId}"))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, john.name))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, john.affinityGroup))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, john.encodedToken))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.authToken, "someAuthToken"))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(john)
+    }
+
+    "Is able to handle encoded payload" in new WithSsoControllerInFakeApplication {
+      val payload = """GL%2FIIjC9NeLGrJh6Aqw1SQ1eFUt%2FMTn%2BYmuFtYduXSC9TPeNvZ8%2BWfEFIiL%2F0Y%2BOD6velzt%2F9pxeZWS7ni8vQs3Dr6Gr7anR5pbmwumQ6K75FlzZO7Fpl2rI42DsZPNTVAVNOb0XyQOiRgKMnDJNEBMustrwIcIMDtrnXKnXC6L91Lc07al6BOpE%2FppSHtgBzsbD%2FE%2FdEnSgTnZ9HT4TAE94TBX7Sz3N4oCZDRZH7SvX%2B9VAzHOBoNOwlp3Uu%2BKXms2oo3In%2F%2F20cNzAqPCe7vaFnfZ%2Fo7GEu%2BdCn2C4rWGWGmrSJHwaRJMnbZ%2Bd0fw1%2F54ew9SMgu0avlxeGohmKlZAEw%2FqIFWwVRXgfFK13sJwZ%2BT3%2FK1yN5vj%2FSbetib5ThwRJHYMHsEekUt0KKu1GcItyAmFSrYr0KkmGykkx420sSEHQNHfh9IRsrwBOQjjcE32UJs%2FPcpTrCHUFKBUJWmYA3rbRaQTkHRrMY1YOM2c0FFognBoj7jNP2jCgQcIvrlommoQ%2FC21%2FujKRpTKu5zQUWiCcGiPuM0%2FaMKBBwhtOfA5u78IcsTpn5cJvyoc2%2BxLElY9kdmCzYm3Dgt2M5Dyt7R0O3xX4YBwtEAmGf%2FPHqDxcz0NFbWxM3JYcmzpdpUiQEkijXLwtMOQ1YyoXRle1Idg9Fvic39TgYnITS6cUQsJmAInlNFLzWdq6QSlE2zBFO7o3BlGe57axL2G7hABJM1z4%2FNQ2gFxpbITEKsTLSJKONYMDO26vIR8MQwrkuxJgib9NbPG6qK%2BO1GCw%2BEjnseOWYQ75QFg8cXKVn%2Fn%2FxlR6BViqEE6z84%2FmrCNaFKY4AR%2Fw6zrfXvAZ1bqh3RJgpRU8iSUnD7wv7yc9mPi78B%2BsO%2FHCzLxAzDBWFrywEghZImbHOfaw2hb2q0zB93XwnYkJcblLEanwucUK1ikXQwO4TxdoRx4uFKI%2Fo6qtuXtSiVlnNocHDLCwneW0TFsatvOoblE2KBReKJ7ZliZ0tJyEUHGQtNi70bo3W4zOhLEd5VPBouJLS4bYt7Ujg%3D%3D"""
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.encodedToken, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayLoginResponse(john.userId, john.credId, john.name, john.affinityGroup, john.encodedToken))
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+      when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.any[String])(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthExchangeResponse(AuthToken("someAuthToken"), saAuthority(john.userId, "utr"))))
+
+      val response = controller.getIn(payload)(FakeRequest())
+      status(response) should not be 500
+    }
+
+    "Is able to handle not-encoded payload" in new WithSsoControllerInFakeApplication {
+      val payload = """GL/IIjC9NeLGrJh6Aqw1SQ1eFUt/MTn+YmuFtYduXSC9TPeNvZ8+WfEFIiL/0Y+OD6velzt/9pxeZWS7ni8vQs3Dr6Gr7anR5pbmwumQ6K75FlzZO7Fpl2rI42DsZPNTVAVNOb0XyQOiRgKMnDJNEBMustrwIcIMDtrnXKnXC6L91Lc07al6BOpE/ppSHtgBzsbD/E/dEnSgTnZ9HT4TAE94TBX7Sz3N4oCZDRZH7SvX+9VAzHOBoNOwlp3Uu+KXms2oo3In//20cNzAqPCe7vaFnfZ/o7GEu+dCn2C4rWGWGmrSJHwaRJMnbZ+d0fw1/54ew9SMgu0avlxeGohmKlZAEw/qIFWwVRXgfFK13sJwZ+T3/K1yN5vj/Sbetib5ThwRJHYMHsEekUt0KKu1GcItyAmFSrYr0KkmGykkx420sSEHQNHfh9IRsrwBOQjjcE32UJs/PcpTrCHUFKBUJWmYA3rbRaQTkHRrMY1YOM2c0FFognBoj7jNP2jCgQcIvrlommoQ/C21/ujKRpTKu5zQUWiCcGiPuM0/aMKBBwhtOfA5u78IcsTpn5cJvyoc2+xLElY9kdmCzYm3Dgt2M5Dyt7R0O3xX4YBwtEAmGf/PHqDxcz0NFbWxM3JYcmzpdpUiQEkijXLwtMOQ1YyoXRle1Idg9Fvic39TgYnITS6cUQsJmAInlNFLzWdq6QSlE2zBFO7o3BlGe57axL2G7hABJM1z4/NQ2gFxpbITEKsTLSJKONYMDO26vIR8MQwrkuxJgib9NbPG6qK+O1GCw+EjnseOWYQ75QFg8cXKVn/n/xlR6BViqEE6z84/mrCNaFKY4AR/w6zrfXvAZ1bqh3RJgpRU8iSUnD7wv7yc9mPi78B+sO/HCzLxAzDBWFrywEghZImbHOfaw2hb2q0zB93XwnYkJcblLEanwucUK1ikXQwO4TxdoRx4uFKI/o6qtuXtSiVlnNocHDLCwneW0TFsatvOoblE2KBReKJ7ZliZ0tJyEUHGQtNi70bo3W4zOhLEd5VPBouJLS4bYt7Ujg=="""
+      when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(john.encodedToken, john.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayLoginResponse(john.userId, john.credId, john.name, john.affinityGroup, john.encodedToken))
+      when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+      when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.any[String])(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthExchangeResponse(AuthToken("someAuthToken"), saAuthority(john.userId, "utr"))))
+
+      val response = controller.getIn(payload)(FakeRequest())
+      status(response) should not be 500
     }
 
     "replace any current session with a new one when the token is valid, and the time not expired - POST" in new WithSsoControllerInFakeApplication {
@@ -74,6 +100,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
 
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(bob.encodedToken, bob.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayLoginResponse(bob.userId, bob.credId, bob.name, bob.affinityGroup, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+      when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.any[String])(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthExchangeResponse(AuthToken("someAuthToken"), saAuthority(bob.userId, "utr"))))
 
 
       val response = controller.postIn(request)
@@ -83,16 +110,17 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, bob.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, s"/auth/oid/${bob.userId}"))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, bob.name))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, bob.affinityGroup))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, bob.encodedToken))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.authToken, "someAuthToken"))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(bob)
     }
 
-     "replace any current session with a new one when the token is valid, and the time not expired - GET" in new WithSsoControllerInFakeApplication {
+    "replace any current session with a new one when the token is valid, and the time not expired - GET" in new WithSsoControllerInFakeApplication {
 
       val encryptedPayload = URLEncoder.encode(SsoPayloadCrypto.encrypt( s"""{"gw": "${bob.encodedToken}", "time": ${bob.loginTimestamp}, "dest": "$redirectUrl"}"""), "UTF-8")
       val request = FakeRequest()
@@ -100,6 +128,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
 
       when(mockGovernmentGatewayService.ssoLogin(Matchers.eq(SsoLoginRequest(bob.encodedToken, bob.loginTimestamp)))(Matchers.any[HeaderCarrier])).thenReturn(GovernmentGatewayLoginResponse(bob.userId, bob.credId, bob.name, bob.affinityGroup, bob.encodedToken))
       when(mockSsoWhiteListService.check(URI.create(redirectUrl).toURL)).thenReturn(true)
+      when(mockAuthConnector.exchangeCredIdForBearerToken(Matchers.any[String])(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(AuthExchangeResponse(AuthToken("someAuthToken"), saAuthority(bob.userId, "utr"))))
 
 
       val response = controller.getIn(encryptedPayload)(request)
@@ -109,10 +138,11 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
           val SimpleResult(header, _, _) = result
           header.status shouldBe 303
           header.headers("Location") shouldBe redirectUrl
-          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, bob.userId))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.userId, s"/auth/oid/${bob.userId}"))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.name, bob.name))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.affinityGroup, bob.affinityGroup))
           header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.token, bob.encodedToken))
+          header.headers("Set-Cookie") should include(sessionEntry(SessionKeys.authToken, "someAuthToken"))
       }
 
       expectAnSsoLoginSuccessfulAuditEventFor(bob)
@@ -136,6 +166,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
           header.headers("Set-Cookie") should not include SessionKeys.userId
           header.headers("Set-Cookie") should not include SessionKeys.name
           header.headers("Set-Cookie") should not include SessionKeys.token
+          header.headers("Set-Cookie") should not include SessionKeys.authToken
       }
 
       expectAnSsoLoginFailedAuditEventFor(johnInvalidCredentials, transactionFailureReason = "Invalid Token")
@@ -163,6 +194,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
           header.headers("Set-Cookie") should not include SessionKeys.name
           header.headers("Set-Cookie") should not include SessionKeys.affinityGroup
           header.headers("Set-Cookie") should not include SessionKeys.token
+          header.headers("Set-Cookie") should not include SessionKeys.authToken
       }
 
       expectAnSsoLoginFailedAuditEventFor(johnWithInvalidTimestamp, transactionFailureReason = "Unauthorized")
@@ -189,6 +221,7 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
           header.headers("Set-Cookie") should not include SessionKeys.name
           header.headers("Set-Cookie") should not include SessionKeys.affinityGroup
           header.headers("Set-Cookie") should not include SessionKeys.token
+          header.headers("Set-Cookie") should not include SessionKeys.authToken
       }
 
       expectAnSsoLoginFailedAuditEventFor(john, transactionFailureReason = s"Unknown - $errorMessage")
@@ -274,15 +307,18 @@ class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures w
 }
 
 
-abstract class WithSsoControllerInFakeApplication extends WithApplication(FakeApplication())
+abstract class WithSsoControllerInFakeApplication extends WithApplication(FakeApplication(additionalConfiguration = Map("sso.encryption.key" -> "eU1qMlpESFRPN0hRNGJxNg==")))
 with MockitoSugar with org.scalatest.Matchers {
 
   lazy val mockGovernmentGatewayService = mock[GovernmentGatewayConnector]
   val mockSsoWhiteListService = mock[SsoWhiteListService]
   val mockAuditConnector = mock[AuditConnector]
+  val mockAuthConnector = mock[AuthConnector]
+
+
   val redirectUrl = "http://www.redirect-url.co.uk"
 
-  def controller = new SsoInController(mockSsoWhiteListService, mockGovernmentGatewayService, mockAuditConnector)(null)
+  def controller = new SsoInController(mockSsoWhiteListService, mockGovernmentGatewayService, mockAuditConnector)(mockAuthConnector)
 
   case class User(name: String,
                   userId: String,

@@ -26,8 +26,7 @@ case class Credentials(userId: String, password: String)
 
 case class SsoLoginRequest(token: String,  timestamp: Long)
 
-case class GovernmentGatewayLoginResponse(@deprecated("Call auth to exchange credId for authToken", "2014-01-28") authId: String,   // TODO [JJS] REMOVE DEPRECATED CODE
-                                          credId: String, name: String, affinityGroup: String, encodedGovernmentGatewayToken: String)
+case class GovernmentGatewayLoginResponse(authId: String, credId: String, name: String, affinityGroup: String, encodedGovernmentGatewayToken: String)
 
 case class ProfileResponse(affinityGroup: String, activeEnrolments: List[String])
 

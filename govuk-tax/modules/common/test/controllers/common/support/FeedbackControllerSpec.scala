@@ -186,7 +186,7 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
   def stringOfLength(length: Int) = StringUtils.repeat("A", length)
 
   val deskProConnector = new HmrcDeskproConnector {
-    override def createFeedback(name: String, email: String, rating: String, subject: String, message: String, referrer: String, isJavascript: Boolean, request: Request[AnyRef], user: Option[User])(implicit hc: HeaderCarrier): Future[Option[TicketId]] = {
+    override def createFeedback(name: String, email: String, rating: String, subject: String, message: String, referrer: String, isJavascript: Boolean, request: Request[AnyRef])(implicit hc: HeaderCarrier): Future[Option[TicketId]] = {
       Future.successful(Some(TicketId(123)))
     }
   }
@@ -237,7 +237,7 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
   val authenticatedSubmitUri = "/beta-feedback/submit"
   val unauthenticatedSubmitUri = "/beta-feedback/submit-unauthenticated"
 
-  def whenUserPrefsAre(prefs: Option[SaPreference]) = when(prefsConnector.getPreferences(meq(saUser.getSa.utr))(any())).thenReturn(Future.successful(prefs))
+  def whenUserPrefsAre(prefs: Option[SaPreference]) = when(prefsConnector.getPreferences(meq(saUser.getSaUtr))(any())).thenReturn(Future.successful(prefs))
 
   def formActionIn(doc: Document): String = doc.getElementById("feedback-form").attr("action")
   

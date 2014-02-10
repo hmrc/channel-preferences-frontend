@@ -109,7 +109,7 @@
         $.data(this, "disabledOnSubmit", {
           submited: true
         });
-        $('input[type=submit], input[type=button]', this).each(function () {
+        $('input[type=submit], input[type=button], button[type=submit]', this).each(function () {
           $(this).attr("disabled", "disabled");
         });
         return true;

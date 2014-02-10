@@ -1993,7 +1993,6 @@ fieldset {
   }
 }
 fieldset legend {
-  float: left;
   width: 100%;
 }
 fieldset legend.h2-heading {
@@ -2053,6 +2052,10 @@ input[type="radio"], input[type="checkbox"], select {
   width: auto;
   position: relative;
   vertical-align: 2px;
+}
+
+input[type="radio"] {
+  border: none;
 }
 
 .input--xxsmall {
@@ -2198,7 +2201,7 @@ label.indent {
 }
 
 /**
- *	Allows you to stack input blocks side by side
+ *  Allows you to stack input blocks side by side
  */
 .form-field--inline, .form-field--inline-text-input, .form-field--inline-spaced-right, .form-field--inline-spaced-left {
   clear: none;

@@ -13,7 +13,7 @@ import models.paye.CarBenefitData
 import models.paye.CarFuelBenefitDates
 import play.api.test.FakeApplication
 import scala.Some
-import uk.gov.hmrc.common.microservice.paye.domain.CarBenefit
+import uk.gov.hmrc.common.microservice.paye.domain.{FuelBenefit, CarBenefit}
 import org.scalatest.LoneElement
 import scala.collection.JavaConversions
 import JavaConversions._
@@ -32,7 +32,7 @@ class ReplaceCarBenefitFormTemplateSpec extends PayeBaseSpec with LoneElement {
       val addForm: Form[CarBenefitData] = carBenefitForm(CarBenefitValues())
       val updateForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(values = None,
         benefitStartDate = currentTestDate.toLocalDate,
-        carBenefitWithUnremovedFuelBenefit = true,
+        fuelBenefit = Some(FuelBenefit(currentTestDate.toLocalDate, 0, 0, None)),
         dates = Some(CarFuelBenefitDates(None, None)),
         DateTimeUtils.now,
         taxYearInterval)

@@ -53,9 +53,9 @@
     }
 
     @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm, 'id -> "form-submit-keep-paper") {
-	<div class="form-field">
+	<p class="form-field">
         <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
-    </div>
+    </p>
     }
 
 }

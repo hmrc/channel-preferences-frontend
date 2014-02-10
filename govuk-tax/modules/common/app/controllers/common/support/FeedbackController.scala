@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 
-import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
+import controllers.common.{NoRegimeRoots, AnyAuthenticationProvider, BaseController}
 import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.common.service.Connectors
 
@@ -27,7 +27,7 @@ class FeedbackController(override val auditConnector: AuditConnector,
                          preferencesConnector: PreferencesConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with AllRegimeRoots {
+  with NoRegimeRoots {
   def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector, TicketCache(), Connectors.preferencesConnector)(Connectors.authConnector)
 
   import controllers.common.support.FeedbackFormConfig._
@@ -51,9 +51,10 @@ class FeedbackController(override val auditConnector: AuditConnector,
     import feedbackForm._
     Some((Some(experienceRating), name, email, comments, javascriptEnabled, referrer))
   }))
+
   def emptyForm(implicit request: Request[AnyRef]) = form.fill(FeedbackForm(request.headers.get("Referer").getOrElse("n/a")))
 
-  def feedbackForm = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async{
+  def feedbackForm = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async {
     implicit user => implicit request => authenticatedFeedback
   })
 
@@ -87,7 +88,7 @@ class FeedbackController(override val auditConnector: AuditConnector,
       data => {
         import data._
         redirectToConfirmationPage(
-          hmrcDeskproConnector.createFeedback(name, email, experienceRating, "Beta feedback submission", comments, referrer, javascriptEnabled, request, user),
+          hmrcDeskproConnector.createFeedback(name, email, experienceRating, "Beta feedback submission", comments, referrer, javascriptEnabled, request),
           user)
       }
     )
@@ -101,18 +102,19 @@ class FeedbackController(override val auditConnector: AuditConnector,
 
   private[common] def unauthenticatedFeedback(implicit request: Request[AnyRef]) = feedbackView(user = None, emptyForm).map(Ok(_))
 
-  private def feedbackView(user: Option[User], form: Form[FeedbackForm])(implicit request: Request[AnyRef]) = {
-    checkPreferencesAvailable(user,request).map { hasPreferences => views.html.support.feedback(form, user, hasPreferences)}
-  }
+  private def feedbackView(user: Option[User], form: Form[FeedbackForm])(implicit request: Request[AnyRef]) = checkPreferencesAvailable(user, request).map (
+     hasPref => views.html.support.feedback(form, user, hasPref))
 
-  private[common] def doThanks(implicit user: Option[User], request: Request[AnyRef]) : Future[SimpleResult] = {
+  private[common] def doThanks(implicit user: Option[User], request: Request[AnyRef]): Future[SimpleResult] = {
     ticketCache.popTicket(formId).flatMap {
       ticketId =>
-        checkPreferencesAvailable.map { hasPreferences => views.html.support.feedback_confirmation(ticketId, user, hasPreferences)}
+        checkPreferencesAvailable.map {
+          hasPreferences => views.html.support.feedback_confirmation(ticketId, user, hasPreferences)
+        }
     }.map(Ok(_))
   }
 
-  private def checkPreferencesAvailable(implicit user: Option[User], request: Request[AnyRef]) : Future[Boolean] = {
+  private def checkPreferencesAvailable(implicit user: Option[User], request: Request[AnyRef]): Future[Boolean] = {
     implicit val hc = HeaderCarrier(request)
 
     user.map(_.regimes) match {

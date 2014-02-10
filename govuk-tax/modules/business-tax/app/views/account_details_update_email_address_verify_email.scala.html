@@ -1,6 +1,6 @@
 @(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
-@main(title = "Your Details - Please verify email address", user = Some(user)) {
+@main(title = "Your Details - Please verify email address", user = Some(user), nav=true) {
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
 
@@ -17,5 +17,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    @helpers.link(Some("emailIsNotCorrectLink"), controllers.bt.routes.AccountDetailsController.changeEmailAddress(Some(emailAddress)).url, "Change this email address")
+    <p>@helpers.link(Some("emailIsNotCorrectLink"), controllers.bt.routes.AccountDetailsController.changeEmailAddress(Some(emailAddress)).url, "Change this email address")</p>
 }

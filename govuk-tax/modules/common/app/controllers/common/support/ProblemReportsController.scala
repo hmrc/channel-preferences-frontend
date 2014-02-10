@@ -13,10 +13,9 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 
-import controllers.common.{AnyAuthenticationProvider, AllRegimeRoots, BaseController}
+import controllers.common.{NoRegimeRoots, AnyAuthenticationProvider, BaseController}
 import controllers.common.service.Connectors
 import controllers.common.actions.{HeaderCarrier, Actions}
-import uk.gov.hmrc.common.microservice.domain.User
 import controllers.common.validators.Validators._
 
 
@@ -24,7 +23,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
                               (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with AllRegimeRoots {
+  with NoRegimeRoots {
 
   def this() = this(Connectors.auditConnector, Connectors.hmrcDeskproConnector)(Connectors.authConnector)
 
@@ -45,12 +44,12 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
   )
 
   def report = WithNewSessionTimeout(AuthenticatedBy(AnyAuthenticationProvider).async{
-    implicit user => implicit request => doReport(request, Some(user))
+    implicit user => implicit request => doReport(request)
   })
 
   def reportUnauthenticated = UnauthorisedAction.async(doReport(_))
 
-  def doReport(implicit request: Request[AnyRef], user: Option[User] = None) = {
+  def doReport(implicit request: Request[AnyRef]) = {
     form.bindFromRequest.fold(
       error => {
         if (!error.data.getOrElse("isJavascript", "true").toBoolean) {
@@ -60,7 +59,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
         }
       },
       problemReport => {
-        val ticket: Future[Option[TicketId]] = createTicket(problemReport, request, user)
+        val ticket: Future[Option[TicketId]] = createTicket(problemReport, request)
         ticket.map {
           ticketOption =>
             val ticketId: String = ticketOption.map(_.ticket_id.toString).getOrElse("Unknown")
@@ -70,7 +69,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
       })
   }
 
-  private def createTicket(problemReport: ProblemReport, request: Request[AnyRef], user: Option[User]) = {
+  private def createTicket(problemReport: ProblemReport, request: Request[AnyRef]) = {
     implicit val hc = HeaderCarrier(request)
     hmrcDeskproConnector.createTicket(
       problemReport.reportName,
@@ -79,8 +78,7 @@ class ProblemReportsController(override val auditConnector: AuditConnector, hmrc
       problemMessage(problemReport.reportAction, problemReport.reportError),
       referrerFrom(request),
       problemReport.isJavascript,
-      request,
-      user
+      request
     )
   }
 

@@ -12,9 +12,10 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.actions.{HeaderCarrier, Actions}
 import scala.concurrent.Future
-import play.api.mvc.Request
+import play.api.mvc.{SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.UnauthorizedException
 import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
+import java.util.UUID
 
 class SsoInController(ssoWhiteListService: SsoWhiteListService,
                       governmentGatewayConnector: GovernmentGatewayConnector,
@@ -37,13 +38,18 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
     }
   })
 
+  val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
   def getIn(payload:String) = WithNewSessionTimeout(UnauthorisedAction.async {
     implicit request => {
-      in(URLDecoder.decode(payload, "UTF-8"))
+      if (payload.matches(base64)) {
+        in(payload)
+      } else {
+        in(URLDecoder.decode(payload, "UTF-8"))
+      }
     }
   })
 
-  def in (payload: String)(implicit request: Request[_]) = {
+  def in (payload: String)(implicit request: Request[_]): Future[SimpleResult] = {
       val decryptedPayload = SsoPayloadCrypto.decrypt(payload)
       Logger.debug(s"token: $payload")
       val json = Json.parse(decryptedPayload)
@@ -53,16 +59,18 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
 
       destination
         .filter(destinationIsAllowed)
-        .map { d =>
+        .map { destination =>
           governmentGatewayConnector.ssoLogin(SsoLoginRequest(token, time))(HeaderCarrier(request))
             .recover {
               case _: IllegalStateException => LoginFailure("Invalid Token")
               case _: UnauthorizedException => LoginFailure("Unauthorized")
               case e: Exception => LoginFailure(s"Unknown - ${e.getMessage}")
             }
-            .map {
-              case response: GovernmentGatewayLoginResponse => handleSuccessfulLogin(response, d)
-              case LoginFailure(reason) => handleFailedLogin(reason, token)
+            .flatMap {
+              case response: GovernmentGatewayLoginResponse => {
+                authConnector.exchangeCredIdForBearerToken(response.credId).map(authToken => handleSuccessfulLogin(response, authToken, destination))
+              }
+              case LoginFailure(reason) => Future.successful(handleFailedLogin(reason, token))
             }
         }
         .getOrElse {
@@ -78,7 +86,7 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
         }
   }
 
-  private def handleSuccessfulLogin(response: GovernmentGatewayLoginResponse, destination: String)(implicit request: Request[_]) = {
+  private def handleSuccessfulLogin(response: GovernmentGatewayLoginResponse, authExchangeResponse: AuthExchangeResponse, destination: String)(implicit request: Request[_]): SimpleResult = {
     Logger.debug(s"successfully authenticated: ${response.name}")
     auditConnector.audit(
       AuditEvent(
@@ -88,10 +96,13 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
       )
     )
     Redirect(destination).withSession(
-      SessionKeys.userId -> response.authId,
+      SessionKeys.sessionId -> s"session-${UUID.randomUUID}",
+      SessionKeys.userId -> authExchangeResponse.authority.uri, //TODO: Replace this with Bearer
+      SessionKeys.authToken -> authExchangeResponse.authToken.toString,
       SessionKeys.name -> response.name,
+      SessionKeys.token -> response.encodedGovernmentGatewayToken,
       SessionKeys.affinityGroup -> response.affinityGroup,
-      SessionKeys.token -> response.encodedGovernmentGatewayToken
+      SessionKeys.authProvider -> GovernmentGateway.id
     )
   }
 

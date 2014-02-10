@@ -43,6 +43,7 @@ case class User(userId: String,
     regimes.paye.map(_.firstName).orElse(nameFromGovernmentGateway)
   }
 
+  def getSaUtr =  userAuthority.accounts.sa.get.utr
 }
 
 case class RegimeRoots(paye: Option[PayeRoot] = None,

@@ -9,6 +9,7 @@ import models.paye.{RemoveCarBenefitFormData, CarFuelBenefitDates}
 import scala.Some
 import play.api.i18n.Messages
 import controllers.paye.TaxYearSupport
+import views.formatting.Dates
 
 object RemoveBenefitValidator extends Validators with TaxYearSupport {
 
@@ -81,11 +82,12 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
   private[paye] def validateFuelDateChoice(carBenefitWithUnremoved: Boolean) = optional(text)
     .verifying("error.paye.benefit.choice.mandatory", fuelDateChoice => verifyFuelDate(fuelDateChoice, carBenefitWithUnremoved))
 
-  private[paye] def localDateMapping(benefitStartDate: Option[LocalDate], today: LocalDate, taxYearInterval: Interval) = mandatoryDateTuple("error.paye.benefit.date.mandatory")
+  private[paye] def localDateMapping(benefitStartDate: Option[LocalDate], today: LocalDate, taxYearInterval: Interval, fuelDateWithdrawn: Option[LocalDate] = None) = mandatoryDateTuple("error.paye.benefit.date.mandatory")
     .verifying(Messages("error.paye.benefit.date.next.taxyear", currentTaxYear.toString, (currentTaxYear+1).toString), date => date.isBefore(taxYearInterval.getEnd.toLocalDate))
     .verifying("error.paye.benefit.date.greater.7.days", date => date.minusDays(7).isBefore(today))
     .verifying(Messages("error.paye.benefit.date.previous.taxyear", currentTaxYear.toString, (currentTaxYear+1).toString), date => date.isAfter(taxYearInterval.getStart.toLocalDate.minusDays(1)))
     .verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
+    .verifying(Messages("error.paye.benefit.carwithdrawdate.before.fuelwithdrawdate", Dates.formatDate(fuelDateWithdrawn, "Unknown date")), carWithdrawn => !fuelDateWithdrawn.exists(fuelWithdrawn => fuelWithdrawn.isAfter(carWithdrawn)))
 
   // TODO: Fix this. Naked get on dates means it is not Optional!
   private[paye] def validateFuelDate(dates: Option[CarFuelBenefitDates], benefitStartDate: Option[LocalDate], taxYearInterval: Interval): Mapping[Option[LocalDate]] = dates.get.fuelDateType.getOrElse("") match {

@@ -51,7 +51,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
   private[paye] def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], removeDefaults: Option[RemoveCarBenefitFormData], addDefaults: Form[CarBenefitData], user: User, request: Request[_]) = {
     val hasUnremovedFuel = activeCarBenefit.hasActiveFuel
     val benefitValues: Option[RemoveCarBenefitFormDataValues] = removeDefaults.map(RemoveCarBenefitFormDataValues(_))
-    val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, hasUnremovedFuel, dates, now(), taxYearInterval)
+    val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, activeCarBenefit.fuelBenefit, dates, now(), taxYearInterval)
     val filledForm = removeDefaults.map {
       preFill => benefitForm.fill(preFill)
     }.getOrElse(benefitForm)
@@ -91,7 +91,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       primaryEmployment <- taxYearData.findPrimaryEmployment
     } yield {
       val rawData = Some(RemoveBenefitValidator.validationlessForm.bindFromRequest().value.get)
-      val removeForm = updateRemoveCarBenefitForm(rawData, activeCarBenefit.dateMadeAvailable, activeCarBenefit.hasActiveFuel, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()
+      val removeForm = updateRemoveCarBenefitForm(rawData, activeCarBenefit.dateMadeAvailable, activeCarBenefit.fuelBenefit, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()
 
       val dates = getCarBenefitDates(request)
       val addForm = carBenefitForm(dates).bindFromRequest()
