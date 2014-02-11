@@ -11,7 +11,7 @@
         $fieldsets.find(':text').val('');
         $fieldsets.find(':checked').prop('checked', false);
         $fieldsets.find('*[data-default]').prop('checked', true);
-    } else {
+    } else if($form.data('electricFlagged')) {
         $fieldsets.removeClass('js-hidden');
         $fieldsets.find(':checked').prop('checked', false);
     }
