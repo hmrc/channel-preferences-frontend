@@ -1,6 +1,6 @@
 package views.helpers
 
-import views.html.helpers.{link, moneyPoundsRenderer}
+import views.html.helpers.moneyPoundsRenderer
 import play.api.templates.Html
 import org.joda.time.LocalDate
 import views.helpers.RenderableMessageProperty.RenderableMessageProperty
