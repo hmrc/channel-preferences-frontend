@@ -24,7 +24,7 @@
 
     <p>@Messages("sa_printing_preference.paragraph.5")</p>
 
-    @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitPrefsForm, 'id -> "form-submit-preferences-email") {
+    @helpers.form(action = controllers.bt.prefs.routes.BizTaxPrefsController.submitPrefsForm, 'id -> "form-submit-preferences-email") {
 
 	@helpers.input(
 	    emailForm("email.main"),
@@ -52,7 +52,7 @@
 
     }
 
-    @helpers.form(action = controllers.bt.prefs.routes.SaPrefsController.submitKeepPaperForm, 'id -> "form-submit-keep-paper") {
+    @helpers.form(action = controllers.bt.prefs.routes.BizTaxPrefsController.submitKeepPaperForm, 'id -> "form-submit-keep-paper") {
 	<p class="form-field">
         <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
     </p>

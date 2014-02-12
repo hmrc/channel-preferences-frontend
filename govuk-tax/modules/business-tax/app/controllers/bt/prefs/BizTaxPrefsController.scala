@@ -14,14 +14,14 @@ import controllers.bt.BusinessTaxRegimeRoots
 import scala.concurrent.Future
 import uk.gov.hmrc.domain.{SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
-import controllers.common.preferences.EmailControllerHelper
+import controllers.common.preferences.PreferencesControllerHelper
 
-class SaPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
+class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with BusinessTaxRegimeRoots
-  with EmailControllerHelper {
+  with PreferencesControllerHelper {
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 
@@ -74,7 +74,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     submitPreferencesForm(
       errorsView = views.html.sa_printing_preference(_),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
-      successRedirect = routes.SaPrefsController.thankYou,
+      successRedirect = routes.BizTaxPrefsController.thankYou,
       emailConnector = emailConnector,
       saUtr = user.getSaUtr,
       savePreferences = savePreferences

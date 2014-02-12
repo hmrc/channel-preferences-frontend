@@ -13,7 +13,7 @@ import Function.const
 import controllers.common.domain.EmailPreferenceData
 import uk.gov.hmrc.domain.SaUtr
 
-trait EmailControllerHelper {
+trait PreferencesControllerHelper {
 
 
   protected val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(

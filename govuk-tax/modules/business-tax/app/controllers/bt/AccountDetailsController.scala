@@ -16,13 +16,13 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.Email._
 import uk.gov.hmrc.domain.{SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
-import controllers.common.preferences.EmailControllerHelper
+import controllers.common.preferences.PreferencesControllerHelper
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
 with Actions
 with BusinessTaxRegimeRoots
-with EmailControllerHelper {
+with PreferencesControllerHelper {
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 

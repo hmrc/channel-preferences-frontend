@@ -1,9 +1,9 @@
 package controllers.sa.prefs
 
-import play.api.mvc.Action
+import play.api.mvc.{Request, AnyContent, SimpleResult, Action}
 import concurrent.Future
 import controllers.common.service.{Connectors, FrontEndConfig}
-import controllers.sa.prefs.service.SsoPayloadCrypto
+import controllers.sa.prefs.service.{Token, SsoPayloadCrypto}
 import controllers.common.BaseController
 import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
@@ -12,10 +12,11 @@ import com.netaporter.uri.dsl._
 import uk.gov.hmrc.domain.{SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
 import play.Logger
-import controllers.common.preferences.EmailControllerHelper
+import controllers.common.preferences.PreferencesControllerHelper
 import controllers.common.actions.HeaderCarrier
+import com.netaporter.uri.Uri
 
-class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with EmailControllerHelper {
+class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with PreferencesControllerHelper {
 
   implicit val wl = whiteList
 
@@ -85,24 +86,28 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
           token =>
             Action.async {
               implicit request =>
-                preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
-                  case Some(saPreference) =>
-                    Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
-                  case None => {
-                    submitPreferencesForm(
-                      errorsView = views.html.sa.prefs.sa_printing_preference(_, token, returnUrl),
-                      emailWarningView = views.html.sa.prefs.sa_printing_preference_warning_email(_, token, returnUrl),
-                      successRedirect = () => routes.SaPrefsController.confirm(token.encryptedToken, returnUrl),
-                      emailConnector = emailConnector,
-                      saUtr = token.utr,
-                      savePreferences = savePreferences
-                    )
-                  }
-                }
+                saveEmailPreferences(token, returnUrl)
             }
         }
     }
 
+
+  def saveEmailPreferences(token: Token, returnUrl: Uri)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
+    preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
+      case Some(saPreference) =>
+        Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
+      case None => {
+        submitPreferencesForm(
+          errorsView = views.html.sa.prefs.sa_printing_preference(_, token, returnUrl),
+          emailWarningView = views.html.sa.prefs.sa_printing_preference_warning_email(_, token, returnUrl),
+          successRedirect = () => routes.SaPrefsController.confirm(token.encryptedToken, returnUrl),
+          emailConnector = emailConnector,
+          saUtr = token.utr,
+          savePreferences = savePreferences
+        )
+      }
+    }
+  }
 
   def submitKeepPaperForm(encryptedToken: String, encodedReturnUrl: String) =
     DecodeAndWhitelist(encodedReturnUrl) {

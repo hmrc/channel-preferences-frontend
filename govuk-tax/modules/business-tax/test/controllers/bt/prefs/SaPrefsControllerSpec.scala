@@ -28,7 +28,7 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
   val preferencesConnector = mock[PreferencesConnector]
   val authConnector = mock[AuthConnector]
   val emailConnector = mock[EmailConnector]
-  val controller = new SaPrefsController(auditConnector, preferencesConnector, emailConnector)(authConnector)
+  val controller = new BizTaxPrefsController(auditConnector, preferencesConnector, emailConnector)(authConnector)
 
   val request = FakeRequest()
 }
@@ -166,7 +166,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.SaPrefsController.thankYou().toString())
+      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(emailConnector).validateEmailAddress(is(emailAddress))(any())
@@ -183,7 +183,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.SaPrefsController.thankYou().toString())
+      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verifyNoMoreInteractions(preferencesConnector, emailConnector)

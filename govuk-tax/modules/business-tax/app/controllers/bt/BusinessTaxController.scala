@@ -43,7 +43,7 @@ class BusinessTaxController(accountSummaryFactory: AccountSummariesFactory,
   private def capturePrintPreferences(utr: SaUtr)(implicit user: User, request: Request[AnyRef]) = {
     preferencesConnector.getPreferences(utr).flatMap {
       preferences =>
-          preferences.map(_ => renderHomePage).getOrElse(Future.successful(Redirect(PreferencesRoutes.SaPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet())))
+          preferences.map(_ => renderHomePage).getOrElse(Future.successful(Redirect(PreferencesRoutes.BizTaxPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet())))
     }
   }
 

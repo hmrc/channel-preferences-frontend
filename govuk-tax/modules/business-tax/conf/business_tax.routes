@@ -15,11 +15,11 @@ POST        /account-details/sa/opt-out-email-reminders             @controllers
 GET         /account-details/sa/opt-out-email-reminders-thank-you   @controllers.bt.AccountDetailsController.optedBackIntoPaperThankYou
 POST        /account-details/sa/resend-validation-email             @controllers.bt.AccountDetailsController.resendValidationEmail
 
-GET         /account-details/sa/login-opt-in-email-reminders        @controllers.bt.prefs.SaPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
-GET         /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.Email])
-POST        /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.submitPrefsForm
-POST        /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
-GET         /account-details/sa/opt-in-email-reminders-thank-you    @controllers.bt.prefs.SaPrefsController.thankYou
+GET         /account-details/sa/login-opt-in-email-reminders        @controllers.bt.prefs.BizTaxPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
+GET         /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.BizTaxPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.Email])
+POST        /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.BizTaxPrefsController.submitPrefsForm
+POST        /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.BizTaxPrefsController.submitKeepPaperForm
+GET         /account-details/sa/opt-in-email-reminders-thank-you    @controllers.bt.prefs.BizTaxPrefsController.thankYou
 
 
 # Not for MVP - HMTB-2628
