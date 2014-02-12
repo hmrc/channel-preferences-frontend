@@ -93,7 +93,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
                       errorsView = views.html.sa.prefs.sa_printing_preference(_, token, returnUrl),
                       emailWarningView = views.html.sa.prefs.sa_printing_preference_warning_email(_, token, returnUrl),
                       successRedirect = () => routes.SaPrefsController.confirm(token.encryptedToken, returnUrl),
-                      emailConnector,
+                      emailConnector = emailConnector,
                       saUtr = token.utr,
                       savePreferences = savePreferences
                     )

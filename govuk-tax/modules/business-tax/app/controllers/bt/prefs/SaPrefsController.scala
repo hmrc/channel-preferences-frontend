@@ -65,19 +65,20 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]) =
     Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress)))))
 
+  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
 
-  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) =
+    def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
+      preferencesConnector.savePreferences(utr, digital, email)(hc)
+    }
+
     submitPreferencesForm(
       errorsView = views.html.sa_printing_preference(_),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       successRedirect = routes.SaPrefsController.thankYou,
-      emailConnector,
-      user.getSaUtr,
-      savePreferences
+      emailConnector = emailConnector,
+      saUtr = user.getSaUtr,
+      savePreferences = savePreferences
     )
-
-  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
-    preferencesConnector.savePreferences(utr, digital, email)(hc)
   }
 
   private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
