@@ -25,10 +25,10 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 
-  def displayPrefsOnLoginForm = AuthorisedFor(SaRegime).async {
+  def redirectToBizTaxOrEmailPrefEntryIfNotSet = AuthorisedFor(SaRegime).async {
     user =>
       request =>
-        displayPrefsOnLoginFormAction(user, request)
+        redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request)
   }
 
   def displayPrefsForm(emailAddress: Option[Email])() = AuthorisedFor(SaRegime).async {
@@ -55,7 +55,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
         Ok(views.html.sa_printing_preference_thank_you(user))
   }
 
-  private[prefs] def displayPrefsOnLoginFormAction(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
     preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
       case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(("", None), None))))

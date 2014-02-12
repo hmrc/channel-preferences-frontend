@@ -47,7 +47,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = Future.successful(controller.displayPrefsOnLoginFormAction(user, request))
+      val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
 
       status(page) shouldBe 303
       header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
@@ -56,7 +56,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "render an email input field with no value if no email address is supplied" in new Setup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
-      val page = Future.successful(controller.displayPrefsOnLoginFormAction(user, request))
+      val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
 
       status(page) shouldBe 200
 
@@ -70,7 +70,7 @@ class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
     "include a link to keep paper preference" in new Setup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
-      val page = Future.successful(controller.displayPrefsOnLoginFormAction(user, request))
+      val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to get letters"

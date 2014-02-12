@@ -15,7 +15,7 @@ POST        /account-details/sa/opt-out-email-reminders             @controllers
 GET         /account-details/sa/opt-out-email-reminders-thank-you   @controllers.bt.AccountDetailsController.optedBackIntoPaperThankYou
 POST        /account-details/sa/resend-validation-email             @controllers.bt.AccountDetailsController.resendValidationEmail
 
-GET         /account-details/sa/login-opt-in-email-reminders        @controllers.bt.prefs.SaPrefsController.displayPrefsOnLoginForm
+GET         /account-details/sa/login-opt-in-email-reminders        @controllers.bt.prefs.SaPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
 GET         /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.Email])
 POST        /account-details/sa/opt-in-email-reminders              @controllers.bt.prefs.SaPrefsController.submitPrefsForm
 POST        /account-details/sa/opt-in-email-reminders-keep-paper   @controllers.bt.prefs.SaPrefsController.submitKeepPaperForm
