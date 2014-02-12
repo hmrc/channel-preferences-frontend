@@ -14,8 +14,9 @@ import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.Email._
-import uk.gov.hmrc.domain.Email
+import uk.gov.hmrc.domain.{SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
+import controllers.common.preferences.EmailControllerHelper
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
@@ -110,9 +111,14 @@ with EmailControllerHelper {
           (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
           () => routes.AccountDetailsController.emailAddressChangeThankYou(),
           emailConnector,
-          preferencesConnector
+          user.getSaUtr,
+          savePreferences
         )
     )
+
+  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
+    preferencesConnector.savePreferences(utr, digital, email)(hc)
+  }
 
   private[bt] def emailAddressChangeThankYouPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated)(user))))

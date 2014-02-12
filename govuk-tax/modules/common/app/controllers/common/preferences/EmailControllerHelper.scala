@@ -1,17 +1,17 @@
-package controllers.bt
+package controllers.common.preferences
 
-import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Call, Request}
 import controllers.common.actions.HeaderCarrier
 import play.api.data._
 import play.api.mvc.Results._
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
+import uk.gov.hmrc.common.microservice.preferences.FormattedUri
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import Function.const
 import controllers.common.domain.EmailPreferenceData
+import uk.gov.hmrc.domain.SaUtr
 
 trait EmailControllerHelper {
 
@@ -32,7 +32,10 @@ trait EmailControllerHelper {
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                       successRedirect: () => Call,
                                       emailConnector: EmailConnector,
-                                      preferencesConnector: PreferencesConnector)(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+                                      saUtr: SaUtr,
+                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Option[FormattedUri]])
+                                     (implicit request: Request[AnyRef]): Future[SimpleResult] = {
+
     implicit def hc = HeaderCarrier(request)
 
     emailForm.bindFromRequest()(request).fold(
@@ -43,8 +46,8 @@ trait EmailControllerHelper {
           else emailConnector.validateEmailAddress(emailForm.mainEmail)
 
         emailVerificationStatus.flatMap {
-           case true => preferencesConnector.savePreferences(user.getSaUtr, true, Some(emailForm.mainEmail)).map(const(Redirect(successRedirect())))
-           case false => Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
+          case true => savePreferences(saUtr, true, Some(emailForm.mainEmail), hc).map(const(Redirect(successRedirect())))
+          case false => Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }
       }
     )

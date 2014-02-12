@@ -10,10 +10,11 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import controllers.bt.{EmailControllerHelper, BusinessTaxRegimeRoots}
+import controllers.bt.BusinessTaxRegimeRoots
 import scala.concurrent.Future
-import uk.gov.hmrc.domain.Email
+import uk.gov.hmrc.domain.{SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
+import controllers.common.preferences.EmailControllerHelper
 
 class SaPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
@@ -71,8 +72,13 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       successRedirect = routes.SaPrefsController.thankYou,
       emailConnector,
-      preferencesConnector
+      user.getSaUtr,
+      savePreferences
     )
+
+  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
+    preferencesConnector.savePreferences(utr, digital, email)(hc)
+  }
 
   private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     preferencesConnector.savePreferences(user.getSaUtr, false, None)(HeaderCarrier(request)).map(

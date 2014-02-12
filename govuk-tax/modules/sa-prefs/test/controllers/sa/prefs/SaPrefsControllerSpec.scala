@@ -30,7 +30,7 @@ import uk.gov.hmrc.domain.SaUtr
 import play.api.test.FakeApplication
 import java.net.URI
 
-class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
+class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
 
   import play.api.test.Helpers._
 
@@ -165,6 +165,7 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "return a warning page if the email address could not be verified" in new WithApplication(FakeApplication()) {
       val controller = createController
 
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
       when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(false))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
@@ -173,23 +174,26 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       status(page) shouldBe 200
 
       verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
-      verifyZeroInteractions(controller.preferencesConnector)
 
     }
 
     "show an error if the email is invalid" in new WithApplication(FakeApplication()) {
       val controller = createController
 
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
+
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", "invalid-email"), ("email.confirm", ""))
       val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request)
 
       status(page) shouldBe 400
       contentAsString(page) should include("Enter a valid email address.")
-      verifyZeroInteractions(controller.preferencesConnector, controller.emailConnector)
+      verifyZeroInteractions(controller.emailConnector)
     }
 
     "show an error if the email is not set" in new WithApplication(FakeApplication()) {
       val controller = createController
+
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", ""), ("email.confirm", ""))
       val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request)
@@ -201,6 +205,8 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
     "show an error if the confirmed email is not the same as the main" in new WithApplication(FakeApplication()) {
       val controller = createController
+
+      when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", "valid@mail.com"), ("email.confirm", "notMatching@mail.com"))
       val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request)
@@ -245,7 +251,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "redirect to no-action page if the preference is already set to digital when submitting the form" in new WithApplication(FakeApplication()) {
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.verified))))))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
@@ -253,7 +258,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
 
       status(action) shouldBe 303
 
-      verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
       verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
 
@@ -264,7 +268,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
     "redirect to no-action page if the preference is already set to paper when submitting the form" in new WithApplication(FakeApplication()) {
 
       val controller = createController
-      when(controller.emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
       when(controller.preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(false, None))))
 
       implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress))
@@ -273,7 +276,6 @@ class SaPrefControllerSpec extends WordSpec with ShouldMatchers with MockitoSuga
       status(action) shouldBe 303
       status(action) shouldBe 303
 
-      verify(controller.emailConnector).validateEmailAddress(meq(emailAddress))
       verify(controller.preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
       verify(controller.preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
 
