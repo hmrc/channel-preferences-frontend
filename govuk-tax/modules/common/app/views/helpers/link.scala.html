@@ -1,7 +1,0 @@
-@(id: Option[String], url : String, value: String, newWindow: Boolean = false, sso: Boolean = false, cssClasses: Option[String] = None)
-@import play.api.i18n._
-@import views.html.helper._
-@import views.helpers._
-@import play.api.templates.HtmlFormat
-
-@{ Link(id=id, url=url, value=Some(value), newWindow=newWindow, sso=sso, cssClasses=cssClasses).toHtml }

@@ -10,7 +10,7 @@ import uk.gov.hmrc.common.microservice.deskpro.HmrcDeskproConnector
 import play.api.mvc.Request
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
-import controllers.common.{GovernmentGateway, AllRegimeRoots, BaseController}
+import controllers.common.{NoRegimeRoots, GovernmentGateway, BaseController}
 import uk.gov.hmrc.common.microservice.deskpro.domain.TicketId
 import scala.concurrent.ExecutionContext.Implicits.global
 import controllers.common.validators.Validators._
@@ -19,7 +19,7 @@ import controllers.common.validators.Validators._
 class ContactController(override val auditConnector: AuditConnector, hmrcDeskproConnector: HmrcDeskproConnector, ticketCache: TicketCache)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with AllRegimeRoots {
+  with NoRegimeRoots {
 
   val subject: String = "Contact form submission"
   val formId: String = "ContactForm"
@@ -58,7 +58,7 @@ class ContactController(override val auditConnector: AuditConnector, hmrcDeskpro
       },
       data => {
         import data._
-        redirectToThanks(hmrcDeskproConnector.createTicket(contactName, contactEmail, subject, contactComments, referer, data.isJavascript, request, Some(user)))
+        redirectToThanks(hmrcDeskproConnector.createTicket(contactName, contactEmail, subject, contactComments, referer, data.isJavascript, request))
       })
   }
 

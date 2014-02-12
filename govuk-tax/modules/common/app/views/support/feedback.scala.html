@@ -13,16 +13,15 @@
                 <legend>
                     What do you think of this online service?
                 </legend>
-                <fieldset>
-                    @helpers.inputRadioGroup(
-                    feedbackForm("feedback-rating"),
-                    feedbackRatings,
-                    '_divClass -> "form-field",
-                    '_labelClass -> "label--inlineRadio",
-                    '_inputClass -> "input--fullwidth",
-                    '_innerLabelClass -> "label--inlineRadio--overhead"
-                    )
-                </fieldset>
+
+                @helpers.inputRadioGroup(
+                feedbackForm("feedback-rating"),
+                feedbackRatings,
+                '_divClass -> "form-field",
+                '_labelClass -> "label--inlineRadio",
+                '_inputClass -> "input--fullwidth",
+                '_innerLabelClass -> "label--inlineRadio--overhead"
+                )
                 @helpers.input(
                 feedbackForm("feedback-name"),
                 '_label -> "Name",

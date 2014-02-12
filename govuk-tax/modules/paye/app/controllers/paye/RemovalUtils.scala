@@ -1,7 +1,7 @@
 package controllers.paye
 
 import org.joda.time.format.DateTimeFormat
-import uk.gov.hmrc.common.microservice.paye.domain.Benefit
+import uk.gov.hmrc.common.microservice.paye.domain.{FuelBenefit, Benefit, TaxYearData}
 import org.joda.time.{Interval, DateTime, LocalDate}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -12,7 +12,6 @@ import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
 import models.paye.{ReplaceCarBenefitFormData, RemoveFuelBenefitFormData, CarFuelBenefitDates, RemoveCarBenefitFormData}
-import uk.gov.hmrc.common.microservice.paye.domain.TaxYearData
 import scala.Some
 
 
@@ -24,23 +23,23 @@ object RemovalUtils {
 
   def updateRemoveCarBenefitForm(values: Option[RemoveCarBenefitFormDataValues],
                                  benefitStartDate: LocalDate,
-                                 carBenefitWithUnremovedFuelBenefit: Boolean,
+                                 fuelBenefit: Option[FuelBenefit],
                                  dates: Option[CarFuelBenefitDates],
                                  now: DateTime, taxYearInterval: Interval) = Form[RemoveCarBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval),
+      "withdrawDate" -> localDateMapping(now.toLocalDate, taxYearInterval, fuelBenefit.flatMap(_.dateWithdrawn), carBenefitMapping(Some(benefitStartDate))),
       "carUnavailable" -> validateMandatoryBoolean,
       "numberOfDaysUnavailable" -> validateNumberOfDaysUnavailable(values, benefitStartDate, taxYearInterval),
       "removeEmployeeContributes" -> validateMandatoryBoolean,
       "removeEmployeeContribution" -> validateEmployeeContribution(values),
-      "fuelRadio" -> validateFuelDateChoice(carBenefitWithUnremovedFuelBenefit),
+      "fuelRadio" -> validateFuelDateChoice(fuelBenefit.exists(_.isActive)),
       "fuelWithdrawDate" -> validateFuelDate(dates, Some(benefitStartDate), taxYearInterval)
     )(RemoveCarBenefitFormData.apply)(RemoveCarBenefitFormData.unapply)
   )
 
   def updateRemoveFuelBenefitForm(benefitStartDate: LocalDate, now: DateTime, taxYearInterval: Interval) = Form[RemoveFuelBenefitFormData](
     mapping(
-      "withdrawDate" -> localDateMapping(Some(benefitStartDate), now.toLocalDate, taxYearInterval)
+      "withdrawDate" -> localDateMapping(now.toLocalDate, taxYearInterval, None, fuelBenefitMapping(Some(benefitStartDate)))
     )(RemoveFuelBenefitFormData.apply)(RemoveFuelBenefitFormData.unapply)
   )
 

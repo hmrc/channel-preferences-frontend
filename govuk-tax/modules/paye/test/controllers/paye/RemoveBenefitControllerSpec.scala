@@ -114,7 +114,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
       status(result) shouldBe BAD_REQUEST
 
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text should include("Enter a date that’s on or after the date you got the car.")
+      doc.select(".error-notification").text should include("Enter a date that’s after the date you got the car.")
     }
   }
 
@@ -249,7 +249,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select(".error-notification").text should include("Enter a date that’s on or after the date you got the car")
+      doc.select(".error-notification").text should include("Enter a date that’s after the date you got the car")
     }
 
     "in step 1, keep user choice for fuel date if a bad request redirect him to the form" in new WithApplication(FakeApplication()) {

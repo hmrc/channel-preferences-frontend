@@ -62,7 +62,7 @@ with EmailControllerHelper {
   private[bt] def confirmOptOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.getSa.utr, false, None).map(_ =>
+        preferencesConnector.savePreferences(user.getSaUtr, false, None).map(_ =>
           Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou())
         )
     }
@@ -71,7 +71,7 @@ with EmailControllerHelper {
   private[bt] def resendValidationEmailAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.getSa.utr, true, Some(email)).map(_ =>
+        preferencesConnector.savePreferences(user.getSaUtr, true, Some(email)).map(_ =>
           Ok(views.html.account_details_verification_email_resent_confirmation(user))
         )
     }
@@ -96,7 +96,7 @@ with EmailControllerHelper {
 
 
   private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).flatMap {
+    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).flatMap {
         case Some(SaPreference(true, Some(email))) => func(email.email)
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }

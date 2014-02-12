@@ -30,7 +30,7 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
   }
 
   private[paye] def submitQuestionnaireAction(implicit request: Request[_], user: User): Future[SimpleResult] = {
-    getFormData(request).map {
+    getFormData.map {
       formData =>
         val auditEvent = buildAuditEvent(formData)
         questionnaireAuditor.auditOnce(auditEvent, formData.transactionId)
@@ -38,12 +38,8 @@ class PayeQuestionnaireController(override val auditConnector: AuditConnector, o
     }.getOrElse(Future.successful(BadRequest))
   }
 
-  private[paye] def getFormData(request: Request[_]): Option[PayeQuestionnaireFormData] = {
-    payeQuestionnaireForm.bindFromRequest()(request).fold(
-      errors => None,
-      formData => Some(formData)
-    )
-  }
+  private[paye] def getFormData(implicit request: Request[_]): Option[PayeQuestionnaireFormData] =
+    payeQuestionnaireForm.bindFromRequest().value
 
   private[paye] def buildAuditEvent(formData: PayeQuestionnaireFormData)(implicit hc: HeaderCarrier): AuditEvent =
     AuditEvent(

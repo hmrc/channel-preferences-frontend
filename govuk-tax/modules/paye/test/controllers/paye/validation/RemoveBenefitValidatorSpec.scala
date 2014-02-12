@@ -8,11 +8,12 @@ import play.api.data.Form
 import play.api.data.Forms._
 import controllers.paye.CarBenefitFormFields._
 import controllers.paye.validation.RemoveBenefitValidator._
-import scala.Some
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import org.joda.time.LocalDate
-import models.paye.CarFuelBenefitDates
 import play.api.i18n.Messages
+import models.paye.CarFuelBenefitDates
+import scala.Some
+import play.api.test.FakeApplication
 
 class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with TaxYearSupport {
 
@@ -204,6 +205,48 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       form.hasErrors shouldBe true
     }
   }
+
+  "validateFuelWithdrawnDate" should {
+
+    val carBenefitStartDate = new LocalDate(currentTaxYear, 6, 30)
+
+    case class DummyModel( dateFuelWithdrawn: LocalDate)
+
+    def dummyForm(fuelDateWithdrawn : Option[LocalDate]) = {
+      Form(
+        mapping(
+          withdrawDate -> localDateMapping(new LocalDate(), taxYearInterval, fuelDateWithdrawn, fuelBenefitMapping(Option(carBenefitStartDate)))
+        )(DummyModel.apply)(DummyModel.unapply))
+    }
+
+    "reject the removal of car benefit when the car withdrawal date is before the fuel withdrawal date" in {
+      val carWithdrawn = buildDateFormField(withdrawDate, Some(("2010", "6", "7")))
+
+      val form = dummyForm(Some(new LocalDate(2010, 6, 8))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carWithdrawn:_*))
+      form.hasErrors shouldBe true
+      form.errors(withdrawDate).map(err => err.message) should contain("error.paye.benefit.carwithdrawdate.before.fuelwithdrawdate")
+    }
+
+    "accept the removal of car benefit when the car withdrawal date is on the fuel withdrawal date" in {
+      val carWithdrawn = buildDateFormField(withdrawDate, Some(("2010", "6", "8")))
+      val form = dummyForm(Some(new LocalDate(2010, 6, 8))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carWithdrawn:_*))
+      form.errors(withdrawDate).map(err => err.message) should not contain "error.paye.benefit.carwithdrawdate.before.fuelwithdrawdate"
+    }
+
+    "accept the removal of car benefit when the car withdrawal after the fuel withdrawal date" in {
+      val carWithdrawn = buildDateFormField(withdrawDate, Some(("2010", "6", "8")))
+      val form = dummyForm(Some(new LocalDate(2010, 6, 7))).bindFromRequest()(FakeRequest().withFormUrlEncodedBody(carWithdrawn:_*))
+      form.errors(withdrawDate).map(err => err.message) should not contain "error.paye.benefit.carwithdrawdate.before.fuelwithdrawdate"
+
+    }
+
+
+
+
+
+
+  }
+
 
 
   def bindFormWithValue[T](dummyForm: Form[T], field: String, value: String): Form[T] = {

@@ -43,7 +43,7 @@ trait EmailControllerHelper {
           else emailConnector.validateEmailAddress(emailForm.mainEmail)
 
         emailVerificationStatus.flatMap {
-           case true => preferencesConnector.savePreferences(user.getSa.utr, true, Some(emailForm.mainEmail)).map(const(Redirect(successRedirect())))
+           case true => preferencesConnector.savePreferences(user.getSaUtr, true, Some(emailForm.mainEmail)).map(const(Redirect(successRedirect())))
            case false => Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }
       }

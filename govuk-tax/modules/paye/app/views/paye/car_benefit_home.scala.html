@@ -8,6 +8,7 @@
     @import uk.gov.hmrc.utils.TaxYearResolver.endOfCurrentTaxYear
     @import uk.gov.hmrc.common.microservice.paye.domain.CarBenefit
     @import params._
+    @import views.helpers.Link
 
     @id(idString: String)(implicit idSuffix: Option[String]) = @{ idSuffix.map(suffix => s"$idString-$suffix").getOrElse(idString) }
 
@@ -59,33 +60,33 @@
                 <ul>
                 @if(actions.canReplaceCar) {
                     <li>
-                        @helpers.link(Some("replace-car-link"), s"${controllers.paye.routes.ReplaceBenefitController.showReplaceCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
-                            Messages("paye.car_benefit_home.replace_car_link_text"))
+                        @Link.toInternalPage(id = Some("replace-car-link"), url = s"${controllers.paye.routes.ReplaceBenefitController.showReplaceCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
+                            value = Some(Messages("paye.car_benefit_home.replace_car_link_text"))).toHtml
                     </li>
                  }
                  @if(actions.canRemoveCar) {
                     <li>
-                        @helpers.link(Some("rm-car-link"), s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
-                            Messages("paye.car_benefit_home.remove_car_link_text"))
+                        @Link.toInternalPage(id = Some("rm-car-link"), url = s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveCarBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
+                            value = Some(Messages("paye.car_benefit_home.remove_car_link_text"))).toHtml
                     </li>
                  }
                  @if(actions.canRemoveFuel) {
                     <li>
-                        @helpers.link(Some("rm-fuel-link"), s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
-                            Messages("paye.car_benefit_home.remove_fuel_link_text"))
+                        @Link.toInternalPage(id = Some("rm-fuel-link"), url = s"${controllers.paye.routes.ShowRemoveBenefitFormController.showRemoveFuelBenefitForm(actions.taxYear, actions.employmentSequenceNumber)}",
+                            value = Some(Messages("paye.car_benefit_home.remove_fuel_link_text"))).toHtml
                     </li>
                  }
                  @if(actions.canAddFuel) {
                     <li>
-                        @helpers.link(Some("add-fuel-link"), s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
-                            Messages("paye.car_benefit_home.add_car_link_text"))
+                        @Link.toInternalPage(id = Some("add-fuel-link"), url = s"${controllers.paye.routes.AddFuelBenefitController.startAddFuelBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
+                            value = Some(Messages("paye.car_benefit_home.add_car_link_text"))).toHtml
                     </li>
                  }
                  @if(actions.canAddCar) {
                     <div id="no-car-benefit-container">
                         <li>
-                        @helpers.link(Some("add-car-link"), s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
-                          Messages("paye.car_benefit_home.add_car_and_fuel_link_text"))
+                        @Link.toInternalPage(id = Some("add-car-link"), url = s"${controllers.paye.routes.AddCarBenefitController.startAddCarBenefit(actions.taxYear, actions.employmentSequenceNumber)}",
+                          value = Some(Messages("paye.car_benefit_home.add_car_and_fuel_link_text"))).toHtml
                         </li>
                     </div>
                   }

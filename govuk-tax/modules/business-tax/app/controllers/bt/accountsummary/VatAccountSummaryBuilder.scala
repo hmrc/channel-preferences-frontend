@@ -1,6 +1,6 @@
 package controllers.bt.accountsummary
 
-import views.helpers.MoneyPounds
+import views.helpers.{Link, MoneyPounds}
 import controllers.bt.routes
 import uk.gov.hmrc.common.microservice.vat.VatConnector
 import uk.gov.hmrc.common.microservice.domain.User
@@ -10,6 +10,7 @@ import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import uk.gov.hmrc.common.microservice.auth.domain.VatAccount
+import play.api.i18n.Messages
 
 case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnector) extends AccountSummaryBuilder[Vrn, VatRoot, VatAccount] {
 
@@ -47,12 +48,12 @@ case class VatAccountSummaryBuilder(vatConnector: VatConnector = new VatConnecto
     }
   }
 
-  private def successLinks(buildPortalUrl: (String) => String): Seq[AccountSummaryLink] = {
+  private def successLinks(buildPortalUrl: (String) => String): Seq[Link] = {
     val makeAPaymentUri = routes.PaymentController.makeVatPayment().url
-    Seq[AccountSummaryLink](
-      AccountSummaryLink("vat-account-details-href", buildPortalUrl(vatAccountDetailsPortalUrl), vatViewAccountDetailsLinkMessage, sso = true),
-      AccountSummaryLink("vat-make-payment-href", makeAPaymentUri, vatMakeAPaymentLinkMessage, sso = false),
-      AccountSummaryLink("vat-file-return-href", buildPortalUrl(vatFileAReturnPortalUrl), vatFileAReturnLinkMessage, sso = true)
+    Seq[Link](
+      Link.toPortalPage(id = Some("vat-account-details-href"), url = buildPortalUrl(vatAccountDetailsPortalUrl), value = Some(Messages(vatViewAccountDetailsLinkMessage))),
+      Link.toInternalPage(id = Some("vat-make-payment-href"), url = makeAPaymentUri, value = Some(Messages(vatMakeAPaymentLinkMessage))),
+      Link.toPortalPage(id = Some("vat-file-return-href"), url = buildPortalUrl(vatFileAReturnPortalUrl), value = Some(Messages(vatFileAReturnLinkMessage)))
     )
   }
 

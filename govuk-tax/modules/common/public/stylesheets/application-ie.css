@@ -1997,6 +1997,8 @@ fieldset {
 }
 fieldset legend {
   width: 100%;
+  float: left;
+  clear: right;
 }
 fieldset legend.h2-heading {
   margin: 0 0 0.25em 0;
@@ -2991,8 +2993,10 @@ article table td {
 
 .action-list {
   list-style: none;
+  list-style-image: none;
   margin: 0;
   padding: 0;
+  clear: both;
 }
 .action-list li {
   border-top: 1px solid #bfc1c3;

@@ -11,7 +11,7 @@
         $fieldsets.find(':text').val('');
         $fieldsets.find(':checked').prop('checked', false);
         $fieldsets.find('*[data-default]').prop('checked', true);
-    } else {
+    } else if($form.data('electricFlagged')) {
         $fieldsets.removeClass('js-hidden');
         $fieldsets.find(':checked').prop('checked', false);
     }
@@ -109,7 +109,7 @@
         $.data(this, "disabledOnSubmit", {
           submited: true
         });
-        $('input[type=submit], input[type=button]', this).each(function () {
+        $('input[type=submit], input[type=button], button[type=submit]', this).each(function () {
           $(this).attr("disabled", "disabled");
         });
         return true;

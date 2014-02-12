@@ -12,8 +12,6 @@ abstract class TaxRegime {
 
   def isAuthorised(accounts: Accounts): Boolean
 
-  //def unauthorisedLandingPage: String
-
   def authenticationType: AuthenticationProvider
 }
 
@@ -31,18 +29,9 @@ case class User(userId: String,
 
   def getPaye = regimes.paye.get
 
-  def getSa = regimes.sa.get
+  def displayName : Option[String] = regimes.paye.map(_.firstName).orElse(nameFromGovernmentGateway)
 
-  def getCt = regimes.ct.get
-
-  def getVat = regimes.vat.get
-
-  def getEPaye = regimes.epaye.get
-
-  def displayName : Option[String] = {
-    regimes.paye.map(_.firstName).orElse(nameFromGovernmentGateway)
-  }
-
+  def getSaUtr =  userAuthority.accounts.sa.get.utr
 }
 
 case class RegimeRoots(paye: Option[PayeRoot] = None,

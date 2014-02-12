@@ -49,19 +49,22 @@ object PayeQuestionnaireUtils {
     case Seq("car", "fuel") => RemoveCarAndFuel
   }
 
+
+  private val ratingScale = optional(number(min = 1, max = 5, strict = false))
+  
   private[paye] def payeQuestionnaireForm = Form[PayeQuestionnaireFormData](
     mapping(
       FormFields.transactionId -> text.verifying("some.error.code", !_.trim.isEmpty),
       FormFields.journeyType -> optional(text),
       FormFields.oldTaxCode -> optional(text),
       FormFields.newTaxCode -> optional(text),
-      FormFields.wasItEasy -> optional(number),
-      FormFields.secure -> optional(number),
-      FormFields.comfortable -> optional(number),
-      FormFields.easyCarUpdateDetails -> optional(number),
-      FormFields.onlineNextTime -> optional(number),
-      FormFields.overallSatisfaction -> optional(number),
-      FormFields.commentForImprovements -> optional(text)
+      FormFields.wasItEasy -> ratingScale,
+      FormFields.secure -> ratingScale,
+      FormFields.comfortable -> ratingScale,
+      FormFields.easyCarUpdateDetails -> ratingScale,
+      FormFields.onlineNextTime -> ratingScale,
+      FormFields.overallSatisfaction -> ratingScale,
+      FormFields.commentForImprovements -> optional(text(maxLength = 10000))
     )(PayeQuestionnaireFormData.apply)(PayeQuestionnaireFormData.unapply)
   )
 }

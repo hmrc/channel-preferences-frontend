@@ -55,7 +55,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
   }
 
   private[prefs] def displayPrefsOnLoginFormAction(implicit user: User, request: Request[AnyRef]) = {
-    preferencesConnector.getPreferences(user.getSa.utr)(HeaderCarrier(request)).map {
+    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
       case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(("", None), None))))
     }
@@ -75,7 +75,7 @@ class SaPrefsController(override val auditConnector: AuditConnector, preferences
     )
 
   private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    preferencesConnector.savePreferences(user.getSa.utr, false, None)(HeaderCarrier(request)).map(
+    preferencesConnector.savePreferences(user.getSaUtr, false, None)(HeaderCarrier(request)).map(
       _ => Redirect(FrontEndRedirect.businessTaxHome)
     )
   }

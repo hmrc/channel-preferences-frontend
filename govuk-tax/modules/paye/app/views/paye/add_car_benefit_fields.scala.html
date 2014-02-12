@@ -20,8 +20,11 @@
         carRegistrationDate,
         Html(Messages("paye.add_car_benefit.car_registration_date")),
         '_groupClass -> "form-field-group numbered",
-        '_hintText -> Html(Messages("paye.add_car_benefit.car_registration_date.hint", helpers.link(None, Messages("link.dvla.url"), Messages("paye.add_car_benefit.car_registration_date.hint.link.text"),true)))
-        )
+        '_hintText -> Html(Messages(
+                        "paye.add_car_benefit.car_registration_date.hint",
+                        Link.toExternalPage(
+                            url = Messages("link.dvla.url"),
+                            value = Some(Messages("paye.add_car_benefit.car_registration_date.hint.link.text"))).toHtml)))
     </fieldset>
     <fieldset class="list--numbered">
         <legend class="h2-heading">@Messages("paye.add_car_benefit.cost_heading")</legend>
@@ -96,7 +99,10 @@
         '_label -> Messages("paye.add_car_benefit.co2emissions"),
         '_groupClass -> "non-electric form-field--inline numbered",
         '_valueAfter -> true,
-        '_hintText -> Html(Messages("paye.add_car_benefit.co2emissions.hint", helpers.link(None, Messages("link.dvla.url"), Messages("paye.add_car_benefit.co2emissions.hint.dvla.link.text"),true), helpers.link(None, Messages("link.vca.url"), Messages("paye.add_car_benefit.co2emissions.hint.vca.link.text"),true)))
+        '_hintText -> Html(Messages(
+                        "paye.add_car_benefit.co2emissions.hint",
+                        Link.toExternalPage(url = Messages("link.dvla.url"), value = Some(Messages("paye.add_car_benefit.co2emissions.hint.dvla.link.text"))).toHtml,
+                        Link.toExternalPage(url = Messages("link.vca.url"), value = Some(Messages("paye.add_car_benefit.co2emissions.hint.vca.link.text"))).toHtml))
         )
 
         @helpers.fieldGroup(

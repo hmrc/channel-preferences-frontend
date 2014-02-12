@@ -1,5 +1,5 @@
 @(ticketId: String)
 <h2 id="feedback-thank-you-header">@Messages("common.thank.you")</h2>
 
-<p>@Html(Messages("contact.confirmation.ticket_number", ticketId))<br>
-    @Messages("contact.confirmation.message")</p>
+<input id="ticketId" type="hidden" value="@ticketId"/>
+<p>@Messages("contact.confirmation.message")</p>

@@ -15,7 +15,7 @@ class SsoOutController(override val auditConnector: AuditConnector)
   extends BaseController
   with Actions
   with SessionTimeoutWrapper
-  with AllRegimeRoots {
+  with NoRegimeRoots {
 
   def this() = this(Connectors.auditConnector)(Connectors.authConnector)
 

@@ -40,7 +40,7 @@ object UserCredentials {
 object Ida extends AuthenticationProvider {
   val id = "IDA"
 
-  val login = routes.LoginController.samlLogin
+  val login = routes.IdaLoginController.samlLogin
 
   override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
       Future.successful(Redirect(routes.LoginController.payeSignedOut()))
@@ -71,7 +71,10 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
   lazy val idaTokenApiConnector = new IdaTokenApiConnector
 
-   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
+  override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
+    Future.successful(Redirect(routes.LoginController.payeSignedOut()))
+
+  def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
     request.getQueryString("token") match {
       case Some(token) => {

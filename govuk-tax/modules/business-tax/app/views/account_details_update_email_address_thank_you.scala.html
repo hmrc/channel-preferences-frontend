@@ -1,5 +1,7 @@
 @(emailAddress: uk.gov.hmrc.domain.ObfuscatedEmail)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
 
+@import views.helpers.Link
+
 @main(title = "Account details - Your email address has been changed", nav = true, user = Some(user)) {
 
     <header class="page-header">
@@ -16,7 +18,7 @@
     <p id="verification-mail-message">You’ve been sent an email telling you how to do this.</p>
 
         <ul class="action-list">
-            <li>@helpers.link(Some("return-to-dashboard-button"), controllers.bt.routes.BusinessTaxController.home.url, "Go to your tax account")</li>
+            <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.bt.routes.BusinessTaxController.home.url, value = Some("Go to your tax account")).toHtml</li>
         </ul>
 
 

@@ -1,6 +1,7 @@
-@(vatOnlineAccountLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+@()(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[AnyRef])
 
-@import views.helpers.RenderableMessageProperty.Link._
+@import views.helpers.Link
+@import uk.gov.hmrc.common.PortalUrlBuilder
 
 @main(title = "Pay your VAT", nav = true, user= Some(user)) {
 <header class="page-header">
@@ -9,24 +10,31 @@
 
 <p>Options to pay your VAT are shown below.</p>
 <p>It’s your responsibility to make sure payments reach HM Revenue and Customs (HMRC) on time. Use the
-    @helpers.link(Some("paymentDeadlineCalculatorHref1"), "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", "payment deadline calculator", true)
-    to make sure you pay on time - @helpers.link(Some("penaltyHref"), "https://www.gov.uk/vat-returns/surcharges-and-penalties", "you may be charged a penalty if your payment is late", true).</p>
+    @Link.toExternalPage(id = Some("paymentDeadlineCalculatorHref1"), url = "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", value = Some("payment deadline calculator")).toHtml
+    to make sure you pay on time - @Link.toExternalPage(id = Some("penaltyHref"), url = "https://www.gov.uk/vat-returns/surcharges-and-penalties", value = Some("you may be charged a penalty if your payment is late")).toHtml.</p>
 
 <h2>Direct Debit</h2>
 
-<p>@helpers.link(Some("vatOnlineAccountHref"), vatOnlineAccountLink.url, "Set up a Direct Debit", vatOnlineAccountLink.newWindow,vatOnlineAccountLink.sso) at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday). You can't pay by Direct Debit if you make payments on account.</p>
+<p>
+    @Link.toPortalPage(
+        url = PortalUrlBuilder.buildPortalUrl("vatOnlineAccount"),
+        id = Some("vatOnlineAccountHref"),
+        value = Some("Set up a Direct Debit")
+    ).toHtml
+    at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday). You can't pay by Direct Debit if you make payments on account.
+</p>
 <p>HMRC will tell you when the Direct Debit has been set up. The
-    @helpers.link(Some("paymentDeadlineCalculatorHref2"), "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", "payment deadline calculator", true) tells you when the payment leaves your account. Contact your bank to make changes to your Direct Debit.</p>
+    @Link.toExternalPage(id = Some("paymentDeadlineCalculatorHref2"), url = "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", value = Some("payment deadline calculator")).toHtml tells you when the payment leaves your account. Contact your bank to make changes to your Direct Debit.</p>
 <p>You must pay by another method until the Direct Debit is set up.</p>
 <h2>Annual Accounting Scheme</h2>
 
-<p>If you use the @helpers.link(Some("annualAccountingSchemeHref"), "https://www.gov.uk/vat-annual-accounting-scheme", "Annual Accounting Scheme", true),
-    you can only set up automatic Direct Debit online for balancing payments. You can set up a Direct Debit for regular payments using form @helpers.link(Some("vat623Href"), "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=lQ05egs5kVk&f%0Aormid=1029", "VAT623", true).
+<p>If you use the @Link.toExternalPage(id = Some("annualAccountingSchemeHref"), url = "https://www.gov.uk/vat-annual-accounting-scheme", value = Some("Annual Accounting Scheme")).toHtml,
+    you can only set up automatic Direct Debit online for balancing payments. You can set up a Direct Debit for regular payments using form @Link.toExternalPage(id = Some("vat623Href"), url = "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=lQ05egs5kVk&f%0Aormid=1029", value = Some("VAT623")).toHtml.
 </p>
 
 <h2>Online with a debit or credit card</h2>
 
-<p>You can @helpers.link(Some("payOnlineHref"), "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", "pay online with a card", true) - you’ll need your VAT registration number @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
+<p>You can @Link.toExternalPage(id = Some("payOnlineHref"), url = "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", value = Some("pay online with a card")).toHtml - you’ll need your VAT registration number @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
 
 <p>You must use a card from a UK card issuer - not American Express or Diners Club.</p>
 
@@ -44,10 +52,10 @@
 
 <p>Use your VAT registration number as the payment reference @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
 
-<p>You can also pay using the @helpers.link(Some("chapsFormHref"), "http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm", "CHAPS form", true).</p>
+<p>You can also pay using the @Link.toExternalPage(id = Some("chapsFormHref"), url = "http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm", value = Some("CHAPS form")).toHtml.</p>
 <p>If you use:</p>
 <ul class="bullets">
-    <li>the Payment on Account scheme you can pay via the @helpers.link(Some("standingOrderFormHref"), "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028", "standing order form", true)</li>
+    <li>the Payment on Account scheme you can pay via the @Link.toExternalPage(id = Some("standingOrderFormHref"), url = "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028", value = Some("standing order form")).toHtml</li>
     <li>the Annual Accounting Scheme you can ask to pay by standing order when you join the scheme</li>
 </ul>
 

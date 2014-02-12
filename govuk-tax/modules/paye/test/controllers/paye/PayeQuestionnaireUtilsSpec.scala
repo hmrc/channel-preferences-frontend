@@ -103,6 +103,29 @@ class PayeQuestionnaireUtilsSpec extends BaseSpec {
 
       actualQuestionnaireForm.hasErrors shouldBe true
     }
+
+    "fail to extract the questionnaire fields if someone has entered invalid in the ratings" in {
+      implicit val request = FakeRequest().withFormUrlEncodedBody("transactionId" -> "someTxId", "journeyType"-> "AddCar", "oldTaxCode" -> "someOldCode","newTaxCode" -> "someNewCode",
+        "q1" -> "6", "q2" -> "-1", "q3" -> "0", "q4" -> "22222", "q5" -> "0", "q6" -> "50", "q7" -> "Some text.")
+      val results = PayeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
+      
+      results should have('hasErrors (true))
+
+      import PayeQuestionnaireUtils.FormFields._
+      for (questionnaireType <- List(wasItEasy, secure, comfortable, easyCarUpdateDetails, onlineNextTime, overallSatisfaction)) withClue(questionnaireType + " errors ") {
+        results.errors(questionnaireType) should not be empty
+      }
+    }
+    "fail to extract the questionnaire fields if someone has entered excessively long text in the extra comments field" in {
+      implicit val request = FakeRequest().withFormUrlEncodedBody("transactionId" -> "someTxId", "journeyType"-> "AddCar", "oldTaxCode" -> "someOldCode","newTaxCode" -> "someNewCode",
+        "q1" -> "1", "q2" -> "1", "q3" -> "1", "q4" -> "2", "q5" -> "1", "q6" -> "5", "q7" -> "A" * 10001)
+      val results = PayeQuestionnaireUtils.payeQuestionnaireForm.bindFromRequest()
+
+      results should have('hasErrors (true))
+
+      import PayeQuestionnaireUtils.FormFields._
+      results.errors(commentForImprovements) should not be empty
+    }
   }
 
   "toJourneyType" should {
