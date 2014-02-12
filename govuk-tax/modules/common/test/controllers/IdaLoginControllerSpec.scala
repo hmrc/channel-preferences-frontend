@@ -113,7 +113,7 @@ class IdaLoginControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 401
     }
 
-    "redirect to the paye landing page if the Ida response is cancel" in new IdaLoginSetup {
+    "redirect to the signed out page if the Ida response is cancel" in new IdaLoginSetup {
       val idaResponse = AuthResponseValidationResult(Cancel, None, Some(originalRequestId))
 
       when(mockSamlConnector.validate(Matchers.eq(samlResponse.response))(anyHc)).thenReturn(Future.successful(idaResponse))
@@ -123,7 +123,7 @@ class IdaLoginControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 303
       val locationHeader = header("Location", result)
       locationHeader shouldBe defined
-      locationHeader.get shouldBe FrontEndRedirect.carBenefitStartPage
+      locationHeader.get shouldBe routes.LoginController.signedOut.url
     }
 
     "throw an exception if SAML got whatever error when validating Ida response" in new IdaLoginSetup with ScalaFutures {
