@@ -16,13 +16,11 @@ import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
-import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.domain.AuthorityUtils._
 import controllers.common.service.SsoWhiteListService
 import play.libs.Json
-import uk.gov.hmrc.crypto.AesCrypto
-import org.apache.commons.codec.binary.Base64
+import controllers.common.preferences.service.SsoPayloadCrypto
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures with IntegrationPatience {
 

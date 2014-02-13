@@ -1,6 +1,8 @@
-@(redirectUrl: com.netaporter.uri.Uri)
+@(user: Option[uk.gov.hmrc.common.microservice.domain.User], redirectUrl: String)
 
-@main(title = Messages("sa_printing_preference_confirm.title")) {
+@import views.helpers.Link
+
+@main(title = Messages("sa_printing_preference_confirm.title"), user = user) {
 
 <header class="page-header">
     <h1>@Messages("sa_printing_preference_confirm.heading")</h1>
@@ -15,7 +17,12 @@
 <p>@Messages("sa_printing_preference_confirm.paragraph.3.line.1")<br>@Messages("sa_printing_preference_confirm.paragraph.3.line.2")</p>
 
 <p>
-    <a id="sa-home-link" class="button" href="@redirectUrl">@Messages("sa_printing_preference_confirm.linkText")</a>
+    @Link.toInternalPage(
+        id = Some("sa-home-link"),
+        url = redirectUrl,
+        value = Some(Messages("sa_printing_preference_confirm.linkText")),
+        cssClasses = Some("button")
+    ).toHtml
 </p>
 
 

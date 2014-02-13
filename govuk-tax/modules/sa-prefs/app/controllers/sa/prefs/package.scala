@@ -1,7 +1,6 @@
 package controllers.sa
 
 import controllers.common.service.FrontEndConfig
-import controllers.sa.prefs.service.{TokenExpiredException, SsoPayloadCrypto, Token}
 import java.net.URLDecoder
 import play.api.Logger
 import play.api.mvc.Results._
@@ -9,6 +8,7 @@ import play.api.mvc.{Request, AnyContent, Action}
 import scala.concurrent.Future
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.Uri
+import controllers.common.preferences.service.{SsoPayloadCrypto, Token, TokenExpiredException}
 
 package object prefs {
 
