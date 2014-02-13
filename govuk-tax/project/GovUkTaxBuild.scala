@@ -74,8 +74,10 @@ object GovUkTaxBuild extends Build {
     .settings(javaOptions in Test += configPath)
     .settings(jasmineTestDir <+= baseDirectory { src => src / "test" / "views" / "paye" })
 
-  val bt = play.Project(
-    appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.baseSettings ++ Common.routesImports
+  val preferences = play.Project(
+    appName + "-preferences", Version.thisApp,
+    appDependencies ++ Seq(Dependencies.Compile.scalaUri, Dependencies.Compile.scct),
+    path = file("modules/preferences"), settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases)
     .configs(TemplateTest)
@@ -83,8 +85,17 @@ object GovUkTaxBuild extends Build {
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
 
+  val bt = play.Project(
+  appName + "-business-tax", Version.thisApp, appDependencies, path = file("modules/business-tax"), settings = Common.baseSettings ++ Common.routesImports
+  ).settings(Keys.fork in Test := false)
+    .dependsOn(common % allPhases, preferences % allPhases)
+    .configs(TemplateTest)
+    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
+    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
+    .settings(javaOptions in Test += configPath)
+
   val sa = play.Project(
-    appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.baseSettings ++ Common.routesImports
+  appName + "-sa", Version.thisApp, appDependencies, path = file("modules/sa"), settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases, bt)
     .configs(TemplateTest)
@@ -92,16 +103,6 @@ object GovUkTaxBuild extends Build {
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
 
-  val preferences = play.Project(
-    appName + "-preferences", Version.thisApp,
-      appDependencies ++ Seq(Dependencies.Compile.scalaUri, Dependencies.Compile.scct),
-      path = file("modules/preferences"), settings = Common.baseSettings ++ Common.routesImports
-  ).settings(Keys.fork in Test := false)
-    .dependsOn(common % allPhases)
-    .configs(TemplateTest)
-    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
-    .settings(javaOptions in Test += configPath)
 
   lazy val govukTax = play.Project(
     appName,
