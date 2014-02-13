@@ -15,7 +15,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
 
   import EmailVerificationLinkResponse._
 
-  val additionalConfig = Map("sa-prefs.Test.portal.destinationRoot" -> "portalHomeLink", "sa-prefs.Test.portal.destinationPath.home" -> "/home")
+  val additionalConfig = Map("preferences.Test.portal.destinationRoot" -> "portalHomeLink", "preferences.Test.portal.destinationPath.home" -> "/home")
 
   def createController = new EmailValidationController {
     override lazy val preferencesMicroService = mock[PreferencesConnector]

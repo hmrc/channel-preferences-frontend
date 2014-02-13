@@ -92,10 +92,10 @@ object GovUkTaxBuild extends Build {
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
 
-  val saPrefs = play.Project(
-    appName + "-sa-prefs", Version.thisApp,
+  val preferences = play.Project(
+    appName + "-preferences", Version.thisApp,
       appDependencies ++ Seq(Dependencies.Compile.scalaUri, Dependencies.Compile.scct),
-      path = file("modules/sa-prefs"), settings = Common.baseSettings ++ Common.routesImports
+      path = file("modules/preferences"), settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .dependsOn(common % allPhases)
     .configs(TemplateTest)
@@ -109,8 +109,8 @@ object GovUkTaxBuild extends Build {
     settings = Common.baseSettings ++ SassPlugin.sassSettings
   ).settings(publishArtifact := true,
     Keys.fork in Test := false)
-    .dependsOn(paye, sa, bt, saPrefs)
-    .aggregate(common, paye, sa, bt, saPrefs, govukTemplate)
+    .dependsOn(paye, sa, bt, preferences)
+    .aggregate(common, paye, sa, bt, preferences, govukTemplate)
 
 }
 
