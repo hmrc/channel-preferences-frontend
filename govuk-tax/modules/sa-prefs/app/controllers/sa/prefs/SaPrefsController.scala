@@ -62,7 +62,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
               implicit request =>
                 preferencesConnector.getPreferencesUnsecured(token.utr).map {
                   case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
-                    Ok(views.html.sa.prefs.sa_printing_preference_confirm(returnUrl ? ("emailAddress" -> SsoPayloadCrypto.encrypt(emailAddress))))
+                    Ok(views.html.preferences.sa_printing_preference_confirm(user = None, redirectUrl = returnUrl ? ("emailAddress" -> SsoPayloadCrypto.encrypt(emailAddress))))
                   case _ => PreconditionFailed
                 }
             }

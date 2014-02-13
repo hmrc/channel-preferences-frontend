@@ -52,7 +52,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   def thankYou() = AuthorisedFor(SaRegime) {
     user =>
       request =>
-        Ok(views.html.sa_printing_preference_thank_you(user))
+        Ok(views.html.preferences.sa_printing_preference_confirm(Some(user), controllers.bt.routes.BusinessTaxController.home.url))
   }
 
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
