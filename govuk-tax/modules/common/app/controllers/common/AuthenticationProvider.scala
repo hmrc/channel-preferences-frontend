@@ -43,7 +43,7 @@ object Ida extends AuthenticationProvider {
   val login = routes.IdaLoginController.samlLogin
 
   override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
-      Future.successful(Redirect(routes.LoginController.payeSignedOut()))
+    Future.successful(Redirect(routes.LoginController.payeSignedOut()))
 
   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] =
     Future.successful(Redirect(login).withSession(buildSessionForRedirect(request.session, redirectUrl(redirectToOrigin))))
@@ -67,7 +67,7 @@ object Ida extends AuthenticationProvider {
  */
 object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
-   val id = "IDA"
+  val id = "IDA"
 
   lazy val idaTokenApiConnector = new IdaTokenApiConnector
 
@@ -76,17 +76,30 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
-    request.getQueryString("token") match {
+    getTokenFromRequest match {
       case Some(token) => {
         idaTokenApiConnector.validateToken(token).map { isValid =>
           if (isValid) toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true)))
-          else toBadIdaToken
+          else {
+            Logger.info("The provided Ida token is not valid")
+            toBadIdaToken
+          }
         }
       }
       case None => {
         if (idaTokenApiConnector.idaTokenRequired) Future.successful(toBadIdaToken)
         else Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
       }
+    }
+  }
+
+  private[controllers] def getTokenFromRequest(implicit request: Request[AnyContent]): Option[String] = {
+    request.getQueryString("token").flatMap {
+      token =>
+        if (token.isEmpty){
+          Logger.info("The provided Ida token is empty")
+          None
+        } else Some(token)
     }
   }
 
@@ -98,7 +111,7 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
   private def redirectUrl(request: Request[AnyContent], redirectToOrigin: Boolean) =
     if (redirectToOrigin) Some(request.uri) else None
 
-   def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
+  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, SimpleResult]]] = {
     case UserCredentials(None, token@_) =>
       implicit val hc = HeaderCarrier(request)
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
@@ -111,13 +124,13 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 }
 
 object GovernmentGateway extends AuthenticationProvider {
-   val id = "GGW"
+  val id = "GGW"
 
   val login = routes.LoginController.businessTaxLogin()
 
-   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Redirect(login))
+  def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Redirect(login))
 
-   def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = {
+  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): PartialFunction[UserCredentials, Future[Either[User, FailureResult]]] = {
     case UserCredentials(None, token@_) =>
       Logger.info(s"No identity cookie found - redirecting to login. user: None token : $token")
       redirectToLogin(redirectToOrigin).map(Right(_))
@@ -131,23 +144,25 @@ object AnyAuthenticationProvider extends AuthenticationProvider {
 
   private val login = routes.LoginController.businessTaxLogin()
 
-   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
+  def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     Logger.info("In AnyAuthenticationProvider - redirecting to login page")
     request.session.get(SessionKeys.authProvider) match {
-        case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin(redirectToOrigin)
+      case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.redirectToLogin(redirectToOrigin)
       case _ => Future.successful(Redirect(login))
     }
   }
 
-   def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
+  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
     request.session.get(SessionKeys.authProvider) match {
       case Some(GovernmentGateway.id) => GovernmentGateway.handleNotAuthenticated(redirectToOrigin)
       case Some(IdaWithTokenCheckForBeta.id) => IdaWithTokenCheckForBeta.handleNotAuthenticated(redirectToOrigin)
-      case _ => {case _ => Future.successful(Right(Redirect(login).withNewSession))}
+      case _ => {
+        case _ => Future.successful(Right(Redirect(login).withNewSession))
+      }
     }
   }
 
-   val id = "IDAorGGW"
+  val id = "IDAorGGW"
 }
 
 
