@@ -1,6 +1,6 @@
 package controllers.bt.prefs
 
-import play.api.mvc.{SimpleResult, Request}
+import play.api.mvc.{Call, SimpleResult, Request}
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import controllers.common.{FrontEndRedirect, BaseController}
 import controllers.common.actions.{HeaderCarrier, Actions}
@@ -58,7 +58,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
     preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case _ => Ok(  views.html.preferences.sa_printing_preference(emailForm.fill(EmailPreferenceData(("", None), None)), getSavePrefsCall, getKeepPaperCall))
+      case _ => displayPreferencesForm(None, getSavePrefsCall, getKeepPaperCall)
     }
   }
 

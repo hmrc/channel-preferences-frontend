@@ -8,7 +8,6 @@ import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, PreferencesConnector}
 import com.netaporter.uri.dsl._
 import uk.gov.hmrc.domain.Email
-import controllers.common.domain.EmailPreferenceData
 import play.Logger
 import controllers.common.preferences.PreferencesControllerHelper
 import controllers.common.actions.HeaderCarrier
@@ -44,10 +43,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
                   case None =>
                     Logger.debug(s"Requesting preferences from $utr as they have none set")
-                    Ok(
-                      views.html.preferences.sa_printing_preference(
-                        emailForm.fill(EmailPreferenceData(emailAddressToPrefill)),
-                        getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl)))
+                    displayPreferencesForm(emailAddressToPrefill, getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl))
                 }
             }
         }
