@@ -27,10 +27,7 @@ trait Connector extends Status with ConnectionLogging {
 
   protected val serviceUrl: String
 
-  protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = {
-    Logger.info(s"Accessing backend service: $serviceUrl$uri")
-    WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
-  }
+  protected def httpResource(uri: String)(implicit headerCarrier: HeaderCarrier) = WS.url(s"$serviceUrl$uri").withHeaders(headerCarrier.headers: _*)
 
   protected def httpGetF[A](uri: String)(implicit m: Manifest[A], headerCarrier: HeaderCarrier): Future[Option[A]] = withLogging("GetF", uri) {
     response[A](httpResource(uri).get(), uri)(extractJSONResponse[A])

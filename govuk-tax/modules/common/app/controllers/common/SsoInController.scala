@@ -34,24 +34,26 @@ class SsoInController(ssoWhiteListService: SsoWhiteListService,
     implicit request => {
       val form = Form(single("payload" -> text))
       val payload = form.bindFromRequest.get
-      in(payload)
+      in(SsoPayloadCrypto.decrypt(payload))
     }
   })
+
+  def getIn(payload:String) = WithNewSessionTimeout(UnauthorisedAction.async {
+    implicit request => in(decryptEncodedPayload(payload))
+  })
+
 
   val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
-  def getIn(payload:String) = WithNewSessionTimeout(UnauthorisedAction.async {
-    implicit request => {
-      if (payload.matches(base64)) {
-        in(payload)
-      } else {
-        in(URLDecoder.decode(payload, "UTF-8"))
-      }
+  private[common] def decryptEncodedPayload(payload: String) = {
+    if (payload.matches(base64)) {
+      SsoPayloadCrypto.decrypt(payload)
+    } else {
+      SsoPayloadCrypto.decrypt(URLDecoder.decode(payload, "UTF-8"))
     }
-  })
+  }
 
-  def in (payload: String)(implicit request: Request[_]): Future[SimpleResult] = {
-      val decryptedPayload = SsoPayloadCrypto.decrypt(payload)
-      Logger.debug(s"token: $payload")
+  def in (decryptedPayload: String)(implicit request: Request[_]): Future[SimpleResult] = {
+      Logger.debug(s"token: $decryptedPayload")
       val json = Json.parse(decryptedPayload)
       val token = (json \ "gw").as[String]
       val time = (json \ "time").as[Long]

@@ -79,7 +79,7 @@ class IdaLoginController(samlConnector: SamlConnector,
         (authnResponseValidationResult.idaResponse: IdaResponse, authnResponseValidationResult.hashPid, authnResponseValidationResult.originalRequestId) match {
           case (Match, Some(hashPid), originalRequestId) => handleIdaLoginSuccess(hashPid, originalRequestId)
           case (NoMatch, hashPid, originalRequestId) => Future.successful(handleIdaLoginFailure(hashPid, "SAMLResponse failed validation", originalRequestId))
-          case (Cancel, _, originalRequestId) => Future.successful(Redirect(FrontEndRedirect.carBenefitStartPage))
+          case (Cancel, _, originalRequestId) => Future.successful(Redirect(routes.LoginController.signedOut))
           case (Error, _, _) => {
             throw new RuntimeException("Got an error response from SAML while performing Ida login. Look at the SAML logs for more details")
           }
