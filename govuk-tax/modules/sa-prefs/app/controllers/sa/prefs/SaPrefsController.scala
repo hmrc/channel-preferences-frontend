@@ -1,20 +1,23 @@
 package controllers.sa.prefs
 
-import play.api.mvc.{Request, AnyContent, SimpleResult, Action}
+import play.api.mvc.{Request, AnyContent, Action}
 import concurrent.Future
 import controllers.common.service.{Connectors, FrontEndConfig}
 import controllers.common.BaseController
-import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, SaPreference, PreferencesConnector}
+import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, PreferencesConnector}
 import com.netaporter.uri.dsl._
-import uk.gov.hmrc.domain.{SaUtr, Email}
+import uk.gov.hmrc.domain.Email
 import controllers.common.domain.EmailPreferenceData
 import play.Logger
 import controllers.common.preferences.PreferencesControllerHelper
 import controllers.common.actions.HeaderCarrier
 import com.netaporter.uri.Uri
-import controllers.common.preferences.service.{SsoPayloadCrypto, Token}
+import controllers.common.preferences.service.SsoPayloadCrypto
+import uk.gov.hmrc.common.microservice.preferences.SaPreference
+import controllers.common.preferences.service.Token
+import play.api.mvc.SimpleResult
+import uk.gov.hmrc.domain.SaUtr
 
 class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with PreferencesControllerHelper {
 
@@ -98,16 +101,15 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
     preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
       case Some(saPreference) =>
         Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
-      case None => {
+      case None =>
         submitPreferencesForm(
-          errorsView = views.html.preferences.sa_printing_preference(_, getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl)),
+          errorsView = getSubmitPreferencesView(getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl)),
           emailWarningView = views.html.sa.prefs.sa_printing_preference_warning_email(_, token, returnUrl),
           successRedirect = () => routes.SaPrefsController.confirm(token.encryptedToken, returnUrl),
           emailConnector = emailConnector,
           saUtr = token.utr,
           savePreferences = savePreferences
         )
-      }
     }
   }
 

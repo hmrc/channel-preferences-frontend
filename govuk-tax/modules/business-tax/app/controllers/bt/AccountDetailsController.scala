@@ -107,7 +107,7 @@ with PreferencesControllerHelper {
     lookupCurrentEmail(
       email =>
         submitPreferencesForm(
-          (errors) => views.html.account_details_update_email_address(email, errors),
+          views.html.account_details_update_email_address(email, _),
           (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
           () => routes.AccountDetailsController.emailAddressChangeThankYou(),
           emailConnector,

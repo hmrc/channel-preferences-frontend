@@ -1,6 +1,6 @@
 package controllers.common.preferences
 
-import play.api.mvc.{SimpleResult, Call, Request}
+import play.api.mvc.{AnyContent, SimpleResult, Call, Request}
 import controllers.common.actions.HeaderCarrier
 import play.api.data._
 import play.api.mvc.Results._
@@ -12,9 +12,9 @@ import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import Function.const
 import controllers.common.domain.EmailPreferenceData
 import uk.gov.hmrc.domain.SaUtr
+import play.api.templates.{HtmlFormat, Html}
 
 trait PreferencesControllerHelper {
-
 
   protected val emailForm: Form[EmailPreferenceData] = Form[EmailPreferenceData](mapping(
     "email" ->
@@ -27,6 +27,9 @@ trait PreferencesControllerHelper {
     "emailVerified" -> optional(text)
   )(EmailPreferenceData.apply)(EmailPreferenceData.unapply))
 
+  def getSubmitPreferencesView(savePrefsCall: Call, keepPaperCall: Call)(implicit request: Request[AnyRef]) : Form[EmailPreferenceData] => HtmlFormat.Appendable = {
+    errors => views.html.preferences.sa_printing_preference(errors, savePrefsCall, keepPaperCall)
+  }
 
   protected def submitPreferencesForm(errorsView: (Form[EmailPreferenceData]) => play.api.templates.HtmlFormat.Appendable,
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,

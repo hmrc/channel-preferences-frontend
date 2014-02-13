@@ -10,11 +10,11 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import controllers.bt.BusinessTaxRegimeRoots
 import scala.concurrent.Future
 import uk.gov.hmrc.domain.{SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
 import controllers.common.preferences.PreferencesControllerHelper
+import controllers.bt._
 
 class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
@@ -62,10 +62,6 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
     }
   }
 
-  private def getSavePrefsCall = controllers.bt.prefs.routes.BizTaxPrefsController.submitPrefsForm
-
-  private def getKeepPaperCall = controllers.bt.prefs.routes.BizTaxPrefsController.submitKeepPaperForm
-
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]) = {
     Future.successful(Ok(views.html.preferences.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress)), getSavePrefsCall, getKeepPaperCall)))
   }
@@ -77,7 +73,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
     }
 
     submitPreferencesForm(
-      errorsView = views.html.preferences.sa_printing_preference(_, getSavePrefsCall, getKeepPaperCall),
+      errorsView = getSubmitPreferencesView(getSavePrefsCall, getKeepPaperCall),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       successRedirect = routes.BizTaxPrefsController.thankYou,
       emailConnector = emailConnector,

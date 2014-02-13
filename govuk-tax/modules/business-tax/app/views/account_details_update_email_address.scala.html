@@ -1,9 +1,5 @@
 @(currentEmail : String, emailForm: Form[controllers.common.domain.EmailPreferenceData])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
-@import views.helpers.CustomHelpers._
-@import helper._
-@import views.helpers._
-
 @main(title = "Your details - Change your email address", nav = true, user= Some(user)) {
 
     <header class="page-header">
