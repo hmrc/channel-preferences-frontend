@@ -1,0 +1,22 @@
+@(redirectUrl: com.netaporter.uri.Uri)
+
+@main(title = Messages("sa_printing_preference_confirm.title")) {
+
+<header class="page-header">
+    <h1>@Messages("sa_printing_preference_confirm.heading")</h1>
+
+    <h2>@Messages("sa_printing_preference_confirm.heading.2")</h2>
+</header>
+
+<p>@Messages("sa_printing_preference_confirm.paragraph.1")</p>
+
+<p>@Messages("sa_printing_preference_confirm.paragraph.2")</p>
+
+<p>@Messages("sa_printing_preference_confirm.paragraph.3.line.1")<br>@Messages("sa_printing_preference_confirm.paragraph.3.line.2")</p>
+
+<p>
+    <a id="sa-home-link" class="button" href="@redirectUrl">@Messages("sa_printing_preference_confirm.linkText")</a>
+</p>
+
+
+}

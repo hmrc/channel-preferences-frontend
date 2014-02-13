@@ -1,0 +1,28 @@
+error.email=Enter a valid email address.
+email.confirmation.emails.unequal=Check your email addresses - they don't match.
+
+sa_printing_preference.title=My Preferences
+sa_printing_preference.heading=Sign up for Self Assessment email reminders
+sa_printing_preference.paragraph.1=You can soon get Self Assessment email reminders when:
+sa_printing_preference.list.1.item.1=Self Assessment tax returns are due
+sa_printing_preference.list.1.item.2=payments are due for Self Assessment
+sa_printing_preference.list.1.item.3=new tax statements are online
+sa_printing_preference.paragraph.2=Email reminders will replace the letters you currently get about these.
+sa_printing_preference.heading.2=What''s in the email
+sa_printing_preference.paragraph.3=The email asks you to sign in to your tax account and check for updates.
+sa_printing_preference.paragraph.4=They're secure and will never include any information about your personal tax affairs.
+sa_printing_preference.paragraph.5=To sign up - enter your email address.
+sa_printing_preference.paragraph.6.start=By signing up you accept the
+sa_printing_preference.paragraph.6.linkText=terms and conditions
+sa_printing_preference.paragraph.6.end=.
+sa_printing_preference.submitButton=Sign up for Self Assessment email reminders
+sa_printing_preference.cancelButton=Continue to get letters
+
+sa_printing_preference_confirm.title=My Preferences
+sa_printing_preference_confirm.heading=Sign up for Self Assessment email reminders
+sa_printing_preference_confirm.heading.2=Thank you
+sa_printing_preference_confirm.paragraph.1=You must verify your email address to activate this service.
+sa_printing_preference_confirm.paragraph.2=You’ve been sent an email telling you how to do this.
+sa_printing_preference_confirm.paragraph.3.line.1=HM Revenue and Customs never put personal information in an email.
+sa_printing_preference_confirm.paragraph.3.line.2=Always go to GOV.UK to sign in to your account.
+sa_printing_preference_confirm.linkText=Go to your tax account
