@@ -3,7 +3,6 @@ package controllers.sa.prefs
 import play.api.mvc.{Request, AnyContent, SimpleResult, Action}
 import concurrent.Future
 import controllers.common.service.{Connectors, FrontEndConfig}
-import controllers.sa.prefs.service.{Token, SsoPayloadCrypto}
 import controllers.common.BaseController
 import scala.Some
 import uk.gov.hmrc.common.microservice.email.EmailConnector
@@ -15,6 +14,7 @@ import play.Logger
 import controllers.common.preferences.PreferencesControllerHelper
 import controllers.common.actions.HeaderCarrier
 import com.netaporter.uri.Uri
+import controllers.common.preferences.service.{SsoPayloadCrypto, Token}
 
 class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with PreferencesControllerHelper {
 
@@ -42,10 +42,9 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
                   case None =>
                     Logger.debug(s"Requesting preferences from $utr as they have none set")
                     Ok(
-                      views.html.sa.prefs.sa_printing_preference(
+                      views.html.preferences.sa_printing_preference(
                         emailForm.fill(EmailPreferenceData(emailAddressToPrefill)),
-                        token,
-                        returnUrl))
+                        getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl)))
                 }
             }
         }
@@ -91,6 +90,9 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
         }
     }
 
+  private def getSavePrefsCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, returnUrl)
+
+  private def getKeepPaperCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.routes.SaPrefsController.submitKeepPaperForm(token.encryptedToken, returnUrl)
 
   def saveEmailPreferences(token: Token, returnUrl: Uri)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
@@ -98,7 +100,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
         Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
       case None => {
         submitPreferencesForm(
-          errorsView = views.html.sa.prefs.sa_printing_preference(_, token, returnUrl),
+          errorsView = views.html.preferences.sa_printing_preference(_, getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl)),
           emailWarningView = views.html.sa.prefs.sa_printing_preference_warning_email(_, token, returnUrl),
           successRedirect = () => routes.SaPrefsController.confirm(token.encryptedToken, returnUrl),
           emailConnector = emailConnector,

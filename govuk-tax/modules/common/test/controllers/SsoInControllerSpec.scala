@@ -18,9 +18,9 @@ import org.mockito.{ArgumentCaptor, Matchers}
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.audit.{AuditEvent, AuditConnector}
-import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.domain.AuthorityUtils._
+import common.preferences.service._
 
 class SsoInControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures with IntegrationPatience {
 

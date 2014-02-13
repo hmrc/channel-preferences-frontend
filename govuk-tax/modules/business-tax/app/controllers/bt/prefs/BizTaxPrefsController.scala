@@ -58,12 +58,17 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
     preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case _ => Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(("", None), None))))
+      case _ => Ok(  views.html.preferences.sa_printing_preference(emailForm.fill(EmailPreferenceData(("", None), None)), getSavePrefsCall, getKeepPaperCall))
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]) =
-    Future.successful(Ok(views.html.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress)))))
+  private def getSavePrefsCall = controllers.bt.prefs.routes.BizTaxPrefsController.submitPrefsForm
+
+  private def getKeepPaperCall = controllers.bt.prefs.routes.BizTaxPrefsController.submitKeepPaperForm
+
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]) = {
+    Future.successful(Ok(views.html.preferences.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress)), getSavePrefsCall, getKeepPaperCall)))
+  }
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
 
@@ -72,7 +77,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
     }
 
     submitPreferencesForm(
-      errorsView = views.html.sa_printing_preference(_),
+      errorsView = views.html.preferences.sa_printing_preference(_, getSavePrefsCall, getKeepPaperCall),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       successRedirect = routes.BizTaxPrefsController.thankYou,
       emailConnector = emailConnector,

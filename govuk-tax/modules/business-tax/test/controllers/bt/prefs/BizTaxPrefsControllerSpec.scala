@@ -33,7 +33,7 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
   val request = FakeRequest()
 }
 
-class SaPrefsControllerSpec extends BaseSpec with MockitoSugar {
+class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
   import Matchers.{any, eq => is}
   import play.api.test.Helpers._
 

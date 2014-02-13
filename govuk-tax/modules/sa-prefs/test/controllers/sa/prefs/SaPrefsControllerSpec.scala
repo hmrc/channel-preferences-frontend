@@ -10,7 +10,7 @@ import org.joda.time.{DateTimeZone, DateTime}
 import java.net.URLEncoder.{encode => urlEncode}
 import org.jsoup.Jsoup
 import scala.concurrent.Future
-import controllers.sa.prefs.service.SsoPayloadCrypto
+import controllers.common.preferences.service.SsoPayloadCrypto
 import SsoPayloadCrypto._
 import controllers.common.actions.HeaderCarrier
 import uk.gov.hmrc.common.microservice.email.EmailConnector
@@ -23,6 +23,7 @@ import uk.gov.hmrc.domain.SaUtr
 import play.api.test.FakeApplication
 import java.net.URI
 import play.api.mvc.{AnyContent, Request}
+import controllers.common.preferences.service.SsoPayloadCrypto
 
 class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
 

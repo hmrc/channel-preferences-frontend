@@ -1,4 +1,4 @@
-package controllers.sa.prefs.service
+package controllers.common.preferences.service
 
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URLDecoder
