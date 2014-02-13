@@ -68,9 +68,9 @@ with TaxYearSupport {
       params =>
         Ok(car_benefit_home(params))
     }.getOrElse {
-      val message = s"Unable to find current employment for user ${user.oid}"
+      val message = s"Unable to find current/primary employment for user ${user.oid}"
       Logger.error(message)
-      InternalServerError(error_no_data_car_benefit_home(message))
+      Ok(cannot_play_in_beta(user))
     }
   }
 

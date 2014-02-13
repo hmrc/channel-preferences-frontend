@@ -15,8 +15,9 @@ import models.paye.EmploymentViews
 import play.api.mvc.Session
 import org.joda.time.LocalDate
 import play.api.test.FakeApplication
-import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 import controllers.common.SessionKeys
+import play.api.i18n
+import play.api.i18n.Messages
 
 //TODO: Create a separate test case for the public method (carBenefitHome)
 class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with ScalaFutures {
@@ -45,15 +46,15 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
       status(actualResponse) should be(200)
     }
 
-    "return a status 500 (InternalServerError) when HomePageParams are not available" in new WithApplication(FakeApplication()) {
+    "return a status of 200 but send the user to the cannot play page when params are not available." in new WithApplication(FakeApplication()) {
       val actualResponse = controller.buildHomePageResponse(None)
-      status(actualResponse) should be(500)
+      status(actualResponse) should be(200)
+      contentAsString(actualResponse) should include(i18n.Messages("paye.cannot_play_in_beta.text.p1"))
     }
   }
 
   "calling buildHomePageParams" should {
     "return a populated HomePageParams with the expected values" in {
-
       val benefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
       val employments = johnDensmoresEmployments
