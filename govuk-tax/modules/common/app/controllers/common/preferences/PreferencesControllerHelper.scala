@@ -31,7 +31,7 @@ trait PreferencesControllerHelper {
     errors => views.html.preferences.sa_printing_preference(errors, savePrefsCall, keepPaperCall)
   }
 
-  def displayPreferencesForm(email: Option[Email], savePrefsCall: Call, keepPaperCall: Call) = {
+  def displayPreferencesForm(email: Option[Email], savePrefsCall: Call, keepPaperCall: Call)(implicit request: Request[AnyRef]) = {
     Ok(views.html.preferences.sa_printing_preference(
       emailForm = emailForm.fill(EmailPreferenceData(email)),
       submitPrefsFormAction = savePrefsCall,
