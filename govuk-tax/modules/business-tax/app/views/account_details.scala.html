@@ -24,48 +24,50 @@
            </div>
 
            }
-
-           <p>
+           <ul class="action-list">
+           <li>
            @Link.toInternalPage(
                id = Some("change-email-address-link"),
                url = controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
                value = Some("Change your email address")
            ).toHtml
-           </p>
+           </li>
        }
 
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.verified ) {
            <p>You’re signed up for email reminders for when tax returns and payments are due and tax statements are online.</p>
            <p>They’re sent to: <span id="email-address">@{saPreferences.get.email.get.email.obfuscated}</span></p>
-           <hr>
-           <p>
-           @Link.toInternalPage(
-                id = Some("change-email-address-link"),
-                url = controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
-                value = Some("Change your email address")
-           ).toHtml
-           </p>
+           <ul class="action-list">
+               <li>
+               @Link.toInternalPage(
+                    id = Some("change-email-address-link"),
+                    url = controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+                    value = Some("Change your email address")
+               ).toHtml
+               </li>
        }
        @if(saPreferences.get.email.get.status == SaEmailPreference.Status.bounced) {
 
            <p id="bouncing-status-message">You’ve signed up for email reminders but we need to verify your email address - <span id="email-address">@{saPreferences.get.email.get.email}</span></p>
            <p id="bounce-reason">We can’t do this because @{saPreferences.get.email.get.message.getOrElse("Error message is unavailable")}</p>
-           <p>
-           @Link.toInternalPage(
-               id = Some("revalidate-email-link"),
-               url = controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
-               value = Some("Change your email address")
-           ).toHtml
-           </p>
+           <ul class="action-list">
+               <li>
+               @Link.toInternalPage(
+                   id = Some("revalidate-email-link"),
+                   url = controllers.bt.routes.AccountDetailsController.changeEmailAddress(None).url,
+                   value = Some("Change your email address")
+               ).toHtml
+               </li>
        }
 
-       <p>
-       @Link.toInternalPage(
-           id = Some("opt-out-of-email-link"),
-           url = controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
-           value = Some("Stop your email reminders")
-       ).toHtml
-       </p>
+               <li>
+               @Link.toInternalPage(
+                   id = Some("opt-out-of-email-link"),
+                   url = controllers.bt.routes.AccountDetailsController.optOutOfEmailReminders.url,
+                   value = Some("Stop your email reminders")
+               ).toHtml
+               </li>
+           </ul>
 
 
    }
