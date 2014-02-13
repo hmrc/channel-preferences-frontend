@@ -4,7 +4,7 @@
     <p><b>BETA:</b> This is a @Link.toExternalPage(url = "https://www.gov.uk/help/beta", value = Some("trial service")).toHtml. Help us improve it - send your
 
         @defining(user.map{_ => controllers.common.support.routes.FeedbackController.feedbackForm().url}.getOrElse(controllers.common.support.routes.FeedbackController.unauthenticatedFeedbackForm().url))  { link =>
-            @Link.toExternalPage(id = Some("feedback-link"), url = link, value = Some("feeback")).toHtml.
+            @Link.toExternalPage(id = Some("feedback-link"), url = link, value = Some("feedback")).toHtml.
         }
 
     </p>
