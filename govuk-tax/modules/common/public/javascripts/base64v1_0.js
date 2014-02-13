@@ -1,123 +1,218 @@
 ﻿/*
-Copyright Vassilis Petroulias [DRDigit]
+Copyright (c) 2008 Fred Palmer fred.palmer_at_gmail.com
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
 
-       http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
 */
+function StringBuffer()
+{
+    this.buffer = [];
+}
 
-var B64 = {
-    alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
-    lookup: null,
-    ie: /MSIE /.test(navigator.userAgent),
-    ieo: /MSIE [67]/.test(navigator.userAgent),
-    encode: function (s) {
-        var buffer = B64.toUtf8(s),
-            position = -1,
-            len = buffer.length,
-            nan1, nan2,
-//            enc = [, , , ];
-            enc = new Array(4);
+StringBuffer.prototype.append = function append(string)
+{
+    this.buffer.push(string);
+    return this;
+};
 
-        if (B64.ie) {
-            var result = [];
-            while (++position < len) {
-                nan1 = buffer[position + 1], nan2 = buffer[position + 2];
-                enc[0] = buffer[position] >> 2;
-                enc[1] = ((buffer[position] & 3) << 4) | (buffer[++position] >> 4);
-                if (isNaN(nan1)) enc[2] = enc[3] = 64;
-                else {
-                    enc[2] = ((buffer[position] & 15) << 2) | (buffer[++position] >> 6);
-                    enc[3] = (isNaN(nan2)) ? 64 : buffer[position] & 63;
-                }
-                result.push(B64.alphabet[enc[0]], B64.alphabet[enc[1]], B64.alphabet[enc[2]], B64.alphabet[enc[3]]);
+StringBuffer.prototype.toString = function toString()
+{
+    return this.buffer.join("");
+};
+
+var B64 =
+{
+    codex : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+    encode : function (input)
+    {
+        var output = new StringBuffer();
+
+        var enumerator = new Utf8EncodeEnumerator(input);
+        while (enumerator.moveNext())
+        {
+            var chr1 = enumerator.current;
+
+            enumerator.moveNext();
+            var chr2 = enumerator.current;
+
+            enumerator.moveNext();
+            var chr3 = enumerator.current;
+
+            var enc1 = chr1 >> 2;
+            var enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+            var enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+            var enc4 = chr3 & 63;
+
+            if (isNaN(chr2))
+            {
+                enc3 = enc4 = 64;
             }
-            return result.join('');
-        } else {
-            result = '';
-            while (++position < len) {
-                nan1 = buffer[position + 1], nan2 = buffer[position + 2];
-                enc[0] = buffer[position] >> 2;
-                enc[1] = ((buffer[position] & 3) << 4) | (buffer[++position] >> 4);
-                if (isNaN(nan1)) enc[2] = enc[3] = 64;
-                else {
-                    enc[2] = ((buffer[position] & 15) << 2) | (buffer[++position] >> 6);
-                    enc[3] = (isNaN(nan2)) ? 64 : buffer[position] & 63;
-                }
-                result += B64.alphabet[enc[0]] + B64.alphabet[enc[1]] + B64.alphabet[enc[2]] + B64.alphabet[enc[3]];
+            else if (isNaN(chr3))
+            {
+                enc4 = 64;
             }
-            return result;
+
+            output.append(this.codex.charAt(enc1) + this.codex.charAt(enc2) + this.codex.charAt(enc3) + this.codex.charAt(enc4));
         }
+        return output.toString();
     },
-    decode: function (s) {
-        var buffer = B64.fromUtf8(s),
-            position = 0,
-            len = buffer.length;
-        if (B64.ieo) {
-            result = [];
-            while (position < len) {
-                if (buffer[position] < 128) result.push(String.fromCharCode(buffer[position++]));
-                else if (buffer[position] > 191 && buffer[position] < 224) result.push(String.fromCharCode(((buffer[position++] & 31) << 6) | (buffer[position++] & 63)));
-                else result.push(String.fromCharCode(((buffer[position++] & 15) << 12) | ((buffer[position++] & 63) << 6) | (buffer[position++] & 63)));
+
+    decode : function (input)
+    {
+        var output = new StringBuffer();
+
+        var enumerator = new Base64DecodeEnumerator(input);
+        while (enumerator.moveNext())
+        {
+            var charCode = enumerator.current;
+
+            if (charCode < 128)
+                output.append(String.fromCharCode(charCode));
+            else if ((charCode > 191) && (charCode < 224))
+            {
+                enumerator.moveNext();
+                var charCode2 = enumerator.current;
+
+                output.append(String.fromCharCode(((charCode & 31) << 6) | (charCode2 & 63)));
             }
-            return result.join('');
-        } else {
-            result = '';
-            while (position < len) {
-                if (buffer[position] < 128) result += String.fromCharCode(buffer[position++]);
-                else if (buffer[position] > 191 && buffer[position] < 224) result += String.fromCharCode(((buffer[position++] & 31) << 6) | (buffer[position++] & 63));
-                else result += String.fromCharCode(((buffer[position++] & 15) << 12) | ((buffer[position++] & 63) << 6) | (buffer[position++] & 63));
+            else
+            {
+                enumerator.moveNext();
+                var charCode2 = enumerator.current;
+
+                enumerator.moveNext();
+                var charCode3 = enumerator.current;
+
+                output.append(String.fromCharCode(((charCode & 15) << 12) | ((charCode2 & 63) << 6) | (charCode3 & 63)));
             }
-            return result;
         }
-    },
-    toUtf8: function (s) {
-        var position = -1,
-            len = s.length,
-            chr, buffer = [];
-        if (/^[\x00-\x7f]*$/.test(s)) while (++position < len)
-        buffer.push(s.charCodeAt(position));
-        else while (++position < len) {
-            chr = s.charCodeAt(position);
-            if (chr < 128) buffer.push(chr);
-            else if (chr < 2048) buffer.push((chr >> 6) | 192, (chr & 63) | 128);
-            else buffer.push((chr >> 12) | 224, ((chr >> 6) & 63) | 128, (chr & 63) | 128);
+
+        return output.toString();
+    }
+}
+
+
+function Utf8EncodeEnumerator(input)
+{
+    this._input = input;
+    this._index = -1;
+    this._buffer = [];
+}
+
+Utf8EncodeEnumerator.prototype =
+{
+    current: Number.NaN,
+
+    moveNext: function()
+    {
+        if (this._buffer.length > 0)
+        {
+            this.current = this._buffer.shift();
+            return true;
         }
-        return buffer;
-    },
-    fromUtf8: function (s) {
-        var position = -1,
-            len, buffer = [],
-//            enc = [, , , ];
-            enc = new Array(4);
-        if (!B64.lookup) {
-            len = B64.alphabet.length;
-            B64.lookup = {};
-            while (++position < len)
-            B64.lookup[B64.alphabet[position]] = position;
-            position = -1;
+        else if (this._index >= (this._input.length - 1))
+        {
+            this.current = Number.NaN;
+            return false;
         }
-        len = s.length;
-        while (position < len) {
-            enc[0] = B64.lookup[s.charAt(++position)];
-            enc[1] = B64.lookup[s.charAt(++position)];
-            buffer.push((enc[0] << 2) | (enc[1] >> 4));
-            enc[2] = B64.lookup[s.charAt(++position)];
-            if (enc[2] == 64) break;
-            buffer.push(((enc[1] & 15) << 4) | (enc[2] >> 2));
-            enc[3] = B64.lookup[s.charAt(++position)];
-            if (enc[3] == 64) break;
-            buffer.push(((enc[2] & 3) << 6) | enc[3]);
+        else
+        {
+            var charCode = this._input.charCodeAt(++this._index);
+
+            // "\r\n" -> "\n"
+            //
+            if ((charCode == 13) && (this._input.charCodeAt(this._index + 1) == 10))
+            {
+                charCode = 10;
+                this._index += 2;
+            }
+
+            if (charCode < 128)
+            {
+                this.current = charCode;
+            }
+            else if ((charCode > 127) && (charCode < 2048))
+            {
+                this.current = (charCode >> 6) | 192;
+                this._buffer.push((charCode & 63) | 128);
+            }
+            else
+            {
+                this.current = (charCode >> 12) | 224;
+                this._buffer.push(((charCode >> 6) & 63) | 128);
+                this._buffer.push((charCode & 63) | 128);
+            }
+
+            return true;
         }
-        return buffer;
+    }
+}
+
+function Base64DecodeEnumerator(input)
+{
+    this._input = input;
+    this._index = -1;
+    this._buffer = [];
+}
+
+Base64DecodeEnumerator.prototype =
+{
+    current: 64,
+
+    moveNext: function()
+    {
+        if (this._buffer.length > 0)
+        {
+            this.current = this._buffer.shift();
+            return true;
+        }
+        else if (this._index >= (this._input.length - 1))
+        {
+            this.current = 64;
+            return false;
+        }
+        else
+        {
+            var enc1 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc2 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc3 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc4 = Base64.codex.indexOf(this._input.charAt(++this._index));
+
+            var chr1 = (enc1 << 2) | (enc2 >> 4);
+            var chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+            var chr3 = ((enc3 & 3) << 6) | enc4;
+
+            this.current = chr1;
+
+            if (enc3 != 64)
+                this._buffer.push(chr2);
+
+            if (enc4 != 64)
+                this._buffer.push(chr3);
+
+            return true;
+        }
     }
 };
+
+
 window['B64'] = B64;
