@@ -30,9 +30,9 @@ object FrontEndRedirect extends Controller {
     Redirect(businessTaxHome)
   }
 
-  def toSamlLogin = {
+  def toSamlLogin(token: Option[String]) = {
     Logger.debug("Redirecting to login")
-    Redirect(routes.IdaLoginController.samlLogin)
+    Redirect(routes.IdaLoginController.samlLogin(token))
   }
 
 }

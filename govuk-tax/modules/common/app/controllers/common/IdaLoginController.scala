@@ -9,7 +9,7 @@ import controllers.common.service.Connectors
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID
 import uk.gov.hmrc.microservice.saml.domain._
 import play.api.Logger
@@ -18,6 +18,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.Authority
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.auth.AuthTokenExchangeException
+import  ExecutionContext.Implicits.global
 
 class IdaLoginController(samlConnector: SamlConnector,
                          override val auditConnector: AuditConnector)
@@ -28,13 +29,33 @@ class IdaLoginController(samlConnector: SamlConnector,
 
   def this() = this(Connectors.samlConnector, Connectors.auditConnector)(Connectors.authConnector)
 
-  def samlLogin = WithNewSessionTimeout {
+  def samlLogin(token: Option[String] = None) = WithNewSessionTimeout {
+    import IdaWithTokenCheckForBeta._
     UnauthorisedAction.async {
       implicit request =>
-        samlConnector.create.map {
-          authRequestFormData =>
-            Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
+        token match {
+          case Some(token) => {
+            validateToken(token).flatMap {
+              isValid =>
+                if (isValid) goToIdaLogin
+                else {
+                  Logger.info("The provided Ida token is not valid")
+                  Future.successful(toBadIdaToken)
+                }
+            }
+          }
+          case None => {
+            if (isIdaTokenRequired) Future.successful(IdaWithTokenCheckForBeta.toBadIdaToken)
+            else goToIdaLogin
+          }
         }
+    }
+  }
+
+  private def goToIdaLogin(implicit request: Request[AnyContent]) = {
+    samlConnector.create.map {
+      authRequestFormData =>
+        Ok(views.html.saml_auth_form(authRequestFormData.idaUrl, authRequestFormData.samlRequest))
     }
   }
 

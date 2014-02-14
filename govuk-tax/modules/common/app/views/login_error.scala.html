@@ -6,5 +6,5 @@
 
     <p id="error-reason">@Messages("login_error.reason")</p>
 
-    <p>@Link.toInternalPage(id = Some("login-again-on-error"), url = common.routes.IdaLoginController.samlLogin.url, value = Some(Messages("login_error.link.tryagain.text"))).toHtml</p>
+    <p>@Link.toInternalPage(id = Some("login-again-on-error"), url = common.routes.IdaLoginController.samlLogin(None).url, value = Some(Messages("login_error.link.tryagain.text"))).toHtml</p>
 }

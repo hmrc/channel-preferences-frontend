@@ -13,7 +13,7 @@ GET     /account/sso-sign-out                           @controllers.common.Logi
 
 
 # routes for testing IDA integration
-GET     /samllogin                                      @controllers.common.IdaLoginController.samlLogin
+GET     /samllogin                                      @controllers.common.IdaLoginController.samlLogin(token: Option[String])
 POST    /ida/login                                      @controllers.common.IdaLoginController.idaLogin
 
 

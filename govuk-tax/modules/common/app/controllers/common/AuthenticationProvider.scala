@@ -40,7 +40,7 @@ object UserCredentials {
 object Ida extends AuthenticationProvider {
   val id = "IDA"
 
-  val login = routes.IdaLoginController.samlLogin
+  val login = routes.IdaLoginController.samlLogin(None)
 
   override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
     Future.successful(Redirect(routes.LoginController.payeSignedOut()))
@@ -71,39 +71,28 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
   lazy val idaTokenApiConnector = new IdaTokenApiConnector
 
-  override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
-    Future.successful(Redirect(routes.LoginController.payeSignedOut()))
-
-  def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
-    implicit val hc = HeaderCarrier(request)
-    getTokenFromRequest match {
-      case Some(token) => {
-        idaTokenApiConnector.validateToken(token).map { isValid =>
-          if (isValid) toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true)))
-          else {
-            Logger.info("The provided Ida token is not valid")
-            toBadIdaToken
-          }
-        }
-      }
-      case None => {
-        if (idaTokenApiConnector.idaTokenRequired) Future.successful(toBadIdaToken)
-        else Future.successful(toSamlLogin.withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
-      }
-    }
+   def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
+     Future.successful(toSamlLogin(getTokenFromRequest).withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
   }
+
+  def validateToken(token: String)(implicit request: Request[AnyContent]): Future[Boolean] = {
+    implicit val hc = HeaderCarrier(request)
+    idaTokenApiConnector.validateToken(token)
+  }
+
+  def isIdaTokenRequired = idaTokenApiConnector.idaTokenRequired
 
   private[controllers] def getTokenFromRequest(implicit request: Request[AnyContent]): Option[String] = {
     request.getQueryString("token").flatMap {
       token =>
-        if (token.isEmpty){
+        if (token.isEmpty) {
           Logger.info("The provided Ida token is empty")
           None
         } else Some(token)
     }
   }
 
-  private def toBadIdaToken = {
+  private[controllers] def toBadIdaToken = {
     Logger.info("Redirecting to bad Ida token page")
     Redirect("/paye/company-car/ida-token-required-in-beta")
   }
