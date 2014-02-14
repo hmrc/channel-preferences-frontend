@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 class TicketCache(keyStoreConnector: KeyStoreConnector = Connectors.keyStoreConnector) {
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 
   val actionId: String = "confirmTicket"
   val source: String = "tickets"

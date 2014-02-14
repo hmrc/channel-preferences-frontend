@@ -9,7 +9,7 @@ import scala.util.Try
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.paye.PayeConnector
 import controllers.common.actions.{Actions, HeaderCarrier}
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 import controllers.common.SessionKeys
 import uk.gov.hmrc.common.microservice.paye.domain.PayeRegime
 
