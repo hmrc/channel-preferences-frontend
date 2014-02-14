@@ -31,6 +31,7 @@ GET     /help/cookies                                   @controllers.common.Comm
 GET     /help/terms-and-conditions                      @controllers.common.CommonController.termsAndConditions
 GET     /help/privacy                                   @controllers.common.CommonController.privacyPolicy
 GET     /help                                           @controllers.common.CommonController.helpPage
+GET     /landing-redirect                               @controllers.common.CommonController.landingRedirect
 
 # Admin pages
 GET     /admin/healthcheck                              @controllers.common.HealthCheckController.check

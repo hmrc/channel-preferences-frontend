@@ -90,7 +90,7 @@ class IdaLoginControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 303
       val locationHeader = header("Location", result)
       locationHeader shouldBe defined
-      locationHeader.get shouldBe FrontEndRedirect.carBenefit(None)
+      locationHeader.get shouldBe "/landing-redirect"
     }
 
     "handle a failure login if the Ida response is no-match" in new IdaLoginSetup {
@@ -149,7 +149,7 @@ class IdaLoginControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 303
       val locationHeader = header("Location", result)
       locationHeader shouldBe defined
-      locationHeader.get shouldBe FrontEndRedirect.carBenefit(None)
+      locationHeader.get shouldBe "/landing-redirect"
     }
   }
 

@@ -28,10 +28,6 @@ with TaxYearSupport {
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
 
-  def landingRedirect  = Action {
-    Redirect(routes.CarBenefitHomeController.carBenefitHome())
-  }
-
   def carBenefitHome = AuthorisedFor(regime = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
       implicit request =>

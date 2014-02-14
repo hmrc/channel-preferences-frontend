@@ -1,6 +1,7 @@
 @(token: Option[String] = None)
 
 @import views.helpers.Link
+@import controllers.paye.routes._
 
 @main(title = Messages("paye.home.title"), sidebarLinks = Some(sidebarLinks)) {
     <header class="page-header">
@@ -15,7 +16,7 @@
         <li>@Link.toExternalPage(url = Messages("link.vehicle_certification_agency.url"), value = Some(Messages("paye.home.instructions.list_item.2"))).toHtml</li>
     </ul>
         <p>@Messages("paye.home.instructions.manufacturer_information")</p>
-    @Link.toInternalPage(url = common.FrontEndRedirect.carBenefit(token), value = Some(Messages("paye.home.start_button.text")), cssClasses = Some("button")).toHtml
+    @Link.toInternalPage(url = CarBenefitHomeController.carBenefitHome.toString, value = Some(Messages("paye.home.start_button.text")), cssClasses = Some("button")).toHtml
 }
 
     @sidebarLinks = {

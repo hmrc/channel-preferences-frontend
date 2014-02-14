@@ -1,6 +1,5 @@
 GET         /                                                                  @controllers.paye.PayeHomeController.home(token: Option[String])
 
-GET         /landing-redirect                                                  @controllers.paye.CarBenefitHomeController.landingRedirect
 GET         /details                                                           @controllers.paye.CarBenefitHomeController.carBenefitHome
 GET         /car-benefit/error/version-changed                                 @controllers.paye.VersionChangedController.versionChanged
 GET         /car-benefit/error/unavailable                                     @controllers.paye.CarBenefitHomeController.cannotPlayInBeta

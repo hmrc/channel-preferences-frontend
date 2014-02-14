@@ -121,11 +121,12 @@ class IdaLoginController(samlConnector: SamlConnector,
   private def redirectToPaye(hashPid: String, authExchangeResponse: AuthExchangeResponse, updatedHC: HeaderCarrier)(implicit request: Request[AnyContent]): SimpleResult = {
     auditInCaseOfSuccessfulLoginToIda(hashPid, updatedHC, authExchangeResponse.authority)
     Logger.info("IDA user signed in successfully.")
-    FrontEndRedirect.forSession(session).withSession(
-      SessionKeys.userId -> authExchangeResponse.authority.uri,
+    SeeOther(routes.CommonController.landingRedirect().toString).withSession(
+      Seq(SessionKeys.userId -> authExchangeResponse.authority.uri,
       SessionKeys.sessionId -> updatedHC.sessionId.get,
       SessionKeys.authProvider -> IdaWithTokenCheckForBeta.id,
-      SessionKeys.authToken -> authExchangeResponse.authToken.toString
+      SessionKeys.authToken -> authExchangeResponse.authToken.toString)
+      ++ session.get(SessionKeys.redirect).map(SessionKeys.redirect -> _) :_*
     )
   }
 
