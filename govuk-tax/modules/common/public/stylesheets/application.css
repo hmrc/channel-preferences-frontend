@@ -1985,6 +1985,7 @@ fieldset {
   font-weight: 400;
   text-transform: none;
   position: relative;
+  width: 100%;
 }
 @media (max-width: 640px) {
   fieldset {
