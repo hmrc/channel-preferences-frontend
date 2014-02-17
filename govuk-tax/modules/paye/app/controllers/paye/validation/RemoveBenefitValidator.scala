@@ -47,11 +47,12 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
   )
 
   private[paye] val FUEL_DIFFERENT_DATE = "differentDateFuel"
+  private[paye] val FUEL_SAME_DATE = "sameDateFuel"
 
   private[paye] def validateMandatoryBoolean: Mapping[Option[Boolean]] = optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined)
 
   private[paye] def validateNumberOfDaysUnavailable(values: Option[RemoveCarBenefitFormDataValues], benefitStartDate: LocalDate, taxYearInterval: Interval): Mapping[Option[Int]] = {
-    values.map(s => s.carUnavailableVal) match {
+    values.flatMap(s => s.carUnavailableVal) match {
     case Some(ExtractBoolean(true)) => {
       optional(number
         .verifying("error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0", n => n > 0)
@@ -71,8 +72,8 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
   private def getEndDate(values: Option[RemoveCarBenefitFormDataValues], taxYearInterval: Interval) = values.flatMap(v => v.withdrawDateVal).getOrElse(taxYearInterval.getEnd.toLocalDate)
 
   private[paye] def validateEmployeeContribution(values: Option[RemoveCarBenefitFormDataValues]): Mapping[Option[Int]] =
-    values.flatMap(s => s.removeEmployeeContributesVal.map(_.toBoolean)) match {
-      case Some(true) => optional(number
+    values.flatMap(s => s.removeEmployeeContributesVal) match {
+      case Some(ExtractBoolean(true)) => optional(number
         .verifying("error.paye.remove_car_benefit.question3.number_max_5_chars", e => e <= 99999)
         .verifying("error.paye.remove_car_benefit.question3.number_less_than_0", data => data > 0))
         .verifying("error.paye.remove_car_benefit.question3.missing_employee_contribution", data => data.isDefined)
@@ -132,9 +133,9 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
     }
   }
 
-  private def verifyFuelDate(fuelDateChoice: Option[Any], carBenefitWithUnremoved: Boolean): Boolean = {
+  private def verifyFuelDate(fuelDateChoice: Option[String], carBenefitWithUnremoved: Boolean): Boolean = {
     if (carBenefitWithUnremoved) {
-      fuelDateChoice.isDefined
+      fuelDateChoice.exists(choice => choice == FUEL_DIFFERENT_DATE || choice == FUEL_SAME_DATE)
     } else true
   }
 

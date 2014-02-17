@@ -138,6 +138,10 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       form.hasErrors shouldBe false
     }
 
+    "not throw when employeeContributesVal is not a valid boolean" in new WithApplication(FakeApplication()) {
+      bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("wibble"))), "employeeContribution", "1234")
+    }
+
     "reject when the employeeContributes flag is true, but no value is provided." in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "")
       form.hasErrors shouldBe true
