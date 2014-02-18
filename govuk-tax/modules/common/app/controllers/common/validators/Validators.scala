@@ -4,14 +4,11 @@ import play.api.data.Forms._
 import AddressFields._
 import DateFields._
 import scala.util.matching.Regex
-import org.joda.time.{IllegalFieldValueException, LocalDate}
-import play.api.data.{FormError, FieldMapping, Mapping}
-import play.api.data.format.Formatter
+import org.joda.time.LocalDate
+import play.api.data.Mapping
 import play.api.data.validation._
-import play.api.data.FormError
 import scala.Some
-import scala.Some
-import scala.Some
+import scala.util.Try
 
 trait Validators {
 
@@ -139,6 +136,11 @@ object characterValidator {
   private def containsValidCharacters(value: String, regex: Regex): Boolean = {
     regex.findFirstIn(value).isEmpty
   }
+}
+
+object ExtractBoolean {
+  def unapply(s: String): Option[Boolean] =
+    Try(s.toBoolean).toOption
 }
 
 object DateFields {

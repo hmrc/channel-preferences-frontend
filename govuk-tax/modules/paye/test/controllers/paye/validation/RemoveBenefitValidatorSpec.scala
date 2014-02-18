@@ -91,6 +91,10 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("You must specify the number of consecutive days the car has been unavailable.")
     }
 
+    "not throw when carUnavailable is not a valid boolean" in new WithApplication(FakeApplication()) {
+      bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("wibble"))), "daysUnavailable", "")
+    }
+
     "reject when the value is bigger than the providedFrom -> providedTo range." in new WithApplication(FakeApplication()) {
       val fromDate = new LocalDate(2012, 5, 30)
       val toDate = Some(new LocalDate(2012, 5, 31))
@@ -132,6 +136,10 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     "accept a correct value" in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "3276")
       form.hasErrors shouldBe false
+    }
+
+    "not throw when employeeContributesVal is not a valid boolean" in new WithApplication(FakeApplication()) {
+      bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("wibble"))), "employeeContribution", "1234")
     }
 
     "reject when the employeeContributes flag is true, but no value is provided." in new WithApplication(FakeApplication()) {
