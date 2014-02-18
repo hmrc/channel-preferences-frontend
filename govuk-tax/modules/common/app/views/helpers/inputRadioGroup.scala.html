@@ -5,7 +5,6 @@
 
 @elements = @{new FieldElements(field.id, field, null, args.toMap, lang) }
 
-
 <label for="@elements.field.name" class="@elements.args.get('_divClass) @elements.args.get('_labelClass) @if(elements.hasErrors) {form-field--error}">
 
     @elements.errors.map{error => <span class="error-notification">@Messages(error)</span>}
@@ -18,14 +17,20 @@
                 <label
                     for="@inputId"
                     @elements.args.get('_innerLabelClass).map{labelClass => class="@labelClass"}>
+                    @if(elements.args.get('_doubleLineLabel)) {
+                        @if(label.split(" ").length < 2) {
+                            <br>
+                        }
+                    }
                     @label
-                        <input
-                                type="radio"
-                                id="@inputId"
-                                name="@elements.field.name"
-                                value="@value"
-                                @elements.args.get('_inputClass).map{inputClass => class="@inputClass"}
-                                @field.value.filter( _ == value).map{_ => checked="checked"}/>
+
+                    <input
+                        type="radio"
+                        id="@inputId"
+                        name="@elements.field.name"
+                        value="@value"
+                        @elements.args.get('_inputClass).map{inputClass => class="@inputClass"}
+                        @field.value.filter( _ == value).map{_ => checked="checked"}/>
                 </label>
             }
         }
