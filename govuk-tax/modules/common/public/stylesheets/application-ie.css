@@ -3182,6 +3182,10 @@ a.organisation-logo:hover, a.organisation-logo-stacked:hover, a.organisation-log
   border-left: 2px solid #009390;
 }
 
+.organisation-logo-medium, .organisation-logo-stacked-medium {
+  background-image: url("/assets/toolkit/images/crests/hmrc_crest_13px.png");
+}
+
 .organisation-logo-stacked-medium {
   padding: 25px 0 0 7px;
   background-image: url("/assets/toolkit/images/crests/hmrc_crest_27px.png");
