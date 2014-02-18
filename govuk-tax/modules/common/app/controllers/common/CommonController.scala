@@ -29,9 +29,4 @@ class CommonController(override val auditConnector: AuditConnector) (implicit ov
     implicit request =>
       Ok(views.html.help())
   }
-
-  def landingRedirect  = UnauthorisedAction {
-    implicit request =>
-      FrontEndRedirect.forSession(session)
-  }
 }
