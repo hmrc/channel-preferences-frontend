@@ -81,7 +81,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "accept a correct value" in new WithApplication(FakeApplication()) {
-      val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "32")
+      val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "32 ")
       form.hasErrors shouldBe false
     }
 
@@ -134,7 +134,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     }
 
     "accept a correct value" in new WithApplication(FakeApplication()) {
-      val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "3276")
+      val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "   3276")
       form.hasErrors shouldBe false
     }
 

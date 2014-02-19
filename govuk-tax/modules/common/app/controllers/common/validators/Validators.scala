@@ -25,7 +25,7 @@ trait Validators {
       case (None, None, None) => true
       case (year, month, day) => {
         try {
-          new LocalDate(year.getOrElse(throw new Exception("Year missing")).toInt, month.getOrElse(throw new Exception("Month missing")).toInt, day.getOrElse(throw new Exception("Day missing")).toInt)
+          new LocalDate(year.getOrElse(throw new Exception("Year missing")).trim.toInt, month.getOrElse(throw new Exception("Month missing")).toInt, day.getOrElse(throw new Exception("Day missing")).toInt)
           true
         } catch {
           case _ : Throwable => if (validate) {
@@ -41,7 +41,7 @@ trait Validators {
   {
     case (Some(year), Some(month), Some(day)) => {
       try {
-        Some(new LocalDate(year.toInt, month.toInt, day.toInt))
+        Some(new LocalDate(year.trim.toInt, month.toInt, day.toInt))
       } catch {
         case e: Exception => {
           if (validate) {

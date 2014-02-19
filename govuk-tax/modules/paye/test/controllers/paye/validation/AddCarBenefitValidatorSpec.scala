@@ -73,6 +73,11 @@ class AddCarBenefitValidatorSpec extends PayeBaseSpec with MockitoSugar with Dat
       form.hasErrors shouldBe false
     }
 
+    "accept a correct value if it contains trailing spaces" in new WithApplication(FakeApplication()) {
+      val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "32  ")
+      form.hasErrors shouldBe false
+    }
+
     "reject when the carUnavailable flag is true, but no value is provided." in new WithApplication(FakeApplication()) {
       val form = bindFormWithValue(dummyForm(values), numberOfDaysUnavailable, "")
       assertHasThisErrorMessage(form, numberOfDaysUnavailable, "Enter the number of days the car was unavailable.")

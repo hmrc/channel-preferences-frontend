@@ -14,6 +14,8 @@ import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import play.api.i18n.Messages
 import scala.util.Try
+import uk.gov.hmrc.common.FormBinders
+import FormBinders.numberFromTrimmedString
 
 object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
@@ -76,7 +78,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
     )(CarBenefitData.apply)(CarBenefitData.unapply)
   )
 
-  private[paye] val validateListPrice = optional(number.verifying("error.paye.list_price_less_than_1000", e => e >= 1000)
+  private[paye] val validateListPrice = optional(numberFromTrimmedString.verifying("error.paye.list_price_less_than_1000", e => e >= 1000)
     .verifying("error.paye.list_price_greater_than_99999", e => e <= 99999)
   ).verifying("error.paye.list_price_mandatory", e => e.isDefined)
 
@@ -84,7 +86,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
   private[paye] def validateEmployerContribution(values: CarBenefitValues): Mapping[Option[Int]] =
     values.privateUsePayment.flatMap(maybeBoolean(_)) match {
-      case Some(true) => optional(number
+      case Some(true) => optional(numberFromTrimmedString
         .verifying("error.paye.employer_contribution_greater_than_99999", e => e <= 99999)
         .verifying("error.paye.employer_contribution_less_than_0", e => e > 0)
       ).verifying("error.paye.add_car_benefit.missing_employer_contribution", e => e.isDefined)
@@ -102,7 +104,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
   private[paye] def validateEmployeeContribution(values: CarBenefitValues): Mapping[Option[Int]] =
     values.employeeContributes.flatMap(maybeBoolean(_)) match {
-      case Some(true) => optional(number.verifying("error.paye.employee_contribution_greater_than_5000", e => e <= 5000)
+      case Some(true) => optional(numberFromTrimmedString.verifying("error.paye.employee_contribution_greater_than_5000", e => e <= 5000)
         .verifying("error.paye.employee_contribution_less_than_0", data => data > 0))
         .verifying("error.paye.add_car_benefit.missing_employee_contribution", data => data.isDefined)
       case _ => ignored(None)
@@ -148,9 +150,9 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
     case _ => taxYearInterval.getEnd.toLocalDate
   }
 
-  private[paye] def validateNumberOfDaysUnavailable(values: CarBenefitValues, taxYearInterval: Interval): Mapping[Option[Int]] = values.carUnavailableVal.map(_.toBoolean) match {
+  private[paye] def validateNumberOfDaysUnavailable(values: CarBenefitValues, taxYearInterval: Interval): Mapping[Option[Int]] = values.carUnavailableVal.map(_.trim.toBoolean) match {
     case Some(true) => {
-      optional(number
+      optional(numberFromTrimmedString
         .verifying("error.paye.number_of_days_unavailable_less_than_0", n => n > 0)
         .verifying("error.paye.number_max_3_chars", n => n <= 999)
         .verifying(Messages("error.paye.add_car_benefit.car_unavailable_too_long", currentTaxYear.toString), unavailableDays => acceptableNumberOfDays(unavailableDays, values, taxYearInterval))
@@ -170,7 +172,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
     .verifying("error.paye.co2_figure_blank_for_electricity_fuel_type", data => !(data == true && isFuelTypeElectric(carBenefitValues.fuelType) && carBenefitValues.co2Figure.isEmpty))
   ).verifying("error.paye.co2_figures_not_blank", co2NoFig => if (!isFuelTypeElectric(carBenefitValues.fuelType)) {co2FiguresNotBlank(carBenefitValues.co2Figure, co2NoFig)} else true)
 
-  private[paye] def validateCo2Figure(carBenefitValues: CarBenefitValues): Mapping[Option[Int]] = optional(number
+  private[paye] def validateCo2Figure(carBenefitValues: CarBenefitValues): Mapping[Option[Int]] = optional(numberFromTrimmedString
     .verifying("error.paye.co2_figure_max_3_chars", e => (e <= 999))
     .verifying("error.paye.co2_figure_greater_than_zero", e => (e > 0))
     .verifying("error.paye.co2_figure_blank_for_electricity_fuel_type", data => !(isFuelTypeElectric(carBenefitValues.fuelType)))

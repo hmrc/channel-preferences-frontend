@@ -10,7 +10,7 @@ import scala.Some
 import play.api.i18n.Messages
 import controllers.paye.TaxYearSupport
 import views.formatting.Dates
-
+import uk.gov.hmrc.common.FormBinders.numberFromTrimmedString
 object RemoveBenefitValidator extends Validators with TaxYearSupport {
 
   private[paye] case class RemoveCarBenefitFormDataValues(withdrawDateVal: Option[LocalDate],
@@ -54,7 +54,7 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
   private[paye] def validateNumberOfDaysUnavailable(values: Option[RemoveCarBenefitFormDataValues], benefitStartDate: LocalDate, taxYearInterval: Interval): Mapping[Option[Int]] = {
     values.flatMap(s => s.carUnavailableVal) match {
     case Some(ExtractBoolean(true)) => {
-      optional(number
+      optional(numberFromTrimmedString
         .verifying("error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0", n => n > 0)
         .verifying(Messages("error.paye.remove_car_benefit.question2.car_unavailable_too_long", currentTaxYear.toString), unavailableDays => acceptableNumberOfDays(unavailableDays, values, benefitStartDate, taxYearInterval))
       ).verifying("error.paye.remove_car_benefit.question2.missing_days_unavailable", data => data.isDefined)
@@ -73,7 +73,7 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
 
   private[paye] def validateEmployeeContribution(values: Option[RemoveCarBenefitFormDataValues]): Mapping[Option[Int]] =
     values.flatMap(s => s.removeEmployeeContributesVal) match {
-      case Some(ExtractBoolean(true)) => optional(number
+      case Some(ExtractBoolean(true)) => optional(numberFromTrimmedString
         .verifying("error.paye.remove_car_benefit.question3.number_max_5_chars", e => e <= 99999)
         .verifying("error.paye.remove_car_benefit.question3.number_less_than_0", data => data > 0))
         .verifying("error.paye.remove_car_benefit.question3.missing_employee_contribution", data => data.isDefined)
