@@ -36,9 +36,9 @@ error.common.feedback.rating_valid=Please select a valid experience rating
 common.feedback.heading=Send your feedback
 common.feedback.confirmation.heading=Your feedback
 common.feedback.confirmation.message=Your feedback has been received.
-common.feedback.information.warning=Don’t include any personal or financial information, eg your National Insurance or credit card numbers.
+common.feedback.information.warning=Don’t include any personal or financial information. For example, your National Insurance or credit card numbers.
 common.feedback.get.help = Get help with this page.
-common.feedback.title = Help us improve tax platform
+common.feedback.title = Get help using this service
 common.main.banner_no_feedback_link=This is a trial service.
 common.main.banner_with_feedback_link=This is a trial service &mdash; your {0} will help us to improve it.
 
