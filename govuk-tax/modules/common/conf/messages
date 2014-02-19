@@ -102,7 +102,9 @@ common.links.privacy_policy.text=Privacy policy
 common.links.privacy_policy.text.lower_case=privacy policy
 common.links.privacy_policy.url=/help/privacy
 common.links.terms_and_conditions.text=Terms and conditions
+common.links.terms_and_conditions.text.lower_case=terms and conditions
 common.links.terms_and_conditions.url=/help/terms-and-conditions
+common.links.hmrc.terms_and_conditions.url=https://online.hmrc.gov.uk/information/terms
 
 
 common.links.hmrc_privacy_policy.text=HMRC’s Privacy Notice
@@ -123,103 +125,37 @@ common.links.hmrc_online_services.helpdesk.url=https://online.hmrc.gov.uk/inform
 common.links.legal.conditions.text=legal conditions
 common.links.legal.conditions.url=http://customs.hmrc.gov.uk/channelsPortalWebApp/channelsPortalWebApp.portal?_nfpb=true&_pageLabel=pageOnlineServices_FAQs&propertyType=document&columns=1&id=HMCE_PROD1_026374
 
-common.terms_and_conditions.individuals.heading=Article I. Individuals
-common.terms_and_conditions.individuals.paragraph.1=1.1 HM Revenue & Customs (HMRC) Online Services allow Individuals to send information over the Internet (for example Self Assessment tax return, application for VAT Registration), view records online (for example Self Assessment Statement) and make payments. In the future, additional services and features may be added. You will find full details of the services that are currently available on the HMRC {0} page.
-common.terms_and_conditions.registration.heading=Registration
-common.terms_and_conditions.registration.paragraph.1=2.1 You can register as an Individual for HMRC Online Services on the HMRC or Government Gateway websites.
-common.terms_and_conditions.registration.paragraph.2=2.2 If you register on the HMRC website, the details you provide will be passed to the Government Gateway for verification (on behalf of HMRC). If successful, your registration details, including your name and email address (optional), will be stored securely on the Government Gateway system, in accordance with the Gateway privacy policy. You can view the Government Gateway privacy policy on their website.
-common.terms_and_conditions.registration.paragraph.3=2.3 Your email address, if provided, may be used by the Government Gateway to communicate with you and to forward messages to you in relation to other Government online services if you choose to register for those services.
-common.terms_and_conditions.registration.paragraph.4=2.4 If you register on the HMRC website, your registration details may also be stored on HMRC systems. You can view the HMRC {0} on this website.
-
-common.terms_and_conditions.user.credentials.heading=User ID & password
-common.terms_and_conditions.user.credentials.paragraph.1=3.1 Your User ID and password (or Digital Certificate) will be used to verify your identity and to authenticate information you send. They will be held securely on the Government Gateway and will not be made available to government departments.
-common.terms_and_conditions.user.credentials.paragraph.2=3.2 The Government Gateway uses the postal address registered on relevant HMRC systems to send you the service Activation Code (if required). After the Gateway has sent this information, your address is deleted from the Government Gateway.
-
-
-common.terms_and_conditions.deregistration.heading=De-registration
-common.terms_and_conditions.deregistration.paragraph.1=4.1 De-registration from HMRC Online Services must be done either on the Government Gateway or HMRC website.
-
-common.terms_and_conditions.login.heading=Login
-common.terms_and_conditions.login.paragraph.1=5.1 When registered, you can login to the HMRC website using your User ID and password (or Digital Certificate) to access HMRC Online Services. Your encrypted User ID and password (or Digital Certificate) will be passed to the Government Gateway for authentication.
-
-common.terms_and_conditions.security.heading=Security
-common.terms_and_conditions.security.paragraph.1=6.1 You must always keep your User ID and password (or Digital Certificate) safe and secret. You can change your password on the HMRC or Government Gateway websites.
-common.terms_and_conditions.security.paragraph.2=6.2 If you forget your User ID, you can ask for it to be re-issued either by post or online, using the HMRC website.  If you forget your password, you can request a replacement to be sent to you either by post or online using the HMRC website.
-common.terms_and_conditions.security.paragraph.3=6.3 If you lose both your User ID and password, you will need to contact the HMRC {0} (details are provided on the HMRC website).
-common.terms_and_conditions.security.paragraph.4=6.4 For detailed guidance regarding online security and protection, please follow the link {0}.
-
-
-common.terms_and_conditions.secure.mailbox.heading=Secure mailbox
-common.terms_and_conditions.secure.mailbox.paragraph.1=7.1 When you register for the first time, a secure online mailbox will be set up for you on the Government Gateway. Some online services may make use of the secure mailbox to send you communications and replies to email questions. For these services, you can view the contents of your secure mailbox on the HMRC website.
-common.terms_and_conditions.secure.mailbox.paragraph.2=7.2 You should regularly check your mailbox and delete old messages. Read messages that have been on the system for up to three months from delivery will be archived and removed from your mailbox. Unread messages that have been on the system for up to 12 months from delivery will be archived and removed from your mailbox.
-
-common.terms_and_conditions.statutory.notices.heading=Statutory notices, reminders and certificates
-common.terms_and_conditions.statutory.notices.paragraph.1=8.1 Some online services may be used to issue statutory notices and reminders to you. You can view the notices and reminders securely on the HMRC website, or in most cases using third party software applications. You may also print or save them to your own computer. Statutory notices made available in this way by HMRC will have the same legal validity and implications as a paper statutory notice sent to you by post.
-common.terms_and_conditions.statutory.notices.paragraph.2=8.2 You will be asked to provide your consent before online services are used to issue statutory notices and reminders to you. Where this is the case you will be asked to provide this on screen. If you give your consent you will be required to register an email address with HMRC and you will be told on screen how HMRC will verify these details with you. When a statutory notice or reminder is issued to you a notification email will also be sent to your registered email address to inform you of this. You should keep the details of your registered email address up-to-date and notify HMRC of any changes.
-
-common.terms_and_conditions.online.filing.heading=Online filing services
-common.terms_and_conditions.online.filing.paragraph.1=9.1 When using HMRC online filing services, you must use either HMRC software or, where available, online filing enabled third party software. The software will prompt you to enter your User ID and password (or Digital Certificate) at the appropriate time to verify your identity and authenticate the information you are sending.
-common.terms_and_conditions.online.filing.paragraph.2=9.2 Some online services allow you to send attachments (for example PDF files) with the return. Any attachments you send with the return must be proper and complete and must be able to be viewed by HMRC. If for any reason HMRC cannot view the contents of the attachments, or they are not proper and complete, the obligation to make a return may not be satisfied. Although HMRC will notify you of this as soon as possible if it happens, HMRC cannot guarantee to do so in time for you to avoid incurring penalties.
-common.terms_and_conditions.online.filing.paragraph.3=9.3 An authenticated tax return, claim, application or form sent over the Internet and accepted by HMRC systems has the same legal validity and implications as a signed paper return, claim, application or form delivered to a HMRC office.
-common.terms_and_conditions.online.filing.paragraph.4=9.4 Some HMRC Online Services require information to be provided in a paper form. You will be told on screen when this is the case and where appropriate, directed to the appropriate downloadable form.
-
-common.terms_and_conditions.general.heading= General
-common.terms_and_conditions.general.paragraph.1=10.1 HMRC may revise these Terms & Conditions as services are developed. HMRC may:
-common.terms_and_conditions.general.paragraph.1.point1=use this internet service for any part of HMRC dealings with you in relation to any of the services you are registered for
-common.terms_and_conditions.general.paragraph.1.point2=withdraw or add services and features or change the way in which you may access those services without prior notice - although HMRC shall try to give you notice of any changes
-common.terms_and_conditions.general.paragraph.2=10.2 You can view HMRC Terms & Conditions at any time by following the Terms & Conditions link at the bottom of any HMRC Online Service webpage.
-
-common.terms_and_conditions.authorised.use.heading=Authorised use
-common.terms_and_conditions.authorised.use.paragraph.1=11.1 This is a protected United Kingdom Government website. Unauthorised access and unauthorised modification are offences under the Computer Misuse Act 1990; it is unlawful therefore to cause damage to it intentionally or to any HMRC electronic facility or data through the knowing transmission of any program, information, code or command.
-common.terms_and_conditions.authorised.use.paragraph.2=11.2 Unless otherwise specified, the material featured on this site is protected by {0}.
-
-common.terms_and_conditions.service.access.heading=Service access
-common.terms_and_conditions.service.access.paragraph.1=12.1 HMRC will try to ensure that the online service is available twenty four hours a day, seven days a week. If the service is interrupted HMRC will restore it as soon as possible. However access to the service may be suspended without notice. If the service is disrupted, it remains your responsibility to comply with any statutory time limits regarding the filing of statements and returns.
-common.terms_and_conditions.service.access.paragraph.2=12.2 HMRC reserves the right to deny access to the service where it is considered necessary to protect the revenue, for example, to protect the revenue and/or service integrity.
-
-
-common.terms_and_conditions.statutory.obligations.heading=Information relating to your statutory obligations
-common.terms_and_conditions.statutory.obligations.paragraph.1=13.1 You can access legal information and guidance concerning your statutory obligations in respect of the various online services by going to the 'Your account' area. You should make sure you are familiar with this information as it will tell you what the statutory requirements for the use of online services are.
-common.terms_and_conditions.statutory.obligations.paragraph.2=13.2 Updates to this information will be placed in the {0} area which can be accessed via the 'Your account' area. You should ensure that you keep yourself updated as to your legal obligations by checking this area regularly.
-
-common.terms_and_conditions.liability.heading=Liability
-common.terms_and_conditions.liability.paragraph.1=14.1 HMRC makes every attempt to ensure the accuracy and reliability of the information contained in the publications and services stored, served and accessed by this web service, but this information should not be relied upon as a substitute for formal advice from HMRC. The materials contained on this website are provided for general information only and do not constitute any form of advice.
-common.terms_and_conditions.liability.paragraph.2=14.2 HMRC, its employees and Agents will not be responsible for any loss, however arising, from the use of, or reliance on this information. HMRC will not be liable for any special, incidental, indirect or consequential damages of any kind, including, without limitation, those resulting from loss of use, data or profits, however those damages may arise.
-common.terms_and_conditions.liability.paragraph.3=14.3 By providing links to other websites, HMRC does not guarantee, approve or endorse the information or products available at these sites, nor does a link necessarily indicate any association with or endorsement of the linked site by HMRC.
-common.terms_and_conditions.liability.paragraph.4=14.4 HMRC will not be liable for any disruption or failure to make the system available.
-
-
-
-common.terms_and_conditions.data.management.heading=Data management
-common.terms_and_conditions.data.management.paragraph.1=15.1 Where HMRC systems are disrupted due to a system failure, information will be held in a secure file store at the Government Gateway for up to three days. Information will be passed to HMRC systems as soon as possible.
-
-common.terms_and_conditions.directdebit.payment.heading=Paying by Direct Debit using the HMRC Direct Debit online service
-common.terms_and_conditions.directdebit.payment.paragraph.1=16.1 Please be aware that:
-common.terms_and_conditions.directdebit.payment.paragraph.1.list1=It is your responsibility to ensure that payment is received by HMRC, and has cleared in to the HMRC account, on or before the due date. Failure to do so may result in interest and/or a surcharge.
-common.terms_and_conditions.directdebit.payment.paragraph.1.list2=Setting up a Direct Debit Instruction and payment plan does not constitute agreement by HMRC either to the payment date(s) you enter or to defer pursuit of any debt that is overdue.
-common.terms_and_conditions.directdebit.payment.paragraph.1.list3=A Tax Credit repayment plan will only be accepted if it covers the full liability for the period specified.
-common.terms_and_conditions.directdebit.payment.paragraph.1.list4=A budget payment plan provides the means to make payments towards a future Self Assessment liability. It does not constitute agreement by HMRC either to the payment date(s) you enter or to defer pursuit of any debt that is overdue.
-common.terms_and_conditions.directdebit.payment.paragraph.2=16.2 By granting access to Users & Assistants you are giving that user access to the Direct Debit online service.
-
-common.terms_and_conditions.directdebit.vat.payment.heading=Paying VAT by Direct Debit using the VAT Direct Debit Instruction online service
-common.terms_and_conditions.directdebit.vat.payment.paragraph.1=17.1 These are the terms and conditions for paying VAT due on returns by Direct Debit (DD).
-common.terms_and_conditions.directdebit.vat.payment.paragraph.2=17.2 To pay by Direct Debit you first need to have registered and enrolled for the online VAT return service.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.3=17.3 Returns for which a DD is to be collected must be made using the online VAT return service.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.4=17.4 You must ensure that your Bank/Building Society will accept Direct Debit Instruction (DDI) for your nominated account. DD collections can only be made subject to their acceptance of the DDI.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.5=17.5 The submission of a DDI will act as confirmation that you accept and will comply with these terms and conditions.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.6=17.6 When submitting a DDI online, you must be authorised to sign for the account. You must be the sole signatory of the account, one of multiple signatories of the account, or authorised to sign on behalf of all the other signatories.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.7=17.7 You must also be acting in accordance with the mandate you have with your Bank/Building Society.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.8=17.8 The account from which your DD is to be collected must be a sterling bank account registered in the UK.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.9=17.9 The amount collected will be the net VAT due to HMRC as declared in the box 5 of your online VAT return. You must ensure that sufficient cleared funds are available in your account to pay the declared amount on collection day. We will inform you of the date for collection online when you submit your return.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.10=17.10 Only the amount declared on your online VAT return will be collected by Direct Debit. You must arrange to pay other VAT liabilities (for example, surcharge, penalties or interest) by alternative payment methods.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.11=17.11 You could be liable to a financial penalty if your completed return and all of the VAT payable are not received by the dates they are due. If, for any reason, you are aware that the Direct Debit collection will fail, you must use an alternative method to pay by the due date.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.12=17.12 The Bank/Building Society Account details which you submit for paying VAT due by DD (and any changes to those details notified to us later) will not affect any other Bank/Building Society account details that we may hold for other purposes i.e. for the repayment of VAT claims.
-common.terms_and_conditions.directdebit.vat.payment.paragraph.13=17.13 You cannot cancel or amend your DDI via our online service. Instead, you should inform your Bank or Building Society and they will automatically advise us of any changes. This includes where your DDI is being transferred to a different Bank or Building Society, or where it is transferred to a different branch within the same Bank/Building Society. We will only be able to make amendments notified via your Bank/Building Society.
-
-common.terms_and_conditions.applicable.law.heading=Applicable law
-common.terms_and_conditions.applicable.law.paragraph.1=18.1 The Terms & Conditions of this agreement will be construed in accordance with the laws of England and Wales and will be subject to the exclusive jurisdiction of the courts of England and Wales.
 common.terms_and_conditions.title=Terms and conditions
-
+common.terms_and_conditions.disclaimer.heading=Disclaimer
+common.terms_and_conditions.disclaimer.link.text=disclaimer notice
+common.terms_and_conditions.disclaimer.link.url=#disclaimer
+common.terms_and_conditions.disclaimer.paragraph.1=Our disclaimer should be read in conjunction with our {0}.
+common.terms_and_conditions.disclaimer.paragraph.2=The HM Revenue and Customs (HMRC) website and material relating to Government information, products and services (or to third party information, products and services) is provided ‘as is’ without any representation or endorsement made and without warranty of any kind whether express or implied, including but not limited to the implied warranties of satisfactory quality, fitness for a particular purpose, non-infringement, compatibility, security and accuracy.
+common.terms_and_conditions.disclaimer.paragraph.3=Once materials have been downloaded from the HMRC website, it is your responsibility to keep them safe. HMRC cannot accept any responsibility for any loss, liability, claim, demand or damages arising from the download and subsequent use of these materials.
+common.terms_and_conditions.disclaimer.paragraph.4=We do not warrant that the functions contained in the material on this website will be uninterrupted or error free, that defects will be corrected, or that this site or the servers that make it available are free of viruses or represent the full functionality, accuracy or reliability of the materials. In no event will we be liable for any loss or damage, or any loss or damages whatsoever arising from the use, or loss of use, of data, or profits arising out of or in connection with the use of the HMRC website.
+common.terms_and_conditions.usage.heading=Using HMRC website
+common.terms_and_conditions.usage.paragraph.1=Our website is maintained for your personal use and viewing. Access and use by you of our site constitutes your acceptance of these terms and conditions. They take effect from the date on which you first use this website. We may at any time revise these terms and conditions without notice, and therefore they should be regularly checked. The continued use of the site after a change has been made is your acceptance of the change.
+common.terms_and_conditions.usage.paragraph.2=You agree to use this site only for lawful purposes, and in a manner that does not infringe the rights of, or restrict or inhibit the use and enjoyment of this site by any third party. Such restrictions or inhibitions includes, without limitation, conduct which is unlawful, or which may harass or cause distress or inconvenience to any person, and the transmission of obscene or offensive content or disruption to the normal flow of dialogue within this site.
+common.terms_and_conditions.usage.paragraph.3=Information collected is used for internal review, to improve or customise the content and/or layout of the site, and to provide information services to the site users. It is not shared with other organisations for commercial purposes.
+common.terms_and_conditions.usage.paragraph.4=Our responsibilities and liabilities to you in providing this site and any associated services are limited as set out in our {0}.
+common.terms_and_conditions.online_services.heading=Online services
+common.terms_and_conditions.online_services.paragraph.1=A number of our online services have specific {0} related to their use. You will be asked to confirm acceptance of these when using them for the first time.
+common.terms_and_conditions.online_services.paragraph.2=For detailed guidance regarding online security and protection, please follow the link {0}.
+common.terms_and_conditions.copyright.heading=Copyright and intellectual property rights
+common.terms_and_conditions.copyright.paragraph.1=The material featured on this site is subject to Crown Copyright and/or third party copyright, details of which can be found in our {0}.
+common.terms_and_conditions.copyright.paragraph.2=The names, images and logos identifying HMRC are proprietary marks of HMRC. Copying our logos and/or any other third party logos accessed through this site is not permitted without prior approval from the relevant copyright owner.
+common.terms_and_conditions.copyright.paragraph.3=HMRC does not approve, accredit or endorse tax agents or allow them to use the logo in their advertising.
+common.terms_and_conditions.linking.heading=Linking to HMRC website
+common.terms_and_conditions.linking.paragraph.1=You do not have to ask permission to link directly to pages hosted on this site. We do not object to you linking directly to the information that is hosted on our site. However, we do not permit our pages to be loaded into frames on your site. HMRC pages must load into the user’s entire window.
+common.terms_and_conditions.external_links.heading=Links to external websites
+common.terms_and_conditions.external_links.paragraph.1=HMRC is not responsible for the contents or reliability of any other websites to which we provide a link and does not necessarily endorse the views expressed with them. Listing should not be taken as endorsement of any kind. We cannot guarantee that these links will work at all times and have no control over the availability of the linked pages. In particular HMRC is not responsible for any privacy policies on external websites and we recommend you read the relevant statements on any other websites your visit. HMRC is not responsible for the direct or indirect consequences of you linking to any other website from this website.
+common.terms_and_conditions.virus_protection.heading=Virus protection
+common.terms_and_conditions.virus_protection.paragraph.1=We make all reasonable attempts to check and test material at all stages of production, and to exclude viruses from this website. It is always wise for you to run an up to date anti-virus program on all the material downloaded from the Internet. We cannot accept any responsibility for any loss, disruption or damage to your data or your computer system, which may occur whilst using material derived from HMRC website.
+common.terms_and_conditions.privacy_policy.heading=Privacy policy
+common.terms_and_conditions.privacy_policy.paragraph.1=Our {0} explains how we protect and respect the data we collect from you. Your use of this site constitutes acceptance of this policy.
+common.terms_and_conditions.governing_law.heading=Governing law
+common.terms_and_conditions.governing_law.paragraph.1=These terms and conditions shall be governed by and construed in accordance with the laws of England and Wales. Any dispute arising under these terms and conditions shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+common.terms_and_conditions.updated.text=These Terms and Conditions were last updated April 2005.
 
 common.privacy_policy.title=Privacy policy
 common.privacy_policy.personal_info.heading=Your personal information
