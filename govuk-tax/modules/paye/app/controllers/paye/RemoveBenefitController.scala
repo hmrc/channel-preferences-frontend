@@ -65,7 +65,7 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
       primaryEmployment <- taxYearData.findPrimaryEmployment
     } yield {
       val rawData = Some(validationlessForm.bindFromRequest().value.get)
-      updateRemoveCarBenefitForm(rawData, activeCarBenefit.dateMadeAvailable, activeCarBenefit.fuelBenefit, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()(request).fold(
+      updateRemoveCarBenefitForm(rawData, activeCarBenefit.dateMadeAvailable, activeCarBenefit.fuelBenefit, extractCarFuelBenefitDatesFromRequest, now(), taxYearInterval).bindFromRequest()(request).fold(
         formWithErrors => {
           Future.successful(BadRequest(remove_car_benefit_form(activeCarBenefit, primaryEmployment, formWithErrors, currentTaxYearYearsRange)))
         },
@@ -215,8 +215,8 @@ class RemoveBenefitController(keyStoreService: KeyStoreConnector, override val a
     }
   }
 
-  private def getCarFuelBenefitDates(request: Request[_]): Option[CarFuelBenefitDates] = {
-    datesForm().bindFromRequest()(request).value
+  private def extractCarFuelBenefitDatesFromRequest(implicit request: Request[_]): CarFuelBenefitDates = {
+    datesForm().bindFromRequest().value.get
   }
 
 }

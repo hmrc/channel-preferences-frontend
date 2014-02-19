@@ -17,19 +17,18 @@ import controllers.DateFieldsHelper
 import controllers.paye.CarBenefitFormFields._
 import org.mockito.Matchers._
 import org.mockito.Matchers
+import org.jsoup.Jsoup
+import models.paye.RemoveCarBenefitFormData
+import models.paye.ReplaceCarBenefitFormData
 import scala.Some
-import play.api.test.FakeApplication
 import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
 import uk.gov.hmrc.common.microservice.paye.domain.TaxCode
-import org.jsoup.Jsoup
-import models.paye.{RemoveCarBenefitFormData, ReplaceCarBenefitFormData}
-
 
 class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with ScalaFutures with DateFieldsHelper {
 
   "Showing the replace car benefit form" should {
 
-    "redirect to carBenefitHomeController if the user does not have a car benefit" in new WithApplication(FakeApplication()) with TestCase {
+    "redirect to carBenefitHomeController if the user does not have a car benefit" in new WithApplication with TestCase {
       setupMocksForJohnDensmore(benefits = Seq.empty)
       val result = controller.showReplaceCarBenefitFormAction(testTaxYear, 2)(johnDensmore, requestWithCorrectVersion)
 
@@ -38,14 +37,14 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       redirectLocation(result) shouldBe Some(expectedUri)
     }
 
-    "show the replace car benefit form" in new WithApplication(FakeApplication()) with TestCase {
+    "show the replace car benefit form" in new WithApplication with TestCase {
       setupMocksForJohnDensmore()
       val result = controller.showReplaceCarBenefitFormAction(testTaxYear, 2)(johnDensmore, requestWithCorrectVersion)
 
       status(result) shouldBe 200
     }
 
-    "show the prepopulated add car benefit form if the keystore returns some data" in new WithApplication(FakeApplication()) with TestCase {
+    "show the prepopulated add car benefit form if the keystore returns some data" in new WithApplication with TestCase {
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       setupMocksForJohnDensmore()
       when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](
@@ -71,7 +70,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       addTable.select("#employeeContribution").attr("value") shouldBe "100"
     }
 
-    "show the prepopulated remove car benefit form if the keystore returns some data" in new WithApplication(FakeApplication()) with TestCase {
+    "show the prepopulated remove car benefit form if the keystore returns some data" in new WithApplication with TestCase {
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       setupMocksForJohnDensmore()
       when(mockKeyStoreService.getEntry[ReplaceCarBenefitFormData](
@@ -93,7 +92,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
       removeTable.select("[id~=fuelWithdrawDate]").select(s"[id~=year-${johnDensmoresReplaceCarBenefitData.removedCar.fuelWithdrawDate.get.getYear}]").attr("selected") shouldBe "selected"
     }
 
-    "Save the form values to the keystore when the next button is pressed." in new WithApplication(FakeApplication()) with TestCase {
+    "Save the form values to the keystore when the next button is pressed." in new WithApplication with TestCase {
 
       import Matchers.{eq => is}
 
@@ -111,21 +110,21 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
   "Requesting replace car " should {
     implicit val user = johnDensmore
 
-    "return bad request if the remove car form contains errors" in new WithApplication(FakeApplication()) with TestCase {
+    "return bad request if the remove car form contains errors" in new WithApplication with TestCase {
       implicit val request = requestBenefitReplacementFormSubmission(dateReturnedVal = None)
       setupMocksForJohnDensmore()
       val result = controller.requestReplaceCarAction(testTaxYear, 2)
       status(result) shouldBe 400
     }
 
-    "return bad request if the new car form contains errors" in new WithApplication(FakeApplication()) with TestCase {
+    "return bad request if the new car form contains errors" in new WithApplication with TestCase {
       implicit val request = requestBenefitReplacementFormSubmission(carRegistrationDateVal = None)
       setupMocksForJohnDensmore()
       val result = controller.requestReplaceCarAction(testTaxYear, 2)
       status(result) shouldBe 400
     }
 
-    "return the confirmation page if both the forms are valid" in new WithApplication(FakeApplication()) with TestCase {
+    "return the confirmation page if both the forms are valid" in new WithApplication with TestCase {
       implicit val request = requestBenefitReplacementFormSubmission()
       setupMocksForJohnDensmore()
       val result = controller.requestReplaceCarAction(testTaxYear, 2)
@@ -152,7 +151,6 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
 
     import CarBenefitDataBuilder._
 
-
     def requestBenefitReplacementFormSubmission(dateReturnedVal: Option[JLocalDate] = Some(LocalDate(testTaxYear, 5, 1)),
                                                 carUnavailableVal: String = "false",
                                                 removeEmployeeContributesVal: String = "false",
@@ -172,11 +170,11 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
                                                 employerPayFuelVal: Option[String] = Some(defaultEmployerPayFuel.toString),
                                                 dateFuelWithdrawnVal: Option[(String, String, String)] = Some(localDateToTuple(defaultDateFuelWithdrawn)),
                                                 path: String = "") = {
+
       requestWithCorrectVersion.withFormUrlEncodedBody(Seq(
         agreement -> "true",
         carUnavailable -> carUnavailableVal,
         removeEmployeeContributes -> removeEmployeeContributesVal,
-        removeEmployeeContribution -> removeEmployeeContributionVal,
         fuelRadio -> fuelGiveUpVal,
         listPrice -> listPriceVal.getOrElse(""),
         employeeContributes -> employeeContributesVal.getOrElse(""),
@@ -188,6 +186,7 @@ class ReplaceBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with S
         co2NoFigure -> co2NoFigureVal.getOrElse(""),
         engineCapacity -> engineCapacityVal.getOrElse(""),
         employerPayFuel -> employerPayFuelVal.getOrElse(""))
+        ++ (removeEmployeeContributionVal != "0").option(removeEmployeeContribution -> removeEmployeeContributionVal)
         ++ buildDateFormField(withdrawDate, Some(localDateToTuple(dateReturnedVal)))
         ++ buildDateFormField(providedFrom, providedFromVal)
         ++ buildDateFormField(dateFuelWithdrawn, dateFuelWithdrawnVal)

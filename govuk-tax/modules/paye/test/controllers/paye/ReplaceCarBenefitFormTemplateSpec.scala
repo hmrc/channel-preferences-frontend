@@ -33,7 +33,7 @@ class ReplaceCarBenefitFormTemplateSpec extends PayeBaseSpec with LoneElement {
       val updateForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(values = None,
         benefitStartDate = currentTestDate.toLocalDate,
         fuelBenefit = Some(FuelBenefit(currentTestDate.toLocalDate, 0, 0, None)),
-        dates = Some(CarFuelBenefitDates(None, None)),
+        dates =  CarFuelBenefitDates(None, None),
         DateTimeUtils.now,
         taxYearInterval)
 

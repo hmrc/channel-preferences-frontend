@@ -20,7 +20,7 @@ class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHel
       val form: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(values = None,
         benefitStartDate = currentTestDate.toLocalDate,
         fuelBenefit = Some(FuelBenefit(currentTestDate.toLocalDate, 0, 0, None)),
-        dates = Some(CarFuelBenefitDates(None, None)),
+        dates = CarFuelBenefitDates(None, None),
         DateTimeUtils.now,
         taxYearInterval)
 
@@ -59,7 +59,7 @@ class RemoveCarBenefitFieldsTemplateSpec extends PayeBaseSpec with DateFieldsHel
       val form: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(values = None,
         benefitStartDate = currentTestDate.toLocalDate,
         fuelBenefit = Some(FuelBenefit(currentTestDate.toLocalDate, 0, 0, None)),
-        dates = Some(CarFuelBenefitDates(None, None)),
+        dates = CarFuelBenefitDates(None, None),
         DateTimeUtils.now,
         taxYearInterval).bindFromRequest()(FakeRequest())
       val currentTaxYearYearsRange = testTaxYear to testTaxYear + 1

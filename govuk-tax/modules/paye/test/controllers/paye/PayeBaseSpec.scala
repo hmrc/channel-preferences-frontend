@@ -183,6 +183,10 @@ trait PayeBaseSpec extends BaseSpec  with TaxYearSupport {
     val taxYear = testTaxYear
     val employmentSeqNumberOne = 1
 
+    implicit class RichBoolean(val b: Boolean) {
+      final def option[A](a: => A): Option[A] = if (b) Some(a) else None
+    }
+
     val now: LocalDate = new LocalDate(taxYear, 10, 3)
     val inTwoDaysTime = now.plusDays(2)
     val inThreeDaysTime = now.plusDays(3)

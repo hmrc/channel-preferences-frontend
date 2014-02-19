@@ -48,8 +48,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
     requestReplaceCarAction(taxYear, employmentSequenceNumber)(user, request)
   }
 
-  private[paye] def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], removeDefaults: Option[RemoveCarBenefitFormData], addDefaults: Form[CarBenefitData], user: User, request: Request[_]) = {
-    val hasUnremovedFuel = activeCarBenefit.hasActiveFuel
+  private[paye] def replaceCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: CarFuelBenefitDates, removeDefaults: Option[RemoveCarBenefitFormData], addDefaults: Form[CarBenefitData], user: User, request: Request[_]) = {
     val benefitValues: Option[RemoveCarBenefitFormDataValues] = removeDefaults.map(RemoveCarBenefitFormDataValues(_))
     val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, activeCarBenefit.fuelBenefit, dates, now(), taxYearInterval)
     val filledForm = removeDefaults.map {

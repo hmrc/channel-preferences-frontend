@@ -79,7 +79,7 @@ class ShowRemoveBenefitFormController(keyStoreService: KeyStoreConnector, overri
     }.getOrElse(Redirect(routes.CarBenefitHomeController.carBenefitHome()))
   }
 
-  def removeCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: Option[CarFuelBenefitDates], defaults: Option[RemoveCarBenefitFormData], user: User, request: Request[_]) = {
+  def removeCarBenefit(activeCarBenefit: CarBenefit, primaryEmployment: Employment, dates: CarFuelBenefitDates, defaults: Option[RemoveCarBenefitFormData], user: User, request: Request[_]) = {
     val benefitValues: Option[RemoveCarBenefitFormDataValues] = defaults.map(RemoveCarBenefitFormDataValues(_))
     val benefitForm: Form[RemoveCarBenefitFormData] = updateRemoveCarBenefitForm(benefitValues, activeCarBenefit.startDate, activeCarBenefit.fuelBenefit, dates, now(), taxYearInterval)
     val filledForm = defaults.map {

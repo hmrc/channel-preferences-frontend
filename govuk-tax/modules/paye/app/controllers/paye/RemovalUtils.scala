@@ -24,7 +24,7 @@ object RemovalUtils {
   def updateRemoveCarBenefitForm(values: Option[RemoveCarBenefitFormDataValues],
                                  benefitStartDate: LocalDate,
                                  fuelBenefit: Option[FuelBenefit],
-                                 dates: Option[CarFuelBenefitDates],
+                                 dates: CarFuelBenefitDates,
                                  now: DateTime, taxYearInterval: Interval) = Form[RemoveCarBenefitFormData](
     mapping(
       "withdrawDate" -> localDateMapping(now.toLocalDate, taxYearInterval, fuelBenefit.flatMap(_.dateWithdrawn), carBenefitMapping(Some(benefitStartDate))),
@@ -56,12 +56,12 @@ object RemovalUtils {
     }
   }
 
-  def getDatesFromDefaults(defaults: Option[RemoveCarBenefitFormData]): Option[CarFuelBenefitDates] = {
+  def getDatesFromDefaults(defaults: Option[RemoveCarBenefitFormData]): CarFuelBenefitDates = {
     defaults.map {
       formData =>
         CarFuelBenefitDates(Some(formData.withdrawDate), formData.fuelDateChoice)
-    }.orElse {
-      Some(CarFuelBenefitDates(None, None))
+    }.getOrElse {
+      CarFuelBenefitDates(None, None)
     }
   }
 
@@ -76,8 +76,8 @@ object RemovalUtils {
     )(CarFuelBenefitDates.apply)(CarFuelBenefitDates.unapply)
   )
 
-  def getCarFuelBenefitDates(request: Request[_]): Option[CarFuelBenefitDates] = {
-    datesForm().bindFromRequest()(request).value
+  def getCarFuelBenefitDates(request: Request[_]): CarFuelBenefitDates = {
+    datesForm().bindFromRequest()(request).value.get
   }
 
   val benefitFormDataActionId = "RemoveBenefitFormData"

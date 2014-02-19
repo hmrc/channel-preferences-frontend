@@ -8,12 +8,11 @@ import play.api.data.Form
 import play.api.data.Forms._
 import controllers.paye.CarBenefitFormFields._
 import controllers.paye.validation.RemoveBenefitValidator._
-import play.api.test.{FakeRequest, WithApplication}
+import play.api.test.{FakeApplication, FakeRequest, WithApplication}
 import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import models.paye.CarFuelBenefitDates
 import scala.Some
-import play.api.test.FakeApplication
 
 class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with DateConverter with DateFieldsHelper with TaxYearSupport {
 
@@ -68,39 +67,45 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
         )(DummyModel.apply)(DummyModel.unapply))
     }
 
-    "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
+    "reject a value that is less than 0" in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "-1")
       form.hasErrors shouldBe true
       form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Enter a number more than 0.")
     }
 
-    "reject a value that is 0" in new WithApplication(FakeApplication()) {
+    "reject a value that is 0" in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "0")
       form.hasErrors shouldBe true
       form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Enter a number more than 0.")
     }
 
-    "accept a correct value" in new WithApplication(FakeApplication()) {
-      val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "32 ")
+    "accept a correct value" in new WithApplication {
+      val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "  32")
       form.hasErrors shouldBe false
     }
 
-    "reject when the carUnavailable flag is true, but no value is provided." in new WithApplication(FakeApplication()) {
+    "reject when the carUnavailable flag is true, but no value is provided." in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "")
       form.hasErrors shouldBe true
       form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("You must specify the number of consecutive days the car has been unavailable.")
     }
 
-    "not throw when carUnavailable is not a valid boolean" in new WithApplication(FakeApplication()) {
+    "not throw when carUnavailable is not a valid boolean" in new WithApplication {
       bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("wibble"))), "daysUnavailable", "")
     }
 
-    "reject when the value is bigger than the providedFrom -> providedTo range." in new WithApplication(FakeApplication()) {
+    "reject when the value is bigger than the providedFrom -> providedTo range." in new WithApplication {
       val fromDate = new LocalDate(2012, 5, 30)
       val toDate = Some(new LocalDate(2012, 5, 31))
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"), withdrawDateVal = toDate), fromDate), "daysUnavailable", "3")
       form.hasErrors shouldBe true
-      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain (s"The car can’t be unavailable for longer than the total number of days you’ve had it from 6 April ${testTaxYear}. Reduce the number of days unavailable or check the date you got the car.")
+      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain (s"The car can’t be unavailable for longer than the total number of days you’ve had it from 6 April $testTaxYear. Reduce the number of days unavailable or check the date you got the car.")
+    }
+    
+    "reject when there is a value in the daysUnavailable field and the user has chosen for it not to be unavailable" in new WithApplication {
+       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("false"))), "daysUnavailable", "2")
+      form.hasErrors shouldBe true
+      form.errors("daysUnavailable").map(_.message) should contain("error.paye.remove_car_benefit.question2.extra_days_unavailable")
     }
   }
 
@@ -115,26 +120,26 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
         )(DummyModel.apply)(DummyModel.unapply))
     }
 
-    "reject a value that is more than 99999" in new WithApplication(FakeApplication()) {
+    "reject a value that is more than 99999" in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal = Some("true"))), "employeeContribution", "100000")
       form.hasErrors shouldBe true
       form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("Enter a number between £1 and £99,999.")
     }
 
-    "reject a value that is less than 0" in new WithApplication(FakeApplication()) {
+    "reject a value that is less than 0" in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "-1")
       form.hasErrors shouldBe true
       form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("Employee payment must be greater than zero if you have selected yes.")
     }
 
-    "reject a value that is 0" in new WithApplication(FakeApplication()) {
+    "reject a value that is 0" in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "0")
       form.hasErrors shouldBe true
       form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("Employee payment must be greater than zero if you have selected yes.")
     }
 
-    "accept a correct value" in new WithApplication(FakeApplication()) {
-      val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "   3276")
+    "accept a correct value" in new WithApplication {
+      val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", " 3276  ")
       form.hasErrors shouldBe false
     }
 
@@ -142,10 +147,16 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("wibble"))), "employeeContribution", "1234")
     }
 
-    "reject when the employeeContributes flag is true, but no value is provided." in new WithApplication(FakeApplication()) {
+    "reject when the employeeContributes flag is true, but no value is provided" in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "")
       form.hasErrors shouldBe true
       form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("You must specify how much you paid your employer for private use of the company car.")
+    }
+
+    "reject when the employeeContributes flag is false, but a value is provided" in new WithApplication {
+      val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("false"))), "employeeContribution", "1234")
+      form.hasErrors shouldBe true
+      form.errors("employeeContribution").map(_.message) should contain ("error.paye.remove_car_benefit.question3.extra_employee_contribution")
     }
 
   }
@@ -154,14 +165,14 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
 
     val carBenefitStartDate = new LocalDate(currentTaxYear, 6, 30)
     val carBenefitEndDate = new LocalDate(currentTaxYear, 7, 30)
-    val dates = new CarFuelBenefitDates(Option(carBenefitEndDate), Option(FUEL_DIFFERENT_DATE))
+    val dates = CarFuelBenefitDates(Some(carBenefitEndDate), Some(FUEL_DIFFERENT_DATE))
 
     case class DummyModel( dateFuelWithdrawn: Option[LocalDate])
 
     def dummyForm = {
       Form(
         mapping(
-          dateFuelWithdrawn -> validateFuelDate(Option(dates), Option(carBenefitStartDate), taxYearInterval)
+          dateFuelWithdrawn -> validateFuelDate(dates, Some(carBenefitStartDate), taxYearInterval)
         )(DummyModel.apply)(DummyModel.unapply))
     }
 
@@ -183,7 +194,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       form.value.get.dateFuelWithdrawn shouldBe Some(fuelDate)
     }
 
-    "reject a fuel withdrawn date that is after the car withdrawn date" in new WithApplication(FakeApplication()) {
+    "reject a fuel withdrawn date that is after the car withdrawn date" in new WithApplication {
       val fuelDate = carBenefitEndDate.plusDays(1)
       val fuelWithdrawnDateAfterCarWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((fuelDate.getYear.toString, fuelDate.getMonthOfYear.toString, fuelDate.getDayOfMonth.toString)))
 
@@ -191,26 +202,33 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       form.hasErrors shouldBe true
     }
 
-    "reject a fuel withdrawn date that is before the car benefit starting date" in new WithApplication(FakeApplication()) {
+    "reject a fuel withdrawn date that is before the car benefit starting date" in new WithApplication {
       val fuelDate = carBenefitStartDate.minusDays(1)
-      val fuelWithdrawnBeforeCarBnefitStarted = buildDateFormField(dateFuelWithdrawn, Some((fuelDate.getYear.toString, fuelDate.getMonthOfYear.toString, fuelDate.getDayOfMonth.toString)))
+      val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, Some((fuelDate.getYear.toString, fuelDate.getMonthOfYear.toString, fuelDate.getDayOfMonth.toString)))
 
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBnefitStarted:_*))
+      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
       form.hasErrors shouldBe true
     }
 
-    "reject a fuel withdrawn date that is not in the current tax year" in new WithApplication(FakeApplication()) {
-      val fuelWithdrawnBeforeCarBnefitStarted = buildDateFormField(dateFuelWithdrawn, Some(("2010", "6", "7")))
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBnefitStarted:_*))
+    "reject a fuel withdrawn date that is not in the current tax year" in new WithApplication {
+      val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, Some(("2010", "6", "7")))
+      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
       form.hasErrors shouldBe true
       form.errors(dateFuelWithdrawn).map(err => Messages(err.message)) should contain(s"Enter a date between 6 April $currentTaxYear and 5 April ${currentTaxYear+1}.")
     }
 
-    "reject a fuel withdrawn date that is empty" in new WithApplication(FakeApplication()) {
-      val fuelWithdrawnBeforeCarBnefitStarted = buildDateFormField(dateFuelWithdrawn, None)
+    "reject a fuel withdrawn date that is empty" in new WithApplication {
+      val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, None)
 
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBnefitStarted:_*))
+      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
       form.hasErrors shouldBe true
+    }
+
+    "reject a datefuelwithdrawn of samedate and a provided date" in new WithApplication {
+      val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, Some(("2010", "6", "7")))
+      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
+      form.hasErrors shouldBe true
+      form.errors(dateFuelWithdrawn)
     }
   }
 
@@ -247,15 +265,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       form.errors(withdrawDate).map(err => err.message) should not contain "error.paye.benefit.carwithdrawdate.before.fuelwithdrawdate"
 
     }
-
-
-
-
-
-
   }
-
-
 
   def bindFormWithValue[T](dummyForm: Form[T], field: String, value: String): Form[T] = {
     dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(field -> value))

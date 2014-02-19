@@ -58,7 +58,7 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
         .verifying("error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0", n => n > 0)
         .verifying(Messages("error.paye.remove_car_benefit.question2.car_unavailable_too_long", currentTaxYear.toString), unavailableDays => acceptableNumberOfDays(unavailableDays, values, benefitStartDate, taxYearInterval))
       ).verifying("error.paye.remove_car_benefit.question2.missing_days_unavailable", data => data.isDefined)
-    }
+    case Some(ExtractBoolean(false)) => optional(number).verifying("error.paye.remove_car_benefit.question2.extra_days_unavailable", _.isEmpty)
     case _ => ignored(None)
   }
   }
@@ -77,6 +77,7 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
         .verifying("error.paye.remove_car_benefit.question3.number_max_5_chars", e => e <= 99999)
         .verifying("error.paye.remove_car_benefit.question3.number_less_than_0", data => data > 0))
         .verifying("error.paye.remove_car_benefit.question3.missing_employee_contribution", data => data.isDefined)
+      case Some(ExtractBoolean(false)) => optional(number).verifying("error.paye.remove_car_benefit.question3.extra_employee_contribution", _.isEmpty)
       case _ => ignored(None)
     }
 
@@ -101,19 +102,14 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
     mapping.verifying("error.paye.benefit.date.previous.startdate", date => isAfter(date, benefitStartDate))
   }
 
-  // TODO: Fix this. Naked get on dates means it is not Optional!
-  private[paye] def validateFuelDate(dates: Option[CarFuelBenefitDates], benefitStartDate: Option[LocalDate], taxYearInterval: Interval): Mapping[Option[LocalDate]] = dates.get.fuelDateType.getOrElse("") match {
+  private[paye] def validateFuelDate(dates: CarFuelBenefitDates, benefitStartDate: Option[LocalDate], taxYearInterval: Interval): Mapping[Option[LocalDate]] = dates.fuelDateType.getOrElse("") match {
     case FUEL_DIFFERENT_DATE => dateTuple
-      .verifying("error.paye.benefit.date.mandatory", data => if (dates.isDefined) {
-      checkFuelDate(dates.get.fuelDateType, data)
-    } else true)
-      .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => if (dates.isDefined) {
-      !isAfterIfDefined(data, dates.get.carDate)
-    } else true)
-      .verifying(Messages("error.paye.benefit.date.previous.taxyear", currentTaxYear.toString, (currentTaxYear+1).toString), data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) {
+      .verifying("error.paye.benefit.date.mandatory", data => checkFuelDate(dates.fuelDateType, data))
+      .verifying("error.paye.benefit.fuelwithdrawdate.before.carwithdrawdate", data => !isAfterIfDefined(data, dates.carDate))
+      .verifying(Messages("error.paye.benefit.date.previous.taxyear", currentTaxYear.toString, (currentTaxYear+1).toString), data => if (differentDateForFuel(dates.fuelDateType)) {
       isAfterIfDefined(data, Some(taxYearInterval.getStart.toLocalDate.minusDays(1)))
     } else true)
-      .verifying("error.paye.benefit.date.previous.startdate", data => if (dates.isDefined && differentDateForFuel(dates.get.fuelDateType)) {
+      .verifying("error.paye.benefit.date.previous.startdate", data => if (differentDateForFuel(dates.fuelDateType)) {
       isAfterIfDefined(data, benefitStartDate)
     } else true)
     case _ => ignored(None)
