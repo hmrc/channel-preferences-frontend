@@ -7,7 +7,6 @@ import play.api.i18n.Messages
 
 import play.api.test.{FakeRequest, WithApplication}
 import play.api.test.Helpers._
-import play.api.test.FakeApplication
 
 import org.joda.time.LocalDate
 import org.joda.time.chrono.ISOChronology
@@ -30,9 +29,7 @@ import models.paye.CarBenefitData
 import controllers.DateFieldsHelper
 import controllers.paye.CarBenefitFormFields._
 import controllers.common.actions.HeaderCarrier
-import controllers.paye.validation.BenefitFlowHelper
 import controllers.common.SessionKeys
-import uk.gov.hmrc.utils.TaxYearResolver
 
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper with TaxYearSupport {
@@ -62,7 +59,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
   "calling start add car benefit" should {
 
-    "return 200 and show the add car benefit form with the required fields and no values filled in" in new WithApplication(FakeApplication()) {
+    "return 200 and show the add car benefit form with the required fields and no values filled in" in new WithApplication {
       setupMocksForJohnDensmore()
 
       val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
@@ -111,7 +108,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
     }
 
-    "return 400 when employer for sequence number does not exist" in new WithApplication(FakeApplication()) {
+    "return 400 when employer for sequence number does not exist" in new WithApplication {
       setupMocksForJohnDensmore()
 
       val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, 5)
@@ -119,7 +116,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       status(result) shouldBe 400
     }
 
-    "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
+    "return to the car benefit home page if the user already has a car benefit" in new WithApplication {
       setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
 
       val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, employmentSeqNumberOne)
@@ -127,7 +124,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
     }
 
-    "return 400 if the requested tax year is not the current tax year" in new WithApplication(FakeApplication()) {
+    "return 400 if the requested tax year is not the current tax year" in new WithApplication {
       setupMocksForJohnDensmore()
 
       val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear + 1, employmentSeqNumberOne)
@@ -135,7 +132,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       status(result) shouldBe 400
     }
 
-    "return 400 if the employer is not the primary employer" in new WithApplication(FakeApplication()) {
+    "return 400 if the employer is not the primary employer" in new WithApplication {
       setupMocksForJohnDensmore()
 
       val result = controller.startAddCarBenefitAction(johnDensmore, requestWithCorrectVersion, taxYear, 2)
@@ -146,7 +143,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
   "submitting add car benefit" should {
 
-    "return to the car benefit home page if the user already has a car benefit" in new WithApplication(FakeApplication()) {
+    "return to the car benefit home page if the user already has a car benefit" in new WithApplication {
       setupMocksForJohnDensmore(benefits = johnDensmoresBenefitsForEmployer1)
 
       val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, employmentSeqNumberOne)
@@ -154,19 +151,19 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       redirectLocation(result) shouldBe Some(routes.CarBenefitHomeController.carBenefitHome().url)
     }
 
-    "return 200 when values form data validates successfully" in new WithApplication(FakeApplication()) {
+    "return 200 when values form data validates successfully" in new WithApplication {
       assertSuccessfulDatesSubmitJohnDensmore(Some(inTwoDaysTime))
       assertSuccessfulDatesSubmitJohnDensmore(None)
     }
 
 
-    "ignore invalid values and return 200 when fields are not required" in new WithApplication(FakeApplication()) {
+    "ignore invalid values and return 200 when fields are not required" in new WithApplication {
       setupMocksForJohnDensmore()
 
       assertSuccessfulDatesSubmitWithTuple(None)
     }
 
-    "return 400 and display error when values form data fails validation" in new WithApplication(FakeApplication()) {
+    "return 400 and display error when values form data fails validation" in new WithApplication {
       setupMocksForJohnDensmore()
 
       assertFailedDatesSubmit(Some(("2012", "1", "1")), Some("false"), None, Some("false"), None, "error_q_1", s"Enter a date between 6 April $currentTaxYear and 5 April ${currentTaxYear+1}.")
@@ -181,13 +178,13 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
     }
 
-    "return 200 when listPrice form data validates successfully" in new WithApplication(FakeApplication()) {
+    "return 200 when listPrice form data validates successfully" in new WithApplication {
       assertSuccessfulListPriceSubmit(Some(1000))
       assertSuccessfulListPriceSubmit(Some(25000))
       assertSuccessfulListPriceSubmit(Some(99999))
     }
 
-    "return 400 and display error when listPrice form data fails validation" in new WithApplication(FakeApplication()) {
+    "return 400 and display error when listPrice form data fails validation" in new WithApplication {
       setupMocksForJohnDensmore()
 
       assertFailedListPriceSubmit(None, "error_q_5", "Enter the car’s list price (including VAT and accessories).")
@@ -198,16 +195,14 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       assertFailedListPriceSubmit(Some("100000"), "error_q_5", "Enter a number between £1,000 and £99,999.")
     }
 
-    "return 200 when employeeContribution form data validates successfully" in new WithApplication(FakeApplication()) {
+    "return 200 when employeeContribution form data validates successfully" in new WithApplication {
 
       assertSuccessfulEmployeeContributionSubmit(Some(false), None, None)
       assertSuccessfulEmployeeContributionSubmit(Some(true), Some("1000"), Some(1000))
       assertSuccessfulEmployeeContributionSubmit(Some(true), Some("5000"), Some(5000))
-      assertSuccessfulEmployeeContributionSubmit(Some(false), Some("0"), None)
-      assertSuccessfulEmployeeContributionSubmit(Some(false), Some("5.5"), None)
     }
 
-    "return 400 and display error when employeeContribution form data fails validation" in new WithApplication(FakeApplication()) {
+    "return 400 and display error when employeeContribution form data fails validation" in new WithApplication {
       setupMocksForJohnDensmore()
 
       assertFailedEmployeeContributionSubmit(Some("true"), None, "error_q_6", "Enter a number between £1 and £5,000.")
@@ -219,16 +214,14 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       assertFailedEmployeeContributionSubmit(Some("true"), Some("0"), "error_q_6", "Enter a number between £1 and £5,000.")
     }
 
-    "return 200 when employers form data validates successfully" in new WithApplication(FakeApplication()) {
+    "return 200 when employers form data validates successfully" in new WithApplication {
 
       assertSuccessfulEmployerContributionSubmit(Some(false), None, None)
       assertSuccessfulEmployerContributionSubmit(Some(true), Some("1000"), Some(1000))
       assertSuccessfulEmployerContributionSubmit(Some(true), Some("99999"), Some(99999))
-      assertSuccessfulEmployerContributionSubmit(Some(false), Some("0"), None)
-      assertSuccessfulEmployerContributionSubmit(Some(false), Some("5.5"), None)
     }
 
-    "return 400 and display error when employerContribution form data fails validation" in new WithApplication(FakeApplication()) {
+    "return 400 and display error when employerContribution form data fails validation" in new WithApplication {
       setupMocksForJohnDensmore()
 
       assertFailedEmployerContributionSubmit(Some("true"), None, "error_q_7", "Confirm how much you paid towards the car.")
@@ -240,7 +233,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       assertFailedEmployerContributionSubmit(Some("true"), Some("0"), "error_q_7", "Enter a number between £1 and £99,999.")
     }
 
-    "return 400 if the submitting is for year that is not the current tax year" in new WithApplication(FakeApplication()) {
+    "return 400 if the submitting is for year that is not the current tax year" in new WithApplication {
       setupMocksForJohnDensmore()
 
       val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear + 1, employmentSeqNumberOne)
@@ -248,7 +241,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       status(result) shouldBe 400
     }
 
-    "return 400 if the submitting is for employment number that is not the primary employment" in new WithApplication(FakeApplication()) {
+    "return 400 if the submitting is for employment number that is not the primary employment" in new WithApplication {
       setupMocksForJohnDensmore()
 
       val result = controller.reviewAddCarBenefitAction(johnDensmore, newRequestForSaveAddCarBenefit(), taxYear, 2)
@@ -256,35 +249,35 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       status(result) shouldBe 400
     }
 
-    "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication(FakeApplication()) {
+    "return 200 if the user submits selects an option for the registered before 98 question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(localDateToTuple(Some(org.joda.time.LocalDate.now.withYear(1996)))))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
     }
 
-    "return 400 if the user does not select any option for the registered before 98 question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user does not select any option for the registered before 98 question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "return 400 if the user sends an invalid value for the registered before 98 question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user sends an invalid value for the registered before 98 question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(("hacking!", "garbage", "Hotdogs!")))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "return 400 if the user sends a car registered date before 1900" in new WithApplication(FakeApplication()) {
+    "return 400 if the user sends a car registered date before 1900" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(carRegistrationDateVal = Some(("1899", "7", "1")))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "keep the selected option in the car registered date question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
+    "keep the selected option in the car registered date question if the validation fails due to another reason" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(providedFromVal = Some(("3000", "1", "1")), carRegistrationDateVal = Some((taxYear.toString, "5", "29")))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -296,14 +289,14 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
     }
 
-    "return 200 if the user selects an option for the FUEL TYPE question" in new WithApplication(FakeApplication()) {
+    "return 200 if the user selects an option for the FUEL TYPE question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"), engineCapacityVal = None, co2NoFigureVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
     }
 
-    "return 400 if the user does not select any option for the FUEL TYPE question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user does not select any option for the FUEL TYPE question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -313,14 +306,14 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select(".error-notification").text should include(Messages("error.paye.answer_mandatory"))
     }
 
-    "return 400 if the user sends an invalid value for the FUEL TYPE question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user sends an invalid value for the FUEL TYPE question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("hacking!"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "keep the selected option in the FUEL TYPE question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
+    "keep the selected option in the FUEL TYPE question if the validation fails due to another reason" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(fuelTypeVal = Some("electricity"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -329,21 +322,21 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#fuelType-electricity").attr("checked") shouldBe "checked"
     }
 
-    "return 200 if the user enters a valid integer for the CO2 FIGURE question" in new WithApplication(FakeApplication()) {
+    "return 200 if the user enters a valid integer for the CO2 FIGURE question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"), co2NoFigureVal = Some("false"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
     }
 
-    "return 400 if the user sends an invalid value for the CO2 FIGURE question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user sends an invalid value for the CO2 FIGURE question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("hacking!"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "keep the selected option in the CO2 FIGURE question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
+    "keep the selected option in the CO2 FIGURE question if the validation fails due to another reason" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2FigureVal = Some("123"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -352,21 +345,21 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#co2Figure").attr("value") shouldBe "123"
     }
 
-    "return 200 if the user selects the option for the CO2 NO FIGURE" in new WithApplication(FakeApplication()) {
+    "return 200 if the user selects the option for the CO2 NO FIGURE" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("true"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
     }
 
-    "return 400 if the user sends an invalid value for the option CO2 NO VALUE" in new WithApplication(FakeApplication()) {
+    "return 400 if the user sends an invalid value for the option CO2 NO VALUE" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(co2NoFigureVal = Some("hacking!"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "keep the checkbox selected for the CO2 NO VALUE option if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
+    "keep the checkbox selected for the CO2 NO VALUE option if the validation fails due to another reason" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(providedFromVal = Some(("3000", "1", "1")), co2NoFigureVal = Some("true"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -376,21 +369,21 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
 
-    "return 200 if the user selects an option for the ENGINE CAPACITY question" in new WithApplication(FakeApplication()) {
+    "return 200 if the user selects an option for the ENGINE CAPACITY question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("2000"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 200
     }
 
-    "return 400 if the user sends an invalid value for the ENGINE CAPACITY question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user sends an invalid value for the ENGINE CAPACITY question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(engineCapacityVal = Some("hacking!"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
+    "keep the selected option in the ENGINE CAPACITY question if the validation fails due to another reason" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(listPriceVal = None, engineCapacityVal = Some("2000"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -399,7 +392,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#engineCapacity-2000").attr("checked") shouldBe "checked"
     }
 
-    "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user does not select any option for the EMPLOYER PAY FUEL question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -408,14 +401,14 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#form-add-car-benefit .error-notification").text should be(Messages("error.paye.answer_mandatory"))
     }
 
-    "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new WithApplication(FakeApplication()) {
+    "return 400 if the user sends an invalid value for the EMPLOYER PAY FUEL question" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("hacking!"))
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
       status(result) shouldBe 400
     }
 
-    "keep the selected option in the EMPLOYER PAY FUEL question if the validation fails due to another reason" in new WithApplication(FakeApplication()) {
+    "keep the selected option in the EMPLOYER PAY FUEL question if the validation fails due to another reason" in new WithApplication {
       setupMocksForJohnDensmore()
       val request = newRequestForSaveAddCarBenefit(employerPayFuelVal = Some("true"), listPriceVal = None)
       val result = controller.reviewAddCarBenefitAction(johnDensmore, request, taxYear, employmentSeqNumberOne)
@@ -523,7 +516,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
   }
 
   "the review add car benefit page" should {
-    "render car benefit only when the user has no fuel benefit" in new WithApplication(FakeApplication()) with WithCarAndFuelBenefit {
+    "render car benefit only when the user has no fuel benefit" in new WithApplication with WithCarAndFuelBenefit {
 
       setupMocksForJohnDensmore()
       val carRegistrationDate = now.minusYears(2)
@@ -551,7 +544,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.text() should (not include "£999" and not include "20%" and not include "40%" and not include "45%")
     }
 
-    "render car and fuel benefits when the user has both, car and fuel benefits and provide link to edit data" in new WithApplication(FakeApplication()) with WithCarAndFuelBenefit {
+    "render car and fuel benefits when the user has both, car and fuel benefits and provide link to edit data" in new WithApplication with WithCarAndFuelBenefit {
       setupMocksForJohnDensmore()
       val carRegistrationDate = new LocalDate().minusYears(2)
 
@@ -588,7 +581,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#edit-data").attr("href") shouldBe uri
     }
 
-    "handle the case where no provided from or provided to dates are returned from the key store." in new WithApplication(FakeApplication()) {
+    "handle the case where no provided from or provided to dates are returned from the key store." in new WithApplication {
       setupMocksForJohnDensmore()
 
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
@@ -617,7 +610,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         is(false))(any(), any())
     }
 
-    "allow the user to reedit the form with other fuel type and show it with values already filled" in new WithApplication(FakeApplication()) {
+    "allow the user to reedit the form with other fuel type and show it with values already filled" in new WithApplication {
 
       setupMocksForJohnDensmore()
 
@@ -662,7 +655,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.select("#co2NoFigure").attr("checked") shouldBe "checked"
     }
 
-    "allow the user to reedit the form with electric fuel type and show it with values already filled" in new WithApplication(FakeApplication()) {
+    "allow the user to reedit the form with electric fuel type and show it with values already filled" in new WithApplication {
 
       setupMocksForJohnDensmore()
 
@@ -698,7 +691,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
     }
 
 
-    "allow the user to confirm the addition of the car benefit" in new WithApplication(FakeApplication()) {
+    "allow the user to confirm the addition of the car benefit" in new WithApplication {
       setupMocksForJohnDensmore()
 
 
@@ -724,7 +717,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       dateFuelWithdrawn = Some(new LocalDate(taxYear, 8, 29))
     )
 
-    "remove the keystore data for the car benefit form values" in new WithApplication(FakeApplication()) {
+    "remove the keystore data for the car benefit form values" in new WithApplication {
 
       setupMocksForJohnDensmore()
       when(mockKeyStoreService.getEntry[CarBenefitData](
@@ -740,7 +733,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       verify(mockKeyStoreService).deleteKeyStore(is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)), is("paye"), is(false))(any())
     }
 
-    "show the user a confirmation page" in new WithApplication(FakeApplication()) {
+    "show the user a confirmation page" in new WithApplication {
       setupMocksForJohnDensmore()
       when(mockKeyStoreService.getEntry[CarBenefitData](
         is(generateKeystoreActionId(taxYear, employmentSeqNumberOne)),
@@ -755,7 +748,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       doc.title should include("Tell HMRC about a change to your company car - Thank you")
     }
 
-    "call the paye microservice to add a new benefit for an electric car with no fuel" in new WithApplication(FakeApplication()) {
+    "call the paye microservice to add a new benefit for an electric car with no fuel" in new WithApplication {
 
       setupMocksForJohnDensmore()
 
@@ -812,7 +805,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         is(employmentSeqNumberOne),
         is(Seq(benefit)))(any())
     }
-    "call the paye microservice to add a new benefit for a car only" in new WithApplication(FakeApplication()) {
+    "call the paye microservice to add a new benefit for a car only" in new WithApplication {
 
       setupMocksForJohnDensmore()
 
@@ -870,7 +863,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         is(Seq(benefit)))(any())
     }
 
-    "call the paye microservice to add new benefits for both car and fuel" in new WithApplication(FakeApplication()) {
+    "call the paye microservice to add new benefits for both car and fuel" in new WithApplication {
 
       setupMocksForJohnDensmore()
 
@@ -946,7 +939,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
         is(Seq(carBenefit, fuelBenefit)))(any())
     }
 
-    "show the confirmation page with the correct tax codes and allowance" in new WithApplication(FakeApplication()) {
+    "show the confirmation page with the correct tax codes and allowance" in new WithApplication {
       // given
       setupMocksForJohnDensmore()
       val carBenefitData = johnDensmoresCarBenefitData.copy(

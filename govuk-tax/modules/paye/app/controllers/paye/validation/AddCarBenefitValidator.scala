@@ -5,7 +5,7 @@ import play.api.data.Forms._
 import uk.gov.hmrc.utils.DateTimeUtils._
 import org.joda.time.{Interval, DateTimeZone, LocalDate}
 import controllers.paye.CarBenefitFormFields._
-import controllers.common.validators.{StopOnFirstFail, Validators}
+import controllers.common.validators.{ExtractBoolean, StopOnFirstFail, Validators}
 import models.paye.{CarBenefitData, EngineCapacity}
 import EngineCapacity._
 import StopOnFirstFail._
@@ -68,7 +68,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
       employeeContribution -> validateEmployeeContribution(carBenefitValues),
       privateUsePayment -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
-      privateUsePaymentAmount -> validateEmployerContribution(carBenefitValues),
+      privateUsePaymentAmount -> validatePrivateUsePayment(carBenefitValues),
       fuelType -> validateFuelType(carBenefitValues),
       co2Figure -> validateCo2Figure(carBenefitValues),
       co2NoFigure -> validateNoCo2Figure(carBenefitValues),
@@ -82,14 +82,13 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
     .verifying("error.paye.list_price_greater_than_99999", e => e <= 99999)
   ).verifying("error.paye.list_price_mandatory", e => e.isDefined)
 
-  def maybeBoolean(s: String): Option[Boolean] = Try {s.toBoolean}.toOption
-
-  private[paye] def validateEmployerContribution(values: CarBenefitValues): Mapping[Option[Int]] =
-    values.privateUsePayment.flatMap(maybeBoolean(_)) match {
-      case Some(true) => optional(numberFromTrimmedString
+  private[paye] def validatePrivateUsePayment(values: CarBenefitValues): Mapping[Option[Int]] =
+    values.privateUsePayment match {
+      case Some(ExtractBoolean(true)) => optional(numberFromTrimmedString
         .verifying("error.paye.employer_contribution_greater_than_99999", e => e <= 99999)
         .verifying("error.paye.employer_contribution_less_than_0", e => e > 0)
       ).verifying("error.paye.add_car_benefit.missing_employer_contribution", e => e.isDefined)
+      case Some(ExtractBoolean(false)) => optional(numberFromTrimmedString).verifying("error.paye.add_car_benefit.extra_private_use_payment", _.isEmpty)
       case _ => ignored(None)
     }
 
@@ -103,10 +102,12 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
 
   private[paye] def validateEmployeeContribution(values: CarBenefitValues): Mapping[Option[Int]] =
-    values.employeeContributes.flatMap(maybeBoolean(_)) match {
-      case Some(true) => optional(numberFromTrimmedString.verifying("error.paye.employee_contribution_greater_than_5000", e => e <= 5000)
+    values.employeeContributes match {
+      case Some(ExtractBoolean(true)) => optional(numberFromTrimmedString.verifying("error.paye.employee_contribution_greater_than_5000", e => e <= 5000)
         .verifying("error.paye.employee_contribution_less_than_0", data => data > 0))
         .verifying("error.paye.add_car_benefit.missing_employee_contribution", data => data.isDefined)
+      case Some(ExtractBoolean(false)) =>
+        optional(numberFromTrimmedString).verifying("error.paye.add_car_benefit.extra_employee_contribution", _.isEmpty)
       case _ => ignored(None)
     }
 

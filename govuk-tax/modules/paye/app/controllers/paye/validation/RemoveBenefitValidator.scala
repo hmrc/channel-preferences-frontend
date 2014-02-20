@@ -53,7 +53,7 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
 
   private[paye] def validateNumberOfDaysUnavailable(values: Option[RemoveCarBenefitFormDataValues], benefitStartDate: LocalDate, taxYearInterval: Interval): Mapping[Option[Int]] = {
     values.flatMap(s => s.carUnavailableVal) match {
-    case Some(ExtractBoolean(true)) => {
+    case Some(ExtractBoolean(true)) =>
       optional(numberFromTrimmedString
         .verifying("error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0", n => n > 0)
         .verifying(Messages("error.paye.remove_car_benefit.question2.car_unavailable_too_long", currentTaxYear.toString), unavailableDays => acceptableNumberOfDays(unavailableDays, values, benefitStartDate, taxYearInterval))
